@@ -32,7 +32,6 @@ To run Quoll Writer either use the default task or the command:
 
     ant run
 
-Note: the ability to create a Windows installer is not
 
 Directories/files
 =================
