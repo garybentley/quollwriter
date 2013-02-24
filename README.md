@@ -11,7 +11,9 @@ See the website for more details: http://quollwriter.com
 License
 =======
 
-The Quoll Writer code, that is everything under the **src** directory, is licensed under an Apache 2.0 license.
+The Quoll Writer code, that is everything under the **src**, **data** directories, are licensed under an Apache 2.0 license.  An
+exception are the files under the `data/dictionaries` directory which have their own licensing.  Please see the relevant readme files
+in the sub-directories for details.
 The license is included in the repository and also can be found at: http://www.apache.org/licenses/LICENSE-2.0.html
 
 
@@ -94,8 +96,50 @@ After an upgrade `data/schema/update-scripts/create-views.xml` is always run to 
 
 The files defining the views used are held in: `data/schema/views`.
 
+
 Windows Installer
 =================
 
+The files for creating the Windows installer are not included in this repository.  
+
+For the binary release via the website, Inno Setup (http://www.jrsoftware.org/isinfo.php ) and WinRun4J (http://winrun4j.sourceforge.net/ )
+are used.
+
+
 Linux/Mac
 =========
+
+I would dearly like to create versions for Linux/Mac but it won't happen for a while, it may not happen ever I'm afraid.
+
+Supporting multiple platforms, contrary to what some people believe, is a soul destroying and tiresome task.
+
+Some of the issues ahead are:
+
+1. Look-n-feel implementations for Java on Linux are pretty poor and it's difficult to get a nice one that would be compatible with the
+existing code.  You can't just switch look-n-feel and hope for the best, especially not with the visual style Quoll Writer uses (I know
+I've tried).
+
+2. Mac has a couple of nice look-n-feels (for example Quaqua), however getting support across the various flavors of Mac is difficult.  Also the Mac platform
+is positively hostile towards tabbed interfaces.  The Mac UI guide recommends them only for configuration.  However Quoll Writer
+currently makes heavy use of tabs.  The reliance on tabs can be removed but it is quite a lot of work to do and time is against me
+at the moment.
+
+3. No menu bar.  I imagine Mac users may have a fit about this one, also certain Linux distributions (Ubuntu for example) expect
+an application to have a menu bar.  I understand this but my own opinion is that menu bars need to die off from applications.  Mobile
+apps don't use them and most modern browsers don't either.  They are an information hiding anacronism that rely on memorization for
+their functionality.  This prevent you using an application not facilitate it, don't believe me?  Why do you think Microsoft invented
+the ribbon?
+
+4. Mouse triggers.  Different platforms have different buttons that trigger different events.  This is a complete break of the Java
+"write once, run anywhere" promise and Swing does not help you out with it.  You can encapsulate yourself from it somewhat but there
+is always something you miss.  Personally I don't have time to try and sort that out across 3 platforms.
+
+5. Macs are hostile to Java.  I'm not convinced, now that Oracle are at the helm, that Java will be present on Macs for too much longer.
+The iOS/Mac ecosystems are becoming more closed down and controlled so there is little incentive for me to put effort into something
+that will probably disappear soon.
+
+6. Linux users tend to be Java averse on their desktops.  Sorry guys but I hear too much "Java is slow", "Java is crap", "Java is pants compared to X".
+I personally don't find it to be true but I try hard not to write slow software.
+
+7. Mac users expect their software to have a similar look to their other software.  Quoll Writer is very different to standard apps
+you see on a Mac and I won't be changing it to fit in with how Macs work.
