@@ -1,0 +1,514 @@
+package com.quollwriter.data;
+
+import java.util.*;
+
+import com.gentlyweb.xml.*;
+
+import com.quollwriter.*;
+
+import com.quollwriter.data.comparators.*;
+
+import org.jdom.*;
+
+
+public abstract class NamedObject extends DataObject
+{
+
+    public static final String NAME = "name";
+    public static final String LAST_MODIFIED = "lastModified";
+    public static final String DESCRIPTION = "description";
+
+    protected String   name = null;
+    protected Date     lastModified = null;
+    protected String   description = null;
+    private Set<Link>  links = new HashSet ();
+    private Set<Note> notes = new TreeSet (new ChapterItemSorter ());
+    private String     aliases = null;
+
+    public NamedObject(String objType,
+                       String name)
+    {
+
+        super (objType);
+
+        this.name = name;
+
+    }
+
+    public NamedObject(String objType)
+    {
+
+        super (objType);
+
+    }
+
+    public boolean contains (String s)
+    {
+        
+        if (s == null)
+        {
+            
+            return false;
+            
+        }
+        
+        s = s.trim ().toLowerCase ();
+        
+        if (s.length () == 0)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.name.toLowerCase ().indexOf (s) != -1)
+        {
+            
+            return true;
+            
+        }
+
+        if (this.description != null)
+        {
+
+            if (this.description.toLowerCase ().indexOf (s) != -1)
+            {
+                
+                return true;
+                
+            }
+
+        }
+        
+        if (this.aliases != null)
+        {
+        
+            if (this.aliases.toLowerCase ().indexOf (s) != -1)
+            {
+                
+                return true;
+                
+            }        
+
+        }
+        
+        return false;
+    
+    }
+
+    public Note getNoteAt (int pos)
+    {
+
+        for (Note n : this.notes)
+        {
+
+            if (n.getPosition () == pos)
+            {
+
+                return n;
+
+            }
+
+        }
+
+        return null;
+
+    }
+    
+    public Set<Note> getNotesAt (int pos)
+    {
+
+        Set<Note> notes = new TreeSet (new ChapterItemSorter ());
+
+        for (Note n : this.notes)
+        {
+
+            if (n.getPosition () == pos)
+            {
+
+                notes.add (n);
+
+            }
+
+        }
+
+        return notes;
+
+    }
+
+    public DataObject getObjectForReference (ObjectReference r)
+    {
+
+        if (r.equals (this.getObjectReference ()))
+        {
+
+            return this;
+
+        }
+
+        DataObject d = null;
+
+        for (Note n : this.notes)
+        {
+
+            d = n.getObjectForReference (r);
+
+            if (d != null)
+            {
+
+                break;
+
+            }
+
+        }
+
+        return d;
+
+    }
+
+    public abstract Set<NamedObject> getAllNamedChildObjects ();
+
+    public void addNote (Note n)
+    {
+
+        n.setObject (this);
+
+        this.notes.add (n);
+
+    }
+
+    public void removeNote (Note n)
+    {
+
+        this.notes.remove (n);
+
+    }
+
+    public Set<Note> getNotes ()
+    {
+
+        return this.notes;
+
+    }
+
+    public Set<String> getAllNames ()
+    {
+
+        Set<String> l = new HashSet ();
+
+        l.add (this.name);
+
+        l.addAll (this.getAliasesAsList ());
+
+        return l;
+
+    }
+
+    public List<String> getAliasesAsList ()
+    {
+
+        List l = new ArrayList<String> ();
+
+        if (this.aliases != null)
+        {
+
+            StringTokenizer t = new StringTokenizer (this.aliases,
+                                                     ",;" + String.valueOf ('\n'));
+
+            while (t.hasMoreTokens ())
+            {
+
+                l.add (t.nextToken ().trim ());
+
+            }
+
+        }
+
+        return l;
+
+    }
+
+    public String getAliases ()
+    {
+
+        return this.aliases;
+
+    }
+
+    public void setAliases (String a)
+    {
+
+        this.aliases = a;
+
+    }
+
+    public String toString ()
+    {
+
+        return this.getObjectType () + "(name: " + this.name + ", id: " + this.getKey () + ")";
+
+    }
+
+    public void clearLinks ()
+    {
+
+        this.links.clear ();
+
+    }
+
+    public void removeLink (Link l)
+    {
+
+        this.links.remove (l);
+
+    }
+
+    public void addLink (Link l)
+    {
+
+        this.links.add (l);
+
+    }
+
+    public Set<NamedObject> getOtherObjectsInLinks ()
+    {
+
+        Set<NamedObject> s = new TreeSet (new NamedObjectSorter ());
+
+        Iterator<Link> it = this.links.iterator ();
+
+        while (it.hasNext ())
+        {
+
+            Link l = it.next ();
+
+            s.add (l.getOtherObject (this));
+
+        }
+
+        return s;
+
+    }
+
+    public void addLinkTo (NamedObject o)
+    {
+
+        if (this == o)
+        {
+
+            return;
+
+        }
+
+        this.addLink (new Link (this,
+                                o));
+
+    }
+
+    public Set<Link> getLinks ()
+    {
+
+        return this.links;
+
+    }
+
+    public void removeLinkFor (NamedObject n)
+    {
+
+        Iterator<Link> iter = this.links.iterator ();
+
+        while (iter.hasNext ())
+        {
+
+            Link l = iter.next ();
+
+            if (l.getObject1 () == n)
+            {
+
+                iter.remove ();
+
+                return;
+
+            }
+
+        }
+
+    }
+
+    public void setLinks (Set<Link> l)
+    {
+
+        this.links.addAll (l);
+
+    }
+
+    public Date getLastModified ()
+    {
+
+        return this.lastModified;
+
+    }
+
+    public String getDescription ()
+    {
+
+        return this.description;
+
+    }
+
+    public void setDescription (String d)
+    {
+
+        String oldDesc = this.description;
+
+        this.description = d;
+
+        this.setLastModified (new Date ());
+
+        this.firePropertyChangedEvent (NamedObject.DESCRIPTION,
+                                       oldDesc,
+                                       this.description);
+
+    }
+
+    public void setName (String n)
+    {
+
+        String oldName = this.name;
+
+        this.name = n;
+
+        this.setLastModified (new Date ());
+
+        this.firePropertyChangedEvent (NamedObject.NAME,
+                                       oldName,
+                                       this.name);
+
+    }
+
+    public String getName ()
+    {
+
+        return this.name;
+
+    }
+
+    public void setLastModified (Date d)
+    {
+
+        Date oldDate = this.lastModified;
+
+        this.lastModified = d;
+
+        if (oldDate == null)
+        {
+
+            oldDate = new Date ();
+            oldDate.setTime (0);
+
+        }
+
+        this.firePropertyChangedEvent (NamedObject.LAST_MODIFIED,
+                                       oldDate,
+                                       this.lastModified);
+
+    }
+
+    public abstract void getChanges (NamedObject old,
+                                     Element     root);
+
+    protected void addFieldChangeElement (Element changesEl,
+                                          String  fieldName,
+                                          String  oldValue,
+                                          String  newValue)
+    {
+
+        if (Environment.areDifferent (oldValue,
+                                      newValue))
+        {
+
+            Element fieldEl = new Element ("field");
+
+            changesEl.addContent (fieldEl);
+
+            fieldEl.setAttribute ("name",
+                                  fieldName);
+
+            Element oldEl = new Element ("old");
+            Element newEl = new Element ("new");
+
+            oldEl.addContent ((oldValue != null) ? (oldValue + "") : (null + ""));
+            newEl.addContent ((newValue != null) ? (newValue + "") : (null + ""));
+
+            fieldEl.addContent (oldEl);
+            fieldEl.addContent (newEl);
+
+        }
+
+    }
+
+    protected void addFieldChangeElement (Element changesEl,
+                                          String  fieldName,
+                                          Date    oldValue,
+                                          Date    newValue)
+    {
+
+        if (Environment.areDifferent (oldValue,
+                                      newValue))
+        {
+
+            Element fieldEl = new Element ("field");
+
+            changesEl.addContent (fieldEl);
+
+            fieldEl.setAttribute ("name",
+                                  fieldName);
+
+            Element oldEl = new Element ("old");
+            Element newEl = new Element ("new");
+
+            oldEl.addContent ((oldValue != null) ? (oldValue.getTime () + "") : (null + ""));
+            newEl.addContent ((newValue != null) ? (newValue.getTime () + "") : (null + ""));
+
+            fieldEl.addContent (oldEl);
+            fieldEl.addContent (newEl);
+
+        }
+
+    }
+
+    public Element getChanges (NamedObject old)
+    {
+
+        Element root = new Element ("changes");
+
+        this.addFieldChangeElement (root,
+                                    "name",
+                                    ((old != null) ? old.getName () : null),
+                                    this.name);
+
+        this.addFieldChangeElement (root,
+                                    "aliases",
+                                    ((old != null) ? old.getAliases () : null),
+                                    this.aliases);
+
+        this.addFieldChangeElement (root,
+                                    "description",
+                                    ((old != null) ? old.getDescription () : null),
+                                    this.description);
+
+        this.getChanges (old,
+                         root);
+
+        if (root.getContent ().size () > 0)
+        {
+
+            return root;
+
+        }
+
+        return null;
+
+    }
+
+}

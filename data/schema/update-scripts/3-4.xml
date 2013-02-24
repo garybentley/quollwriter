@@ -1,0 +1,9 @@
+<update-script from="3" to="4">
+  <item>
+    <log>Add the markup column to chapter</log>
+    <sql>
+ALTER TABLE chapter ADD markup CLOB;
+    </sql>
+  </item>
+  
+</update-script>

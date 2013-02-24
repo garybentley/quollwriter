@@ -1,0 +1,14 @@
+<prompt-websites>
+  <site count="100+"
+        name="Writer's Digest">
+    <url>http://www.writersdigest.com/WritingPrompts/</url>
+  </site>
+  <site count="about 350"
+        name="creative writing prompts">
+    <url>http://www.creativewritingprompts.com/</url>
+  </site>
+  <site count="hundreds"
+        name="Creativity Portal">
+    <url>http://www.creativity-portal.com/prompts/</url>
+  </site>
+</prompt-websites>

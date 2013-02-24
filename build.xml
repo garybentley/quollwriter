@@ -1,0 +1,510 @@
+<!--
+  The quollwriter build file.
+-->
+
+<project default="run" basedir=".">
+
+  <property name="projectName" value="QuollWriter" />
+  <property name="currVersion" value="2.0.0" />
+  <property name="thesaurusVersion" value="1.0" />
+  <property name="buildDir" value="./build" />
+  <property name="imgsDir" value="./imgs" />
+  <property name="srcDir" value="./src" />
+  <property name="binDir" value="./bin" />
+  <property name="jarName" value="${binDir}/${projectName}-${currVersion}.jar" />
+  <property name="toolsJarName" value="${binDir}/${projectName}-tools-${currVersion}.jar" />
+  <property name="imagesJarName" value="${binDir}/${projectName}-images-${currVersion}.jar" />
+  <property name="dataJarName" value="${binDir}/${projectName}-data-${currVersion}.jar" />
+  <property name="promptsJarName" value="${binDir}/${projectName}-prompts-${currVersion}.jar" />  
+  <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries-${currVersion}.jar" />
+  <property name="deleteJarInstallFilesJar" value="${binDir}/${projectName}-internal-tools.jar" />
+  <property name="docsDir" value="./docs" />
+  <property name="year" value="2013"/>
+  <property name="packages" value="com.quollwriter.*"/>
+
+  <target name="init">
+
+    <mkdir dir="${buildDir}" />
+    <mkdir dir="${srcDir}" />
+    <mkdir dir="${binDir}" />
+    <tstamp>
+      <format property="TODAY" pattern="dd/MMM/yy" />
+    </tstamp>
+
+    <concat destfile="./data/version.txt">${currVersion}</concat>
+
+  </target>
+
+  <target name="cleanDocs">
+  </target>
+
+  <target name="cleanBuild">
+    <delete dir="${buildDir}" />
+  </target>
+<!--
+  <target name="format">
+    <jalopy loglevel="INFO" log="format-log.log">
+      <fileset dir="${srcDir}">
+        <include name="**/*.java" />
+      </fileset>
+    </jalopy>
+    
+  </target>
+-->
+  <target name="run" depends="init, createJar, createPromptsJar, createDataJar, createDictionariesJar, createImagesJar">
+    <java classname="com.quollwriter.Startup" 
+          maxmemory="512m"
+          fork="yes">
+        <arg value="_debugMode" />        
+        <jvmarg value="-Xdebug" />
+        <jvmarg value="-Xnoagent" />
+        <jvmarg value="-Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jdbconn" />
+        <!--
+        <arg value="-Dlog4j.configuration=log4j.xml" />
+        -->
+      <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}:${dictionariesJarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </java>
+  </target>
+
+  <target name="runOnly" depends="init">
+    <java classname="com.quollwriter.Startup" 
+          maxmemory="512m"
+          fork="yes">
+        <arg value="-Dlog4j.configuration=log4j.xml" />
+        <arg value="_debugMode" />
+      <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}:${dictionariesJarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+        <fileset dir="./installer"
+                 includes="log4j.xml" />    
+      </classpath>
+    </java>
+  </target>
+
+  <target name="createImagesJar">
+    <property name="title" value="QuollWriter Images" />
+
+    <jar destfile="${imagesJarName}">
+      <fileset dir="."
+               includes="imgs/*.png" />
+      <fileset dir="."
+               includes="imgs/*.gif" />
+      <fileset dir="."
+               includes="imgs/bgs/thumbs/*.jpg" />
+      <fileset dir="."
+               includes="imgs/bgs/thumbs/*.gif" />
+      <fileset dir="."
+               includes="imgs/bgs/thumbs/*.png" />
+      <fileset dir="."
+               includes="imgs/bgs/*.jpg" />
+      <fileset dir="."
+               includes="imgs/bgs/*.gif" />
+      <fileset dir="."
+               includes="imgs/bgs/*.png" />
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+          <attribute name="Description" value="Contains the images used within ${projectName}" />
+        </section>
+      </manifest>
+    </jar>
+  
+  </target>
+
+  <target name="createDataJar">
+    <property name="title" value="QuollWriter Data" />
+
+    <jar destfile="${dataJarName}">
+      <fileset dir=".">
+        <include name="data/properties.xml" />
+        <include name="data/default-project-properties.xml" />
+        <include name="data/version.txt" />
+        <include name="data/schema-version.txt" />
+        <include name="data/log4j.properties" />
+        <include name="data/doc-import-init.doc" />
+        <include name="data/docx-import-init.docx" />
+        <include name="data/prompt-websites.xml" />
+        <include name="data/problem-finder-rules.xml" />
+        <include name="data/schema/**" />
+        <include name="data/export/**" />
+        <include name="data/prompts/**.txt" />
+        <include name="data/word-syllable-counts.txt" />
+        <include name="data/typewriter-key.wav" />
+        <include name="data/achievement.wav" />
+        <include name="data/achievements.xml" />
+        <include name="data/tips.xml" />
+        <include name="data/whats-new.xml" />
+      </fileset>
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+          <attribute name="Description" value="Contains the data files (properties etc) used within ${projectName}" />
+        </section>
+      </manifest>
+    </jar>
+  
+  </target>
+
+  <target name="createPromptsJar">
+    <property name="title" value="QuollWriter Prompts" />
+
+    <jar destfile="${promptsJarName}">
+      <fileset dir=".">
+        <include name="data/prompts/*.txt" />
+      </fileset>
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+          <attribute name="Description" value="Contains the prompt files used within ${projectName}" />
+        </section>
+      </manifest>
+    </jar>
+  
+  </target>
+
+  <target name="createDictionariesJar">
+    <property name="title" value="QuollWriter Dictionaries" />
+
+    <jar destfile="${dictionariesJarName}">
+      <fileset dir="./data">
+        <include name="dictionaries/en/english.0" />
+        <include name="dictionaries/en/english.1" />
+        <include name="dictionaries/en/english.2" />
+        <include name="dictionaries/en/english.3" />
+        <include name="dictionaries/en/american.0" />
+        <include name="dictionaries/en/american.1" />
+        <include name="dictionaries/en/american.2" />
+        <include name="dictionaries/en/british.0" />
+        <include name="dictionaries/en/british.1" />
+        <include name="dictionaries/en/british.2" />
+        <include name="dictionaries/thesaurus-${thesaurusVersion}.txt" />
+        <include name="dictionaries/thesaurus-index-${thesaurusVersion}.txt" />
+      </fileset>
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+          <attribute name="Description" value="Contains the dictionary files used within ${projectName}" />
+        </section>
+      </manifest>
+    </jar>
+  
+  </target>
+
+  <target name="createAmericanDictionariesJar">
+    <property name="title" value="QuollWriter American Dictionaries" />
+
+    <jar destfile="american-dictionaries.jar">
+      <fileset dir="./data">
+        <include name="dictionaries/en/american.0" />
+        <include name="dictionaries/en/american.1" />
+        <include name="dictionaries/en/american.2" />
+      </fileset>
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+          <attribute name="Description" value="Contains the dictionary files used within ${projectName}" />
+        </section>
+      </manifest>
+    </jar>
+  
+  </target>
+
+  <target name="createJar" depends="fullCompile">
+    <property name="title" value="QuollWriter" />
+    <property name="package" value="com/quollwriter" />
+    
+    <jar destfile="${jarName}" >
+      <fileset dir="${buildDir}"
+               excludes="com/quollwriter/tools/*"
+               includes="**/*.class" />
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+        </section>
+      </manifest>
+    </jar>
+
+  </target>
+
+  <target name="createToolsJar" depends="fullCompile">
+    <property name="title" value="QuollWriter Tools" />
+    <property name="package" value="com/quollwriter/tools" />
+    
+    <jar destfile="${toolsJarName}" >
+      <fileset dir="${buildDir}"
+               includes="com/quollwriter/tools/*.class" />
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+        </section>
+      </manifest>
+    </jar>
+
+  </target>
+
+  <target name="createDeleteJarInstallFilesJar" depends="init">
+    <property name="title" value="QuollWriter delete post upgrade install jar files" />
+
+    <javac srcdir="${srcDir}"
+           destdir="${buildDir}"
+           debug="on"
+           deprecation="on"
+           nowarn="on"
+           target="1.6"
+           includes="com/quollwriter/tools/DeleteInstallJars.java"
+           excludes="**/svn/**">
+    </javac>
+    
+    <jar destfile="${deleteJarInstallFilesJar}" >
+      <fileset dir="${buildDir}"
+               includes="com/quollwriter/tools/DeleteInstallJars.class" />
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+        <attribute name="Main-Class" value="com.quollwriter.tools.DeleteInstallJars" />
+      </manifest>
+    </jar>
+
+  </target>
+  
+  <target name="fullCompile" depends="cleanBuild, init">
+    <antcall target="compile" />
+  </target>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${srcDir}"
+           destdir="${buildDir}"
+           debug="on"
+           deprecation="on"
+           nowarn="on"           
+           excludes="**/svn/**">
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </javac>
+           
+  </target>
+
+  <!--
+    A target for creating the javadocs for the code.
+  -->
+  <target name="javadoc" depends="init,fullCompile">
+
+    <delete dir="${docsDir}" />
+    <mkdir dir="${docsDir}" />
+
+    <javadoc destdir="${docsDir}"
+             sourcepath="${srcDir}"
+             packagenames="${packages}"
+             failonerror="true"
+             windowtitle="${projectName} ${currVersion}"
+             use="true"
+             doctitle="${projectName} ${currVersion}"
+             private="false"
+             stylesheetfile="data/javadocsStyle.css"
+             noindex="false"
+             splitindex="true"
+             bottom="&lt;center>&amp;#160;&amp;#160;&lt;/a>Copyright &amp;#169; ${year} Gary Bentley. All Rights Reserved.&lt;/dd>&lt;/center>">
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+
+       <link href="http://java.sun.com/j2se/1.4.2/docs/api" />
+<!--
+       <link href="http://jasperreports.sourceforge.net/api/index.html" />
+
+-->
+    </javadoc>
+  </target>
+
+  <target name="generalReplace">
+    <replace dir="src"
+             token="x"
+             value="y"
+             summary="yes" />
+  </target>
+
+  <target name="createThesaurusFiles">
+    <java classname="com.quollwriter.tools.CreateThesaurusFiles" 
+          maxmemory="256m"
+          fork="yes">
+      <arg value="./data/dictionaries/words-parts-of-speech.txt" />
+      <arg value="./data/dictionaries/thesaurus.txt" />
+      <arg value="./data/dictionaries/thesaurus-${thesaurusVersion}.txt" />
+      <arg value="./data/dictionaries/thesaurus-index-${thesaurusVersion}.txt" />
+      <classpath path="${jarName}:." />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+      
+    </java>
+  </target>
+
+  <target name="compileTest" depends="init">
+    <javac srcdir="."
+           destdir="."
+           debug="on"
+           deprecation="on"
+           nowarn="on"
+           includes="Test.java"
+           excludes="**/cvs/**,**/gui/**">
+      <classpath path="${jarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>      
+    </javac>
+           
+  </target>
+
+  <target name="execTest">
+    <java classname="Test" 
+          maxmemory="128m"
+          fork="yes">
+      <classpath path="${jarName}:." />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>      
+    </java>
+  </target>
+
+  <target name="createTestJar" depends="compileTest">
+    <property name="title" value="QuollWriter" />
+    
+    <jar destfile="test.jar" >
+      <fileset dir="."
+               includes="*.class" />
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+        <attribute name="Main-Class" value="Test" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+        </section>
+      </manifest>
+    </jar>
+
+  </target>
+
+  <target name="createUpgradeFile" depends="init, createDataJar, createPromptsJar, createImagesJar, createJar, createDeleteJarInstallFilesJar">    
+    <!--
+      Legacy files and new ones that need to be copied to the current dir then sent to the zip.
+    -->
+    <copy file="3rd-party-jars/jh-labs-filters.jar"
+          overwrite="true"
+          tofile="jh-labs-filters.jar" />
+    <copy file="3rd-party-jars/core-renderer.jar"
+          overwrite="true"
+          tofile="core-renderer.jar" />
+    <copy file="installer/to-delete.txt"
+          overwrite="true"
+          tofile="to-delete.txt" />
+    
+    <zip destfile="${currVersion}.zip"
+         compress="false"
+         basedir="."
+         filesonly="true"
+         includes="QuollWriter-internal-tools-${currVersion}.jar,QuollWriter-internal-tools.jar,QuollWriter-data-${currVersion}.jar,QuollWriter-images-${currVersion}.jar,QuollWriter-${currVersion}.jar,jh-labs-filters.jar,american-dictionaries.jar,core-renderer.jar,to-delete.txt" />
+    
+    <delete file="jh-labs-filters.jar" />
+    <delete file="core-renderer.jar" />
+    <delete file="to-delete.txt" />
+    
+  </target>
+
+  <target name="createWindowsExe" depends="init, createDataJar, createDictionariesJar, createPromptsJar, createImagesJar, createJar, createDeleteJarInstallFilesJar">
+    
+    <!--
+      Create the installer.
+    -->
+    <exec executable="C:\Program Files (x86)\Inno Setup 5\iscc.exe">
+      <arg value="installer/quollwriter.iss" />
+    </exec>
+
+  </target>
+
+  <target name="createPromptFiles" depends="init">
+    <java classname="com.quollwriter.tools.CreatePromptFiles" 
+          maxmemory="512m"
+          fork="yes">
+        <arg value="./prompts.txt" />
+        <arg value="./data/prompts/ids.txt" />
+        <arg value="./data/prompts/" />
+      <classpath path="${jarName};${toolsJarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </java>
+  </target>
+
+  <target name="getPromptAuthors" depends="init">
+    <java classname="com.quollwriter.tools.GetPromptAuthors" 
+          maxmemory="512m"
+          fork="yes">
+        <arg value="./data/prompts/" />
+      <classpath path="${jarName};${toolsJarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </java>
+  </target>
+
+</project>

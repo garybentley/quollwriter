@@ -1,0 +1,9 @@
+<update-script from="4" to="5">
+  <item>
+    <log>Add the end position for a note.</log>
+    <sql>
+ALTER TABLE note ADD end_position INTEGER;
+    </sql>
+  </item>
+  
+</update-script>

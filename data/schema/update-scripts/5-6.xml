@@ -1,0 +1,35 @@
+<update-script from="5" to="6">
+  <item>
+    <log>Create the ideatype table.</log>
+    <sql>
+CREATE TABLE ideatype
+(
+    dbkey BIGINT NOT NULL,
+    sortby VARCHAR(255),
+    icontype VARCHAR(255),    
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the idea table.</log>
+    <sql>
+CREATE TABLE idea
+(
+    dbkey BIGINT NOT NULL,
+    ideatypedbkey BIGINT NOT NULL,
+    rating INT,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for idea/ideatype.</log>
+    <sql>
+ALTER TABLE idea ADD CONSTRAINT idea_ideatype_fk FOREIGN KEY(ideatypedbkey) REFERENCES ideatype(dbkey)
+    </sql>
+  </item>
+  
+</update-script>

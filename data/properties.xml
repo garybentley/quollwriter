@@ -1,0 +1,229 @@
+<properties>    
+  <property id="defaultChapterName" type="string">
+    <description>The name of the default chapter (first chapter when a project is created).</description>
+    <value>Chapter 1</value>
+  </property>
+    
+  <property id="compactMenus" type="boolean">
+    <description>Whether compact menus should be used.</description>
+    <value>false</value>
+  </property>
+  
+  <property id="openLastEditedProject" type="boolean">
+    <description>Whether the last edited project should be opened when quoll writer starts.</description>
+    <value>true</value>
+  </property>
+  
+  <property id="imgDir" type="string">
+    <description>The image directory.</description>
+    <value>/imgs/</value>
+  </property>
+        
+  <property id="dateFormat" type="string">
+    <description>The format for date parsing/formatting.</description>
+    <value>dd MMM yyyy</value>
+  </property>
+    
+  <property id="editorFontSize" type="integer">
+    <description>The default font size for the editor.</description>
+    <value>14</value>
+  </property>
+
+  <property id="editorFont" type="string">
+    <description>The default font for the editor.</description>
+    <value>Georgia</value>
+  </property>
+
+  <property id="editorAlignment" type="string">
+    <description>The default text alignment for the editor.</description>
+    <value>left</value>
+  </property>
+
+  <property id="editorLineSpacing" type="number">
+    <description>The default text line spacing for the editor.</description>
+    <value>1.3</value>
+  </property>
+
+  <property id="textProp" type="number">
+    <description>The default text line spacing for the editor.</description>
+    <value>11</value>
+  </property>  
+
+  <property id="noteTypes" type="string">
+    <description>The default note types.</description>
+    <value>Information|To Do</value>
+  </property>  
+
+  <property id="synonymProviderClass" type="string">
+    <description>The synonym provider.</description>
+    <value>com.quollwriter.synonyms.providers.BuiltInSynonymProvider</value>
+  </property>
+
+  <property id="thesaurusFileName" type="string">
+    <description>The name of the thesaurus file.</description>
+    <value>thesaurus-1.0.txt</value>
+  </property>
+
+  <property id="thesaurusIndexFileName" type="string">
+    <description>The name of the thesaurus index file.</description>
+    <value>thesaurus-index-1.0.txt</value>
+  </property>
+
+  <property id="dbUsername" type="string">
+    <description>The db username.</description>
+    <value>QuollWriter</value>
+  </property>
+  
+  <property id="dbPassword" type="string">
+    <description>The db password.</description>
+    <value>QuollWriter-password</value>
+  </property>
+
+  <property id="dictionaryFiles" type="string">
+    <description>A list of files, separated by commas that indicate the dictionary files that should be loaded.</description>
+    <value>en/english.0,en/english.1,en/english.2,en/english.3,en/british.0,en/british.1,en/british.2</value>
+  </property>
+
+  <property id="spellCheckLanugage" type="string">
+    <description>The spell check language.</description>
+    <value>US English</value>
+  </property>
+
+  <property id="EnglishDictionaryFiles" type="string">
+    <description>The list of dictionary files for english.</description>
+    <value>en/english.0,en/english.1,en/english.2,en/english.3</value>
+  </property>
+
+  <property id="US EnglishDictionaryFiles" type="string">
+    <description>The list of dictionary files for english.</description>
+    <value><property id="EnglishDictionaryFiles" />,en/american.0,en/american.1,en/american.2</value>
+  </property>
+
+  <property id="British EnglishDictionaryFiles" type="string">
+    <description>The list of dictionary files for english.</description>
+    <value><property id="EnglishDictionaryFiles" />,en/british.0,en/british.1,en/british.2</value>
+  </property>
+
+  <property id="quollWriterDebugWebsite" type="string">
+    <description>The debug website for quoll writer.</description>
+    <value>http://localhost:8080</value>
+  </property>
+
+  <property id="quollWriterWebsite" type="string">
+    <description>The website for quoll writer.</description>
+    <value>http://quollwriter.com</value>
+  </property>
+
+  <property id="quollWriterReleaseNotesUrl" type="string">
+    <description>The release notes url for quoll writer.</description>
+    <value><property id="quollWriterWebsite" />/user-guide/version-changes/[[VERSION]].html</value>
+  </property>
+
+  <property id="quollWriterDevPlanUrl" type="string">
+    <description>The development plan url for quoll writer.</description>
+    <value><property id="quollWriterWebsite" />/user-guide/version-changes/development-plan.html</value>
+  </property>
+
+  <property id="quollWriterAcknowledgmentsURL" type="string">
+    <description>The acknowledgments url.</description>
+    <value><property id="quollWriterWebsite" />/acknowledgments.html</value>
+  </property>
+
+  <property id="reportBugMessage" type="string">
+    <description>The message displayed to the user about bug/problem reporting.</description>
+    <value>Thanks for reporting any bugs/problems you find!
+    
+Until the website is up and running I'm afraid I have to do this via email,
+your email client will be displayed (or should be) once you click "OK".  If you
+could fill in the blanks that would be appreciated.  In general the more
+information I have the easier the problem will be to find/fix.
+    
+Could you also attach the log files:
+   [[GENERAL_LOG_FILE]]
+   
+and:
+   [[ERROR_LOG_FILE]]
+  
+to the email if you struck an error or something that you think is a bug.
+
+Please check the details within the email before sending :)
+    
+This message will only be shown once during your current session using Quoll Writer.</value>
+  </property>
+
+  <property id="contactSupportMailtoURI" type="string">
+    <description>The base uri to use for contacting support.</description>
+    <value><![CDATA[mailto:support@quollwriter.com?subject=Quoll%20Writer%20Support%20Request&body=Version:%20[[VERSION]]%0D%0ADescription:%20]]></value>
+  </property>
+
+  <property id="bugReportMailtoURI" type="string">
+    <description>The base uri to use for bug reporting.</description>
+    <value><![CDATA[mailto:support@quollwriter.com?subject=Quoll%20Writer%20Bug/Problem&body=Version:%20[[VERSION]]%0D%0AJava%20Details:%20[[JAVA_VERSION]]%0D%0AOS%20Details:%20[[OS_NAME]],%20[[OS_ARCH]],%20[[OS_VERSION]]%0D%0A%0D%0A1.%20Brief%20Description%0D%0A%0D%0A2.%20Steps%20to%20Reproduce%0D%0A%0D%0A3.%20What%20I%20expected%20to%20happen%0D%0A]]></value>
+  </property>
+
+  <property id="doAutoUpdateCheck" type="boolean">
+    <description>Whether we should do auto update checking.</description>
+    <value>true</value>
+  </property>
+
+  <property id="colorSwatches" type="string">
+    <description>The color swatches we display for color selection.</description>
+    <value>#4c4c4c,#2956AD,#0DAB43,#9f7867,#31655E,#fdb443,#a18bf9,#1d5375,#84a328,#7292DA,#f1d956,#99000d,#d3c199,#9eded9</value>
+  </property>
+
+  <property id="toolbarLocation" type="string">
+    <description>The location of the toolbar, can be either "top" or "bottom".</description>
+    <value>bottom</value>
+  </property>
+
+  <property id="sidebarLocation" type="string">
+    <description>The location of the sidebar, can be either "left" or "right".</description>
+    <value>left</value>
+  </property>  
+
+  <property id="tabsLocation" type="string">
+    <description>The location of the tabs, can be either "top" or "bottom".</description>
+    <value>bottom</value>
+  </property>  
+  
+  <property id="showTips" type="boolean">
+    <description>Whether tips should be shown when Quoll Writer starts.</description>
+    <value>true</value>
+  </property>
+
+  <property id="defaultIdeaBoardBackgroundImage" type="string">
+    <description>The default idea board background image.</description>
+    <value>paper-6.jpg</value>
+  </property>
+
+  <property id="supportUrlBase" type="string">
+    <description>The base url used for support operations, such as sending messages and getting the latest version.</description>
+    <value>https://www.kattare.com/secure/quollwriter.com/</value>
+  </property>
+
+  <property id="debugSupportUrlBase" type="string">
+    <description>The base url used for debug support operations, such as sending messages and getting the latest version.</description>
+    <value>http://localhost:8080/</value>
+  </property>
+  
+  <property id="sendMessageToSupportPage" type="string">
+    <description>The page used for sending a message to support.</description>
+    <value>send-message-to-support.html</value>
+  </property>
+
+  <property id="getLatestVersionPage" type="string">
+    <description>The page for getting the latest version.</description>
+    <value>get-latest-version.html</value>
+  </property>  
+  
+  <property id="getUpgradeFilePage" type="string">
+    <description>The page for getting the latest upgrade file.</description>
+    <value>get-upgrade-file.html</value>
+  </property>  
+
+  <property id="quollWriterDownloadsUrl" type="string">
+    <description>The url for downloading Quoll Writer.</description>
+    <value>http://quollwriter.com/downloads.html</value>
+  </property>
+  
+</properties>

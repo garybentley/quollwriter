@@ -1,0 +1,9 @@
+<update-script from="6" to="7">
+  <item>
+    <log>Add the plan for a chapter.</log>
+    <sql>
+ALTER TABLE chapter ADD plan CLOB
+    </sql>
+  </item>
+  
+</update-script>

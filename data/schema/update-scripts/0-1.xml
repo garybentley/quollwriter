@@ -1,0 +1,472 @@
+<update-script from="0" to="1">
+  <item>
+    <log>Create the key_sequence sequence.</log>
+    <sql>
+CREATE SEQUENCE key_sequence START WITH 1 INCREMENT BY 1    
+    </sql>
+  </item>
+  <item>
+    <log>Create dataobject table.</log>
+    <sql>
+CREATE TABLE dataobject
+(
+  dbkey BIGINT DEFAULT (NEXT VALUE FOR key_sequence) NOT NULL,
+  objecttype VARCHAR(255),
+  datecreated TIMESTAMP,
+  properties CLOB,
+  PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create namedobject table.</log>
+    <sql>
+CREATE TABLE namedobject
+(
+    dbkey BIGINT NOT NULL,
+    name CLOB,
+    description CLOB,
+    lastmodified TIMESTAMP,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create project table.</log>
+    <sql>
+CREATE TABLE project
+(
+    dbkey BIGINT NOT NULL,
+    lastedited TIMESTAMP,
+    schema_version SMALLINT DEFAULT 1,
+    type VARCHAR(100) DEFAULT 'normal' NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create book table.</log>
+    <sql>
+CREATE TABLE book
+(
+    dbkey BIGINT NOT NULL,
+    projectdbkey BIGINT NOT NULL,
+    index INTEGER,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create chapter table.</log>
+    <sql>
+CREATE TABLE chapter
+(
+    dbkey BIGINT NOT NULL,
+    bookdbkey BIGINT NOT NULL,
+    text CLOB,
+    index INTEGER,
+    goals CLOB,
+    plan CLOB,
+    markup CLOB,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the warmup table.</log>
+    <sql>
+CREATE TABLE warmup
+(
+    dbkey BIGINT NOT NULL,
+    chapterdbkey BIGINT NOT NULL,
+    promptid CHAR(50) NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create character table.</log>
+    <sql>
+CREATE TABLE character
+(
+    dbkey BIGINT NOT NULL,
+    projectdbkey BIGINT NOT NULL,
+    aliases CLOB,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create location table.</log>
+    <sql>
+CREATE TABLE location
+(
+    dbkey BIGINT NOT NULL,
+    projectdbkey BIGINT NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create note table.</log>
+    <sql>
+CREATE TABLE note
+(
+    dbkey BIGINT NOT NULL,
+    due TIMESTAMP,
+    type VARCHAR(255),
+    position INTEGER,
+    end_position INTEGER,
+    objectdbkey BIGINT NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create outlineitem table.</log>
+    <sql>
+CREATE TABLE outlineitem
+(
+    dbkey BIGINT NOT NULL,
+    position INTEGER,
+    chapterdbkey BIGINT NOT NULL,
+    scenedbkey BIGINT,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create scene table.</log>
+    <sql>
+CREATE TABLE scene
+(
+    dbkey BIGINT NOT NULL,
+    position INTEGER,
+    chapterdbkey BIGINT NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create qobject table.</log>
+    <sql>
+CREATE TABLE qobject
+(
+    dbkey BIGINT NOT NULL,
+    type VARCHAR(255),
+    projectdbkey BIGINT NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create researchitem table.</log>
+    <sql>
+CREATE TABLE researchitem
+(
+    dbkey BIGINT NOT NULL,
+    url CLOB,
+    projectdbkey BIGINT NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create link table.</log>
+    <sql>
+CREATE TABLE link
+(
+    dbkey BIGINT NOT NULL,
+    object1dbkey BIGINT,
+    object1objtype VARCHAR(255),
+    object2dbkey BIGINT,
+    object2objtype VARCHAR(255)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the wordcount table.</log>
+    <sql>
+CREATE TABLE wordcount
+(
+    projectdbkey BIGINT NOT NULL,
+    chapterdbkey BIGINT NOT NULL,
+    start TIMESTAMP NOT NULL,
+    end TIMESTAMP NOT NULL,
+    count INT NOT NULL
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the actionlog table.</log>
+    <sql>
+CREATE TABLE actionlog
+(
+    onobjectdbkey BIGINT,
+    when TIMESTAMP NOT NULL,
+    message CLOB,
+    changes BLOB,
+    digest CLOB
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the problemfinderignore table.</log>
+    <sql>
+CREATE TABLE problemfinderignore
+(
+    chapterdbkey BIGINT NOT NULL,
+    ruleid VARCHAR(1000) NOT NULL,
+    startposition BIGINT NOT NULL,
+    wordposition INT NOT NULL
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the ideatype table.</log>
+    <sql>
+CREATE TABLE ideatype
+(
+    dbkey BIGINT NOT NULL,
+    sortby VARCHAR(255),
+    icontype VARCHAR(255),
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the idea table.</log>
+    <sql>
+CREATE TABLE idea
+(
+    dbkey BIGINT NOT NULL,
+    ideatypedbkey BIGINT NOT NULL,
+    rating INT,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for idea/ideatype.</log>
+    <sql>
+ALTER TABLE idea ADD CONSTRAINT idea_ideatype_fk FOREIGN KEY(ideatypedbkey) REFERENCES ideatype(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for problemfinderignore/chapter.</log>
+    <sql>
+ALTER TABLE problemfinderignore ADD CONSTRAINT problemfinderignore_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for actionlog/namedobject.</log>
+    <sql>
+ALTER TABLE actionlog ADD CONSTRAINT actionlog_namedobject_fk FOREIGN KEY(onobjectdbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for wordcount/project.</log>
+    <sql>
+ALTER TABLE wordcount ADD CONSTRAINT wordcount_project_fk FOREIGN KEY(projectdbkey) REFERENCES project(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for wordcount/chapter.</log>
+    <sql>
+ALTER TABLE wordcount ADD CONSTRAINT wordcount_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for book/project.</log>
+    <sql>
+ALTER TABLE book ADD CONSTRAINT book_project_fk FOREIGN KEY(projectdbkey) REFERENCES project(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for chapter/book.</log>
+    <sql>
+ALTER TABLE chapter ADD CONSTRAINT chapter_book_fk FOREIGN KEY(bookdbkey) REFERENCES book(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for outlineitem/chapter.</log>
+    <sql>
+ALTER TABLE outlineitem ADD CONSTRAINT outlineitem_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for outlineitem/scene.</log>
+    <sql>
+ALTER TABLE outlineitem ADD CONSTRAINT outlineitem_scene_fk FOREIGN KEY(scenedbkey) REFERENCES scene(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for scene/chapter.</log>
+    <sql>
+ALTER TABLE scene ADD CONSTRAINT scene_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for character/project.</log>
+    <sql>
+ALTER TABLE character ADD CONSTRAINT character_project_fk FOREIGN KEY(projectdbkey) REFERENCES project(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for namedobject/dataobject.</log>
+    <sql>
+ALTER TABLE namedobject ADD CONSTRAINT namedobject_dataobject_fk FOREIGN KEY(dbkey) REFERENCES dataobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for location/project.</log>
+    <sql>
+ALTER TABLE location ADD CONSTRAINT location_project_fk FOREIGN KEY(projectdbkey) REFERENCES project(dbkey)
+    </sql>
+  </item>
+	
+  <item>
+    <log>Create foreign key constraint for note(objectdbkey)/namedobject.</log>
+    <sql>
+ALTER TABLE note ADD CONSTRAINT note_objdbkey_namedobject_fk FOREIGN KEY(objectdbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for qobject/project.</log>
+    <sql>
+ALTER TABLE qobject ADD CONSTRAINT qobject_project_fk FOREIGN KEY(projectdbkey) REFERENCES project(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for researchitem/project.</log>
+    <sql>
+ALTER TABLE researchitem ADD CONSTRAINT researchitem_project_fk FOREIGN KEY(projectdbkey) REFERENCES project(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for book/namedobject.</log>
+    <sql>
+ALTER TABLE book ADD CONSTRAINT book_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for chapter/namedobject.</log>
+    <sql>
+ALTER TABLE chapter ADD CONSTRAINT chapter_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for character/namedobject.</log>
+    <sql>
+ALTER TABLE character ADD CONSTRAINT character_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for location/namedobject.</log>
+    <sql>
+ALTER TABLE location ADD CONSTRAINT location_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for outlineitem/namedobject.</log>
+    <sql>
+ALTER TABLE outlineitem ADD CONSTRAINT outlineitem_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for project/namedobject.</log>
+    <sql>
+ALTER TABLE project ADD CONSTRAINT project_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for qobject/namedobject.</log>
+    <sql>
+ALTER TABLE qobject ADD CONSTRAINT qobject_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for researchitem/namedobject.</log>
+    <sql>
+ALTER TABLE researchitem ADD CONSTRAINT researchitem_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for link/namedobject.</log>
+    <sql>
+ALTER TABLE link ADD CONSTRAINT link_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for link(object1dbkey)/namedobject.</log>
+    <sql>
+ALTER TABLE link ADD CONSTRAINT link_obj1dbkey_namedobject_fk FOREIGN KEY(object1dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for link(object2dbkey)/namedobject.</log>
+    <sql>
+ALTER TABLE link ADD CONSTRAINT link_obj2dbkey_namedobject_fk FOREIGN KEY(object2dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for warmup/namedobject.</log>
+    <sql>
+ALTER TABLE warmup ADD CONSTRAINT warmup_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for warmup/chapter.</log>
+    <sql>
+ALTER TABLE warmup ADD CONSTRAINT warmup_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+  
+</update-script>
+

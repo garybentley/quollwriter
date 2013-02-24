@@ -1,0 +1,1669 @@
+package com.quollwriter.ui;
+
+import java.io.*;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.TreeMap;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.WeakHashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.undo.*;
+import java.text.*;
+
+import javax.swing.*;
+import javax.swing.text.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+
+import org.jdesktop.swingx.*;
+import org.jdesktop.swingx.border.*;
+
+import com.jgoodies.forms.layout.*;
+import com.jgoodies.forms.builder.*;
+import com.jgoodies.forms.factories.*;
+
+import com.swabunga.spell.event.*;
+import com.swabunga.spell.engine.*;
+
+import com.gentlyweb.properties.*;
+
+import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.components.DocumentAdapter;
+import com.quollwriter.ui.components.FindBar;
+import com.quollwriter.ui.components.Form;
+import com.quollwriter.ui.components.FormattedTextField;
+import com.quollwriter.ui.components.Header;
+
+import com.quollwriter.data.*;
+
+import com.quollwriter.*;
+
+import com.quollwriter.ui.actionHandlers.*;
+
+public class QuollEditorPanel extends Box implements MouseListener, Stateful
+{
+
+    public static final String CUT_ACTION = "cut";
+    public static final int CHAPTER_SAVED = 1;
+
+    private QTextEditor editor = null;
+    private IconColumn iconColumn = null;
+    public JScrollPane scrollPane = null;
+    private FindBar findBar = null;
+    private ActionMap actions = null;
+    private Chapter chapter = null;
+    private Timer autoSave = new Timer (true);
+    private java.util.List actionListeners = new ArrayList ();
+    public Point lastMousePosition = null;
+    private ProjectViewer projectViewer = null;
+    private JRootPane content = null;
+    private boolean hasUnsavedChanges = false;
+    private Box propertiesPanel = null;
+    
+    public QuollEditorPanel (ProjectViewer pv,
+                             Chapter       c)
+                             throws        GeneralException
+    {
+
+        super (BoxLayout.PAGE_AXIS);
+
+        final QuollEditorPanel _this = this;
+
+        this.projectViewer = pv;
+        this.chapter = c;
+
+        this.editor = new QTextEditor (Environment.dictionaryProvider);
+        this.editor.addMouseListener (this);
+        this.initEditor ();
+        
+        this.createPropertiesPanel ();
+        
+        FormLayout fl = new FormLayout (
+            "50px, fill:200px:grow",
+            "fill:p:grow");
+        
+        PanelBuilder builder = new PanelBuilder (fl);
+        
+        CellConstraints cc = new CellConstraints ();
+        
+        this.iconColumn = new IconColumn (this,
+                                          pv);
+                
+        this.iconColumn.addMouseListener (this);
+        builder.add (this.iconColumn,
+                     cc.xy (1, 1));
+        builder.add (this.editor,
+                     cc.xy (2, 1));
+        
+        JPanel p = builder.getPanel ();
+        p.setBorder (null);
+
+        this.content = new JRootPane ();
+
+        this.content.setBorder (null);
+        this.content.getContentPane ().add (p);
+
+        this.scrollPane = new JScrollPane (this.content);
+        this.scrollPane.setBorder (null);
+        
+        this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
+
+        this.add (this.scrollPane);
+                
+        // Add the properties panel.
+        // Add the find bar.                
+        this.findBar = new FindBar (this.editor);
+                                
+        this.add (this.findBar);
+                        
+        // Needed to resize properly.
+        this.setPreferredSize (new Dimension (600, 800));
+                        
+        this.actions = this.editor.getActionMap();
+
+        this.actions.put ("save-chapter", new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                try
+                {
+                
+                    _this.saveChapter ();
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to save chapter: " +
+                                          _this.getChapter (),
+                                          e);
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to save chapter");
+                    
+                }
+                
+            }
+        
+        });    
+
+        this.actions.put ("__delete", new ActionAdapter ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+                    
+                _this.getEditor ().cut ();
+            
+           }
+            
+        });
+
+        this.actions.put ("__paste", new ActionAdapter ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+                    
+                _this.getEditor ().paste ();
+            
+           }
+            
+        });
+
+        this.actions.put ("__copy", new ActionAdapter ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+                    
+                _this.getEditor ().copy ();
+            
+           }
+            
+        });
+
+        this.actions.put ("__cut", new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.getEditor ().cut ();
+                
+            }
+        
+        });    
+
+        this.actions.put ("__undo", new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.getEditor ().getActionMap ().get ("undo").actionPerformed (ev);
+                
+            }
+        
+        });    
+
+        this.actions.put ("__redo", new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.getEditor ().getActionMap ().get ("redo").actionPerformed (ev);
+                
+            }
+        
+        });    
+
+        this.actions.put ("show-properties", new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.propertiesPanel.setVisible (true);
+                
+            }
+            
+        });
+
+        this.actions.put ("find-show", new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (_this.findBar.isSearchActive ())
+                {
+                    
+                    _this.findBar.goNext ();
+                    
+                    return;
+                    
+                }
+                
+                _this.findBar.setVisible (!_this.findBar.isVisible ());
+                
+            }
+            
+        });
+                
+        this.actions.put ("find-next", new ActionAdapter ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+            
+                try
+                {
+                    
+                    if (_this.findBar.isSearchActive ())
+                    {
+                    
+                        _this.findBar.goNext ();
+                        
+                    }
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to go to next search value",
+                                          e);
+                    
+                }
+            
+           }
+            
+        });
+
+        this.actions.put ("find-previous", new ActionAdapter ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+            
+                try
+                {
+                    
+                    if (_this.findBar.isSearchActive ())
+                    {
+                    
+                        _this.findBar.goPrevious ();
+                        
+                    }
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to go to previous search value",
+                                          e);
+                    
+                }
+            
+           }
+            
+        });
+
+        this.actions.put ("save", new ActionAdapter ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+            
+                try
+                {
+                                        
+                    _this.saveChapter ();
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to save chapter",
+                                          e);
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to save chapter.");
+                    
+                }
+            
+           }
+            
+        });
+                                
+        InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+        
+        im.put (KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK), "find-show");        
+        im.put (KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, Event.CTRL_MASK), "find-next");              
+        im.put (KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, Event.CTRL_MASK), "find-previous");
+        im.put (KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK), "save");
+                    
+        this.editor.setText (this.chapter.getText ());
+    
+        // Need to do this after since the positions are within the text which needs to be set.
+        this.iconColumn.setOutlineItems (c.getOutlineItems ());
+    
+        this.iconColumn.setNotes (c.getNotes ());
+    
+        long autoSaveInt = Utils.getTimeAsMillis (c.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+        
+        if (autoSaveInt > 0)
+        {
+            
+            // Create our auto save
+            this.autoSave.schedule (new BlankTimerTask ()
+                                    {
+                
+                                        public void run ()
+                                        {
+                                           
+                                             if (!_this.hasUnsavedChanges ())
+                                             {
+                                                
+                                                return;
+                                                
+                                             }
+                                             
+                                             try
+                                             {
+                                               
+                                                 _this.saveChapter ();
+                                               
+                                             } catch (Exception e) {
+                                               
+                                                 Environment.logError ("Unable to auto save chapter: " +
+                                                                       _this.getChapter (),
+                                                                       e);
+                                               
+                                             }
+                                           
+                                        }
+                
+                                    },
+                                    (autoSaveInt + (new Random ().nextInt (10) * 1000)),
+                                    autoSaveInt);
+
+        }
+
+	this.editor.getDocument ().addDocumentListener (new DocumentAdapter ()
+	{
+	   
+	   public void insertUpdate (DocumentEvent ev)
+	   {
+	    
+                _this.setHasUnsavedChanges (true);
+	    
+	   }
+
+	   public void removeUpdate (DocumentEvent ev)
+	   {
+	    
+                _this.setHasUnsavedChanges (true);
+	    
+	   }
+	    
+	});
+                                                   
+    }
+
+    public Chapter getChapter ()
+    {
+        
+        return this.chapter;
+        
+    }
+
+    public void stopAutoSave ()
+    {
+        
+        this.autoSave.cancel ();
+        
+    }
+
+    public void saveChapter ()
+                             throws IOException
+    {
+        
+        this.chapter.setText (this.editor.getText ());
+        
+        this.projectViewer.saveObject (this.chapter);
+        
+        this.hasUnsavedChanges = false;
+        
+        // Fire an event to interested parties.
+        this.fireActionEvent (new ActionEvent (this,
+                                               QuollEditorPanel.CHAPTER_SAVED,
+                                               "chapterSaved"));
+        
+    }
+
+    public void removeActionListener (ActionListener a)
+    {
+        
+        this.actionListeners.remove (a);
+        
+    }
+
+    public void addActionListener (ActionListener a)
+    {
+        
+        this.actionListeners.add (a);
+        
+    }
+
+    protected void fireActionEvent (ActionEvent ev)
+    {
+        
+        for (int i = 0; i < this.actionListeners.size (); i++)
+        {
+            
+            ActionListener a = (ActionListener) this.actionListeners.get (i);
+            
+            a.actionPerformed (ev);
+            
+        }
+        
+    }
+
+    public void mouseClicked (MouseEvent ev) { }
+
+    public void mouseEntered (MouseEvent ev) { }
+
+    public void mouseExited (MouseEvent ev) { }
+
+    public void mousePressed (MouseEvent ev) { }
+
+    public void mouseReleased (MouseEvent ev)
+    {
+
+	if (!ev.isPopupTrigger ())
+        {
+
+            return;
+
+        }
+                    
+        final JPopupMenu popup = new JPopupMenu ();
+        final QTextEditor editor = this.editor;
+        final QuollEditorPanel _this = this;
+
+        Point p = this.editor.getMousePosition ();
+     
+        this.lastMousePosition = p;
+        
+        if (p != null)
+        {
+
+            ActionAdapter addToDict = new ActionAdapter ()
+            {
+                            
+                public void actionPerformed (ActionEvent ev)
+                {
+                
+                    editor.addWordToDictionary (ev.getActionCommand ());
+                                    
+                }
+                
+            };
+        
+            java.util.List l = this.editor.getSpellCheckSuggestions (p);
+        
+            if (l != null)
+            {
+    
+                final DocumentWordTokenizer wordsTok = new DocumentWordTokenizer (this.editor.getDocument ());
+                wordsTok.posStartFullWordFrom (this.editor.viewToModel (p));
+
+                String word = wordsTok.nextWord ();
+        
+                JMenuItem m = null;
+            
+                if (l.size () == 0)
+                {
+                                        
+                    m = new JMenuItem ("Add to Dictionary");
+                    m.setFont (m.getFont ().deriveFont (Font.BOLD));
+                    m.setActionCommand (word);
+                    m.addActionListener (addToDict);
+                        
+                    popup.add (m,
+                               0);
+                    
+                    m = new JMenuItem ("(No Spelling Suggestions)");
+                    m.setFont (m.getFont ().deriveFont (Font.BOLD));
+                    m.setEnabled (false);
+                        
+                    popup.add (m,
+                               0);
+                                    
+                } else {
+            
+                    m = null;
+                    JMenu more = new JMenu ("More Suggestions");
+                
+                    int i = 0;
+                
+                    for (i = 0; i < l.size (); i++)
+                    {
+                
+                        if (i == 5)
+                        {
+                            
+                            popup.add (more,
+                                       5);
+                                                
+                        } 
+        
+                        m = new JMenuItem (((com.swabunga.spell.engine.Word) l.get (i)).getWord ());
+                        m.setFont (m.getFont ().deriveFont (Font.BOLD));
+                        m.setActionCommand (m.getText ());
+                        m.addActionListener (new ActionAdapter ()
+                        {
+                        
+                            public void actionPerformed (ActionEvent ev)
+                            {
+                                
+                                wordsTok.replaceWord (ev.getActionCommand ());
+                                                                
+                            }
+                            
+                        });
+                                
+                        if (i < 5)
+                        {
+                
+                            popup.add (m,
+                                       0);
+                            
+                        } else {
+                            
+                            more.add (m);
+                            
+                        }
+        
+                    }
+        
+                    if (i > 5)
+                    {
+                        
+                        i = 6;
+                        
+                    } 
+        
+                    m = new JMenuItem ("Add to Dictionary");
+                    m.setActionCommand (word);
+                    m.addActionListener (addToDict);
+
+                    popup.add (m,
+                               i);
+                    
+                }
+                
+                popup.addSeparator ();
+
+            }
+
+        }
+
+        ActionAdapter closePopup = new ActionAdapter ()
+        {
+
+           public void actionPerformed (ActionEvent ev)
+           {
+            
+                popup.setVisible (false);
+            
+           }
+            
+        };
+        
+        boolean compactMenus = this.chapter.getPropertyAsBoolean (Constants.COMPACT_MENUS_PROPERTY_NAME);
+        
+        if (compactMenus)
+        {
+
+            // The new menu.
+            JToolBar addTo = new JToolBar ();
+            popup.add (addTo);
+            addTo.add (new JLabel ("New "));
+            addTo.addSeparator ();
+            addTo.setAlignmentX (Component.LEFT_ALIGNMENT);
+            addTo.setOpaque (false);
+            addTo.setFloatable (false);
+            addTo.setBackground (new Color (0, 0, 0, 0));
+            
+            JButton mb = null;
+    
+            mb = new JButton (Environment.getIcon (OutlineItem.OBJECT_TYPE,
+                                                   false));
+            AbstractActionHandler aah = new OutlineItemChapterActionHandler (this.chapter,
+                                                                             this.projectViewer);
+            
+            mb.addActionListener (aah);
+            mb.setOpaque (false);
+            mb.setToolTipText ("New Plot Outline Item");
+            
+            mb.addActionListener (closePopup);
+            
+            addTo.add (mb);
+    
+            mb = new JButton (Environment.getIcon (Note.OBJECT_TYPE,
+                                                   false));
+            mb.addActionListener (new NoteActionHandler (this.chapter,
+                                                         this.projectViewer));
+            mb.setActionCommand ("note");
+            mb.addActionListener (closePopup);
+            addTo.add (mb);
+            mb.setOpaque (false);
+            mb.setToolTipText ("New Note");
+            addTo.add (mb);
+            
+            mb = new JButton (Environment.getIcon (QCharacter.OBJECT_TYPE,
+                                                   false));
+            mb.addActionListener (closePopup);        
+            mb.setOpaque (false);
+            mb.setToolTipText ("New Character");
+            addTo.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("object",
+                                                   false));
+            mb.addActionListener (closePopup);        
+            mb.setOpaque (false);
+            mb.setToolTipText ("New Object");
+            addTo.add (mb);
+            
+            mb = new JButton (Environment.getIcon ("location",
+                                                   false));
+            mb.addActionListener (closePopup);        
+            mb.setOpaque (false);
+            mb.setToolTipText ("New Location");
+            addTo.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("research",
+                                                   false));
+            mb.addActionListener (closePopup);        
+            mb.setOpaque (false);
+            mb.setToolTipText ("New Research Item");
+            addTo.add (mb);
+    
+            mb = new JButton (Environment.getIcon (Chapter.OBJECT_TYPE,
+                                                   false));
+            mb.addActionListener (new AddChapterActionHandler (this.chapter,
+                                                               this.projectViewer));                        
+            mb.addActionListener (closePopup);        
+            mb.setOpaque (false);
+            mb.setToolTipText ("Add a new Chapter after this one");
+            addTo.add (mb);
+            
+            popup.addSeparator ();
+
+            // The text menu.
+            JToolBar t = new JToolBar ();
+            popup.add (t);
+            t.add (new JLabel ("Text "));
+            t.addSeparator ();
+            t.setAlignmentX (Component.LEFT_ALIGNMENT);
+            //t.applyComponentOrientation (ComponentOrientation.LEFT_TO_RIGHT);
+            t.setOpaque (false);
+            t.setFloatable (false);
+            t.setBackground (new Color (0, 0, 0, 0));
+    
+            mb = new JButton (Environment.getIcon ("find",
+                                                   false));
+            mb.addActionListener (this.actions.get ("find-show"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Show Find bar");
+            t.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("cut",
+                                                   false));
+            mb.addActionListener (this.actions.get ("__cut"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Cut");
+            t.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("copy",
+                                                   false));
+            mb.addActionListener (this.actions.get ("__copy"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Copy");
+            t.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("paste",
+                                                   false));
+            mb.addActionListener (this.actions.get ("__paste"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Paste");
+            t.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("delete",
+                                                   false));
+            mb.addActionListener (this.actions.get ("__delete"));            
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Delete");
+            t.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("undo",
+                                                   false));
+            mb.addActionListener (this.actions.get ("__undo"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Undo");
+            t.add (mb);
+    
+            mb = new JButton (Environment.getIcon ("redo",
+                                                   false));
+            mb.addActionListener (this.actions.get ("__redo"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Redo");
+            t.add (mb);
+
+            popup.addSeparator ();
+    
+            t = new JToolBar ();
+            t.add (new JLabel ("Edit "));
+            t.addSeparator ();        
+            t.setAlignmentX (Component.LEFT_ALIGNMENT);
+            t.setOpaque (false);
+            t.setFloatable (false);
+            t.setBackground (new Color (0, 0, 0, 0));
+            mb = new JButton (Environment.getIcon ("save",
+                                                   false));
+            mb.addActionListener (this.actions.get ("save-chapter"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Save Chapter");
+            t.add (mb);
+
+            mb = new JButton (Environment.getIcon ("edit-properties",
+                                                   false));
+            mb.addActionListener (this.actions.get ("show-properties"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Edit Text Properties");
+            t.add (mb);
+
+            mb = new JButton (Environment.getIcon ("print",
+                                                   false));
+            mb.addActionListener (this.actions.get ("print"));
+            mb.addActionListener (closePopup);
+            mb.setOpaque (false);
+            mb.setToolTipText ("Print this Chapter");
+            t.add (mb);
+            
+            popup.add (t);
+            
+        } else {
+
+            JMenu m = new JMenu ("New");
+
+            popup.add (m);
+            
+            JMenuItem mi = new JMenuItem ("Plot Outline Item",
+                                          Environment.getIcon (OutlineItem.OBJECT_TYPE,
+                                                               false));
+            AbstractActionHandler aah = new OutlineItemChapterActionHandler (this.chapter,
+                                                                             this.projectViewer);                        
+            
+            mi.addActionListener (aah);
+            m.add (mi);
+
+            mi = new JMenuItem ("Note",
+                                Environment.getIcon (Note.OBJECT_TYPE,
+                                                     false));
+            mi.addActionListener (new NoteActionHandler (this.chapter,
+                                                         this.projectViewer));                        
+            m.add (mi);
+
+            mi = new JMenuItem ("Character",
+                                Environment.getIcon (QCharacter.OBJECT_TYPE,
+                                                     false));
+            aah = new CharacterActionHandler (this.projectViewer);
+            
+            mi.addActionListener (aah);
+            
+            aah.setPopupOver (this);
+            m.add (mi);
+
+            mi = new JMenuItem ("Object",
+                                Environment.getIcon ("object",
+                                                     false));
+            mi.addActionListener (new OutlineItemChapterActionHandler (this.chapter,
+                                                                       this.projectViewer));                        
+            m.add (mi);
+
+            mi = new JMenuItem ("Location",
+                                Environment.getIcon ("location",
+                                                     false));
+            mi.addActionListener (new OutlineItemChapterActionHandler (this.chapter,
+                                                                       this.projectViewer));                        
+            m.add (mi);
+
+            mi = new JMenuItem ("Research Item",
+                                Environment.getIcon ("research",
+                                                     false));
+            mi.addActionListener (new OutlineItemChapterActionHandler (this.chapter,
+                                                                       this.projectViewer));                        
+            m.add (mi);
+
+            mi = new JMenuItem ("Chapter Below",
+                                Environment.getIcon (Chapter.OBJECT_TYPE,
+                                                     false));
+            mi.addActionListener (new AddChapterActionHandler (this.chapter,
+                                                               this.projectViewer));                        
+            m.add (mi);
+
+            // Text menu.
+            m = new JMenu ("Edit");
+
+            popup.add (m);
+            
+            mi = new JMenuItem ("Find",
+                                Environment.getIcon ("find",
+                                                     false));
+            mi.addActionListener (this.actions.get ("find-show"));
+            m.add (mi);
+
+            mi = new JMenuItem ("Cut",
+                                Environment.getIcon ("cut",
+                                                     false));
+            mi.addActionListener (this.actions.get ("__cut"));
+            m.add (mi);
+                                            
+            mi = new JMenuItem ("Copy",
+                                Environment.getIcon ("copy",
+                                                     false));
+            mi.addActionListener (this.actions.get ("__copy"));        
+            m.add (mi);
+    
+            mi = new JMenuItem ("Paste",
+                                Environment.getIcon ("paste",
+                                                     false));
+            mi.addActionListener (this.actions.get ("__paste"));
+            m.add (mi);
+
+            mi = new JMenuItem ("Delete",
+                                Environment.getIcon ("delete",
+                                                     false));
+            mi.addActionListener (this.actions.get ("__delete"));
+            m.add (mi);
+
+            mi = new JMenuItem ("Undo",
+                                Environment.getIcon ("undo",
+                                                     false));
+            mi.addActionListener (this.actions.get ("__undo"));
+            m.add (mi);
+            
+            mi = new JMenuItem ("Redo",
+                                Environment.getIcon ("redo",
+                                                     false));
+            mi.addActionListener (this.actions.get ("__redo"));
+            m.add (mi);
+
+            popup.addSeparator ();
+
+            mi = new JMenuItem ("Save Chapter",
+                                Environment.getIcon ("save",
+                                                     false));
+            mi.addActionListener (this.actions.get ("save-chapter"));
+            popup.add (mi);
+
+            popup.addSeparator ();
+
+            mi = new JMenuItem ("Set Text Properties",
+                                Environment.getIcon ("edit-properties",
+                                                     false));
+            mi.addActionListener (this.actions.get ("show-properties"));
+            popup.add (mi);
+
+            popup.addSeparator ();
+
+            mi = new JMenuItem ("Print Chapter",
+                                Environment.getIcon ("print",
+                                                     false));
+            mi.addActionListener (this.actions.get ("print"));
+            popup.add (mi);
+                                            
+        }
+        
+        popup.pack ();
+        
+        popup.show ((Component) ev.getSource (), ev.getPoint ().x, ev.getPoint ().y);
+                
+    }
+                    
+    public IconColumn getIconColumn ()
+    {
+        
+        return this.iconColumn;
+        
+    }
+                       
+    public QTextEditor getEditor ()
+    {
+        
+        return this.editor;
+        
+    }
+                        
+    public void removeItem (ChapterItem c)
+    {
+        
+        this.iconColumn.removeItem (c);
+        
+    }
+
+    public void addItem (ChapterItem c)
+                         throws      GeneralException
+    {
+        
+        this.iconColumn.addItem (c);
+        
+    }
+
+    public void removePopup (Component c)
+    {
+	
+	this.content.remove (c);
+	
+        this.content.repaint ();
+        
+    }
+    
+    public void addPopup (Component c,
+                          boolean   hideOnClick)
+    {
+        
+        this.addPopup (c,
+                       hideOnClick,
+                       false);
+        
+    }
+    
+    public void addPopup (final Component c,
+                                boolean   hideOnClick,
+                                boolean   hideViaVisibility)
+    {
+
+        this.content.getLayeredPane ().add (c,
+			     JLayeredPane.POPUP_LAYER);
+
+	this.content.getLayeredPane ().moveToFront (c);
+        
+        if (hideOnClick)
+        {
+                    
+            final QuollEditorPanel _this = this;
+            final boolean hideVia = hideViaVisibility;
+            
+            // Need to do it this way because mouse events aren't being forwarded/delivered.         
+            MouseAdapter m = new MouseAdapter ()
+            {
+                
+                public void mouseReleased (MouseEvent ev)
+                {
+                    
+                    if (hideVia)
+                    {
+                        
+                        c.setVisible (false);
+                        
+                    } else {
+                    
+                        _this.removePopup (c);
+                        
+                        _this.iconColumn.removeMouseListener (this);
+                        _this.editor.removeMouseListener (this);
+
+                    }
+
+                }
+                
+            };
+                        
+            this.iconColumn.addMouseListener (m);
+            this.editor.addMouseListener (m);                        
+                                    
+        }
+        
+    }
+
+    public void scrollToOutlineItem (OutlineItem oi)
+                                     throws      GeneralException
+    {
+
+        this.scrollToPosition (oi.getPosition ());
+        
+    }
+
+    public void scrollToNote (Note   n)
+                              throws GeneralException
+    {
+
+        this.scrollToPosition (n.getPosition ());
+        
+    }
+
+    public void scrollToPosition (int    p)
+                                  throws GeneralException
+    {
+
+        Rectangle r = null;
+                                
+        try
+        {
+            
+            r = this.editor.modelToView (p);
+            
+        } catch (Exception e) {
+        
+            // BadLocationException!
+            throw new GeneralException ("Position: " +
+                                        p +
+                                        " is not valid.",
+                                        e);
+                    
+        }
+        
+        if (r == null)
+        {
+        
+            throw new GeneralException ("Position: " +
+                                        p +
+                                        " is not valid.");
+        
+        }
+                
+        this.scrollPane.getViewport ().setViewPosition (new Point (0,
+                                                                   r.y));
+        
+    }
+
+    public void setState (String s)
+    {
+
+        StringTokenizer t = new StringTokenizer (s,
+                                                 String.valueOf ('\n'));
+        
+        while (t.hasMoreTokens ())
+        {
+            
+            String tok = t.nextToken ().trim ();
+            
+            StringTokenizer tt = new StringTokenizer (tok,
+                                                      "=");
+            
+            while (tt.hasMoreTokens ())
+            {
+                
+                if (tt.countTokens () == 2)
+                {
+                    
+                    String name = tt.nextToken ().trim ();
+                    String value = tt.nextToken ().trim ();
+                                        
+                    if (name.equals (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME))
+                    {
+                    
+                        try
+                        {
+                            
+                            int v = Integer.parseInt (value);
+                        
+                            this.editor.setSelectionStart (v);
+                            this.editor.setSelectionEnd (v);
+                            
+                        } catch (Exception e) {
+                            
+                        }
+                        
+                    }
+
+                    if (name.equals (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME))
+                    {
+                        
+                        try
+                        {
+                        
+                            this.scrollPane.getVerticalScrollBar ().setValue (Integer.parseInt (value));
+                        
+                        } catch (Exception e) {
+                            
+                            // Ignore it.
+                            
+                        }
+                        
+                    }
+                    
+                }
+
+            }
+
+        }
+                
+    }
+    
+    public boolean hasUnsavedChanges ()
+    {
+        
+        return this.hasUnsavedChanges;
+        
+    }
+    
+    public void setHasUnsavedChanges (boolean v)
+    {
+        
+        this.hasUnsavedChanges = v;
+        
+    }
+    
+    public String getState ()
+    {
+        
+        StringBuilder b = new StringBuilder ();
+        
+        b.append (Constants.LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME);
+        b.append ("=");
+        b.append (this.scrollPane.getVerticalScrollBar ().getValue ());
+        b.append ('\n');
+        b.append (Constants.LAST_EDITOR_CARET_POSITION_PROPERTY_NAME);
+        b.append ("=");
+        b.append (this.editor.getSelectionStart ());
+
+        return b.toString ();
+        
+    }
+
+    private void initEditor ()
+    {
+        
+        this.editor.setLineSpacing (this.chapter.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
+        this.editor.setFontSize ((int) (this.chapter.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME)));
+        this.editor.setFontFamily (this.chapter.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
+        this.editor.setAlignment (this.chapter.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));        
+        
+    }
+
+    private void createPropertiesPanel ()
+    {
+
+        final QuollEditorPanel _this = this;
+
+        Header h = new Header ("Edit the Text Properties",
+                               Environment.getIcon ("edit-properties",
+                                                    true),
+                               null);
+        h.setFont (h.getFont ().deriveFont (16f));
+
+        this.propertiesPanel = new Box (BoxLayout.PAGE_AXIS);
+        this.propertiesPanel.add (h);
+        this.propertiesPanel.setBackground (UIManager.getColor ("Panel.background"));
+        
+        FormLayout fl = new FormLayout ("right:pref, 6px, p, p:grow, 6px",
+                                        "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px");
+        PanelBuilder b = new PanelBuilder (fl);
+        b.setDefaultDialogBorder ();
+        
+        CellConstraints cc = new CellConstraints ();
+                    
+        int row = 1;
+        
+        JTextArea note = new JTextArea ();
+        note.setEditable (false);
+        note.setOpaque (false);
+        note.setText ("Changes to the selections are immediately reflected in the text however they are only made permanent when the Save button is clicked.");
+        
+        b.add (note,
+               cc.xyw (1, row, 4));
+        
+        row += 2;
+        
+        GraphicsEnvironment gEnv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        
+        String envfonts[] = gEnv.getAvailableFontFamilyNames();
+
+        Vector<String> vector = new Vector();
+        
+        for (int i = 1; i < envfonts.length; i++)
+        {
+        
+            if (new Font (envfonts[i],
+                          Font.PLAIN,
+                          12).canDisplayUpTo ("ABCDEFabcdef") == -1)
+            {
+        
+                vector.addElement (envfonts[i]);
+                
+            }
+        
+        }
+        
+        final JComboBox fonts = new JComboBox(vector);
+        fonts.addActionListener (new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                fonts.setFont (new Font ((String) fonts.getSelectedItem (),
+                                         Font.PLAIN,
+                                         12));
+                
+                _this.getEditor ().setFontFamily ((String) fonts.getSelectedItem ());                
+                
+            }
+            
+        });
+        
+        fonts.setRenderer (new DefaultListCellRenderer ()
+        {
+           
+           public Component getListCellRendererComponent (JList   list,
+                                                          Object  value,
+                                                          int     index,
+                                                          boolean isSelected,
+                                                          boolean cellHasFocus)
+           {
+                
+                super.getListCellRendererComponent (list,
+                                                    value,
+                                                    index,
+                                                    isSelected,
+                                                    cellHasFocus);
+                
+                this.setFont (new Font ((String) value,
+                                        Font.PLAIN,
+                                        12));
+                
+                return this;
+
+           }
+            
+        });
+
+        fonts.setSelectedItem (this.chapter.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
+
+        b.addLabel ("Font",
+                    cc.xy (1, row));
+        b.add (fonts,
+               cc.xy (3, row));
+        
+        row += 2;
+        
+        int sizeDef = this.chapter.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME);
+        
+        Vector<Integer> sizeV = new Vector();
+
+        boolean defAdded = false;
+        
+        for (int i = 8; i < 19; i += 2)
+        {
+
+            if ((sizeDef < i)
+                &&
+                (!defAdded)
+               )
+            {
+                
+                sizeV.addElement (sizeDef);
+                defAdded = true;
+
+            }
+            
+            if (i != sizeDef)
+            {
+
+                sizeV.addElement (i);
+                
+            }
+                        
+        }
+        
+        if (sizeDef > 18)
+        {
+            
+            sizeV.addElement (sizeDef);
+            
+        }
+        
+        final JComboBox sizes = new JComboBox (sizeV);
+        sizes.addActionListener (new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                                
+                try
+                {
+                                
+                    _this.getEditor ().setFontSize ((int) (Integer.parseInt (sizes.getSelectedItem ().toString ())));
+                    
+                } catch (Exception e) {
+                    
+                    // Ignore.
+                    
+                }
+                
+            }
+            
+        });
+
+        sizes.setEditor (new javax.swing.plaf.basic.BasicComboBoxEditor ()
+        {
+           
+           protected JTextField createEditorComponent ()
+           {
+
+                return new FormattedTextField ("[0-9]");
+            
+           }
+            
+        });
+        
+        sizes.setSelectedItem (sizeDef);
+        sizes.setEditable (true);
+
+        b.addLabel ("Size",
+                    cc.xy (1, row));
+        b.add (sizes,
+               cc.xy (3, row));
+
+        row += 2;
+
+        float lsDef = this.chapter.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME);
+
+        Vector<Float> lineS = new Vector ();
+        
+        defAdded = false;
+        
+        for (float i = 0.5f; i < 2.5f; i += 0.5f)
+        {
+            
+            if ((lsDef < i)
+                &&
+                (!defAdded)
+               )
+            {
+
+                lineS.addElement (lsDef);
+                defAdded = true;
+                
+            }
+            
+            if (lsDef != i)
+            {
+            
+                lineS.addElement (i);
+                
+            }
+            
+        }
+        
+        if (lsDef > 2.0f)
+        {
+            
+            lineS.addElement (lsDef);
+            
+        }
+        
+        final JComboBox line = new JComboBox (lineS);
+        line.addActionListener (new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                                
+                try
+                {
+                                
+                    _this.getEditor ().setLineSpacing (Float.parseFloat (line.getSelectedItem ().toString ()));
+                    
+                } catch (Exception e) {
+                    
+                    // Ignore.
+                    
+                }
+                
+            }
+            
+        });
+        
+        line.setSelectedItem (lsDef);
+        line.setEditable (true);
+        line.setEditor (new javax.swing.plaf.basic.BasicComboBoxEditor ()
+        {
+           
+           protected JTextField createEditorComponent ()
+           {
+
+                return new FormattedTextField ("[0-9\\.]");
+            
+           }
+            
+        });
+
+        b.addLabel ("Line Spacing",
+                    cc.xy (1, row));
+        b.add (line,
+               cc.xy (3, row));
+
+        row += 2;
+
+        Vector<String> alignS = new Vector ();
+        alignS.add ("Left");
+        alignS.add ("Justified");
+        alignS.add ("Right");
+
+        final JComboBox align = new JComboBox (alignS);
+        align.addActionListener (new ActionAdapter ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                                
+                _this.getEditor ().setAlignment ((String) align.getSelectedItem ());
+                
+            }
+            
+        });
+        
+        align.setSelectedItem (this.chapter.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));
+
+        b.addLabel ("Alignment",
+                    cc.xy (1, row));
+        b.add (align,
+               cc.xy (3, row));
+        
+        row += 2;
+        
+        final JCheckBox cbox = new JCheckBox ("Set as default (the selected values will be used for ALL Chapters that do not have their text properties explicitly set)");
+        
+        b.add (cbox,
+               cc.xyw (3, row, 2));
+
+        row += 2;
+
+        List<JButton> bs = new ArrayList ();
+            
+        JButton but = new JButton (Form.SAVE_BUTTON_LABEL);
+            
+        but.addActionListener (new ActionAdapter ()
+        {
+                
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                Properties props = _this.getChapter ().getProperties ();
+
+                // Set the properties.
+                // First off see if they should be the defaults, if so set them in the user properties.
+                if (cbox.isSelected ())
+                {
+                    
+                    props = Environment.getUserProperties ();
+                    
+                }
+
+                StringProperty p = new StringProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME,
+                                                       align.getSelectedItem ().toString ());
+                p.setDescription ("N/A");
+
+                props.setProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME,
+                                   p);
+
+                p = new StringProperty (Constants.EDITOR_FONT_PROPERTY_NAME,
+                                        fonts.getSelectedItem ().toString ());
+                p.setDescription ("N/A");
+
+                props.setProperty (Constants.EDITOR_FONT_PROPERTY_NAME,
+                                   p);
+
+                try
+                {
+
+                    FloatProperty fp = new FloatProperty (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME,
+                                                          Float.parseFloat (line.getSelectedItem ().toString ()));
+                    fp.setDescription ("N/A");
+
+                    props.setProperty (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME,
+                                       fp);
+
+                } catch (Exception e) {
+                    
+                    // Ignore.
+                    
+                }
+
+                try
+                {
+
+                    IntegerProperty ip = new IntegerProperty (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME,
+                                                              Integer.parseInt (sizes.getSelectedItem ().toString ()));
+                    ip.setDescription ("N/A");
+
+                    props.setProperty (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME,
+                                       ip);
+
+                } catch (Exception e) {
+                    
+                    // Ignore.
+                    
+                }
+
+                try
+                {
+                    
+                    if (cbox.isSelected ())
+                    {
+                        
+                        Environment.saveUserProperties (props);
+                        
+                        // Update all the chapters.
+                        
+                        // Remove the properties from this chapter.
+                        props = _this.getChapter ().getProperties ();
+                        
+                        props.removeProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME);
+                        props.removeProperty (Constants.EDITOR_FONT_PROPERTY_NAME);
+                        props.removeProperty (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME);
+                        props.removeProperty (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME);
+                        
+                    }
+
+                    // Save the chapter.
+                    _this.getProjectViewer ().saveObject (_this.getChapter ());
+
+                    cbox.setSelected (false);
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to save changes",
+                                          e);
+                    
+                    UIUtils.showErrorMessage (_this.getProjectViewer (),
+                                              "Unable to save text property changes.");
+                    
+                }
+
+                _this.setPropertiesPanelVisible (false);
+                                        
+            }
+                
+        });
+        
+        bs.add (but);
+        
+        but = new JButton (Form.CANCEL_BUTTON_LABEL);
+
+        but.addActionListener (new ActionAdapter ()
+        {
+                
+            public void actionPerformed (ActionEvent ev)
+            {
+                                
+                _this.initEditor ();
+           
+                _this.setPropertiesPanelVisible (false);
+
+                fonts.setSelectedItem (_this.getChapter ().getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
+                sizes.setSelectedItem (_this.getChapter ().getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME) + "");
+                align.setSelectedItem (_this.getChapter ().getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));
+                line.setSelectedItem (_this.getChapter ().getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME) + "");
+                
+            }
+            
+        });
+
+        bs.add (but);
+        
+        b.add (ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton [bs.size ()])),
+               cc.xyw (3, row, 2));
+        
+        this.propertiesPanel.setBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()));
+
+        JPanel p = b.getPanel ();
+        p.setBackground (UIManager.getColor ("Panel.background"));
+        this.propertiesPanel.add (p);
+        
+        this.propertiesPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                            this.propertiesPanel.getPreferredSize ().height));
+        
+        this.propertiesPanel.setVisible (false);
+        this.add (this.propertiesPanel);
+                
+    }
+
+    public void setPropertiesPanelVisible (boolean v)
+    {
+        
+        this.propertiesPanel.setVisible (v); 
+        
+    }
+
+    public ProjectViewer getProjectViewer ()
+    {
+        
+        return this.projectViewer;
+        
+    }
+
+}

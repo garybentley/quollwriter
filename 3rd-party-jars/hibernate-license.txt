@@ -1,0 +1,3 @@
+See: http://www.hibernate.org
+
+License: https://www.hibernate.org/356.html

@@ -1,0 +1,3 @@
+See: http://www.h2database.com
+
+License: http://www.h2database.com/html/license.html

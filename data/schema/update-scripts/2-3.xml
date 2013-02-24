@@ -1,0 +1,107 @@
+<update-script from="2" to="3">
+  <item>
+    <log>Remove the primary key from the wordcount table.</log>
+    <sql>
+ALTER TABLE wordcount DROP PRIMARY KEY;
+    </sql>
+  </item>
+
+  <item>
+    <log>Remove the dbkey column from the wordcount table.</log>
+    <sql>
+ALTER TABLE wordcount DROP COLUMN dbkey;
+    </sql>
+  </item>
+
+  <item canFail="true">
+    <log>Add "type" column to project table.</log>
+    <sql>
+ALTER TABLE project ADD type VARCHAR(100) DEFAULT 'normal'
+    </sql>
+  </item>
+  
+  <item canFail="true">
+    <log>Init the value for the project.type column.</log>
+    <sql>
+UPDATE project SET type = 'normal'        
+    </sql>
+  </item>
+  
+  <item canFail="true">
+    <log>Set the project.type column not null.</log>
+    <sql>
+ALTER TABLE project ALTER COLUMN type SET NOT NULL
+    </sql> 
+  </item>
+
+  <item>
+    <log>Create the warmup table.</log>
+    <sql>
+CREATE TABLE warmup
+(
+    dbkey BIGINT NOT NULL,
+    chapterdbkey BIGINT NOT NULL,
+    promptid CHAR(12) NOT NULL,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for warmup/namedobject.</log>
+    <sql>
+ALTER TABLE warmup ADD CONSTRAINT warmup_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for warmup/chapter.</log>
+    <sql>
+ALTER TABLE warmup ADD CONSTRAINT warmup_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the problemfinderignore table.</log>
+    <sql>
+CREATE TABLE problemfinderignore
+(
+    chapterdbkey BIGINT NOT NULL,
+    ruleid VARCHAR(1000) NOT NULL,
+    startposition BIGINT NOT NULL,
+    wordposition INT NOT NULL
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for actionlog/namedobject.</log>
+    <sql>
+ALTER TABLE problemfinderignore ADD CONSTRAINT problemfinderignore_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item canFail="true">
+    <log>Drop the wordcount constraints on dataobject/namedobject.</log>
+    <sql>
+ALTER TABLE wordcount DROP CONSTRAINT wordcount_namedobject_fk
+    </sql>
+  </item>
+  
+  <item>
+    <log>Remove the "wordcount" entries from NamedObject</log>
+    <sql>
+DELETE FROM namedobject
+WHERE  dbkey IN (SELECT dbkey FROM dataobject WHERE objecttype = 'wordcount')
+    </sql>
+  </item>
+
+  <item>
+    <log>Remove the "wordcount" entries from DataObject</log>
+    <sql>
+DELETE FROM dataobject
+WHERE  objecttype = 'wordcount'
+    </sql>
+  </item>
+  
+</update-script>

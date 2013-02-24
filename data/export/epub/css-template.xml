@@ -1,0 +1,48 @@
+h1
+{
+    font-family : [[FONT_NAME]], sans-serif;
+    padding-bottom: 2em;
+}
+
+h2
+{
+    font-family : [[FONT_NAME]], sans-serif;
+    padding-bottom: 1em;
+
+}
+
+h3
+{
+    font-family : [[FONT_NAME]], sans-serif;
+    padding-bottom: 1em;
+}
+
+a
+{
+    font-family: [[FONT_NAME]], sans-serif;
+}
+
+p
+{
+    line-height : [[LINE_SPACING]];
+    font-family : [[FONT_NAME]], sans-serif;
+    font-size: [[FONT_SIZE]];
+    text-align: [[ALIGN]];
+    text-indent: [[INDENT]];
+    white-space: pre-wrap;
+}
+
+.b
+{
+    font-weight: bold;
+}
+
+.i
+{
+    font-style: italic;
+}
+
+.u
+{
+    text-decoration: underline;
+}

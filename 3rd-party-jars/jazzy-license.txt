@@ -1,0 +1,3 @@
+See: http://freshmeat.net/projects/jazzy/
+
+License: http://www.gnu.org/copyleft/lesser.html

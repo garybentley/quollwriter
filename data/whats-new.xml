@@ -1,0 +1,49 @@
+<whatsnew>
+  <version id="2.0">
+    <item onlyIfCurrentVersion="true">
+      <title>A New Look</title>
+      <description><![CDATA[Welcome to the new look Quoll Writer.  I hope you like it.  If not please give it a try, it may grow on you.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Improvements to full screen mode</title>
+      <description><![CDATA[Full screen mode has been improved in this version.  You can now work purely in full screen mode if you wish.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Sidebar focus</title>
+      <description><![CDATA[A number of popups have been removed and instead, where appropriate, information is shown in the sidebar.  Just press <b>Escape</b> to get rid of a sidebar.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Set things up how you like it</title>
+      <description><![CDATA[You can now change the location of the sidebar, either left or right of the window and change where the tabs are displayed.]]></description>
+    </item>  
+    <item onlyIfCurrentVersion="true">
+      <title>Improved project sidebar</title>
+      <description><![CDATA[The project sidebar has been improved, things are now easier to find and manage.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>Other useful things to know</title>
+    <description><![CDATA[A <b>plan</b> has been added for each chapter.  The look of the word counts have been improved and are now displayed in the sidebar.]]></description>
+    </item>
+    <item onlyIfCurrentVersion="true">
+      <title>And that's it...</title>
+    <description><![CDATA[I hope you enjoy the new look Quoll Writer.  If you do please let me know, if not please also let me know but be nice about it!]]></description>
+    </item>
+  </version>
+  
+  <version id="1.4.4">
+    <item onlyIfCurrentVersion="true">
+      <title>Usability improvements</title>
+      <description><![CDATA[Over 50 usability improvements and bug fixes have been made in this version including the ability to manage your personal dictionary, item and note types and much more.  For details see the <a href='help:version-changes/1_4_4'>full list of changes online</a>.]]></description>
+    </item>
+    
+    <item id="tips">
+      <title>Tips</title>
+      <description><![CDATA[Helpful tips will be shown when Quoll Writer starts.  The tip is shown for 90s and will help give you a feel for how Quoll Writer works and may let you know about features you weren't aware of.  Of course if you don't want the distraction you can turn them off below.]]></description>
+    </item>
+    
+    <item id="achievements">
+      <title>Achievements</title>
+      <description>Let's face it writing can be tiring, dull and a thankless task at times.  Achievements will help you get through those more tedious moments.  If you aren't interested in achievements then you can switch them off below.</description>
+    </item>
+  </version>
+</whatsnew>

@@ -1,0 +1,3 @@
+See: http://sourceforge.net/projects/dom4j/
+
+License: BSD (unfortunately I wasn't able to find the canonical definition of this license)

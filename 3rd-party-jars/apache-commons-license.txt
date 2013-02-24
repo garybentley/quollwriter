@@ -1,0 +1,3 @@
+See: http://commons.apache.org/collections/
+
+License: http://commons.apache.org/collections/license.html

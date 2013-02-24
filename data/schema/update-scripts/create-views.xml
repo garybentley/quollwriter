@@ -1,0 +1,174 @@
+<!--
+  Deploy the views.
+-->
+<update-script>
+
+  <item>
+    <log>Drop view namedobject_v</log>
+    <sql>
+DROP VIEW IF EXISTS namedobject_v    
+    </sql>
+  </item>
+    
+  <item>
+    <log>Create namedobject_v view</log>
+    <sql file="views/namedobject.v" />
+  </item>
+
+  <item>
+    <log>Drop view project_v</log>
+    <sql>
+DROP VIEW IF EXISTS project_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create project_v view</log>
+    <sql file="views/project.v" />
+  </item>
+
+  <item>
+    <log>Drop view chapter_v</log>
+    <sql>
+DROP VIEW IF EXISTS chapter_v
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create chapter_v view</log>
+    <sql file="views/chapter.v" />
+  </item>
+
+  <item>
+    <log>Drop view character_v</log>
+    <sql>
+DROP VIEW IF EXISTS character_v    
+    </sql>
+  </item>
+
+  <item>
+    <log>Create character_v view</log>
+    <sql file="views/character.v" />
+  </item>
+
+  <item>
+    <log>Drop view researchitem_v</log>
+    <sql>
+DROP VIEW IF EXISTS researchitem_v    
+    </sql>
+  </item>
+
+  <item>
+    <log>Create researchitem_v view</log>
+    <sql file="views/researchitem.v" />
+  </item>
+
+  <item>
+    <log>Drop view qobject_v</log>
+    <sql>
+DROP VIEW IF EXISTS qobject_v    
+    </sql>
+  </item>
+
+  <item>
+    <log>Create qobject_v view</log>
+    <sql file="views/qobject.v" />
+  </item>
+
+  <item>
+    <log>Drop view book_v</log>
+    <sql>
+DROP VIEW IF EXISTS book_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create book_v view</log>
+    <sql file="views/book.v" />
+  </item>
+
+  <item>
+    <log>Drop view outlineitem_v</log>
+    <sql>
+DROP VIEW IF EXISTS outlineitem_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create outlineitem_v view</log>
+    <sql file="views/outlineitem.v" />
+  </item>
+
+  <item>
+    <log>Drop view scene_v</log>
+    <sql>
+DROP VIEW IF EXISTS scene_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create scene_v view</log>
+    <sql file="views/scene.v" />
+  </item>
+  
+  <item>
+    <log>Drop view note_v</log>
+    <sql>
+DROP VIEW IF EXISTS note_v
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create note_v view</log>
+    <sql file="views/note.v" />
+  </item>
+
+  <item>
+    <log>Drop view location_v</log>
+    <sql>
+DROP VIEW IF EXISTS location_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create location_v view</log>
+    <sql file="views/location.v" />
+  </item>
+
+  <item>
+    <log>Drop view warmup_v</log>
+    <sql>
+DROP VIEW IF EXISTS warmup_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create warmup_v view</log>
+    <sql file="views/warmup.v" />
+  </item>
+
+  <item>
+    <log>Drop view ideatype_v</log>
+    <sql>
+DROP VIEW IF EXISTS ideatype_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create ideatype_v view</log>
+    <sql file="views/ideatype.v" />
+  </item>
+
+  <item>
+    <log>Drop view idea_v</log>
+    <sql>
+DROP VIEW IF EXISTS idea_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Create idea_v view</log>
+    <sql file="views/idea.v" />
+  </item>
+
+</update-script>
