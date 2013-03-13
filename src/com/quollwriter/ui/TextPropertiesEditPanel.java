@@ -422,7 +422,7 @@ public class TextPropertiesEditPanel extends Box
         
                 public void mouseReleased (MouseEvent ev)
                 {
-                    System.out.println ("PRESSED: " + _this.textProps);
+                    
                     _this.textProps.resetToDefaults ();
                                 
                 }

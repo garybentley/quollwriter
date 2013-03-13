@@ -364,7 +364,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
 
                 // Open the url.
                 UIUtils.openURL (_this,
-                                 "help://fullscreen/background-image-websites");
+                                 Constants.QUOLLWRITER_PROTOCOL + ":resources.html#bgimages");
 
             }
 

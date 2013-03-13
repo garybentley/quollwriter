@@ -127,6 +127,8 @@ public class Environment
 
     private static List<File> installJarFilesToDelete = new ArrayList ();
 
+    private static boolean upgradeRequired = false;
+    
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
 
     private static Map<String, Image> backgroundImages = new HashMap ();
@@ -187,6 +189,13 @@ public class Environment
 
     }
 
+    public static void setUpgradeRequired ()
+    {
+        
+        Environment.upgradeRequired = true;
+        
+    }
+    
     public static void addInstallJarToDelete (File oldFile,
                                               File newFile)
     {
@@ -516,6 +525,45 @@ public class Environment
 
     }
 
+    public static File getQuollWriterJarsDir ()
+    {
+        
+        String userDir = System.getProperty ("user.dir");
+
+        if (!userDir.endsWith ("jars"))
+        {
+            
+            userDir += "/jars";
+            
+        }
+        
+        File dir = null;
+        
+        try
+        {
+            
+            dir = new File (userDir).getCanonicalFile ();
+            
+        } catch (Exception e) {
+            
+            return null;
+            
+        }
+        
+        if ((!dir.exists ())
+            ||
+            (dir.isFile ())
+           )
+        {
+            
+            return null;
+            
+        }
+        
+        return dir;
+        
+    }
+    
     public static void projectClosed (AbstractProjectViewer pv)
                                throws Exception
     {
@@ -551,36 +599,33 @@ public class Environment
             if (Environment.isWindows)
             {
 
-                String userDir = Environment.getUserDir ();
+                File userDir = Environment.getQuollWriterJarsDir ();
 
-                if (userDir.endsWith ("jars"))
+                if (userDir == null)
                 {
-
-                    if (Environment.installJarFilesToDelete.size () > 0)
+                    
+                    return;
+                    
+                }
+                
+                if (Environment.upgradeRequired)
+                {
+                
+                    Environment.upgradeRequired = false;
+                
+                    try
                     {
 
-                        try
-                        {
+                        List args = new ArrayList ();
+                        args.add (System.getProperty ("java.home") + "\\bin\\java.exe");
+                        args.add ("-jar");
+                        args.add (userDir + "\\QuollWriter-upgrade.jar");
 
-                            List args = new ArrayList ();
-                            args.add (System.getProperty ("java.home") + "\\bin\\java.exe");
-                            args.add ("-jar");
-                            args.add (userDir + "\\QuollWriter-internal-tools.jar");
+                        ProcessBuilder pb = new ProcessBuilder (args);
+                        pb.start ();
 
-                            for (int i = 0; i < Environment.installJarFilesToDelete.size (); i++)
-                            {
-
-                                args.add (Environment.installJarFilesToDelete.get (i).getName ());
-
-                            }
-
-                            ProcessBuilder pb = new ProcessBuilder (args);
-                            pb.start ();
-
-                        } catch (Exception e)
-                        {
-
-                        }
+                    } catch (Exception e)
+                    {
 
                     }
 
@@ -872,6 +917,15 @@ public class Environment
     public static void logError (String m)
     {
 
+        if (Environment.errorLog == null)
+        {
+            
+            System.err.println (m);
+            
+            return;
+            
+        }
+    
         Environment.errorLog.logError (m,
                                        null,
                                        null);
@@ -897,6 +951,16 @@ public class Environment
                                  Exception ex)
     {
 
+        if (Environment.errorLog == null)
+        {
+            
+            System.err.println (m);
+            ex.printStackTrace ();
+            
+            return;
+            
+        }
+    
         Environment.errorLog.logError (m,
                                        ex,
                                        null);
@@ -1447,15 +1511,24 @@ public class Environment
         // Get the system default project properties.
         com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
                                                                               Environment.userProperties);
-                
-        com.gentlyweb.properties.Properties userDefProjProps = new com.gentlyweb.properties.Properties (Environment.getUserDefaultProjectPropertiesFile (),
-                                                                                                        Environment.GZIP_EXTENSION);
         
-        userDefProjProps.setParentProperties (sysDefProjProps);
+        File defUserPropsFile = Environment.getUserDefaultProjectPropertiesFile ();
+        
+        if (defUserPropsFile.exists ())
+        {
+        
+            com.gentlyweb.properties.Properties userDefProjProps = new com.gentlyweb.properties.Properties (defUserPropsFile,
+                                                                                                            Environment.GZIP_EXTENSION);
+            
+            userDefProjProps.setParentProperties (sysDefProjProps);
+
+            sysDefProjProps = userDefProjProps;
+            
+        }
         
         // Load the default project properties.
         Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
-                                                 userDefProjProps);
+                                                 sysDefProjProps);
 
         Startup.ss.setProgress (10);
 
@@ -1712,13 +1785,6 @@ public class Environment
     {
 
         return new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_DICTIONARY_FILE_NAME);
-
-    }
-
-    public static String getUserDir ()
-    {
-
-        return System.getProperty ("user.dir");
 
     }
 
@@ -2247,7 +2313,7 @@ public class Environment
                          int oldVer = Environment.getVersionAsInt (Environment.appVersion);
                         
                         final int newVer = Environment.getVersionAsInt (newVersion);
-oldVer = 0;
+
                         if (newVer > oldVer)
                         {
 

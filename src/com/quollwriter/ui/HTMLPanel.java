@@ -216,8 +216,12 @@ public class HTMLPanel extends XHTMLPanel
         {
                 
             this.handler.handleHTMLPanelAction (uri.getSchemeSpecificPart ());
+
+            return;
             
         }
+        
+        this.handler.handleHTMLPanelAction (u);
                 
     }
     

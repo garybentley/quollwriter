@@ -3583,6 +3583,47 @@ public class UIUtils
                                 URL       url)
     {
 
+        if (url.getProtocol ().equals (Constants.QUOLLWRITER_PROTOCOL))
+        {
+            
+            String u = Environment.getProperty (Constants.QUOLL_WRITER_WEBSITE_PROPERTY_NAME);
+
+            String p = url.getPath ();
+
+            if (!p.endsWith (".html"))
+            {
+
+                p += ".html";
+
+            }
+
+            u = u + "/" + p;
+            
+            if (url.getRef () != null)
+            {
+                
+                u += "#" + url.getRef ();
+                
+            }
+
+            try
+            {
+
+                url = new URL (u);
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to open url: " +
+                                      u,
+                                      e);
+
+                return;
+
+            }            
+            
+        }
+    
         if (url.getProtocol ().equals (Constants.HELP_PROTOCOL))
         {
 
@@ -3665,7 +3706,7 @@ public class UIUtils
                                                              final AbstractProjectViewer pv,
                                                              final QuollPanel            qp)
     {
-
+            
         HTMLEditorKit kit = new HTMLEditorKit ();
         HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
 
@@ -3678,6 +3719,7 @@ public class UIUtils
         desc.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));
 */
+        desc.setSize (new Dimension (500, Short.MAX_VALUE));
         desc.addHyperlinkListener (new HyperlinkAdapter ()
             {
 

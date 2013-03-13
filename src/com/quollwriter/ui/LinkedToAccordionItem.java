@@ -232,10 +232,6 @@ public class LinkedToAccordionItem extends AccordionItem
                                                               
         this.view.setVisible (false);
         this.edit.setVisible (true);
-/*
-        this.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                            this.getPreferredSize ().height));
-  */              
         this.validate ();
         this.repaint ();        
 
@@ -256,10 +252,6 @@ public class LinkedToAccordionItem extends AccordionItem
 
         this.edit.setVisible (false);
         this.view.setVisible (true);
-/*
-        this.content.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         this.content.getPreferredSize ().height));
-  */                     
         this.validate ();
         this.repaint ();        
         

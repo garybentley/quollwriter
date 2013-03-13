@@ -299,7 +299,16 @@ public class WhatsNew extends PopupWizard
     public String getStartStage ()
     {
 
-        return this.items.firstKey ().toString ();
+        try
+        {
+    
+            return this.items.firstKey ().toString ();
+        
+        } catch (Exception e) {
+            
+            return null;
+            
+        }
 
     }
 

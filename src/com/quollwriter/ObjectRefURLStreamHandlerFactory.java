@@ -117,6 +117,26 @@ public class ObjectRefURLStreamHandlerFactory implements URLStreamHandlerFactory
 
         }
 
+        if (protocol.equals (Constants.QUOLLWRITER_PROTOCOL))
+        {
+
+            return new URLStreamHandler ()
+            {
+
+                public URLConnection openConnection (URL url)
+                                              throws IOException
+                {
+
+                    throw new IOException ("Not supported for the: " +
+                                           Constants.QUOLLWRITER_PROTOCOL +
+                                           " protocol.");
+
+                }
+
+            };
+
+        }
+        
         return null;
 
     }

@@ -670,7 +670,7 @@ public class AchievementsManager implements ProjectEventListener
 
         if (!this.isAchievementsEnabled ())
         {
-            System.out.println ("ACHIEVEMENTS DISABLED");
+            
             return;            
             
         }
@@ -739,7 +739,7 @@ public class AchievementsManager implements ProjectEventListener
 
         if (!this.isAchievementsEnabled ())
         {
-            System.out.println ("ACHIEVEMENTS DISABLED");
+            
             return;            
             
         }
@@ -777,7 +777,7 @@ public class AchievementsManager implements ProjectEventListener
         
         try
         {
-System.out.println ("SETTING: " + v);
+
             Environment.setUserProperty (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME,
                                          new BooleanProperty (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME,
                                                               v));

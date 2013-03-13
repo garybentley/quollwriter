@@ -157,10 +157,10 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
             it.init ();
         
         }
-        
+        /*
         this.items.get (this.items.size () - 1).setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                                                Short.MAX_VALUE));
-        
+        */
         this.scrollVerticalTo (0);
         
     }

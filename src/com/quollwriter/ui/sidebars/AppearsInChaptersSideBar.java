@@ -135,7 +135,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<ProjectViewer>
         tree.setBorder (new EmptyBorder (0, 10, 5, 5));
         
         b.add (treeScroll);        
-        
+                
         return b;
         
     }

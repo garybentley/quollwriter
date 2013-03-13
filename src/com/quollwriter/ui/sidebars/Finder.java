@@ -389,8 +389,8 @@ public class Finder extends AbstractSideBar
 
     }
 */
-    public void showSegment (Object  o,
-                             Segment s)
+    public void showSegment (final Object  o,
+                             final Segment s)
     {
 
         this.clearHighlight ();
@@ -398,7 +398,7 @@ public class Finder extends AbstractSideBar
         if (o instanceof Chapter)
         {
 
-            AbstractEditorPanel aep = null;
+            AbstractEditorPanel p = null;
         
             Chapter c = (Chapter) o;        
         
@@ -407,7 +407,7 @@ public class Finder extends AbstractSideBar
             
                 ProjectViewer pv = (ProjectViewer) this.projectViewer;
         
-                aep = pv.getEditorForChapter (c);
+                p = pv.getEditorForChapter (c);
         
             }
         
@@ -416,37 +416,50 @@ public class Finder extends AbstractSideBar
                 
                 WarmupsViewer wv = (WarmupsViewer) this.projectViewer;
                 
-                aep = wv.getEditorForWarmup (c);
+                p = wv.getEditorForWarmup (c);
                 
             }
         
             this.projectViewer.viewObject ((DataObject) o);
             
-            try
+            final Finder _this = this;
+            final AbstractEditorPanel aep = p;
+            
+            SwingUtilities.invokeLater (new Runnable ()
             {
                 
-                aep.scrollToPosition (s.getBeginIndex ());
-                
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to scroll to: " + s.getBeginIndex (),
-                                      e);
-                
-                return;
-                
-            }
-            /*
-            pv.scrollTo (c,
-                         s.getBeginIndex ());
-        */
-            final QTextEditor ed = aep.getEditor ();
+                public void run ()
+                {
+            
+                    try
+                    {
                         
-            this.highlightId = ed.addHighlight (s.getBeginIndex (),
-                                                s.getEndIndex (),
-                                                null,
-                                                true);
-    
-            this.highlightedEditor = ed;
+                        aep.scrollToPosition (s.getBeginIndex ());
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to scroll to: " + s.getBeginIndex (),
+                                              e);
+                        
+                        return;
+                        
+                    }
+                    /*
+                    pv.scrollTo (c,
+                                 s.getBeginIndex ());
+                */
+                    final QTextEditor ed = aep.getEditor ();
+                                
+                    _this.highlightId = ed.addHighlight (s.getBeginIndex (),
+                                                         s.getEndIndex (),
+                                                         null,
+                                                         true);
+            
+                    _this.highlightedEditor = ed;
+                    
+                }
+                
+            });
 
         }
         

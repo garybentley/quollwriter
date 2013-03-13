@@ -218,9 +218,14 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
         this.tree.setEditable (this.isTreeEditable ());
 
+        MouseAdapter mm = new PopupPreviewListener (this);
+        
+        this.tree.addMouseMotionListener (mm);
+        this.tree.addMouseListener (mm);
+        
         this.tree.addMouseListener (new MouseEventHandler ()
         {
-
+        
             public void handlePress (MouseEvent ev)
             {
                 
@@ -282,6 +287,124 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     {
         
         this.projectViewer.viewObject ((DataObject) obj);
+        
+    }
+    
+    private class PopupPreviewListener extends MouseAdapter
+    {
+        
+        private NamedObjectPreviewPopup popup = null;
+        private NamedObject lastObject = null;
+        private ProjectObjectsAccordionItem item = null;
+                  
+        public PopupPreviewListener (ProjectObjectsAccordionItem item)
+        {
+            
+            this.item = item;   
+                  
+            this.popup = new NamedObjectPreviewPopup (this.item.projectViewer);
+                  
+        }
+        
+        public void mouseMoved (MouseEvent ev)
+        {
+
+            final PopupPreviewListener _this = this;
+        
+            // Edit the chapter.
+            TreePath tp = this.item.tree.getPathForLocation (ev.getX (),
+                                                             ev.getY ());
+
+            if (tp == null)
+            {
+
+                return;
+
+            }
+
+            Object d = ((DefaultMutableTreeNode) tp.getLastPathComponent ()).getUserObject ();
+
+            if (!(d instanceof NamedObject))
+            {
+                
+                return;
+                
+            }
+
+            if ((d instanceof TreeParentNode)
+                ||
+                (d instanceof Note)
+               )
+            {
+                
+                return;
+                
+            }
+            
+            if (d == this.lastObject)
+            {
+                
+                return;
+                
+            }
+            
+            if (d != this.lastObject)
+            {
+                
+                // Hide the popup.
+                this.popup.hidePopup ();
+                
+            }
+                            
+            this.lastObject = (NamedObject) d;
+            
+            Point po = this.item.projectViewer.convertPoint (this.item.tree,
+                                                             new Point (ev.getX () + 10,
+                                                                        this.item.tree.getPathBounds (tp).y + this.item.tree.getPathBounds (tp).height - 5));
+            
+            // Show the first line of the description.
+            this.popup.show ((NamedObject) d,
+                             500,
+                             750,
+                             po,
+                             new ActionAdapter ()
+                             {
+                                
+                                public void actionPerformed (ActionEvent ev)
+                                {
+                                    
+                                    _this.lastObject = null;
+                                    
+                                }
+                                
+                             });
+                            
+        }
+        
+        public void mouseExited (MouseEvent ev)
+        {
+
+            Point p = new Point (0,
+                                 0);
+
+            SwingUtilities.convertPointToScreen (p,
+                                                 this.item.tree);
+
+            java.awt.Rectangle tBounds = this.item.tree.getBounds (null);
+
+            tBounds.x = p.x;
+            tBounds.y = p.y;
+
+            if (!tBounds.contains (ev.getLocationOnScreen ()))
+            {
+
+                this.lastObject = null;
+            
+                this.popup.hidePopup ();
+
+            }
+            
+        }        
         
     }
     

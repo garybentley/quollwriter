@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.0.0" />
+  <property name="currVersion" value="2.0.1" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -17,7 +17,7 @@
   <property name="dataJarName" value="${binDir}/${projectName}-data-${currVersion}.jar" />
   <property name="promptsJarName" value="${binDir}/${projectName}-prompts-${currVersion}.jar" />  
   <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries-${currVersion}.jar" />
-  <property name="deleteJarInstallFilesJar" value="${binDir}/${projectName}-internal-tools.jar" />
+  <property name="upgradeQuollWriterJar" value="${binDir}/${projectName}-upgrade.jar" />
   <property name="docsDir" value="./docs" />
   <property name="year" value="2013"/>
   <property name="packages" value="com.quollwriter.*"/>
@@ -26,7 +26,7 @@
 
     <mkdir dir="${buildDir}" />
     <mkdir dir="${srcDir}" />
-    <mkdir dir="${binDir}" />
+    <mkdir dir="${binDir}" />    
     <tstamp>
       <format property="TODAY" pattern="dd/MMM/yy" />
     </tstamp>
@@ -84,8 +84,6 @@
                  includes="*.jar" />    
         <fileset dir="./3rd-party-jars/docx4j-jars"
                  includes="*.jar" />    
-        <fileset dir="./installer"
-                 includes="log4j.xml" />    
       </classpath>
     </java>
   </target>
@@ -279,8 +277,8 @@
 
   </target>
 
-  <target name="createDeleteJarInstallFilesJar" depends="init">
-    <property name="title" value="QuollWriter delete post upgrade install jar files" />
+  <target name="createUpgradeJar" depends="init">
+    <property name="title" value="QuollWriter upgarde jar" />
 
     <javac srcdir="${srcDir}"
            destdir="${buildDir}"
@@ -288,16 +286,16 @@
            deprecation="on"
            nowarn="on"
            target="1.6"
-           includes="com/quollwriter/tools/DeleteInstallJars.java"
+           includes="com/quollwriter/tools/UpgradeQuollWriter.java"
            excludes="**/svn/**">
     </javac>
     
-    <jar destfile="${deleteJarInstallFilesJar}" >
+    <jar destfile="${upgradeQuollWriterJar}" >
       <fileset dir="${buildDir}"
-               includes="com/quollwriter/tools/DeleteInstallJars.class" />
+               includes="com/quollwriter/tools/UpgradeQuollWriter.class" />
       <manifest>
         <attribute name="Built-By" value="${projectName}" />
-        <attribute name="Main-Class" value="com.quollwriter.tools.DeleteInstallJars" />
+        <attribute name="Main-Class" value="com.quollwriter.tools.UpgradeQuollWriter" />
       </manifest>
     </jar>
 
@@ -435,43 +433,6 @@
         </section>
       </manifest>
     </jar>
-
-  </target>
-
-  <target name="createUpgradeFile" depends="init, createDataJar, createPromptsJar, createImagesJar, createJar, createDeleteJarInstallFilesJar">    
-    <!--
-      Legacy files and new ones that need to be copied to the current dir then sent to the zip.
-    -->
-    <copy file="3rd-party-jars/jh-labs-filters.jar"
-          overwrite="true"
-          tofile="jh-labs-filters.jar" />
-    <copy file="3rd-party-jars/core-renderer.jar"
-          overwrite="true"
-          tofile="core-renderer.jar" />
-    <copy file="installer/to-delete.txt"
-          overwrite="true"
-          tofile="to-delete.txt" />
-    
-    <zip destfile="${currVersion}.zip"
-         compress="false"
-         basedir="."
-         filesonly="true"
-         includes="QuollWriter-internal-tools-${currVersion}.jar,QuollWriter-internal-tools.jar,QuollWriter-data-${currVersion}.jar,QuollWriter-images-${currVersion}.jar,QuollWriter-${currVersion}.jar,jh-labs-filters.jar,american-dictionaries.jar,core-renderer.jar,to-delete.txt" />
-    
-    <delete file="jh-labs-filters.jar" />
-    <delete file="core-renderer.jar" />
-    <delete file="to-delete.txt" />
-    
-  </target>
-
-  <target name="createWindowsExe" depends="init, createDataJar, createDictionariesJar, createPromptsJar, createImagesJar, createJar, createDeleteJarInstallFilesJar">
-    
-    <!--
-      Create the installer.
-    -->
-    <exec executable="C:\Program Files (x86)\Inno Setup 5\iscc.exe">
-      <arg value="installer/quollwriter.iss" />
-    </exec>
 
   </target>
 

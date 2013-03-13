@@ -105,13 +105,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private Map<Chapter, ReadabilityIndices> noEditorReadabilityIndices = new WeakHashMap ();
     //private Box                   itemsBox = null;
     private Box                   sideBar = null;
-    private JPanel                sideBarCards = null;
+    private Box                   sideBarWrapper = null;
+    private Map<String, AbstractSideBar> sideBars = new HashMap ();
+    private AbstractSideBar       currentSideBar = null;
     private Finder                finder = null;
     private WordCountsSideBar      wordCounts = null;
     private Map<String, QuollPanel> panels = new HashMap ();
     private int                   lastDividerLocation = -1;
     private Map<String, Integer>  sideBarWidths = new HashMap ();
-    private String                currentSideBar = null;
+    //private String                currentSideBar = null;
     private java.util.List<SideBarListener> sideBarListeners = new ArrayList ();
     private java.util.List<MainPanelListener> mainPanelListeners = new ArrayList ();
 
@@ -289,11 +291,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.toolbarPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                          100));
                                                         
-        this.sideBarCards = new JPanel (new CardLayout ());
-        this.sideBarCards.setOpaque (false);
-        this.sideBarCards.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.sideBarWrapper = new Box (BoxLayout.X_AXIS);
+        this.sideBarWrapper.setOpaque (false);
+        this.sideBarWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
                                                  
-        this.sideBar.add (this.sideBarCards);
+        this.sideBar.add (this.sideBarWrapper);
         this.sideBar.add (this.toolbarPanel);
                                 
         this.splitPane.setLeftComponent (this.sideBar);
@@ -693,7 +695,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public void removeSideBar (AbstractSideBar panel)
     {
         
-        this.sideBarCards.remove (panel);
+        this.sideBars.remove (panel.getName ());
+        
+        if (panel == this.currentSideBar)
+        {
+            
+            this.sideBarWrapper.removeAll ();
+            
+        }
                 
         this.showMainSideBar ();
         
@@ -714,8 +723,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         panel.setName (name);
         
-        this.sideBarCards.add (name,
-                               panel);
+        this.sideBars.put (name,
+                           panel);
         
     }
     
@@ -779,42 +788,40 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public Component getCurrentSideBarCard ()
     {
         
-        Component[] comps = this.sideBarCards.getComponents ();
-        
-        for (int i = 0; i < comps.length; i++)
-        {
-            
-            if (comps[i].isVisible ())
-            {
+        return this.currentSideBar;
                 
-                return comps[i];
-                
-            }
-            
-        }
-        
-        return null;
-        
     }
     
     public void showSideBar (String name)
     {
         
+        AbstractSideBar b = this.sideBars.get (name);
+        
+        if (b == null)
+        {
+            
+            throw new IllegalArgumentException ("Unable to show sidebar: " +
+                                                name +
+                                                ", no sidebar found with that name.");
+            
+        }
+        
         this.finder.clearHighlight ();
-        
-        Component current = this.getCurrentSideBarCard ();
-        
+                
         // Get the current sidebar.
-        if (current != null)
+        if (this.currentSideBar != null)
         {
         
-            this.sideBarWidths.put (current.getName (),
-                                    current.getSize ().width);
+            this.sideBarWidths.put (this.currentSideBar.getName (),
+                                    this.currentSideBar.getSize ().width);
 
         }
                                     
-        ((CardLayout) this.sideBarCards.getLayout ()).show (this.sideBarCards,
-                                                            name);
+        this.sideBarWrapper.removeAll ();
+        this.sideBarWrapper.add (b);
+                           
+        this.sideBar.validate ();
+        this.sideBar.repaint ();
 
         // See if we have a width for the sidebar.
         Integer w = this.sideBarWidths.get (name);
@@ -825,28 +832,38 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
            )
         {
             
-            w = this.getCurrentSideBarCard ().getPreferredSize ().width;
-            
+            w = b.getPreferredSize ().width;
+
         }
-                
+
+        int divLoc = -1;
+        
         if (w != null)
         {
             
             if (this.splitPane.getLeftComponent () == this.sideBar)
             {
                 
-                this.splitPane.setDividerLocation (w);
-                
+                divLoc = w;
+                                
             } else {
                 
-                this.splitPane.setDividerLocation (this.splitPane.getSize ().width - w);            
-                
+                divLoc = this.splitPane.getSize ().width - w;
+                                
             }
             
+        } else {
+            
+            divLoc = b.getPreferredSize ().width;
+            
         }
+
+        this.splitPane.setDividerLocation (divLoc);            
+        
+        this.currentSideBar = b;
                       
         this.fireSideBarShownEvent (name);
-        
+
     }
     
     public Map getTempOptions ()
@@ -5099,6 +5116,25 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
+    public Point convertPoint (Component c,
+                               Point     p)
+    {
+
+        Component o = this.getContentPane ();
+        
+        if (this.inFullScreen ())
+        {
+            
+            o = this.fsf;
+            
+        }
+        
+        return SwingUtilities.convertPoint (c,
+                                            p,
+                                            o);
+        
+    }
+    
     public boolean inFullScreen ()
     {
 

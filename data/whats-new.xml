@@ -1,4 +1,21 @@
 <whatsnew>
+  <version id="2.0.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Chapter information sidebar</title>
+      <description><![CDATA[Chapter information sidebar has been improved with sections resizing correctly.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Mouse over text</title>
+      <description><![CDATA[When you hover your mouse over an item in the project sidebar the first line of the item description will be shown.]]></description>
+    </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Word counts</title>
+      <description><![CDATA[A count of how many words have been written is now output next to the spark lines in the word count sidebar.]]></description>
+    </item>
+  </version>
+      
   <version id="2.0">
     <item onlyIfCurrentVersion="true">
       <title>A New Look</title>

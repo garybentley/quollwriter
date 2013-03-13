@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 
-public class DeleteInstallJars
+public class UpgradeQuollWriter
 {
 
     private static int tryCount = 0;
@@ -15,8 +15,7 @@ public class DeleteInstallJars
 
         try
         {
-PrintWriter wlog = new PrintWriter (new FileWriter ("d:/development/quollwriter/main/upgrade.log"),
-                                    true);
+
             String userDir = System.getProperty ("user.dir");
 
             File userDirF = new File (userDir).getCanonicalFile ();
@@ -103,9 +102,7 @@ PrintWriter wlog = new PrintWriter (new FileWriter ("d:/development/quollwriter/
 
             files = new ArrayList ();
             
-            // Move any jar files from .new to the main dir.
-            
-            wlog.println ("New dir: " + newDir);
+            // Move any jar files from .new to the main dir.            
             if (newDir.exists ())
             {
                 
@@ -125,7 +122,7 @@ PrintWriter wlog = new PrintWriter (new FileWriter ("d:/development/quollwriter/
                             continue;
                             
                         }
-                        wlog.println ("Adding file: " + f);
+                        
                         files.add (f);
                         
                     }
@@ -138,7 +135,7 @@ PrintWriter wlog = new PrintWriter (new FileWriter ("d:/development/quollwriter/
                 newDir.deleteOnExit ();
                 
             }
-                wlog.close ();        
+                    
         } catch (Exception e)
         {
 
@@ -151,16 +148,14 @@ PrintWriter wlog = new PrintWriter (new FileWriter ("d:/development/quollwriter/
     private static void moveFiles (List<File> files,
                                    File       jarsDir) throws Exception
     {
-PrintWriter wlog = new PrintWriter (new FileWriter ("d:/development/quollwriter/main/upgrade.log", true),
-                                    true);
 
         List<File> toMove = new ArrayList ();
     
         for (File f : files)
         {
-wlog.println ("File: " + f);
+
             File nFile = new File (jarsDir + "/" + f.getName ());
-            wlog.println ("New file: " + nFile);
+
             if (nFile.exists ())
             {
                 
@@ -171,7 +166,7 @@ wlog.println ("File: " + f);
             
             if (!f.renameTo (nFile))
             {
-                wlog.println ("Cant rename: " + nFile);
+                
                 toMove.add (f);
                 
             }

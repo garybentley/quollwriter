@@ -37,6 +37,13 @@ public class SentenceIterator implements Iterator<String>
         
         this.text = text;
         
+        if (text == null)
+        {
+            
+            return;
+            
+        }
+        
         this.sentenceIter = BreakIterator.getSentenceInstance ();
         
         this.sentenceIter.setText (text);
@@ -96,6 +103,13 @@ public class SentenceIterator implements Iterator<String>
     public String next ()
     {
 
+        if (this.text == null)
+        {
+            
+            return null;
+            
+        }
+    
         // Get the current, check to see if we are in dialogue.
         if (this.current != null)
         {
@@ -140,6 +154,13 @@ public class SentenceIterator implements Iterator<String>
     public String previous ()
     {
 
+        if (this.text == null)
+        {
+            
+            return this.text;
+            
+        }
+    
         if (this.start == BreakIterator.DONE)
         {
 

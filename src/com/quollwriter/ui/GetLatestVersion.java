@@ -416,17 +416,36 @@ public class GetLatestVersion extends PopupWindow implements Runnable
             // to:
             String cantCopyFileSuff = " to: ";
 
-            String path = Environment.getUserDir ();
-
-            if (!path.endsWith ("jars"))
+            File path = Environment.getQuollWriterJarsDir ();
+            
+            if (path == null)
             {
-
+            
                 this.showError (unableToInstallError);
 
                 return;
 
             }
 
+            // Create the .new directory.
+            File newDir = new File (path + "/.new");
+            
+            if (!newDir.exists ())
+            {
+            
+                newDir.mkdirs ();
+                
+            }
+            
+            if (!newDir.exists ())
+            {
+                
+                this.showError (unableToInstallError);
+                
+                return;
+             
+            }
+            
             ZipEntry ze = null;
             File     newFile = null;
 
@@ -437,50 +456,8 @@ public class GetLatestVersion extends PopupWindow implements Runnable
                 {
 
                     ze = en.nextElement ();
-
-                    if (ze.getName ().equals ("to-delete.txt"))
-                    {
-
-                        // Get the file, each line indicates a jar file name to delete.
-                        BufferedReader bin = new BufferedReader (new InputStreamReader (zf.getInputStream (ze)));
-
-                        String line = null;
-
-                        while ((line = bin.readLine ()) != null)
-                        {
-
-                            File f = new File (line);
-
-                            if (!f.getName ().endsWith (".jar"))
-                            {
-
-                                continue;
-
-                            }
-
-                            String n = f.getName ();
-
-                            File toDel = new File (path + '/' + f.getName ()).getCanonicalFile ();
-
-                            if (!toDel.exists ())
-                            {
-
-                                continue;
-
-                            }
-
-                            Environment.addInstallJarToDelete (toDel,
-                                                               null);
-
-                        }
-
-                        bin.close ();
-
-                        continue;
-
-                    }
-
-                    newFile = new File (path + '/' + ze.getName ());
+                    
+                    newFile = new File (newDir + "/" + ze.getName ());
 
                     BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (newFile));
 
@@ -493,23 +470,6 @@ public class GetLatestVersion extends PopupWindow implements Runnable
                     bout.flush ();
                     bout.close ();
                     bin.close ();
-
-                    String name = ze.getName ();
-
-                    if (name.endsWith (this.version + ".jar"))
-                    {
-
-                        String namePref = name.substring (0,
-                                                          name.indexOf (this.version + ".jar"));
-
-                        File toDel = new File (newFile.getParentFile ().getPath () + '/' + namePref + Environment.getQuollWriterVersion () + ".jar");
-
-                        newFile.setLastModified (toDel.lastModified ());
-
-                        Environment.addInstallJarToDelete (toDel,
-                                                           newFile);
-
-                    }
 
                 }
 
@@ -542,6 +502,8 @@ public class GetLatestVersion extends PopupWindow implements Runnable
             UIUtils.showMessage (this,
                                  message);
 
+            Environment.setUpgradeRequired ();
+                                 
             this.close ();
 
         } catch (Exception e)

@@ -70,6 +70,8 @@ public class Constants
     public static final String OBJECTREF_PROTOCOL = "objectref";
 
     public static final String HELP_PROTOCOL = "help";
+    
+    public static final String QUOLLWRITER_PROTOCOL = "qw";
 
     public static final String COLOR_SWATCHES_PROPERTY_NAME = "colorSwatches";
 

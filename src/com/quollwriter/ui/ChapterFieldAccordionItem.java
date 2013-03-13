@@ -361,7 +361,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                                      String.valueOf ('\n'));
     
             int r = 1;
-    
+        
             while (t.hasMoreTokens ())
             {
     
@@ -379,13 +379,16 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                         cc.xy (2,
                                r));
                                
-                            
-                               
+      /*
+                pb.add (new JCheckBox (),
+                        cc.xy (2,
+                               r));
+        */                       
                 JTextPane tp = UIUtils.createObjectDescriptionViewPane (tok,
                                                                         this.chapter,
                                                                         this.projectViewer,
                                                                         this.projectViewer.getEditorForChapter (this.chapter));
-    
+
                 pb.add (tp,
                         cc.xy (4,
                                r));
@@ -401,17 +404,34 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             this.view.add (p);
 
         } else {
+
+            FormLayout fl = new FormLayout ("fill:200px:grow",
+                                            "p");
+    
+            PanelBuilder pb = new PanelBuilder (fl);
+    
+            CellConstraints cc = new CellConstraints ();
         
-            this.view.add (UIUtils.createObjectDescriptionViewPane (v,
+            JTextPane tp = UIUtils.createObjectDescriptionViewPane (v,
                                                                     this.chapter,
                                                                     this.projectViewer,
-                                                                    this.projectViewer.getEditorForChapter (this.chapter)));
+                                                                    this.projectViewer.getEditorForChapter (this.chapter)); 
+
+            pb.add (tp,
+                        cc.xy (1,
+                               1));
+
+            JPanel p = pb.getPanel ();
+    
+            p.setOpaque (false);
+                
+            this.view.add (p);
         
         }    
-            
+            /*
         this.view.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                  this.view.getPreferredSize ().height));        
-         
+         */
         
         this.edit.setVisible (false);
         this.view.setVisible (true);
@@ -419,7 +439,38 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         this.validate ();
         this.repaint ();
 
+        this.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                            this.getPreferredSize ().height));
+        
         UIUtils.scrollIntoView (this);
+        
+    }
+        
+    public JComponent getWrappedText (String t,
+                                      int    initialWidth)
+    {
+        
+        FormLayout fl = new FormLayout ("fill:" + initialWidth + "px:grow",
+                                        "p");
+
+        PanelBuilder pb = new PanelBuilder (fl);
+
+        CellConstraints cc = new CellConstraints ();
+    
+        JTextPane tp = UIUtils.createObjectDescriptionViewPane (t,
+                                                                this.chapter,
+                                                                this.projectViewer,
+                                                                this.projectViewer.getEditorForChapter (this.chapter)); 
+
+        pb.add (tp,
+                    cc.xy (1,
+                           1));
+
+        JPanel p = pb.getPanel ();
+
+        p.setOpaque (false);
+        
+        return p;
         
     }
     

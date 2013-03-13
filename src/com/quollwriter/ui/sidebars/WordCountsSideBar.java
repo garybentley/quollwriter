@@ -41,6 +41,7 @@ public class WordCountsSideBar extends AbstractSideBar
     private AccordionItem chapterItem = null;
     private AccordionItem selectedItems = null;
     private JComponent chapterSparkLine = null;
+    private JLabel chapterSparkLineLabel = null;
     private JLabel selectedWordCount = null;
     private JLabel chapterFleschKincaid = null;
     private JLabel chapterGunningFog = null;
@@ -197,7 +198,7 @@ public class WordCountsSideBar extends AbstractSideBar
             
             if (this.chapterSparkLine.getComponents ().length == 0)
             {
-
+            
                 try
                 {
         
@@ -263,6 +264,8 @@ public class WordCountsSideBar extends AbstractSideBar
         
                     diff = max - min;
 
+                    int wordDiff = diff;
+                    
                     if (diff == 0)
                     {
 
@@ -274,6 +277,17 @@ public class WordCountsSideBar extends AbstractSideBar
                         (max > Integer.MIN_VALUE))
                     {
         
+                        String d = "";
+                        
+                        if (wordDiff != 0)
+                        {
+                            
+                            d = ", <b>" + (wordDiff > 0 ? "+" : "-") + Environment.formatNumber (wordDiff) + "</b> words";    
+                                    
+                        }
+                        
+                        this.chapterSparkLineLabel.setText ("<html>past 7 days" + d + "</html>");
+                                
                         org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
                                                                                                                  max + (diff / 2),
                                                                                                                  min - (diff / 2)));
@@ -322,7 +336,7 @@ public class WordCountsSideBar extends AbstractSideBar
                                 JComponent value)
     {
         
-        String cols = "right:max(30px;p), 6px, p:grow";
+        String cols = "right:max(60px;p), 6px, p:grow";
         
         String rows = "p";
         
@@ -353,6 +367,8 @@ public class WordCountsSideBar extends AbstractSideBar
     private JComponent getWords (JLabel     wordCount,
                                  JLabel     pagesCount,
                                  JComponent cp,
+                                 JLabel     sparkLineLabel,
+                                 int        wordCountDiff,
                                  int        days)
     {
 
@@ -383,18 +399,23 @@ public class WordCountsSideBar extends AbstractSideBar
         b.addLabel ("A4 pages",
                     cc.xy (3, 3));
 
-        b.addLabel ("past " + days + " days",
-                    cc.xy (3, 5));
-
+        String diff = "";
+        
+        if (wordCountDiff != 0)
+        {
+            
+            diff = ", <b>" + (wordCountDiff > 0 ? "+" : "-") + Environment.formatNumber (wordCountDiff) + "</b> words";    
+                    
+        }
+        
+        sparkLineLabel.setText ("<html>past " + days + " days" + diff + "</html>");
+        
+        b.add (sparkLineLabel,
+               cc.xy (3, 5));
+        
         b.add (cp,
                cc.xywh (1, 5, 1, 1));
                     
-/*
-        b.add (pagesCount,
-               cc.xy (3, 3));
-        b.add (cp,
-               cc.xy (5, 3));
-*/
         JPanel p = b.getPanel ();
         p.setOpaque (false);
         p.setBorder (new EmptyBorder (10, 10, 10, 10));
@@ -581,6 +602,7 @@ public class WordCountsSideBar extends AbstractSideBar
         this.selectedWordCount = new JLabel ();
         this.chapterSparkLine = new Box (BoxLayout.X_AXIS);
         this.chapterSparkLine.setOpaque (false);
+        this.chapterSparkLineLabel = new JLabel ();
         this.selectedFleschKincaid = new JLabel ();
         this.selectedFleschReadingEase = new JLabel ();
         this.selectedGunningFog = new JLabel ();
@@ -626,6 +648,8 @@ public class WordCountsSideBar extends AbstractSideBar
         items.add (this.getWords (this.chapterWordCount,
                                   this.chapterPages,
                                   this.chapterSparkLine,
+                                  this.chapterSparkLineLabel,
+                                  0,
                                   7));
                 
         this.chapterFleschKincaid = new JLabel ();
@@ -660,6 +684,8 @@ public class WordCountsSideBar extends AbstractSideBar
         JComponent sparkLine = new JPanel ();
         sparkLine.setBorder (null);
         sparkLine.setOpaque (false);
+                   
+        int wordCountDiff30 = 0;
                                  
         try
         {
@@ -705,6 +731,8 @@ public class WordCountsSideBar extends AbstractSideBar
                 (max > Integer.MIN_VALUE))
             {
 
+                wordCountDiff30 = max - min;    
+            
                 org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
                                                                                                          max + (diff / 2),
                                                                                                          min - (diff / 2)));
@@ -730,6 +758,8 @@ public class WordCountsSideBar extends AbstractSideBar
         items.add (this.getWords (this.allChaptersWordCount,
                                   this.allChaptersPages,
                                   sparkLine,
+                                  new JLabel (),                                  
+                                  wordCountDiff30,
                                   30));        
         
         this.allChaptersFleschKincaid = new JLabel ();

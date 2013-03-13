@@ -7,4 +7,9 @@
     <property id="windowWidth" type="integer"><description><![CDATA[The default window width.]]></description><value><![CDATA[1000]]></value></property>
     <property id="chapterAutoSaveInterval" type="string"><value><![CDATA[1 hour]]></value></property>
     <property id="fullScreenSidebarWidth" type="integer"><description><![CDATA[The default width of the sidebar in full screen mode.]]></description><value><![CDATA[250]]></value></property>
+    <property id="fullScreenEditorAlignment" type="string"><description><![CDATA[The default text alignment in full screen mode.]]></description><value><![CDATA[Left]]></value></property>
+    <property id="fullScreenEditorFontBGColor" type="string"><description><![CDATA[The default text background color in full screen mode.]]></description><value><![CDATA[#ffffff]]></value></property>
+    <property id="fullScreenEditorFontColor" type="string"><description><![CDATA[The default text color in full screen mode.]]></description><value><![CDATA[#000000]]></value></property>
+    <property id="fullScreenEditorFontSize" type="integer"><description><![CDATA[The default font size in full screen mode.]]></description><value><![CDATA[14.0]]></value></property>
+    <property id="fullScreenEditorLineSpacing" type="float"><description><![CDATA[The default line spacing in full screen mode.]]></description><value><![CDATA[1.0]]></value></property>
 </properties>
