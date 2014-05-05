@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.0.1" />
+  <property name="currVersion" value="2.2" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -19,7 +19,7 @@
   <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries-${currVersion}.jar" />
   <property name="upgradeQuollWriterJar" value="${binDir}/${projectName}-upgrade.jar" />
   <property name="docsDir" value="./docs" />
-  <property name="year" value="2013"/>
+  <property name="year" value="2014"/>
   <property name="packages" value="com.quollwriter.*"/>
 
   <target name="init">
@@ -51,7 +51,10 @@
     
   </target>
 -->
-  <target name="run" depends="init, createJar, createPromptsJar, createDataJar, createDictionariesJar, createImagesJar">
+<!--
+createDictionariesJar, 
+-->
+  <target name="run" depends="init, createJar, createPromptsJar, createDataJar, createImagesJar">
     <java classname="com.quollwriter.Startup" 
           maxmemory="512m"
           fork="yes">
@@ -62,12 +65,14 @@
         <!--
         <arg value="-Dlog4j.configuration=log4j.xml" />
         -->
-      <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}:${dictionariesJarName}" />
+      <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />    
         <fileset dir="./3rd-party-jars/docx4j-jars"
                  includes="*.jar" />    
+        <fileset dir="./installer"
+                 includes="log4j.xml" />
       </classpath>
     </java>
   </target>
@@ -78,12 +83,14 @@
           fork="yes">
         <arg value="-Dlog4j.configuration=log4j.xml" />
         <arg value="_debugMode" />
-      <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}:${dictionariesJarName}" />
+      <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />    
         <fileset dir="./3rd-party-jars/docx4j-jars"
                  includes="*.jar" />    
+        <fileset dir="./installer"
+                 includes="log4j.xml" />    
       </classpath>
     </java>
   </target>
@@ -145,6 +152,12 @@
         <include name="data/achievements.xml" />
         <include name="data/tips.xml" />
         <include name="data/whats-new.xml" />
+        <include name="data/object-names.xml" />
+        <include name="data/test-book.xml" />
+        <include name="data/edit-position-example.png" />
+        <include name="data/compressed-chapter-context-menu.png" />
+        <include name="data/none-compressed-chapter-context-menu.png" />
+        <include name="data/default-find-image.png" />        
       </fileset>
       <manifest>
         <attribute name="Built-By" value="${projectName}" />
@@ -181,61 +194,67 @@
   
   </target>
 
-  <target name="createDictionariesJar">
-    <property name="title" value="QuollWriter Dictionaries" />
-
-    <jar destfile="${dictionariesJarName}">
-      <fileset dir="./data">
-        <include name="dictionaries/en/english.0" />
-        <include name="dictionaries/en/english.1" />
-        <include name="dictionaries/en/english.2" />
-        <include name="dictionaries/en/english.3" />
-        <include name="dictionaries/en/american.0" />
-        <include name="dictionaries/en/american.1" />
-        <include name="dictionaries/en/american.2" />
-        <include name="dictionaries/en/british.0" />
-        <include name="dictionaries/en/british.1" />
-        <include name="dictionaries/en/british.2" />
-        <include name="dictionaries/thesaurus-${thesaurusVersion}.txt" />
-        <include name="dictionaries/thesaurus-index-${thesaurusVersion}.txt" />
+  <target name="createLanguageFiles">
+    
+    <delete file="./language-files/US English.zip" />
+    <delete file="./language-files/British English.zip" />
+    <delete file="./language-files/US English-only.zip" />
+    <delete file="./language-files/British English-only.zip" />
+    
+    <zip destfile="./language-files/US English.zip"
+         update="yes">
+      <fileset dir="./language-files">
+        <include name="dictionaries/English/english.0" />
+        <include name="dictionaries/English/english.1" />
+        <include name="dictionaries/English/english.2" />
+        <include name="dictionaries/English/english.3" />
+        <include name="dictionaries/US English/american.0" />
+        <include name="dictionaries/US English/american.1" />
+        <include name="dictionaries/US English/american.2" />
+        <include name="thesaurus/English/index.txt" />
+        <include name="thesaurus/English/words.txt" />
+        <include name="thesaurus/English/version.txt" />
       </fileset>
-      <manifest>
-        <attribute name="Built-By" value="${projectName}" />
+    </zip>
 
-        <section name="${package}">
-          <attribute name="Implementation-Title" value="${title}" />
-          <attribute name="Implementation-Vendor" value="${projectName}" />
-          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
-          <attribute name="Description" value="Contains the dictionary files used within ${projectName}" />
-        </section>
-      </manifest>
-    </jar>
-  
-  </target>
-
-  <target name="createAmericanDictionariesJar">
-    <property name="title" value="QuollWriter American Dictionaries" />
-
-    <jar destfile="american-dictionaries.jar">
-      <fileset dir="./data">
-        <include name="dictionaries/en/american.0" />
-        <include name="dictionaries/en/american.1" />
-        <include name="dictionaries/en/american.2" />
+    <zip destfile="./language-files/British English.zip">
+      <fileset dir="./language-files">
+        <include name="dictionaries/English/english.0" />
+        <include name="dictionaries/English/english.1" />
+        <include name="dictionaries/English/english.2" />
+        <include name="dictionaries/English/english.3" />
+        <include name="dictionaries/British English/british.0" />
+        <include name="dictionaries/British English/british.1" />
+        <include name="dictionaries/British English/british.2" />
+        <include name="thesaurus/English/index.txt" />
+        <include name="thesaurus/English/words.txt" />
+        <include name="thesaurus/English/version.txt" />
       </fileset>
-      <manifest>
-        <attribute name="Built-By" value="${projectName}" />
+    </zip>
 
-        <section name="${package}">
-          <attribute name="Implementation-Title" value="${title}" />
-          <attribute name="Implementation-Vendor" value="${projectName}" />
-          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
-          <attribute name="Description" value="Contains the dictionary files used within ${projectName}" />
-        </section>
-      </manifest>
-    </jar>
-  
+    <zip destfile="./language-files/British English-only.zip">
+      <fileset dir="./language-files">
+        <include name="dictionaries/British English/british.0" />
+        <include name="dictionaries/British English/british.1" />
+        <include name="dictionaries/British English/british.2" />
+      </fileset>
+    </zip>
+
+    <zip destfile="./language-files/US English-only.zip">
+      <fileset dir="./language-files">
+        <include name="dictionaries/US English/american.0" />
+        <include name="dictionaries/US English/american.1" />
+        <include name="dictionaries/US English/american.2" />
+      </fileset>
+    </zip>
+
+    <zip destfile="./language-files/Polish.zip">
+      <fileset dir="./language-files">
+        <include name="dictionaries/Polish/pl_huge.dic" />
+      </fileset>
+    </zip>
   </target>
-
+  
   <target name="createJar" depends="fullCompile">
     <property name="title" value="QuollWriter" />
     <property name="package" value="com/quollwriter" />
@@ -272,30 +291,6 @@
           <attribute name="Implementation-Vendor" value="${projectName}" />
           <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
         </section>
-      </manifest>
-    </jar>
-
-  </target>
-
-  <target name="createUpgradeJar" depends="init">
-    <property name="title" value="QuollWriter upgarde jar" />
-
-    <javac srcdir="${srcDir}"
-           destdir="${buildDir}"
-           debug="on"
-           deprecation="on"
-           nowarn="on"
-           target="1.6"
-           includes="com/quollwriter/tools/UpgradeQuollWriter.java"
-           excludes="**/svn/**">
-    </javac>
-    
-    <jar destfile="${upgradeQuollWriterJar}" >
-      <fileset dir="${buildDir}"
-               includes="com/quollwriter/tools/UpgradeQuollWriter.class" />
-      <manifest>
-        <attribute name="Built-By" value="${projectName}" />
-        <attribute name="Main-Class" value="com.quollwriter.tools.UpgradeQuollWriter" />
       </manifest>
     </jar>
 
@@ -357,85 +352,6 @@
     </javadoc>
   </target>
 
-  <target name="generalReplace">
-    <replace dir="src"
-             token="x"
-             value="y"
-             summary="yes" />
-  </target>
-
-  <target name="createThesaurusFiles">
-    <java classname="com.quollwriter.tools.CreateThesaurusFiles" 
-          maxmemory="256m"
-          fork="yes">
-      <arg value="./data/dictionaries/words-parts-of-speech.txt" />
-      <arg value="./data/dictionaries/thesaurus.txt" />
-      <arg value="./data/dictionaries/thesaurus-${thesaurusVersion}.txt" />
-      <arg value="./data/dictionaries/thesaurus-index-${thesaurusVersion}.txt" />
-      <classpath path="${jarName}:." />
-      <classpath>
-        <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
-        <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
-      </classpath>
-      
-    </java>
-  </target>
-
-  <target name="compileTest" depends="init">
-    <javac srcdir="."
-           destdir="."
-           debug="on"
-           deprecation="on"
-           nowarn="on"
-           includes="Test.java"
-           excludes="**/cvs/**,**/gui/**">
-      <classpath path="${jarName}" />
-      <classpath>
-        <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
-        <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
-      </classpath>      
-    </javac>
-           
-  </target>
-
-  <target name="execTest">
-    <java classname="Test" 
-          maxmemory="128m"
-          fork="yes">
-      <classpath path="${jarName}:." />
-      <classpath>
-        <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
-        <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
-      </classpath>      
-    </java>
-  </target>
-
-  <target name="createTestJar" depends="compileTest">
-    <property name="title" value="QuollWriter" />
-    
-    <jar destfile="test.jar" >
-      <fileset dir="."
-               includes="*.class" />
-      <manifest>
-        <attribute name="Built-By" value="${projectName}" />
-        <attribute name="Main-Class" value="Test" />
-
-        <section name="${package}">
-          <attribute name="Implementation-Title" value="${title}" />
-          <attribute name="Implementation-Vendor" value="${projectName}" />
-          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
-        </section>
-      </manifest>
-    </jar>
-
-  </target>
-
   <target name="createPromptFiles" depends="init">
     <java classname="com.quollwriter.tools.CreatePromptFiles" 
           maxmemory="512m"
@@ -467,5 +383,5 @@
       </classpath>
     </java>
   </target>
-
+  
 </project>
