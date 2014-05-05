@@ -40,8 +40,6 @@ The following is a brief outline of the major directories and files in the repos
 
 * `data` - directory containing the data files used by Quoll Writer such as properties and definitions.
 
-* `data/dictionaries` - directory containing the dictionary and thesaurus files.
-
 * `data/prompts` - directory containing the writing prompts.
 
 * `data/schema` - directory containing the schema definition files including the upgrade scripts and view definitions.
@@ -94,6 +92,16 @@ When a new project is created file: 0-1.xml is run.
 After an upgrade `data/schema/update-scripts/create-views.xml` is always run to update the views.
 
 The files defining the views used are held in: `data/schema/views`.
+
+Versions
+========
+
+Version 2.2 is now available.  A lot has changed in that version, mostly things that the user never sees.  The major changes are:
+
+    * The way the problem finder handles text has been rewritten.  Now a model of the text is built up, word by word, see: src/com/quollwriter/text/Sentence|Paragraph|Word for details.
+    * Removal of the native java blocking popup windows.  Good riddance.
+    * Inclusion of distraction free mode.  This caused a number of changes to occur including removing the use of jgoodies forms for the editor wrapper.
+    * Dictionaries are now downloaded upon first use rather than distributed in the exe.  This means that the data/dictionaries directory has been removed.  Please change the <b>quollWriterWebsite</b> property to your own website.
 
 
 Windows Installer
