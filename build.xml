@@ -41,19 +41,7 @@
   <target name="cleanBuild">
     <delete dir="${buildDir}" />
   </target>
-<!--
-  <target name="format">
-    <jalopy loglevel="INFO" log="format-log.log">
-      <fileset dir="${srcDir}">
-        <include name="**/*.java" />
-      </fileset>
-    </jalopy>
-    
-  </target>
--->
-<!--
-createDictionariesJar, 
--->
+
   <target name="run" depends="init, createJar, createPromptsJar, createDataJar, createImagesJar">
     <java classname="com.quollwriter.Startup" 
           maxmemory="512m"
@@ -71,8 +59,6 @@ createDictionariesJar,
                  includes="*.jar" />    
         <fileset dir="./3rd-party-jars/docx4j-jars"
                  includes="*.jar" />    
-        <fileset dir="./installer"
-                 includes="log4j.xml" />
       </classpath>
     </java>
   </target>
