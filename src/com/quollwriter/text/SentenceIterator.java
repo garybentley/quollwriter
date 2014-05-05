@@ -13,8 +13,8 @@ public class SentenceIterator implements Iterator<String>
     private BreakIterator sentenceIter = null;
     private String        text = null;
     private String        current = null;
-    private int           start = BreakIterator.DONE;
-    private int           end = BreakIterator.DONE;
+    private int           start = 0;
+    private int           end = 0;
     private boolean       inDialogue = false;
 
     public SentenceIterator(String text)
@@ -32,7 +32,7 @@ public class SentenceIterator implements Iterator<String>
 */
     }
 
-    public void reinit (String text)
+    private void reinit (String text)
     {
         
         this.text = text;
@@ -48,22 +48,25 @@ public class SentenceIterator implements Iterator<String>
         
         this.sentenceIter.setText (text);
         
+        this.init (this.start);
+/*
         if (this.start == BreakIterator.DONE)
         {
             
             this.start = this.sentenceIter.first ();
             
         } else {
-            
+            System.out.println ("HERE1: " + BreakIterator.DONE);
             if (this.end != BreakIterator.DONE)
             {
                 
                 this.end = this.sentenceIter.following (this.start);
-                
+            System.out.println ("HERE2: " + this.end);    
             }
             
         }
-        
+        System.out.println ("START: " + this.start + ", " + this.end);
+        */
     }
 
     public SentenceIterator clone ()
@@ -100,6 +103,41 @@ public class SentenceIterator implements Iterator<String>
 
     }
 
+    public String last ()
+    {
+        
+        if (this.text == null)
+        {
+            
+            return null;
+            
+        }
+    
+        // Get the current, check to see if we are in dialogue.
+        if (this.current != null)
+        {
+
+            List<String> swords = TextUtilities.getAsWords (this.current);
+/*
+            this.inDialogue = TextUtilities.stillInDialogue (swords,
+                                                             this.inDialogue);
+*/
+        }
+
+        this.start = this.sentenceIter.last ();
+
+        if (this.start == BreakIterator.DONE)
+        {
+
+            return null;
+
+        }
+
+        // Go back one.
+        return this.previous ();
+
+    }
+    
     public String next ()
     {
 
@@ -115,35 +153,50 @@ public class SentenceIterator implements Iterator<String>
         {
 
             List<String> swords = TextUtilities.getAsWords (this.current);
-
+/*
             this.inDialogue = TextUtilities.stillInDialogue (swords,
                                                              this.inDialogue);
-
+*/
         }
 
+        if (this.end == BreakIterator.DONE)
+        {
+            
+            return null;
+            
+        }
+        
         this.start = this.end;
-
+/*
         if (this.start == BreakIterator.DONE)
         {
 
             this.start = 0;
 
         }
-
+*/
         // Get the sentence.
         this.end = this.sentenceIter.next ();
 
         if (this.end == BreakIterator.DONE)
         {
 
-            return null;
+            if (this.start == this.text.length ())
+            {
+                
+                return null;
+                
+            }
+        
+            return this.text.substring (this.start);
+            //return null;
 
         }
 
         String s = this.text.substring (this.start,
                                         this.end);
 
-        // this.start = this.end;
+        //this.start = this.end;
 
         this.current = s;
 
@@ -204,22 +257,36 @@ public class SentenceIterator implements Iterator<String>
     public int init (int offset)
     {
 
-        if (offset == 0)
+        if (offset == BreakIterator.DONE)
         {
             
+            offset = 0;
+            
+        }
+    
+        if (offset == 0)
+        {
+       
             this.start = this.sentenceIter.first ();
             this.end = this.start;
             return this.start;
             
         }
-
+        
+        if (offset >= this.text.length ())
+        {
+            
+            offset = this.text.length ();
+            
+        }
+/*
         if (offset >= this.sentenceIter.last ())
         {
 
             return this.init (0);
             
         }
-
+*/
         int pi = this.sentenceIter.preceding (offset);
         int ni = this.sentenceIter.following (pi);
 
@@ -229,16 +296,16 @@ public class SentenceIterator implements Iterator<String>
            )
         {
             
-            this.start = pi;
             this.sentenceIter.preceding (offset);
 
         } else {
             
-            this.start = ni;
             this.sentenceIter.following (this.sentenceIter.preceding (offset));
 
         }
-            
+        
+        this.start = this.sentenceIter.current ();
+        
         this.end = this.start;
 
         return this.start;
@@ -252,6 +319,13 @@ public class SentenceIterator implements Iterator<String>
 
     }
 
+    public int getEndOffset ()
+    {
+        
+        return this.end;
+        
+    }
+    
     public int getOffset ()
     {
 

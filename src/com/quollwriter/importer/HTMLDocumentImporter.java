@@ -30,7 +30,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                      throws Exception
     {
 
-        this.p = new Project (null);
+        this.p = new Project ();
 
         return p;
 

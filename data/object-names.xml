@@ -1,0 +1,57 @@
+<objectNames>
+  <object type="chapter">
+    <singular>Chapter</singular>
+    <plural>Chapters</plural>
+  </object>
+
+  <object type="warmup">
+    <singular>Warm-up</singular>
+    <plural>Warm-ups</plural>
+  </object>
+  
+  <object type="character">
+    <singular>Character</singular>
+    <plural>Characters</plural>
+  </object>
+
+  <object type="location">
+    <singular>Location</singular>
+    <plural>Locations</plural>
+  </object>
+
+  <object type="object">
+    <singular>Item</singular>
+    <plural>Items</plural>
+  </object>
+
+  <object type="researchitem">
+    <singular>Research Item</singular>
+    <plural>Research Items</plural>
+  </object>
+
+  <object type="outlineitem">
+    <singular>Plot Outline Item</singular>
+    <plural>Plot Outline Items</plural>
+  </object>
+  
+  <object type="note">
+    <singular>Note</singular>
+    <plural>Notes</plural>
+  </object>
+  
+  <object type="editneedednote">
+    <singular>Edit Needed</singular>
+    <plural>Edit Needed</plural>
+  </object>
+
+  <object type="project">
+    <singular>Project</singular>
+    <plural>Projects</plural>
+  </object>
+
+  <object type="scene">
+    <singular>Scene</singular>
+    <plural>Scenes</plural>
+  </object>
+  
+</objectNames>

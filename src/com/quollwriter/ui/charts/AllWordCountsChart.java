@@ -59,7 +59,7 @@ public class AllWordCountsChart implements QuollChart
 
         Box b = new Box (BoxLayout.Y_AXIS);
 
-        Header h = UIUtils.createBoldSubHeader ("Display",
+        Header h = UIUtils.createBoldSubHeader ("For",
                                                 null);
         h.setAlignmentY (Component.TOP_ALIGNMENT);
 

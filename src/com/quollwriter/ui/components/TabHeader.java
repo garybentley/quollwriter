@@ -208,7 +208,15 @@ public class TabHeader extends Box
                                              0,
                                              0));
         this.label.setOpaque (false);
+        
+        if (this.label.getPreferredSize ().width > 250)
+        {
+        
+            this.label.setPreferredSize (new Dimension (250,
+                                                  this.label.getPreferredSize ().height));
 
+        }
+                                                  
         this.add (this.label);
         this.add (Box.createHorizontalStrut (10));
 

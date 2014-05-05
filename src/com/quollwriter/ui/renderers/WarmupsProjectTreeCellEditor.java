@@ -171,7 +171,7 @@ public class WarmupsProjectTreeCellEditor extends DefaultTreeCellEditor implemen
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to change chapter name.");
+                                      "An internal error has occurred.\n\nUnable to change {chapter} name.");
 
             return false;
 

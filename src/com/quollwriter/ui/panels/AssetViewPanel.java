@@ -12,6 +12,7 @@ import java.text.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -38,13 +39,10 @@ import com.quollwriter.ui.actionHandlers.*;
 //import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
-
-public class AssetViewPanel extends AbstractObjectViewPanel
+public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyChangedListener
 {
 
     private static Map<Class, Class> detailsEditPanels = new HashMap ();
-
-    private static Map<Class, Color> headerColors = new HashMap ();
 
     static
     {
@@ -60,36 +58,23 @@ public class AssetViewPanel extends AbstractObjectViewPanel
         m.put (QCharacter.class,
                CharacterDetailsEditPanel.class);
 
-        m = AssetViewPanel.headerColors;
-
-        m.put (ResearchItem.class,
-               UIUtils.getColor ("B7AFA3"));
-        m.put (Location.class,
-               UIUtils.getColor ("DAB576"));
-        m.put (QObject.class,
-               UIUtils.getColor ("7CB6DC"));
-        m.put (QCharacter.class,
-               UIUtils.getColor ("6D929B"));
-
     }
 
-    //private JTree          chapterTree = null;
     private ActionListener assetDeleteAction = null;
-    //private java.util.Timer appearsInChaptersRefreshTimer = null;
     private AppearsInChaptersEditPanel appearsInPanel = null;
 
-    public AssetViewPanel(ProjectViewer pv,
-                          Asset         a)
+    public AssetViewPanel (AbstractProjectViewer pv,
+                           Asset                 a)
                    throws GeneralException
     {
 
         super (pv,
                a);
-
+               
     }
 
-    public static DetailsEditPanel getEditDetailsPanel (Asset         a,
-                                                        ProjectViewer pv)
+    public static DetailsEditPanel getEditDetailsPanel (Asset                 a,
+                                                        AbstractProjectViewer pv)
                                                  throws GeneralException
     {
 
@@ -101,7 +86,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel
             Class c = AssetViewPanel.detailsEditPanels.get (a.getClass ());
 
             Constructor con = c.getConstructor (Asset.class,
-                                                ProjectViewer.class);
+                                                AbstractProjectViewer.class);
 
             adep = (DetailsEditPanel) con.newInstance (a,
                                                        pv);
@@ -129,8 +114,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel
      * @returns The edit details panel.
      * @throws GeneralException If the panel cannot be created.
      */
-    public DetailsEditPanel getDetailEditPanel (ProjectViewer pv,
-                                                NamedObject   n)
+    public DetailsEditPanel getDetailEditPanel (AbstractProjectViewer pv,
+                                                NamedObject           n)
                                          throws GeneralException
     {
 
@@ -152,16 +137,16 @@ public class AssetViewPanel extends AbstractObjectViewPanel
         return this.obj.getObjectType ();
 
     }
-
+/*
     public Color getHeaderColor ()
     {
 
         return AssetViewPanel.headerColors.get (this.obj.getClass ());
 
     }
-
-    public static ActionListener getDeleteAssetAction (final ProjectViewer pv,
-                                                       final Asset         a)
+*/
+    public static ActionListener getDeleteAssetAction (final AbstractProjectViewer pv,
+                                                       final Asset                 a)
     {
 
         return new ActionAdapter ()
@@ -170,21 +155,44 @@ public class AssetViewPanel extends AbstractObjectViewPanel
             public void actionPerformed (ActionEvent ev)
             {
 
-                if (JOptionPane.showConfirmDialog (pv,
-                                                   "Please confirm you wish to delete " +
-                                                   Environment.getObjectTypeName (a) +
-                                                   ": " +
-                                                   a.getName (),
-                                                   "Confirm deletion of " +
-                                                   Environment.getObjectTypeName (a) +
-                                                   ": " + a.getName (),
-                                                   JOptionPane.OK_CANCEL_OPTION,
-                                                   JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION)
-                {
-
-                    pv.deleteAsset (a);
-
-                }
+                UIUtils.createQuestionPopup (pv,
+                                             "Delete " +
+                                             Environment.getObjectTypeName (a),
+                                             Constants.DELETE_ICON_NAME,
+                                             "Please confirm you wish to delete " +
+                                             Environment.getObjectTypeName (a) +
+                                             " <b>" +
+                                             a.getName () +
+                                             "</b>?",
+                                             "Yes, delete it",
+                                             null,
+                                             new ActionListener ()
+                                             {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    try
+                                                    {
+                                                
+                                                        pv.deleteObject (a);
+                                                        
+                                                    } catch (Exception e) {
+                                                        
+                                                        Environment.logError ("Unable to delete asset: " +
+                                                                              a,
+                                                                              e);
+                                                        
+                                                        UIUtils.showErrorMessage (pv,
+                                                                                  "Unable to delete");                        
+                                                        
+                                                    }                                                    
+                                                    
+                                                }
+                                                
+                                             },
+                                             null,
+                                             null);
 
             }
 
@@ -192,8 +200,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel
 
     }
 
-    public ActionListener getDeleteObjectAction (ProjectViewer pv,
-                                                 NamedObject   n)
+    public ActionListener getDeleteObjectAction (AbstractProjectViewer pv,
+                                                 NamedObject           n)
     {
 
         if (this.assetDeleteAction == null)
@@ -217,8 +225,40 @@ public class AssetViewPanel extends AbstractObjectViewPanel
     public void doInit ()
     {
 
+        DetailsEditPanel edPan = this.getDetailsPanel ();
+               
+        Set<String> objChangeEventTypes = edPan.getObjectChangeEventTypes ();
+        
+        if ((objChangeEventTypes != null)
+            &&
+            (objChangeEventTypes.size () > 0)
+           )
+        {
+            
+            Map events = new HashMap ();
+            
+            for (String s : objChangeEventTypes)
+            {
+                
+                events.put (s,
+                            s);
+                
+            }
+            
+            this.obj.addPropertyChangedListener (this,
+                                                 events);            
+            
+        }               
+    
     }
 
+    public void propertyChanged (PropertyChangedEvent ev)
+    {
+
+        this.getDetailsPanel ().refreshViewPanel ();
+    
+    }    
+    
     public EditPanel getBottomEditPanel ()
     {
 
@@ -238,187 +278,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel
                                                               this.obj);
         
         return this.appearsInPanel;
-/*
-        final AssetViewPanel _this = this;
 
-        return new EditPanel (true)
-        {
-
-            public void refreshViewPanel ()
-            {
-
-                // Get the snippets.
-                Map<Chapter, List<Segment>> snippets = UIUtils.getObjectSnippets (_this.obj,
-                                                                                  _this.projectViewer);
-
-                DefaultMutableTreeNode tn = new DefaultMutableTreeNode (_this.projectViewer.getProject ());
-
-                UIUtils.createTree (snippets,
-                                    tn);
-
-                UIUtils.setTreeRootNode (_this.chapterTree,
-                                         tn);
-
-                // Create the tree.
-                //((DefaultTreeModel) _this.chapterTree.getModel ()).setRoot (tn);
-
-            }
-
-            public boolean handleSave ()
-            {
-
-                return true;
-
-            }
-
-            public List<FormItem> getEditItems ()
-            {
-
-                return null;
-
-            }
-
-            public List<FormItem> getViewItems ()
-            {
-
-                return null;
-
-            }
-
-            public boolean handleCancel ()
-            {
-
-                return true;
-
-            }
-
-            public void handleEditStart ()
-            {
-
-
-            }
-
-            public IconProvider getIconProvider ()
-            {
-
-                DefaultIconProvider iconProv = new DefaultIconProvider ();
-                iconProv.putIcon ("header",
-                                  "book");
-
-                return iconProv;
-
-            }
-
-            public String getHelpText ()
-            {
-
-                return null;
-
-            }
-
-            public String getTitle ()
-            {
-
-                return "Appears in Chapters";
-
-            }
-
-            public JComponent getEditPanel ()
-            {
-
-                return null;
-
-            }
-
-            public JComponent getViewPanel ()
-            {
-
-                _this.chapterTree = UIUtils.createTree ();
-                _this.chapterTree.setCellRenderer (new ChapterSnippetsTreeCellRenderer ());
-                _this.chapterTree.setToggleClickCount (1);
-                _this.chapterTree.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                _this.chapterTree.addMouseListener (new MouseAdapter ()
-                    {
-
-                        private QTextEditor editor = null;
-                        private Object highlightId = null;
-
-                        public void mouseReleased (MouseEvent ev)
-                        {
-
-                            // Goto the chapter/snippet.
-                            if (ev.getClickCount () == 2)
-                            {
-
-                                TreePath tp = _this.chapterTree.getPathForLocation (ev.getX (),
-                                                                                    ev.getY ());
-
-                                if (tp == null)
-                                {
-
-                                    return;
-
-                                }
-
-                                final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
-
-                                Object o = node.getUserObject ();
-
-                                if (o instanceof Chapter)
-                                {
-
-                                    _this.projectViewer.editChapter ((Chapter) o);
-
-                                }
-
-                                if (o instanceof Segment)
-                                {
-
-                                    // Get the offset.
-                                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent ();
-
-                                    final Chapter c = (Chapter) parent.getUserObject ();
-
-                                    final Segment s = (Segment) o;
-
-                                    _this.projectViewer.scrollTo (c,
-                                                                  s.getBeginIndex ());
-
-                                    final QTextEditor ed = _this.projectViewer.getEditorForChapter (c).getEditor ();
-
-                                    if (this.editor != null)
-                                    {
-
-                                        this.editor.removeHighlight (this.highlightId);
-
-                                    }
-
-                                    this.editor = ed;
-
-                                    this.highlightId = ed.addHighlight (s.getBeginIndex (),
-                                                                        s.getEndIndex (),
-                                                                        null,
-                                                                        true);
-
-                                }
-
-                            }
-
-                        }
-
-                    });
-
-                JScrollPane treeScroll = new JScrollPane (_this.chapterTree);
-                treeScroll.setOpaque (false);
-                treeScroll.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                return treeScroll;
-
-            }
-
-        };
-*/
     }
 
     public void doRefresh ()
@@ -429,6 +289,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel
     public void close ()
     {
 
+        this.obj.removePropertyChangedListener (this);
+    
         this.appearsInPanel.close ();
 
     }

@@ -38,6 +38,8 @@ import com.swabunga.spell.event.*;
 public class WarmupEditorPanel extends AbstractEditorPanel
 {
 
+     public static final String CONVERT_TO_PROJECT_ACTION_NAME = "convert-to-project";
+
     protected WarmupsViewer projectViewer = null;
     private Warmup          warmup = null;
     private JTextPane       promptPreview = null;
@@ -54,6 +56,9 @@ public class WarmupEditorPanel extends AbstractEditorPanel
         this.projectViewer = pv;
         this.warmup = w;
 
+        this.actions.put (CONVERT_TO_PROJECT_ACTION_NAME,
+                          this.projectViewer.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
+                                                        this.warmup.getChapter ()));
     }
 
     public void setFontColor (Color c)
@@ -138,7 +143,7 @@ public class WarmupEditorPanel extends AbstractEditorPanel
 
         final WarmupEditorPanel _this = this;
     
-        acts.add (UIUtils.createToolBarButton (Constants.UP_ICON_NAME,
+        acts.add (UIUtils.createToolBarButton (Constants.DOWN_ICON_NAME,
                                                "Click to view the prompt",
                                                "showprompt",
                                                new ActionAdapter ()
@@ -162,18 +167,56 @@ public class WarmupEditorPanel extends AbstractEditorPanel
     }
 
     public void doFillPopupMenu (final MouseEvent ev,
-                                 final JPopupMenu popup)
+                                 final JPopupMenu popup,
+                                       boolean    compress)
     {
 
-        JMenuItem mi = new JMenuItem ("Convert to a " + Environment.getObjectTypeName (Project.OBJECT_TYPE),
-                                      Environment.getIcon (Constants.CONVERT_ICON_NAME,
-                                                           Constants.ICON_MENU));
+        final WarmupEditorPanel _this = this;
+    
+        if (compress)
+        {
+                         
+            List<JComponent> buts = new ArrayList ();
 
-        mi.addActionListener (this.projectViewer.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
-                                                            this.warmup.getChapter ()));
+            buts.add (this.createButton (Constants.SAVE_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Save {Warmup}",
+                                         SAVE_ACTION_NAME));
 
-        popup.add (mi);
+            buts.add (this.createButton (Constants.CONVERT_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Convert to a {Project}",
+                                         CONVERT_TO_PROJECT_ACTION_NAME));
+            
+            buts.add (this.createButton (Constants.FIND_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Find",
+                                         Constants.SHOW_FIND_ACTION));
+                                                                                        
+            popup.add (UIUtils.createPopupMenuButtonBar (Environment.replaceObjectNames ("{Warmup}"),
+                                                         popup,
+                                                         buts));
+                                            
+        } else {    
 
+          JMenuItem mi = null;
+        
+          mi = this.createMenuItem ("Save {Chapter}",
+                                    Constants.SAVE_ICON_NAME,
+                                    SAVE_ACTION_NAME,
+                                    KeyStroke.getKeyStroke (KeyEvent.VK_S,
+                                                            ActionEvent.CTRL_MASK));
+          mi.setMnemonic (KeyEvent.VK_S);
+
+          popup.add (mi);
+            
+          popup.add (this.createMenuItem ("Convert to a {Project}",
+                                          Constants.CONVERT_ICON_NAME,
+                                          CONVERT_TO_PROJECT_ACTION_NAME,
+                                          null));
+  
+        }
+          
     }
 
     public List<Component> getTopLevelComponents ()
@@ -198,7 +241,8 @@ public class WarmupEditorPanel extends AbstractEditorPanel
 
         final WarmupEditorPanel _this = this;
 
-        this.promptPreview = UIUtils.createHelpTextPane (UIUtils.formatPrompt (this.warmup.getPrompt ()));
+        this.promptPreview = UIUtils.createHelpTextPane (UIUtils.formatPrompt (this.warmup.getPrompt ()),
+                                                         this.projectViewer);
         this.promptPreview.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                           Short.MAX_VALUE));
         this.promptPreview.setBorder (new EmptyBorder (0, 5, 0, 5));

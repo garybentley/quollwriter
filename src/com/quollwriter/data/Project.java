@@ -6,21 +6,39 @@ import java.util.*;
 
 import com.quollwriter.*;
 
+import com.quollwriter.data.editors.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.events.*;
 
 import org.jdom.*;
 
+import com.gentlyweb.xml.*;
 
 public class Project extends NamedObject
 {
+
+    public class XMLConstants
+    {
+
+        public static final String projects = "projects";
+        public static final String directory = "directory";
+        public static final String name = "name";
+        public static final String lastEdited = "lastEdited";
+        public static final String encrypted = "encrypted";
+        public static final String noCredentials = "noCredentials";
+        public static final String type = "type";
+        public static final String backupService = "backupService";
+        public static final String editorsProjectId = "editorsProjectId";
+
+    }
 
     public static final String OBJECT_TYPE = "project";
     public static final String WORDCOUNTS_OBJECT_TYPE = "wordcounts";
 
     public static final String NORMAL_PROJECT_TYPE = "normal";
     public static final String WARMUPS_PROJECT_TYPE = "warmups";
+    public static final String EDITOR_PROJECT_TYPE = "editor";
 
     public static final String BOOK_ADDED = "book_added";
 
@@ -39,7 +57,108 @@ public class Project extends NamedObject
     private String             filePassword = null;
     private boolean            noCredentials = false;
     private String             type = Project.NORMAL_PROJECT_TYPE;
+    private String             backupService = null;
+    private String             editorsProjectId = null;
+    private EditorProject      editorProject = null;
+    
+    public Project (Element pEl)
+                    throws  Exception
+    {
 
+        this ();
+    
+        String name = JDOMUtils.getChildElementContent (pEl,
+                                                        XMLConstants.name);
+        String type = JDOMUtils.getAttributeValue (pEl,
+                                                   XMLConstants.type,
+                                                   false);
+
+        if (type.equals (""))
+        {
+
+            type = null;
+
+        }
+        
+        String directory = JDOMUtils.getChildElementContent (pEl,
+                                                             XMLConstants.directory);
+
+        boolean encrypted = JDOMUtils.getAttributeValueAsBoolean (pEl,
+                                                                  XMLConstants.encrypted,
+                                                                  false);
+
+        boolean noCredentials = false;
+
+        if (JDOMUtils.getAttribute (pEl,
+                                    XMLConstants.noCredentials,
+                                    false) != null)
+        {
+
+            noCredentials = JDOMUtils.getAttributeValueAsBoolean (pEl,
+                                                                  XMLConstants.noCredentials);
+
+        }
+
+        String d = JDOMUtils.getAttributeValue (pEl,
+                                                XMLConstants.lastEdited,
+                                                false);
+
+        String bs = JDOMUtils.getAttributeValue (pEl,
+                                                 XMLConstants.backupService,
+                                                 false);
+                                                
+        File dir = new File (directory);
+
+        this.name = name;
+        
+        this.setProjectDirectory (dir);
+        this.setEncrypted (encrypted);
+        this.setNoCredentials (noCredentials);
+
+        if (!bs.equals (""))
+        {
+            
+            this.setBackupService (bs);
+            
+        }
+        
+        if (type != null)
+        {
+
+            this.setType (type);
+
+        }
+
+        if (!d.equals (""))
+        {
+
+            try
+            {
+
+                this.setLastEdited (new Date (Long.parseLong (d)));
+
+            } catch (Exception e)
+            {
+
+                // Ignore it.
+
+            }
+
+        }
+
+        String id = JDOMUtils.getAttributeValue (pEl,
+                                                 XMLConstants.editorsProjectId,
+                                                 false);
+        
+        if (!id.equals (""))
+        {
+            
+            this.editorsProjectId = id;
+            
+        }
+        
+    }
+    
     public Project()
     {
 
@@ -55,6 +174,55 @@ public class Project extends NamedObject
 
     }
 
+    public void setEditorProject (EditorProject p)
+    {
+        
+        this.editorProject = p;
+        
+        if (p != null)
+        {
+        
+            p.setProject (this);
+            
+        }
+        
+    }
+    
+    public EditorProject getEditorProject ()
+    {
+        
+        return this.editorProject;
+        
+    }
+    
+    public void setEditorsProjectId (String id)
+    {
+        
+        this.editorsProjectId = id;
+        
+    }
+    
+    public String getEditorsProjectId ()
+    {
+        
+        return this.editorsProjectId;
+        
+    }
+    
+    public void setBackupService (String b)
+    {
+        
+        this.backupService = b;
+        
+    }
+    
+    public String getBackupService ()
+    {
+        
+        return this.backupService;
+        
+    }
+    
     public String getType ()
     {
 
@@ -161,6 +329,55 @@ public class Project extends NamedObject
 
     }
 
+    public boolean hasObject (DataObject d)
+    {
+
+        if (d instanceof IdeaType)
+        {
+
+            return this.getIdeaType (d.getKey ()) != null;
+        
+        }
+        
+        if (d instanceof Chapter)
+        {
+            
+            return ((Chapter) d).getBook ().getChapterByKey (d.getKey ()) != null;
+            
+        }
+        
+        if (d instanceof QCharacter)
+        {
+            
+            return this.getCharacter (d.getKey ()) != null;
+        
+        }
+
+        if (d instanceof Location)
+        {
+            
+            return this.getLocation (d.getKey ()) != null;
+        
+        }
+
+        if (d instanceof QObject)
+        {
+            
+            return this.getQObject (d.getKey ()) != null;
+        
+        }
+
+        if (d instanceof ResearchItem)
+        {
+            
+            return this.getResearchItem (d.getKey ()) != null;
+        
+        }
+
+        return false;
+        
+    }
+    
     public void removeObject (DataObject d)
     {
 
@@ -514,7 +731,7 @@ public class Project extends NamedObject
     public String toString ()
     {
 
-        return Project.OBJECT_TYPE + "(key: " + this.getKey () + ", name: " + this.getName () + ", dir: " + this.projectDirectory + ", encrypted: " + this.encrypted + ", lastEdited: " + this.lastEdited + ", backupVersion: " + this.backupVersion + ")";
+        return Project.OBJECT_TYPE + "(key: " + this.getKey () + ", name: " + this.getName () + ", dir: " + this.projectDirectory + ", encrypted: " + this.encrypted + ", lastEdited: " + this.lastEdited + ", backupVersion: " + this.backupVersion + ", backupService: " + this.backupService + ")";
 
     }
 
@@ -598,6 +815,25 @@ public class Project extends NamedObject
 
     }
 
+    public IdeaType getIdeaType (Long key)
+    {
+        
+        for (IdeaType i : this.ideaTypes)
+        {
+            
+            if (i.getKey () == key)
+            {
+                
+                return i;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+    
     public QObject getQObject (Long key)
     {
 
@@ -829,4 +1065,68 @@ public class Project extends NamedObject
 
     }
 
+    public Element getAsJDOMElement ()
+    {
+        
+        Element pEl = new Element (Project.OBJECT_TYPE);
+
+        Element nEl = new Element (Environment.XMLConstants.name);
+        pEl.addContent (nEl);
+        nEl.addContent (this.getName ());
+
+        if (this.getType () == null)
+        {
+
+            this.setType (Project.NORMAL_PROJECT_TYPE);
+
+        }
+
+        pEl.setAttribute (XMLConstants.type,
+                          this.getType ());
+
+        if (this.getBackupService () != null)
+        {
+            
+            pEl.setAttribute (XMLConstants.backupService,
+                              this.getBackupService ());
+                          
+        }
+        
+        Element dEl = new Element (XMLConstants.directory);
+        pEl.addContent (dEl);
+        dEl.addContent (this.getProjectDirectory ().getPath ());
+
+        Date lastEdited = this.getLastEdited ();
+
+        if (lastEdited != null)
+        {
+
+            pEl.setAttribute (XMLConstants.lastEdited,
+                              String.valueOf (lastEdited.getTime ()));
+
+        }
+
+        pEl.setAttribute (XMLConstants.encrypted,
+                          Boolean.valueOf (this.isEncrypted ()).toString ());
+
+        if (this.isNoCredentials ())
+        {
+
+            pEl.setAttribute (XMLConstants.noCredentials,
+                              Boolean.valueOf (this.isNoCredentials ()).toString ());
+
+        }
+
+        if (this.editorsProjectId != null)
+        {
+            
+            pEl.setAttribute (XMLConstants.editorsProjectId,
+                              this.editorsProjectId);
+            
+        }
+        
+        return pEl;
+        
+    }
+    
 }

@@ -26,6 +26,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.renderers.*;
 
@@ -39,8 +40,8 @@ public class NoteActionHandler extends ProjectViewerActionHandler
     private int        showAt = -1;
     private JComboBox  types = null;
 
-    public NoteActionHandler(Note             n,
-                             QuollEditorPanel qep)
+    public NoteActionHandler(Note                n,
+                             AbstractEditorPanel qep)
     {
 
         super (n,
@@ -57,24 +58,24 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public NoteActionHandler(Chapter          c,
-                             QuollEditorPanel qep,
-                             int              showAt)
+    public NoteActionHandler(Chapter             c,
+                             AbstractEditorPanel qep,
+                             int                 showAt)
     {
 
         this (c,
               qep,
-              null);
-
-        this.showAt = showAt;
+              null,
+              showAt);
 
         this.setPopupOver (qep); // pv.getEditorForChapter (c));
 
     }
 
-    public NoteActionHandler(Chapter          c,
-                             QuollEditorPanel qep,
-                             String           noteType)
+    public NoteActionHandler(Chapter             c,
+                             AbstractEditorPanel qep,
+                             String              noteType,
+                             int                 showAt)
     {
 
         super (new Note (0,
@@ -83,6 +84,8 @@ public class NoteActionHandler extends ProjectViewerActionHandler
                AbstractActionHandler.ADD,
                true);
 
+        this.showAt = showAt;
+               
         this.chapter = c;
 
         this.setPopupOver (qep); // pv.getEditorForChapter (c));
@@ -162,46 +165,26 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
         final NoteActionHandler _this = this;
 
-        this.summaryField.addKeyListener (new KeyAdapter ()
+        ActionListener doSave = new ActionAdapter ()
+        {
+          
+            public void actionPerformed (ActionEvent ev)
             {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        // This is the same as save for the form.
-                        _this.submitForm ();
-
-                    }
-
-                }
-
-            });
-
-        this.descField.addKeyListener (new KeyAdapter ()
-            {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) &&
-                        (ev.getKeyCode () == KeyEvent.VK_ENTER))
-                    {
-
-                        // This is the same as save for the form.
-                        _this.submitForm ();
-
-                    }
-
-                }
-
-            });
-
+                
+                _this.submitForm ();
+                
+            }
+            
+        };
+        
+        UIUtils.addDoActionOnReturnPressed (this.summaryField,
+                                            doSave);
+        UIUtils.addDoActionOnReturnPressed (this.descField,
+                                            doSave);
+        
         this.descField.setRows (5);
 
-        this.types = new JComboBox (new Vector (this.projectViewer.getNoteTypeHandler ().getTypes ()));
+        this.types = new JComboBox (new Vector (this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).getTypes ()));
         this.types.setEditable (true);
 
         this.types.setMaximumSize (this.types.getPreferredSize ());
@@ -356,18 +339,28 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
             int s = this.editorPanel.getEditor ().getSelectionStart ();
             int e = this.editorPanel.getEditor ().getSelectionEnd ();
+        
+            if ((mode == AbstractActionHandler.EDIT)
+                &&
+                (s != e)
+                &&
+                (e > s)
+               )
+            {
+        
+                n.setPosition (s);
+                n.setEndPosition (e);
 
-            n.setPosition (s);
-            n.setEndPosition (e);
-
-        }
-
-        if (this.mode == AbstractActionHandler.ADD)
-        {
-
-            // Add the item to the chapter.
-            this.chapter.addNote (n);
-
+            }
+            
+            if (mode == AbstractActionHandler.ADD)
+            {
+                
+                n.setPosition (s);
+                n.setEndPosition (e);                
+                
+            }
+            
         }
 
         try
@@ -390,6 +383,14 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
         }
 
+        if (this.mode == AbstractActionHandler.ADD)
+        {
+
+            // Add the item to the chapter.
+            this.chapter.addNote (n);
+
+        }
+        
         if (n.isEditNeeded ())
         {
             
@@ -400,6 +401,13 @@ public class NoteActionHandler extends ProjectViewerActionHandler
     
                 n.setTextPosition (pos);            
 
+                if (n.getEndPosition () > -1)
+                {
+    
+                    n.setEndTextPosition (this.editorPanel.getEditor ().getDocument ().createPosition (n.getEndPosition ()));
+    
+                }                
+                
             } catch (Exception e) {
                 
                 Environment.logError ("Unable to set text position",
@@ -412,23 +420,23 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         if (n.getChapter () != null)
         {
 
-            // QuollEditorPanel qep = this.projectViewer.getEditorForChapter (this.chapter);
-
             QTextEditor editor = this.editorPanel.getEditor ();
 
             editor.grabFocus ();
 
         }
 
-        // String item = this.types.getEditor ().getItem ().toString ().trim ();
-
-        this.projectViewer.getNoteTypeHandler ().addType (type,
-                                                          true);
+        this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).addType (type,
+                                                                             true);
 
         // Expand the note type.
-        this.projectViewer.expandNoteTypeInNoteTree (type);
+        this.projectViewer.showObjectInTree (Note.OBJECT_TYPE,
+                                             new TreeParentNode (Note.OBJECT_TYPE,
+                                                                 type));
+                                             
+        this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
-        this.projectViewer.reloadNoteTree ();
+        this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
         
         return true;
 

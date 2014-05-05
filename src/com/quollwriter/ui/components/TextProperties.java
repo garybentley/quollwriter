@@ -13,6 +13,8 @@ public class TextProperties implements TextStylable
     private float lineSpacing = 0;
     private Color textColor = null;
     private Color bgColor = null;
+    private Color writingLineColor = null;
+    private boolean highlightWritingLine = false;
     
     protected TextProperties ()
     {
@@ -36,7 +38,9 @@ public class TextProperties implements TextStylable
               props.firstLineIndent,
               props.lineSpacing,
               props.textColor,
-              props.bgColor);
+              props.bgColor,
+              props.writingLineColor,
+              props.highlightWritingLine);
         
     }
     
@@ -45,7 +49,9 @@ public class TextProperties implements TextStylable
                            int          fontSize,
                            String       alignment,
                            boolean      firstLineIndent,
-                           float        lineSpacing)
+                           float        lineSpacing,
+                           Color        writingLineColor,
+                           boolean      highlightWritingLine)
     {    
 
         this (setOn,
@@ -55,7 +61,9 @@ public class TextProperties implements TextStylable
               firstLineIndent,
               lineSpacing,
               null,
-              null);
+              null,
+              writingLineColor,
+              highlightWritingLine);
     
     }
     
@@ -66,7 +74,9 @@ public class TextProperties implements TextStylable
                            boolean      firstLineIndent,
                            float        lineSpacing,
                            Color        textColor,
-                           Color        bgColor)
+                           Color        bgColor,
+                           Color        writingLineColor,
+                           boolean      highlightWritingLine)
     {
         
         this (setOn);
@@ -77,7 +87,9 @@ public class TextProperties implements TextStylable
                            firstLineIndent,
                            lineSpacing,
                            textColor,
-                           bgColor);
+                           bgColor,
+                           writingLineColor,
+                           highlightWritingLine);
         
     }
 
@@ -92,7 +104,9 @@ public class TextProperties implements TextStylable
                            props.firstLineIndent,
                            props.lineSpacing,
                            props.textColor,
-                           props.bgColor);                
+                           props.bgColor,
+                           props.writingLineColor,
+                           props.highlightWritingLine);                
         
     }
     
@@ -102,7 +116,9 @@ public class TextProperties implements TextStylable
                                   boolean      firstLineIndent,
                                   float        lineSpacing,
                                   Color        textColor,
-                                  Color        bgColor)
+                                  Color        bgColor,
+                                  Color        writingLineColor,
+                                  boolean      highlightWritingLine)
     {
         
         this.fontFamily = fontFamily;
@@ -112,6 +128,8 @@ public class TextProperties implements TextStylable
         this.lineSpacing = lineSpacing;
         this.textColor = textColor;
         this.bgColor = bgColor;
+        this.writingLineColor = writingLineColor;
+        this.highlightWritingLine = highlightWritingLine;
         
     }
     
@@ -131,8 +149,55 @@ public class TextProperties implements TextStylable
             this.setLineSpacing (this.lineSpacing);
             this.setTextColor (this.textColor);
             this.setBackgroundColor (this.bgColor);
+            this.setWritingLineColor (this.writingLineColor);
+            this.setHighlightWritingLine (this.highlightWritingLine);
 
         }
+        
+    }
+    
+    public boolean isHighlightWritingLine ()
+    {
+        
+        return this.highlightWritingLine;
+        
+    }
+    
+    public void setHighlightWritingLine (boolean v)
+    {
+        
+        this.highlightWritingLine = v;
+        
+        if (this.setOn != null)
+        {
+            
+            this.setOn.setHighlightWritingLine (v);
+            
+        }
+        
+    }
+    
+    public void setWritingLineColor (Color c)
+    {
+        
+        this.writingLineColor = c;
+        
+        if ((this.setOn != null)
+            &&
+            (this.writingLineColor != null)
+           )
+        {
+            
+            this.setOn.setWritingLineColor (c);
+            
+        }
+
+    }
+    
+    public Color getWritingLineColor ()
+    {
+        
+        return this.writingLineColor;
         
     }
     

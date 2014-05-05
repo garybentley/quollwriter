@@ -34,8 +34,7 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
     {
 
         super (pv,
-               p,
-               false);
+               p);
 
     }
 
@@ -153,7 +152,8 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
         
         this.add (header);
 
-        JComponent help = UIUtils.createHelpTextPane ("Listed below are all the achievements you have found/reached within Quoll Writer.  Some of the achievements apply to each project you create, others are just for general usage of Quoll Writer.  There are also a number of hidden achievements, can you find them?");
+        JComponent help = UIUtils.createHelpTextPane ("Listed below are all the achievements you have found/reached within Quoll Writer.  Some of the achievements apply to each {project} you create, others are just for general usage of Quoll Writer.  There are also a number of hidden achievements, can you find them?",
+                                                      this.projectViewer);
         
         help.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));

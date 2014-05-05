@@ -100,7 +100,7 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
         
         this.warmupsItem = new WarmupsAccordionItem (this.projectViewer);
 
-        this.warmupsItem.setTitle ("Previous Warm-ups");
+        this.warmupsItem.setTitle ("Previous {Warmups}");
 
         JScrollPane sp = new JScrollPane (this.warmupsItem);
         

@@ -7,7 +7,7 @@ import java.util.*;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
-
+import com.quollwriter.data.editors.*;
 
 public class ProjectDataHandler implements DataHandler
 {
@@ -124,7 +124,12 @@ public class ProjectDataHandler implements DataHandler
                     p.addIdeaType ((IdeaType) its.get (i));
 
                 }
-
+/*
+                p.setEditorProject ((EditorProject) this.objectManager.getObjectByKey (EditorProject.class,
+                                                                                       -1,
+                                                                                       conn,
+                                                                                       loadChildObjects));
+  */              
             }
 
             return p;
@@ -345,6 +350,7 @@ public class ProjectDataHandler implements DataHandler
                        throws GeneralException
     {
 
+        throw new GeneralException ("Not supported");
 
     }
 

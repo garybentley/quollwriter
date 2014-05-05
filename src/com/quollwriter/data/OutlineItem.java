@@ -54,14 +54,27 @@ public class OutlineItem extends ChapterItem
         return this.scene;
 
     }
+*/
 
     public void setScene (Scene s)
     {
 
-        this.scene = s;
+        if (s == null)
+        {
+            
+            if (this.scene != null)
+            {
+                
+                this.scene.removeOutlineItem (this);
+                
+            }
+            
+        }
+    
+        super.setScene (s);
 
     }
-*/
+
     /**
      * Overridden because of legacy data.
      */

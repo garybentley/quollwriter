@@ -6,8 +6,6 @@ import java.util.*;
 
 import com.quollwriter.*;
 
-import com.quollwriter.synonyms.*;
-
 import com.quollwriter.text.*;
 
 
@@ -82,7 +80,8 @@ public class ReadabilityIndices
         }
 
         // Turn off the cache, it may have used quite a bit of memory.
-        Environment.setSynonymProviderUseCache (true);
+        // Shouldn't be needed anymore.
+        //Environment.setSynonymProviderUseCache (true);
         
     }
 

@@ -7,7 +7,8 @@ public class QObject extends Asset
 {
 
     public static final String OBJECT_TYPE = "object";
-
+    public static final String TYPE = "type";
+    
     private String type = null;
 
     public QObject()
@@ -27,8 +28,14 @@ public class QObject extends Asset
     public void setType (String t)
     {
 
+        String oldType = this.type;
+    
         this.type = t;
 
+        this.firePropertyChangedEvent (TYPE,
+                                       oldType,
+                                       this.type);        
+        
     }
 
     public void getChanges (NamedObject old,

@@ -1,6 +1,30 @@
 <tips>
   <tip>
+    <item condition="chaptertab"><![CDATA[Did you know you can keep track of how much of a chapter you have edited?  Just right click at any point in the chapter and select <b>{Chapter} Edit</b> then {edit-point} <b>Set Edit Point</b>.]]></item>
+  </tip>
+  <tip>
+    <item><![CDATA[Don't like what things are called?  <a href="action:editobjectnames">Click here to change them.</a>]]></item>
+  </tip>
+  <tip>
+    <item><![CDATA[You know when you right click when editing a chapter?  You can compress the menu you see in the options.  <a href="action:options">Click here to view options.</a>]]></item>
+  </tip>
+  <tip>
+    <item><![CDATA[Don't like the position of the tabs?  Change it in the options.  <a href="action:options">Click here to view options.</a>]]></item>
+  </tip>
+  <tip>
+    <item><![CDATA[Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href="action:textproperties">Click here to view the text properties now.</a>]]></item>
+  </tip>
+  <tip>
+    <item condition="!options"><![CDATA[Want to change something?  <a href="action:projectoptions">Check out the options, there might be a setting for it.</a>]]></item>
+  </tip>
+  <tip>
+    <item><![CDATA[Changing the setting of an option will take effect straight away, no need to save.]]></item>
+  </tip>
+  <tip>
     <item><![CDATA[Want to work in full screen mode?  <a href="action:fullscreen">Click to enter full screen mode now.</a><br />You can also press F5 or use the {fullscreen,fullscreen} button on the toolbar to enter full screen mode.]]></item>
+  </tip>
+  <tip>
+    <item><![CDATA[Can't remember what the awesome was added in this release?  <a href="action:whatsnew">Click to see what's new.</a>]]></item>
   </tip>
   <tip>
     <item><![CDATA[Got writer's block?  <a href="action:warmup">Why not try a warm-up exercise?</a> To do a warm-up at any time select {warmups}<b>Do a Warm-up Exercise</b> from the project menu.]]></item>
@@ -74,7 +98,7 @@
   </tip>
   
   <tip>
-    <item><![CDATA[In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top or bottom of the screen to see the options.]]></item>
+    <item><![CDATA[In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top of the screen to see the options.]]></item>
   </tip>
 
   <tip>

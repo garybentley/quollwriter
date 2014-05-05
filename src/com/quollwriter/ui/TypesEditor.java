@@ -47,11 +47,12 @@ public abstract class TypesEditor extends PopupWindow
     private TypesHandler handler = null;
     private DefaultTableModel typeModel = null;
 
-    public TypesEditor (ProjectViewer pv,
-                        TypesHandler  handler)
+    public TypesEditor (AbstractProjectViewer pv,
+                        TypesHandler          handler)
     {
 
-        super (pv);
+        super (pv,
+               Component.CENTER_ALIGNMENT);
 
         this.handler = handler;
         this.proj = pv.getProject ();
@@ -79,11 +80,13 @@ public abstract class TypesEditor extends PopupWindow
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.setOpaque (true);
         b.setBackground (null);
+        b.add (Box.createVerticalStrut (5));
 
         b.add (UIUtils.createBoldSubHeader ("New Types",
                                             null));
 
-        JTextPane tp = UIUtils.createHelpTextPane ("Enter the new types to add below, separate the types with commas or semi-colons.");
+        JTextPane tp = UIUtils.createHelpTextPane ("Enter the new types to add below, separate the types with commas or semi-colons.",
+                                                   this.projectViewer);
 
         tp.setBorder (new EmptyBorder (5,
                                        5,
@@ -96,7 +99,7 @@ public abstract class TypesEditor extends PopupWindow
         newTypes.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         final JTable typeTable = new JTable ();
-
+        
         typeTable.setModel (new DefaultTableModel ()
         {
 
@@ -104,32 +107,46 @@ public abstract class TypesEditor extends PopupWindow
                                            int col)
             {
 
-                return true;
+                return _this.handler.typesEditable ();
 
             }
 
         });
 
+        UIUtils.listenToTableForCellChanges (typeTable,
+                                             new ActionAdapter ()
+        {
+           
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                TableCellListener tcl = (TableCellListener) ev.getSource ();
+                
+                _this.handler.renameType (tcl.getOldValue ().toString (),
+                                          tcl.getNewValue ().toString (),
+                                          true);
+                
+            }
+            
+        });        
+        
         this.typeModel = (DefaultTableModel) typeTable.getModel ();
 
         this.reloadTypes ();
 
-        Box fb = new Box (BoxLayout.X_AXIS);
+        Box fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
         fb.add (newTypes);
-
+        fb.add (Box.createVerticalStrut (5));
         fb.setBorder (new EmptyBorder (5,
                                        5,
-                                       5,
+                                       20,
                                        5));
-        b.add (fb);
-
-        Box buts = new Box (BoxLayout.X_AXIS);
 
         final JButton add = new JButton ("Add");
 
-        buts.add (add);
-
+        JButton[] buts = new JButton[] { add };
+        
         final ActionAdapter aa = new ActionAdapter ()
         {
 
@@ -166,43 +183,29 @@ public abstract class TypesEditor extends PopupWindow
 
         add.addActionListener (aa);
 
-        newTypes.addKeyListener (new KeyAdapter ()
-            {
+        UIUtils.addDoActionOnReturnPressed (newTypes,
+                                            aa);
 
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        aa.actionPerformed (null);
-
-                    }
-
-                }
-
-            });
-
-        buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buts.setBorder (new EmptyBorder (0,
-                                         5,
-                                         20,
-                                         5));
-
-        b.add (buts);
-
+        fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
+        
+        b.add (fb);
+        
         b.add (UIUtils.createBoldSubHeader (Environment.replaceObjectNames (this.getTypesName ()),
                                             null));
 
-        tp = UIUtils.createHelpTextPane (Environment.replaceObjectNames (this.getNewTypeHelp ()));
-
-        tp.setBorder (new EmptyBorder (5,
+        fb = new Box (BoxLayout.Y_AXIS);
+        fb.setAlignmentX (Component.LEFT_ALIGNMENT);
+        fb.setBorder (new EmptyBorder (5,
                                        5,
                                        0,
-                                       5));
-
-        b.add (tp);
-
+                                       5));                                            
+                                            
+        tp = UIUtils.createHelpTextPane (Environment.replaceObjectNames (this.getNewTypeHelp ()),
+                                         this.projectViewer);
+        tp.setBorder (null);
+        fb.add (tp);
+        fb.add (Box.createVerticalStrut (10));
+        
         typeTable.setAlignmentX (Component.LEFT_ALIGNMENT);
         typeTable.setOpaque (false);
         typeTable.setFillsViewportHeight (true);
@@ -214,24 +217,17 @@ public abstract class TypesEditor extends PopupWindow
         // ppsp.setBorder (null);
         ppsp.setOpaque (false);
         ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        ppsp.setBorder (new CompoundBorder (new EmptyBorder (5,
-                                                             5,
-                                                             5,
-                                                             5),
-                                            ppsp.getBorder ()));
 
         ppsp.setPreferredSize (new Dimension (500,
                                               200));
         ppsp.getViewport ().setOpaque (false);
 
-        b.add (ppsp);
-
-        buts = new Box (BoxLayout.X_AXIS);
+        fb.add (ppsp);
 
         final JButton remove = new JButton ("Remove Selected");
 
-        buts.add (remove);
-
+        buts = new JButton[] { remove };
+        
         remove.addActionListener (new ActionAdapter ()
         {
 
@@ -262,14 +258,12 @@ public abstract class TypesEditor extends PopupWindow
 
         });
 
-        buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buts.setBorder (new EmptyBorder (0,
-                                         5,
-                                         20,
-                                         5));
+        fb.add (Box.createVerticalStrut (5));
+        
+        fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
 
-        b.add (buts);
-
+        b.add (fb);
+        
         return b;
 
     }
@@ -306,20 +300,9 @@ public abstract class TypesEditor extends PopupWindow
 
         JButton b = new JButton ("Finish");
 
-        b.addActionListener (new ActionAdapter ()
-            {
+        b.addActionListener (this.getCloseAction ());
 
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.close ();
-
-                }
-
-            });
-
-        JButton[] buts = new JButton[1];
-        buts[0] = b;
+        JButton[] buts = new JButton[] { b };
 
         return buts;
 

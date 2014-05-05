@@ -37,9 +37,9 @@ public class AssetActionHandler extends ProjectViewerActionHandler
     private boolean          displayAfterSave = false;
     private DetailsEditPanel delegate = null;
 
-    public AssetActionHandler(Asset         a,
-                              ProjectViewer pv,
-                              int           mode)
+    public AssetActionHandler (Asset                 a,
+                               AbstractProjectViewer pv,
+                               int                   mode)
     {
 
         super (a,
@@ -65,6 +65,8 @@ public class AssetActionHandler extends ProjectViewerActionHandler
 
         }
 
+        this.setPopupOver (pv);
+        
     }
 
     public void setDisplayAfterSave (boolean v)
@@ -178,6 +180,25 @@ public class AssetActionHandler extends ProjectViewerActionHandler
 
             });
 
+        this.descField.addKeyListener (new KeyAdapter ()
+        {
+
+            public void keyPressed (KeyEvent ev)
+            {
+
+                if (((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) &&
+                    (ev.getKeyCode () == KeyEvent.VK_ENTER))
+                {
+
+                    // This is the same as save for the form.
+                    _this.submitForm ();
+
+                }
+
+            }
+
+        });
+            
         if (mode == AbstractActionHandler.EDIT)
         {
 
@@ -360,11 +381,11 @@ public class AssetActionHandler extends ProjectViewerActionHandler
         if (this.displayAfterSave)
         {
 
-            this.projectViewer.viewAsset (asset);
+            this.projectViewer.viewObject (asset);
 
         }
 
-        this.projectViewer.reloadAssetTree (asset);
+        this.projectViewer.reloadTreeForObjectType (asset);
         
         return true;
     

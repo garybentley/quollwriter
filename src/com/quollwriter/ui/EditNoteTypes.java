@@ -43,11 +43,11 @@ import com.quollwriter.ui.renderers.*;
 public class EditNoteTypes extends TypesEditor
 {
 
-    public EditNoteTypes (ProjectViewer pv)
+    public EditNoteTypes (AbstractProjectViewer pv)
     {
 
         super (pv,
-               pv.getNoteTypeHandler ());
+               pv.getObjectTypesHandler (Note.OBJECT_TYPE));
 
     }
 

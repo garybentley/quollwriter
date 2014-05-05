@@ -9,7 +9,7 @@ import javax.swing.*;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
-
+import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.panels.*;
 
@@ -36,7 +36,12 @@ public abstract class DetailsEditPanel extends EditPanel
         this.descEdit.setWrapStyleWord (true);
         this.descEdit.setLineWrap (true);
         this.nameEdit = UIUtils.createTextField ();
-
+        
+        UIUtils.addDoActionOnReturnPressed (this.descEdit,
+                                            this.getDoSaveAction ());
+        UIUtils.addDoActionOnReturnPressed (this.nameEdit,
+                                            this.getDoSaveAction ());
+                                             
     }
 
     public void init (AbstractObjectViewPanel avp)
@@ -80,7 +85,7 @@ public abstract class DetailsEditPanel extends EditPanel
                 }
 
             });
-
+        
     }
 
     public abstract String getEditHelpText ();
@@ -95,6 +100,12 @@ public abstract class DetailsEditPanel extends EditPanel
 
     public abstract List<FormItem> getExtraViewItems ();
 
+    /**
+     * A property changed listener is added for the object for the specified types, when one
+     * changes via the property the view description is updated.
+     */
+    public abstract Set<String> getObjectChangeEventTypes ();
+    
     public String getViewDescription ()
     {
         
@@ -131,6 +142,31 @@ public abstract class DetailsEditPanel extends EditPanel
 
         }
 
+        if (this.object != null)
+        {
+            
+            Asset a = this.projectViewer.getProject ().getAssetByName (n,
+                                                                       this.object.getObjectType ());
+            
+            if ((a != null)
+                &&
+                (this.object.getKey () != a.getKey ())
+               )
+            {
+                
+                UIUtils.showErrorMessage (this.projectViewer,
+                                          "Already have a " + Environment.getObjectTypeName (a).toLowerCase () + " called: " +
+                                          a.getName ());
+                    
+                this.nameEdit.setText (this.object.getName ());
+                this.nameEdit.selectAll ();
+    
+                return false;                
+                
+            }
+            
+        }
+                
         if (!this.canSave ())
         {
 

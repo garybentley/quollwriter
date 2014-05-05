@@ -1176,7 +1176,8 @@ System.out.println ("DX: " + sd);
             
             SimpleDateFormat sdf = new SimpleDateFormat ("HH:mm:ss dd MMM yyyy");
                                     
-            this.setContent (UIUtils.createHelpTextPane ((this.startDate != null ? sdf.format (this.startDate) : "") + " : " + (this.endDate != null ? sdf.format (this.endDate) : "")));
+            this.setContent (UIUtils.createHelpTextPane ((this.startDate != null ? sdf.format (this.startDate) : "") + " : " + (this.endDate != null ? sdf.format (this.endDate) : ""),
+                                                         Timeline.this.projectViewer));
             
         }
         

@@ -41,7 +41,8 @@ public class IgnoreCheckbox extends JCheckBox
                 
             }
 
-            JEditorPane desc = UIUtils.createHelpTextPane (d + "Check the box to ignore this problem.");
+            JEditorPane desc = UIUtils.createHelpTextPane (d + "Check the box to ignore this problem.",
+                                                           null);
             desc.setBorder (new EmptyBorder (0,
                                              10,
                                              0,
@@ -111,7 +112,7 @@ public class IgnoreCheckbox extends JCheckBox
                                       });
         show.setRepeats (false);
 
-        final Timer hide = new Timer (ToolTipManager.sharedInstance ().getInitialDelay (),
+        final Timer hide = new Timer (250,//ToolTipManager.sharedInstance ().getInitialDelay (),
                                       new ActionAdapter ()
                                       {
 
@@ -181,14 +182,20 @@ public class IgnoreCheckbox extends JCheckBox
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
                             
-                                                                if (ProblemFinderRuleConfig.confirmRuleRemoval (qp,
-                                                                                                                _this.issue.getRule (),
-                                                                                                                _this.qp.getProjectViewer ().getProject ().getProperties ()))
+                                                                ProblemFinderRuleConfig.confirmRuleRemoval (qp,
+                                                                                                            _this.issue.getRule (),
+                                                                                                            _this.qp.getProjectViewer ().getProject ().getProperties (),
+                                                                                                            new ActionListener ()
                                                                 {
                             
-                                                                    _this.qp.removeIgnoreCheckboxesForRule (_this.issue.getRule ());
+                                                                    public void actionPerformed (ActionEvent ev)
+                                                                    {
                             
-                                                                }
+                                                                        _this.qp.removeIgnoreCheckboxesForRule (_this.issue.getRule ());
+                                                                        
+                                                                    }
+                            
+                                                                });
                             
                                                             }
                             

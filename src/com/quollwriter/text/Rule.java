@@ -11,11 +11,12 @@ import com.quollwriter.ui.components.*;
 import org.jdom.*;
 
 
-public interface Rule
+public interface Rule<E extends TextBlock>
 {
 
     public static final String WORD_CATEGORY = "word";
     public static final String SENTENCE_CATEGORY = "sentence";
+    public static final String PARAGRAPH_CATEGORY = "paragraph";
 
     public String getDescription ();
 
@@ -24,9 +25,12 @@ public interface Rule
     public String getSummary ();
 
     public void setSummary (String i);
-
+/*
     public List<Issue> getIssues (String  sentence,
                                   boolean inDialogue);
+*/
+
+    public List<Issue> getIssues (E block);
 
     public void init (Element root)
                throws JDOMException;
@@ -46,5 +50,5 @@ public interface Rule
     public List<FormItem> getFormItems ();
 
     public void updateFromForm ();
-
+    
 }

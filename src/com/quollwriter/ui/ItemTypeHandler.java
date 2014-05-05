@@ -7,20 +7,25 @@ import com.gentlyweb.properties.StringProperty;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.db.*;
 
 
-public class ItemTypeHandler implements TypesHandler
+public class ItemTypeHandler implements TypesHandler<QObject>
 {
 
-    private ProjectViewer projectViewer = null;
+    private AbstractProjectViewer projectViewer = null;
     private Set<String>  types = new TreeSet ();
     private TypesEditor typesEditor = null;
+    private ObjectProvider<QObject> objectProvider = null;
 
-    public ItemTypeHandler (ProjectViewer pv)
+    public ItemTypeHandler (AbstractProjectViewer    pv,
+                            ObjectProvider<QObject>  objProv)
+
     {
 
         this.projectViewer = pv;
-
+        this.objectProvider = objProv;
+        
         String nt = Environment.getProperty (Constants.OBJECT_TYPES_PROPERTY_NAME);
 
         if (nt != null)
@@ -42,6 +47,13 @@ public class ItemTypeHandler implements TypesHandler
 
     }
 
+    public boolean typesEditable ()
+    {
+        
+        return true;
+        
+    }
+    
     public void setTypesEditor (TypesEditor ed)
     {
         
@@ -49,6 +61,96 @@ public class ItemTypeHandler implements TypesHandler
         
     }
 
+    public Set<QObject> getObjectsForType (String    t)
+    {
+        
+        Set<QObject> objs = this.objectProvider.getAll ();
+        
+        Set<QObject> ret = new LinkedHashSet ();
+
+        for (QObject o : objs)
+        {
+
+            if (o.getType ().equals (t))
+            {
+
+                ret.add (o);
+
+            }
+
+        }
+
+        return ret;
+        
+    }        
+    
+    public Map<String, Set<QObject>> getObjectsAgainstTypes ()
+    {
+ 
+        // The implementation here is pretty inefficient but we can get away with it due to the generally
+        // low number of types and qobjects.
+        
+        // Might be worthwhile putting a josql wrapper around this for the grouping.
+ 
+        Map<String, Set<QObject>> ret = new LinkedHashMap ();
+ 
+        Set<QObject> objs = this.objectProvider.getAll ();
+
+        Set<String> types = this.getTypesFromObjects ();
+        
+        for (String type : types)
+        {
+
+            for (QObject o : objs)
+            {
+
+                String t = o.getType ();
+                
+                if (t.equals (type))
+                {
+                    
+                    Set<QObject> retObjs = ret.get (t);
+                    
+                    if (retObjs == null)
+                    {
+                        
+                        retObjs = new LinkedHashSet ();
+                        
+                        ret.put (t,
+                                 retObjs);
+                        
+                    }
+                    
+                    retObjs.add (o);
+                    
+                }
+
+            }        
+
+        }
+        
+        return ret;
+        
+    }
+
+    public Set<String> getTypesFromObjects ()
+    {
+        
+        Set<QObject> objs = this.objectProvider.getAll ();
+
+        Set<String> types = new TreeSet ();
+        
+        for (QObject o : objs)
+        {
+
+            types.add (o.getType ());
+            
+        }
+        
+        return types;
+        
+    }
+    
     public int getUsedInCount (String type)
     {
         
@@ -172,21 +274,21 @@ public class ItemTypeHandler implements TypesHandler
                                String  newType,
                                boolean reload)
     {
-/*
-        List<Note> toSave = new ArrayList ();
+
+        List<QObject> toSave = new ArrayList ();
 
         // Change the type for all notes with the old type.
-        Set<Note> notes = this.projectViewer.getAllNotes ();
+        List<QObject> objs = this.projectViewer.getProject ().getQObjects ();
 
-        for (Note nn : notes)
+        for (QObject o : objs)
         {
 
-            if (nn.getType ().equals (oldType))
+            if (o.getType ().equals (oldType))
             {
 
-                nn.setType (newType);
+                o.setType (newType);
 
-                toSave.add (nn);
+                toSave.add (o);
 
             }
 
@@ -204,7 +306,7 @@ public class ItemTypeHandler implements TypesHandler
             } catch (Exception e)
             {
 
-                Environment.logError ("Unable to save notes: " +
+                Environment.logError ("Unable to save qobjects: " +
                                       toSave +
                                       " with new type: " +
                                       newType,
@@ -224,13 +326,6 @@ public class ItemTypeHandler implements TypesHandler
         this.addType (newType,
                       false);
 
-        if (reload)
-        {
-
-            this.projectViewer.reloadNoteTree ();
-
-        }
-*/
         return true;
 
     }

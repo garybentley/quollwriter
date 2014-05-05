@@ -7,20 +7,24 @@ import com.gentlyweb.properties.StringProperty;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.db.*;
+import com.quollwriter.data.comparators.*;
 
-
-public class NoteTypeHandler implements TypesHandler
+public class NoteTypeHandler implements TypesHandler<Note>
 {
 
-    private ProjectViewer projectViewer = null;
+    private AbstractProjectViewer projectViewer = null;
     private Set<String>  types = new TreeSet ();
     private EditNoteTypes typesEditor = null;
-
-    public NoteTypeHandler(ProjectViewer pv)
+    private ObjectProvider<Note> objectProvider = null;
+    
+    public NoteTypeHandler (AbstractProjectViewer pv,
+                            ObjectProvider<Note>  objProv)
     {
 
         this.projectViewer = pv;
-
+        this.objectProvider = objProv;
+        
         String nt = Environment.getProperty (Constants.NOTE_TYPES_PROPERTY_NAME);
 
         StringTokenizer t = new StringTokenizer (nt,
@@ -44,6 +48,13 @@ public class NoteTypeHandler implements TypesHandler
 
     }
 
+    public boolean typesEditable ()
+    {
+        
+        return true;
+        
+    }
+    
     public void setTypesEditor (EditNoteTypes ed)
     {
         
@@ -56,7 +67,7 @@ public class NoteTypeHandler implements TypesHandler
         
         int c = 0;
         
-        Set<Note> notes = this.projectViewer.getAllNotes ();
+        Set<Note> notes = this.objectProvider.getAll ();
 
         for (Note nn : notes)
         {
@@ -131,7 +142,7 @@ public class NoteTypeHandler implements TypesHandler
         if (reload)
         {
 
-            this.projectViewer.reloadNoteTree ();
+            this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
         }
 
@@ -156,7 +167,7 @@ public class NoteTypeHandler implements TypesHandler
             if (reload)
             {
 
-                this.projectViewer.reloadNoteTree ();
+                this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
             }
 
@@ -171,7 +182,7 @@ public class NoteTypeHandler implements TypesHandler
         if (reload)
         {
 
-            this.projectViewer.reloadNoteTree ();
+            this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
         }
 
@@ -183,13 +194,59 @@ public class NoteTypeHandler implements TypesHandler
         }
 
     }
+/*
+    public Set<Note> getNotesForType (String t)
+    {
+        
+        Set<Note> notes = this.objectProvider.getAll ();
+        
+        Set<Note> ret = new TreeSet (new ChapterItemSorter ());
 
+        for (Note n : notes)
+        {
+
+            if (n.getType ().equals (t))
+            {
+
+                ret.add (n);
+
+            }
+
+        }
+
+        return ret;
+        
+    }    
+  */  
+    public Set<Note> getObjectsForType (String    t)
+    {
+        
+        Set<Note> notes = this.objectProvider.getAll ();
+        
+        Set<Note> ret = new TreeSet (new ChapterItemSorter ());
+
+        for (Note n : notes)
+        {
+
+            if (n.getType ().equals (t))
+            {
+
+                ret.add (n);
+
+            }
+
+        }
+
+        return ret;
+        
+    }    
+/*
     public Set<String> getTypesFromNotes ()
     {
         
         Set<String> types = new TreeSet ();
         
-        Set<Note> notes = this.projectViewer.getAllNotes ();
+        Set<Note> notes = this.objectProvider.getAll ();
 
         for (Note nn : notes)
         {
@@ -201,7 +258,74 @@ public class NoteTypeHandler implements TypesHandler
         return types;
         
     }
+*/
+    public Set<String> getTypesFromObjects ()
+    {
+        
+        Set<Note> notes = this.objectProvider.getAll ();
 
+        Set<String> types = new TreeSet ();
+        
+        for (Note nn : notes)
+        {
+
+            types.add (nn.getType ());
+            
+        }
+        
+        return types;
+        
+    }
+
+    public Map<String, Set<Note>> getObjectsAgainstTypes ()
+    {
+ 
+        // The implementation here is pretty inefficient but we can get away with it due to the generally
+        // low number of types and notes.
+        
+        // Might be worthwhile putting a josql wrapper around this for the grouping.
+ 
+        Map<String, Set<Note>> ret = new LinkedHashMap ();
+ 
+        Set<Note> notes = this.objectProvider.getAll ();
+
+        Set<String> types = this.getTypesFromObjects ();
+        
+        for (String type : types)
+        {
+
+            for (Note n : notes)
+            {
+
+                String t = n.getType ();
+                
+                if (t.equals (type))
+                {
+                    
+                    Set<Note> retNotes = ret.get (t);
+                    
+                    if (retNotes == null)
+                    {
+                        
+                        retNotes = new TreeSet (new ChapterItemSorter ());
+                        
+                        ret.put (t,
+                                 retNotes);
+                        
+                    }
+                    
+                    retNotes.add (n);
+                    
+                }
+
+            }        
+
+        }
+        
+        return ret;
+        
+    }
+    
     public Set<String> getTypes ()
     {
 
@@ -263,7 +387,7 @@ public class NoteTypeHandler implements TypesHandler
         List<Note> toSave = new ArrayList ();
 
         // Change the type for all notes with the old type.
-        Set<Note> notes = this.projectViewer.getAllNotes ();
+        Set<Note> notes = this.objectProvider.getAll ();
 
         for (Note nn : notes)
         {
@@ -285,8 +409,7 @@ public class NoteTypeHandler implements TypesHandler
             try
             {
 
-                this.projectViewer.saveObjects (toSave,
-                                                true);
+                this.objectProvider.saveAll (toSave);
 
             } catch (Exception e)
             {
@@ -314,7 +437,7 @@ public class NoteTypeHandler implements TypesHandler
         if (reload)
         {
 
-            this.projectViewer.reloadNoteTree ();
+            this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
         }
 

@@ -38,14 +38,21 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
                null);
         
         this.chapter = c;
-        
+        /*
         this.setMinimumSize (new Dimension (300,
                                             250));
         this.setPreferredSize (new Dimension (300,
                                               250));
-        
+        */
     }
 
+    public Dimension getMinimumSize ()
+    {
+        
+        return this.getPreferredSize ();        
+        
+    }    
+    
     public void init ()
     {
         
@@ -136,22 +143,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
         // Change chapter.        
         List<JButton> buts = new ArrayList ();        
-        /*
-        JButton b = UIUtils.createButton ("show",
-                                          Constants.ICON_SIDEBAR,
-                                          "Click to select another chapter",
-                                          new ActionAdapter ()
-                                          {
-                                            
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
 
-                                              }
-                                            
-                                          });
-
-        buts.add (b);
-*/
         return buts;        
                 
     }

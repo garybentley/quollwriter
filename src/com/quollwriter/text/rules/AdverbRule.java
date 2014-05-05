@@ -82,6 +82,20 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
+    public boolean isSpeechVerb (String w)
+    {
+        
+        if (w == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return this.speechVerbs.containsKey (w.toLowerCase ());
+        
+    }
+    
     public Element getAsElement ()
     {
 
@@ -111,7 +125,7 @@ public class AdverbRule extends AbstractSentenceRule
         return root;
 
     }
-
+/*
     public List<Issue> getIssues (String  sentence,
                                   boolean inDialogue)
     {
@@ -153,7 +167,9 @@ public class AdverbRule extends AbstractSentenceRule
                     try
                     {
 
-                        String wt = Environment.getWordTypes (nw);
+                        String wt = Environment.getWordTypes (nw,
+                                                              // We assume english for now
+                                                              null);
 
                         if (wt != null)
                         {
@@ -169,6 +185,81 @@ public class AdverbRule extends AbstractSentenceRule
                                                        "</b> to modify speech verb: <b>" + w + "</b>",
                                                        i,
                                                        w.length () + nw.length () + 1,
+                                                       this);
+                                issues.add (iss);
+
+                            }
+
+                        }
+
+
+                    } catch (Exception e)
+                    {
+
+                        Environment.logError ("Unable to check for word: " +
+                                              nw +
+                                              " being an adverb.");
+
+                    }
+
+                }
+
+            }
+
+
+        }
+
+        return issues;
+
+    }
+*/
+    public List<Issue> getIssues (Sentence sentence)
+    {
+
+        List<Issue>  issues = new ArrayList ();
+    
+        String adverbWT = String.valueOf (Synonyms.ADVERB);
+
+        List<Word> swords = sentence.getWords ();
+        
+        for (Word w : swords)
+        {
+        
+            if (w.isInDialogue ())
+            {
+                
+                continue;
+                
+            }
+        
+            if (this.isSpeechVerb (w.getText ()))
+            {
+
+                Word nw = w.getNext ();
+                
+                if (nw != null)
+                {
+
+                    try
+                    {
+
+                        String wt = Environment.getWordTypes (nw.getText (),
+                                                              // We assume english for now
+                                                              null);
+
+                        if (wt != null)
+                        {
+
+                            // We are only interested in those that are purely adverbs (no other word types)
+                            if (wt.equals (adverbWT))
+                            {
+
+                                // Maybe check to see if it's after a "
+
+                                // Add an issue.
+                                Issue iss = new Issue ("Use of adverb: <b>" + nw.getText () +
+                                                       "</b> to modify speech verb: <b>" + w.getText () + "</b>",
+                                                       sentence,
                                                        this);
                                 issues.add (iss);
 

@@ -32,6 +32,46 @@ public class Scene extends ChapterItem
 
     }
 
+    public synchronized void reindex ()
+    {
+        
+        super.reindex ();
+        
+        TreeSet<OutlineItem> ooutlineItems = new TreeSet (new ChapterItemSorter ());
+        
+        ooutlineItems.addAll (this.outlineItems);
+        this.outlineItems = ooutlineItems;
+        
+        for (OutlineItem it : this.outlineItems)
+        {
+            
+            it.reindex ();
+            
+        }
+        
+    }
+    
+    public Set<ChapterItem> getChapterItemsWithPositionGreaterThan (int pos)
+    {
+        
+        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+
+        for (OutlineItem it : this.outlineItems)
+        {
+
+            if (it.getPosition () > pos)
+            {
+
+                items.add (it);
+
+            }
+
+        }
+
+        return items;
+        
+    }
+    
     public void getChanges (NamedObject      old,
                             org.jdom.Element root)
     {
@@ -111,10 +151,25 @@ public class Scene extends ChapterItem
     public Set<OutlineItem> getOutlineItems ()
     {
 
-        return this.outlineItems;
+        return new TreeSet (this.outlineItems);
 
     }
 
+    public void setChapter (Chapter c)
+    {
+
+        // Handle our outline items first.
+        for (OutlineItem it : this.outlineItems)
+        {
+            
+            it.setChapter (c);
+            
+        }
+    
+        super.setChapter (c);
+        
+    }    
+    
     public void removeOutlineItem (OutlineItem i)
     {
 

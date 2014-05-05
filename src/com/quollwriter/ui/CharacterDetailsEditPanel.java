@@ -18,8 +18,8 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
 
     private JTextArea aliasesEdit = null;
 
-    public CharacterDetailsEditPanel(Asset         a,
-                                     ProjectViewer pv)
+    public CharacterDetailsEditPanel (Asset                 a,
+                                      AbstractProjectViewer pv)
     {
 
         super (a,
@@ -27,8 +27,21 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
 
         this.aliasesEdit = UIUtils.createTextArea (2);
         
+        UIUtils.addDoActionOnReturnPressed (this.aliasesEdit,
+                                            this.getDoSaveAction ());
+        
     }
 
+    public Set<String> getObjectChangeEventTypes ()
+    {
+        
+        Set<String> types = new HashSet ();
+        types.add (NamedObject.ALIASES);
+        
+        return types;
+        
+    }
+    
     public String getEditHelpText ()
     {
 

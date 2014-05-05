@@ -2,7 +2,9 @@ package com.quollwriter.ui;
 
 import java.util.*;
 
-public interface TypesHandler
+import com.quollwriter.data.*;
+
+public interface TypesHandler<E extends DataObject>
 {
     
     public boolean removeType (String  type,
@@ -18,5 +20,13 @@ public interface TypesHandler
     public int getUsedInCount (String type);
 
     public Set<String> getTypes ();
+    
+    public Set<String> getTypesFromObjects ();
+
+    public Set<E> getObjectsForType (String t);
+    
+    public Map<String, Set<E>> getObjectsAgainstTypes ();
+    
+    public boolean typesEditable ();
     
 }

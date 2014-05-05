@@ -14,7 +14,7 @@ public class TextUtilities
 
     private static Map<String, Integer> wordSyllableCounts = null;
     private static Map<String, String>  contractionEnds = new HashMap ();
-
+    private static Map<Character, Set<Character>> openCloseQs = new HashMap ();
     static
     {
 
@@ -31,38 +31,183 @@ public class TextUtilities
         m.put ("ll",
                "");
 
+        m = TextUtilities.openCloseQs;
+        
+        // Taken from: http://en.wikipedia.org/wiki/International_variation_in_quotation_marks
+        // The assumption here is (perhaps erroneously) that any text will be language consistent
+        // and that clashes (i.e. a closing quote will also be an opening quote) doesn't occur.
+        // Thus if the text is something like:
+        // "And I said, 'Bonjour Monsieur'."
+        // Then the writer will use quotation marks that are consistent for their PRIMARY language, in this case
+        // English.  Thus you should never see:
+        // "And I said, «Bonjour Monsieur»"
+        // In theory it could happen but then you have a potential reader confusion problem and thus
+        // outside of what QW can deal with anyway.
+        
+        // Note: this only supports ltr/rtl writing, vertical text flow quotation marks aren't supported
+        // since QW doesn't support it.
+        
+        // The other issue here is that due to some of the language combinations AND the fact that QW
+        // doesn't know what language the text is in (it could possibly try and detect it, maybe using cue or similar)
+        // then user error in matching pairs of quotations can lead to problems.
+        // Such as:
+        // "And I said, "Hello Sir".
+        // In this case "Hello Sir" would not appear to be speech, however this kind of user error cannot be
+        // fixed and the problem finder could, in theory, actually point the user to the error.  The planned "text checker"
+        // would be able to detect this kind of problem though due to unbalanced quotation marks.
+        
+        // And sorry Lojban, you're on your own!
+        
+        // \u201c
+        TextUtilities.addToOpenQCloseQ ('\u201c', '\u201d');
+               
+        // \u201d
+        TextUtilities.addToOpenQCloseQ ('\u201d', '\u201d', '\u201e');
+
+        // \u2018
+        TextUtilities.addToOpenQCloseQ ('\u2018', '\u2019');
+               
+        // \u201e
+        TextUtilities.addToOpenQCloseQ ('\u201e', '\u201d');
+        
+        // \u201a
+        TextUtilities.addToOpenQCloseQ ('\u201a', '\u2019', '\u2018');
+
+        // \u201e
+        TextUtilities.addToOpenQCloseQ ('\u201e', '\u201c');
+               
+        // \u00ab
+        TextUtilities.addToOpenQCloseQ ('\u00ab', '\u00bb');
+
+        // \u00bb
+        TextUtilities.addToOpenQCloseQ ('\u00bb', '\u00ab', '\u00bb');
+
+        // \u0022
+        TextUtilities.addToOpenQCloseQ ('\u0022', '\u0022');
+
+        // \u2019
+        TextUtilities.addToOpenQCloseQ ('\u2019', '\u2019', '\u201a');
+
+        // \u2039
+        TextUtilities.addToOpenQCloseQ ('\u2039', '\u203a');
+
+        // \u300c
+        TextUtilities.addToOpenQCloseQ ('\u300c', '\u300d');
+
+        // \u300e
+        TextUtilities.addToOpenQCloseQ ('\u300e', '\u300f');
+
+        // \u203a
+        TextUtilities.addToOpenQCloseQ ('\u203a', '\u2039');
+
+        // \u2033
+        TextUtilities.addToOpenQCloseQ ('\u2033', '\u2036');
+
+        // \u301d
+        TextUtilities.addToOpenQCloseQ ('\u301d', '\u301e');
+
+        // \u301f
+        TextUtilities.addToOpenQCloseQ ('\u301f', '\u301f');
+
+        // '
+        TextUtilities.addToOpenQCloseQ ('\'', '\'');
+        
+        // "
+        TextUtilities.addToOpenQCloseQ ('"', '"');
+
     }
-
-    // Open double quotation
-    // "
-    // \u201C
-    // \u2033
-    // \u201E
-
-    // Close double quotation
-    // "
-    // \u201D
-    // \u201F
-    // \u2036
-
+    
+    private static void addToOpenQCloseQ (char    openQ,
+                                          char... closeQs)
+    {
+        
+        Set<Character> s = new HashSet ();
+        
+        for (int i = 0; i < closeQs.length; i++)
+        {
+            
+            s.add (closeQs[i]);
+            
+        }
+        
+        TextUtilities.openCloseQs.put (openQ,
+                                       s);
+        
+    }
+    
+    public static boolean isCloseQForOpenQ (char      c,
+                                            Character openQ)
+    {
+        
+        Set<Character> nc = TextUtilities.openCloseQs.get (openQ);
+        
+        if (nc == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return nc.contains (c);
+        
+    }
+    
+    public static boolean isContractionEnd (String v)
+    {
+                
+        if (v == null)
+        {
+            
+            return false;            
+                
+        }
+        
+        return TextUtilities.contractionEnds.containsKey (v.toLowerCase ());
+        
+    }
+    /*
     public static boolean isCloseQ (char c)
     {
-
-        return (c == '\u201d') ||
+        
+        return (c == '"') ||
+               (c == '\'') ||
+               (c == '\u00bb') ||
+               (c == '\u2019') ||
+               (c == '\u201b') ||
+               (c == '\u201d') ||
+               (c == '\u203a') ||
+               (c == '\u300d') ||
+               (c == '\u300f') ||
+               (c == '\u301f') ||
+               // These are the "reversed double prime" marks that Word seems to use.
                (c == '\u2036') ||
-               (c == '\u201f') ||
-               (c == '"');
-
+               (c == '\u301e');
+        
     }
-
+    */
+    
     public static boolean isOpenQ (char c)
     {
 
-        return (c == '\u201c') ||
-               (c == '\u2033') ||
+        return TextUtilities.openCloseQs.containsKey (c);
+    /*
+        return (c == '"') ||
+               (c == '\'') ||
+               (c == '\u00ab') ||
+               (c == '\u2018') ||
+               (c == '\u201a') ||
+               (c == '\u201b') ||
+               (c == '\u201c') ||
                (c == '\u201e') ||
-               (c == '"');
-
+               (c == '\u2039') ||
+               (c == '\u300c') ||
+               (c == '\u300e') ||
+               (c == '\u301d') ||
+               (c == '\u301f') ||
+               // These are the "double prime" marks that Word seems to use.
+               (c == '\u2033') ||
+               (c == '\u301d');
+      */         
     }
 
     public static int getWordPosition (String text,
@@ -127,7 +272,7 @@ public class TextUtilities
 
             }
 
-            if (c == i.getStartWordPosition ())
+            if (c == i.getStartIssuePosition ())
             {
 
                 return start;
@@ -187,6 +332,35 @@ public class TextUtilities
 
     }
 
+    public static int getSentenceCount (String text)
+    {
+        
+        SentenceIterator iter = new SentenceIterator (text);
+        
+        int c = 0;
+        
+        String v = null;
+        
+        while ((v = iter.next ()) != null)
+        {
+                        
+            c++;
+            
+        }
+        
+        return c;
+        
+    }    
+    
+    public static int getWordCount (String l)
+    {
+        
+        List<String> words = TextUtilities.getAsWords (l);
+        
+        return TextUtilities.stripPunctuation (words).size ();
+        
+    }
+    
     public static List<String> getAsWords (String l)
     {
 
@@ -309,7 +483,29 @@ public class TextUtilities
         return false;
 
     }
+    
+    public static int getSyllableCount (String text)
+    {
+        
+        int c = 0;
+        
+        List<String> words = TextUtilities.getAsWords (text);
 
+        words = TextUtilities.stripPunctuation (words);
+
+        for (String w : words)
+        {
+
+            int cc = TextUtilities.getSyllableCountForWord (w);
+
+            c += cc;
+            
+        }
+
+        return c;
+        
+    }
+    
     /**
      * This method is based on:
      *    http://english.glendale.cc.ca.us/phonics.rules.html
@@ -499,7 +695,7 @@ public class TextUtilities
                 (c == 'y'));
 
     }
-
+/*
     public static List<Integer> indexOf (List<String>        words,
                                          List<String>        find,
                                          boolean             inDialogue,
@@ -689,7 +885,169 @@ public class TextUtilities
         return ret;
 
     }
+*/
+/*
+    public static List<Integer> indexOf (List<Word>          words,
+                                         List<String>        find,
+                                         DialogueConstraints cons)
+    {
 
+        List<Integer> ret = new ArrayList ();
+
+        int fc = find.size ();
+
+        int wc = words.size ();
+
+        int firstWord = -1;
+        
+        for (int i = 0; i < wc; i++)
+        {
+
+            Word w = words.get (i);
+            
+            if ((cons.ignoreInDialogue) &&
+                (w.isInDialogue ()))
+            {
+
+                continue;
+
+            }
+
+            if ((cons.onlyInDialogue) &&
+                (!w.isInDialogue ()))
+            {
+            
+                continue;
+
+            }
+
+            int wfc = 0;
+
+            if ((i + fc) < (wc + 1))
+            {
+
+                boolean match = false;
+
+                for (int j = 0; j < fc; j++)
+                {
+
+                    String fw = find.get (j);
+
+                    if (!fw.equals (TextUtilities.ANY_WORD))
+                    {
+
+                        Word w2 = words.get (i + wfc);
+                    
+                        if ((cons.ignoreInDialogue) &&
+                            (w2.isInDialogue ()))
+                        {
+
+                        break;
+                        }
+
+                        if ((cons.onlyInDialogue) &&
+                            (!w2.isInDialogue ()))
+                        {
+
+break;
+                        }
+
+                        if (!w2.textEquals (fw))
+                        {
+
+                            match = false;
+
+                            break;
+
+                        } else
+                        {
+
+                            match = true;
+
+                        }
+
+                    }
+
+                    wfc++;
+
+                }
+
+                // If we are here then all words match.
+                if (match)
+                {
+
+                    if (cons.where.equals (DialogueConstraints.START))
+                    {
+
+                        // Make sure i is 0 or perhaps 1 ignoring a punctuation character.
+                        if (i > 0)
+                        {
+
+                            for (int m = i - 1; m > -1; m--)
+                            {
+
+                                Word mw = words.get (m);
+                            
+                                if (!mw.isPunctuation ())
+                                {
+                                    
+                                    return new ArrayList ();
+                                    
+                                }
+
+                            }
+
+                        }
+
+                    } else
+                    {
+
+                        if (cons.where.equals (DialogueConstraints.END))
+                        {
+
+                            // Check to make sure that the match is at the end, ignoring a trailing punctation char.
+                            if (i < (wc - 1))
+                            {
+
+                                for (int m = i + find.size (); m < wc; m++)
+                                {
+
+                                    Word mw = words.get (m);
+                                
+                                    if (!mw.isPunctuation ())
+                                    {
+                                        
+                                        return new ArrayList ();
+                                        
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    ret.add (i + wfc - find.size ());
+
+                }
+
+            } else
+            {
+
+                // Couldn't possibly match.
+                return ret;
+
+            }
+
+        }
+
+        return ret;
+
+    }
+*/
+/*
     public static boolean stillInDialogue (List<String> words,
                                            boolean      inDialogue)
     {
@@ -710,7 +1068,16 @@ public class TextUtilities
         return inDialogue;
 
     }
-
+*/
+/*        
+    public static boolean isQuoteChar (char c)
+    {
+        
+        return TextUtilities.isOpenQ (c) || TextUtilities.isCloseQ (c);        
+        
+    }
+  */
+/*
     public static boolean stillInDialogue (String  word,
                                            boolean inDialogue)
     {
@@ -742,5 +1109,5 @@ public class TextUtilities
         return inDialogue;
 
     }
-
+*/
 }

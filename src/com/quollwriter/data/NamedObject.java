@@ -17,6 +17,7 @@ public abstract class NamedObject extends DataObject
     public static final String NAME = "name";
     public static final String LAST_MODIFIED = "lastModified";
     public static final String DESCRIPTION = "description";
+    public static final String ALIASES = "aliases";
 
     protected String   name = null;
     protected Date     lastModified = null;
@@ -42,6 +43,24 @@ public abstract class NamedObject extends DataObject
 
     }
 
+    public synchronized void reindex ()
+    {
+        
+        TreeSet<Note> nnotes = new TreeSet (new ChapterItemSorter ());
+        
+        nnotes.addAll (this.notes);
+        
+        this.notes = nnotes;
+        
+        for (Note n : this.notes)
+        {
+            
+            n.reindex ();
+            
+        }
+        
+    }
+    
     public boolean contains (String s)
     {
         
@@ -174,14 +193,14 @@ public abstract class NamedObject extends DataObject
         n.setObject (this);
 
         this.notes.add (n);
-
+        
     }
 
     public void removeNote (Note n)
     {
-
+                
         this.notes.remove (n);
-
+        
     }
 
     public Set<Note> getNotes ()
@@ -237,9 +256,15 @@ public abstract class NamedObject extends DataObject
 
     public void setAliases (String a)
     {
+        
+        String oldAliases = this.aliases;
 
         this.aliases = a;
 
+        this.firePropertyChangedEvent (NamedObject.ALIASES,
+                                       oldAliases,
+                                       this.aliases);
+        
     }
 
     public String toString ()
@@ -345,6 +370,13 @@ public abstract class NamedObject extends DataObject
     public Date getLastModified ()
     {
 
+        if (this.lastModified == null)
+        {
+            
+            return this.getDateCreated ();
+            
+        }
+    
         return this.lastModified;
 
     }

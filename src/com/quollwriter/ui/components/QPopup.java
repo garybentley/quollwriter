@@ -115,6 +115,25 @@ public class QPopup extends Box
         
     }
     
+    public ActionListener getCloseAction ()
+    {
+    
+        final QPopup _this = this;
+    
+        return new ActionListener ()
+        {
+        
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.removeFromParent ();
+                
+            }
+        
+        };    
+        
+    }
+    
     public void removeFromParent ()
     {
         

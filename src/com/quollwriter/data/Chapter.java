@@ -4,6 +4,8 @@ import java.io.*;
 
 import java.util.*;
 
+import javax.swing.text.Position;
+
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
@@ -27,6 +29,9 @@ public class Chapter extends NamedObject
     private String            markup = null;
     private TreeSet<OutlineItem> outlineItems = new TreeSet (new ChapterItemSorter ());
     private TreeSet<Scene>       scenes = new TreeSet (new ChapterItemSorter ());
+    private int editPosition = -1;
+    private Position textEditPos = null;
+    private boolean editComplete = false;
 
     public Chapter()
     {
@@ -61,6 +66,61 @@ public class Chapter extends NamedObject
 
     }
 
+    /**
+     * If a chapter item has it's position changed (say via a drag/drop operation to move it)
+     * then the sets need to be "reindexed" since the ordering is dependent on the position and
+     * it is only done once when the item is added (probably for performance sake).
+     *
+     * This method recreates the sets backing the scenes/notes/outline items and calls the
+     * same reindex method on child objects, so re-initing the entire tree.
+     */
+    public synchronized void reindex ()
+    {
+       
+        super.reindex ();
+       
+        TreeSet<Scene> sscenes = new TreeSet (new ChapterItemSorter ());
+        
+        sscenes.addAll (this.scenes);
+        
+        this.scenes = sscenes;
+        
+        TreeSet<OutlineItem> ooutlineItems = new TreeSet (new ChapterItemSorter ());
+        
+        ooutlineItems.addAll (this.outlineItems);
+        
+        this.outlineItems = ooutlineItems;
+
+        for (Scene s : this.scenes)
+        {
+            
+            s.reindex ();
+            
+        }
+        
+        for (OutlineItem it : this.outlineItems)
+        {
+            
+            it.reindex ();
+            
+        }
+        
+    }
+    
+    public boolean isEditComplete ()
+    {
+        
+        return this.editComplete;
+        
+    }
+    
+    public void setEditComplete (boolean b)
+    {
+        
+        this.editComplete = b;
+                
+    }
+    
     public String getMarkup ()
     {
 
@@ -286,6 +346,106 @@ public class Chapter extends NamedObject
 
     }
 
+    public Set<ChapterItem> getChapterItemsWithPositionGreaterThan (int pos)
+    {
+        
+        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+
+        for (OutlineItem it : this.outlineItems)
+        {
+
+            if (it.getPosition () > pos)
+            {
+
+                items.add (it);
+
+            }
+
+        }
+        
+        for (Scene s : this.scenes)
+        {
+
+            if (s.getPosition () > pos)
+            {
+
+                items.add (s);
+                
+            }
+
+        }
+
+        for (Note n : this.getNotes ())
+        {
+
+            if (n.getPosition () > pos)
+            {
+
+                items.add (n);
+
+            }
+
+        }
+        
+        return items;
+        
+    }
+
+    public Set<ChapterItem> getChapterItemsWithPositionBetween (int start,
+                                                                int end)
+    {
+        
+        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+
+        for (OutlineItem it : this.outlineItems)
+        {
+
+            if ((it.getPosition () >= start)
+                &&
+                (it.getPosition () <= end)
+               )
+            {
+
+                items.add (it);
+
+            }
+
+        }
+        
+        for (Scene s : this.scenes)
+        {
+
+            if ((s.getPosition () >= start)
+                &&
+                (s.getPosition () <= end)
+               )
+            {
+
+                items.add (s);
+                
+            }
+
+        }
+
+        for (Note n : this.getNotes ())
+        {
+
+            if ((n.getPosition () >= start)
+                &&
+                (n.getPosition () <= end)
+               )
+            {
+
+                items.add (n);
+
+            }
+
+        }
+        
+        return items;
+        
+    }
+    
     public Set<OutlineItem> getItemsFromPositionToNextScene (int pos)
     {
 
@@ -466,6 +626,58 @@ public class Chapter extends NamedObject
 
     }
 
+    public Set<? extends ChapterItem> getAllStructureItemsWithinRange (int min,
+                                                                       int max)
+    {
+        
+        Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
+        
+        for (OutlineItem it : this.outlineItems)
+        {
+            
+            if (it.getPosition () < min || it.getPosition () > max)
+            {
+                
+                continue;
+                
+            }
+            
+            items.add (it);
+            
+        }
+    
+        for (Scene s : this.scenes)
+        {
+            
+            if (s.getPosition () >= min && s.getPosition () <= max)
+            {
+                            
+                items.add (s);
+                
+            }
+            
+            Set<OutlineItem> oitems = s.getOutlineItems ();
+            
+            for (OutlineItem oit : oitems)
+            {
+                
+                if (oit.getPosition () < min || oit.getPosition () > max)
+                {
+                    
+                    continue;
+                    
+                }
+                
+                items.add (oit);                            
+                
+            }            
+            
+        }
+    
+        return items;
+    
+    }
+    
     public Set<? extends ChapterItem> getChapterItems (String objType)
     {
 
@@ -494,18 +706,59 @@ public class Chapter extends NamedObject
 
     }
 
+    public void addNote (Note n)
+    {
+        
+        if (this.getNotes ().contains (n))
+        {
+            
+            return;
+            
+        }
+        
+        if ((n.getChapter () != null)
+            &&
+            (n.getChapter () != this)
+           )
+        {
+            
+            n.getChapter ().removeNote (n);
+            
+        }
+        
+        super.addNote (n);
+        
+    }
+    
     public void addScene (Scene s)
     {
 
+        if (this.scenes.contains (s))
+        {
+            
+            return;
+            
+        }
+    
+        if ((s.getChapter () != null)
+            &&
+            (s.getChapter () != this)
+           )
+        {
+            
+            s.getChapter ().removeScene (s);
+            
+        }
+    
         s.setChapter (this);
-
+/*
         for (OutlineItem i : s.getOutlineItems ())
         {
 
             i.setChapter (this);
 
         }
-
+*/
         this.scenes.add (s);
 
     }
@@ -520,14 +773,22 @@ public class Chapter extends NamedObject
     public Set<Scene> getScenes ()
     {
 
-        return this.scenes;
+        Set<Scene> items = new TreeSet (new ChapterItemSorter ());
+        
+        items.addAll (this.scenes);
 
+        return items;
+        
     }
 
     public Set<OutlineItem> getOutlineItems ()
     {
 
-        return this.outlineItems;
+        Set<OutlineItem> items = new TreeSet (new ChapterItemSorter ());
+        
+        items.addAll (this.outlineItems);
+        
+        return items;
 
     }
 /*
@@ -574,9 +835,38 @@ public class Chapter extends NamedObject
     public void addOutlineItem (OutlineItem i)
     {
 
+        if (i.getScene () != null)
+        {
+            
+            return;
+            
+        }
+    
+        if (this.outlineItems.contains (i))
+        {
+            
+            return;
+            
+        }
+    
+        if ((i.getChapter () != null)
+            &&
+            (i.getChapter () != this)
+           )
+        {
+            
+            i.getChapter ().removeOutlineItem (i);
+            
+        }
+
         i.setChapter (this);
 
-        this.outlineItems.add (i);
+        if (i.getScene () == null)
+        {
+        
+            this.outlineItems.add (i);
+            
+        }
 
     }
 
@@ -727,6 +1017,41 @@ public class Chapter extends NamedObject
 
         return newNotes;
 
+    }
+
+    public void setTextEditPosition (Position p)
+    {
+        
+        this.textEditPos = p;
+        
+        if (p == null)
+        {
+            
+            this.editPosition = -1;
+            
+        }
+        
+    }
+    
+    public void setEditPosition (int p)
+    {
+        
+        this.editPosition = p;
+        
+    }
+    
+    public int getEditPosition ()
+    {
+        
+        if (this.textEditPos != null)
+        {
+            
+            return this.textEditPos.getOffset ();
+            
+        }
+        
+        return this.editPosition;
+        
     }
 
 }

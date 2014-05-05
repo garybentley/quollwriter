@@ -92,131 +92,7 @@ public class Tips
         return text;
         
     }
-    /*
-    public JComponent getTipBox ()
-    {
-        
-        String tipText = this.getNextTip ();
 
-        final Box tipBox = new Box (BoxLayout.X_AXIS);
-
-        final HTMLPanel htmlP = new HTMLPanel (tipText,
-                                               this);
-
-        htmlP.setBackground (null);
-        htmlP.setOpaque (false);
-
-        //final JScrollPane tip = HTMLPanel.createHelpPanel (htmlP);
-
-        htmlP.setPreferredSize (new Dimension (Short.MAX_VALUE,
-                                               htmlP.getPreferredSize ().height + 30));
-                
-        tipBox.add (htmlP);
-        tipBox.add (Box.createHorizontalStrut (10));
-
-        JButton nextBut = UIUtils.createButton ("next",
-                                                Constants.ICON_MENU,
-                                                "Click to view the next tip",
-                                                null);
-
-        ImageIcon cancel = Environment.getIcon ("cancel",
-                                                Constants.ICON_MENU);
-                
-        cancel.setImage (cancel.getImage ().getScaledInstance (8, 8, Image.SCALE_SMOOTH));
-
-        ImageIcon tipsOff = UIUtils.overlayImage (Environment.getIcon ("help",
-                                                                       Constants.ICON_MENU),
-                                                  cancel,
-                                                  "br");
-
-        java.util.List<JButton> buts = new ArrayList ();
-        buts.add (nextBut);
-        
-        JButton offBut = UIUtils.createButton (tipsOff,
-                                               "Click to stop showing tips when Quoll Writer starts",
-                                               null);
-        
-        buts.add (offBut);
-                                        
-        // Show a tip.
-        final Notification n = this.addNotification (tipBox,
-                                                     "help",
-                                                     90,
-                                                     buts);
-
-        nextBut.addActionListener (new ActionAdapter ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                String t = _this.tips.getNextTip ();
-                
-                if (t != null)
-                {
-
-                    htmlP.setText (t);
-                                                                                
-                    tipBox.getParent ().validate ();
-                    tipBox.getParent ().repaint ();
-                    
-                    _this.repaint ();
-
-                    n.restartTimer ();
-
-                    _this.fireProjectEvent (ProjectEvent.TIPS,
-                                            ProjectEvent.SHOW);
-
-                }
-                
-            }
-            
-        });
-
-        offBut.addActionListener (new ActionAdapter ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                if (JOptionPane.showConfirmDialog (_this,
-                                                   "Stop showing tips when Quoll Writer starts?\n\nThey can enabled at any time in the Project Options.",
-                                                   "Stop showing tips?",
-                                                   JOptionPane.YES_NO_OPTION,
-                                                   JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-                {
-                                                                            
-                    _this.fireProjectEvent (ProjectEvent.TIPS,
-                                            ProjectEvent.OFF);
-                
-                    try
-                    {
-                
-                        Environment.setUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                     new BooleanProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                          false));
-
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to turn off tips",
-                                              e);
-                        
-                    }
-
-                    n.removeNotification ();
-
-                
-                }    
-                
-            }
-            
-        });
-
-        tipBox.getParent ().validate ();
-        tipBox.getParent ().repaint ();
-                
-    }
-    */
     private class Tip
     {
         
@@ -331,20 +207,27 @@ public class Tips
                     
                     boolean v = false;
                     
-                    if (c.equals ("chaptertab"))
+                    QuollPanel qp = viewer.getCurrentlyVisibleTab ();
+                    
+                    if (qp != null)
                     {
-                        
-                        v = (viewer.getCurrentlyVisibleTab ().getForObject () instanceof Chapter);
-                        
-                    }
+                    
+                        if (c.equals ("chaptertab"))
+                        {
+                            
+                            v = (qp.getForObject () instanceof Chapter);
+                            
+                        }
+    
+                        if (c.equals ("ideaboard"))
+                        {
+                            
+                            v = qp.getPanelId ().equals (IdeaBoard.PANEL_ID);
+                            
+                        }
 
-                    if (c.equals ("ideaboard"))
-                    {
-                        
-                        v = viewer.getCurrentlyVisibleTab ().getPanelId ().equals (IdeaBoard.PANEL_ID);
-                        
                     }
-
+                        
                     if (c.equals ("projectviewer"))
                     {
                         

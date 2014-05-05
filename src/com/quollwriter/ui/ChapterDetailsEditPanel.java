@@ -43,6 +43,13 @@ public class ChapterDetailsEditPanel extends DetailsEditPanel
 
     }
 
+    public Set<String> getObjectChangeEventTypes ()
+    {
+        
+        return null;
+        
+    }        
+    
     public String getEditHelpText ()
     {
 

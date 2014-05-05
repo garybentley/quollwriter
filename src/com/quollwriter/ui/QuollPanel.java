@@ -54,17 +54,6 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
                       NamedObject           obj)
     {
 
-        this (pv,
-              obj,
-              true);
-
-    }
-
-    public QuollPanel(AbstractProjectViewer pv,
-                      NamedObject           obj,
-                      boolean               addScrollPane)
-    {
-
         // super (BoxLayout.PAGE_AXIS);
 
         this.projectViewer = pv;
@@ -476,7 +465,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
             p = new Point (p.x,
                            p.y);
 
-            p.y = p.y - cp.height;
+            p.y = p.y - (cp.height - c.getBounds ().height);
 
         }
 
@@ -667,13 +656,18 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
             List<Component> comps = this.getTopLevelComponents ();
 
-            for (int i = 0; i < comps.size (); i++)
+            if (comps != null)
             {
-
-                comps.get (i).addMouseListener (m);
+            
+                for (int i = 0; i < comps.size (); i++)
+                {
+    
+                    comps.get (i).addMouseListener (m);
+    
+                }
 
             }
-
+                
         }
 
     }

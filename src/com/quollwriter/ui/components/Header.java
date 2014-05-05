@@ -51,7 +51,7 @@ public class Header extends Box
         this.label = new JLabel ();
 
         this.label.setOpaque (false);
-        
+
         this.add (this.label);
         this.add (Box.createHorizontalGlue ());
 

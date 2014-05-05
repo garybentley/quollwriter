@@ -794,7 +794,9 @@ public class AchievementsManager implements ProjectEventListener
     public boolean isAchievementsEnabled ()
     {
         
-        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME);
+        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME)
+                &&
+                !Environment.isDistractionFreeModeEnabled ();
         
     }
 

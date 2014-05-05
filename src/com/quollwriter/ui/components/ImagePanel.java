@@ -4,10 +4,10 @@ import java.awt.*;
 
 import javax.swing.*;
 
-public class ImagePanel extends JPanel
+public class ImagePanel extends JLabel //JPanel
 {
     
-    private Image display = null;
+    //private Image display = null;
     private Image img = null;
     private Image hideImage = null;
     
@@ -38,23 +38,27 @@ public class ImagePanel extends JPanel
         this.hideImage = transparentImg;
 
     }
-
+/*
     public void setIcon (ImageIcon i)
     {
+
+        super.setIcon (i);
         
-        this.setImage (i.getImage ());
+        //this.img = i.getImage ();
+        //this.setImage (i.getImage ());
         
     }
-
+*/
     public void setImage (Image i)
     {
         
         this.img = i;
-        this.display = this.img;
 
         if (this.img != null)
         {
-
+          
+            this.setIcon (new ImageIcon (i));
+            /*
             Dimension size = new Dimension (this.img.getWidth (null),
                                             this.img.getHeight (null));
             this.setOpaque (false);
@@ -63,7 +67,7 @@ public class ImagePanel extends JPanel
             this.setMaximumSize (size);
             this.setSize (size);
             this.setLayout (null);
-
+*/
         }
         
     }
@@ -74,12 +78,14 @@ public class ImagePanel extends JPanel
         if (v)
         {
             
-            this.display = this.img;
+            this.setImage (this.img);
+            
             this.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
             
         } else {
             
-            this.display = this.hideImage;
+            this.setIcon (new ImageIcon (this.hideImage));
+
             this.setCursor (Cursor.getPredefinedCursor (Cursor.DEFAULT_CURSOR));
             
         }
@@ -88,21 +94,5 @@ public class ImagePanel extends JPanel
         this.repaint ();
         
     }
-
-    protected void paintChildren (Graphics g)
-    {
-
-        if (this.display != null)
-        {
-
-            Insets ins = this.getInsets ();
-
-            g.drawImage (this.display,ins.left,ins.top,null);
-            
-        }
-        
-        super.paintChildren (g);
-        
-    }	
 
 }

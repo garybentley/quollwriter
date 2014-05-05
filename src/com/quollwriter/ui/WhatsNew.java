@@ -34,6 +34,7 @@ public class WhatsNew extends PopupWizard
         
         public static final String id = "id";
         public static final String version = "version";
+        public static final String clazz = "class";
         
     }
     
@@ -43,7 +44,8 @@ public class WhatsNew extends PopupWizard
     private TreeMap<Integer, WhatsNewItem> items = new TreeMap ();
     
     
-    public WhatsNew (AbstractProjectViewer pv)
+    public WhatsNew (AbstractProjectViewer pv,
+                     boolean               onlyShowCurrentVersion)
                      throws                GeneralException
     {
         
@@ -77,10 +79,18 @@ public class WhatsNew extends PopupWizard
                 
                 id = Environment.expandVersion (id);
                 
-                if (Environment.isNewVersionGreater (lastWhatsNewVersion,
-                                                     id))
+                int verNum = Environment.getVersionAsInt (id);                
+                
+                if ((Environment.isNewVersionGreater (lastWhatsNewVersion,
+                                                      id))
+                    ||
+                    ((onlyShowCurrentVersion)
+                     &&
+                     (verNum == currVer)
+                    )
+                   )
                 {
-                    
+                
                     String c = WhatsNewComponentProvider.class.getName ();
                     
                     int ind = c.lastIndexOf (".");
@@ -92,20 +102,33 @@ public class WhatsNew extends PopupWizard
                                          ind);
                         
                     }
-                    
-                    // See if we have a component provider for this version.
-                    String provClassName = c + ".version_" + id.replace (".", "_");
-                    
+
                     WhatsNewComponentProvider compProv = null;
                     
-                    try
+                    String cl = JDOMUtils.getAttributeValue (vEl,
+                                                             XMLConstants.clazz,
+                                                             false);
+                    
+                    if (!cl.equals (""))
                     {
+                    
+                        Class clz = null;
                         
-                        compProv = (WhatsNewComponentProvider) Class.forName (provClassName).newInstance ();
-                        
-                    } catch (Exception e) {
-                        
-                        // Ignore it, doesn't matter.
+                        try
+                        {
+                            
+                            clz = Class.forName (cl);
+
+                            if (WhatsNewComponentProvider.class.isAssignableFrom (clz))
+                            {
+                                
+                                compProv = (WhatsNewComponentProvider) clz.newInstance ();
+                            
+                            }
+                            
+                        } catch (Exception e) {
+                            
+                        }
                         
                     }
                     
@@ -113,8 +136,6 @@ public class WhatsNew extends PopupWizard
                     java.util.List itemEls = JDOMUtils.getChildElements (vEl,
                                                                          WhatsNewItem.XMLConstants.root,
                                                                          true);
-                    
-                    int verNum = Environment.getVersionAsInt (id);
                     
                     for (int j = 0; j < itemEls.size (); j++)
                     {
@@ -152,7 +173,7 @@ public class WhatsNew extends PopupWizard
                             continue;
                             
                         }
-                        
+                    
                         this.items.put (itemNum,
                                         it);
                         
@@ -344,7 +365,8 @@ public class WhatsNew extends PopupWizard
             if (item.description != null)
             {
 
-                JTextPane hp = UIUtils.createHelpTextPane (item.description);
+                JTextPane hp = UIUtils.createHelpTextPane (item.description,
+                                                           this.projectViewer);
                 
                 hp.setBorder (null);
     

@@ -63,9 +63,11 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
     private JComboBox            sizes = null;
     private JComboBox            align = null;
     private JComboBox            line = null;
+    private JCheckBox            hideBorder = null;
+    /*
     private JPanel               textcolorSwatch = null;
     private JPanel               bgcolorSwatch = null;
-    
+    */
     private Map<String, QPopup>  popups = new HashMap ();
     private int                  sblastX = -1;
     private int                  sblastY = -1;
@@ -195,7 +197,9 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
                 
         this.setSizeBoxSize ();
 
-        return cp;
+        return this.wrapInScrollPane (cp);
+        
+        //return cp;
     
     }
 
@@ -284,8 +288,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
                                                                         
                             p = new TexturePaint (UIUtils.getScaledImage (f,
                                                                           75,
-                                                                          -1,
-                                                                          this),
+                                                                          -1),
                                                   new Rectangle (0,
                                                                  0,
                                                                  75,
@@ -325,6 +328,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         imgP.setPreferredSize (new Dimension (75, 75));
         imgP.setMaximumSize (new Dimension (75, 75));
         imgP.setToolTipText ("Click to set the image/color used for the background");
+        UIUtils.setAsButton (imgP);
 
         imgP.addMouseListener (new MouseAdapter ()
         {
@@ -421,17 +425,6 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         b.add (l);
 
         b.add (Box.createVerticalStrut (10));
-                                
-        PanelBuilder    builder = null;
-        CellConstraints cc = null;
-        FormLayout fl = null;
-        JPanel p = null;
-                    
-        fl = new FormLayout ("right:p, 6px, 150px",
-                             "p, 10px, p, 10px, p, 10px, p");
-
-        builder = new PanelBuilder (fl);
-        cc = new CellConstraints ();
 
         this.transparentImage = Environment.getTransparentImage ();
 
@@ -715,8 +708,9 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         sizeBoxW.setMaximumSize (new Dimension (sizeBoxW.getPreferredSize ().width + 20,
                                                 sizeBoxW.getPreferredSize ().height));        
         b.add (sizeBoxW);
-        b.add (Box.createVerticalGlue ());
-
+        
+        b.add (Box.createVerticalStrut (20));
+        
         this.textProps = new AccordionItem ("Text Properties",
                                             null);
 
@@ -745,334 +739,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         this.textProps.setVisible ((this.fsf.getPanel ().getChild () instanceof AbstractEditorPanel));
         
         b.add (this.textProps);
-/*            
-        fl = new FormLayout ("right:p, 6px, p:grow",
-                             "p, 10px, p, 10px, p, 10px, p, 10px, p, 10px, p, 10px, p");
 
-        int r = 1;
-    
-        builder = new PanelBuilder (fl);
-        cc = new CellConstraints ();
-
-        builder.addLabel ("Font",
-                          cc.xy (1,
-                                 r));
-
-        this.fonts = UIUtils.getFontsComboBox (this.fullScreenTextProperties.getFontFamily (),
-                                               this.fullScreenTextProperties);
-
-        this.fonts.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {            
-
-                _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                      ProjectEvent.CHANGE_FONT);
-
-            }
-
-        });
-
-        builder.add (UIUtils.getLimitWrapper (this.fonts),
-                     cc.xy (3,
-                            r));
-        
-        r += 2;
-
-        builder.addLabel ("Size",
-                          cc.xy (1,
-                                 r));
-
-        this.sizes = UIUtils.getFontSizesComboBox (this.fullScreenTextProperties.getFontSize (),
-                                                   this.fullScreenTextProperties);
-
-        this.sizes.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                      ProjectEvent.CHANGE_FONT_SIZE);
-
-            }
-
-        });
-
-        builder.add (UIUtils.getLimitWrapper (this.sizes),
-                     cc.xy (3,
-                            r));
-
-        r += 2;
-    
-        builder.addLabel ("Alignment",
-                          cc.xy (1,
-                                 r));
-
-        this.align = UIUtils.getAlignmentComboBox (this.fullScreenTextProperties.getAlignment (),
-                                                   this.fullScreenTextProperties);
-
-        this.align.addActionListener (new ActionAdapter ()
-        {
-    
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                      ProjectEvent.CHANGE_ALIGNMENT);
-
-            }
-
-        });
-
-        builder.add (UIUtils.getLimitWrapper (this.align),
-                     cc.xy (3,
-                            r));
-
-        r += 2;
-
-        builder.addLabel ("Line Spacing",
-                          cc.xy (1,
-                                 r));
-
-        this.line = UIUtils.getLineSpacingComboBox (this.fullScreenTextProperties.getLineSpacing (),
-                                                    this.fullScreenTextProperties);
-
-        this.line.addActionListener (new ActionAdapter ()
-        {
-    
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                      ProjectEvent.CHANGE_LINE_SPACING);
-
-            }
-
-        });
-
-        builder.add (UIUtils.getLimitWrapper (this.line),
-                     cc.xy (3,
-                            r));
-
-        r += 2;
-
-        builder.addLabel ("Color",
-                          cc.xy (1,
-                                 r));
-    
-        this.textcolorSwatch = QColorChooser.getSwatch (this.fullScreenTextProperties.getTextColor ());
-        this.bgcolorSwatch = QColorChooser.getSwatch (this.fullScreenTextProperties.getBackgroundColor ());
-
-        this.textcolorSwatch.addMouseListener (new MouseAdapter ()
-        {
-
-            public void mouseReleased (MouseEvent ev)
-            {
-
-                String colors = proj.getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-            
-                Color textcolor = _this.fullScreenTextProperties.getTextColor ();
-            
-                QPopup popup = _this.popups.get ("textcolor");
-                
-                if (popup == null)
-                {
-                
-                    popup = QColorChooser.getColorChooserPopup (colors,
-                                                                textcolor,
-                                                                new ChangeAdapter ()
-                                                                {
-                         
-                                                                     public void stateChanged (ChangeEvent ev)
-                                                                     {
-                         
-                                                                         Color c = (Color) ev.getSource ();
-                         
-                                                                         _this.fsf.setFontColor (c);
-
-                                                                         textcolorSwatch.setBackground (c);
-                                                                         
-                                                                         bgcolorSwatch.setBackground (_this.fullScreenTextProperties.getBackgroundColor ());
-
-                                                                         _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                                                                               ProjectEvent.CHANGE_FONT_COLOR);
-                         
-                                                                     }
-
-                                                                 },
-                                                                new ActionAdapter ()
-                                                                {
-                                                                    
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
-                                                                        
-                                                                        QPopup p = _this.popups.remove ("textcolor");
-                                                                        
-                                                                        _this.fsf.removePopup (p);
-                                                                                                                                                    
-                                                                    }
-                                                                    
-                                                                });                
-            
-                    _this.popups.put ("textcolor",
-                                      popup);
-
-                }
-            
-                int x = ev.getXOnScreen ();
-                int y = ev.getYOnScreen ();
-
-                Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-
-                if ((y + popup.getPreferredSize ().height) > d.height)
-                {
-
-                    y -= popup.getPreferredSize ().height;
-
-                }
-
-                _this.fsf.showPopupAt (popup,
-                                       new Point (x, y));
-            
-            }
-
-        });
-
-        builder.add (UIUtils.getLimitWrapper (textcolorSwatch),
-                     cc.xy (3,
-                            r));
-
-        r += 2;
-
-        builder.addLabel ("Background",
-                          cc.xy (1,
-                                 r));
-            
-        bgcolorSwatch.addMouseListener (new MouseAdapter ()
-        {
-
-            public void mouseReleased (MouseEvent ev)
-            {
-
-                String colors = proj.getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-
-                Color bgcolor = _this.fullScreenTextProperties.getBackgroundColor (); //editor.getBackground ();    
-
-                QPopup popup = _this.popups.get ("bgcolor");
-                
-                if (popup == null)
-                {
-                    
-                    popup = QColorChooser.getColorChooserPopup (colors,
-                                                                bgcolor,
-                                                                new ChangeAdapter ()
-                                                                {
- 
-                                                                    public void stateChanged (ChangeEvent ev)
-                                                                    {
- 
-                                                                        Color c = (Color) ev.getSource ();
- 
-                                                                        _this.fsf.setBackgroundColor (c);
-                                                                        
-                                                                        _this.sizeBoxWrapper.setBackground (c);
-                                                                        
-                                                                        bgcolorSwatch.setBackground (c);
-                                                                        textcolorSwatch.setBackground (_this.fullScreenTextProperties.getTextColor ());
-                                                                          
-                                                                        _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                                                                              ProjectEvent.CHANGE_BG_COLOR);
- 
-                                                                    }
- 
-                                                                },
-                                                                 new ActionAdapter ()
-                                                                 {
-                                                                  
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
-                                                                      
-                                                                      QPopup p = _this.popups.remove ("bgcolor");
-                                                                      
-                                                                      _this.fsf.removePopup (p);
-                                                                      
-                                                                    }
-                                                                  
-                                                                });    
-
-                    _this.popups.put ("bgcolor",
-                                      popup);
-
-                }
-                                      
-                int x = ev.getXOnScreen ();
-                int y = ev.getYOnScreen ();
-
-                Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-
-                if ((y + popup.getPreferredSize ().height) > d.height)
-                {
-
-                    y -= popup.getPreferredSize ().height;
-
-                }
-
-                _this.fsf.showPopupAt (popup,
-                                       new Point (x, y));
-                
-            }
-
-        });
-    
-        //this.fsf.setFontColor (this.fullScreenTextProperties.getTextColor ());
-
-        //this.fsf.setBackgroundColor (this.fullScreenTextProperties.getBackgroundColor ());
-
-        builder.add (UIUtils.getLimitWrapper (bgcolorSwatch),
-                     cc.xy (3,
-                            r));
-    
-        r += 2;
-
-        final JLabel reset = UIUtils.createClickableLabel ("Reset to defaults",
-                                                           null);
-    
-        reset.setToolTipText ("Click to reset the text properties to their default values");
-
-        reset.addMouseListener (new MouseAdapter ()
-        {
-    
-            public void mouseReleased (MouseEvent ev)
-            {
-                
-                _this.fsf.resetPropertiesToDefaults ();
-
-                AbstractEditorPanel aep = (AbstractEditorPanel) _this.fsf.getPanel ().getChild ();
-        
-                bgcolorSwatch.setBackground (aep.getBackgroundColor ());
-
-            }
-
-        });
-    
-        builder.add (reset,
-                     cc.xywh (1,
-                              r,
-                              3,
-                              1));
-    
-        p = builder.getPanel ();
-        p.setOpaque (false);
-        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        p.setBorder (new EmptyBorder (10,
-                                      10,
-                                      10,
-                                      10));
-
-        this.textProps.setContent (p);
-            */
         b.add (Box.createVerticalGlue ());
         
         return b;

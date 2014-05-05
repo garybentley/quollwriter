@@ -100,12 +100,12 @@ public class FindSynonymsActionHandler extends ActionAdapter
         p.addPopup (this.popup,
                     true,
                     true);
-
+/*
         this.highlight = this.editorPanel.getEditor ().addHighlight (position,
                                                                      position + word.length (),
                                                                      null,
                                                                      true);
-                                        
+  */                                      
         this.popup.setOpaque (false);
         this.popup.setVisible (false);
 
@@ -116,6 +116,18 @@ public class FindSynonymsActionHandler extends ActionAdapter
     public void showItem ()
     {
 
+        if (!this.editorPanel.getProjectViewer ().isLanguageFunctionAvailable ())
+        {
+            
+            return;
+            
+        }
+    
+        this.highlight = this.editorPanel.getEditor ().addHighlight (this.position,
+                                                                     this.position + this.word.length (),
+                                                                     null,
+                                                                     true);    
+    
         final FindSynonymsActionHandler _this = this;
 
         QTextEditor editor = this.editorPanel.getEditor ();
@@ -155,7 +167,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
         try
         {
 
-            syns = Environment.getSynonyms (this.word);
+            syns = this.projectViewer.getSynonymProvider ().getSynonyms (this.word);
 
         } catch (Exception e)
         {
@@ -179,8 +191,8 @@ public class FindSynonymsActionHandler extends ActionAdapter
             try
             {
 
-                syns = Environment.getSynonyms (this.word.substring (0,
-                                                                     this.word.length () - 2));
+                syns = this.projectViewer.getSynonyms (this.word.substring (0,
+                                                                            this.word.length () - 2));
 
             } catch (Exception e)
             {
@@ -206,8 +218,8 @@ public class FindSynonymsActionHandler extends ActionAdapter
             try
             {
 
-                syns = Environment.getSynonyms (this.word.substring (0,
-                                                                     this.word.length () - 1));
+                syns = this.projectViewer.getSynonyms (this.word.substring (0,
+                                                                            this.word.length () - 1));
 
             } catch (Exception e)
             {
@@ -298,7 +310,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
             JLabel l = new JLabel (names.get (i.type + ""));
 
-            //l.setFont (l.getFont ().deriveFont (Font.ITALIC));
+            l.setFont (l.getFont ().deriveFont (Font.ITALIC));
             l.setFont (l.getFont ().deriveFont ((float) UIUtils.getEditorFontSize (10)));
             l.setBorder (new CompoundBorder (new MatteBorder (0,
                                                               0,
@@ -351,20 +363,12 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
                         if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
                         {
-
-                            // Need to replace the selected word within the document.
-                            final DocumentWordTokenizer wordsTok = new DocumentWordTokenizer (_this.editorPanel.getEditor ().getDocument ());
-                            wordsTok.posStartFullWordFrom (_this.position);
-
-                            wordsTok.nextWord ();
-
+                            
                             QTextEditor ed = _this.editorPanel.getEditor ();
                             
-                            ed.startCompoundEdit ();
-
-                            wordsTok.replaceWord (ev.getURL ().getHost ());
-
-                            ed.endCompoundEdit ();
+                            ed.replaceText (_this.position,
+                                            _this.position + _this.word.length (),
+                                            ev.getURL ().getHost ());
 
                             ed.removeHighlight (_this.highlight);
                                                         

@@ -19,12 +19,12 @@ import com.quollwriter.ui.*;
 public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements CellEditorListener
 {
 
-    private ProjectViewer projectViewer = null;
+    private AbstractProjectViewer projectViewer = null;
     private NamedObject   editing = null;
     private Chapter       lastChapter = null;
 
-    public ProjectTreeCellEditor (ProjectViewer pv,
-                                  JTree         tree)
+    public ProjectTreeCellEditor (AbstractProjectViewer pv,
+                                  JTree                 tree)
     {
 
         super (tree,
@@ -158,54 +158,59 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
                                  String newName)
     {
 
-        if (a.getKey () == null)
+        Asset other = this.projectViewer.getProject ().getAssetByName (newName.toLowerCase (),
+                                                                       a.getObjectType ());
+
+        if (other != null)
         {
 
-            Asset other = this.projectViewer.getProject ().getAssetByName (newName.toLowerCase (),
-                                                                           a.getObjectType ());
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Already have a " + Environment.getObjectTypeName (a).toLowerCase () + " called: " +
+                                      other.getName ());
 
-            if (other != null)
-            {
+            return false;
 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "Already have a " + Environment.getObjectTypeName (a).toLowerCase () + " called: " +
-                                          other.getName ());
+        }
 
-                return false;
+        Set<String> oldNames = a.getAllNames ();        
+        
+        a.setName (newName);
+        //a.setProject (this.projectViewer.getProject ());
 
-            }
+        try
+        {
 
-            a.setName (newName);
-            a.setProject (this.projectViewer.getProject ());
+            // Add the asset to the project.
+            //this.projectViewer.getProject ().addAsset (a);
 
-            try
-            {
+            this.projectViewer.saveObject (a,
+                                           true);
 
-                // Add the asset to the project.
-                this.projectViewer.getProject ().addAsset (a);
+            //((DefaultTreeModel) this.tree.getModel ()).removeNodeFromParent ((DefaultMutableTreeNode) this.lastPath.getLastPathComponent ());
 
-                this.projectViewer.saveObject (a,
-                                               true);
+            this.projectViewer.reloadTreeForObjectType (a.getObjectType ());                
 
-                //((DefaultTreeModel) this.tree.getModel ()).removeNodeFromParent ((DefaultMutableTreeNode) this.lastPath.getLastPathComponent ());
+        } catch (Exception e)
+        {
 
-                this.projectViewer.reloadAssetTree (a);
+            Environment.logError ("Unable to add new " + Environment.getObjectTypeName (a).toLowerCase () + " with name: " +
+                                  newName,
+                                  e);
 
-            } catch (Exception e)
-            {
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (a) + ".");
 
-                Environment.logError ("Unable to add new " + Environment.getObjectTypeName (a).toLowerCase () + " with name: " +
-                                      newName,
-                                      e);
+            return false;
 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (a) + ".");
+        }
 
-                return false;
-
-            }
-
-            this.projectViewer.viewAsset (a);
+        this.projectViewer.updateProjectDictionaryForNames (oldNames,
+                                                            a);
+                
+        return true;
+        
+/*        
+        //this.projectViewer.viewObject (a);
 
         } else
         {
@@ -244,7 +249,7 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
                                                 "project");
 
         return true;
-
+*/
     }
 
     private boolean handleTreeParentNode (TreeParentNode n,
@@ -254,9 +259,9 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
         if (n.getForObjectType ().equals (Note.OBJECT_TYPE))
         {
 
-            if (this.projectViewer.getNoteTypeHandler ().renameType (n.getName (),
-                                                                     newName,
-                                                                     true))
+            if (this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).renameType (n.getName (),
+                                                                                        newName,
+                                                                                        true))
             {
 
                 n.setName (newName);
@@ -303,7 +308,7 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
                                       e);
 
                 UIUtils.showErrorMessage (this.projectViewer,
-                                          "An internal error has occurred.\n\nUnable to add new chapter.");
+                                          "An internal error has occurred.\n\nUnable to add new {chapter}.");
 
                 return false;
 
@@ -312,11 +317,8 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
             try
             {
 
-                this.projectViewer.editChapter (nc);
-                /*
-                this.projectViewer.addChapterToTreeAfter (nc,
-                                                          this.lastChapter);
-                 */
+                this.projectViewer.viewObject (nc);
+
             } catch (Exception e)
             {
 
@@ -325,7 +327,7 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
                                       e);
 
                 UIUtils.showErrorMessage (this.projectViewer,
-                                          "An internal error has occurred.\n\nUnable to edit chapter.");
+                                          "An internal error has occurred.\n\nUnable to edit {chapter}.");
 
             }
 
@@ -335,13 +337,26 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
 
         }
 
+        Chapter other = this.projectViewer.getProject ().getBook (0).getChapterByName (newName.toLowerCase ());
+
+        if (other != null)
+        {
+
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Already have a " + Environment.getObjectTypeName (other).toLowerCase () + " called: " +
+                                      other.getName ());
+
+            return false;
+
+        }        
+        
         try
         {
 
             c.setName (newName);
 
             // Inform the chapter tree that something has changed.
-            this.projectViewer.reloadChapterTree ();
+            this.projectViewer.reloadTreeForObjectType (c.getObjectType ());                
 
             this.projectViewer.saveObject (c,
                                            true);
@@ -356,7 +371,7 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to change chapter name.");
+                                      "An internal error has occurred.\n\nUnable to change {chapter} name.");
 
             return false;
 

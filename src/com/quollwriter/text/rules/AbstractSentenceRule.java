@@ -1,6 +1,8 @@
 package com.quollwriter.text.rules;
 
-public abstract class AbstractSentenceRule extends AbstractRule implements SentenceRule
+import com.quollwriter.text.*;
+
+public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implements SentenceRule
 {
 
     public AbstractSentenceRule(boolean userRule)

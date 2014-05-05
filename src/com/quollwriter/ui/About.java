@@ -111,7 +111,7 @@ public class About extends PopupWindow
                            cc.xy (2,
                                   y));
 
-        pbuilder.add (UIUtils.createWebsiteLabel (Environment.quollWriterWebsite,
+        pbuilder.add (UIUtils.createWebsiteLabel (Environment.getQuollWriterWebsite (),
                                                   null,
                                                   false),
                       cc.xy (4,
@@ -141,13 +141,13 @@ public class About extends PopupWindow
                              y));
 
         y += 2;
-
+/*
         pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.QUOLL_WRITER_DEV_PLAN_URL_PROPERTY_NAME),
                                                   "Development Plan",
                                                   false),
                       cc.xy (4,
                              y));
-
+*/
         JPanel pan = pbuilder.getPanel ();
 
         pan.setAlignmentX (JComponent.LEFT_ALIGNMENT);

@@ -12,7 +12,6 @@ import com.quollwriter.*;
 
 import com.quollwriter.synonyms.*;
 
-
 public class BuiltInSynonymProvider implements SynonymProvider
 {
 
@@ -27,57 +26,209 @@ public class BuiltInSynonymProvider implements SynonymProvider
     private boolean             useCache = false;
 
     public BuiltInSynonymProvider()
-                           throws GeneralException
     {
 
-        String thesaurusFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME);
+    }
 
-        if (thesaurusFileName == null)
+    private File getIndexFile (String lang)
+    {
+        
+        String thesaurusDir = Environment.getUserQuollWriterDir ().getPath () + "/thesaurus/" + lang;
+
+        return new File (thesaurusDir + "/index.txt");
+        
+    }
+    
+    private File getWordsFile (String lang)
+    {
+        
+        String thesaurusDir = Environment.getUserQuollWriterDir ().getPath () + "/thesaurus/" + lang;
+            
+        return new File (thesaurusDir + "/words.txt");
+        
+    }
+    
+    public boolean isLanguageSupported (String lang)
+    {
+        
+        if (this.hasThesaurusJarResourceFile ())
         {
-
-            throw new GeneralException ("No: " +
-                                        BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME +
-                                        " property found.");
-
+            
+            return true;
+            
         }
-
+            
+        // Look in the thesaurus directory.
+        if (Environment.isEnglish (lang))
+        {
+            
+            lang = "English";
+            
+        }
+        
+        File wordsFile = this.getWordsFile (lang);
+                
+        if (!wordsFile.exists ())
+        {
+            
+            return false;
+                
+        }
+            
+        File indexFile = this.getIndexFile (lang);
+        
+        if (!indexFile.exists ())
+        {
+            
+            return false;
+        
+        }
+        
+        return true;
+        
+    }
+    
+    private boolean hasThesaurusJarResourceFile ()
+    {
+        
         String thesaurusIndexFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME);
 
         if (thesaurusIndexFileName == null)
         {
 
-            throw new GeneralException ("No: " +
-                                        BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME +
-                                        " property found.");
+            return false;
 
         }
-
-        String thesaurusFileResourceName = Constants.DICTIONARIES_DIR + thesaurusFileName;
-
-        File thesaurusFile = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + thesaurusFileName);
-
-        if (!thesaurusFile.exists ())
-        {
-
-            // Extract the thesaurus file to the Quoll Writer directory.
-            Environment.extractResourceToFile (thesaurusFileResourceName,
-                                               thesaurusFile);
-
-        }
-
-        this.tFile = thesaurusFile;
 
         String thesaurusIndexFileResourceName = Constants.DICTIONARIES_DIR + thesaurusIndexFileName;
 
         // Read the index file.
-        BufferedReader r = new BufferedReader (new InputStreamReader (Environment.getResourceStream (thesaurusIndexFileResourceName)));
+        return Environment.getResourceStream (thesaurusIndexFileResourceName) != null;        
+        
+    }
 
+    
+    public void init (String language)
+                      throws GeneralException
+    {
+        
+        BufferedReader indexReader = null;
+        File wordsFile = null;
+        
+        // Check for legacy, pre v2.2 or if the user still has the dictionaries jar.
+        if (this.hasThesaurusJarResourceFile ())
+        {
+        
+            String thesaurusFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME);
+    
+            if (thesaurusFileName == null)
+            {
+    
+                throw new GeneralException ("No: " +
+                                            BuiltInSynonymProvider.THESAURUS_FILE_NAME_PROPERTY_NAME +
+                                            " property found.");
+    
+            }
+    
+            String thesaurusIndexFileName = Environment.getProperty (BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME);
+    
+            if (thesaurusIndexFileName == null)
+            {
+    
+                throw new GeneralException ("No: " +
+                                            BuiltInSynonymProvider.THESAURUS_FILE_INDEX_NAME_PROPERTY_NAME +
+                                            " property found.");
+    
+            }
+    
+            String thesaurusFileResourceName = Constants.DICTIONARIES_DIR + thesaurusFileName;
+    
+            File thesaurusFile = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + thesaurusFileName);
+    
+            if (!thesaurusFile.exists ())
+            {
+    
+                // Extract the thesaurus file to the Quoll Writer directory.
+                Environment.extractResourceToFile (thesaurusFileResourceName,
+                                                   thesaurusFile);
+    
+            }
+    
+            this.tFile = thesaurusFile;
+    
+            String thesaurusIndexFileResourceName = Constants.DICTIONARIES_DIR + thesaurusIndexFileName;
+    
+            // Read the index file.
+            indexReader = new BufferedReader (new InputStreamReader (Environment.getResourceStream (thesaurusIndexFileResourceName)));
+
+        } else {
+            
+            String lang = language;
+            
+            // Look in the thesaurus directory.
+            if (Environment.isEnglish (language))
+            {
+                
+                lang = "English";
+                
+            }
+                        
+            File thesaurusFile = this.getWordsFile (lang);
+                
+            if (!thesaurusFile.exists ())
+            {
+                
+                throw new GeneralException ("Unable to find thesaurus words file for language: " +
+                                            lang +
+                                            " at: " +
+                                            thesaurusFile);
+                
+            }
+            
+            this.tFile = thesaurusFile;
+            
+            File indexFile = this.getIndexFile (lang);
+            
+            if (!indexFile.exists ())
+            {
+                
+                throw new GeneralException ("Unable to find thesaurus index file for language: " +
+                                            lang +
+                                            " at: " +
+                                            indexFile);
+                
+            }
+            
+            try
+            {
+            
+                indexReader = new BufferedReader (new FileReader (indexFile));
+                
+            } catch (Exception e) {
+                
+                throw new GeneralException ("Unable to read thesaurus index file for language: " +
+                                            lang +
+                                            " at: " +
+                                            indexFile);
+                
+            }
+            
+        }
+        
+        if (indexReader == null)
+        {
+            
+            throw new GeneralException ("Unable to find thesaurus index file for language: " +
+                                        language);
+            
+        }
+        
         String l = null;
 
         try
         {
 
-            while ((l = r.readLine ()) != null)
+            while ((l = indexReader.readLine ()) != null)
             {
 
                 StringTokenizer t = new StringTokenizer (l,
@@ -104,7 +255,7 @@ public class BuiltInSynonymProvider implements SynonymProvider
 
             }
 
-            r.close ();
+            indexReader.close ();
 
         } catch (Exception e)
         {
@@ -117,14 +268,14 @@ public class BuiltInSynonymProvider implements SynonymProvider
         try
         {
 
-            this.thesaurusFile = new RandomAccessFile (thesaurusFile,
+            this.thesaurusFile = new RandomAccessFile (this.tFile,
                                                        "r");
 
         } catch (Exception e)
         {
 
             throw new GeneralException ("Unable to get access to thesaurus file: " +
-                                        thesaurusFile,
+                                        this.tFile,
                                         e);
 
         }

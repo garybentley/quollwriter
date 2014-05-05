@@ -9,7 +9,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 
-public class Accordion extends Box
+public class Accordion extends ScrollableBox
 {
 
     public class DividerHandler extends MouseAdapter
@@ -62,7 +62,7 @@ public class Accordion extends Box
 
                 int diffY = ev.getPoint ().y - this.last.y;
 
-                if ((above.content.getHeight () == 0) &&
+                if ((above.openContent.getHeight () == 0) &&
                     (diffY < 0))
                 {
 
@@ -70,8 +70,8 @@ public class Accordion extends Box
 
                 }
 
-                if (((below.content == null) ||
-                     (below.content.getHeight () == 0)) &&
+                if (((below.openContent == null) ||
+                     (below.openContent.getHeight () == 0)) &&
                     (diffY > 0))
                 {
 
@@ -79,16 +79,16 @@ public class Accordion extends Box
 
                 }
 
-                if ((above.content == null) ||
-                    (below.content == null))
+                if ((above.openContent == null) ||
+                    (below.openContent == null))
                 {
 
                     return;
 
                 }
 
-                Dimension aPref = above.content.getSize ();
-                Dimension bPref = below.content.getSize ();
+                Dimension aPref = above.openContent.getSize ();
+                Dimension bPref = below.openContent.getSize ();
 
                 aNewHeight = aPref.height + diffY;
 
@@ -98,18 +98,18 @@ public class Accordion extends Box
                     if (aNewHeight > 0)
                     {
 
-                        above.content.setPreferredSize (new Dimension (aPref.width,
-                                                                       aNewHeight));
+                        above.openContent.setPreferredSize (new Dimension (aPref.width,
+                                                                           aNewHeight));
 
                         above.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                              Short.MAX_VALUE));
 
-                        above.content.setVisible (true);
+                        above.openContent.setVisible (true);
 
                     } else
                     {
 
-                        above.content.setVisible (false);
+                        above.openContent.setVisible (false);
                         above.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                              above.header.getPreferredSize ().height));
 
@@ -127,18 +127,18 @@ public class Accordion extends Box
                     if (bNewHeight > 0)
                     {
 
-                        below.content.setPreferredSize (new Dimension (bPref.width,
-                                                                       bNewHeight));
+                        below.openContent.setPreferredSize (new Dimension (bPref.width,
+                                                                           bNewHeight));
 
                         below.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                              Short.MAX_VALUE));
 
-                        below.content.setVisible (true);
+                        below.openContent.setVisible (true);
 
                     } else
                     {
 
-                        below.content.setVisible (false);
+                        below.openContent.setVisible (false);
                         below.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                              below.header.getPreferredSize ().height));
 
@@ -163,115 +163,22 @@ public class Accordion extends Box
 
     }
 
-    public class ItemHandler extends MouseAdapter
-    {
-
-        private Item      item = null;
-        private Accordion acc = null;
-        private Dimension contentOldSize = null;
-
-        public ItemHandler(Item      item,
-                           Accordion acc)
-        {
-
-            this.item = item;
-            this.acc = acc;
-
-            if (this.item.content != null)
-            {
-
-                this.item.control.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
-
-                this.item.control.addMouseListener (this);
-
-            }
-
-        }
-
-        public void mouseReleased (MouseEvent ev)
-        {
-
-/*
-            if ((this.item.content.isVisible ())
-                &&
-                (this.acc.getVisibleCount () == 1)
-               )
-            {
-
-                return;
-
-            }
-*/
-
-            if (ev.isPopupTrigger ())
-            {
-                
-                return;
-                
-            }
-
-            if (this.item.content.isVisible ())
-            {
-
-                this.contentOldSize = this.item.content.getPreferredSize ();
-
-            }
-
-            this.item.content.setVisible (!this.item.content.isVisible ());
-
-            if (this.item.content.isVisible ())
-            {
-
-                this.item.content.setPreferredSize (this.contentOldSize);
-                this.item.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                         Short.MAX_VALUE));
-
-            } else
-            {
-
-                this.item.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                         this.item.getPreferredSize ().height));
-
-            }
-
-            /*
-            } else {
-
-            this.contentOldSize = this.item.content.getPreferredSize ();
-
-            }
-             */
-            this.item.revalidate ();
-            this.item.repaint ();
-
-            this.acc.revalidate ();
-            this.acc.repaint ();
-            /*
-            Container c = this.acc.getParent ();
-
-            if (c != null)
-            {
-
-            c.repaint ();
-
-            }
-             */
-        }
-
-    }
-
     public class Item extends Box
     {
 
         public Component header = null;
-        public Component content = null;
+        public Component openContent = null;
+        public Component closedContent = null;
         public Component control = null;
         public Item      nextItem = null;
         public Item      previousItem = null;
+        private Dimension openContentOldSize = null;
+        private Dimension closedContentOldSize = null;
 
         public Item(Component header,
                     Component control,
-                    Component content)
+                    Component openContent,
+                    Component closedContent)
         {
 
             super (BoxLayout.PAGE_AXIS);
@@ -281,28 +188,148 @@ public class Accordion extends Box
 
                 this.add (header);
 
+                if (header instanceof JComponent)
+                {
+                    
+                    ((JComponent) header).setAlignmentX (Component.LEFT_ALIGNMENT);
+                    
+                }
+
             }
 
-            if (content != null)
+            if (openContent != null)
             {
 
-                this.add (content);
+                if (openContent instanceof JComponent)
+                {
+                    
+                    ((JComponent) openContent).setAlignmentX (Component.LEFT_ALIGNMENT);
+                    
+                }
 
+                this.add (openContent);
+
+            }
+
+            if (closedContent != null)
+            {
+
+                if (closedContent instanceof JComponent)
+                {
+                    
+                    ((JComponent) closedContent).setAlignmentX (Component.LEFT_ALIGNMENT);
+                    
+                }
+
+                this.add (closedContent);
+
+                closedContent.setVisible (false);
+                
             }
 
             this.header = header;
             this.control = control;
-            this.content = content;
+            this.openContent = openContent;
+            this.closedContent = closedContent;
+            
+            if ((this.openContent != null)
+                ||
+                (this.closedContent != null)
+               )
+            {
+                
+                final Item _this = this;
+                
+                this.control.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+
+                this.control.addMouseListener (new MouseAdapter ()
+                {
+                
+                    public void mouseReleased (MouseEvent ev)
+                    {
+            
+                        if (ev.isPopupTrigger ())
+                        {
+                            
+                            return;
+                            
+                        }
+
+                        _this.setOpenContentVisible (!_this.openContent.isVisible ());
+
+                    }
+                    
+                });
+                
+            }
 
         }
+        
+        public void setOpenContentVisible (boolean v)
+        {
+            
+            if (this.openContent.isVisible ())
+            {
 
+                this.openContentOldSize = this.openContent.getPreferredSize ();
+
+            } else {
+                
+                if (this.closedContent != null)
+                {
+                    
+                    this.closedContentOldSize = this.closedContent.getPreferredSize ();
+                    
+                }
+                
+            }
+
+            this.openContent.setVisible (v);
+            
+            if (this.closedContent != null)
+            {
+                
+                this.closedContent.setVisible (!this.openContent.isVisible ());
+                
+            }
+            
+            this.setPreferredSize (null);
+            
+            if (this.openContent.isVisible ())
+            {
+
+                this.openContent.setPreferredSize (this.openContentOldSize);
+
+            } else
+            {
+
+                if (this.closedContent != null)
+                {
+                    
+                    this.closedContent.setPreferredSize (this.closedContentOldSize);
+                    
+                }
+
+            }
+/*
+            this.setMaximumSize (new Dimension (this.getPreferredSize ().width,
+                                                this.getPreferredSize ().height));
+*/
+            this.revalidate ();
+            this.repaint ();
+
+            this.getParent ().validate ();
+            this.getParent ().repaint ();
+            
+        }
+        
         public Item getPreviousVisibleContent ()
         {
 
-            if (this.content != null)
+            if (this.openContent != null)
             {
 
-                if (this.content.isVisible ())
+                if (this.openContent.isVisible ())
                 {
 
                     return this;
@@ -325,10 +352,10 @@ public class Accordion extends Box
         public Item getNextVisibleContent ()
         {
 
-            if (this.content != null)
+            if (this.openContent != null)
             {
 
-                if (this.content.isVisible ())
+                if (this.openContent.isVisible ())
                 {
 
                     return this;
@@ -350,7 +377,7 @@ public class Accordion extends Box
 
     }
 
-    private java.util.List items = new ArrayList ();
+    private java.util.List<Item> items = new ArrayList ();
     private Border         itemBorder = null;
     private int            dividerSize = 7;
     private HeaderFactory  headerFactory = null;
@@ -365,6 +392,18 @@ public class Accordion extends Box
 
     }
 
+    public void setAllSectionsOpen (boolean v)
+    {
+        
+        for (Item i : this.items)
+        {
+            
+            i.setOpenContentVisible (v);
+            
+        }
+        
+    }
+    
     /**
      * Expects a format: 0,<true|false>,<width>,<height>|1,<true/false>,<width>,<height>...
      * The numeric index indicates the item in the accoridion.
@@ -409,12 +448,12 @@ public class Accordion extends Box
 
                     boolean vis = Boolean.parseBoolean (tt.nextToken ());
 
-                    if (it.content != null)
+                    if (it.openContent != null)
                     {
 
-                        it.content.setVisible (vis);
+                        it.setOpenContentVisible (vis);
 
-                        Dimension pref = it.content.getPreferredSize ();
+                        Dimension pref = it.openContent.getPreferredSize ();
 
                         if (tt.hasMoreTokens ())
                         {
@@ -446,7 +485,7 @@ public class Accordion extends Box
 
                         }
 
-                        it.content.setPreferredSize (pref);
+                        it.openContent.setPreferredSize (pref);
 
                         this.revalidate ();
                         this.repaint ();
@@ -491,11 +530,11 @@ public class Accordion extends Box
 
             b.append (i);
             b.append (",");
-            b.append (((it.content != null) ? it.content.isVisible () : false));
+            b.append (((it.openContent != null) ? it.openContent.isVisible () : false));
             b.append (",");
-            b.append (it.content.getWidth ());
+            b.append (it.openContent.getWidth ());
             b.append (",");
-            b.append (it.content.getHeight ());
+            b.append (it.openContent.getHeight ());
 
         }
 
@@ -518,14 +557,14 @@ public class Accordion extends Box
         for (int i = 0; i < items.size (); i++)
         {
 
-            if (((Item) items.get (i)).content == null)
+            if (((Item) items.get (i)).openContent == null)
             {
 
                 continue;
 
             }
 
-            if (((Item) items.get (i)).content.isVisible ())
+            if (((Item) items.get (i)).openContent.isVisible ())
             {
 
                 c++;
@@ -605,9 +644,22 @@ public class Accordion extends Box
 
     }
 */
-    public void add (Component header,
+    public Item add (Component header,
                      Component control,
-                     Component content)
+                     Component openContent)
+    {
+
+        return this.add (header,
+                         control,
+                         openContent,
+                         null);
+    
+    }
+    
+    public Item add (Component header,
+                     Component control,
+                     Component openContent,
+                     Component closedContent)                     
     {
 
         if (control == null)
@@ -619,7 +671,8 @@ public class Accordion extends Box
 
         Item ai = new Item (header,
                             control,
-                            content);
+                            openContent,
+                            closedContent);
 
         // ai.setDoubleBuffered (true);
         ai.setBorder (this.itemBorder);
@@ -635,14 +688,14 @@ public class Accordion extends Box
             // Create a strut.
             JComponent s = (JComponent) Box.createVerticalStrut (this.dividerSize);
 
-            s.setCursor (Cursor.getPredefinedCursor (Cursor.N_RESIZE_CURSOR));
+            //s.setCursor (Cursor.getPredefinedCursor (Cursor.N_RESIZE_CURSOR));
             s.setOpaque (false);
-
+/*
             new DividerHandler (last,
                                 ai,
                                 s,
                                 this);
-
+*/
             this.add (s);
 
         }
@@ -653,24 +706,8 @@ public class Accordion extends Box
 
         this.validate ();
 
-        // Left align everything.
-        if (content != null)
-        {
-
-            ((JComponent) content).setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        }
-
-        if (header != null)
-        {
-
-            ((JComponent) header).setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        }
-
-        new ItemHandler (ai,
-                         this);
-
+        return ai;
+        
     }
 
 }

@@ -30,6 +30,8 @@ p
     text-align: [[ALIGN]];
     text-indent: [[INDENT]];
     white-space: pre-wrap;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
 }
 
 .b

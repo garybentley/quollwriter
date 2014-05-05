@@ -91,67 +91,50 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
 
                 final Chapter c = (Chapter) d;
 
-                mi = new JMenuItem ("Edit Warm-up",
-                                    Environment.getIcon ("edit",
-                                                         Constants.ICON_MENU));
+                m.add (UIUtils.createMenuItem ("Edit {Warmup}",
+                                               Constants.EDIT_ICON_NAME,
+                                               pv.getAction (WarmupsViewer.EDIT_WARMUP_ACTION,
+                                                             c)));
 
-                mi.addActionListener (pv.getAction (WarmupsViewer.EDIT_WARMUP_ACTION,
-                                                    c));
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("Convert to a {Project}",
+                                               Constants.CONVERT_ICON_NAME,
+                                               pv.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
+                                                             c)));
 
-                mi = new JMenuItem ("Convert to a " + Environment.getObjectTypeName (Project.OBJECT_TYPE),
-                                    Environment.getIcon ("convert",
-                                                         Constants.ICON_MENU));
+                m.add (UIUtils.createMenuItem ("Rename {Warmup}",
+                                               Constants.RENAME_ICON_NAME,
+                                               new ActionAdapter ()
+                {
 
-                mi.addActionListener (pv.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
-                                                    c));
-
-                m.add (mi);
-
-                mi = new JMenuItem ("Rename Warm-up",
-                                    Environment.getIcon ("-edit",
-                                                         Constants.ICON_MENU));
-
-                mi.addActionListener (new ActionAdapter ()
+                    public void actionPerformed (ActionEvent ev)
                     {
 
-                        public void actionPerformed (ActionEvent ev)
-                        {
+                        _this.tree.setSelectionPath (tp);
+                        _this.tree.startEditingAtPath (tp);
 
-                            _this.tree.setSelectionPath (tp);
-                            _this.tree.startEditingAtPath (tp);
+                    }
 
-                        }
+                }));
 
-                    });
+                m.add (UIUtils.createMenuItem ("Close {Warmup}",
+                                               Constants.CANCEL_ICON_NAME,
+                                               new ActionAdapter ()
+                {
 
-                m.add (mi);
-
-                mi = new JMenuItem ("Close Warm-up",
-                                    Environment.getIcon ("cancel",
-                                                         Constants.ICON_MENU));
-
-                mi.addActionListener (new ActionAdapter ()
+                    public void actionPerformed (ActionEvent ev)
                     {
 
-                        public void actionPerformed (ActionEvent ev)
-                        {
+                        pv.removePanel (c);
 
-                            pv.removePanel (c);
+                    }
 
-                        }
+                }));
 
-                    });
-
-                m.add (mi);
-
-                mi = new JMenuItem ("Delete Warm-up",
-                                    Environment.getIcon ("delete",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (WarmupsViewer.DELETE_WARMUP_ACTION,
-                                                    c));
-                m.add (mi);
-
+                m.add (UIUtils.createMenuItem ("Delete {Warmup}",
+                                               Constants.DELETE_ICON_NAME,
+                                               pv.getAction (WarmupsViewer.DELETE_WARMUP_ACTION,
+                                                             c)));
+                
             }
 
         } 

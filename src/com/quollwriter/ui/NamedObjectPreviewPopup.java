@@ -120,7 +120,7 @@ public class NamedObjectPreviewPopup extends Box
                              
                                  public void actionPerformed (ActionEvent ev)
                                  {
-                               
+                              
                                      _this.show (obj,
                                                  po);
                                      
@@ -215,7 +215,8 @@ public class NamedObjectPreviewPopup extends Box
         
         this.removeAll ();
                         
-        JEditorPane desc = UIUtils.createHelpTextPane (firstLine);
+        JEditorPane desc = UIUtils.createHelpTextPane (firstLine,
+                                                       null);
 
         FormLayout fl = new FormLayout ("380px",
                                         "p");

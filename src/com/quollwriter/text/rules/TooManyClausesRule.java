@@ -92,7 +92,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
         return root;
 
     }
-
+/*
     public List<Issue> getIssues (String  sentence,
                                   boolean inDialogue)
     {
@@ -130,6 +130,49 @@ public class TooManyClausesRule extends AbstractSentenceRule
             Issue iss = new Issue ("Sentence contains: <b>" + c + "</b> clauses.",
                                    -1,
                                    -1,
+                                   this);
+
+            issues.add (iss);
+
+        }
+
+        return issues;
+
+    }
+*/
+    public List<Issue> getIssues (Sentence sentence)
+    {
+
+        int c = 1;
+        int i = 0;
+        
+        for (Word w : sentence.getWords ())
+        {
+
+            if (this.separators.containsKey (w.getText ()))
+            {
+
+                if (i > 0)
+                {
+                    
+                    c++;
+                    
+                }
+
+            }
+
+            i++;
+            
+        }
+
+        // Look for , ; or -.
+        List<Issue> issues = new ArrayList ();
+
+        if (c > this.clauseCount)
+        {
+
+            Issue iss = new Issue ("Sentence contains: <b>" + c + "</b> clauses.",
+                                   sentence,
                                    this);
 
             issues.add (iss);

@@ -158,7 +158,8 @@ public class FileFinder extends Box
                                                    this.text.getPreferredSize ().height));
         this.text.setMaximumSize (new Dimension (350,
                                                  this.text.getPreferredSize ().height));
-
+        this.text.setToolTipText (Environment.replaceObjectNames ("Click to open the finder"));
+                                                 
         this.setAlignmentX (Component.LEFT_ALIGNMENT);                                              
                                               
         this.add (text);
@@ -166,7 +167,7 @@ public class FileFinder extends Box
 
         final JButton dbut = UIUtils.createButton ("find",
                                                    Constants.ICON_MENU,
-                                                   (this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory."),
+                                                   Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")),
                                                    null);
         
         this.add (dbut);
@@ -175,9 +176,9 @@ public class FileFinder extends Box
         {
             
             this.chooser = new JFileChooser ();
-            this.chooser.setDialogTitle (this.finderTitle);
+            this.chooser.setDialogTitle (Environment.replaceObjectNames (this.finderTitle));
             this.chooser.setFileSelectionMode (this.finderSelectionMode);
-            this.chooser.setApproveButtonText (this.approveButtonText);
+            this.chooser.setApproveButtonText (Environment.replaceObjectNames (this.approveButtonText));
             this.chooser.setCurrentDirectory (new File (this.text.getText ()));
             
         }

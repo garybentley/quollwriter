@@ -112,7 +112,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
         this.descField.setLineWrap (true);
         this.descField.setWrapStyleWord (true);
 
-        this.addToChapter.setText ("Add the description to the Chapter");
+        this.addToChapter.setText (Environment.replaceObjectNames ("Add the description to the {Chapter}"));
 
         boolean sel = true;
 
@@ -287,7 +287,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 
         } else
         {
-
+        
             try
             {
 
@@ -321,7 +321,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
         }
 
         // Need to repaint so that tree doesn't truncate the field for name extensions.
-        this.projectViewer.reloadChapterTree ();
+        this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
 
         editor.grabFocus ();
 

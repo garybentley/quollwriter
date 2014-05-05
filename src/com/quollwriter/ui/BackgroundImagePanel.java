@@ -28,10 +28,19 @@ public class BackgroundImagePanel extends JPanel implements MouseWheelListener
     public void mouseWheelMoved (MouseWheelEvent ev)
     {
 
-        int r = ev.getWheelRotation ();
-        
-        this.setBackgroundOpacity (this.opacity + (-1 * r * 0.1f));
+        if (ev.isShiftDown ())
+        {
+    
+            int r = ev.getWheelRotation ();
+            
+            this.setBackgroundOpacity (this.opacity + (-1 * r * 0.1f));
 
+            return;
+            
+        }
+            
+        ev.getComponent ().getParent ().dispatchEvent (ev);
+        
     }    
     
     public float getBackgroundOpacity ()
@@ -46,10 +55,10 @@ public class BackgroundImagePanel extends JPanel implements MouseWheelListener
         
         this.opacity = v;
 
-        if (this.opacity < 0.1f)
+        if (this.opacity < 0f)
         {
             
-            this.opacity = 0.1f;
+            this.opacity = 0f;
             
         }
         

@@ -73,8 +73,32 @@ public abstract class ChapterItem extends NamedObject
     public void setChapter (Chapter c)
     {
 
+        if ((this.chapter != null)
+            &&
+            (this.chapter == c)
+           )
+        {
+            
+            // Already set.
+            return;
+            
+        }
+    
+        if ((this.chapter != null)
+            &&
+            (this.chapter != c)
+           )
+        {
+            
+            // Remove this item from the existing chapter.
+            this.chapter.removeChapterItem (this);
+            
+        }
+    
         this.chapter = c;
 
+        this.chapter.addChapterItem (this);
+        
     }
 
     public Scene getScene ()
@@ -86,11 +110,11 @@ public abstract class ChapterItem extends NamedObject
 
     public void setScene (Scene s)
     {
-
+    
         this.scene = s;
 
     }
-
+    
     public void setTextPosition (Position t)
     {
 
@@ -170,13 +194,8 @@ public abstract class ChapterItem extends NamedObject
 
         this.setPosition (this.getPosition () + p);
 
-        for (Note n : this.getNotes ())
-        {
-
-            n.shiftPositionBy (p);
-
-        }
-
+        this.setEndPosition (this.getEndPosition () + p);
+        
     }
 
     public int getPosition ()

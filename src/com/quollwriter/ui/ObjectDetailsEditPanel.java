@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.swing.*;
 
@@ -15,9 +17,9 @@ import com.gentlyweb.properties.*;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.events.*;
 
 import com.quollwriter.ui.components.*;
-
 
 public class ObjectDetailsEditPanel extends DetailsEditPanel
 {
@@ -26,8 +28,8 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
     private JComboBox types = null;
 
-    public ObjectDetailsEditPanel(Asset         a,
-                                  ProjectViewer pv)
+    public ObjectDetailsEditPanel (Asset                 a,
+                                   AbstractProjectViewer pv)
     {
 
         super (a,
@@ -38,9 +40,19 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
         this.types.setMaximumSize (this.types.getPreferredSize ());
         this.types.setToolTipText ("Add a new Type by entering a value in the field.");
-
+                
     }
 
+    public Set<String> getObjectChangeEventTypes ()
+    {
+        
+        Set<String> types = new HashSet ();
+        types.add (QObject.TYPE);
+        
+        return types;
+        
+    }
+    
     public String getEditHelpText ()
     {
 
@@ -75,8 +87,8 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
             o.setType (t);
 
             // Add the type.
-            ((ProjectViewer) this.projectViewer).getItemTypeHandler ().addType (t,
-                                                                                true);
+            this.projectViewer.getObjectTypesHandler (QObject.OBJECT_TYPE).addType (t,
+                                                                                    true);
 
             Map nTypes = new HashMap ();
 

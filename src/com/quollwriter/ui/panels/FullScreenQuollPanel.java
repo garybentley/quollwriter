@@ -23,8 +23,7 @@ public class FullScreenQuollPanel extends QuollPanel
     {
 
         super (child.getProjectViewer (),
-               child.getForObject (),
-               false);
+               child.getForObject ());
 
         this.child = child;
 

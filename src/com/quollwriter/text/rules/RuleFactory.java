@@ -44,8 +44,24 @@ public class RuleFactory
 
             Element el = (Element) els.get (i);
 
-            Rule r = RuleFactory.createRule (el,
-                                             false);
+            Rule r = null;
+            
+            try
+            {
+                
+                r = RuleFactory.createRule (el,
+                                            false);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to create rule",
+                                      new GeneralException ("Unable to create rule from element: " +
+                                                            JDOMUtils.getPath (el),
+                                                            e));
+                
+                continue;
+                
+            }
 
             Map<String, Rule> l = RuleFactory.rules.get (r.getCategory ());
 
@@ -277,10 +293,6 @@ public class RuleFactory
 
             if (iter.hasNext ())
             {
-                ;
-            }
-
-            {
 
                 b.append (";");
 
@@ -467,21 +479,136 @@ public class RuleFactory
         return rs.get (id);
 
     }
-
-    public static List<Issue> getIssues (String                              sentence,
-                                         boolean                             inDialogue,
-                                         com.gentlyweb.properties.Properties projProps)
+/*
+    public static List<Issue> getParagraphIssues (String                              para,
+                                                  boolean                             inDialogue,
+                                                  ParagraphIterator                   paraIter,
+                                                  com.gentlyweb.properties.Properties projProps)
     {
 
-        Collection<Rule> wordIss = RuleFactory.rules.get (Rule.WORD_CATEGORY).values ();
+        List<Issue> issues = new ArrayList ();
+    
+        Map<String, Rule> rules = RuleFactory.rules.get (Rule.PARAGRAPH_CATEGORY);
+        
+        if (rules == null)
+        {
+            
+            return issues;
+            
+        }
+    
+        Collection<Rule> iss = rules.values ();
 
         // Get the ignores.
         Map<String, String> ignores = RuleFactory.getIgnores (ALL,
                                                               projProps);
 
+        for (Rule r : iss)
+        {
+
+            if (ignores.containsKey (r.getId ()))
+            {
+
+                continue;
+
+            }
+
+            issues.addAll (r.getIssues (para,
+                                        inDialogue));
+
+        }
+        
+        return issues;
+        
+    }
+    */
+    /*
+    public static List<Issue> getSentenceIssues (String                              sentence,
+                                                 boolean                             inDialogue,
+                                                 SentenceIterator                    sentIter,
+                                                 com.gentlyweb.properties.Properties projProps)
+    {
+
         List<Issue> issues = new ArrayList ();
+    
+        // Get the ignores.
+        Map<String, String> ignores = RuleFactory.getIgnores (ALL,
+                                                              projProps);
 
-        for (Rule r : wordIss)
+        Map<String, Rule> rules = RuleFactory.rules.get (Rule.WORD_CATEGORY);
+    
+        if (rules != null)
+        {
+    
+            Collection<Rule> wordIss = rules.values ();
+            
+            for (Rule r : wordIss)
+            {
+    
+                if (ignores.containsKey (r.getId ()))
+                {
+    
+                    continue;
+    
+                }
+    
+                issues.addAll (r.getIssues (sentence,
+                                            inDialogue));
+    
+            }
+
+        }
+            
+        rules = RuleFactory.rules.get (Rule.SENTENCE_CATEGORY);
+        
+        if (rules != null)
+        {
+            
+            Collection<Rule> sRules = rules.values ();
+    
+            for (Rule r : sRules)
+            {
+    
+                if (ignores.containsKey (r.getId ()))
+                {
+    
+                    continue;
+    
+                }
+    
+                issues.addAll (r.getIssues (sentence,
+                                            inDialogue));
+    
+            }
+
+        }
+            
+        return issues;
+
+    }
+*/
+    public static List<Issue> getParagraphIssues (Paragraph                           para,
+                                                  com.gentlyweb.properties.Properties projProps)
+    {
+
+        List<Issue> issues = new ArrayList ();
+    
+        Map<String, Rule> rules = RuleFactory.rules.get (Rule.PARAGRAPH_CATEGORY);
+        
+        if (rules == null)
+        {
+            
+            return issues;
+            
+        }
+    
+        Collection<Rule> iss = rules.values ();
+
+        // Get the ignores.
+        Map<String, String> ignores = RuleFactory.getIgnores (ALL,
+                                                              projProps);
+
+        for (Rule r : iss)
         {
 
             if (ignores.containsKey (r.getId ()))
@@ -491,28 +618,76 @@ public class RuleFactory
 
             }
 
-            issues.addAll (r.getIssues (sentence,
-                                        inDialogue));
+            ParagraphRule pr = (ParagraphRule) r;
+            
+            issues.addAll (r.getIssues (para));
 
         }
+        
+        return issues;
+        
+    }
 
-        Collection<Rule> sRules = RuleFactory.rules.get (Rule.SENTENCE_CATEGORY).values ();
+    public static List<Issue> getSentenceIssues (Sentence                            sentence,
+                                                 com.gentlyweb.properties.Properties projProps)
+    {
 
-        for (Rule r : sRules)
+        List<Issue> issues = new ArrayList ();
+    
+        // Get the ignores.
+        Map<String, String> ignores = RuleFactory.getIgnores (ALL,
+                                                              projProps);
+
+        Map<String, Rule> rules = RuleFactory.rules.get (Rule.WORD_CATEGORY);
+    
+        if (rules != null)
         {
-
-            if (ignores.containsKey (r.getId ()))
+    
+            Collection<Rule> wordIss = rules.values ();
+            
+            for (Rule r : wordIss)
             {
-
-                continue;
-
+    
+                if (ignores.containsKey (r.getId ()))
+                {
+    
+                    continue;
+    
+                }
+    
+                SentenceRule sr = (SentenceRule) r;
+    
+                issues.addAll (sr.getIssues (sentence));
+    
             }
 
-            issues.addAll (r.getIssues (sentence,
-                                        inDialogue));
+        }
+            
+        rules = RuleFactory.rules.get (Rule.SENTENCE_CATEGORY);
+        
+        if (rules != null)
+        {
+            
+            Collection<Rule> sRules = rules.values ();
+    
+            for (Rule r : sRules)
+            {
+    
+                if (ignores.containsKey (r.getId ()))
+                {
+    
+                    continue;
+    
+                }
+    
+                SentenceRule sr = (SentenceRule) r;
+                
+                issues.addAll (r.getIssues (sentence));
+    
+            }
 
         }
-
+            
         return issues;
 
     }
@@ -562,6 +737,27 @@ public class RuleFactory
 
         }
 
+        if (type.equals (SentenceComplexityRule.CREATE_TYPE))
+        {
+
+            r = new SentenceComplexityRule (userRule);
+
+        }
+
+        if (type.equals (ParagraphLengthRule.CREATE_TYPE))
+        {
+
+            r = new ParagraphLengthRule (userRule);
+
+        }
+
+        if (type.equals (ParagraphReadabilityRule.CREATE_TYPE))
+        {
+
+            r = new ParagraphReadabilityRule (userRule);
+
+        }
+        
         r.init (root);
 
         return r;
@@ -582,6 +778,13 @@ public class RuleFactory
 
     }
 
+    public static List<Rule> getParagraphRules ()
+    {
+
+        return RuleFactory.getRules (Rule.PARAGRAPH_CATEGORY);
+
+    }
+    
     public static List<Rule> getRules (String category)
     {
 

@@ -12,6 +12,7 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.IconProvider;
@@ -101,15 +102,11 @@ public abstract class EditPanel extends Box
         this.panel.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.add (this.panel);
 
-        this.header = new Header (this.getTitle (),
+        this.header = new Header (Environment.replaceObjectNames (this.getTitle ()),
                                   ip.getIcon ("header",
                                               Constants.ICON_PANEL_SECTION),
                                   null);
-/*
-        this.header = Header.createBoldSubHeader (this.getTitle (),
-                                                  ip.getIcon ("header",
-                                                              false));
-                                                              */
+
         this.header.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.header.setOpaque (false);
     
@@ -412,29 +409,8 @@ public abstract class EditPanel extends Box
 
                         }
 
-                        _this.editPanel.setVisible (true);
-
-                        _this.fireActionEvent (EditPanel.EDIT_VISIBLE,
-                                               "edit-visible");
-
-                        _this.visiblePanel = _this.editPanel;
-
-                        if (_this.viewPanel != null)
-                        {
-
-                            _this.viewPanel.setVisible (false);
-
-                        }
-
-                        _this.edit.setToolTipText ("Click to save the changes");
-
-                        _this.cancel.setVisible (true);
-                        _this.help.setVisible (true);
-
-                        _this.handleEditStart ();
-
-                        _this.repaint ();
-
+                        _this.showEditPanel ();
+                        
                     }
 
                 });
@@ -501,6 +477,34 @@ public abstract class EditPanel extends Box
 
     }
 
+    public void showEditPanel ()
+    {
+        
+        this.editPanel.setVisible (true);
+
+        this.fireActionEvent (EditPanel.EDIT_VISIBLE,
+                              "edit-visible");
+
+        this.visiblePanel = this.editPanel;
+
+        if (this.viewPanel != null)
+        {
+
+            this.viewPanel.setVisible (false);
+
+        }
+
+        this.edit.setToolTipText ("Click to save the changes");
+
+        this.cancel.setVisible (true);
+        this.help.setVisible (true);
+
+        this.handleEditStart ();
+
+        this.repaint ();        
+        
+    }
+    
     public Header getHeader ()
     {
 
@@ -533,6 +537,25 @@ public abstract class EditPanel extends Box
 
     }
 
+    public ActionListener getDoSaveAction ()
+    {
+        
+        final EditPanel _this = this;
+        
+        return new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.doSave ();
+                
+            }
+            
+        };
+        
+    }
+    
     public boolean doSave ()
     {
 

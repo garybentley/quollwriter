@@ -48,8 +48,7 @@ public class Startup
 
                 Startup.ss.finish ();
 
-                FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_TITLE | FindOrOpen.SHOW_NEW);
-                f.setVisible (true);
+                new FirstProject ().init ();
 
                 return;
 
@@ -60,7 +59,7 @@ public class Startup
             // See if the user property is to open the last edited project.
             if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
             {
-
+            
                 try
                 {
 
@@ -89,7 +88,7 @@ public class Startup
 
             }
 
-            FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_ALL);
+            FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
             f.setVisible (true);
 
             // Need to do this here since, if there is no visible frame (somewhere) then showErrorMessage will throw an error that crashes the jvm... nice...

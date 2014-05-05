@@ -61,6 +61,18 @@ public class AccordionItem extends Box
                 
     }
 
+    public AccordionItem (Header     h,
+                          JComponent content)
+    {
+        
+        super (BoxLayout.Y_AXIS);
+
+        this.header = h;
+
+        this.content = content;
+        
+    }
+    
     public AccordionItem (String     title,
                           String     iconType,
                           JComponent content)
@@ -105,7 +117,7 @@ public class AccordionItem extends Box
     public void setTitle (String s)
     {
         
-        this.title = s;
+        this.title = Environment.replaceObjectNames (s);
         
         this.header.setTitle (s);
         
@@ -247,14 +259,10 @@ public class AccordionItem extends Box
                                         ActionListener action)
     {
         
-        JMenuItem mi = new JMenuItem (title, 
-                                      Environment.getIcon (icon,
-                                                           Constants.ICON_MENU));
-
-        mi.addActionListener (action);
-                                                           
-        this.headerMenuItems.add (mi);
-        
+        this.headerMenuItems.add (UIUtils.createMenuItem (title,
+                                                          icon,
+                                                          action));
+                                                                   
     }
     
     private void createHeaderPopupMenu (MouseEvent ev)

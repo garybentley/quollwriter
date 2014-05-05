@@ -41,8 +41,11 @@ public class TextPropertiesEditPanel extends Box
     private JComboBox            align = null;
     private JComboBox            line = null;
     private JCheckBox            indent = null;
+    private JCheckBox            highlightWritingLine = null;
+    private JCheckBox            typewriterScrolling = null;
     private JPanel               textcolorSwatch = null;
     private JPanel               bgcolorSwatch = null;
+    private JPanel               writingLineHighlightColorSwatch = null;
 
     private Map<String, QPopup>  popups = new HashMap ();
     
@@ -63,6 +66,13 @@ public class TextPropertiesEditPanel extends Box
         
     }
         
+    public Dimension getMinimumSize ()
+    {
+        
+        return this.getPreferredSize ();        
+        
+    }
+    
     public void setTextProperties (TextProperties props)
     {
         
@@ -78,6 +88,8 @@ public class TextPropertiesEditPanel extends Box
         // Need to update the text background/text color.
         this.textProps.setTextColor (props.getTextColor ());
         this.textProps.setBackgroundColor (props.getBackgroundColor ());
+        this.textProps.setWritingLineColor (props.getWritingLineColor ());
+        this.textProps.setHighlightWritingLine (props.isHighlightWritingLine ());
         
     }
     
@@ -92,7 +104,7 @@ public class TextPropertiesEditPanel extends Box
         JPanel p = null;
         
         fl = new FormLayout ("right:p, 6px, p:grow",
-                             "p, 10px, p, 10px, p, 10px, p, 10px, p" + (this.showColorSelectors ? ", 10px, p, 10px, p, 10px, p" : ""));
+                             "p, 10px, p, 10px, p, 10px, p, 10px, p, 10px, p, 10px, p" + (this.showColorSelectors ? ", 10px, p, 10px, p, 10px, p" : ""));
 
         int r = 1;
     
@@ -216,8 +228,7 @@ public class TextPropertiesEditPanel extends Box
                 _this.textProps.setFirstLineIndent (_this.indent.isSelected ());
             
                 _this.projectViewer.fireProjectEvent (_this.eventType,
-                                                      ProjectEvent.CHANGE_LINE_INDENT);
-                
+                                                      ProjectEvent.CHANGE_LINE_INDENT);                
                 
             }
 
@@ -227,17 +238,128 @@ public class TextPropertiesEditPanel extends Box
                      cc.xy (3,
                             r));
                 
+        r += 2;
+
+        this.highlightWritingLine = new JCheckBox ("Highlight the writing line");
+        this.highlightWritingLine.setOpaque (false);
+        this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
+
+        this.highlightWritingLine.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.textProps.setHighlightWritingLine (_this.highlightWritingLine.isSelected ());
+
+                _this.projectViewer.fireProjectEvent (_this.eventType,
+                                                      ProjectEvent.CHANGE_HIGHLIGHT_WRITING_LINE);                
+                
+            }
+
+        });
+
+        builder.add (this.highlightWritingLine,
+                     cc.xy (3,
+                            r));
+
+        r += 2;        
+    
+        builder.addLabel ("Highlight Line",
+                          cc.xy (1,
+                                 r));
+    
+        this.writingLineHighlightColorSwatch = QColorChooser.getSwatch (_this.textProps.getWritingLineColor ());
+        
+        UIUtils.setAsButton (this.writingLineHighlightColorSwatch);
+                            
+        this.writingLineHighlightColorSwatch.addMouseListener (new MouseAdapter ()
+        {
+
+            public void mouseReleased (MouseEvent ev)
+            {
+
+                String colors = _this.projectViewer.getProject ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
+            
+                Color writingLineColor = _this.textProps.getWritingLineColor ();
+  
+                QPopup popup = _this.popups.get ("writingline");
+                
+                if (popup == null)
+                {
+                
+                    popup = QColorChooser.getColorChooserPopup (colors,
+                                                                writingLineColor,
+                                                                new ChangeAdapter ()
+                                                                {
+                         
+                                                                    public void stateChanged (ChangeEvent ev)
+                                                                    {
+                        
+                                                                        Color c = (Color) ev.getSource ();
+                                                                        
+                                                                        _this.writingLineHighlightColorSwatch.setBackground (c);
+                                                                       
+                                                                        _this.textProps.setWritingLineColor (c);
+
+                                                                    }
+
+                                                                },
+                                                                new ActionAdapter ()
+                                                                {
+                                                                    
+                                                                    public void actionPerformed (ActionEvent ev)
+                                                                    {
+                                                                        
+                                                                        QPopup p = _this.popups.remove ("writingline");
+                                                                        
+                                                                        p.removeFromParent ();
+                                                                        
+                                                                    }
+                                                                    
+                                                                });                
+            
+                    _this.popups.put ("writingline",
+                                      popup);
+
+                }
+                
+                int x = ev.getXOnScreen ();
+                int y = ev.getYOnScreen ();
+
+                Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
+
+                if ((y + popup.getPreferredSize ().height) > d.height)
+                {
+
+                    y -= popup.getPreferredSize ().height;
+
+                }
+
+                _this.popupParent.showPopupAt (popup,
+                                               _this.writingLineHighlightColorSwatch);
+
+            }
+            
+        });
+
+        builder.add (UIUtils.getLimitWrapper (this.writingLineHighlightColorSwatch),
+                     cc.xy (3,
+                            r));
+        
         if (this.showColorSelectors)
         {
 
             r += 2;        
         
-            builder.addLabel ("Color",
+            builder.addLabel ("Text",
                               cc.xy (1,
                                      r));
         
             this.textcolorSwatch = QColorChooser.getSwatch (this.textProps.getTextColor ());
+            UIUtils.setAsButton (this.textcolorSwatch);
             this.bgcolorSwatch = QColorChooser.getSwatch (this.textProps.getBackgroundColor ());
+            UIUtils.setAsButton (this.bgcolorSwatch);
     
             this.textcolorSwatch.addMouseListener (new MouseAdapter ()
             {
@@ -308,7 +430,8 @@ public class TextPropertiesEditPanel extends Box
                     }
     
                     _this.popupParent.showPopupAt (popup,
-                                                   new Point (x, y));
+                                                   _this.textcolorSwatch);
+                                                   //new Point (x, y));
                 
                 }
     

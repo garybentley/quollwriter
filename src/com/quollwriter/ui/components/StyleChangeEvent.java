@@ -8,6 +8,9 @@ public class StyleChangeEvent extends ChangeEvent
     public static final String BOLD = "bold";
     public static final String ITALIC = "italic";
     public static final String UNDERLINE = "underline";
+    public static final String FONT_NAME = "fontname";
+    public static final String LINE_SPACING = "linespacing";
+    public static final String FONT_SIZE = "fontsize";
     
     private int from = -1;
     private int to = -1;

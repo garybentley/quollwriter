@@ -61,8 +61,8 @@ public class ChapterDataHandler implements DataHandler
                 List params = new ArrayList ();
                 params.add (c.getKey ());
                 params.add (iss.getRuleId ());
-                params.add (iss.getSentenceStartPosition ().getOffset ());
-                params.add (iss.getStartWordPosition ());
+                params.add (iss.getStartPosition ().getOffset ());
+                params.add (iss.getStartIssuePosition ());
 
                 this.objectManager.executeStatement ("INSERT INTO problemfinderignore (chapterdbkey, ruleid, startposition, wordposition) VALUES (?, ?, ?, ?)",
                                                      params,
@@ -127,7 +127,7 @@ public class ChapterDataHandler implements DataHandler
                                        -1,
                                        r);
 
-                iss.setSentenceStartPosition (doc.createPosition (startPos));
+                iss.setStartPosition (doc.createPosition (startPos));
 
                 ret.add (iss);
 
@@ -188,43 +188,9 @@ public class ChapterDataHandler implements DataHandler
             c.setGoals (rs.getString (ind++));
             c.setMarkup (rs.getString (ind++));
             c.setPlan (rs.getString (ind++));
+            c.setEditPosition (rs.getInt (ind++));
+            c.setEditComplete (rs.getBoolean (ind++));
             
-            /*
-                    if (loadChildObjects)
-                    {
-
-                        Connection conn = rs.getStatement ().getConnection ();
-
-                        List scenes = this.objectManager.getObjects (Scene.class,
-                                                                     c,
-                                                                     conn,
-                                                                     loadChildObjects);
-
-                        for (int i = 0; i < scenes.size (); i++)
-                        {
-
-                            c.addScene ((Scene) scenes.get (i));
-
-                        }
-
-                        // Get all the notes.
-                        this.objectManager.loadNotes (c,
-                                                      conn);
-
-                        List items = this.objectManager.getObjects (OutlineItem.class,
-                                                                    c,
-                                                                    conn,
-                                                                    loadChildObjects);
-
-                        for (int i = 0; i < items.size (); i++)
-                        {
-
-                            c.addOutlineItem ((OutlineItem) items.get (i));
-
-                        }
-
-                    }
-             */
             return c;
 
         } catch (Exception e)
@@ -262,44 +228,7 @@ public class ChapterDataHandler implements DataHandler
         }
 
         return ret;
-/*
-        List<Chapter> ret = new ArrayList ();
 
-        try
-        {
-
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, text, goals FROM chapter_v WHERE bookdbkey = ? ORDER BY index",
-                                                            params,
-                                                            conn);
-
-            while (rs.next ())
-            {
-
-                ret.add (this.getChapter (rs,
-                                          loadChildObjects));
-
-            }
-
-            try
-            {
-
-                rs.close ();
-
-            } catch (Exception e) {}
-
-        } catch (Exception e) {
-
-            throw new GeneralException ("Unable to load chapters for: " +
-                                        parent,
-                                        e);
-
-        }
-
-        return ret;
-*/
     }
 
     private void loadAllChapters (Connection conn,
@@ -315,7 +244,7 @@ public class ChapterDataHandler implements DataHandler
             try
             {
 
-                ResultSet rs = this.objectManager.executeQuery ("SELECT bookdbkey, dbkey, name, description, lastmodified, datecreated, properties, text, goals, markup, plan FROM chapter_v ORDER BY index",
+                ResultSet rs = this.objectManager.executeQuery ("SELECT bookdbkey, dbkey, name, description, lastmodified, datecreated, properties, text, goals, markup, plan, editposition, editcomplete FROM chapter_v ORDER BY index",
                                                                 null,
                                                                 conn);
 
@@ -411,44 +340,6 @@ public class ChapterDataHandler implements DataHandler
 
         return null;
 
-/*
-        Chapter i = null;
-
-        try
-        {
-com.quollwriter.Environment.logError ("HERE", new Exception ());
-            List params = new ArrayList ();
-            params.add (key);
-
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, text, goals FROM chapter_v WHERE dbkey = ?",
-                                                            params,
-                                                            conn);
-
-            if (rs.next ())
-            {
-
-                i = this.getChapter (rs,
-                                     loadChildObjects);
-
-            }
-
-            try
-            {
-
-                rs.close ();
-
-            } catch (Exception e) {}
-
-        } catch (Exception e) {
-
-            throw new GeneralException ("Unable to load chapter for key: " +
-                                        key,
-                                        e);
-
-        }
-
-        return i;
-*/
     }
 
     public List<WordCount> getWordCounts (Chapter ch,
@@ -533,8 +424,10 @@ com.quollwriter.Environment.logError ("HERE", new Exception ());
         params.add (c.getGoals ());
         params.add (c.getMarkup ());
         params.add (c.getPlan ());
+        params.add (c.getEditPosition ());
+        params.add (c.isEditComplete ());
 
-        this.objectManager.executeStatement ("INSERT INTO chapter (dbkey, bookdbkey, text, index, goals, markup, plan) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        this.objectManager.executeStatement ("INSERT INTO chapter (dbkey, bookdbkey, text, index, goals, markup, plan, editposition, editcomplete) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);
 
@@ -637,9 +530,11 @@ com.quollwriter.Environment.logError ("HERE", new Exception ());
         params.add (c.getGoals ());
         params.add (c.getMarkup ());
         params.add (c.getPlan ());
+        params.add (c.getEditPosition ());
+        params.add (c.isEditComplete ());
         params.add (c.getKey ());
 
-        this.objectManager.executeStatement ("UPDATE chapter SET text = ?, index = ?, goals = ?, markup = ?, plan = ? WHERE dbkey = ?",
+        this.objectManager.executeStatement ("UPDATE chapter SET text = ?, index = ?, goals = ?, markup = ?, plan = ?, editposition = ?, editcomplete = ? WHERE dbkey = ?",
                                              params,
                                              conn);
 

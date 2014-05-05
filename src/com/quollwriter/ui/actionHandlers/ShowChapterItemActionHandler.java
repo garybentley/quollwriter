@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Insets;
+import java.awt.Image;
+import java.awt.datatransfer.*;
+import java.awt.image.*;
 import java.awt.event.*;
 
 import java.util.ArrayList;
@@ -12,6 +15,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -31,36 +36,44 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.ImagePanel;
 
 
-public abstract class ShowChapterItemActionHandler extends ActionAdapter
+public class ShowChapterItemActionHandler extends ActionAdapter
 {
 
+    private static Map<String, ChapterItemFormatDetails> formatDetails = new HashMap ();
+
+    static
+    {
+        
+        formatDetails.put (OutlineItem.OBJECT_TYPE,
+                           new OutlineItemFormatDetails ());
+        formatDetails.put (Scene.OBJECT_TYPE,
+                           new SceneFormatDetails ());
+        formatDetails.put (Note.OBJECT_TYPE,
+                           new NoteFormatDetails ());
+        
+    }
+    
     protected ChapterItem      item = null;
     private QPopup             popup = null;
-    protected QuollEditorPanel quollEditorPanel = null;
-    protected ProjectViewer    projectViewer = null;
+    protected AbstractEditorPanel editorPanel = null;
+    protected AbstractProjectViewer    projectViewer = null;
     private BlockPainter       highlight = new BlockPainter (Environment.getHighlightColor ());
-
+    private IconColumn         iconColumn = null;
+    
     public ShowChapterItemActionHandler(ChapterItem      item,
-                                        QuollEditorPanel qep)
+                                        AbstractEditorPanel qep,
+                                        IconColumn          ic)
     {
 
         this.item = item;
-        this.quollEditorPanel = qep;
-        this.projectViewer = (ProjectViewer) this.quollEditorPanel.getProjectViewer ();
-
+        this.editorPanel = qep;
+        this.iconColumn = ic;
+        this.projectViewer = this.editorPanel.getProjectViewer ();
+        
         final ShowChapterItemActionHandler _this = this;
-
-        String ot = item.getObjectType ();
-
-        if ((item instanceof Note) &&
-            (((Note) item).isEditNeeded ()))
-        {
-
-            ot = "edit-needed-note";
-
-        }
 
         JButton bt = UIUtils.createButton ("cancel",
                                                Constants.ICON_MENU,
@@ -79,71 +92,70 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
         
         List<JButton> buts = new ArrayList ();
         buts.add (bt);
+
+        ChapterItemFormatDetails formatter = ShowChapterItemActionHandler.formatDetails.get (this.item.getObjectType ());
+
+        if (formatter == null)
+        {
+            
+            throw new IllegalArgumentException ("Item: " +
+                                                this.item +
+                                                " has no formatter.");
+            
+        }        
         
         // Show a panel of all the items.
-        this.popup = new QPopup (Environment.getObjectTypeName (item.getObjectType ()),
-                                 Environment.getIcon (ot,
-                                                      Constants.ICON_POPUP),
-                                 UIUtils.createButtonBar (buts))
-        {
+        this.popup = UIUtils.createClosablePopup (Environment.replaceObjectNames (formatter.getTitle (item)),
+                                                  Environment.getIcon (formatter.getIcon (item),
+                                                                       Constants.ICON_POPUP),
+                                                  new ActionAdapter ()
+                                                  {
+                                                    
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                            
+                                                            _this.editorPanel.getEditor ().removeAllHighlights (_this.highlight);
+                                                            
+                                                        }
+                                                    
+                                                  });
 
-            public void setVisible (boolean v)
-            {
-
-                if (!v)
-                {
-
-                    _this.quollEditorPanel.getEditor ().removeAllHighlights (_this.highlight);
-
-
-                }
-
-                super.setVisible (v);
-
-            }
-
-        };
-                
-/*
-        QuollEditorPanel qep = this.projectViewer.getEditorForChapter (this.item.getChapter ());
-
-        if (qep == null)
-        {
-
-            throw new IllegalArgumentException ("Unable to find chapter for item: " +
-                                                this.item);
-
-        }
-*/
-        this.quollEditorPanel.addPopup (this.popup,
-                                        true,
-                                        true);
+        this.editorPanel.addPopup (this.popup,
+                                   true,
+                                   true);
 
         this.popup.setVisible (false);
 
-        this.popup.setDraggable (this.quollEditorPanel);
+        this.popup.setDraggable (this.editorPanel);
 
     }
-
-    public abstract AbstractActionHandler getEditItemActionHandler (ChapterItem item);
-
-    public abstract ActionListener getDeleteItemActionHandler (ChapterItem item);
-
-    public abstract String getItemDescription (ChapterItem item);
-
+    
     public void showItem ()
     {
 
-        // QuollEditorPanel qep = this.projectViewer.getEditorForChapter (this.item.getChapter ());
+        if (this.projectViewer.isDistractionFreeModeEnabled ())
+        {
+            
+            this.projectViewer.showNotificationPopup ("Function unavailable",
+                                                      "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
+                                                      5);
 
-        QTextEditor editor = this.quollEditorPanel.getEditor ();
+            return;            
+            
+        }
+    
+        final ShowChapterItemActionHandler _this = this;
+        
+        QTextEditor editor = this.editorPanel.getEditor ();
 
         Rectangle r = null;
-
+        
+        int pos = this.item.getPosition ();
+        
         try
         {
 
-            r = editor.modelToView (this.item.getPosition ());
+            r = editor.modelToView (pos);
 
         } catch (Exception e)
         {
@@ -152,10 +164,10 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
             Environment.logError ("Unable to convert item: " +
                                   this.item +
                                   " at position: " +
-                                  this.item.getPosition (),
+                                  pos,
                                   e);
 
-            UIUtils.showErrorMessage (this.quollEditorPanel,
+            UIUtils.showErrorMessage (this.editorPanel,
                                       "Unable to display Items");
 
             return;
@@ -164,18 +176,27 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
 
         int y = r.y;
 
+        int min = pos - 1500;
+        int max = pos + 1500;
+        
         java.util.Set<? extends ChapterItem> items = null;
-
-        if (this.item.getScene () != null)
+        
+        if ((this.item instanceof Scene)
+            ||
+            (this.item instanceof OutlineItem)
+           )
         {
-
-            items = this.item.getScene ().getOutlineItems ();
-
-        } else
+            
+            items = this.item.getChapter ().getAllStructureItemsWithinRange (min,
+                                                                             max);
+            
+        }
+        
+        if (this.item instanceof Note)
         {
-
+            
             items = this.item.getChapter ().getChapterItems (this.item.getObjectType ());
-
+            
         }
 
         java.util.Set<ChapterItem> its = new TreeSet (new ChapterItemSorter ());
@@ -249,7 +270,18 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
 
         for (ChapterItem it : its)
         {
-
+        
+            ChapterItemFormatDetails formatter = ShowChapterItemActionHandler.formatDetails.get (it.getObjectType ());
+    
+            if (formatter == null)
+            {
+                
+                throw new IllegalArgumentException ("Item: " +
+                                                    it +
+                                                    " has no formatter.");
+                
+            }        
+        
             int row = 1;
 
             FormLayout   summOnly = new FormLayout ("5px, fill:380px:grow, 5px",
@@ -261,10 +293,10 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
             JTextPane t = UIUtils.createObjectDescriptionViewPane (it.getDescription (),
                                                                    it,
                                                                    this.projectViewer,
-                                                                   this.quollEditorPanel);
+                                                                   this.editorPanel);
 
             t.setText (UIUtils.getWithHTMLStyleSheet (t,
-                                                      UIUtils.markupStringForAssets (this.getItemDescription (it),
+                                                      UIUtils.markupStringForAssets (formatter.getItemDescription (it),
                                                                                      this.projectViewer.getProject (),
                                                                                      it)));
 
@@ -295,30 +327,40 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
                            
             JButton mb = null;
             
-            AbstractActionHandler aah = this.getEditItemActionHandler (it);
+            AbstractActionHandler aah = formatter.getEditItemActionHandler (it,
+                                                                            this.editorPanel);
 
-            aah.setPopupOver (this.quollEditorPanel); 
+            aah.setPopupOver (this.editorPanel); 
             aah.setOnShowAction (aa);
             
-            buts.add (UIUtils.createButton ("edit",
-                                            Constants.ICON_MENU,
-                                            "Click to edit this item.",
-                                            aah));
+            mb = UIUtils.createButton (Constants.EDIT_ICON_NAME,
+                                       Constants.ICON_MENU,
+                                       "Click to edit this item.",
+                                       aah);
+            mb.setTransferHandler (null);
+            
+            buts.add (mb);
+                                       
+            aah = formatter.getEditItemActionHandler (it,
+                                                      this.editorPanel);
 
-            aah = this.getEditItemActionHandler (it);
-
-            aah.setPopupOver (this.quollEditorPanel); 
+            aah.setPopupOver (this.editorPanel); 
             aah.setShowLinkTo (true);
             aah.setOnShowAction (aa);
 
-            buts.add (UIUtils.createButton (Link.OBJECT_TYPE,
-                                            Constants.ICON_MENU,
-                                            "Click to link this item to other items/objects.",
-                                            aah));
+            mb = UIUtils.createButton (Link.OBJECT_TYPE,
+                                       Constants.ICON_MENU,
+                                       "Click to link this item to other items/objects.",
+                                       aah);
 
-            ActionListener dah = this.getDeleteItemActionHandler (it);
-            
-            JButton but = UIUtils.createButton ("delete",
+            mb.setActionCommand ("link");
+            buts.add (mb);
+
+            ActionListener dah = formatter.getDeleteItemActionHandler (it,
+                                                                       this.editorPanel,
+                                                                       true);
+                        
+            JButton but = UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                 Constants.ICON_MENU,
                                                 "Click to delete this item.",
                                                 dah);
@@ -380,7 +422,7 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
 
         this.popup.setContent (b);
 
-        JScrollPane scrollPane = this.quollEditorPanel.getScrollPane ();
+        JScrollPane scrollPane = this.editorPanel.getScrollPane ();
 
         if (this.item instanceof Note)
         {
@@ -390,15 +432,36 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
             if (n.isEditNeeded ())
             {
                 
+                // Try and show the note above the selected text. (So it doesn't obscure it)
                 y = y - this.popup.getPreferredSize ().height - 22;
+                
+                // Get where the selected text ends.
+                pos = n.getEndPosition ();
+                                
+                try
+                {
+                            
+                    if (y < scrollPane.getVerticalScrollBar ().getValue ())
+                    {
+                        
+                        // We are going to potentially obscure it, show it below the first line.        
+                        y = y + this.popup.getPreferredSize ().height + 22;
+                        
+                    }
+        
+                } catch (Exception e)
+                {
+        
+                    // Just ignore.
+        
+                }
+                
                 
             }
             
         }
 
         y = 22 + y - scrollPane.getVerticalScrollBar ().getValue ();
-
-        // JScrollPane scrollPane = this.quollEditorPanel.getScrollPane ();
 
         // Adjust the bounds so that the form is fully visible.
         if ((y + this.popup.getPreferredSize ().height) > (scrollPane.getViewport ().getViewRect ().height + scrollPane.getVerticalScrollBar ().getValue ()))
@@ -408,18 +471,16 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
 
         }
 
-        this.quollEditorPanel.showPopupAt (this.popup,
-                                           new Point (this.quollEditorPanel.getIconColumn ().getWidth () - 20,
-                                                      y));
+        this.editorPanel.showPopupAt (this.popup,
+                                      new Point (this.iconColumn.getWidth () - 20,
+                                                 y));
 
     }
-
+        
     public void hideItem ()
     {
 
-        // QuollEditorPanel qep = this.projectViewer.getEditorForChapter (this.item.getChapter ());
-
-        this.quollEditorPanel.removePopup (this.popup);
+        this.editorPanel.removePopup (this.popup);
 
     }
 
@@ -430,4 +491,6 @@ public abstract class ShowChapterItemActionHandler extends ActionAdapter
 
     }
 
+    
+    
 }

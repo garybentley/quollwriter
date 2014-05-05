@@ -89,7 +89,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
         return root;
 
     }
-
+/*
     public List<Issue> getIssues (String  sentence,
                                   boolean inDialogue)
     {
@@ -110,6 +110,29 @@ public class SentenceLengthRule extends AbstractSentenceRule
             Issue iss = new Issue ("Sentence contains: <b>" + swords.size () + "</b> words.",
                                    -1,
                                    -1,
+                                   this);
+
+            issues.add (iss);
+
+        }
+
+        return issues;
+
+    }
+*/
+    public List<Issue> getIssues (Sentence sentence)
+    {
+
+        // Check each word to make sure it's not punctuation.
+        List<Issue> issues = new ArrayList ();
+
+        int wc = sentence.getWordCount ();
+        
+        if (wc > this.wordCount)
+        {
+
+            Issue iss = new Issue ("Sentence contains: <b>" + wc + "</b> words.",
+                                   sentence,
                                    this);
 
             issues.add (iss);

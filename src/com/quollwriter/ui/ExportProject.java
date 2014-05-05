@@ -71,8 +71,10 @@ public class ExportProject extends PopupWizard
                Constants.DOCX_FILE_EXTENSION);
         m.put ("EPUB (.epub)",
                Constants.EPUB_FILE_EXTENSION);
+/*
         m.put ("PDF (.pdf)",
                Constants.PDF_FILE_EXTENSION);
+               */
         m.put ("HTML (.html)",
                Constants.HTML_FILE_EXTENSION);
         /*

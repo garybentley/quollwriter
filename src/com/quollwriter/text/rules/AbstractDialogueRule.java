@@ -7,7 +7,7 @@ import com.quollwriter.text.*;
 import org.jdom.*;
 
 
-public abstract class AbstractDialogueRule extends AbstractRule implements DialogueRule
+public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implements DialogueRule
 {
 
     public class XMLConstants

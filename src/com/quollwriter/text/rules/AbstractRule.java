@@ -7,7 +7,7 @@ import com.quollwriter.text.*;
 import org.jdom.*;
 
 
-public abstract class AbstractRule implements Rule
+public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 {
 
     public class XMLConstants

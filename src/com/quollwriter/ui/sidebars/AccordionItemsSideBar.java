@@ -15,6 +15,7 @@ import javax.swing.border.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
+import com.quollwriter.ui.components.ScrollableBox;
 
 public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends AbstractSideBar
 {
@@ -95,7 +96,7 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
     public JComponent getContent ()
     {
                 
-        Box b = new Box (BoxLayout.Y_AXIS);
+        Box b = new ScrollableBox (BoxLayout.Y_AXIS);
         
         b.setOpaque (false);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -120,7 +121,15 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
         }
           
         b.add (Box.createVerticalGlue ());
-                
+
+        b.setMinimumSize (new Dimension (255,
+                                         250));
+        b.setPreferredSize (new Dimension (255,
+                                           250));
+
+        b.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                         Short.MAX_VALUE));
+
         this.scrollPane = this.wrapInScrollPane (b);
                 
         return this.scrollPane;

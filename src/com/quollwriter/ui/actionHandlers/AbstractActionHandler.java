@@ -143,13 +143,64 @@ public abstract class AbstractActionHandler extends FormAdapter
         if (this.dataObject != null)
         {
 
+            final AbstractActionHandler _this = this;
+        
             this.tree = new JTree ();
 
             this.tree.setCellRenderer (new SelectableProjectTreeCellRenderer ());
 
-            final JScrollPane treeScroll = new JScrollPane (this.tree);
+            final JScrollPane treeScroll = new JScrollPane (this.tree)
+            {
+            
+                public Dimension getPreferredSize ()
+                {
+                    
+                    Dimension d = _this.tree.getPreferredSize ();
+                                        
+                    if (d.height > 150)
+                    {
+                        
+                        d.height = 150;
+                        
+                    }
+                                       
+                    return d;
+                    
+                }
+                
+            };
+            
             treeScroll.setBorder (null);
-            this.tree.setModel (null);
+            
+            List exclude = new ArrayList ();
+            exclude.add (this.dataObject);
+
+            // Painful but just about the only way.
+            this.projectViewer.setLinks (this.dataObject);
+
+            // Get all the "other objects" for the links the note has.
+            Iterator<Link> it = this.dataObject.getLinks ().iterator ();
+
+            Set links = new HashSet ();
+
+            while (it.hasNext ())
+            {
+
+                links.add (it.next ().getOtherObject (this.dataObject));
+
+            }
+
+            DefaultTreeModel m = new DefaultTreeModel (com.quollwriter.ui.UIUtils.createLinkToTree (this.projectViewer.getProject (),
+                                                                                                    exclude,
+                                                                                                    links,
+                                                                                                    true));
+
+            this.tree.setModel (m);
+
+            UIUtils.expandPathsForLinkedOtherObjects (this.tree,
+                                                      this.dataObject);
+
+            //this.tree.setModel (null);
             /*
             treeScroll.setBorder (new CompoundBorder (treeScroll.getBorder (),
                                                       new MatteBorder (3,
@@ -159,8 +210,10 @@ public abstract class AbstractActionHandler extends FormAdapter
                                                                        this.tree.getBackground ())));
                                                                        */
             treeScroll.setOpaque (false);
+            /*
             treeScroll.setPreferredSize (new Dimension (treeScroll.getPreferredSize ().width,
                                                         150));
+              */                                          
             this.tree.setOpaque (true);
             this.tree.setBorder (null);
             treeScroll.setOpaque (true);
@@ -256,10 +309,12 @@ public abstract class AbstractActionHandler extends FormAdapter
             this.tree.putClientProperty ("Tree.paintLines",
                                          Boolean.FALSE);
 
-            final AbstractActionHandler _this = this;
             final Box                   linkToP = new Box (BoxLayout.Y_AXIS);
 
-            final JLabel linkToLabel = UIUtils.createClickableLabel ("Click to link to other items",
+            final String hideLabel = "Click to hide the item tree";
+            final String showLabel = "Click to link to other items";
+            
+            final JLabel linkToLabel = UIUtils.createClickableLabel ((this.showLinkTo ? hideLabel : showLabel),
                                                                      Environment.getIcon (Link.OBJECT_TYPE,
                                                                                           Constants.ICON_MENU));
             linkToLabel.setBorder (new EmptyBorder (0,
@@ -288,25 +343,26 @@ public abstract class AbstractActionHandler extends FormAdapter
                         if (treeScroll.isVisible ())
                         {
 
-                            linkToLabel.setText ("Click to hide the item tree");
+                            linkToLabel.setText (hideLabel);
                             linkToLabel.setIcon (Environment.getIcon (Link.OBJECT_TYPE,
                                                                       Constants.ICON_MENU));
 
                         } else
                         {
 
-                            linkToLabel.setText ("Click to link to other items");
+                            linkToLabel.setText (showLabel);
                             linkToLabel.setIcon (Environment.getIcon (Link.OBJECT_TYPE,
                                                                       Constants.ICON_MENU));
 
 
                         }
 
+                        _this.f.getContent ().setPreferredSize (null);
+                        
+                        _this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                                 _this.f.getContent ().getPreferredSize ().height));
+
                         _this.showPopup (true);
-
-                        form.repaint ();
-
-                        form.getParent ().repaint ();
 
                     }
 
@@ -316,6 +372,8 @@ public abstract class AbstractActionHandler extends FormAdapter
 
         String title = this.getTitle (this.mode);
 
+        title = Environment.replaceObjectNames (title);
+        
         String icon = null;
 
         icon = this.getIcon (this.mode);
@@ -340,6 +398,9 @@ public abstract class AbstractActionHandler extends FormAdapter
                            Form.SAVE_CANCEL_BUTTONS,
                            this.addHideControl);
 
+        this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                this.f.getContent ().getPreferredSize ().height));
+                           
         this.f.addFormListener (this);
 
     }
@@ -503,15 +564,17 @@ public abstract class AbstractActionHandler extends FormAdapter
             if (this.showPopupAt == null)
             {
 
-                p = ((Container) this.popupOver).getMousePosition (true);
+                //p = ((Container) this.popupOver).getMousePosition (true);
                 
                 if (p == null)
                 {
                     
-                    p = new Point (50, 50);
+                    // Show in center.
+                    p = UIUtils.getCenterShowPosition ((Component) this.popupOver,
+                                                       this.f);
                     
                 }
-                
+                /*
                 if (this.popupOver instanceof JComponent)
                 {
 
@@ -523,7 +586,7 @@ public abstract class AbstractActionHandler extends FormAdapter
                     p.y -= ins.top;
 
                 }
-
+*/
             } else
             {
 
@@ -549,43 +612,51 @@ public abstract class AbstractActionHandler extends FormAdapter
                 ph = this.showPopupAt.getHeight ();
                 pw = this.showPopupAt.getWidth ();
 
-            }
-
-            if (this.showPopupAtPosition == null)
-            {
-
-                this.showPopupAtPosition = "above";
-
-            }
-
-            if (this.showPopupAtPoint != null)
-            {
-
-                p = this.showPopupAtPoint;
-
-            }
-
-            if (this.showPopupAtPosition != null)
-            {
-
-                if (this.showPopupAtPosition.equals ("above"))
+                // Was end of block here.
+                if (this.showPopupAtPosition == null)
                 {
-
-                    p.y = p.y - this.f.getPreferredSize ().height - ph;
-
+    
+                    this.showPopupAtPosition = "above";
+    
+                }
+    
+                if (this.showPopupAtPoint != null)
+                {
+    
+                    p = this.showPopupAtPoint;
+    
                 }
 
-                if (this.showPopupAtPosition.equals ("below"))
+                if (this.showPopupAtPosition != null)
                 {
-
-                    p.y = p.y + ph;
-
+    
+                    if (this.showPopupAtPosition.equals ("above"))
+                    {
+    
+                        p.y = p.y - this.f.getPreferredSize ().height - ph;
+    
+                    }
+    
+                    if (this.showPopupAtPosition.equals ("below"))
+                    {
+    
+                        p.y = p.y + ph;
+    
+                    }
+    
                 }
 
             }
-
+                
         }
 
+        if (this.f.isShowing ())
+        {
+            
+            p = this.f.getLocation ();
+            
+        }
+        
         this.popupOver.showPopupAt (this.f,
                                     p);
 
@@ -659,40 +730,11 @@ public abstract class AbstractActionHandler extends FormAdapter
 
         this.initForm (((editor != null) ? editor.getSelectedText () : null));
 
-        if (this.dataObject != null)
-        {
-
-            List exclude = new ArrayList ();
-            exclude.add (this.dataObject);
-
-            // Painful but just about the only way.
-            this.projectViewer.setLinks (this.dataObject);
-
-            // Get all the "other objects" for the links the note has.
-            Iterator<Link> it = this.dataObject.getLinks ().iterator ();
-
-            Set links = new HashSet ();
-
-            while (it.hasNext ())
-            {
-
-                links.add (it.next ().getOtherObject (this.dataObject));
-
-            }
-
-            DefaultTreeModel m = new DefaultTreeModel (com.quollwriter.ui.UIUtils.createLinkToTree (this.projectViewer.getProject (),
-                                                                                                    exclude,
-                                                                                                    links,
-                                                                                                    true));
-
-            this.tree.setModel (m);
-
-            UIUtils.expandPathsForLinkedOtherObjects (this.tree,
-                                                      this.dataObject);
-
-        }
-
         this.f.setVisible (true);
+
+            this.f.getContent ().setPreferredSize (null);        
+            this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                    this.f.getContent ().getPreferredSize ().height));
 
         this.showPopup (false);
 

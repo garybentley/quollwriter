@@ -29,11 +29,15 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         public static final String beWords = "beWords";
         public static final String irregularForms = "irregularForms";
+        public static final String ignoreInDialogue = "ignoreInDialogue";        
 
     }
 
     private Map<String, String> beWords = new HashMap ();
     private Map<String, String> irregularForms = new HashMap ();
+    private boolean ignoreInDialogue = false;
+    
+    private JCheckBox ignoreDialogueF = null;
 
     public PassiveSentenceRule(boolean user)
     {
@@ -101,6 +105,10 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         }
 
+        this.ignoreInDialogue = JDOMUtils.getAttributeValueAsBoolean (root,
+                                                                      XMLConstants.ignoreInDialogue,
+                                                                      false);
+        
     }
 
     public Element getAsElement ()
@@ -108,10 +116,56 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         Element root = super.getAsElement ();
 
+        if (this.ignoreInDialogue)
+        {
+
+            root.setAttribute (XMLConstants.ignoreInDialogue,
+                               Boolean.toString (this.ignoreInDialogue));
+
+        }
+
+        StringBuilder b = new StringBuilder ();
+        
+        for (String s : this.beWords.keySet ())
+        {
+            
+            if (b.length () > 0)
+            {
+                
+                b.append (",");
+                
+            }
+            
+            b.append (s);
+            
+        }
+        
+        root.setAttribute (XMLConstants.beWords,
+                           b.toString ());
+        
+        b = new StringBuilder ();
+        
+        for (String s : this.irregularForms.keySet ())
+        {
+            
+            if (b.length () > 0)
+            {
+                
+                b.append (",");
+                
+            }
+            
+            b.append (s);            
+            
+        }
+        
+        root.setAttribute (XMLConstants.irregularForms,
+                           b.toString ());
+        
         return root;
 
     }
-
+/*
     public List<Issue> getIssues (String  sentence,
                                   boolean inDialogue)
     {
@@ -131,18 +185,31 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
             String a = swords.get (i);
 
+            inDialogue = TextUtilities.stillInDialogue (a,
+                                                        inDialogue);            
+            
+            if ((inDialogue)
+                &&
+                (this.ignoreInDialogue)
+               )
+            {
+                
+                continue;
+                
+            }
+            
             if (this.beWords.containsKey (a))
             {
 
                 // Check the next word.
-                if (i < swords.size ())
+                if (i < (swords.size () - 1))
                 {
 
                     String b = swords.get (i + 1);
 
                     if (this.isPastTenseVerb (b))
                     {
-
+                    
                         Issue iss = new Issue ("Passive voice, contains: <b>" + a + " " + b + "</b>",
                                                i,
                                                a.length () + b.length () + 1,
@@ -162,10 +229,89 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         return issues;
 
     }
+*/
+    public List<Issue> getIssues (Sentence sentence)
+    {
 
+        List<Issue> issues = new ArrayList ();
+
+        List<Word> swords = sentence.getWords ();
+
+        int c = 0;
+        int lastWord = -1;
+
+        for (Word w : swords)
+        {
+        
+            if ((w.isInDialogue ())
+                &&
+                (this.ignoreInDialogue)
+               )
+            {
+                
+                continue;
+                
+            }
+            
+            if (this.isBeWord (w.getText ()))
+            {
+
+                Word nw = w.getNext ();
+                
+                if (nw != null)
+                {
+
+                    if (this.isPastTenseVerb (nw.getText ()))
+                    {
+                    
+                        int s = w.getAllTextStartOffset ();
+                    
+                        Issue iss = new Issue ("Passive voice, contains: <b>" + w.getText () + " " + nw.getText () + "</b>",
+                                               s,
+                                               nw.getAllTextEndOffset () - s,
+                                               this);
+
+                        issues.add (iss);
+
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return issues;
+
+    }
+
+    public boolean isBeWord (String w)
+    {
+        
+        if (w == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return this.beWords.containsKey (w.toLowerCase ());
+        
+    }
+    
     public boolean isPastTenseVerb (String w)
     {
 
+        if (w == null)
+        {
+            
+            return false;
+            
+        }
+    
+        w = w.toLowerCase ();
+    
         // See if the word is:
         // 1. A verb
         // 2. Ends with "ed" OR:
@@ -192,7 +338,9 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         try
         {
 
-            if (Environment.getWordTypes (w) == null)
+            if (Environment.getWordTypes (w,
+                                          // Assume english for now
+                                          null) == null)
             {
 
                 w += "e";
@@ -210,7 +358,9 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         try
         {
 
-            t = Environment.getWordTypes (w);
+            t = Environment.getWordTypes (w,
+                                          // Assume english for now
+                                          null);
 
         } catch (Exception e)
         {
@@ -248,13 +398,22 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         List<FormItem> items = new ArrayList ();
 
+        this.ignoreDialogueF = new JCheckBox ("Ignore in dialogue");
+
+        this.ignoreDialogueF.setSelected (this.ignoreInDialogue);
+        
+        items.add (new FormItem ("",
+                                 this.ignoreDialogueF));
+        
         return items;
 
     }
 
     public void updateFromForm ()
-    {
-
+    {    
+    
+        this.ignoreInDialogue = this.ignoreDialogueF.isSelected ();
+    
     }
 
     public String getCategory ()

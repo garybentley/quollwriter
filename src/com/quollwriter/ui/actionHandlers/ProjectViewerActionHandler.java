@@ -8,12 +8,12 @@ import com.quollwriter.ui.panels.*;
 public abstract class ProjectViewerActionHandler extends AbstractActionHandler
 {
 
-    protected ProjectViewer       projectViewer = null;
+    protected AbstractProjectViewer projectViewer = null;
     protected AbstractEditorPanel editorPanel = null;
 
-    public ProjectViewerActionHandler(NamedObject   d,
-                                      ProjectViewer pv,
-                                      int           mode)
+    public ProjectViewerActionHandler(NamedObject           d,
+                                      AbstractProjectViewer pv,
+                                      int                   mode)
     {
 
         super (d,
@@ -34,7 +34,7 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
                mode);
 
         this.editorPanel = qep;
-        this.projectViewer = (ProjectViewer) qep.getProjectViewer ();
+        this.projectViewer = qep.getProjectViewer ();
 
     }
 
@@ -50,12 +50,12 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
                addHideControl);
 
         this.editorPanel = qep;
-        this.projectViewer = (ProjectViewer) qep.getProjectViewer ();
+        this.projectViewer = qep.getProjectViewer ();
 
     }
 
     public ProjectViewerActionHandler(NamedObject   d,
-                                      ProjectViewer pv,
+                                      AbstractProjectViewer pv,
                                       int           mode,
                                       boolean       addHideControl)
     {
@@ -88,41 +88,5 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
         }
 
     }
-/*
-    public void actionPerformed (FormEvent ev)
-    {
 
-        if (ev.getID () == FormEvent.CANCEL)
-        {
-
-            if ((this.mode == AbstractActionHandler.ADD)
-                &&
-                (this.dataObject instanceof ChapterItem)
-                &&
-                (this.editorPanel instanceof QuollEditorPanel)
-               )
-            {
-
-                ChapterItem c = (ChapterItem) this.dataObject;
-
-                //QuollEditorPanel qep = (QuollEditorPanel) this.projectViewer.getEditorForChapter (c.getChapter ());
-
-                ((QuollEditorPanel) this.editorPanel).removeItem (c);
-
-                this.editorPanel.repaint ();
-
-            }
-
-            this.f.hideForm ();
-
-            this.f = null;
-
-            return;
-
-        }
-
-        super.actionPerformed (ev);
-
-    }
-*/
 }

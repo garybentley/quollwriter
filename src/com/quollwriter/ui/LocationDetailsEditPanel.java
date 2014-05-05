@@ -14,8 +14,8 @@ import com.quollwriter.ui.components.*;
 public class LocationDetailsEditPanel extends DetailsEditPanel
 {
 
-    public LocationDetailsEditPanel(Asset         a,
-                                    ProjectViewer pv)
+    public LocationDetailsEditPanel (Asset                 a,
+                                     AbstractProjectViewer pv)
     {
 
         super (a,
@@ -23,6 +23,13 @@ public class LocationDetailsEditPanel extends DetailsEditPanel
 
     }
 
+    public Set<String> getObjectChangeEventTypes ()
+    {
+        
+        return null;
+        
+    }    
+    
     public String getEditHelpText ()
     {
 

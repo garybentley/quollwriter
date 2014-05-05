@@ -4,7 +4,7 @@ import com.quollwriter.text.Rule;
 
 import com.quollwriter.text.*;
 
-public interface DialogueRule extends Rule
+public interface DialogueRule extends SentenceRule
 {
 /*
     public static final String START = "start";

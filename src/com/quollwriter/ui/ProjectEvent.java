@@ -75,6 +75,7 @@ public class ProjectEvent extends EventObject
     public static final String CHANGE_BG_IMAGE = "changebgimage";
     public static final String CHANGE_BG_OPACITY = "changebgopacity";
     public static final String CHANGE_LINE_INDENT = "changelineindent";
+    public static final String CHANGE_HIGHLIGHT_WRITING_LINE = "changehighlightwritingline";
     
     private AbstractProjectViewer viewer = null;
     private String type = null;

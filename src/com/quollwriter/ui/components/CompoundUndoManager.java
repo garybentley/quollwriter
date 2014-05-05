@@ -222,6 +222,7 @@ public class CompoundUndoManager extends UndoManager implements UndoableEditList
      */
     public void undoableEditHappened (UndoableEditEvent e)
     {
+        
         // Start a new compound edit
 
         if (!this.record)

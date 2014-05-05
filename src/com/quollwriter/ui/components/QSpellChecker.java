@@ -55,6 +55,13 @@ public class QSpellChecker implements DocumentListener,
 
     }
 
+    public SynonymProvider getSynonymProvider ()
+    {
+        
+        return this.synonymProvider;
+        
+    }
+    
     public void setSynonymProvider (SynonymProvider sp)
     {
         
@@ -72,11 +79,23 @@ public class QSpellChecker implements DocumentListener,
 
         }
 
-        this.checker = new SpellChecker ();
+        if (dp == null)
+        {
+            
+            this.checker = null;
+            this.dictProvider = null;
+            
+            return;
+            
+        }
+        
+        this.checker = dp.getSpellChecker ();
+        
+        //this.checker = new SpellChecker ();
 
         this.dictProvider = dp;
         this.dictProvider.addDictionaryChangedListener (this);
-
+/*
         List dicts = dp.getDictionaries ();
 
         for (int i = 0; i < dicts.size (); i++)
@@ -90,7 +109,7 @@ public class QSpellChecker implements DocumentListener,
 
         this.dictProvider = dp;
         this.dictProvider.addDictionaryChangedListener (this);
-
+*/
     }
 
     public void dictionaryChanged (DictionaryChangedEvent ev)

@@ -15,146 +15,101 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.FormAdapter;
-import com.quollwriter.ui.components.FormEvent;
-import com.quollwriter.ui.components.FormItem;
 
-
-public class RenameProjectActionHandler extends FormAdapter
+public class RenameProjectActionHandler extends TextInputActionHandler
 {
 
-    private JTextField            nameField = UIUtils.createTextField ();
-    private Form                  f = null;
     private Project               project = null;
-    private AbstractProjectViewer projectViewer = null;
 
-    public RenameProjectActionHandler(AbstractProjectViewer pv)
+    public RenameProjectActionHandler (AbstractProjectViewer pv)
     {
 
+        super (pv);
         this.project = pv.getProject ();
-        this.projectViewer = pv;
 
     }
 
-    private void initForm ()
+    public String getIcon ()
     {
-
-        List items = new ArrayList ();
-        items.add (new FormItem ("Name",
-                                 this.nameField));
-
-        this.f = new Form ("Rename Project",
-                           Environment.getIcon (Project.OBJECT_TYPE,
-                                                Constants.ICON_POPUP),
-                           items,
-                           this.projectViewer,
-                           Form.SAVE_CANCEL_BUTTONS);
-
-        f.addFormListener (this);
-
-        final Form form = this.f;
-
-        this.nameField.addKeyListener (new KeyAdapter ()
-            {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        // This is the same as save for the form.
-                        form.fireFormEvent (FormEvent.SAVE,
-                                            FormEvent.SAVE_ACTION_NAME);
-
-                    }
-
-                }
-
-            });
-
+        
+        return Constants.EDIT_ICON_NAME;
+        
     }
-
-    public void actionPerformed (ActionEvent ev)
+    
+    public String getTitle ()
     {
-
-        this.initForm ();
-
-        this.f.setBounds (200,
-                          200,
-                          this.f.getPreferredSize ().width,
-                          this.f.getPreferredSize ().height);
-
-        this.projectViewer.addPopup (this.f);
-
-        this.f.setVisible (true);
-
-        this.nameField.setText (this.project.getName ());
-
-        this.nameField.grabFocus ();
-
-        this.nameField.selectAll ();
-
+        
+        return "Rename {Project}";
+        
     }
-
-    public void actionPerformed (FormEvent ev)
+    
+    public String getHelp ()
+    {
+        
+        return "Enter the new {project} name below.  The {project} will then be closed and re-opened.";
+        
+    }
+    
+    public String getConfirmButtonLabel ()
+    {
+        
+        return "Change";
+        
+    }
+    
+    public String getInitialValue ()
+    {
+        
+        return this.projectViewer.getProject ().getName ();
+        
+    }
+    
+    public String isValid (String v)
     {
 
-        if (ev.getID () != FormEvent.SAVE)
+        if ((v == null)
+            ||
+            (v.trim ().length () == 0)
+           )
         {
-
-            return;
-
+            
+            return "Please enter a new name.";
+            
         }
 
-        String newName = this.nameField.getText ().trim ();
-
-        if (newName.equals (""))
+        v = v.trim ();
+        
+        if (!v.equalsIgnoreCase (this.projectViewer.getProject ().getName ()))
         {
-
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Please select a name.");
-
-            return;
-
-        }
-
-        // Check to see if we can move it, basically make sure that the directory doesn't already exist.
-        if (!newName.equalsIgnoreCase (this.project.getName ()))
-        {
-
-            File newDir = new File (this.project.getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (newName));
+                                                                        
+            File newDir = new File (this.projectViewer.getProject ().getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (v));
 
             if (newDir.exists ())
             {
 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "Unable to change name to: " +
-                                          newName +
-                                          " a directory with path:\n\n    " +
-                                          newDir.getPath () +
-                                          "\n\nalready exists.");
-
+                return "A {project} with that name already exists.";
+            
             }
 
-            // Show a warning.
-            if (JOptionPane.showConfirmDialog (this.projectViewer,
-                                               "Warning!  To change the name of a project it must first be saved and closed.\n\nOnce the name has been changed the project will be reopened.\n\nDo you wish to continue?",
-                                               UIUtils.getFrameTitle ("Confirm project name change?"),
-                                               JOptionPane.YES_NO_OPTION,
-                                               JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION)
-            {
-
-                this.f.hideForm ();
-
-                return;
-
-            }
-
-            String oldName = this.project.getName ();
-
-            this.project.setName (newName);
+        }
+                
+        return null;
+    
+    }
+    
+    public boolean onConfirm (String v)
+                              throws Exception
+    {
+        
+        final String newName = v;
+        final String oldName = this.projectViewer.getProject ().getName ();
+        
+        if (!newName.equals (oldName))
+        {
+            
+            final Project proj = this.projectViewer.getProject ();
+            
+            proj.setName (newName);
 
             // Save the project.
             try
@@ -168,19 +123,16 @@ public class RenameProjectActionHandler extends FormAdapter
                 Environment.logError ("Unable to save project",
                                       e);
 
-                com.quollwriter.ui.UIUtils.showErrorMessage (this.projectViewer,
-                                                             "Unable to save.");
-
-                return;
+                throw e;
 
             }
 
             // See how many books are in the project, if there is just one then change the name of it to be the same
             // as the project.
-            if (this.project.getBooks ().size () == 1)
+            if (proj.getBooks ().size () == 1)
             {
 
-                Book b = this.project.getBooks ().get (0);
+                Book b = proj.getBooks ().get (0);
 
                 b.setName (newName);
 
@@ -197,76 +149,107 @@ public class RenameProjectActionHandler extends FormAdapter
                                           b,
                                           e);
 
-                    com.quollwriter.ui.UIUtils.showErrorMessage (this.projectViewer,
-                                                                 "Unable to save.");
-
-                    return;
-
+                    throw e;
+                                          
                 }
 
             }
 
+            final File newDir = new File (this.projectViewer.getProject ().getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (newName));                                                    
+
             // Close the viewer.
-            this.projectViewer.close (true);
+            this.projectViewer.close (true,
+                                      new ActionListener ()
+            {                                                    
+            
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    // Rename the dir.
+                    if (!proj.getProjectDirectory ().renameTo (newDir))
+                    {
+        
+                        Environment.logError ("Unable to rename project directory: " +
+                                              proj.getProjectDirectory () +
+                                              " to: " +
+                                              newDir);
 
-            // Rename the dir.
-            if (!this.project.getProjectDirectory ().renameTo (newDir))
-            {
+                        UIUtils.showErrorMessage (null,
+                                                  "Unable to rename project directory, please contact Quoll Writer support for assistance.");
+        
+                        return;
+        
+                    }
+        
+                    // Change the name in the projects file.
+                    try
+                    {
+        
+                        Environment.renameProject (oldName,
+                                                   newName);
+        
+                    } catch (Exception e)
+                    {
+        
+                        Environment.logError ("Unable to rename project (probably an error with the projects file): " +
+                                              proj,
+                                              e);
 
-                Environment.logError ("Unable to rename project directory: " +
-                                      this.project.getProjectDirectory () +
-                                      " to: " +
-                                      newDir);
+                        UIUtils.showErrorMessage (null,
+                                                  "Unable to rename project, please contact Quoll Writer support for assistance.");
+        
+                        return;
+                                                      
+                    }
+        
+                    proj.setProjectDirectory (newDir);
+        
+                    // Open the project again.
+                    try
+                    {
+        
+                        Environment.openProject (proj);
+        
+                    } catch (Exception e)
+                    {
+        
+                        Environment.logError ("Unable to reopen project: " +
+                                              proj,
+                                              e);
+        
+                        UIUtils.showErrorMessage (null,
+                                                  "Unable to reopen project, please contact Quoll Writer support for assistance.");
 
-                this.f.hideForm ();
-
-                return;
-
-            }
-
-            // Change the name in the projects file.
-            try
-            {
-
-                Environment.renameProject (oldName,
-                                           newName);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to rename project (probably an error with the projects file): " +
-                                      this.project,
-                                      e);
-
-            }
-
-            this.project.setProjectDirectory (newDir);
-
-            // Open the project again.
-            try
-            {
-
-                Environment.openProject (this.project);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to reopen project: " +
-                                      this.project,
-                                      e);
-
-            }
-
-            Environment.getProjectViewer (this.project).fireProjectEventLater (this.project.getObjectType (),
+                        return;
+                                              
+                    }
+        
+                    Environment.getProjectViewer (proj).fireProjectEventLater (proj.getObjectType (),
                                                                                ProjectEvent.RENAME);
 
-            this.projectViewer = null;
-            this.project = null;
-
+                }
+                
+            });
+            
         }
-
-        this.f.hideForm ();
-
+        
+        return true;
+        
     }
-
+    
+    public boolean onCancel ()
+                             throws Exception
+    {
+        
+        return true;
+        
+    }
+    
+    public Point getShowAt ()
+    {
+        
+        return null;
+        
+    }
+    
 }

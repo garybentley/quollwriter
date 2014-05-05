@@ -66,7 +66,7 @@ public class PerChapterWordCountsChart implements QuollChart
         Box b = new Box (BoxLayout.Y_AXIS);
         b.setOpaque (false);
 
-        Header h = UIUtils.createBoldSubHeader (Environment.replaceObjectNames ("Display"),
+        Header h = UIUtils.createBoldSubHeader (Environment.replaceObjectNames ("For"),
                                                 null);
         h.setAlignmentY (Component.TOP_ALIGNMENT);
         

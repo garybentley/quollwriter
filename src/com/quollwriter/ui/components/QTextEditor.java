@@ -28,6 +28,16 @@ public class QTextEditor extends JTextPane implements TextStylable
     public static final String ALIGN_RIGHT = "Right";
     public static final String ALIGN_JUSTIFIED = "Justified";
 
+    public static final String PASTE_ACTION_NAME = "__paste";
+    public static final String COPY_ACTION_NAME = "__copy";
+    public static final String CUT_ACTION_NAME = "__cut";
+    public static final String UNDO_ACTION_NAME = "__undo";
+    public static final String REDO_ACTION_NAME = "__redo";
+    public static final String BOLD_ACTION_NAME = "bold";
+    public static final String ITALIC_ACTION_NAME = "italic";
+    public static final String UNDERLINE_ACTION_NAME = "underline";
+    public static final String PRINT_ACTION_NAME = "print";
+    
     public CompoundUndoManager    undoManager = null;
     public QSpellChecker          spellChecker = null;
     private boolean               loading = false;
@@ -36,6 +46,7 @@ public class QTextEditor extends JTextPane implements TextStylable
     public Style                  sectionBreakStyle = null;
     private String                sectionBreak = null;
     private Set<StyleChangeListener> styleChangeListeners = new LinkedHashSet ();
+    private LineHighlighter  lineHighlighter = null;
 
     public QTextEditor(DictionaryProvider prov,
                        boolean            spellCheckerEnabled,
@@ -73,7 +84,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         this.setDocument (this.doc);
         this.setMargin (new Insets (5,
                                     5,
-                                    5,
+                                    0,
                                     5));
 
         final QTextEditor _this = this;
@@ -92,6 +103,150 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         ActionMap am = this.getActionMap ();
 
+        am.put (REDO_ACTION_NAME,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        if (_this.undoManager.canRedo ())
+                        {
+
+                            _this.undoManager.redo ();
+
+                        }
+
+                    }
+
+                });
+
+        am.put (UNDO_ACTION_NAME,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        if (_this.undoManager.canUndo ())
+                        {
+
+                            _this.undoManager.undo ();
+
+                        }
+
+                    }
+
+                });
+
+        am.put (PRINT_ACTION_NAME,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        try
+                        {
+
+                            _this._print ();
+
+                        } catch (Exception e)
+                        {
+
+                            // e.printStackTrace ();
+
+                        }
+
+                    }
+
+                });
+
+        am.put (BOLD_ACTION_NAME,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.toggleBold ();
+
+                    }
+
+                });
+        
+        am.put (ITALIC_ACTION_NAME,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.toggleItalic ();
+
+                    }
+
+                });
+
+        am.put (UNDERLINE_ACTION_NAME,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.toggleUnderline ();
+
+                    }
+
+                });
+
+        am.put (PASTE_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.paste ();
+
+                              }
+
+                          });
+
+        am.put (COPY_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.copy ();
+
+                              }
+
+                          });
+
+        am.put (CUT_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.cut ();
+
+                              }
+
+                          });
+/*
+        am.put (UNDO_ACTION_NAME,
+                          this.getEditor ().getUndoManager ().getUndoAction ());
+
+        am.put (REDO_ACTION_NAME,
+                          this.getEditor ().getUndoManager ().getRedoAction ());
+  */
+/*
         am.put ("redo",
                 new ActionAdapter ()
                 {
@@ -189,28 +344,30 @@ public class QTextEditor extends JTextPane implements TextStylable
                     }
 
                 });
-
+*/
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_Z,
                                         Event.CTRL_MASK),
-                "undo");
+                UNDO_ACTION_NAME);
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_Y,
                                         Event.CTRL_MASK),
-                "redo");
+                REDO_ACTION_NAME);
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_P,
                                         Event.CTRL_MASK),
-                "print");
+                PRINT_ACTION_NAME);
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_B,
                                         Event.CTRL_MASK),
-                "bold");//new StyledEditorKit.BoldAction ());
+                BOLD_ACTION_NAME);//new StyledEditorKit.BoldAction ());
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_I,
                                         Event.CTRL_MASK),
-                "italic");
+                ITALIC_ACTION_NAME);
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_U,
                                         Event.CTRL_MASK),
-                "underline");
+                UNDERLINE_ACTION_NAME);
 
+        this.lineHighlighter = new LineHighlighter (Color.LIGHT_GRAY);
+                
     }
 
     protected QTextEditor()
@@ -219,6 +376,45 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public void setWritingLineColor (Color c)
+    {
+        
+        this.lineHighlighter.setPaint (c);
+        this.validate ();
+        this.repaint ();
+        
+    }
+    
+    public void setHighlightWritingLine (boolean v)
+    {
+        
+        if (v)
+        {
+            
+            this.lineHighlighter.install (this);
+            
+        } else {
+            
+            this.lineHighlighter.uninstall ();
+            
+        }
+        
+    }
+    
+    public SynonymProvider getSynonymProvider ()
+    {
+        
+        if (this.spellChecker != null)
+        {
+            
+            return this.spellChecker.getSynonymProvider ();
+            
+        }        
+        
+        return null;
+        
+    }
+    
     public void setSynonymProvider (SynonymProvider sp)
     {
         
@@ -239,7 +435,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                                           false,
                                           this.sectionBreak);
 
-        qt.setLineSpacing (this.getLineSpacing () + 1f);
+        qt.setLineSpacing (this.getLineSpacing ());
         qt.setFontSize (this.getPrintFontSize (this.getFontSize ()));
         qt.setFontFamily (this.getFontFamily ());
         qt.setAlignment (this.getAlignment ());
@@ -475,6 +671,26 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public void replaceText (int    start,
+                             int    end,
+                             String replace)
+    {
+               
+        int caret = this.getCaret ().getDot ();
+                
+        this.startCompoundEdit ();
+
+        this.select (start,
+                     end);
+        
+        this.replaceSelection (replace);
+        
+        this.endCompoundEdit ();
+
+        this.getCaret ().setDot (caret);
+        
+    }
+    
     public void startCompoundEdit ()
     {
         
@@ -637,6 +853,9 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setFontColor (Color c)
     {
 
+        // Change the caret color to match.
+        this.setCaretColor (c);
+    
         StyleConstants.setForeground (this.styles,
                                       c);
 
@@ -651,6 +870,15 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public Font getFontForStyles ()
+    {
+        
+        return new Font (this.getFontFamily (),
+                         Font.PLAIN,
+                         this.getFontSize ());
+                
+    }
+  
     public void setFontSize (int v)
     {
 
@@ -659,6 +887,11 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.applyStyles ();
 
+        this.fireStyleChangeEvent (0,
+                                   this.doc.getEndPosition ().getOffset (),
+                                   StyleChangeEvent.FONT_SIZE,
+                                   false);
+        
     }
 
     public String getFontFamily ()
@@ -676,6 +909,11 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.applyStyles ();
 
+        this.fireStyleChangeEvent (0,
+                                   this.doc.getEndPosition ().getOffset (),
+                                   StyleChangeEvent.FONT_NAME,
+                                   false);
+                
     }
 
     private void applyStyles ()
@@ -690,6 +928,16 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public int getLineHeight ()
+    {
+        
+        java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage (1, 1, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        Graphics g = bi.getGraphics ();
+        
+        return (int) (g.getFontMetrics (new Font (this.getFontFamily (), Font.PLAIN, this.getFontSize ())).getHeight () * this.getLineSpacing ());
+        
+    }
+    
     public float getLineSpacing ()
     {
 
@@ -1010,6 +1258,13 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.undoManager.setRecordUndos (true);
 
+        if (this.spellChecker != null)
+        {
+            
+            this.spellChecker.enable (enabled);
+            
+        }
+        
     }
 
     public void checkSpelling ()
@@ -1050,6 +1305,16 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public void removeText (int where,
+                            int length)
+                     throws BadLocationException
+    {
+        
+        this.doc.remove (where,
+                         length);
+        
+    }
+    
     public void setBackgroundColor (Color c)
     {
         

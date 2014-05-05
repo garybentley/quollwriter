@@ -35,13 +35,14 @@ public abstract class PopupWizard extends PopupWindow
     public PopupWizard(AbstractProjectViewer pv)
     {
 
-        super (pv);
+        super (pv,
+               Component.CENTER_ALIGNMENT);
 
     }
 
     public void init ()
     {
-
+    
         this.contentBox = new Box (BoxLayout.Y_AXIS);
 
         this.contentPanel = new Box (BoxLayout.X_AXIS);
@@ -53,9 +54,11 @@ public abstract class PopupWizard extends PopupWindow
                                                       10,
                                                       10,
                                                       10));
+        this.header = UIUtils.createHeader ("",
+                                         Constants.SUB_PANEL_TITLE,
+                                         null,
+                                         null);
 
-        this.header = UIUtils.createBoldSubHeader ("",
-                                                   null);
         this.header.setBorder (new CompoundBorder (new MatteBorder (0,
                                                                     0,
                                                                     1,
@@ -241,8 +244,7 @@ public abstract class PopupWizard extends PopupWindow
 
                 _this.handleCancel ();
 
-                _this.setVisible (false);
-                _this.dispose ();
+                _this.close ();
 
             }
 

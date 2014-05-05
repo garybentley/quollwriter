@@ -113,13 +113,6 @@ public class Markup
 
             return this.current;
 
-            // P: 0-29
-            // 30-50
-            // P: 51-74
-            // 75-80
-            // P: 81-109
-            // 110-200
-
         }
 
     }
@@ -188,6 +181,28 @@ public class Markup
 
         }
 
+        public void shiftBy (int i)
+        {
+            
+            this.start += i;
+            this.end += i;
+            
+            if (this.start < 0)
+            {
+                
+                this.start = 0;
+                
+            }
+            
+            if (this.end < 0)
+            {
+                
+                this.end = 0;
+                
+            }
+            
+        }
+        
         public String toString ()
         {
 
@@ -213,6 +228,16 @@ public class Markup
 
     public List<MarkupItem> items = new ArrayList ();
 
+    public Markup (Markup fromMarkup,
+                   int    from,
+                   int    to)
+    {
+
+        this.items = fromMarkup.getItems (from,
+                                          to);
+        
+    }
+        
     public Markup(String m)
     {
 
@@ -223,6 +248,8 @@ public class Markup
 
         }
 
+        int lastInd = 0;
+        
         StringTokenizer tt = new StringTokenizer (m,
                                                   ",");
 
@@ -235,8 +262,26 @@ public class Markup
             try
             {
 
-                this.items.add (new MarkupItem (nt.nextToken (),
-                                                nt.nextToken ()));
+                MarkupItem it = new MarkupItem (nt.nextToken (),
+                                                nt.nextToken ());
+            
+                if (it.start > lastInd)
+                {
+                    
+                    // Create the dummy item.
+                    MarkupItem dit = new MarkupItem (lastInd,
+                                                     it.start,
+                                                     false,
+                                                     false,
+                                                     false);
+                    
+                    this.items.add (dit);
+                    
+                }
+                
+                lastInd = it.end;
+            
+                this.items.add (it);
 
             } catch (Exception e)
             {
@@ -262,7 +307,19 @@ public class Markup
         }
 
     }
-
+    
+    public void shiftBy (int i)
+    {
+        
+        for (MarkupItem it : items)
+        {
+            
+            it.shiftBy (i);
+            
+        }
+        
+    }
+    
     public void apply (QTextEditor ed)
     {
 
@@ -320,8 +377,6 @@ public class Markup
 
         AttributeSet as = el.getAttributes ();
 
-        
-
         boolean b = StyleConstants.isBold (as);//as.getAttribute (StyleConstants.Bold) != null;
         boolean i = StyleConstants.isItalic (as); //as.getAttribute (StyleConstants.Italic) != null;
         boolean u = StyleConstants.isUnderline (as); //as.getAttribute (StyleConstants.Underline) != null;
@@ -350,6 +405,15 @@ public class Markup
 
     }
 
+    public List<MarkupItem> getMarkupBetween (int from,
+                                              int to)
+    {
+        
+        return this.getItems (from,
+                              to);
+                
+    }
+
     public List<MarkupItem> getItems (int from,
                                       int to)
     {
@@ -359,14 +423,10 @@ public class Markup
         for (MarkupItem it : this.items)
         {
 
-            if (it.start >= from)
-            {
-
-                its.add (it);
-
-            }
-
-            if (it.end <= to)
+            if ((it.start >= from)
+                &&
+                (it.end <= to)
+               )
             {
 
                 its.add (it);
@@ -395,6 +455,13 @@ public class Markup
         for (MarkupItem m : this.items)
         {
 
+            if (m.types.equals (""))
+            {
+                
+                continue;
+                
+            }
+        
             if (b.length () > 0)
             {
 

@@ -63,21 +63,25 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
     protected EditPanel              linkedToPanel = null;
     private ActionListener         deleteObjectAction = null;
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
-    protected ProjectViewer        projectViewer = null;
+    //protected ProjectViewer        projectViewer = null;
 
-    public AbstractObjectViewPanel(ProjectViewer pv,
-                                   NamedObject   n)
-                            throws GeneralException
+    public AbstractObjectViewPanel (AbstractProjectViewer pv,
+                                    NamedObject           n)
+                             throws GeneralException
     {
 
         super (pv,
-               n,
-               false);
-
-        this.projectViewer = pv;
+               n);
 
     }
 
+    public DetailsEditPanel getDetailsPanel ()
+    {
+        
+        return this.detailsPanel;
+        
+    }
+    
     public void initDividers ()
     {
 
@@ -251,20 +255,55 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
 
         this.doInit ();
 
+        ActionMap actions = this.getActionMap ();
+        
+        InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
+                                        Event.CTRL_MASK),
+                "edit");
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_L,
+                                        Event.CTRL_MASK),
+                "editlinkedto");
+        
+        actions.put ("edit",
+                new ActionAdapter ()
+                {
+  
+                    public void actionPerformed (ActionEvent ev)
+                    {
+  
+                        _this.detailsPanel.showEditPanel ();
+                        
+                    }
+                    
+                });
+        
+        actions.put ("editlinkedto",
+                new ActionAdapter ()
+                {
+  
+                    public void actionPerformed (ActionEvent ev)
+                    {
+  
+                        _this.linkedToPanel.showEditPanel ();
+                        
+                    }
+                    
+                });
+
     }
 
     public abstract EditPanel getBottomEditPanel ();
 
     public abstract String getIconType ();
 
-    public abstract Color getHeaderColor ();
-
-    public abstract DetailsEditPanel getDetailEditPanel (ProjectViewer pv,
-                                                         NamedObject   obj)
+    public abstract DetailsEditPanel getDetailEditPanel (AbstractProjectViewer pv,
+                                                         NamedObject           obj)
                                                   throws GeneralException;
 
-    public abstract ActionListener getDeleteObjectAction (ProjectViewer pv,
-                                                          NamedObject   obj);
+    public abstract ActionListener getDeleteObjectAction (AbstractProjectViewer pv,
+                                                          NamedObject           obj);
 
     public abstract void doInit ();
 

@@ -20,6 +20,7 @@ public class Notification extends Box implements ActionListener
     private AbstractProjectViewer viewer = null;
     private javax.swing.Timer timer = null;
     private int duration = 0;
+    private JButton cancel = null;
 
     public Notification (AbstractProjectViewer   viewer,
                          JComponent              comp,
@@ -76,10 +77,12 @@ public class Notification extends Box implements ActionListener
             
         }
 
-        buts.add (UIUtils.createButton ("cancel",
-                                        Constants.ICON_MENU,
-                                        "Click to remove this notification",
-                                        removeNotification));
+        this.cancel = UIUtils.createButton ("cancel",
+                                            Constants.ICON_MENU,
+                                            "Click to remove this notification",
+                                            removeNotification);
+        
+        buts.add (this.cancel);
 
         JToolBar butBar = UIUtils.createButtonBar (buts);
 
@@ -91,13 +94,56 @@ public class Notification extends Box implements ActionListener
 
         b.setOpaque (true);
         
-        
     }
         
+    public static Notification createMessageNotification (AbstractProjectViewer viewer,
+                                                          String                message,
+                                                          int                   duration)
+    {
+    
+        final HTMLPanel htmlP = new HTMLPanel (message,
+                                               null);
+
+        htmlP.setBackground (null);
+        htmlP.setOpaque (false);
+        htmlP.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        return new Notification (viewer,
+                                 htmlP,
+                                 Constants.INFO_ICON_NAME,
+                                 duration,
+                                 null);
+        
+    }
+    
+    public void addCancelListener (ActionListener l)
+    {
+        
+        this.cancel.addActionListener (l);
+        
+    }
+    
+    public void removeCancelListener (ActionListener l)
+    {
+        
+        this.cancel.removeActionListener (l);
+        
+    }
+    
     public void init ()
     {
         
         final Notification _this = this;
+        
+        if (this.timer != null)
+        {
+            
+            this.timer.stop ();
+            this.timer.start ();
+            
+            return;
+            
+        }
         
         if (this.duration > 0)
         {
@@ -132,7 +178,12 @@ public class Notification extends Box implements ActionListener
     public void removeNotification ()
     {
 
-        this.timer.stop ();
+        if (this.timer != null)
+        {
+    
+            this.timer.stop ();
+            
+        }
         
         this.viewer.removeNotification (this);
 

@@ -52,7 +52,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     public static final float DEFAULT_Y_BORDER_WIDTH = (7f / 100f);
     public static final float DEFAULT_BORDER_OPACITY = 0.7f;
 
-    public static final float MAX_BORDER_WIDTH = 0.25f;
+    public static final float MAX_BORDER_WIDTH = 0.35f;
     public static final float MIN_BORDER_WIDTH = 0.015f;
 
     private FullScreenQuollPanel panel = null;
@@ -67,10 +67,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private JSlider              backgroundOpacity = null;
     private int                  sizeBoxMaxWidth = 150;
     private ImagePanel           sizeBox = null;
-    private ActionListener       closeAction = null;
-    private ActionListener       showHeaderAction = null;
-    private ActionListener       showPropertiesAction = null;
-    private ActionListener       findAction = null;
+    private ActionAdapter       closeAction = null;
+    private ActionAdapter       showHeaderAction = null;
+    private ActionAdapter       showPropertiesAction = null;
+    //private ActionListener       findAction = null;
     private Header               title = null;
     private JComponent           header = null;
     private Timer                clockTimer = null;
@@ -78,7 +78,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private SimpleDateFormat     clockFormat = null;
     private JComponent           bgImagePanel = null;
     private JComponent           sideBar = null;
-    //private JComponent           properties = null;
+    private JComponent           sideBarInner = null;
+    private JButton              distModeButton = null;
     private int                  minimumSideBarWidth = 0;
     private boolean              noHideSideBar = false;
     private TextProperties       normalTextProperties = null;
@@ -91,6 +92,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private FullScreenPropertiesSideBar properties = null;
     private AbstractProjectViewer projectViewer = null;
     private BufferedImage         noImageBackground = null;
+    private boolean              hideIconColumnForEditors = false;
+    private boolean              distractionFreeModeEnabled = false;
     
     public FullScreenFrame (FullScreenQuollPanel qp)
     {
@@ -133,7 +136,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             this.borderOpacity = DEFAULT_BORDER_OPACITY;
 
         }
-
+        
         final FullScreenFrame _this = this;
 
         this.addWindowListener (new WindowAdapter ()
@@ -152,9 +155,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         this.setResizable (false);
         this.setUndecorated (true);
-        
+                
     }
 
+    public void showSideBar ()
+    {
+        
+        this.showSideBar (Constants.LEFT);
+        
+    }
+    
     public void showBlankPanel ()
     {
         
@@ -169,7 +179,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.switchTo (bp);
         
     }
-    
+            
     public void sideBarShown (SideBarEvent ev)
     {
         
@@ -220,71 +230,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             props.setProperty (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
                                fp);
 
-                               
-            /*              
-            try
-            {
-
-                IntegerProperty sizeP = new IntegerProperty (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
-                                                             this.fullScreenTextProperties.getFontSize ());
-                sizeP.setDescription ("N/A");
-
-                props.setProperty (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
-                                   sizeP);
-
-            } catch (Exception e)
-            {
-
-                // Ignore.
-
-            }
-            
-            StringProperty alignP = new StringProperty (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
-                                                        this.fullScreenTextProperties.getAlignment ());
-            alignP.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
-                               alignP);
-
-            StringProperty fontP = new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
-                                                       this.fullScreenTextProperties.getFontFamily ());
-            fontP.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
-                               fontP);
-
-            try
-            {
-
-                FloatProperty lspaceP = new FloatProperty (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
-                                                           this.fullScreenTextProperties.getLineSpacing ());
-                lspaceP.setDescription ("N/A");
-
-                props.setProperty (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
-                                   lspaceP);
-
-            } catch (Exception e)
-            {
-
-                // Ignore.
-
-            }
-
-            StringProperty fcp = new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
-                                                     UIUtils.colorToHex (this.fullScreenTextProperties.getTextColor ()));
-
-            fcp.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
-                               fcp);
-
-            StringProperty bcp = new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
-                                                     UIUtils.colorToHex (this.fullScreenTextProperties.getBackgroundColor ()));
-            bcp.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
-                               bcp);
-*/
             Environment.saveUserProperties (props);
 
         } catch (Exception e)
@@ -321,6 +266,20 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         this.restorePanel ();
  
+        this.projectViewer.doForPanels (QuollEditorPanel.class,
+        new DefaultQuollPanelAction ()
+        {
+                            
+            public void doAction (QuollPanel qp)
+            {
+                                    
+                ((QuollEditorPanel) qp).showIconColumn (true);
+                                    
+            }
+                            
+        });                
+
+ 
         this.setVisible (false);
         this.dispose ();
         
@@ -352,6 +311,48 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
     }
 
+    public QPopup getPopupByName (String name)
+    {
+        
+        if (name == null)
+        {
+            
+            return null;
+            
+        }
+        
+        Component[] children = this.getLayeredPane ().getComponentsInLayer (JLayeredPane.POPUP_LAYER);
+        
+        if (children == null)
+        {
+            
+            return null;
+            
+        }
+        
+        for (int i = 0; i < children.length; i++)
+        {
+            
+            Component c = children[i];
+            
+            if (name.equals (c.getName ()))
+            {
+                
+                if (c instanceof QPopup)
+                {
+                    
+                    return (QPopup) c;
+                    
+                }
+                
+            }
+                        
+        }
+        
+        return null;
+        
+    }    
+    
     public void addPopup (final Component c,
                           boolean         hideOnClick,
                           boolean         hideViaVisibility)
@@ -560,38 +561,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         child.removeMouseWheelListener (this.mouseListener);
         child.removeMouseListener (this.mouseListener);
         child.removeMouseMotionListener (this.mouseListener);
-        
-        java.util.List<Component> cs = this.panel.getTopLevelComponents ();
-
-        if (cs != null)
-        {
-            
-            cs = new java.util.ArrayList (cs);
-            
-        } else {
-            
-            cs = new java.util.ArrayList ();
-            
-        }
-        
-        InputMap im = null;
-
-        for (Component c : cs)
-        {
-
-            im = ((JComponent) c).getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-            im.remove (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
-                                               0));
-
-            im.remove (KeyStroke.getKeyStroke (KeyEvent.VK_F9,
-                                               0));
-
-            im.remove (KeyStroke.getKeyStroke (KeyEvent.VK_F6,
-                                               0));
-
-        }
-
+                
         if (child instanceof AbstractEditorPanel)
         {
         
@@ -599,7 +569,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
     
-            QTextEditor ed = edPanel.getEditor ();//editor;
+            //QTextEditor ed = edPanel.getEditor ();//editor;
             
             edPanel.setIgnoreDocumentChanges (true);
     
@@ -613,17 +583,126 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     
             edPanel.setIgnoreDocumentChanges (false);
 
+            edPanel.setUseTypewriterScrolling (false);
+
         }
+
+        if (child instanceof QuollEditorPanel)
+        {
             
+            QuollEditorPanel p = (QuollEditorPanel) child;
+            
+            p.showIconColumn (true);            
+    
+        }
+
         // Restore to the original parent.
         this.panel.restore ();
 
-        this.getLayeredPane ().remove (child);
-
         this.projectViewer.restoreFromFullScreen (this.panel);
+        
+        this.getLayeredPane ().remove (child);
+        
+        if (child instanceof AbstractEditorPanel)
+        {
+            
+            AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
+            
+            edPanel.scrollCaretIntoView ();
 
+        }
+        
     }
 
+    public boolean isDistractionFreeModeEnabled ()
+    {
+        
+        return this.distractionFreeModeEnabled;
+        
+    }
+    
+    public void setDistractionFreeModeEnabled (boolean v)
+    {
+        
+        this.distractionFreeModeEnabled = v;
+
+        this.setDistractionFreeModeEnabledForChildPanel (v);
+        
+        this.distModeButton.setIcon (Environment.getIcon ((this.distractionFreeModeEnabled ? Constants.DISTRACTION_FREE_EXIT_ICON_NAME : Constants.DISTRACTION_FREE_ICON_NAME),
+                                     Constants.ICON_TITLE_ACTION));
+        
+        this.distModeButton.setToolTipText ((this.distractionFreeModeEnabled ? "Click to exit distraction free mode" : "Click to enter distraction free mode"));
+        
+        // See if they have been in this mode before, if not then show the help popup.
+        this.showFirstTimeInDistractionFreeModeInfoPopup ();
+        
+    }
+    
+    private void showFirstTimeInDistractionFreeModeInfoPopup ()
+    {
+        
+        String propName = Constants.SEEN_FIRST_TIME_IN_DISTRACTION_FREE_MODE_INFO_POPUP_PROPERTY_NAME;
+        
+        if ((this.distractionFreeModeEnabled)
+            &&
+            (this.panel.getChild () instanceof AbstractEditorPanel)
+            &&
+            (!this.projectViewer.getProject ().getPropertyAsBoolean (propName))
+           )
+        {
+            
+            this.projectViewer.showNotificationPopup ("Welcome to Distraction Free Mode",
+                                                      "Since this is your first time using <i>Distraction Free Mode</i> it is recommended you spend a bit of time reading about how it works.  It may work in different ways to how you expect and/or how other writing applications implement similar modes.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more</a>",
+                                                      -1);
+
+            try
+            {
+        
+                Environment.setUserProperty (propName,
+                                             new BooleanProperty (propName,
+                                                                  true));
+        
+            } catch (Exception e)
+            {
+        
+                Environment.logError ("Unable to save user properties",
+                                      e);
+                
+            }            
+                                                      
+            return;            
+            
+        }        
+        
+    }
+    
+    private void setDistractionFreeModeEnabledForChildPanel (boolean v)
+    {
+   
+        final QuollPanel child = this.panel.getChild ();
+   
+        if (child instanceof AbstractEditorPanel)
+        {
+            
+            AbstractEditorPanel p = (AbstractEditorPanel) child;
+                        
+            p.setUseTypewriterScrolling (v);
+                        
+        }
+        
+        if (child instanceof QuollEditorPanel)
+        {
+            
+            QuollEditorPanel p = (QuollEditorPanel) child;
+            
+            p.showIconColumn (!v);            
+    
+        }
+        
+        this.setChildBorder ();
+        
+    }
+    
     public void switchTo (FullScreenQuollPanel fs)
     {
 
@@ -675,16 +754,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                   e);
 
         }                                                            
-                                                            
+                       
         if (r != null)
         {
 
             BufferedImage bgImage = r.createScreenCapture (new Rectangle (Toolkit.getDefaultToolkit ().getScreenSize ()));
 
-            _this.noImageBackground = bgImage;
+            this.noImageBackground = bgImage;
             
         }
-                    
+                                        
         this.bgImagePanel = new JPanel ()
         {
         
@@ -751,7 +830,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         // Get the left/right panels.
         this.createSideBar ();
-
+/*
         this.findAction = new ActionAdapter ()
         {
 
@@ -764,7 +843,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             }
 
         };
-
+*/
         this.closeAction = new ActionAdapter ()
         {
 
@@ -818,10 +897,28 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             }
 
         };
+
+        JComponent child = new JPanel ();
+        
+        this.getLayeredPane ().add (child,
+                                    0,
+                                    0);                                    
+        
+        JComponent parent = (JComponent) child.getParent ();
+
+        this.getLayeredPane ().remove (child);
+                                    
+        InputMap im = parent.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+        
+        ActionMap am = parent.getActionMap ();
+        
+        this.initKeyMappings (im);
+        
+        this.initActionMappings (am);
         
         this.mouseListener = new MouseAdapter ()
         {
-
+                
             public void mouseWheelMoved (MouseWheelEvent ev)
             {
 
@@ -1045,6 +1142,15 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
             }
 
+            public void mouseExited (MouseEvent ev)
+            {
+                
+                QuollPanel child = _this.panel.getChild ();
+
+                child.setCursor (Cursor.getDefaultCursor ());
+                    
+            }
+            
             public void mouseMoved (MouseEvent ev)
             {
 
@@ -1085,26 +1191,25 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                 }
 
-                String sideBarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
-
                 if (x < showThreshold)
                 {                
                 
                     _this.showSideBar (Constants.LEFT);
-    
+
                     return;
     
                 }
-                    
+                    /*
+                     *Annoying as hell on multiple monitors
                 if (x > (d.width - showThreshold))
                 {
                     
                     _this.showSideBar (Constants.RIGHT);
-
+                    
                     return;
 
                 }                
-                
+                */
                 if ((x <= (bounds.x)) &&
                     (x >= (bounds.x - 20)))
                 {
@@ -1151,6 +1256,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         };
 
+        this.setDistractionFreeModeEnabled (this.projectViewer.getProject ().getPropertyAsBoolean (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME));
+        
         this.initPanel ();
 
         ((JComponent) this.getLayeredPane ()).setDoubleBuffered (true);
@@ -1166,7 +1273,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                   ProjectEvent.ENTER);
 
     }
-
+    
     public void resetPropertiesToDefaults ()
     {
         
@@ -1181,6 +1288,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                         
             this.fullScreenTextProperties = new FullScreenTextProperties (this,
                                                                           this.normalTextProperties);
+
+            this.fullScreenTextProperties.setOn (aep,
+                                                 false);
             
             this.properties.setTextProperties (this.fullScreenTextProperties);
             
@@ -1195,15 +1305,20 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         this.sideBar = new Box (BoxLayout.Y_AXIS);
 
+        this.sideBarInner = new Box (BoxLayout.Y_AXIS);
+        
         Box cp = new Box (BoxLayout.Y_AXIS);
+        
+        this.sideBarInner.setOpaque (false);
         
         cp.setOpaque (true);
         cp.setBackground (UIUtils.getComponentColor ());
-        //cp.setBorder (new EmptyBorder (0, 0, 0, 5));
+        
+        this.sideBarInner.add (cp);
                 
         cp.add (this.projectViewer.getSideBarPanel ());
         
-        this.sideBar.add (cp);        
+        this.sideBar.add (this.sideBarInner);        
                                            
         MouseAdapter mouseListener = new MouseAdapter ()
         {
@@ -1212,6 +1327,35 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             private int lastY = 0;
             private boolean dragInProgress = false;
         
+            private Timer exitCheck = new Timer (750,
+                                                 new ActionAdapter ()
+                                                 {
+                                                    
+                                                     public void actionPerformed (ActionEvent ev)
+                                                     {
+                                                        
+                                                        if (!_this.sideBar.getBounds ().contains (MouseInfo.getPointerInfo ().getLocation ()))
+                                                        {
+                                                            
+                                                            _this.sideBar.setVisible (false);
+                                                            
+                                                            ((JComponent) _this.sideBar.getParent ()).revalidate ();
+                                            
+                                                            _this.sideBar.getParent ().repaint ();
+                                                            
+                                                        }
+                                                        
+                                                     }
+                                                    
+                                                 });
+        
+            public void mouseEntered (MouseEvent ev)
+            {
+                
+                this.exitCheck.stop ();
+                
+            }
+        
             public void mouseReleased (MouseEvent ev)
             {
 
@@ -1219,7 +1363,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 this.lastX = 0;
                 this.lastY = 0;
 
-                _this.sideBar.setCursor (Cursor.getDefaultCursor ());                
+                _this.sideBarInner.setCursor (Cursor.getDefaultCursor ());                
                 
             }
 
@@ -1229,20 +1373,27 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 int x = ev.getX ();
                 int y = ev.getY ();            
             
-                Rectangle bounds = _this.sideBar.getBounds ();
+                Rectangle bounds = _this.sideBarInner.getBounds ();
 
-                String sideBarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
-
-                _this.sideBar.setCursor (Cursor.getDefaultCursor ());
+                _this.sideBarInner.setCursor (Cursor.getDefaultCursor ());
+  
+                String loc = Constants.LEFT;
+                
+                if (bounds.x > bounds.width)
+                {
+                    
+                    loc = Constants.RIGHT;
+                    
+                }
         
-                if (sideBarLoc.equals (Constants.LEFT))
+                if (loc.equals (Constants.LEFT))
                 {
 
                     if ((x <= bounds.width) &&
                         (x >= bounds.width - 20))
                     {
     
-                        _this.sideBar.setCursor (Cursor.getPredefinedCursor (Cursor.W_RESIZE_CURSOR));
+                        _this.sideBarInner.setCursor (Cursor.getPredefinedCursor (Cursor.W_RESIZE_CURSOR));
     
                         return;
     
@@ -1254,7 +1405,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                         (x <= 20))
                     {
 
-                        _this.sideBar.setCursor (Cursor.getPredefinedCursor (Cursor.E_RESIZE_CURSOR));
+                        _this.sideBarInner.setCursor (Cursor.getPredefinedCursor (Cursor.E_RESIZE_CURSOR));
 
                         return;
 
@@ -1283,9 +1434,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     
                 Rectangle bounds = _this.sideBar.getBounds ();                
                 
-                String sideBarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+                String loc = Constants.LEFT;
+                
+                if (bounds.x > bounds.width)
+                {
+                    
+                    loc = Constants.RIGHT;
+                    
+                }
 
-                if (sideBarLoc.equals (Constants.LEFT))
+                if (loc.equals (Constants.LEFT))
                 {
                 
                     bounds.width += (x - this.lastX);
@@ -1326,10 +1484,13 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 this.lastY = y;
                 
             }        
-        
+            
             public void mouseExited (MouseEvent ev)
             {
 
+                this.exitCheck.setRepeats (false);
+                this.exitCheck.stop ();
+            
                 if (this.dragInProgress)
                 {
                     
@@ -1345,10 +1506,13 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 }
 
                 _this.sideBar.setCursor (Cursor.getDefaultCursor ());
-            
+                _this.sideBarInner.setCursor (Cursor.getDefaultCursor ());
+
                 if (_this.sideBar.getBounds ().contains (ev.getLocationOnScreen ()))
                 {
 
+                    this.exitCheck.restart ();
+         
                     return;
 
                 }
@@ -1362,8 +1526,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         };
 
-        this.sideBar.addMouseListener (mouseListener);
-        this.sideBar.addMouseMotionListener (mouseListener);
+        this.sideBarInner.addMouseListener (mouseListener);
+        this.sideBarInner.addMouseMotionListener (mouseListener);
 
         int width = this.sideBar.getPreferredSize ().width;
         
@@ -1390,6 +1554,15 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.getLayeredPane ().add (this.sideBar,
                                     1,
                                     3);                
+        
+        // Small thing, if the current project viewer sidebar is the text properties then show the full screen
+        // properties instead.
+        if (this.projectViewer.isCurrentSideBarTextProperties ())
+        {
+            
+            this.showProperties ();
+            
+        }
         
     }
     
@@ -1504,6 +1677,38 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                      });
 
         this.clockTimer.start ();
+
+        this.distModeButton = UIUtils.createButton (Constants.DISTRACTION_FREE_ICON_NAME,
+                                                    Constants.ICON_TITLE_ACTION,
+                                                    "Click to enter distraction free mode",
+                                                    new ActionAdapter ()
+        {
+              
+            public void actionPerformed (ActionEvent ev)
+            {
+ 
+                _this.setDistractionFreeModeEnabled (!_this.isDistractionFreeModeEnabled ());
+
+                try
+                {
+            
+                    Environment.setUserProperty (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
+                                                 new BooleanProperty (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
+                                                                      _this.isDistractionFreeModeEnabled ()));
+            
+                } catch (Exception e)
+                {
+            
+                    Environment.logError ("Unable to save user properties",
+                                          e);
+                    
+                }
+
+            }
+              
+        });
+        
+        titleC.add (this.distModeButton);
         
         this.panel.projectViewer.fillFullScreenTitleToolbar (titleC);
 
@@ -1630,8 +1835,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             
             return;
             
-        }
-
+        }        
+        
         if (o instanceof String)
         {
 
@@ -1659,6 +1864,19 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             {
                 
                 this.setFullScreenBackground (UIUtils.getColor (b));
+                
+                return;
+                
+            }
+
+            if (b.equals ("none"))
+            {
+                
+                this.setFullScreenBackground (this.noImageBackground);
+    
+                this.backgroundObject = null;
+                
+                this.setFullScreenBackgroundProperty ("none");
                 
                 return;
                 
@@ -1768,14 +1986,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         int           height = im.getHeight ();
         int           width = im.getWidth ();
         
-        //xxx
-                
-        Graphics2D    biG2d = (Graphics2D) im.getGraphics ();
-        biG2d.drawImage (im,
-                         0,
-                         0,
-                         Color.black,
-                         this);
+        final FullScreenFrame _this = this;
         
         this.background = new TexturePaint (im,
                                             new Rectangle (0,
@@ -1783,8 +1994,18 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                            width,
                                                            height));
                 
-        this.validate ();
-        this.repaint ();
+        SwingUtilities.invokeLater (new Runnable ()
+        {
+            
+            public void run ()
+            {                
+
+                _this.validate ();
+                _this.repaint ();
+                
+            }
+            
+        });
         
     }
     
@@ -1849,6 +2070,18 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         {
             
             v = "bg:" + ((BackgroundImage) o).getName ();
+            
+        }
+        
+        if (o instanceof String)
+        {
+            
+            if (o != null)
+            {
+            
+                v = o.toString ();
+                
+            }
             
         }
         
@@ -2051,7 +2284,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
     }
 
-    private void showProperties ()
+    public void showProperties ()
     {
         
         this.panel.getProjectViewer ().showSideBar ("fullscreenproperties");
@@ -2071,16 +2304,20 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.sideBar.setVisible (false);
         
     }
+    
     private void showSideBar (String showWhere)
     {
-        
+        /*
         if (this.sideBar.isVisible ())
         {
 
+            // Ensure that it is the preferred size for the content.
+        
             return;
 
         }
-
+*/
+        
         if (showWhere == null)
         {
             
@@ -2090,12 +2327,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
 
-        String sideBarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
-
         int x = 0;
-        int w = this.sideBar.getPreferredSize ().width;
-
+                        
         Border b = null;
+        
+        Border sb = null;
         
         if (showWhere.equals (Constants.LEFT))
         {
@@ -2111,8 +2347,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                                      true,
                                                                      true);
 
-        } 
+            sb = new MatteBorder (0, 0, 0, 30, new Color (0, 0, 0, 0));
                                                                      
+        } 
+                        /*                                          
         if (showWhere.equals (Constants.RIGHT))
         {
 
@@ -2129,15 +2367,21 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                                      true,
                                                                      false);
         
+            sb = new MatteBorder (0, 30, 0, 0, new Color (0, 0, 0, 0));
+        
         }
+        */
+        this.sideBarInner.setBorder (b);
         
-        this.sideBar.setBorder (b);
+        this.sideBar.setBorder (sb);
         
+        int w = this.sideBar.getPreferredSize ().width;
+                
         this.sideBar.setBounds (x,
                                 (int) (d.height * 0.1),
-                                w,
+                                w + 30 + 13,
                                 (int) (d.height * 0.8));
-        
+
         this.showOverlayPanel (this.sideBar);
         
     }
@@ -2213,45 +2457,20 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         }
 
         cs.add (this.header);
-
-        InputMap im = null;
-
-        for (Component c : cs)
-        {
-
-            im = ((JComponent) c).getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F,
-                                            Event.CTRL_MASK),
-                    this.findAction);
-
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
-                                            0),
-                    this.findAction);                                        
-                    
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
-                                            0),
-                    this.closeAction);
-/*
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F5,
-                                            0),
-                    this.closeAction);                    
-  */                  
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F9,
-                                            0),
-                    this.closeAction);
-
-            im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F6,
-                                            0),
-                    this.showHeaderAction);
-
-
-        }
-
+        
         this.setChildBorder ();
 
         final QuollPanel child = this.panel.getChild ();
 
+        if (child.getProjectViewer () instanceof ProjectViewer)
+        {
+        
+            ProjectViewer.addAssetActionMappings (child,
+                                                  child.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW),
+                                                  child.getActionMap ());        
+
+        }
+        
         this.title.setIcon (Environment.getIcon (this.panel.getIconType (),
                                                  Constants.ICON_PANEL_MAIN));
         this.title.setTitle (this.panel.getTitle ());
@@ -2277,28 +2496,69 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                  false);
         
             edPanel.initEditor (this.fullScreenTextProperties);
-            
-            //this.setFontColor (this.fullScreenTextProperties.getTextColor ());
-            //this.setBackgroundColor (this.fullScreenTextProperties.getBackgroundColor ());
-            
+                        
+            this.showFirstTimeInDistractionFreeModeInfoPopup ();
+                        
         }
-        
+                
         this.getLayeredPane ().add (child,
                                     0,
-                                    0);
-
+                                    0);                                    
+                                    
         child.setVisible (true);
 
+        this.setDistractionFreeModeEnabledForChildPanel (this.distractionFreeModeEnabled);            
+        
         if (child instanceof AbstractEditorPanel)
         {       
         
-            // Ensure the caret is visible.
-            ((AbstractEditorPanel) child).scrollCaretIntoView ();
+            AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
 
+            // Ensure the caret is visible.
+            edPanel.scrollCaretIntoView ();
+
+            edPanel.updateViewportPositionForTypewriterScrolling ();            
+            
         }
             
     }
 
+    private void initActionMappings (ActionMap am)
+    {
+        
+        this.projectViewer.initActionMappings (am);
+        
+        am.put ("fullscreen-close",
+                this.closeAction);
+        am.put ("fullscreen-show-header",
+                this.showHeaderAction);
+        
+    }
+    
+    private void initKeyMappings (InputMap im)
+    {
+        
+        this.projectViewer.initKeyMappings (im);
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
+                                        0),
+                "fullscreen-close");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F9,
+                                        0),
+                "fullscreen-close");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F6,
+                                        0),
+                "fullscreen-show-header");
+                
+        // Don't allow tab closing in full screen.
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F4,
+                                        0),
+                null);
+        
+    }
+    
     public void incrementYBorderWidth (float v)
     {
         
@@ -2417,6 +2677,29 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         QuollPanel child = this.panel.getChild ();
 
+        Border innerBorder = null;
+        
+        boolean showBorder = true;
+        
+        if ((this.distractionFreeModeEnabled)
+            &&
+            ((child instanceof AbstractEditorPanel))
+           )
+        {
+        
+            showBorder = false;
+        
+        }
+        
+        if (showBorder)
+        {
+
+            innerBorder = new LineBorder (Environment.getBorderColor (),
+                                          1,
+                                          true);
+
+        }
+
         child.setBorder (new CompoundBorder (new MatteBorder ((int) (d.height * this.yBorderWidth),
                                                               (int) (d.width * this.xBorderWidth),
                                                               (int) (d.height * this.yBorderWidth),
@@ -2425,9 +2708,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                                          0,
                                                                          0,
                                                                          this.borderOpacity)),
-                                             new LineBorder (Environment.getBorderColor (),
-                                                             2,
-                                                             true)));
+                                             innerBorder));
 
         child.validate ();
         child.repaint ();

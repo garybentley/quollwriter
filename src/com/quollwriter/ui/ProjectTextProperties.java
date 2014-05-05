@@ -29,7 +29,9 @@ public class ProjectTextProperties extends TextProperties
                            props.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
                            props.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
                            Color.black,
-                           UIUtils.getComponentColor ());
+                           UIUtils.getComponentColor (),
+                           UIUtils.getColor (props.getProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
+                           props.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
         
     }
 
@@ -87,6 +89,26 @@ public class ProjectTextProperties extends TextProperties
         this.setProperty (new StringProperty (Constants.EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getBackgroundColor ())));
   */      
+    }
+    
+    public void setHighlightWritingLine (boolean v)
+    {
+        
+        super.setHighlightWritingLine (v);
+        
+        this.setProperty (new BooleanProperty (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
+                                               v));
+        
+    }
+    
+    public void setWritingLineColor (Color c)
+    {
+        
+        super.setWritingLineColor (c);
+        
+        this.setProperty (new StringProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                             UIUtils.colorToHex (this.getWritingLineColor ())));        
+        
     }
     
     public void setTextColor (Color c)

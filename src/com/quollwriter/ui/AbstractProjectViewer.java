@@ -50,6 +50,7 @@ import com.quollwriter.db.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.events.*;
+import com.quollwriter.synonyms.*;
 
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
@@ -81,12 +82,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public static final int EDIT_PROJECT_PROPERTIES_ACTION = 15; // "editProjectProperties";
     public static final int WARMUP_EXERCISE_ACTION = 26;
     public static final int SHOW_STATISTICS_ACTION = 27;
+    public static final int CONTACT_SUPPORT_ACTION = 28;
 
     public static final String NAME_CHANGED = "nameChanged";
 
     protected Project             proj = null;
     private DnDTabbedPane         tabs = null;
     private DictionaryProvider    dictProv = null;
+    private SynonymProvider       synProv = null;
     private JSplitPane            splitPane = null;
     protected ObjectManager       dBMan = null;
     private Header                title = null;
@@ -122,6 +125,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private JTree chapterTree = null;
 
     private FullScreenFrame fsf = null;
+    private FullScreenOverlay fullScreenOverlay = null;
 
     private String toolbarLocation = Constants.BOTTOM;
 
@@ -150,7 +154,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 {
 
                     // Save the open tabs.
-                    _this.close (false);
+                    _this.close (false,
+                                 null);
 
                 }
 
@@ -159,7 +164,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.wordCountTimer = new WordCountTimer (this,
                                                   -1,
                                                   -1);            
-            
+        
         this.getContentPane ().setBackground (UIUtils.getComponentColor ());
             
         this.setDefaultCloseOperation (WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -180,94 +185,50 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F12,
                                         InputEvent.CTRL_MASK | InputEvent.ALT_MASK),
                 "debug");
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
+                                        InputEvent.CTRL_MASK | InputEvent.ALT_MASK),
+                "debug-mode");
 
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F11,
+                                        0),
+                "whatsnew");   
+                
+        ActionMap am = this.getActionMap ();
+                
+        this.initKeyMappings (im);
+        
+        this.initActionMappings (am);
+                
+                /*
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
                                         0),
                 Constants.SHOW_FIND_ACTION);
-                
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F3,
                                         0),
-                "show-main-sidebar");
-                
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F10,
+                "show-options");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F4,
                                         0),
-                "do-warmup");
-                
-        ActionMap am = this.getActionMap ();
-
-        am.put ("do-warmup",
-                new ActionAdapter ()
-                {
-                    
-                    public void actionPerformed (ActionEvent ev)
-                    {
-                    
-                        _this.getAction (AbstractProjectViewer.WARMUP_EXERCISE_ACTION).actionPerformed (ev);
-        
-                    }
-        
-                });        
-        
-        am.put ("show-main-sidebar",
-                new ActionAdapter ()
-                {
-                   
-                    public void actionPerformed (ActionEvent ev)
-                    {
-                        
-                        _this.showMainSideBar ();
-                        
-                    }
-                    
-                });
-        
-        am.put ("debug",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        new DebugConsole (_this);
-
-                    }
-
-                });
-
-        am.put (Constants.SHOW_FIND_ACTION,
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.showFind (null);
-
-                    }
-
-                });
-
-        am.put ("fullscreen",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                       _this.enterFullScreen ();
-                    
-                    }
-
-                });                
-                
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F,
-                                        Event.CTRL_MASK),
-                Constants.SHOW_FIND_ACTION);
+                "close-current-tab");
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F5,
                                         0),
                 "fullscreen");                
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F10,
+                                        0),
+                "do-warmup");
                 
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
+                                        0),
+                "show-main-sidebar");
+                                
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                        Event.CTRL_MASK),
+                Constants.SHOW_FIND_ACTION);
+                */
+                                        
         this.tabs = this.createTabbedPane ();
         
         this.tabs.putClientProperty(com.jgoodies.looks.Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
@@ -409,6 +370,22 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                                                             
                                                                                          }));
                                     
+                                                    titlePopup.addSeparator ();
+
+                                                    titlePopup.add (_this.createMenuItem ("What's New in this version",
+                                                                                          Constants.WHATS_NEW_ICON_NAME,
+                                                                                          new ActionAdapter ()
+                                                                                          {
+                                                                                                
+                                                                                            public void actionPerformed (ActionEvent ev)
+                                                                                            {
+                                                                                                
+                                                                                                _this.showWhatsNew (true);
+                                                                                                
+                                                                                            }
+                                                                                            
+                                                                                         }));
+
                                                     // Help
                                                     JMenu m = new JMenu ("Help");
                                                     m.setIcon (Environment.getIcon (Constants.HELP_ICON_NAME,
@@ -424,20 +401,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                     // Contact Support
                                                     m.add (_this.createMenuItem ("Contact Support",
                                                                                  Constants.EMAIL_ICON_NAME,
-                                                                                 new ActionAdapter ()
-                                                                                 {
-                                                        
-                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                    {
-                                                        
-                                                                                        ContactSupport sp = new ContactSupport (_this);
-                                                        
-                                                                                        sp.init ();
-                                                        
-                                                                                    }
-                                                        
-                                                                                 }));
-                                                                                 
+                                                                                 AbstractProjectViewer.CONTACT_SUPPORT_ACTION));                                                                                 
                                                                                  
                                                     // View the User Guide
                                                     m.add (_this.createMenuItem ("View the User Guide",
@@ -571,6 +535,242 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
+    public void showReportProblem ()
+    {
+        
+        ReportAProblem rp = new ReportAProblem (this);
+
+        rp.init ();        
+        
+    }
+    
+    public void showObjectTypeNameChanger ()
+    {
+        
+        ObjectTypeNameChanger c = new ObjectTypeNameChanger (this);
+        
+        c.init ();        
+        
+    }
+    
+    public void showContactSupport ()
+    {
+        
+        ContactSupport sp = new ContactSupport (this);
+
+        sp.init ();        
+        
+    }
+    
+    public void initActionMappings (ActionMap am)
+    {
+        
+        final AbstractProjectViewer _this = this;
+        
+        am.put ("show-options",
+                new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.showOptions ();
+                        
+                    }
+                    
+                });
+        
+        am.put ("close-current-tab",
+                new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                    
+                        QuollPanel qp = _this.getCurrentlyVisibleTab ();
+
+                        if (qp != null)
+                        {
+                            
+                            _this.closePanel (qp);
+                            
+                        }
+                            
+                    }
+        
+                });        
+        
+        am.put ("do-warmup",
+                new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                    
+                        _this.getAction (AbstractProjectViewer.WARMUP_EXERCISE_ACTION).actionPerformed (ev);
+        
+                    }
+        
+                });        
+        
+        am.put ("show-main-sidebar",
+                new ActionAdapter ()
+                {
+                   
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.showMainSideBar ();
+                        
+                    }
+                    
+                });
+        
+        am.put ("debug",
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        new DebugConsole (_this);
+
+                    }
+
+                });
+
+        am.put ("debug-mode",
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        Environment.debugMode = !Environment.debugMode;
+                        
+                        // Add a notification.
+                        _this.addNotification (Notification.createMessageNotification (_this,
+                                                                                       "Debug mode is now <b>" + (Environment.debugMode ? "ENabled" : "DISabled") + "</b>",
+                                                                                       5));
+
+                    }
+
+                });
+
+        am.put ("whatsnew",
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        try
+                        {
+                    
+                            Environment.setUserProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
+                                                         new StringProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
+                                                                             "0"));
+                
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to set the whats new version viewed property",
+                                                  e);
+                            
+                        }
+                    
+                        _this.showWhatsNew (true);
+
+                    }
+
+                });
+                
+        am.put (Constants.SHOW_FIND_ACTION,
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.showFind (null);
+
+                    }
+
+                });
+
+        am.put ("contact",
+                new ActionAdapter ()
+                {
+                   
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.showContactSupport ();
+                        
+                    }
+                    
+                });
+                
+        am.put ("editobjectnames",
+                new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.showObjectTypeNameChanger ();
+                        
+                    }
+                    
+                });
+                
+        am.put ("fullscreen",
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                       _this.enterFullScreen ();
+                    
+                    }
+
+                });                        
+        
+    }
+    
+    public void initKeyMappings (InputMap im)
+    {
+        
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
+                                        0),
+                Constants.SHOW_FIND_ACTION);
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F3,
+                                        0),
+                "show-options");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F4,
+                                        0),
+                "close-current-tab");
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F5,
+                                        0),
+                "fullscreen");                
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F10,
+                                        0),
+                "do-warmup");
+                
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
+                                        0),
+                "show-main-sidebar");
+                                
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                        Event.CTRL_MASK),
+                Constants.SHOW_FIND_ACTION);        
+        
+    }
+    
     public WordCountTimer getWordCountTimer ()
     {
         
@@ -728,6 +928,36 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
+    public boolean isDistractionFreeModeEnabled ()
+    {
+        
+        if (this.fsf != null)
+        {
+            
+            return this.fsf.isDistractionFreeModeEnabled ();
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public void exitFullScreen ()
+    {
+        
+        if (this.fsf != null)
+        {
+            
+            this.fsf.close ();
+
+            this.tabs.setVisible (true);     
+            
+            this.fullScreenOverlay.setVisible (false);
+            
+        }
+        
+    }
+    
     public void closeFind ()
     {
         
@@ -791,10 +1021,27 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         return this.currentSideBar;
                 
     }
-    
+        
     public void showSideBar (String name)
     {
-        
+
+        if ((this.currentSideBar != null)
+            &&
+            (this.currentSideBar.getName ().equals (name))
+           )
+        {
+
+            if (this.fsf != null)
+            {
+                
+                this.fsf.showSideBar ();
+                
+            }
+            
+            return;
+            
+        }
+    
         AbstractSideBar b = this.sideBars.get (name);
         
         if (b == null)
@@ -858,12 +1105,37 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
 
+        int sw = b.getPreferredSize ().width;
+        
+        if (divLoc < sw)
+        {
+            
+            sw = divLoc;
+            
+        }
+        
+        int tbw = this.toolbarPanel.getPreferredSize ().width;
+        
+        if (divLoc < tbw)
+        {
+            
+            divLoc = tbw;
+            
+        }
+        
         this.splitPane.setDividerLocation (divLoc);            
         
         this.currentSideBar = b;
                       
         this.fireSideBarShownEvent (name);
 
+        if (this.fsf != null)
+        {
+            
+            this.fsf.showSideBar ();
+            
+        }
+        
     }
     
     public Map getTempOptions ()
@@ -1013,6 +1285,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
         
+    public abstract TypesHandler getObjectTypesHandler (String objType);
+        
+    public abstract void reloadTreeForObjectType (String objType);
+        
+    public abstract void reloadTreeForObjectType (NamedObject obj);
+
+    public abstract void showObjectInTree (String      treeObjType,
+                                           NamedObject obj);
+    
     public abstract AbstractSideBar getMainSideBar ();
         
     public abstract String getViewerTitle ();
@@ -1041,6 +1322,16 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     public abstract void deleteChapter (Chapter c);
 
+    public abstract void deleteObject (NamedObject o)
+                                       throws      GeneralException;
+    
+    public abstract void deleteObject (NamedObject o,
+                                       boolean     deleteChildObjects)
+                                       throws GeneralException;
+    
+    public abstract void updateChapterIndexes (Book   b)
+                                               throws GeneralException;
+    
     public abstract void handleItemChangedEvent (ItemChangedEvent ev);
 
     public ActionMap getActionMap ()
@@ -1091,8 +1382,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                            duration,
                                            buttons);
 
-        n.init ();
-
         this.addNotification (n);
 
         return n;
@@ -1137,6 +1426,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.notifications.setVisible (true);
 
+        n.init ();
+        
         this.validate ();
         this.repaint ();        
         
@@ -1147,7 +1438,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                          int    duration)
     {
 
-        JTextPane p = UIUtils.createHelpTextPane (text);
+        JTextPane p = UIUtils.createHelpTextPane (text,
+                                                  this);
 
         p.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          Short.MAX_VALUE));
@@ -1159,14 +1451,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    public ActionListener getAction (int name)
+    public Action getAction (int name)
     {
 
         return this.getAction (name,
                                null);
 
     }
-
+    
     public void reinitAllChapterEditors ()
     {
 
@@ -1185,6 +1477,41 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
+    public void scrollTo (final Chapter c,
+                          final int     pos)
+    {
+
+        final AbstractProjectViewer _this = this;
+
+        this.viewObject (c);
+
+        SwingUtilities.invokeLater (new Runner ()
+        {
+
+            public void run ()
+            {
+
+                try
+                {
+
+                    _this.getEditorForChapter (c).scrollToPosition (pos);
+                    _this.getEditorForChapter (c).scrollToPosition (pos);
+
+                } catch (Exception e)
+                {
+
+                    Environment.logError ("Unable to scroll to position: " +
+                                          pos,
+                                          e);
+
+                }
+
+            }
+
+        });
+
+    }
+    
     public AbstractEditorPanel getEditorForChapter (Chapter c)
     {
     
@@ -1192,8 +1519,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    public ActionListener getAction (int               name,
-                                     final NamedObject other)
+    public Action getAction (int               name,
+                             final NamedObject other)
     {
 
         final AbstractProjectViewer pv = this;
@@ -1274,35 +1601,43 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    if (JOptionPane.showConfirmDialog (pv,
-                                                       "Please confirm you wish to create a snapshot of project: " +
-                                                       pv.getProject ().getName (),
-                                                       "Create Project Snapshot",
-                                                       JOptionPane.YES_NO_OPTION,
-                                                       JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-                    {
-
-                        try
-                        {
-
-                            File f = pv.dBMan.createBackup ();
-
-                            UIUtils.showMessage (pv,
-                                                 "A snapshot has been created and written to:\n\n" + f.getPath ());
-
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to create snapshot of project: " +
-                                                  pv.getProject (),
-                                                  e);
-
-                            UIUtils.showErrorMessage (pv,
-                                                      "Unable to create snapshot.");
-
-                        }
-
-                    }
+                    UIUtils.createQuestionPopup (pv,
+                                                 "Create Snapshot",
+                                                 Constants.SNAPSHOT_ICON_NAME,
+                                                 "Please confirm you wish to create a snapshot of this {project}.",
+                                                 "Yes, create it",
+                                                 null,
+                                                 new ActionAdapter ()
+                                                 {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        try
+                                                        {
+                                
+                                                            File f = pv.dBMan.createBackup ();
+                                
+                                                            UIUtils.showMessage (pv,
+                                                                                 "A snapshot has been created and written to:\n\n" + f.getPath ());
+                                
+                                                        } catch (Exception e)
+                                                        {
+                                
+                                                            Environment.logError ("Unable to create snapshot of project: " +
+                                                                                  pv.getProject (),
+                                                                                  e);
+                                
+                                                            UIUtils.showErrorMessage (pv,
+                                                                                      "Unable to create snapshot.");
+                                
+                                                        }
+                                                        
+                                                    }
+                                                    
+                                                },
+                                                null,
+                                                null);
 
                 }
 
@@ -1313,7 +1648,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (name == AbstractProjectViewer.RENAME_PROJECT_ACTION)
         {
 
-            return new RenameProjectActionHandler (pv);
+            return new RenameProjectActionHandler (this);
 
         }
 
@@ -1372,7 +1707,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    pv.close (false);
+                    pv.close (false,
+                              null);
 
                 }
 
@@ -1400,119 +1736,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (name == AbstractProjectViewer.DELETE_PROJECT_ACTION)
         {
 
-            return new ActionAdapter ()
-            {
-
-                private String showDialog ()
-                {
-
-                    String objName = Environment.getObjectTypeName (Project.OBJECT_TYPE);
-
-                    Object o = JOptionPane.showInputDialog (pv,
-                                                            "Please confirm you wish to delete " + objName + ":\n\n" +
-                                                            pv.getProject ().getName () +
-                                                            "\nby entering the word \"Yes\" in the box below." +
-                                                            "\n\nWarning!  All information/text associated with the " + objName + "\nwill be deleted.  Once deleted a " + objName + " cannot be restored.\n",
-                                                            "Confirm deletion of: " + pv.getProject ().getName (),
-                                                            JOptionPane.WARNING_MESSAGE);
-
-                    if (o == null)
-                    {
-
-                        return "cancel";
-
-                    }
-
-                    if (!o.toString ().toLowerCase ().equals ("yes"))
-                    {
-
-                        return "error";
-
-                    }
-
-                    return "ok";
-
-                }
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    String res = "";
-
-                    while ((res = this.showDialog ()).equals ("error"))
-                    {
-
-                        UIUtils.showErrorMessage (pv,
-                                                  "Please enter the word \"Yes\" to confirm deletion of " +
-                                                  pv.getProject ().getName ());
-
-                    }
-
-                    if (res.equals ("cancel"))
-                    {
-
-                        return;
-
-                    }
-
-                    // Need a ref for later.
-                    Project pr = pv.getProject ();
-
-                    pv.close (true);
-
-                    // There is probably now (because of h2) a "projectdb.lobs.db" directory.
-                    // Add a can delete file to it.
-                    try
-                    {
-
-                        Utils.createQuollWriterDirFile (new File (pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db"));
-
-                    } catch (Exception e)
-                    {
-
-                        // Ignore for now.
-                        Environment.logError ("Unable to add can delete dir file to: " +
-                                              pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db",
-                                              e);
-
-                    }
-
-                    // Delete the directory.
-                    Utils.deleteDir (pr.getProjectDirectory ());
-
-                    // Remove the project from the list.
-                    try
-                    {
-
-                        Environment.removeProject (pr);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to remove project: " +
-                                              pr +
-                                              " from list of projects.",
-                                              e);
-
-                    }
-
-                    // Show the welcome screen if there are no projects open.
-                    if (Environment.getOpenProjects ().size () == 0)
-                    {
-
-                        FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_ALL);
-
-                        f.pack ();
-
-                        UIUtils.setCenterOfScreenLocation (f);
-
-                        f.setVisible (true);
-
-                    }
-
-                }
-
-            };
+            return new DeleteProjectActionHandler (this);
 
         }
 
@@ -1525,9 +1749,24 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    ReportAProblem rp = new ReportAProblem (pv);
+                    pv.showReportProblem ();
 
-                    rp.init ();
+                }
+
+            };
+
+        }
+
+        if (name == AbstractProjectViewer.CONTACT_SUPPORT_ACTION)
+        {
+
+            return new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    pv.showContactSupport ();
 
                 }
 
@@ -1703,7 +1942,32 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                           });
 
     }
-
+    
+    public boolean isHighlightWritingLine ()
+    {
+        
+        return this.proj.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME);
+        
+    }
+        
+    public void setHighlightWritingLine (final boolean s)
+    {
+                
+        this.doForPanels (AbstractEditorPanel.class,
+                          new DefaultQuollPanelAction ()
+                          {
+                            
+                                public void doAction (QuollPanel p)
+                                {
+                                    
+                                    ((AbstractEditorPanel) p).getEditor ().setHighlightWritingLine (s);
+                                    
+                                }
+                            
+                          });
+                
+    }
+    
     public void setKeyStrokeSoundFile (File    f,
                                        boolean play)
                                 throws Exception
@@ -1805,23 +2069,27 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    public void setSpellCheckLanguage (String  lang,
-                                       boolean updateEditors)
-                                throws GeneralException,
-                                       IOException
+    public boolean hasDictionaryFiles (String lang)
+                                       throws IOException
     {
+        
+        return this.getDictionaryFiles (lang) != null;
+        
+    }
+    
+    public java.util.List<InputStream> getDictionaryFiles (String lang)
+                                                           throws IOException
+    {
+        
+        java.util.List<InputStream> dictFiles = new ArrayList<InputStream> ();
 
-        if ((this.spellCheckLanguage != null) &&
-            (this.spellCheckLanguage.equals (lang)))
+        if (lang == null)
         {
-
-            // Not changing.
-            return;
-
+            
+            return null;
+            
         }
-
-        java.util.List dictFiles = new ArrayList ();
-
+        
         String dFiles = this.proj.getProperty (lang + "DictionaryFiles");
 
         if (dFiles != null)
@@ -1835,11 +2103,116 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                 String tok = t.nextToken ().trim ();
 
-                dictFiles.add (Environment.class.getResourceAsStream (Constants.DICTIONARIES_DIR + tok));
+                InputStream in = Environment.class.getResourceAsStream (Constants.DICTIONARIES_DIR + tok);
+                
+                if (in != null)
+                {
+                    
+                    dictFiles.add (in);
+                    
+                }
 
             }
 
         }
+                
+        // Add all files from the dictionary directory (if it exists)
+        File dir = Environment.getDictionaryDirectory (lang);
+        
+        if (dir.exists ())
+        {
+            
+            // Load all files.
+            File[] files = dir.listFiles ();
+            
+            for (int i = 0; i < files.length; i++)
+            {
+                
+                if (files[i].isFile ())
+                {
+                    
+                    dictFiles.add (new FileInputStream (files[i]));
+                    
+                }
+                
+            }
+            
+        }
+        
+        if (dictFiles.size () == 0)
+        {
+            
+            return null;
+            
+        }
+
+        if (Environment.isEnglish (lang))
+        {
+            
+            if (!lang.equals (Constants.ENGLISH))
+            {
+            
+                java.util.List<InputStream> enDictFiles = this.getDictionaryFiles (Constants.ENGLISH);
+            
+                if (enDictFiles != null)
+                {
+            
+                    dictFiles.addAll (enDictFiles);
+                    
+                }
+                
+            }
+            
+        }
+        
+        return dictFiles;
+        
+    }
+    
+    public void setSpellCheckLanguage (String  lang,
+                                       boolean updateEditors)
+                                throws GeneralException,
+                                       IOException
+    {
+
+    
+        if ((this.spellCheckLanguage != null) &&
+            (this.spellCheckLanguage.equals (lang)))
+        {
+
+            // Not changing.
+            return;
+
+        }
+
+        if (lang == null)
+        {
+            
+            // Basically turning off spellchecking.
+            this.dictProv = null;
+
+            this.doForPanels (SpellCheckSupported.class,
+                              new DefaultQuollPanelAction ()
+                              {
+                                
+                                    public void doAction (QuollPanel panel)
+                                    {
+                                        
+                                        AbstractEditorPanel s = (AbstractEditorPanel) panel;
+                                        
+                                        s.setDictionaryProvider (null);
+                                        
+                                        s.setSynonymProvider (null);
+                                        
+                                    }
+                                
+                              });
+            
+            return;
+            
+        }
+        
+        java.util.List<InputStream> dictFiles = this.getDictionaryFiles (lang);
 
         File userDict = Environment.getUserDictionaryFile ();
 
@@ -1852,6 +2225,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         java.util.List<String> names = new ArrayList ();
 
+        boolean isEnglish = Environment.isEnglish (lang);
+        
         // Get the names from the assets.
         Set<NamedObject> objs = this.proj.getAllNamedChildObjects (Asset.class);
 
@@ -1865,7 +2240,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                 // Get the name, add it.
                 names.add (n);
-                names.add (n + "'s");
+                
+                if (isEnglish)
+                {
+                
+                    names.add (n + "'s");
+                    
+                }
 
             }
 
@@ -1880,16 +2261,28 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (updateEditors)
         {
 
-            this.doForPanels (SpellCheckSupported.class,
+            this.doForPanels (AbstractEditorPanel.class,
                               new DefaultQuollPanelAction ()
                               {
                                 
                                     public void doAction (QuollPanel panel)
                                     {
                                         
-                                        SpellCheckSupported s = (SpellCheckSupported) panel;
+                                        AbstractEditorPanel s = (AbstractEditorPanel) panel;
                                         
                                         s.setDictionaryProvider (_this.dictProv);
+                                        
+                                        try
+                                        {
+                                        
+                                            s.setSynonymProvider (_this.getSynonymProvider ());
+                                            
+                                        } catch (Exception e) {
+                                            
+                                            Environment.logError ("Unable to set synonym provider",
+                                                                  e);
+                                            
+                                        }
                                         
                                     }
                                 
@@ -1899,6 +2292,119 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
+    public ReadabilityIndices getReadabilityIndices (String  text)
+    {
+                
+        ReadabilityIndices ri = new ReadabilityIndices ();
+
+        if (text != null)
+        {
+        
+            ri.add (text);            
+            
+        }
+
+        return ri;
+        
+        
+    }    
+
+    public String getWordTypes (String word)
+                                throws GeneralException
+    {
+
+        if (this.synProv != null)
+        {
+            
+            return this.synProv.getWordTypes (word);
+            
+        }
+        
+        return null;
+
+    }
+    
+    public Synonyms getSynonyms (String word)
+                                 throws GeneralException
+    {
+        
+        if (this.synProv != null)
+        {
+            
+            return this.synProv.getSynonyms (word);
+            
+        }
+        
+        return null;
+        
+    }
+
+    public boolean synonymLookupsSupported ()
+    {
+
+        return this.synProv != null;
+
+    }
+    
+    public SynonymProvider getSynonymProvider ()
+                                               throws Exception
+    {
+        
+        if (this.synProv != null)
+        {
+            
+            return this.synProv;
+            
+        }
+        
+        this.synProv = Environment.getSynonymProvider (this.getSpellCheckLanguage ());
+        
+        return this.synProv;
+        
+    }
+
+    public boolean isLanguageFunctionAvailable ()
+    {
+        
+        if (!this.isLanguageEnglish ())
+        {
+            
+            this.showNotificationPopup ("Function unavailable",
+                                        "Sorry, this function is only available when your spellchecker language is English.<br /><br /><a href='action:contact'>Click here to contact me to help add support for your language</a>",
+                                        20);
+            
+            return false;
+            
+        }
+        
+        return true;
+        
+    }
+    
+    public boolean isLanguageEnglish ()
+    {
+        
+        return Environment.isEnglish (this.getSpellCheckLanguage ());
+        
+    }
+    
+    public String getSpellCheckLanguage ()
+    {
+        
+        String c = this.proj.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+        
+        // Get the property.
+        if (c == null)
+        {
+
+            c = Environment.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+        }
+
+        return c;        
+        
+    }
+    
     public DictionaryProvider getDictionaryProvider ()
                                               throws Exception
     {
@@ -1910,17 +2416,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
-        String dFiles = this.proj.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
-
-        // Get the property.
-        if (dFiles == null)
-        {
-
-            dFiles = Environment.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
-
-        }
-
-        this.setSpellCheckLanguage (dFiles,
+        this.setSpellCheckLanguage (this.getSpellCheckLanguage (),
                                     false);
 
         return this.dictProv;
@@ -2175,7 +2671,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.setSpellCheckingEnabled (this.proj.getPropertyAsBoolean (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME));
 
         // Check the height and width and ensure they aren't too big.
-        // If they overrun the current screen size then reduce them down to 90% either way.
+        // If they overrun the current screen size then reduce them down to 80% either way.
         Dimension ss = Toolkit.getDefaultToolkit ().getScreenSize ();
 
         int wWidth = this.proj.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
@@ -2210,7 +2706,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.splitPane.setDividerLocation (this.proj.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
         
         UIUtils.setFrameTitle (this,
-                               this.getViewerTitle ());
+                               Environment.replaceObjectNames (this.getViewerTitle ()));
 
         this.setIconImage (Environment.getWindowIcon ().getImage ());
 
@@ -2382,7 +2878,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.handleNewProject ();
         
-        this.title.setTitle (this.getViewerTitle ());
+        this.title.setTitle (Environment.replaceObjectNames (this.getViewerTitle ()));
         /* old
         this.title.setIcon (Environment.getIcon (this.getViewerIcon (),
                                                  true));
@@ -2420,8 +2916,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                   p,
                                   e);
 
-            UIUtils.showWarning (this,
-                                 "Unable to update projects list.\n\nNo action is required but this project may not appear in the projects list when you next open a project.\n\nMore details can be found in the error log.");
+            UIUtils.showErrorMessage (this,
+                                      "Unable to update projects list.  No action is required but this project may not appear in the projects list when you next open a project.<br /><br />More details can be found in the error log.");
 
         }
 
@@ -2435,6 +2931,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         this.handleShowTips ();
 
+        this.checkForDictionaryFiles ();        
+        
         this.setIgnoreProjectEvents (false);
 
         this.fireProjectEvent (this.proj.getObjectType (),
@@ -2524,7 +3022,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         Startup.ss.incr (5);
 
         // this.title.setTitle (this.proj.getName ());
-        this.title.setTitle (this.getViewerTitle ());
+        this.title.setTitle (Environment.replaceObjectNames (this.getViewerTitle ()));
         
         
         this.title.setIcon (Environment.getIcon (this.getViewerIcon (),
@@ -2612,7 +3110,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         Startup.ss.incr (5);
 
         this.initWindow ();
-
+        
         String lastOpen = this.proj.getProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME);
 
         if (lastOpen != null)
@@ -2623,7 +3121,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             if (qp != null)
             {
             
-                final String state = this.proj.getProperty (lastOpen + "-state");
+                //final String state = this.proj.getProperty (lastOpen + "-state");
 
                 final AbstractProjectViewer _this = this;
 
@@ -2634,33 +3132,36 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     {
 
                         _this.setPanelVisible (qp);
-
-                        qp.validate ();
-                        qp.repaint ();
+                        
+                        //qp.validate ();
+                        //qp.repaint ();
 
                     }
 
                 });
-
+                
             }
             
             this.setSplitPaneColor ();
 
-/*
-            ObjectReference r = ObjectReference.parseObjectReference (lastOpen);
-
-            if (!r.getObjectType ().equals (ProjectViewer.TAB_OBJECT_TYPE))
-            {
-
-                // Pass it to the project.
-                DataObject d = this.proj.getObjectForReference (r);
-
-                this.viewObject (d);
-
-            }
-*/
         }
 
+        // Init all the panels.
+        for (QuollPanel qp : this.panels.values ())
+        {
+            
+            Runner r = this.getInitPanelStateRunner (qp,
+                                                     lastOpen.equals (qp.getPanelId ()));
+            
+            if (r != null)
+            {
+            
+                inits.add (r);
+                
+            }
+            
+        }
+        
         SwingUtilities.invokeLater (new Runner ()
             {
 
@@ -2760,10 +3261,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             if (!ft.getFamily ().equalsIgnoreCase (f))
             {
 
-                UIUtils.showWarning (this,
-                                     "The font:\n\n" +
-                                     f +
-                                     "\n\nselected for use in {chapters} is not available on this computer.\n\nTo select a new font please edit a {chapter} then select the \"Edit Text Properties\"\noption from the \"Tools\" menu on the toolbar.");
+                UIUtils.showMessage (this,
+                                     "The font <b>" + f +
+                                     "</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a chapter tab then <a href='action:textproperties'>click here to change the text properties</a>.");
 
             }
 
@@ -2773,17 +3273,309 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         this.handleShowTips ();
 
+        // Check to see if we have the dictionary files, if not (this may be a project shared for a dropbox user)
+        // download them automatically.
+        this.checkForDictionaryFiles ();
+                
         this.setIgnoreProjectEvents (false);
 
         this.fireProjectEvent (this.proj.getObjectType (),
                                ProjectEvent.OPEN);
+                               
+    }
+    
+    private void checkForDictionaryFiles ()
+    {
+        
+        try
+        {
+        
+            if (!this.hasDictionaryFiles (this.getSpellCheckLanguage ()))
+            {
+                
+                final AbstractProjectViewer _this = this;
+                
+                final String lang = this.getSpellCheckLanguage ();
+                Environment.logMessage ("LANG: " + lang);
+                // Download them.
+                this.downloadDictionaryFiles (this.getSpellCheckLanguage (),
+                                              new ActionAdapter ()
+                                              {
+                                                
+                                                  public void actionPerformed (ActionEvent ev)
+                                                  {
+                                                    
+                                                      try
+                                                      {
+                                                    
+                                                            _this.setSpellCheckLanguage (null,
+                                                                                         true);
+                                                            
+                                                            _this.setSpellCheckLanguage (lang,
+                                                                                         true);
+                                                            
+                                                      } catch (Exception e) {
+                                                        
+                                                          Environment.logError ("Unable to set spell check language to: " +
+                                                                                lang,
+                                                                                e);
+                                                        
+                                                          UIUtils.showErrorMessage (_this,
+                                                                                    "Unable to set spell check language to <b>" +
+                                                                                    lang +
+                                                                                    "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+                                                        
+                                                      }
+                                                    
+                                                  }
+                                                
+                                              });
+                
+            }        
 
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to check for spell check language",
+                                  e);
+            
+        }
+        
+    }
+    
+    public void downloadDictionaryFiles (String         lang,
+                                         final ActionListener onComplete)
+    {
+
+        if (Environment.isEnglish (lang))
+        {
+            
+            // See if we already have a set of english language files.
+            if (Environment.hasEnglishDictionaryFiles ())
+            {
+                
+                // So we only need the country specific files.
+                lang += "-only";
+                
+            }
+            
+        }
+
+        final String langOrig = lang;
+        final String language = lang;
+        
+        URL url = null;
+        
+        try
+        {
+            
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (Environment.getProperty (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+                                                                                                   "[[LANG]]",
+                                                                                                   StringUtils.replaceString (language,
+                                                                                                                              " ",
+                                                                                                                              "%20")));
+            
+        } catch (Exception e) {
+            
+            UIUtils.showErrorMessage (this,
+                                      "Unable to download language files");
+            
+            Environment.logError ("Unable to download language files, cant create url",
+                                  e);
+
+            return;            
+            
+        }
+    
+        // Create a temp file for it.
+        File _file = null;
+        
+        try
+        {
+
+            _file = File.createTempFile ("quollwriter-language-" + language,
+                                         null);
+            
+        } catch (Exception e) {
+            
+            UIUtils.showErrorMessage (this,
+                                      "Unable to download language files");
+            
+            Environment.logError ("Unable to download language files, cant create temp file",
+                                  e);
+
+            return;
+            
+        }
+
+        _file.deleteOnExit ();
+                
+        final File file = _file;
+        
+        Box b = new Box (BoxLayout.Y_AXIS);
+
+        final JTextPane htmlP = UIUtils.createHelpTextPane ("The language files for <b>" + language + "</b> are now being downloaded.",
+                                                            this);
+        htmlP.setBorder (null);
+        htmlP.setBackground (null);
+        htmlP.setOpaque (false);
+        htmlP.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        b.add (htmlP);
+        b.add (Box.createVerticalStrut (10));
+        
+        final JProgressBar prog = new JProgressBar (0, 100);
+        
+        prog.setPreferredSize (new Dimension (500, 25));
+        prog.setMaximumSize (new Dimension (500, 25));
+        prog.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        b.add (prog);
+                
+        file.deleteOnExit ();
+
+        final Notification n = this.addNotification (b,
+                                                     Constants.DOWNLOAD_ICON_NAME,
+                                                     -1,
+                                                     null);
+                
+        final AbstractProjectViewer _this = this;
+                
+        final Runnable removeNotification = new Runnable ()
+        {
+        
+            public void run ()
+            {
+                
+               n.removeNotification ();
+                
+            }
+        };
+        
+        final UrlDownloader downloader = new UrlDownloader (url,
+                                                            file,
+                                                            new DownloadListener ()
+                                                            {
+                                                        
+                                                                public void handleError (Exception e)
+                                                                {
+                                                                    
+                                                                    UIUtils.showErrorMessage (_this,
+                                                                                              "A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+                                                                    
+                                                                    Environment.logError ("Unable to download language files",
+                                                                                          e);
+                                                                    
+                                                                    SwingUtilities.invokeLater (removeNotification);
+                                                                    
+                                                                }
+                                                        
+                                                                public void progress (final int downloaded,
+                                                                                      final int total)
+                                                                {
+
+                                                                    SwingUtilities.invokeLater (new Runner ()
+                                                                    {
+                                                            
+                                                                        public void run ()
+                                                                        {
+                                                                            
+                                                                            int val = (int) (((double) downloaded / (double) total) * 100);
+                                                                            
+                                                                            prog.setValue (val);
+                                                                            
+                                                                        }
+                                                                        
+                                                                    });
+                                                                    
+                                                                }
+                                                                
+                                                                public void finished (int total)
+                                                                {
+                                                                                                                                        
+                                                                    prog.setValue (100);
+                                                                    prog.setIndeterminate (true);
+                                                                    
+                                                                    new Thread (new Runner ()
+                                                                    {
+                                                                    
+                                                                        public void run ()
+                                                                        {
+                                                                    
+                                                                            // Now extract the file into the relevant directory.
+                                                                            try
+                                                                            {
+
+                                                                                Utils.extractZipFile (file,
+                                                                                                      Environment.getUserQuollWriterDir ());
+                                                                                
+                                                                            } catch (Exception e) {
+                                                                                
+                                                                                Environment.logError ("Unable to extract language zip file: " +
+                                                                                                      file +
+                                                                                                      " to: " +
+                                                                                                      Environment.getUserQuollWriterDir (),
+                                                                                                      e);
+                                                                                
+                                                                                return;
+                                                                                
+                                                                            } finally {
+        
+                                                                                file.delete ();
+                                                                                
+                                                                            }
+                                                                            
+                                                                            if (onComplete != null)
+                                                                            {
+                                                                                                                                                    
+                                                                                SwingUtilities.invokeLater (new Runner ()
+                                                                                {
+                                                                        
+                                                                                    public void run ()
+                                                                                    {
+                                                                        
+                                                                                        prog.setIndeterminate (false);                                                                    
+                                                                                       
+                                                                                        onComplete.actionPerformed (new ActionEvent (_this, 0, langOrig));
+                                                                                        
+                                                                                    }
+                                                                                    
+                                                                                });
+                                                                                
+                                                                            }
+
+                                                                            SwingUtilities.invokeLater (removeNotification);
+                                                                                                                                                        
+                                                                        }
+                                                                        
+                                                                    }).start ();
+                                                                    
+                                                                }
+                                                        
+                                                            });
+        
+        downloader.start ();
+                        
+        n.addCancelListener (new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                downloader.stop ();
+                
+                file.delete ();
+
+            }
+            
+        });
+        
     }
     
     private void initPanelState (QuollPanel qp)
     {
         
-        Runner r = this.getInitPanelStateRunner (qp);
+        Runner r = this.getInitPanelStateRunner (qp,
+                                                 true);
         
         if (r != null)
         {
@@ -2794,7 +3586,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
-    private Runner getInitPanelStateRunner (final QuollPanel qp)
+    private Runner getInitPanelStateRunner (final QuollPanel qp,
+                                            final boolean    visible)
     {
                 
         final String panelId = qp.getPanelId ();
@@ -2815,7 +3608,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 {
 
                     qp.setState (UIUtils.parseState (state),
-                                                     false);
+                                                     visible);
 
                 }
 
@@ -2854,25 +3647,33 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (showWhatsNew)
         {
             
-            try
-            {
-            
-                WhatsNew wn = new WhatsNew (this);
-                
-                wn.init ();
-
-                wn.toFront ();
-                
-            } catch (Exception e) {
-                
-                // Not good but not the end of the world but shouldn't stop things from going on.
-                Environment.logError ("Unable to init whats new",
-                                      e);
-                
-            }
+            this.showWhatsNew (false);
             
         }        
         
+    }
+    
+    public void showWhatsNew (boolean onlyShowCurrentVersion)
+    {
+
+        try
+        {
+        
+            WhatsNew wn = new WhatsNew (this,
+                                        onlyShowCurrentVersion);
+            
+            wn.init ();
+
+            wn.toFront ();
+            
+        } catch (Exception e) {
+            
+            // Not good but not the end of the world but shouldn't stop things from going on.
+            Environment.logError ("Unable to init whats new",
+                                  e);
+            
+        }
+   
     }
     
     private void handleShowTips ()
@@ -2901,21 +3702,12 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                         Constants.ICON_MENU,
                                                         "Click to view the next tip",
                                                         null);
-
-                ImageIcon cancel = Environment.getIcon ("cancel",
-                                                        Constants.ICON_MENU);
-                        
-                cancel.setImage (cancel.getImage ().getScaledInstance (8, 8, Image.SCALE_SMOOTH));
-
-                ImageIcon tipsOff = UIUtils.overlayImage (Environment.getIcon ("help",
-                                                                               Constants.ICON_MENU),
-                                                          cancel,
-                                                          "br");
     
                 java.util.List<JButton> buts = new ArrayList ();
                 buts.add (nextBut);
                 
-                JButton offBut = UIUtils.createButton (tipsOff,
+                JButton offBut = UIUtils.createButton (Constants.STOP_ICON_NAME,
+                                                       Constants.ICON_MENU,
                                                        "Click to stop showing tips when Quoll Writer starts",
                                                        null);
                 
@@ -2964,34 +3756,49 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     public void actionPerformed (ActionEvent ev)
                     {
                         
-                        if (JOptionPane.showConfirmDialog (_this,
-                                                           "Stop showing tips when Quoll Writer starts?\n\nThey can enabled at any time in the Project Options.",
-                                                           "Stop showing tips?",
-                                                           JOptionPane.YES_NO_OPTION,
-                                                           JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-                        {
-                                                                                    
-                            _this.fireProjectEvent (ProjectEvent.TIPS,
-                                                    ProjectEvent.OFF);
+                        JButton but = (JButton) ev.getSource ();
                         
-                            try
-                            {
-                        
-                                Environment.setUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                             new BooleanProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                                  false));
+                        Point p = SwingUtilities.convertPoint (but,
+                                                               0,
+                                                               0,
+                                                               _this);
 
-                            } catch (Exception e) {
+                        UIUtils.createQuestionPopup (_this,
+                                                     "Stop showing tips?",
+                                                     Constants.STOP_ICON_NAME,
+                                                     "Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:projectoptions'>Options panel</a>.",
+                                                     "Yes, stop showing them",
+                                                     "No, keep them",
+                                                     new ActionListener ()
+                                                     {
+                                                        
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                        
+                                                            _this.fireProjectEvent (ProjectEvent.TIPS,
+                                                                                    ProjectEvent.OFF);
+                                                        
+                                                            try
+                                                            {
+                                                        
+                                                                Environment.setUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
+                                                                                             new BooleanProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
+                                                                                                                  false));
                                 
-                                Environment.logError ("Unable to turn off tips",
-                                                      e);
+                                                            } catch (Exception e) {
+                                                                
+                                                                Environment.logError ("Unable to turn off tips",
+                                                                                      e);
+                                                                
+                                                            }
                                 
-                            }
+                                                            n.removeNotification ();
+                                                            
+                                                        }
 
-                            n.removeNotification ();
-
-                        
-                        }    
+                                                     },
+                                                     null,
+                                                     p);
                         
                     }
                     
@@ -3078,6 +3885,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 
             }
 
+            if (v.equals ("whatsnew"))
+            {
+                
+                this.showWhatsNew (true);
+
+                return;
+                
+            }
+            
             if (v.equals ("find"))
             {
                 
@@ -3194,6 +4010,44 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     
                 }
                 
+                return;
+                
+            }
+            
+            if (v.equals ("projectsidebar"))
+            {
+                
+                this.showMainSideBar ();
+                
+                return;
+                
+            }
+            
+            if (v.equals ("editobjectnames"))
+            {
+                
+                this.showObjectTypeNameChanger ();
+                
+                return;
+                        
+            }
+            
+            if (v.equals ("contact"))
+            {
+                
+                this.showContactSupport ();
+                
+                return;
+                
+            }
+
+            if (v.equals ("reportbug"))
+            {
+
+                this.showReportProblem ();
+                
+                return;
+                
             }
 
         } catch (Exception e) {
@@ -3302,91 +4156,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    public void close (boolean noConfirm)
+    private boolean closeInternal (boolean        saveUnsavedChanges,
+                                   ActionListener afterClose)
     {
-
-        final StringBuilder b = new StringBuilder ();
-
-        boolean showConfirm = false;
-
-        for (QuollPanel qp : this.panels.values ())
-        {
-            
-            if (qp.hasUnsavedChanges ())
-            {
-
-                showConfirm = true;
-
-                if (b.length () > 0)
-                {
-
-                    b.append ("\n");
-
-                }
-
-                b.append ("   - " + qp.getForObject ().getName ());
-
-            }                                  
-                                
-        }
- 
-        boolean save = false;
-
-        if (noConfirm)
-        {
-
-            save = true;
-
-        }
-
-        if (showConfirm)
-        {
-
-            int res = JOptionPane.showConfirmDialog (this,
-                                                     "The following items have unsaved changes:\n\n" +
-                                                     b.toString () +
-                                                     "\n\nSave all before exiting",
-                                                     "Save unsaved changes?",
-                                                     JOptionPane.YES_NO_CANCEL_OPTION,
-                                                     JOptionPane.QUESTION_MESSAGE);
-
-            if (res == JOptionPane.YES_OPTION)
-            {
-
-                save = true;
-
-            }
-
-            if (res == JOptionPane.CANCEL_OPTION)
-            {
-
-                return;
-
-            }
-
-        } else
-        {
-
-            if (!noConfirm)
-            {
-
-                if (JOptionPane.showConfirmDialog (this,
-                                                   "Close project: " +
-                                                   this.proj.getName (),
-                                                   "Close Project",
-                                                   JOptionPane.YES_NO_OPTION,
-                                                   JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION)
-                {
-
-                    return;
-
-                }
-
-            }
-
-        }
-
-        if (save)
+        
+        if (saveUnsavedChanges)
         {
 
             // Save all.
@@ -3423,7 +4197,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                         // Switch to the tab.
                         this.viewObject (qp.getForObject ());
 
-                        return;
+                        return false;
 
                     }
 
@@ -3444,6 +4218,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             Environment.logError ("Unable to save viewer state",
                                   e);
 
+            return false;
+                                  
         }        
         
         // Regardless of whether it should be saved call the close method
@@ -3474,6 +4250,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                   this.proj,
                                   e);
 
+            return false;
+                                  
         }
 
         this.dBMan.saveWordCounts (this.sessionStart,
@@ -3504,6 +4282,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             Environment.logError ("Unable to close project",
                                   e);
 
+            return false;
+                                  
         }
 
         this.dispose ();
@@ -3511,7 +4291,97 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.proj = null;
 
         this.dBMan = null;
+        
+        if (afterClose != null)
+        {
+            
+            afterClose.actionPerformed (new ActionEvent (this,
+                                                         0,
+                                                         "closed"));
+            
+        }
+        
+        return true;
+        
+    }
+    
+    public boolean close (boolean              noConfirm,
+                          final ActionListener afterClose)
+    {
+    
+        final StringBuilder b = new StringBuilder ();
 
+        this.exitFullScreen ();
+                 
+        boolean save = false;
+
+        if (noConfirm)
+        {
+
+            save = true;
+
+        }
+
+        if (!noConfirm)
+        {
+
+            boolean hasChanges = false;
+        
+            for (QuollPanel qp : this.panels.values ())
+            {
+                
+                if (qp.hasUnsavedChanges ())
+                {
+    
+                    hasChanges = true;
+        
+                    if (qp.getForObject () instanceof NamedObject)
+                    {
+        
+                        b.append ("<li>" + UIUtils.getObjectALink ((NamedObject) qp.getForObject ()) + "</li>");
+                        
+                    }
+    
+                }                                  
+                                    
+            }
+        
+            if (hasChanges)
+            {
+
+                final AbstractProjectViewer _this = this;
+            
+                UIUtils.createQuestionPopup (this,
+                                             "Save changes before exiting?",
+                                             Constants.SAVE_ICON_NAME,
+                                             String.format ("The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
+                                                            b.toString ()),
+                                             "Yes, save the changes",
+                                             null,
+                                             new ActionListener ()
+                                             {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+        
+                                                    _this.closeInternal (true,
+                                                                         afterClose);
+                                                
+                                                }
+                                                
+                                             },
+                                             null,
+                                             null);
+
+                return false;
+
+            }
+            
+        }
+        
+        return this.closeInternal (true,
+                                   afterClose);
+                            
     }
 
     public FullScreenFrame getFullScreenFrame ()
@@ -3538,6 +4408,44 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
      */
+    
+    public boolean isCurrentSideBarTextProperties ()
+    {
+        
+        return this.currentSideBar.getName ().equals ("textproperties");
+        
+    }
+    
+    public void showTextProperties ()
+    {
+
+        if (!(this.getCurrentlyVisibleTab () instanceof AbstractEditorPanel))
+        {
+            
+            return;
+            
+        }
+    
+        // Due to the way that key bindings work it's difficult to override the Ctrl+E binding
+        // for showing the text properties in full screen.  Instead do a check here if in full screen.
+        if (this.isInFullScreen ())
+        {
+            
+            this.fsf.showProperties ();
+            
+            return;
+            
+        }
+    
+        this.addSideBar ("textproperties",
+                         new TextPropertiesSideBar (this,
+                                                    this,
+                                                    new ProjectTextProperties (this)));
+        
+        this.showSideBar ("textproperties");
+        
+    }    
+    
     public QuollPanel getCurrentlyVisibleTab ()
     {
 
@@ -3576,9 +4484,16 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         // Set the open tab ids.
 
         QuollPanel vqp = this.getCurrentlyVisibleTab ();
-        
-        String panelId = vqp.getPanelId ();
 
+        String panelId = null;
+        
+        if (vqp != null)
+        {
+            
+            panelId = vqp.getPanelId ();
+            
+        }
+        
         // Save it.
         try
         {
@@ -3740,6 +4655,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.fsf = null;
 
+        this.fullScreenOverlay.setVisible (false);
+        
         DnDTabbedPane p = this.createTabbedPane ();
         
         // Have to rebuild the tabbed pane because otherwise it behaves weirdly.
@@ -3769,6 +4686,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
 
+        this.tabs.setVisible (true);
+        
         if (vis instanceof AbstractEditorPanel)
         {
 
@@ -3829,6 +4748,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
+        this.tabs.setVisible (true);
+        
     }
 
     public boolean isInFullScreen ()
@@ -3849,7 +4770,18 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             this.lastDividerLocation = this.splitPane.getDividerLocation ();        
             
         }
-    
+                
+        if (this.fullScreenOverlay == null)
+        {
+        
+            this.fullScreenOverlay = new FullScreenOverlay (this);
+                    
+            this.setGlassPane (this.fullScreenOverlay);
+
+        }
+        
+        this.fullScreenOverlay.setVisible (true);
+
         if (this.fsf != null)
         {
 
@@ -3861,26 +4793,35 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                 return;
 
-            } else
-            {
-/*
-                this.viewObject (qep.getForObject ());
-
-                qep.
-  */              
-            }
+            } 
 
         }
 
+        if (qep == null)
+        {
+            
+            qep = new BlankQuollPanel (this);
+            
+            qep.init ();
+            
+        }
+        
         if (qep != null)
         {
 
             FullScreenQuollPanel fs = new FullScreenQuollPanel (qep);
 
-            // Need to set the component, otherwise it will be removed.
-            this.tabs.setComponentAt (this.getTabIndexForPanelId (qep.getPanelId ()),
-                                      fs);
+            int tabInd = this.getTabIndexForPanelId (qep.getPanelId ());
+            
+            if (tabInd > -1)
+            {
+            
+                // Need to set the component, otherwise it will be removed.
+                this.tabs.setComponentAt (tabInd,
+                                          fs);
 
+            }
+                                          
             if (this.fsf != null)
             {
 
@@ -3888,11 +4829,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
             } else
             {
-
+            
                 this.fsf = new FullScreenFrame (fs);
 
                 this.fsf.init ();
 
+                // Need to set the tabs hidden otherwise the parent qw window will flash in front
+                // or show up in front of the fsf.
+                this.tabs.setVisible (false);                
+                
             }
 
             //this.fsf.toFront ();
@@ -3902,7 +4847,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             this.validate ();
             this.repaint ();            
             
-        }
+        } 
         
     }
     
@@ -3931,6 +4876,17 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
+        if (this.fullScreenOverlay == null)
+        {
+        
+            this.fullScreenOverlay = new FullScreenOverlay (this);
+                    
+            this.setGlassPane (this.fullScreenOverlay);
+
+        }
+        
+        this.fullScreenOverlay.setVisible (true);        
+        
         this.lastDividerLocation = this.splitPane.getDividerLocation ();     
         
         AbstractEditorPanel qep = this.getEditorForChapter ((Chapter) n);
@@ -4327,11 +5283,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         qp.close ();
 
         this.panels.remove (panelId);
-        
+                
         return true;
         
     }
-    
+        
     protected void informTreeOfNodeChange (NamedObject n,
                                            JTree       tree)
     {
@@ -4420,19 +5376,127 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
     
+    public void showNotificationPopup (String title,
+                                       String message,
+                                       int    showFor)
+    {
+        
+        JComponent c = null;
+        JTextPane m = null;
+        
+        if (message != null)
+        {
+            
+            m = UIUtils.createHelpTextPane (message,
+                                            this);
+            
+            m.setSize (new Dimension (350,
+                                      500));
+            m.setMaximumSize (new Dimension (350,
+                                             Short.MAX_VALUE));
+                                             
+            Box b = new Box (BoxLayout.Y_AXIS);
+            b.setBackground (UIUtils.getComponentColor ());
+            b.setOpaque (true);            
+            b.add (m);
+            b.setPreferredSize (new Dimension (350,
+                                               b.getPreferredSize ().height));
+            c = b;
+            
+        }
+
+        final QPopup popup = UIUtils.createPopup (title,
+                                                  Constants.INFO_ICON_NAME,
+                                                  c,
+                                                  true,
+                                                  null);
+                
+        if (m != null)
+        {
+            
+            m.addHyperlinkListener (new HyperlinkAdapter ()
+            {
+
+                public void hyperlinkUpdate (HyperlinkEvent ev)
+                {
+
+                    if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
+                    {
+               
+                        popup.removeFromParent ();
+                        
+                    }
+                    
+                }
+                
+            });
+                                                  
+        }
+
+        this.showPopupAt (popup,
+                          new Point (10, 10));
+        
+        if (showFor > 0)
+        {
+                        
+            final Timer t = new Timer (showFor * 1000,
+                                       new ActionAdapter ()
+                                       {
+                            
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                    
+                                                popup.removeFromParent ();
+                                    
+                                            }
+                                            
+                                       });
+
+            popup.addMouseListener (new ComponentShowHide (new ActionAdapter ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    t.stop ();
+                    
+                }
+                
+            },
+            new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    t.start ();
+                    
+                }
+                
+            }));
+
+            t.setRepeats (false);
+
+            t.start ();
+            
+        }
+        
+    }
+    
     private void _showAchievement (AchievementRule ar)
     {
 
         Box b = null;
 
+        if (this.isDistractionFreeModeEnabled ())
+        {
+            
+            return;
+            
+        }
+        
         if (this.achievementsPopup == null)
         {
-
-            final ImagePanel ip = new ImagePanel (Environment.getIcon ("cancel",
-                                                                       Constants.ICON_MENU).getImage (),
-                                                  Environment.getTransparentImage ());
-
-            UIUtils.setAsButton (ip);
 
             b = new Box (BoxLayout.Y_AXIS);
             b.setBackground (UIUtils.getComponentColor ());
@@ -4562,6 +5626,55 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
 
+    public QPopup getPopupByName (String name)
+    {
+        
+        if (name == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (this.fsf != null)
+        {
+            
+            return this.fsf.getPopupByName (name);
+            
+        }
+
+        Component[] children = this.getLayeredPane ().getComponentsInLayer (JLayeredPane.POPUP_LAYER);
+        
+        if (children == null)
+        {
+            
+            return null;
+            
+        }
+        
+        for (int i = 0; i < children.length; i++)
+        {
+            
+            Component c = children[i];
+            
+            if (name.equals (c.getName ()))
+            {
+                
+                if (c instanceof QPopup)
+                {
+                    
+                    return (QPopup) c;
+                    
+                }
+                
+            }
+                        
+        }
+        
+        return null;
+        
+    }
+    
     public void showPopupAt (Component popup,
                              Component showAt)
     {
@@ -4623,8 +5736,18 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             p = new Point (p.x,
                            p.y);
 
-            p.y = p.y - cp.height;
+            // See if the child is changing height.
+            if (c.getBounds ().height != cp.height)
+            {
+            
+                p.y = p.y - (cp.height - c.getBounds ().height);
+        
+            } else {
+                
+                p.y = p.y - cp.height;
 
+            }
+                
         }
 
         if (p.y < 0)
@@ -4666,64 +5789,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.validate ();
         this.repaint ();
 
-/*
-        Dimension cp = c.getPreferredSize ();
-
-        if ((p.y + cp.height) > this.getBounds ().height)
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.y = p.y - cp.height;
-
-        }
-
-        if (p.y < 0)
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.y = 10;
-
-        }
-
-        if ((p.x + cp.width) > this.getBounds ().width)
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.x = p.x - cp.width;
-
-        }
-
-        if (p.x < 0)
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.x = 10;
-
-        }
-
-        c.setBounds (p.x,
-                     p.y,
-                     c.getPreferredSize ().width,
-                     c.getPreferredSize ().height);
-
-        c.setVisible (true);
-
-        // this.getLayeredPane ().repaint ();
-
-        this.getLayeredPane ().moveToFront (c);
-
-        this.getLayeredPane ().validate ();
-
-        this.getLayeredPane ().repaint ();
-*/
     }
 
     public void showPopup (Component c)
@@ -4787,105 +5852,143 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
-    private boolean removePanel (QuollPanel p)
+    private boolean removePanel (final QuollPanel p)
     {
         
+        final AbstractProjectViewer _this = this;
+        
+        final ActionListener remove = new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                NamedObject n = p.getForObject ();
+        
+                if (p != null)
+                {
+        
+                    if ((_this.fsf != null)
+                        &&
+                        (p == _this.fsf.getPanel ().getChild ())
+                       )
+                    {
+                        
+                        // In full screen, restore first.
+                        _this.restoreFromFullScreen (_this.fsf.getPanel ());
+                        
+                        // Add a blank instead.
+                        _this.fsf.showBlankPanel ();
+                        
+                    }        
+        
+                    String panelId = p.getPanelId ();
+                    
+                    int tInd = _this.getTabIndexForPanelId (panelId);
+                    
+                    if (tInd > -1)
+                    {
+        
+                        _this.tabs.removeTabAt (tInd);
+        
+                    }
+        
+                    _this.panels.remove (panelId);
+        
+                    // Remove all the property changed listeners.
+                    java.util.List<PropertyChangedListener> l = p.getObjectPropertyChangedListeners ();
+        
+                    if (l != null)
+                    {
+        
+                        for (PropertyChangedListener c : l)
+                        {
+        
+                            n.removePropertyChangedListener (c);
+        
+                        }
+        
+                    }
+        
+                }
+                
+            }
+            
+        };
+        
+        // Object already deleted, don't ask the question.
+        if (!this.proj.hasObject (p.getForObject ()))
+        {
+            
+            remove.actionPerformed (new ActionEvent (this,
+                                                     0,
+                                                     "deleted"));
+            
+            return true;
+            
+        }
+
         if (p.hasUnsavedChanges ())
         {
-
-            int res = JOptionPane.showConfirmDialog (this,
-                                                     "The " + Environment.getObjectTypeName (p.getForObject ()).toLowerCase () +
-                                                     " has unsaved changes.\n\nSave before closing?",
-                                                     "Save",
-                                                     JOptionPane.YES_NO_CANCEL_OPTION,
-                                                     JOptionPane.QUESTION_MESSAGE);
-
-            if (res == JOptionPane.YES_OPTION)
-            {
-
-                try
-                {
-
-                    p.saveObject ();
-
-                } catch (Exception e)
-                {
-
-                    // What the hell to do here???
-                    Environment.logError ("Unable to save: " +
-                                          p.getForObject (),
-                                          e);
-
-                    UIUtils.showErrorMessage (this,
-                                              "Unable to save " +
-                                              Environment.getObjectTypeName (p.getForObject ()).toLowerCase () +
-                                              ": " +
-                                              p.getForObject ().getName ());
-
-                    return false;
-
-                }
-
-            }
-
-            if (res == JOptionPane.CANCEL_OPTION)
-            {
-
-                return false;
-
-            }
-
-        }
         
-        NamedObject n = p.getForObject ();
+            UIUtils.createQuestionPopup (this,
+                                         "Save before closing?",
+                                         Constants.SAVE_ICON_NAME,
+                                         String.format ("The %s has unsaved changes.  Save before closing?",
+                                                        p.getForObject ().getObjectType ()),
+                                         "Yes, save the changes",
+                                         "No, discard the changes",
+                                         new ActionListener ()
+                                         {
+                                            
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
 
-        if (p != null)
-        {
-
-            if ((this.fsf != null)
-                &&
-                (p == this.fsf.getPanel ().getChild ())
-               )
-            {
-                
-                // In full screen, restore first.
-                this.restoreFromFullScreen (this.fsf.getPanel ());
-                
-                // Add a blank instead.
-                this.fsf.showBlankPanel ();
-                
-            }        
-
-            String panelId = p.getPanelId ();
+                                                try
+                                                {
+                                
+                                                    p.saveObject ();
+                                
+                                                } catch (Exception e)
+                                                {
+                                
+                                                    // What the hell to do here???
+                                                    Environment.logError ("Unable to save: " +
+                                                                          p.getForObject (),
+                                                                          e);
+                                
+                                                    UIUtils.showErrorMessage (_this,
+                                                                              "Unable to save " +
+                                                                              Environment.getObjectTypeName (p.getForObject ()).toLowerCase () +
+                                                                              ": " +
+                                                                              p.getForObject ().getName ());
+                                                                
+                                                    return;
+                                                                
+                                                }    
+                                            
+                                                remove.actionPerformed (ev);
+                                            
+                                            }
+                                            
+                                         },
+                                         new ActionListener ()
+                                         {
+                                            
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                
+                                                remove.actionPerformed (ev);
+                                                
+                                            }
+                                            
+                                         },
+                                         null);
             
-            int tInd = this.getTabIndexForPanelId (panelId);
-            
-            if (tInd > -1)
-            {
-
-                this.tabs.removeTabAt (tInd);
-
-            }
-
-            this.panels.remove (panelId);
-
-            // Remove all the property changed listeners.
-            java.util.List<PropertyChangedListener> l = p.getObjectPropertyChangedListeners ();
-
-            if (l != null)
-            {
-
-                for (PropertyChangedListener c : l)
-                {
-
-                    n.removePropertyChangedListener (c);
-
-                }
-
-            }
+            return false;
 
         }
-
+  
         return true;
 
     }
@@ -5004,7 +6107,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                 null);
 
     }
-
+/*
     public void deleteObject (NamedObject o)
                        throws GeneralException
     {
@@ -5014,7 +6117,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                  null);
 
     }
-
+*/
     public void saveProject ()
                       throws GeneralException
     {
@@ -5171,7 +6274,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         {
             
             // Cache the value.
-            ri = UIUtils.getReadabilityIndices (c.getText ());
+            ri = this.getReadabilityIndices (c.getText ());
         
             this.noEditorReadabilityIndices.put (c,
                                                  ri);
@@ -5361,8 +6464,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             try
             {
 
-                p = new OptionsPanel (this,
-                                      this.getProject ());
+                p = new OptionsPanel (this);
 
                 p.init ();
 

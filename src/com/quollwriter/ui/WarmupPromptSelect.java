@@ -53,14 +53,14 @@ public class WarmupPromptSelect extends PopupWindow
     public String getWindowTitle ()
     {
 
-        return "Do a Warm-up Exercise";
+        return Environment.replaceObjectNames (String.format ("Do a {Warmup} Exercise", Warmup.OBJECT_TYPE));
 
     }
 
     public String getHeaderTitle ()
     {
 
-        return "Do a Warm-up Exercise";
+        return this.getWindowTitle ();
 
     }
 
@@ -393,7 +393,7 @@ public class WarmupPromptSelect extends PopupWindow
 
         b.add (Box.createVerticalStrut (20));
 
-        b.add (UIUtils.createBoldSubHeader ("And do the warm-up for",
+        b.add (UIUtils.createBoldSubHeader ("And do the {warmup} for",
                                             null));
 
         FormLayout fl = new FormLayout ("p, 6px, p, 6px, p, 6px, p",
@@ -515,7 +515,7 @@ public class WarmupPromptSelect extends PopupWindow
                     {
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to get Warm-ups project.");
+                                                  "Unable to get {Warmups} {project}.");
 
                         Environment.logError ("Unable to get all projects",
                                               e);
@@ -532,7 +532,7 @@ public class WarmupPromptSelect extends PopupWindow
                         if (p != null)
                         {
 
-                            v = (WarmupsViewer) Environment.openProject (p);
+                            Environment.openProject (p);
 
                         } else
                         {
@@ -542,7 +542,7 @@ public class WarmupPromptSelect extends PopupWindow
                             // If we don't then output a message telling the user that it will be created
                             // then create it.
                             UIUtils.showMessage (_this,
-                                                 "A Warm-ups project will now be created to hold each of the warm-ups you write.");
+                                                 "A {Warmups} {project} will now be created to hold each of the {warmups} you write.");
 
                             p = new Project (Constants.DEFAULT_WARMUPS_PROJECT_NAME);
                             p.setType (Project.WARMUPS_PROJECT_TYPE);
@@ -554,7 +554,8 @@ public class WarmupPromptSelect extends PopupWindow
 
                         }
 
-                        final WarmupsViewer vv = v;
+                        final Project fp = p;
+                        
                         final Warmup w = new Warmup ();
                         w.setPrompt (prompt);
                         w.setWords (WarmupPromptSelect.getWordCount (_this.words));
@@ -564,19 +565,21 @@ public class WarmupPromptSelect extends PopupWindow
                         {
 
                             public void run ()
-                            {
+                            {                                
                                 
                                 try
                                 {
+                                    
+                                    WarmupsViewer v = (WarmupsViewer) Environment.getProjectViewer (fp);
                                 
-                                    vv.addNewWarmup (w);
+                                    v.addNewWarmup (w);
                                     
                                     if (!ownPrompt.equals (""))
                                     {
                                         
-                                        vv.fireProjectEvent (Warmup.OBJECT_TYPE,
-                                                             ProjectEvent.CREATE_OWN_PROMPT,
-                                                             w);
+                                        v.fireProjectEvent (Warmup.OBJECT_TYPE,
+                                                            ProjectEvent.CREATE_OWN_PROMPT,
+                                                            w);
                                         
                                     }
                                     
@@ -589,7 +592,6 @@ public class WarmupPromptSelect extends PopupWindow
                                                           w,
                                                           e);
                                     
-                                    
                                 }
                                 
                             }
@@ -600,7 +602,7 @@ public class WarmupPromptSelect extends PopupWindow
                     {
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to open Warm-ups project.");
+                                                  "Unable to open {Warmups} {project}.");
 
                         Environment.logError ("Unable to open warmups project",
                                               e);
@@ -858,7 +860,7 @@ public class WarmupPromptSelect extends PopupWindow
     public static JCheckBox getDoWarmupOnStartupCheckbox ()
     {
         
-        final JCheckBox doOnStartup = new JCheckBox ("Do a warm-up everytime Quoll Writer starts");
+        final JCheckBox doOnStartup = new JCheckBox (Environment.replaceObjectNames ("Do a {warmup} everytime Quoll Writer starts"));
         doOnStartup.setOpaque (false);
         
         doOnStartup.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME));

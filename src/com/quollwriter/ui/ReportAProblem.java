@@ -23,12 +23,119 @@ public class ReportAProblem extends PopupWindow
 
     private JTextArea desc = null;
     private JCheckBox sendLogFiles = null;
+    private ActionListener sendAction = null;
+    private JLabel error = null;
 
     public ReportAProblem(AbstractProjectViewer v)
     {
 
         super (v);
 
+        this.desc = UIUtils.createTextArea (10);
+
+        this.error = UIUtils.createErrorLabel ("");
+        this.error.setVisible (false);
+        this.error.setBorder (new EmptyBorder (0,
+                                               0,
+                                               5,
+                                               0));
+
+        final ReportAProblem _this = this;
+        
+        this.sendAction = new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (_this.desc.getText ().trim ().equals (""))
+                {
+
+                    _this.error.setText ("Please enter a description of the problem/bug.");
+                    _this.error.setVisible (true);
+                    
+                    _this.resize ();
+                
+                    return;
+
+                }
+
+                // Send the message.
+                Map details = new HashMap ();
+                details.put ("details",
+                             _this.desc.getText ());
+
+                try
+                {
+
+                    // Get the log files?
+                    if (_this.sendLogFiles.isSelected ())
+                    {
+
+                        details.put ("errorLog",
+                                     IOUtils.getFile (Environment.getErrorLogFile ()));
+                        details.put ("generalLog",
+                                     IOUtils.getFile (Environment.getGeneralLogFile ()));
+
+                    }
+
+                    Environment.sendMessageToSupport ("bug",
+                                                      details,
+                                                      new ActionAdapter ()
+                    {
+
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                    
+                            UIUtils.showMessage (_this,
+                                                 "Problem/Bug reported",
+                                                 "Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+    
+                            _this.projectViewer.fireProjectEvent (ProjectEvent.BUG_REPORT,
+                                                                  ProjectEvent.SUBMIT);
+
+                        }
+                        
+                    });
+                                                                  
+                } catch (Exception e)
+                {
+
+                    Environment.logError ("Unable to send message to support",
+                                          e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to send message.");
+
+                }
+
+                _this.close ();
+
+            }
+
+        };
+
+        UIUtils.addDoActionOnReturnPressed (this.desc,
+                                            this.sendAction);
+
+        this.desc.addKeyListener (new KeyAdapter ()
+        {
+           
+            public void keyPressed (KeyEvent ev)
+            {
+                
+                if (!_this.desc.getText ().trim ().equals (""))
+                {
+                    
+                    _this.error.setVisible (false);
+                    _this.resize ();
+                    
+                }
+                
+            }
+            
+        });
+        
     }
 
     public String getWindowTitle ()
@@ -55,7 +162,7 @@ public class ReportAProblem extends PopupWindow
     public String getHelpText ()
     {
 
-        return "Please provide detail about the bug/problem in the box below, where possible be specific, the more information the better.  Use the <b>Send</b> button to send the information back to the Quoll Writer support.  The operating system you are using and the Java version will also be sent.  No personal information will be sent.<br /><br />If you wish to receive a response about the problem please provide your name and an email address.  Thank you for taking the time to report the problem!";
+        return "Please provide detail about the bug/problem in the box below, where possible be specific, the more information the better.  Use the <b>Send</b> button to send the information back to the Quoll Writer support.  The operating system you are using and the Java version will also be sent.  No personal information will be sent.<br /><br />If you wish to receive a response about the problem please add your name and an email address.  Thank you for taking the time to report the problem!";
 
     }
 
@@ -73,9 +180,10 @@ public class ReportAProblem extends PopupWindow
 
         Box b = new Box (BoxLayout.Y_AXIS);
 
-        this.desc = UIUtils.createTextArea (10);
         this.desc.setCaretPosition (0);
 
+        b.add (this.error);
+        
         JScrollPane sp = new JScrollPane (this.desc);
 
         // sp.setBorder (null);
@@ -104,66 +212,7 @@ public class ReportAProblem extends PopupWindow
         JButton b = new JButton ("Send");
         JButton c = new JButton ("Cancel");
 
-        b.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    if (_this.desc.getText ().trim ().equals (""))
-                    {
-
-                        UIUtils.showWarning (_this,
-                                             "Please enter a description.");
-
-                        return;
-
-                    }
-
-                    // Send the message.
-                    Map details = new HashMap ();
-                    details.put ("details",
-                                 _this.desc.getText ());
-
-                    try
-                    {
-
-                        // Get the log files?
-                        if (_this.sendLogFiles.isSelected ())
-                        {
-
-                            details.put ("errorLog",
-                                         IOUtils.getFile (Environment.getErrorLogFile ()));
-                            details.put ("generalLog",
-                                         IOUtils.getFile (Environment.getGeneralLogFile ()));
-
-                        }
-
-                        Environment.sendMessageToSupport ("bug",
-                                                          details);
-
-                        UIUtils.showMessage (_this,
-                                             "Thank you, the problem has been logged with Quoll Writer support.");
-
-                        _this.projectViewer.fireProjectEvent (ProjectEvent.BUG_REPORT,
-                                                              ProjectEvent.SUBMIT);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to send message to support",
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to send message.");
-
-                    }
-
-                    _this.close ();
-
-                }
-
-            });
+        b.addActionListener (this.sendAction);
 
         c.addActionListener (new ActionAdapter ()
             {

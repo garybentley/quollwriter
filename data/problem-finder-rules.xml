@@ -189,6 +189,34 @@
     <summary><![CDATA[Passive sentences]]></summary>
     <description><![CDATA[Looks for passive sentences that use the form <b>be/been/is/are/was/were [past form of verb]</b>.  <a href="http://rfptemplates.technologyevaluation.com/readability-scores/passive-sentences-readability-score.html">More details.</a>  <i>Note: due to the complexities of the English language and the rather fluid definition of "passive voice" this rule may only find a subset of the passive sentences within the text.]]></description>
   </rule>
+  <rule id="sentencecomplexity"
+        category="sentence"
+        ratio="1.5"
+        wordCount="10"
+        createType="sentencecomplexity">
+    <summary><![CDATA[Complex sentences]]></summary>
+    <description><![CDATA[Sentences that have a syllable to word ratio of <b>[RATIO]</b> or greater for sentences longer than [COUNT] words.  Sentences with a high syllable to word ratio may be confusing for the reader, a ratio of 1 can be too low, 1.5 is generally high too.]]></description>
+  </rule>
+
+  <rule id="paragraphlength"
+        category="paragraph"
+        sentenceCount="20"
+        wordCount="300"
+        createType="paragraphlength">
+    <summary><![CDATA[Paragraph length, max <b>[WORD_COUNT]</b> words or max <b>[SENTENCE_COUNT]</b> sentences.]]></summary>
+    <description><![CDATA[Paragraphs that have a word count greater than <b>[WORD_COUNT]</b> or have more than <b>[SENTENCE_COUNT]</b> sentences.]]></description>
+  </rule>
+  
+  <rule id="paragraphreadability"
+        category="paragraph"
+        fleschReading="0"
+        fleschKincaid="0"
+        gunningFog="0"
+        createType="paragraphreadability">
+    <summary><![CDATA[Paragraph readability]]></summary>
+    <description><![CDATA[Paragraphs, with over 100 words that have a Flesch-Kincaid grade level greater than [FLESCH_KINCAID], a Flesch Reading level greater than [FLESCH_READING] or a Gunning Fog index greater than [GUNNING_FOG].  Zero indicates the item won't be checked.]]></description>
+  </rule>
+
   <!--
   <rule id="samewords"
         category="sentence"

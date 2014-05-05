@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.*;
 
 import java.net.*;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 
 import javax.swing.*;
@@ -105,7 +107,8 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                                                  5,
                                                                  5)));
 
-            this.desc = UIUtils.createHelpTextPane (this.rule.getDescription ());
+            this.desc = UIUtils.createHelpTextPane (this.rule.getDescription (),
+                                                    ProblemFinderRuleConfig.this.projectViewer);
             this.desc.setBorder (new EmptyBorder (0,
                                                   15,
                                                   0,
@@ -118,7 +121,8 @@ public class ProblemFinderRuleConfig extends PopupWindow
             this.desc.setMaximumSize (new Dimension (400,
                                                      Short.MAX_VALUE));
                                                   
-            this.info = UIUtils.createHelpTextPane (this.rule.getSummary ());
+            this.info = UIUtils.createHelpTextPane (this.rule.getSummary (),
+                                                    ProblemFinderRuleConfig.this.projectViewer);
         
             main.add (this.info);
             main.add (Box.createHorizontalGlue ());
@@ -175,21 +179,34 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
-                                                        if (ProblemFinderRuleConfig.confirmRuleRemoval (_this,
-                                                                                                        _this.rule,
-                                                                                                        conf.getProjectViewer ().getProject ().getProperties ()))
+                                                        ProblemFinderRuleConfig.confirmRuleRemoval (conf,
+                                                                                                    _this.rule,
+                                                                                                    conf.getProjectViewer ().getProject ().getProperties (),
+                                                                                                    new ActionListener ()
                                                         {
                                 
-                                                            conf.removeRuleBox (_this);
-                                
-                                                            if (_this.rule.getCategory ().equals (Rule.SENTENCE_CATEGORY))
+                                                            public void actionPerformed (ActionEvent ev)
                                                             {
                                 
-                                                                conf.sentenceControl.setVisible (true);
-                                
+                                                                conf.removeRuleBox (_this);
+                                    
+                                                                if (_this.rule.getCategory ().equals (Rule.SENTENCE_CATEGORY))
+                                                                {
+                                    
+                                                                    conf.sentenceControl.setVisible (true);
+                                    
+                                                                }
+                                    
+                                                                if (_this.rule.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
+                                                                {
+                                    
+                                                                    conf.paragraphControl.setVisible (true);
+                                    
+                                                                }
+                                                                
                                                             }
-                                
-                                                        }
+
+                                                        });
                                                                                                                 
                                                     }
                                                 
@@ -224,13 +241,18 @@ public class ProblemFinderRuleConfig extends PopupWindow
     private Box              sentenceEditBox = null;
     private JPanel           sentenceWrapper = null;
     private Box              sentenceControl = null;
+    private Box              paragraphBox = null;
+    private Box              paragraphEditBox = null;
+    private JPanel           paragraphWrapper = null;
+    private Box              paragraphControl = null;
     private DnDTabbedPane    tabs = null;
 
     public ProblemFinderRuleConfig (AbstractProjectViewer pv)
     {
 
-        super (pv);
-        
+        super (pv,
+               Component.CENTER_ALIGNMENT);
+                
     }
     
     public String getWindowTitle ()
@@ -261,101 +283,11 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
     }
 
-    public JComponent getContentPanel ()
+    private void createSentenceWrapper ()
     {
 
         final ProblemFinderRuleConfig _this = this;
-
-        this.tabs = new DnDTabbedPane ();
-        // Load the "rules to ignore".
-
-        // Get the to ignore from the user properties.
-        Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                              this.projectViewer.getProject ().getProperties ());
-
-        this.tabs.setTabLayoutPolicy (JTabbedPane.SCROLL_TAB_LAYOUT);
-
-        this.wordsBox = new Box (BoxLayout.Y_AXIS);
-        this.wordsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.wordsBox.setOpaque (false);
-        final JScrollPane ppsp = new JScrollPane (this.wordsBox);
-        ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        ppsp.getViewport ().setOpaque (false);
-        ppsp.setBorder (null);
-        ppsp.setOpaque (false);
-        ppsp.getVerticalScrollBar ().setUnitIncrement (20);
-        ppsp.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        this.wordsWrapper = new JPanel ();
-        this.wordsWrapper.setLayout (new CardLayout ());
-        this.wordsWrapper.setOpaque (false);
-        ppsp.getViewport ().setPreferredSize (new Dimension (450,
-                                                             400));
-
-        Box wordsAll = new Box (BoxLayout.Y_AXIS);
-        wordsAll.setAlignmentX (Component.LEFT_ALIGNMENT);
-        wordsAll.setOpaque (false);
-
-        Box wordsControl = new Box (BoxLayout.X_AXIS);
-        wordsControl.setAlignmentX (Component.LEFT_ALIGNMENT);
-        wordsControl.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                                     0,
-                                                                     1,
-                                                                     0,
-                                                                     Environment.getBorderColor ()),
-                                                    new EmptyBorder (3,
-                                                                     3,
-                                                                     3,
-                                                                     3)));
-        
-        List<JButton> buts = new ArrayList ();
-        
-        buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
-                                        Constants.ICON_MENU,
-                                        "Click to add a new Words/Phrases rule",
-                                        new ActionAdapter ()
-                                        {
-                                                
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-
-                                                _this.wordsEditBox.removeAll ();
-                            
-                                                WordFinder wf = new WordFinder (true);
-                            
-                                                _this.editRule (wf,
-                                                                true);
-                            
-                                                _this.repaint ();
-                                                
-                                            }
-                                            
-                                        }));
-        
-        wordsControl.add (UIUtils.createButtonBar (buts));
-
-        wordsControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                    wordsControl.getPreferredSize ().height));
-
-        wordsAll.add (wordsControl);
-
-        wordsAll.add (ppsp);
-
-        this.wordsWrapper.add (wordsAll,
-                               "view");
-
-        this.wordsEditBox = new Box (BoxLayout.Y_AXIS);
-        this.wordsEditBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.wordsEditBox.setOpaque (false);
-
-        this.wordsWrapper.add (this.wordsEditBox,
-                               "edit");
-
-        ((CardLayout) this.wordsWrapper.getLayout ()).show (this.wordsWrapper,
-                                                            "view");
-
-        // Configure the sentence rules box.
-
+     
         this.sentenceBox = new Box (BoxLayout.Y_AXIS);
         this.sentenceBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.sentenceBox.setOpaque (false);
@@ -391,7 +323,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                                                              3,
                                                                              3)));
 
-        buts = new ArrayList ();
+        List<JButton> buts = new ArrayList ();
         
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
@@ -475,11 +407,300 @@ public class ProblemFinderRuleConfig extends PopupWindow
         ((CardLayout) this.sentenceWrapper.getLayout ()).show (this.sentenceWrapper,
                                                                "view");
 
-        this.tabs.add ("Words/Phrases",
-                       this.wordsWrapper);
+        List<Rule> senRules = RuleFactory.getSentenceRules ();
 
-        this.tabs.add ("Sentence Structure",
-                       this.sentenceWrapper);
+        if (senRules != null)
+        {
+
+            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                  this.projectViewer.getProject ().getProperties ());
+        
+            for (Rule r : senRules)
+            {
+
+                if (ignores.containsKey (r.getId ()))
+                {
+
+                    continue;
+
+                }
+
+                RuleBox rb = new RuleBox (r);
+
+                this.sentenceBox.add (rb);
+
+                rb.init (this);
+
+            }
+
+        }
+
+        this.sentenceBox.add (Box.createVerticalGlue ());
+
+        SwingUtilities.invokeLater (new Runner ()
+        {
+
+            public void run ()
+            {
+                
+                spsp.getVerticalScrollBar ().setValue (0);
+                
+            }
+            
+        });
+          
+    }
+
+    private void createParagraphWrapper ()
+    {
+
+        final ProblemFinderRuleConfig _this = this;
+     
+        this.paragraphBox = new Box (BoxLayout.Y_AXIS);
+        this.paragraphBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.paragraphBox.setOpaque (false);
+
+        final JScrollPane spsp = new JScrollPane (this.paragraphBox);
+        spsp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        spsp.getViewport ().setOpaque (false);
+        spsp.setBorder (null);
+        spsp.setOpaque (false);
+        spsp.getVerticalScrollBar ().setUnitIncrement (20);
+        spsp.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        spsp.getViewport ().setPreferredSize (new Dimension (450,
+                                                             400));
+
+        
+        this.paragraphWrapper = new JPanel ();
+        this.paragraphWrapper.setLayout (new CardLayout ());
+        this.paragraphWrapper.setOpaque (false);
+
+        Box paragraphAll = new Box (BoxLayout.Y_AXIS);
+        paragraphAll.setAlignmentX (Component.LEFT_ALIGNMENT);
+        paragraphAll.setOpaque (false);
+
+        this.paragraphControl = new Box (BoxLayout.X_AXIS);
+        this.paragraphControl.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.paragraphControl.setBorder (new CompoundBorder (new MatteBorder (0,
+                                                                             0,
+                                                                             1,
+                                                                             0,
+                                                                             Environment.getBorderColor ()),
+                                                            new EmptyBorder (3,
+                                                                             3,
+                                                                             3,
+                                                                             3)));
+
+        List<JButton> buts = new ArrayList ();
+        
+        buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
+                                        Constants.ICON_MENU,
+                                        "Click to add a new Paragraph Structure rule",
+                                        new ActionAdapter ()
+                                        {
+                                                
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+
+                                                final JPopupMenu popup = new JPopupMenu ();
+                            
+                                                List<Rule> igs = _this.getParagraphIgnores ();
+                            
+                                                for (Rule r : igs)
+                                                {
+                            
+                                                    JMenuItem mi = new JMenuItem ("<html>" + r.getSummary () + "</html>");
+                                                    mi.setActionCommand (r.getId ());
+                                                    mi.setToolTipText ("Click to add this rule");
+                            
+                                                    mi.addActionListener (new ActionAdapter ()
+                                                        {
+                            
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+                            
+                                                                Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
+                            
+                                                                RuleBox rb = new RuleBox (r);
+                            
+                                                                _this.paragraphBox.add (rb,
+                                                                                        0);
+                            
+                                                                rb.init (_this);
+                            
+                                                                _this.removeIgnore (r,
+                                                                                    (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
+                            
+                                                                _this.repaint ();
+                            
+                                                            }
+                            
+                                                        });
+                            
+                                                    popup.add (mi);
+                            
+                                                }
+                            
+                                                Point p = _this.paragraphControl.getMousePosition ();
+                            
+                                                popup.show (_this.paragraphControl,
+                                                            p.x,
+                                                            p.y);
+                                            
+                                            }
+                                            
+                                        }));
+        
+        this.paragraphControl.add (UIUtils.createButtonBar (buts));
+
+        this.paragraphControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                             this.paragraphControl.getPreferredSize ().height));
+                                                                             
+        paragraphAll.add (this.paragraphControl);
+
+        this.paragraphControl.setVisible (this.getParagraphIgnores ().size () != 0);
+
+        paragraphAll.add (spsp);
+
+        this.paragraphWrapper.add (paragraphAll,
+                                   "view");
+
+        this.paragraphEditBox = new Box (BoxLayout.Y_AXIS);
+        this.paragraphEditBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.paragraphEditBox.setOpaque (false);
+
+        this.paragraphWrapper.add (this.paragraphEditBox,
+                                   "edit");
+
+        ((CardLayout) this.paragraphWrapper.getLayout ()).show (this.paragraphWrapper,
+                                                                "view");
+
+        List<Rule> paraRules = RuleFactory.getParagraphRules ();
+
+        if (paraRules != null)
+        {
+
+            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                  this.projectViewer.getProject ().getProperties ());
+        
+            for (Rule r : paraRules)
+            {
+
+                if (ignores.containsKey (r.getId ()))
+                {
+
+                    continue;
+
+                }
+
+                RuleBox rb = new RuleBox (r);
+                this.paragraphBox.add (rb);
+
+                rb.init (this);
+
+            }
+
+        }
+
+        this.paragraphBox.add (Box.createVerticalGlue ());
+
+        SwingUtilities.invokeLater (new Runner ()
+        {
+
+            public void run ()
+            {
+                
+                spsp.getVerticalScrollBar ().setValue (0);
+                
+            }
+            
+        });
+          
+    }
+    
+    private void createWordsWrapper ()
+    {
+
+        final ProblemFinderRuleConfig _this = this;
+     
+        this.wordsBox = new Box (BoxLayout.Y_AXIS);
+        this.wordsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.wordsBox.setOpaque (false);
+        final JScrollPane ppsp = new JScrollPane (this.wordsBox);
+        ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        ppsp.getViewport ().setOpaque (false);
+        ppsp.setBorder (null);
+        ppsp.setOpaque (false);
+        ppsp.getVerticalScrollBar ().setUnitIncrement (20);
+        ppsp.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        this.wordsWrapper = new JPanel ();
+        this.wordsWrapper.setLayout (new CardLayout ());
+        this.wordsWrapper.setOpaque (false);
+        ppsp.getViewport ().setPreferredSize (new Dimension (450,
+                                                             400));
+
+        Box wordsAll = new Box (BoxLayout.Y_AXIS);
+        wordsAll.setAlignmentX (Component.LEFT_ALIGNMENT);
+        wordsAll.setOpaque (false);
+
+        Box wordsControl = new Box (BoxLayout.X_AXIS);
+        wordsControl.setAlignmentX (Component.LEFT_ALIGNMENT);
+        wordsControl.setBorder (new CompoundBorder (new MatteBorder (0,
+                                                                     0,
+                                                                     1,
+                                                                     0,
+                                                                     Environment.getBorderColor ()),
+                                                    new EmptyBorder (3,
+                                                                     3,
+                                                                     3,
+                                                                     3)));
+        
+        List<JButton> buts = new ArrayList ();
+        
+        buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
+                                        Constants.ICON_MENU,
+                                        "Click to add a new Words/Phrases rule",
+                                        new ActionAdapter ()
+                                        {
+                                                
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+
+                                                _this.wordsEditBox.removeAll ();
+                            
+                                                WordFinder wf = new WordFinder (true);
+                            
+                                                _this.editRule (wf,
+                                                                true);
+                            
+                                                _this.repaint ();
+                                                
+                                            }
+                                            
+                                        }));
+        
+        wordsControl.add (UIUtils.createButtonBar (buts));
+
+        wordsControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                    wordsControl.getPreferredSize ().height));
+
+        wordsAll.add (wordsControl);
+
+        wordsAll.add (ppsp);
+
+        this.wordsWrapper.add (wordsAll,
+                               "view");
+
+        this.wordsEditBox = new Box (BoxLayout.Y_AXIS);
+        this.wordsEditBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.wordsEditBox.setOpaque (false);
+
+        this.wordsWrapper.add (this.wordsEditBox,
+                               "edit");
+
+        ((CardLayout) this.wordsWrapper.getLayout ()).show (this.wordsWrapper,
+                                                            "view");     
 
         // Get all the "word" rules.
         List<Rule> wordRules = RuleFactory.getWordRules ();
@@ -508,6 +729,9 @@ public class ProblemFinderRuleConfig extends PopupWindow
         if (wordRules != null)
         {
 
+            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                  this.projectViewer.getProject ().getProperties ());
+                
             for (Rule r : wordRules)
             {
 
@@ -529,34 +753,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
         }
 
         this.wordsBox.add (Box.createVerticalGlue ());        
-        
-        List<Rule> senRules = RuleFactory.getSentenceRules ();
 
-        if (senRules != null)
-        {
-
-            for (Rule r : senRules)
-            {
-
-                if (ignores.containsKey (r.getId ()))
-                {
-
-                    continue;
-
-                }
-
-                RuleBox rb = new RuleBox (r);
-
-                this.sentenceBox.add (rb);
-
-                rb.init (this);
-
-            }
-
-        }
-
-        this.sentenceBox.add (Box.createVerticalGlue ());
-        
         SwingUtilities.invokeLater (new Runner ()
         {
 
@@ -568,11 +765,80 @@ public class ProblemFinderRuleConfig extends PopupWindow
             }
             
         });
+     
+    }
+    
+    public JComponent getContentPanel ()
+    {
 
+        final ProblemFinderRuleConfig _this = this;
+
+        this.tabs = new DnDTabbedPane ();
+        // Load the "rules to ignore".
+
+        // Get the to ignore from the user properties.
+
+        this.tabs.setTabLayoutPolicy (JTabbedPane.SCROLL_TAB_LAYOUT);
+
+        this.createWordsWrapper ();
+        
+        this.tabs.add ("Words/Phrases",
+                       this.wordsWrapper);
+
+        this.createSentenceWrapper ();
+                       
+        this.tabs.add ("Sentence Structure",
+                       this.sentenceWrapper);
+
+        this.createParagraphWrapper ();
+                       
+        this.tabs.add ("Paragraph Structure",
+                       this.paragraphWrapper);
+                       
+        this.tabs.setBorder (new EmptyBorder (10,
+                                              5,
+                                              0,
+                                              5));
+                                       
         return tabs;
 
     }
 
+    private List<Rule> getParagraphIgnores ()
+    {
+
+        List<Rule> rules = new ArrayList ();
+
+        Iterator<String> iter = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                        this.projectViewer.getProject ().getProperties ()).keySet ().iterator ();
+
+        while (iter.hasNext ())
+        {
+
+            Rule r = RuleFactory.getRuleById (iter.next ());
+
+            if (r == null)
+            {
+
+                continue;
+
+            }
+
+            if (!r.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
+            {
+
+                continue;
+
+            }
+
+            rules.add (r);
+
+        }
+
+        return rules;
+
+    }
+    
     private List<Rule> getSentenceIgnores ()
     {
 
@@ -626,6 +892,8 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         // Don't like this but there aren't many other ways to do it.
         this.sentenceControl.setVisible (this.getSentenceIgnores ().size () != 0);
+        
+        this.paragraphControl.setVisible (this.getParagraphIgnores ().size () != 0);
 
     }
 
@@ -637,17 +905,24 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         Box editBox = null;
 
-        if (r instanceof WordFinder)
-        {
-
-            editBox = this.wordsEditBox;
-
-        }
-
         if (r instanceof SentenceRule)
         {
 
             editBox = this.sentenceEditBox;
+
+        }
+
+        if (r instanceof ParagraphRule)
+        {
+
+            editBox = this.paragraphEditBox;
+
+        }
+        
+        if (r instanceof WordFinder)
+        {
+
+            editBox = this.wordsEditBox;
 
         }
 
@@ -674,6 +949,21 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         }
 
+        if (r instanceof ParagraphRule)
+        {
+
+            if (r instanceof AbstractParagraphRule)
+            {
+
+                summary.setText (((AbstractParagraphRule) r).getEditSummary ());
+
+            }
+
+            items.add (new FormItem ("Summary",
+                                     summary));
+
+        }
+        
         items.addAll (r.getFormItems ());
 
         final JCheckBox ignoreInDialogue = new JCheckBox ("Ignore in dialogue");
@@ -765,8 +1055,11 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
                 desc.setText (((AbstractSentenceRule) r).getEditDescription ());
 
-            } else
-            {
+            } else if (r instanceof AbstractParagraphRule) {
+               
+               desc.setText (((AbstractParagraphRule) r).getEditDescription ());
+            
+            } else {
 
                 desc.setText (r.getDescription ());
 
@@ -783,13 +1076,6 @@ public class ProblemFinderRuleConfig extends PopupWindow
         if (add)
         {
 
-            if (r instanceof WordFinder)
-            {
-
-                title = "Add new Word/Phrase rule";
-
-            }
-
             if (r instanceof SentenceRule)
             {
 
@@ -797,21 +1083,40 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
             }
 
+            if (r instanceof ParagraphRule)
+            {
+
+                title = "Add new Paragraph Structure rule";
+
+            }
+
+            if (r instanceof WordFinder)
+            {
+
+                title = "Add new Word/Phrase rule";
+
+            }
+            
         } else
         {
 
-            if (r instanceof SentenceRule)
+            if ((r instanceof SentenceRule)
+                ||
+                (r instanceof ParagraphRule)
+               )
             {
 
                 title = "Edit Rule";
 
-            } else
+            } 
+
+            if (r instanceof WordFinder)
             {
-
-                title = "Edit: " + r.getSummary ();
-
+               
+               title = "Edit: " + r.getSummary ();
+               
             }
-
+            
         }
 
         Form f = new Form (title,
@@ -831,116 +1136,131 @@ public class ProblemFinderRuleConfig extends PopupWindow
         final Box _editBox = editBox;
 
         f.addFormListener (new FormAdapter ()
+        {
+
+            public void actionPerformed (FormEvent ev)
             {
 
-                public void actionPerformed (FormEvent ev)
+                if (ev.getID () == FormEvent.CANCEL)
                 {
 
-                    if (ev.getID () == FormEvent.CANCEL)
-                    {
-
-                        _this.restoreToView (_editBox,
-                                             null,
-                                             add);
-
-                        return;
-
-                    }
-
-                    r.setSummary (summary.getText ());
-
-                    r.setDescription (desc.getText ().trim ());
-
-                    if (r instanceof DialogueRule)
-                    {
-
-                        DialogueRule dr = (DialogueRule) r;
-
-                        dr.setOnlyInDialogue (onlyInDialogue.isSelected ());
-                        dr.setIgnoreInDialogue (ignoreInDialogue.isSelected ());
-
-                        int ws = where.getSelectedIndex ();
-
-                        if (ws == 0)
-                        {
-
-                            dr.setWhere (DialogueConstraints.ANYWHERE);
-
-                        }
-
-                        if (ws == 1)
-                        {
-
-                            dr.setWhere (DialogueConstraints.START);
-
-                        }
-
-                        if (ws == 2)
-                        {
-
-                            dr.setWhere (DialogueConstraints.END);
-
-                        }
-
-                    }
-
-                    r.updateFromForm ();
-
-                    try
-                    {
-
-                        RuleFactory.saveUserRule (r);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save user rule: " +
-                                              r,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to save rule");
-
-                    }
-
                     _this.restoreToView (_editBox,
-                                         r,
+                                         null,
                                          add);
 
-                    _this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                          (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
-                                                          r);
+                    return;
 
                 }
 
-            });
+                r.setSummary (summary.getText ());
+
+                r.setDescription (desc.getText ().trim ());
+
+                if (r instanceof DialogueRule)
+                {
+
+                    DialogueRule dr = (DialogueRule) r;
+
+                    dr.setOnlyInDialogue (onlyInDialogue.isSelected ());
+                    dr.setIgnoreInDialogue (ignoreInDialogue.isSelected ());
+
+                    int ws = where.getSelectedIndex ();
+
+                    if (ws == 0)
+                    {
+
+                        dr.setWhere (DialogueConstraints.ANYWHERE);
+
+                    }
+
+                    if (ws == 1)
+                    {
+
+                        dr.setWhere (DialogueConstraints.START);
+
+                    }
+
+                    if (ws == 2)
+                    {
+
+                        dr.setWhere (DialogueConstraints.END);
+
+                    }
+
+                }
+
+                r.updateFromForm ();
+
+                try
+                {
+
+                    RuleFactory.saveUserRule (r);
+
+                } catch (Exception e)
+                {
+
+                    Environment.logError ("Unable to save user rule: " +
+                                          r,
+                                          e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to save rule");
+
+                }
+
+                _this.restoreToView (_editBox,
+                                     r,
+                                     add);
+
+                _this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                      (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
+                                                      r);
+
+            }
+
+        });
 
         if (r instanceof WordFinder)
         {
-
+           
             this.tabs.setSelectedIndex (0);
-
+   
             ((CardLayout) this.wordsWrapper.getLayout ()).show (this.wordsWrapper,
                                                                 "edit");
 
             this.wordsWrapper.validate ();
             this.wordsWrapper.repaint ();
-
+               
+        } else {
+          
+            if (r instanceof SentenceRule)
+            {
+    
+                this.tabs.setSelectedIndex (1);
+    
+                ((CardLayout) this.sentenceWrapper.getLayout ()).show (this.sentenceWrapper,
+                                                                       "edit");
+    
+                this.sentenceWrapper.validate ();
+                this.sentenceWrapper.repaint ();
+    
+            }
+       
+            if (r instanceof ParagraphRule)
+            {
+    
+                this.tabs.setSelectedIndex (2);
+    
+                ((CardLayout) this.paragraphWrapper.getLayout ()).show (this.paragraphWrapper,
+                                                                        "edit");
+    
+                this.paragraphWrapper.validate ();
+                this.paragraphWrapper.repaint ();
+    
+            }
+               
         }
-
-        if (r instanceof SentenceRule)
-        {
-
-            this.tabs.setSelectedIndex (1);
-
-            ((CardLayout) this.sentenceWrapper.getLayout ()).show (this.sentenceWrapper,
-                                                                   "edit");
-
-            this.sentenceWrapper.validate ();
-            this.sentenceWrapper.repaint ();
-
-        }
-
+        
         this.validate ();
         this.repaint ();
 
@@ -962,21 +1282,30 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
             Component[] comps = null;
 
-            if (r instanceof WordFinder)
-            {
-
-                parent = this.wordsBox;
-
-                comps = this.wordsBox.getComponents ();
-
-            }
-
             if (r instanceof SentenceRule)
             {
 
                 parent = this.sentenceBox;
 
                 comps = this.sentenceBox.getComponents ();
+
+            }
+
+            if (r instanceof ParagraphRule)
+            {
+
+                parent = this.paragraphBox;
+
+                comps = this.paragraphBox.getComponents ();
+
+            }
+            
+            if (r instanceof WordFinder)
+            {
+
+                parent = this.wordsBox;
+
+                comps = this.wordsBox.getComponents ();
 
             }
 
@@ -1037,6 +1366,14 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         }
 
+        if (editBox == this.paragraphEditBox)
+        {
+
+            ((CardLayout) this.paragraphWrapper.getLayout ()).show (this.paragraphWrapper,
+                                                                    "view");
+
+        }
+        
         this.validate ();
         this.repaint ();
 
@@ -1059,64 +1396,107 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         }
 
+        if (r.rule.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
+        {
+
+            this.paragraphBox.remove (r);
+
+        }
+        
         this.validate ();
         this.repaint ();
 
     }
 
-    public static boolean confirmRuleRemoval (Component                           parent,
-                                              Rule                                r,
-                                              com.gentlyweb.properties.Properties projProps)
+    public static void confirmRuleRemoval (final Component                           parent,
+                                           final Rule                                r,
+                                           final com.gentlyweb.properties.Properties projProps,
+                                           final ActionListener                      onRemove)
     {
 
-        JOptionPane ask = new JOptionPane ("Please confirm you wish to remove this rule.",
-                                           JOptionPane.QUESTION_MESSAGE);
-        String[]    opts = new String[3];
-        opts[0] = Environment.replaceObjectNames ("From this {Project} only");
-        opts[1] = Environment.replaceObjectNames ("All {Projects}");
-        opts[2] = "Cancel";
-        ask.setOptions (opts);
-
-        JDialog d = ask.createDialog (parent,
-                                      "Confirm Rule Removal");
-        d.setVisible (true);
-
-        int type = -1;
-
-        Object sel = ask.getValue ();
-
-        if ((sel != null) &&
-            (sel.equals (opts[0])))
+        final Map<String, ActionListener> buttons = new LinkedHashMap ();
+    
+        buttons.put ("From this {project} only",
+                     new ActionListener ()
         {
+           
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                RuleFactory.addIgnore (r,
+                                       RuleFactory.PROJECT,
+                                       projProps);
+                
+                if (onRemove != null)
+                {
+                    
+                    onRemove.actionPerformed (new ActionEvent (ev.getSource (),
+                                                               RuleFactory.PROJECT,
+                                                               "project"));
+                    
+                }
+                
+            }
+            
+        });
+        
+        buttons.put ("All {projects}",
+                     new ActionListener ()
+        {
+           
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                RuleFactory.addIgnore (r,
+                                       RuleFactory.USER,
+                                       projProps);
+                if (onRemove != null)
+                {
+                    
+                    onRemove.actionPerformed (new ActionEvent (ev.getSource (),
+                                                               RuleFactory.USER,
+                                                               "user"));
+                    
+                }
+                
+            }
+            
+        });
 
-            type = RuleFactory.PROJECT;
+        buttons.put (Environment.getButtonLabel (null,
+                                                 Constants.CANCEL_BUTTON_LABEL_ID),
+                     null);
 
+        // Need a nicer way of doing this, ok for now, improve in a later version.
+        if (parent instanceof PopupWindow)
+        {
+    
+            UIUtils.createQuestionPopup ((PopupWindow) parent,
+                                         "Confirm rule removal",
+                                         null,
+                                         "Please confirm you wish to remove this rule.",
+                                         buttons,
+                                         null,
+                                         null);
+
+            return;
+            
+        } 
+        
+        if (parent instanceof QuollPanel)
+        {
+            
+            UIUtils.createQuestionPopup (((QuollPanel) parent).getProjectViewer (),
+                                         "Confirm rule removal",
+                                         Constants.DELETE_ICON_NAME,
+                                         "Please confirm you wish to remove this rule.",
+                                         buttons,
+                                         null,
+                                         null);
+            
+            
         }
-
-        if ((sel != null) &&
-            (sel.equals (opts[1])))
-        {
-
-            type = RuleFactory.USER;
-
-        }
-
-        if (type != -1)
-        {
-
-            RuleFactory.addIgnore (r,
-                                   type,
-                                   projProps);
-
-            return true;
-
-        } else
-        {
-
-            return false;
-
-        }
-
+        
     }
 
     public JButton[] getButtons ()
@@ -1124,7 +1504,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         final ProblemFinderRuleConfig _this = this;
 
-        JButton c = new JButton ("Close");
+        JButton c = new JButton ("Finish");
 
         c.addActionListener (new ActionAdapter ()
             {

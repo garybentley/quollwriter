@@ -30,15 +30,15 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     public static final String SIDEBAR_PANEL_ID = "appears-in-chapters";
 
     private JTree          chapterTree = null;
-    private ProjectViewer viewer = null;
+    private AbstractProjectViewer viewer = null;
     private NamedObject obj = null;
     private java.util.Timer refreshTimer = null;
     private AppearsInChaptersSideBar sideBar = null;
     private QTextEditor editor = null;
     private Object highlightId = null;
         
-    public AppearsInChaptersEditPanel (ProjectViewer viewer,
-                                       NamedObject   obj)
+    public AppearsInChaptersEditPanel (AbstractProjectViewer viewer,
+                                       NamedObject           obj)
     {
         
         super (true);
@@ -185,7 +185,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     public String getTitle ()
     {
 
-        return "Appears in Chapters";
+        return "Appears in {Chapters}";
 
     }
 
@@ -260,7 +260,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
 
             Object v = c;
     
-            this.viewer.editChapter (c);
+            this.viewer.viewObject (c);
 
             if (s != null)
             {

@@ -77,8 +77,7 @@ public class WordCountPanel extends QuollPanel
     {
 
         super (pv,
-               p,
-               false);
+               p);
 
         final WordCountPanel _this = this;
                
@@ -168,8 +167,9 @@ public class WordCountPanel extends QuollPanel
         this.configPanel.setAlignmentY (Component.TOP_ALIGNMENT);          
         b.add (this.configPanel);
 
-        b.setMinimumSize (new Dimension (500, 300));
-
+        this.configPanel.setMinimumSize (new Dimension (250,
+                                                        300));
+        
         //b.add (Box.createVerticalGlue ());
         
         JScrollPane lscroll = new JScrollPane (b);
@@ -179,6 +179,8 @@ public class WordCountPanel extends QuollPanel
         lscroll.getViewport ().setOpaque (false);
         lscroll.getVerticalScrollBar ().setUnitIncrement (20);
         lscroll.setAlignmentX (Component.LEFT_ALIGNMENT);
+        lscroll.setMinimumSize (new Dimension (250, 300));
+        
 /*
         b.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                Short.MAX_VALUE));        

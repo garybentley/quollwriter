@@ -245,6 +245,7 @@ public class QColorChooser extends Box
         c.setPreferredSize (c.getMinimumSize ());
         c.setBorder (ccBorder);
         c.setBackground (col);
+        UIUtils.setAsButton (c);
 
         return c;
 

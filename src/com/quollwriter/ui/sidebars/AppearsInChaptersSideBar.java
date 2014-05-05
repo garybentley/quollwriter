@@ -13,14 +13,14 @@ import javax.swing.border.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 
-public class AppearsInChaptersSideBar extends AbstractSideBar<ProjectViewer>
+public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
     
     private NamedObject obj = null;
     private AppearsInChaptersEditPanel panel = null;
     private JTree tree = null;
     
-    public AppearsInChaptersSideBar (ProjectViewer              v,
+    public AppearsInChaptersSideBar (AbstractProjectViewer      v,
                                      AppearsInChaptersEditPanel p)
     {
         
@@ -47,7 +47,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<ProjectViewer>
     public boolean removeOnClose ()
     {
         
-        return true;
+        return false;
         
     }
     
@@ -118,7 +118,8 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<ProjectViewer>
         
         Box b = new Box (BoxLayout.Y_AXIS);
         
-        JComponent help = UIUtils.createHelpTextPane ("appears in the following chapters.");
+        JComponent help = UIUtils.createHelpTextPane ("appears in the following {chapters}.",
+                                                      this.projectViewer);
         
         help.setBorder (new EmptyBorder (0, 10, 5, 5));
         

@@ -64,7 +64,29 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
             if (d instanceof Note)
             {
 
-                ot = "bullet-black";
+                DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
+                
+                if (par.getUserObject () instanceof TreeParentNode)
+                {
+                    
+                    Note n = (Note) d;
+                    
+                    if (n.isEditNeeded ())
+                    {
+                        
+                        ot = Constants.EDIT_NEEDED_NOTE_ICON_NAME;
+                        
+                    } else {
+                        
+                        ot = Constants.BULLET_BLACK_ICON_NAME;//n.getObjectType ();
+                        
+                    }
+                    
+                } else {
+            
+                    ot = Constants.BULLET_BLACK_ICON_NAME;
+                    
+                }
 
             }
             
@@ -82,7 +104,34 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                 ot = d.getObjectType ();
                 
             }
-            /*
+            
+            if (d instanceof Chapter)
+            {
+
+                Chapter c = (Chapter) d;
+                                                
+                if ((this.showEditPositionIcon ())
+                    &&                                
+                    (c.getEditPosition () > 0)
+                   )
+                {
+                    
+                    ot = Constants.EDIT_IN_PROGRESS_ICON_NAME;
+                    
+                }
+
+                if ((this.showEditCompleteIcon ())
+                    &&
+                    (c.isEditComplete ())
+                   )
+                {
+                    
+                    ot = Constants.EDIT_COMPLETE_ICON_NAME;
+                    
+                }
+                                
+            }
+            
             if (value instanceof TreeParentNode)
             {
 
@@ -90,28 +139,30 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
                 ot = tpn.getForObjectType ();
 
-                if ((ot.equals (Note.OBJECT_TYPE)) &&
-                    (Note.EDIT_NEEDED_NOTE_TYPE.equals (tpn.getName ())))
+                if (ot != null)
                 {
-
-                    ot = "edit-needed-note";
-
-                } else
-                {
-
-                    if (ot.equals (QCharacter.OBJECT_TYPE))
+                
+                    if ((ot.equals (Note.OBJECT_TYPE)) &&
+                        (Note.EDIT_NEEDED_NOTE_TYPE.equals (tpn.getName ())))
                     {
-
-                        ot = ot + "-multi";
-
+    
+                        ot = "edit-needed-note";
+    
+                    } else
+                    {
+    
+                        if (ot.equals (QCharacter.OBJECT_TYPE))
+                        {
+    
+                            ot = ot + "-multi";
+    
+                        }
+                        
                     }
 
-                    
-                    
                 }
-
+                    
             }
-*/
             
             Icon ic = null;
             
@@ -125,7 +176,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
     
                     ic = Environment.getIcon (ot,
                                               Constants.ICON_TREE);
-    
+        
                     this.icons.put (ot,
                                     ic);
     
@@ -165,6 +216,20 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
         return this;
 
+    }
+    
+    protected boolean showEditPositionIcon ()
+    {
+        
+        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
+        
+    }
+    
+    protected boolean showEditCompleteIcon ()
+    {
+        
+        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
+        
     }
     
 }

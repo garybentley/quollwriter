@@ -72,6 +72,8 @@ CREATE TABLE chapter
     goals CLOB,
     plan CLOB,
     markup CLOB,
+    editposition INTEGER,
+    editcomplete BOOLEAN,
     PRIMARY KEY (dbkey)
 )        
     </sql>
@@ -265,6 +267,59 @@ CREATE TABLE idea
     </sql>
   </item>
 
+  <item>
+    <log>Create the editor project table.</log>
+    <sql>
+CREATE TABLE editorproject
+(
+    dbkey BIGINT NOT NULL,
+    id VARCHAR(100) NOT NULL,
+    genres CLOB NOT NULL,
+    expectations CLOB NOT NULL,
+    wordcounttypelength VARCHAR(100) NOT NULL,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the editor table.</log>
+    <sql>
+CREATE TABLE editor
+(
+    dbkey BIGINT NOT NULL,
+    id VARCHAR(100) NOT NULL,
+    shortname VARCHAR(500),
+    avatarimage BLOB,
+    publickey BLOB NOT NULL,
+    yourpublickey BLOB NOT NULL,
+    yourprivatekey BLOB NOT NULL,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the chatmessage table.</log>
+    <sql>
+CREATE TABLE chatmessage
+(
+    dbkey BIGINT NOT NULL,
+    datereceived TIMESTAMP,
+    editordbkey BIGINT NOT NULL,
+    message CLOB,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create foreign key constraint for editor/chatmessage.</log>
+    <sql>
+ALTER TABLE chatmessage ADD CONSTRAINT editor_fk FOREIGN KEY(editordbkey) REFERENCES editor(dbkey)
+    </sql>
+  </item>
+  
   <item>
     <log>Create foreign key constraint for idea/ideatype.</log>
     <sql>

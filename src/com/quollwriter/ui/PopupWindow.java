@@ -16,26 +16,37 @@ import com.quollwriter.*;
 import com.quollwriter.ui.components.*;
 
 
-public abstract class PopupWindow extends JDialog // JFrame
+public abstract class PopupWindow extends JFrame // JDialog
 {
 
     private boolean                 inited = false;
     protected AbstractProjectViewer projectViewer = null;
     private Header                  header = null;
     private JTextPane               helpText = null;
-    private Box content = null;
+    private float                   buttonAlignment = Component.LEFT_ALIGNMENT;
+    private Box                     content = null;
+    private Point                   showAt = null;
     
     public PopupWindow()
     {
 
-
     }
 
+    public PopupWindow(AbstractProjectViewer pv,
+                       float                 buttonAlignment)
+    {
+
+        this (pv);
+        
+        this.buttonAlignment = buttonAlignment;
+    
+    }
+    
     public PopupWindow(AbstractProjectViewer pv)
     {
 
         super ();
-
+        
         this.projectViewer = pv;
 
         if (pv != null)
@@ -44,22 +55,46 @@ public abstract class PopupWindow extends JDialog // JFrame
             final PopupWindow _this = this;
 
             pv.addWindowListener (new WindowAdapter ()
+            {
+
+                public void windowClosing (WindowEvent ev)
                 {
 
-                    public void windowClosing (WindowEvent ev)
-                    {
+                    _this.close ();
 
-                        _this.setVisible (false);
-                        _this.dispose ();
+                }
 
-                    }
-
-                });
+            });
 
         }
 
     }
 
+    public void setShowAt (Point p)
+    {
+        
+        this.showAt = p;
+        
+        if ((this.inited)
+            &&
+            (this.showAt != null)
+           )
+        {
+            
+            this.setLocation (this.showAt.x,
+                              this.showAt.y);
+                        
+        }
+    
+    }
+    
+    public Point getShowAt ()
+    {
+        
+        return this.showAt;
+        
+    }
+    
     public AbstractProjectViewer getProjectViewer ()
     {
         
@@ -67,6 +102,25 @@ public abstract class PopupWindow extends JDialog // JFrame
         
     }
 
+    public ActionListener getCloseAction ()
+    {
+        
+        final PopupWindow _this = this;
+        
+        return new ActionListener ()
+        {
+          
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.close ();
+                
+            }
+            
+        };
+        
+    }
+    
     public void init ()
     {
 
@@ -85,13 +139,13 @@ public abstract class PopupWindow extends JDialog // JFrame
                                this.getWindowTitle ());
 
         this.setIconImage (Environment.getWindowIcon ().getImage ());
-
+/*
         this.setMinimumSize (new Dimension (500,
                                             0));
 
         this.setMaximumSize (new Dimension (500,
                                             10000));
-
+*/
         final PopupWindow _this = this;
 
         this.setDefaultCloseOperation (WindowConstants.DISPOSE_ON_CLOSE);
@@ -105,23 +159,29 @@ public abstract class PopupWindow extends JDialog // JFrame
                                                  10,
                                                  10));
                                                  
-        this.header = UIUtils.createHeader ((this.getHeaderTitle () != null) ? this.getHeaderTitle () : this.getWindowTitle (),
-                                            Constants.POPUP_WINDOW_TITLE,
-                                            null,
-                                            null);
+        String headerTitle = (this.getHeaderTitle () != null) ? this.getHeaderTitle () : this.getWindowTitle ();
         
-        this.content.add (this.header);
+        if (headerTitle != null)
+        {
+            
+            this.header = UIUtils.createHeader (headerTitle,
+                                                Constants.POPUP_WINDOW_TITLE,
+                                                null,
+                                                null);
+            
+            this.content.add (this.header);
 
-        this.helpText = UIUtils.createHelpTextPane (null);
+        }
+            
+        this.helpText = UIUtils.createHelpTextPane (null,
+                                                    this.projectViewer);
 
         this.content.add (this.helpText);
 
         this.setHelpText (this.getHelpText ());
 
-        this.helpText.setPreferredSize (new Dimension (500,
-                                                       this.helpText.getPreferredSize ().height + 10));
-        
-        this.content.add (Box.createVerticalStrut (10));
+        this.helpText.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                                       this.helpText.getPreferredSize ().height));
 
         JComponent c = this.getContentPanel ();
 
@@ -147,10 +207,11 @@ public abstract class PopupWindow extends JDialog // JFrame
 
             this.content.add (Box.createVerticalStrut (10));
 
-            JPanel bp = ButtonBarFactory.buildRightAlignedBar (buts);
+            JPanel bp = UIUtils.createButtonBar2 (buts,
+                                                  this.buttonAlignment); //ButtonBarFactory.buildRightAlignedBar (buts);
             bp.setOpaque (false);
             bp.setBorder (new EmptyBorder (0,
-                                           10,
+                                           0,
                                            0,
                                            0));
             bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
@@ -164,10 +225,20 @@ public abstract class PopupWindow extends JDialog // JFrame
 
         this.resize ();
         
-        UIUtils.setCenterOfScreenLocation (this);
+        if (this.showAt == null)
+        {
+        
+            UIUtils.setCenterOfScreenLocation (this);
+            
+        } else {
+            
+            this.setLocation (this.showAt.x,
+                              this.showAt.y);
+            
+        }
 
         this.inited = true;
-
+        
         this.setVisible (true);
 
         this.toFront ();
@@ -176,11 +247,18 @@ public abstract class PopupWindow extends JDialog // JFrame
 
     public void resize ()
     {
-                
-        this.getContentPane ().setPreferredSize (new Dimension (500,
+
+        this.getContentPane ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                                 this.content.getPreferredSize ().height));
-        
+
         this.pack ();
+        
+    }
+    
+    public void setButtonAlignment (float v)
+    {
+        
+        this.buttonAlignment = v;
         
     }
     
@@ -196,6 +274,13 @@ public abstract class PopupWindow extends JDialog // JFrame
 
         super.setVisible (v);
 
+        if (v)
+        {
+        
+            this.resize ();
+            
+        }
+        
     }
 
     public void close ()
@@ -213,6 +298,13 @@ public abstract class PopupWindow extends JDialog // JFrame
 
     }
 
+    public Header getHeader ()
+    {
+        
+        return this.header;
+        
+    }
+    
     public void setHelpText (String t)
     {
 

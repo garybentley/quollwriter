@@ -45,7 +45,7 @@ public class version_1_4_4 implements WhatsNewComponentProvider
                 
         if (id.equals ("achievements"))
         {
-System.out.println ("HERE");
+
             final AchievementsManager man = Environment.getAchievementsManager ();
 
             man.setAchievementsEnabled (true);

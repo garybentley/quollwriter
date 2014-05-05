@@ -7,7 +7,8 @@ public class ResearchItem extends Asset
 {
 
     public static final String OBJECT_TYPE = "researchitem";
-
+    public static final String URL = "url";
+    
     private String url = null;
 
     public ResearchItem()
@@ -27,8 +28,14 @@ public class ResearchItem extends Asset
     public void setUrl (String url)
     {
 
+        String oldUrl = this.url;
+    
         this.url = url;
 
+        this.firePropertyChangedEvent (URL,
+                                       oldUrl,
+                                       this.url);        
+        
     }
 
     public void getChanges (NamedObject old,

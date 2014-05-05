@@ -17,17 +17,6 @@ public class UIUtils
                                                                                         1,
                                                                                         12);
 
-    public static void showErrorMessage (Component parent,
-                                         String    message)
-    {
-
-        JOptionPane.showMessageDialog (parent,
-                                       message,
-                                       "An Error has occurred",
-                                       JOptionPane.ERROR_MESSAGE);
-
-    }
-
     public static Font cloneFont (Font f)
     {
 

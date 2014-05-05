@@ -201,21 +201,60 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         String m = c.getMarkup ();
         String chapterText = c.getText ();
 
-        P para = this.createParagraph (style);
+        P para = null;//this.createParagraph (style);
 
         Body b = mp.getJaxbElement ().getBody ();
 
         mp.addStyledParagraphOfText (HEADING1,
                                      c.getName ());
 
-        b.getEGBlockLevelElts ().add (para);
+        // Get the markup, if present.
+        Markup mu = new Markup (m);
 
-        if (m != null)
+        StringTokenizer t = new StringTokenizer (chapterText,
+                                                 String.valueOf ('\n'),
+                                                 true);
+     
+        int l = 0;
+        
+        while (t.hasMoreTokens ())
         {
+        
+            String paraText = t.nextToken ();
+        
+            if ((paraText.length () == 1)
+                &&
+                (paraText.equals (String.valueOf ('\n')))
+               )
+            {
+               
+               l++;
 
-            // Get the markup, if present.
-            Markup mu = new Markup (m);
+               continue;
+               
+            }
+            
+            para = this.createParagraph (style);
 
+            b.getEGBlockLevelElts ().add (para);
+            
+            List<Markup.MarkupItem> items = mu.getMarkupBetween (l,
+                                                                 l + paraText.length () + 1);
+
+            String nullS = null;
+            Markup pm = new Markup (nullS);
+            pm.items = items;
+            pm.shiftBy (-1 * l);
+        
+            this.addParagraph (paraText,
+                               items,
+                               para);
+
+            l += paraText.length ();
+                
+        }
+            
+            /*
             Iterator<Markup.MarkupItem> iter = mu.iterator ();
 
             Markup.MarkupItem last = null;
@@ -239,7 +278,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                               para);
 
             }
-
+*/
+            /*
         } else
         {
 
@@ -248,9 +288,53 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                           para);
 
         }
-
+*/
     }
 
+    private void addParagraph (String                  paraText,
+                               List<Markup.MarkupItem> items,
+                               P                       para)
+    {
+        
+        int ind = 0;
+        
+        if (items.size () > 0)
+        {                                                                    
+        
+            //Iterator<Markup.MarkupItem> iter = mu.iterator ();
+
+            Markup.MarkupItem last = null;
+
+            for (Markup.MarkupItem item : items)
+            {
+
+                last = item;
+
+                this.addText (paraText,
+                              last,
+                              para);
+
+            }                
+
+            if (last.end < paraText.length ())
+            {
+
+                this.addText (paraText.substring (last.end),
+                              null,
+                              para);
+
+            }
+
+        } else {
+            
+            this.addText (paraText,
+                          null,
+                          para);
+            
+        }
+        
+    }
+    
     private void addText (String            chapterText,
                           Markup.MarkupItem item,
                           P                 para)
@@ -262,12 +346,29 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         org.docx4j.wml.Text tel = factory.createText ();
 
         String t = chapterText;
-
+        
         if (item != null)
         {
 
-            t = chapterText.substring (item.start,
-                                       item.end);
+            int end = item.end;
+            int start = item.start;
+            
+            if (end > chapterText.length ())
+            {
+                
+                end = chapterText.length ();
+                
+            }
+            
+            if (start > chapterText.length ())
+            {
+                
+                start = chapterText.length ();
+                
+            }
+            
+            t = chapterText.substring (start,
+                                       end);
 
         }
 

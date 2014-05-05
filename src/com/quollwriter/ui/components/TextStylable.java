@@ -19,6 +19,10 @@ public interface TextStylable
     
     public void setBackgroundColor (Color c);
     
+    public void setWritingLineColor (Color c);
+    
+    public void setHighlightWritingLine (boolean v);
+    
     //public void resetToDefaults ();
     
 }

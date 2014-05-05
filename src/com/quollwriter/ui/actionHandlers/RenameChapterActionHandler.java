@@ -44,7 +44,7 @@ public class RenameChapterActionHandler extends FormAdapter
         items.add (new FormItem ("Name",
                                  this.nameField));
 
-        this.f = new Form ("Rename Chapter",
+        this.f = new Form (Environment.replaceObjectNames ("Rename {Chapter}"),
                            Environment.getIcon (Chapter.OBJECT_TYPE + "-edit",
                                                 Constants.ICON_POPUP),
                            items,

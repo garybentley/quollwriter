@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -39,6 +40,7 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
+import com.quollwriter.data.editors.*;
 import com.quollwriter.db.*;
 
 import com.quollwriter.events.*;
@@ -84,27 +86,117 @@ public class ProjectViewer extends AbstractProjectViewer
     private EditNoteTypes   noteTypesEdit = null;
     private EditItemTypes   itemTypesEdit = null;
     private ProjectSideBar  sideBar = null;
-    
+        
     public ProjectViewer()
     {
 
         final ProjectViewer _this = this;
 
-        this.noteTypeHandler = new NoteTypeHandler (this);
+        ObjectProvider<Note> noteProvider = new GeneralObjectProvider<Note> ()
+        {
+            
+            public Set<Note> getAll ()
+            {
 
-        this.itemTypeHandler = new ItemTypeHandler (this);
+                return (Set<Note>) _this.getAllNotes ();
+                
+            }
+            
+            public Note getByKey (Long key)
+            {
+                
+                return null;
+                
+            }
+            
+            public void save (Note   obj)
+                              throws GeneralException
+            {
+                
+                _this.saveObject (obj,
+                                  true);
+            
+            }
+            
+            public void saveAll (java.util.List<Note> objs)
+                                 throws    GeneralException
+            {
+                
+                _this.saveObjects (objs,
+                                   false);
+                
+            }
+            
+        };
+        
+        this.noteTypeHandler = new NoteTypeHandler (this,
+                                                    noteProvider);
+
+        ObjectProvider<QObject> qObjectProvider = new GeneralObjectProvider<QObject> ()
+        {
+            
+            public Set<QObject> getAll ()
+            {
+
+                throw new UnsupportedOperationException ("Not supported");
+            
+                //return (Set<QObject>) _this.getAll ();
+                
+            }
+            
+            public QObject getByKey (Long key)
+            {
+                
+                return null;
+                
+            }
+            
+            public void save (QObject obj)
+                              throws  GeneralException
+            {
+                
+                _this.saveObject (obj,
+                                  true);
+            
+            }
+            
+            public void saveAll (java.util.List<QObject> objs)
+                                 throws                  GeneralException
+            {
+                
+                _this.saveObjects (objs,
+                                   false);
+                
+            }
+            
+        };
+
+        this.itemTypeHandler = new ItemTypeHandler (this,
+                                                    qObjectProvider);
 
         ProjectViewer.addAssetActionMappings (this,
                                               this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW),
                                               this.getActionMap ());
 
-        InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+        Set<String> objTypes = new LinkedHashSet ();
+        objTypes.add (Chapter.OBJECT_TYPE);
+        objTypes.add (QCharacter.OBJECT_TYPE);
+        objTypes.add (Location.OBJECT_TYPE);
+        objTypes.add (QObject.OBJECT_TYPE);
+        objTypes.add (ResearchItem.OBJECT_TYPE);
+        objTypes.add (Note.OBJECT_TYPE);
+                        
+        this.sideBar = new ProjectSideBar (this,
+                                           objTypes);
+        
+    }
+    
+    public void initActionMappings (ActionMap am)
+    {
 
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F2,
-                                        0),
-                "ideaboard-show");
-
-        ActionMap am = this.getActionMap ();
+        final ProjectViewer _this = this;
+    
+        super.initActionMappings (am);
         
         am.put ("ideaboard-show",
                 new ActionAdapter ()
@@ -112,14 +204,23 @@ public class ProjectViewer extends AbstractProjectViewer
                    
                     public void actionPerformed (ActionEvent ev)
                     {
-                   
+                  
                         _this.viewIdeaBoard ();
                         
                     }
                     
                 });                                              
-                
-        this.sideBar = new ProjectSideBar (this);
+        
+    }
+    
+    public void initKeyMappings (InputMap im)
+    {
+        
+        super.initKeyMappings (im);
+        
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F2,
+                                        0),
+                "ideaboard-show");        
         
     }
     
@@ -145,7 +246,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                                                     pv,
                                                                     AbstractActionHandler.ADD);
 
-                aah.setPopupOver (ps);
+                aah.setPopupOver (pv);
 
                 aah.actionPerformed (ev);
 
@@ -155,6 +256,27 @@ public class ProjectViewer extends AbstractProjectViewer
         
     }
 
+    public TypesHandler getObjectTypesHandler (String objType)
+    {
+        
+        if (objType.equals (Note.OBJECT_TYPE))
+        {
+            
+            return this.noteTypeHandler;
+            
+        }
+        
+        if (objType.equals (QObject.OBJECT_TYPE))
+        {
+            
+            return this.itemTypeHandler;
+            
+        }
+        
+        return null;
+        
+    }    
+    
     public static void addAssetActionMappings (final PopupsSupported parent,
                                                      InputMap        im,
                                                      ActionMap       actions)
@@ -210,7 +332,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                                               parent));
         
     }
-
+    
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
     {
         
@@ -230,6 +352,37 @@ public class ProjectViewer extends AbstractProjectViewer
     {
         
         final ProjectViewer _this = this;
+
+        if (Environment.editorServiceAvailable)
+        {
+        
+            toolbar.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
+                                               Constants.ICON_TITLE_ACTION,
+                                               "Click to find editors for your {project}",
+                                               new ActionAdapter ()
+                                               {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        EditorProject proj = _this.getProject ().getEditorProject ();
+                
+                                                        if (proj != null)
+                                                        {
+                                                            
+                                                            _this.viewEditors ();
+                                                            
+                                                            return;
+                                                            
+                                                        }
+                                                        
+                                                        _this.showAdvertiseProjectPanel ();
+                                                        
+                                                    }
+                                                    
+                                               }));
+
+        }
         
         toolbar.add (UIUtils.createButton (Constants.IDEA_ICON_NAME,
                                            Constants.ICON_TITLE_ACTION,
@@ -306,7 +459,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                             }));
 
         // Do a Warm-up Exercise
-        titlePopup.add (this.createMenuItem ("Do a Warm-up Exercise",
+        titlePopup.add (this.createMenuItem (String.format ("Do a {Warmup} Exercise", Warmup.OBJECT_TYPE),
                                              Constants.WARMUPS_ICON_NAME,
                                              AbstractProjectViewer.WARMUP_EXERCISE_ACTION));
 
@@ -328,7 +481,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                             }));
 
         // Export Project
-        titlePopup.add (this.createMenuItem ("Export {Project}",
+        titlePopup.add (this.createMenuItem (String.format ("Export {Project}", Project.OBJECT_TYPE),
                                              Constants.PROJECT_EXPORT_ICON_NAME,
                                              new ActionAdapter ()
                                              {
@@ -405,11 +558,11 @@ public class ProjectViewer extends AbstractProjectViewer
         
     }
 
-    public ActionListener getAction (int               name,
+    public Action getAction (int               name,
                                      final NamedObject other)
     {
 
-        ActionListener a = super.getAction (name,
+        Action a = super.getAction (name,
                                             other);
 
         if (a != null)
@@ -546,6 +699,13 @@ public class ProjectViewer extends AbstractProjectViewer
                 public void actionPerformed (final ActionEvent ev)
                 {
 
+                    if (!pv.isLanguageFunctionAvailable ())
+                    {
+                        
+                        return;
+                        
+                    }
+                
                     final Chapter c = ((ChapterItem) other).getChapter ();
 
                     pv.viewObject (c);
@@ -594,6 +754,13 @@ public class ProjectViewer extends AbstractProjectViewer
                 public void actionPerformed (final ActionEvent ev)
                 {
 
+                    if (!pv.isLanguageFunctionAvailable ())
+                    {
+                        
+                        return;
+                        
+                    }
+                
                     final Chapter c = ((Note) other).getChapter ();
 
                     pv.viewObject (c);
@@ -642,6 +809,13 @@ public class ProjectViewer extends AbstractProjectViewer
                 public void actionPerformed (final ActionEvent ev)
                 {
 
+                    if (!pv.isLanguageFunctionAvailable ())
+                    {
+                        
+                        return;
+                        
+                    }
+                
                     final Chapter c = ((ChapterItem) other).getChapter ();
 
                     pv.viewObject (c);
@@ -684,24 +858,30 @@ public class ProjectViewer extends AbstractProjectViewer
         if (name == ProjectViewer.DELETE_PLOT_OUTLINE_ITEM_ACTION)
         {
 
+            return new DeleteChapterItemActionHandler ((OutlineItem) other,
+                                                       this,
+                                                       false);
+/*
             return new DeleteOutlineItemActionHandler ((OutlineItem) other,
                                                        pv);
-
+*/
         }
 
         if (name == ProjectViewer.DELETE_SCENE_ACTION)
         {
 
             return new DeleteChapterItemActionHandler ((Scene) other,
-                                                       this.getEditorForChapter (((Scene) other).getChapter ()));
+                                                       this,
+                                                       false);
 
         }
 
         if (name == ProjectViewer.DELETE_NOTE_ACTION)
         {
 
-            return new DeleteNoteActionHandler ((Note) other,
-                                                this.getEditorForChapter (((Note) other).getChapter ()));
+            return new DeleteChapterItemActionHandler ((Note) other,
+                                                       this,
+                                                       false);
 
         }
 
@@ -918,7 +1098,7 @@ public class ProjectViewer extends AbstractProjectViewer
         }
 
         // Refresh the chapter tree.
-        this.sideBar.reloadTreeForObjectType (c.getObjectType ());
+        this.reloadTreeForObjectType (c.getObjectType ());
                 
         this.handleOpenProject ();
 
@@ -976,16 +1156,7 @@ public class ProjectViewer extends AbstractProjectViewer
             return;
 
         }
-
-        if (v.equals ("find"))
-        {
-            
-            this.showFind (null);
-            
-            return;
-            
-        }        
-        
+                
         if (v.equals ("import"))
         {
         
@@ -1035,11 +1206,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
     public void handleOpenProject ()
     {
-/*
-        this.initNoteTree (true);
 
-        this.initProjectItemBoxes ();
-  */              
         final ProjectViewer _this = this;
 
         // See if we should be doing a warmup exercise.
@@ -1072,59 +1239,8 @@ public class ProjectViewer extends AbstractProjectViewer
 
         }
 
-    }
-
-    public void expandNoteTypeInNoteTree (String type)
-    {
-
-        TreeParentNode tpn = new TreeParentNode (Note.OBJECT_TYPE,
-                                                 type);
-
-        DefaultTreeModel dtm = (DefaultTreeModel) this.getNoteTree ().getModel ();
-
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
-
-        this.getNoteTree ().expandPath (UIUtils.getTreePathForUserObject (root,
-                                                                          tpn));
-
-    }
-
-    private void initNoteTree (boolean restoreSavedOpenTypes)
-    {
-
-        if (restoreSavedOpenTypes)
-        {
-
-            String openTypes = this.proj.getProperty (Constants.NOTE_TREE_OPEN_TYPES_PROPERTY_NAME);
-
-            if (openTypes != null)
-            {
-
-                DefaultTreeModel dtm = (DefaultTreeModel) this.getNoteTree ().getModel ();
-
-                DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
-
-                // Split on :
-                StringTokenizer t = new StringTokenizer (openTypes,
-                                                         "|");
-
-                while (t.hasMoreTokens ())
-                {
-
-                    String tok = t.nextToken ().trim ();
-
-                    TreeParentNode tpn = new TreeParentNode (Note.OBJECT_TYPE,
-                                                             tok);
-
-                    this.getNoteTree ().expandPath (UIUtils.getTreePathForUserObject (root,
-                                                                                      tpn));
-
-                }
-
-            }
-
-        }
-
+        this.initProjectItemBoxes ();
+        
     }
 
     private void initProjectItemBoxes ()
@@ -1162,30 +1278,53 @@ public class ProjectViewer extends AbstractProjectViewer
         if (ev.getChangedObject () instanceof Chapter)
         {
 
-            this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+            this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
 
         }
 
         if (ev.getChangedObject () instanceof Note)
         {
 
-            this.sideBar.reloadTreeForObjectType (Note.OBJECT_TYPE);
+            this.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
         }
+        
+    }
+
+    public void showObjectInTree (String      treeObjType,
+                                  NamedObject obj)
+    {
+        
+        this.sideBar.showObjectInTree (treeObjType,
+                                       obj);
+        
+    }
+        
+    public void reloadTreeForObjectType (String objType)
+    {
+        
+        this.sideBar.reloadTreeForObjectType (objType);
+        
+    }
+    
+    public void reloadTreeForObjectType (NamedObject obj)
+    {
+        
+        this.sideBar.reloadTreeForObjectType (obj.getObjectType ());
         
     }
 
     public void reloadNoteTree ()
     {
         
-        this.sideBar.reloadTreeForObjectType (Note.OBJECT_TYPE);
+        this.reloadTreeForObjectType (Note.OBJECT_TYPE);
         
     }
     
     public void reloadChapterTree ()
     {
 
-        this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+        this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
     
     }
 
@@ -1357,7 +1496,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (_this,
-                                      "Unable to edit chapter: " +
+                                      "Unable to edit {chapter}: " +
                                       c.getName ());
 
             return false;
@@ -1428,7 +1567,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                                   e);
 
                             UIUtils.showErrorMessage (_this,
-                                                      "Unable to display Plot Outline Item in Chapter.");
+                                                      "Unable to display {Plot Outline Item} in {Chapter}.");
 
                         }
 
@@ -1521,7 +1660,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                                       e);
 
                                 UIUtils.showErrorMessage (_this,
-                                                          "Unable to display Note in Chapter.");
+                                                          "Unable to display {Note} in {Chapter}.");
 
                             }
 
@@ -1676,6 +1815,84 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    public boolean showAdvertiseProjectPanel ()
+    {
+        
+        AdvertiseProjectPanel ap = (AdvertiseProjectPanel) this.getQuollPanel (AdvertiseProjectPanel.PANEL_ID);
+
+        if (ap == null)
+        {
+
+            try
+            {
+
+                ap = new AdvertiseProjectPanel (this);
+
+                ap.init ();
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to view the advertise project panel",
+                                      e);
+
+                UIUtils.showErrorMessage (this,
+                                          "Unable to open panel");
+
+                return false;
+
+            }
+
+            this.addPanel (ap);
+
+        }
+
+        this.setPanelVisible (ap);
+
+        return true;
+        
+        
+    }
+    
+    public boolean showRegisterAsAnEditorPanel ()
+    {
+        
+        RegisterAsAnEditorPanel ap = (RegisterAsAnEditorPanel) this.getQuollPanel (RegisterAsAnEditorPanel.PANEL_ID);
+
+        if (ap == null)
+        {
+
+            try
+            {
+
+                ap = new RegisterAsAnEditorPanel (this);
+
+                ap.init ();
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to view the register as an editor panel",
+                                      e);
+
+                UIUtils.showErrorMessage (this,
+                                          "Unable to open panel");
+
+                return false;
+
+            }
+
+            this.addPanel (ap);
+
+        }
+
+        this.setPanelVisible (ap);
+
+        return true;
+        
+        
+    }
+
     public boolean viewIdeaBoard ()
     {
 
@@ -1800,6 +2017,61 @@ public class ProjectViewer extends AbstractProjectViewer
         events);        
         
     }    
+        
+    public void viewWordCloud ()
+    {
+        
+        WordCloudPanel wp = (WordCloudPanel) this.getQuollPanel (WordCloudPanel.PANEL_ID);
+
+        if (wp != null)
+        {
+        
+            this.setPanelVisible (wp);
+            
+            return;
+                    
+        }
+
+        try
+        {
+
+            wp = new WordCloudPanel (this);
+
+            wp.init ();
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to show word cloud panel",
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to show word cloud panel");
+
+            return;
+
+        }
+
+        this.addPanel (wp);
+
+        // Open the tab :)
+        this.viewWordCloud ();        
+        
+    }
+    
+    public boolean viewEditors ()
+    {
+        
+        EditorsSideBar sb = new EditorsSideBar (this);
+        
+        this.addSideBar ("editors",
+                         sb);
+        
+        this.showSideBar ("editors");
+        
+        return true;
+        
+    }
     
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
@@ -1816,81 +2088,8 @@ public class ProjectViewer extends AbstractProjectViewer
         
         this.showSideBar ("chapterinfo-" + c.getKey ());
     
-        if (true)
-        {
+        return true;
     
-            return true;
-        
-        }
-    
-        // Check our tabs to see if we are already editing this asset, if so then just switch to it instead.
-        ChapterViewPanel cvp = (ChapterViewPanel) this.getQuollPanel (ChapterViewPanel.getPanelIdForObject (c));
-
-        if (cvp != null)
-        {
-
-            this.setPanelVisible (cvp);
-
-            cvp.initDividers ();
-
-            return true;
-
-        }
-
-        final ProjectViewer _this = this;
-
-        try
-        {
-
-            cvp = new ChapterViewPanel (this,
-                                        c);
-
-            cvp.init ();
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to view chapter: " +
-                                  c,
-                                  e);
-
-            UIUtils.showErrorMessage (_this,
-                                      "Unable to view information for " +
-                                      Environment.getObjectTypeName (c) +
-                                      ": " +
-                                      c.getName ());
-
-            return false;
-
-        }
-
-        final TabHeader th = this.addPanel (cvp);
-
-        Map events = new HashMap ();
-        events.put (NamedObject.NAME,
-                    "");
-
-        final QuollPanel qp = cvp;
-                    
-        c.addPropertyChangedListener (new PropertyChangedAdapter ()
-            {
-
-                public void propertyChanged (PropertyChangedEvent ev)
-                {
-
-                    th.setTitle (qp.getTitle ());
-/*
-                _this.informTreeOfNodeChange ((NamedObject) ev.getSource (),
-                                              _this.assetsTree);
-*/
-                }
-
-            },
-            events);
-
-        // Open the tab :)
-        return this.viewChapterInformation (c);
-
     }
 
     public JTree getTreeForObjectType (String objType)
@@ -2098,7 +2297,7 @@ public class ProjectViewer extends AbstractProjectViewer
         }
 
         // Inform the chapter tree about the change.
-        this.sideBar.reloadTreeForObjectType (c.getObjectType ());
+        this.reloadTreeForObjectType (c.getObjectType ());
 
         // Remove the tab (if present).
         this.removeAllPanelsForObject (c);
@@ -2169,7 +2368,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
         }
 
-        this.sideBar.reloadTreeForObjectType (a.getObjectType ());
+        this.reloadTreeForObjectType (a.getObjectType ());
         
         // See if there is a panel viewing the character.
         this.removePanel (a);
@@ -2220,6 +2419,10 @@ public class ProjectViewer extends AbstractProjectViewer
 
         c.removeOutlineItem (it);
 
+        this.fireProjectEvent (it.getObjectType (),
+                               ProjectEvent.DELETE,
+                               it);        
+        
         if (it.getScene () != null)
         {
 
@@ -2242,6 +2445,55 @@ public class ProjectViewer extends AbstractProjectViewer
         
     }
 
+    public void deleteObject (NamedObject o,
+                              boolean     deleteChildObjects)
+                       throws GeneralException
+    {
+        
+        if (o instanceof ChapterItem)
+        {
+            
+            this.deleteChapterItem ((ChapterItem) o,
+                                    deleteChildObjects,
+                                    true);
+                        
+            return;
+        
+        }
+
+        this.deleteObject (o);
+                        
+    }
+    
+    public void deleteObject (NamedObject o)
+                              throws      GeneralException
+    {
+
+        if (o instanceof Asset)
+        {
+
+            this.deleteAsset ((Asset) o);
+
+        }
+        
+        if (o instanceof Chapter)
+        {
+            
+            this.deleteChapter ((Chapter) o);
+            
+        }
+        
+        if (o instanceof ChapterItem)
+        {
+            
+            this.deleteChapterItem ((ChapterItem) o,
+                                    true,
+                                    true);
+            
+        }
+
+    }
+    
     public void deleteChapterItem (ChapterItem ci,
                                    boolean     deleteChildObjects,
                                    boolean     doInTransaction)
@@ -2273,10 +2525,6 @@ public class ProjectViewer extends AbstractProjectViewer
 
         }
 
-        this.fireProjectEvent (ci.getObjectType (),
-                               ProjectEvent.DELETE,
-                               ci);
-
     }
 
     public void deleteScene (Scene   s,
@@ -2298,6 +2546,10 @@ public class ProjectViewer extends AbstractProjectViewer
 
         c.removeScene (s);
 
+        this.fireProjectEvent (s.getObjectType (),
+                               ProjectEvent.DELETE,
+                               s);        
+        
         this.refreshObjectPanels (otherObjects);
 
         QuollEditorPanel qep = this.getEditorForChapter (c);
@@ -2333,7 +2585,7 @@ public class ProjectViewer extends AbstractProjectViewer
     public void reloadAssetTree (Asset a)
     {
         
-        this.sideBar.reloadTreeForObjectType (a.getObjectType ());
+        this.reloadTreeForObjectType (a.getObjectType ());
         
     }
     
@@ -2355,6 +2607,10 @@ public class ProjectViewer extends AbstractProjectViewer
 
         obj.removeNote (n);
 
+        this.fireProjectEvent (n.getObjectType (),
+                               ProjectEvent.DELETE,
+                               n);        
+        
         this.refreshObjectPanels (otherObjects);
 
         if (obj instanceof Chapter)
@@ -2372,6 +2628,8 @@ public class ProjectViewer extends AbstractProjectViewer
         }
 
         this.reloadNoteTree ();
+
+        this.reloadChapterTree ();
         
     }
 
@@ -2430,44 +2688,6 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    public void scrollTo (final Chapter c,
-                          final int     pos)
-    {
-
-        final ProjectViewer _this = this;
-
-        this.editChapter (c);
-
-        SwingUtilities.invokeLater (new Runner ()
-            {
-
-                public void run ()
-                {
-
-                    try
-                    {
-
-                        _this.getEditorForChapter (c).scrollToPosition (pos);
-                        _this.getEditorForChapter (c).scrollToPosition (pos);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to show snippet at position: " +
-                                              pos,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to show snippet in context");
-
-                    }
-
-                }
-
-            });
-
-    }
-
     public Set<Note> getNotesForType (String t)
     {
         
@@ -2510,7 +2730,7 @@ public class ProjectViewer extends AbstractProjectViewer
         return notes;
 
     }
-
+/*
     public NoteTypeHandler getNoteTypeHandler ()
     {
 
@@ -2524,7 +2744,7 @@ public class ProjectViewer extends AbstractProjectViewer
         return this.itemTypeHandler;
 
     }
-
+*/
     public void updateChapterIndexes (Book b)
                                throws GeneralException
     {

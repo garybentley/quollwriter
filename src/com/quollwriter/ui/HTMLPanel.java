@@ -19,13 +19,13 @@ import com.quollwriter.*;
 public class HTMLPanel extends XHTMLPanel
 {
     
-    private HTMLPanelActionHandler handler = null;
+    private AbstractProjectViewer projectViewer = null;
     
     public HTMLPanel (String                 t,
-                      HTMLPanelActionHandler handler)
+                      AbstractProjectViewer  projectViewer)
     {
         
-        this.handler = handler;
+        this.projectViewer = projectViewer;
         
         LinkListener ll = null;
         
@@ -159,7 +159,10 @@ public class HTMLPanel extends XHTMLPanel
         t.append ("<html><head>");
         t.append (UIUtils.getHTMLStyleSheet (null,
                                              null,
-                                             null));
+                                             null,
+                                             // The panel scales the font size without taking the potential difference
+                                             // in dpi into account.
+                                             UIUtils.getPrintFontSize ()));
         t.append ("</head><body>");
         t.append (text);
         t.append ("</body></html>");
@@ -173,12 +176,12 @@ public class HTMLPanel extends XHTMLPanel
     private void handleURI (String u)
     {
         
-        URI uri = null;
+        URL uri = null;
         
         try
         {
             
-            uri = new URI (u);
+            uri = new URL (u);
             
         } catch (Exception e) {
             
@@ -188,7 +191,17 @@ public class HTMLPanel extends XHTMLPanel
             return;
             
         }
-        
+
+        if (this.projectViewer != null)
+        {
+            
+            UIUtils.openURL (this.projectViewer,
+                             uri);
+
+            return;
+                             
+        }
+        /*
         if (uri.getScheme ().equals (Constants.HELP_PROTOCOL))
         {
             
@@ -215,22 +228,32 @@ public class HTMLPanel extends XHTMLPanel
         if (uri.getScheme ().equals ("action"))
         {
                 
-            this.handler.handleHTMLPanelAction (uri.getSchemeSpecificPart ());
+            if (this.handler != null)
+            {                
+            
+                this.handler.handleHTMLPanelAction (uri.getSchemeSpecificPart ());
+                
+            }
 
             return;
             
         }
         
-        this.handler.handleHTMLPanelAction (u);
-                
+        if (this.handler != null)
+        {
+        
+            this.handler.handleHTMLPanelAction (u);
+            
+        }
+          */      
     }
     
     public static JScrollPane createHelpPanel (String                 t,
-                                               HTMLPanelActionHandler handler)
+                                               AbstractProjectViewer  projectViewer)
     {
         
         HTMLPanel p = new HTMLPanel (t,
-                                     handler);
+                                     projectViewer);
         
         return HTMLPanel.createHelpPanel (p);
                 

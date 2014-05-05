@@ -68,7 +68,25 @@ public class WarmupsViewer extends AbstractProjectViewer
         this.sideBar = new WarmupsSideBar (this);
                                                 
     }
+
+    public void reloadTreeForObjectType (String objType)
+    {
+        
+    }
     
+    public void showObjectInTree (String      treeObjType,
+                                  NamedObject obj)
+    {
+                
+    }    
+    
+    public void reloadTreeForObjectType (NamedObject obj)
+    {
+        
+        this.reloadTreeForObjectType (obj.getObjectType ());
+        
+    }
+
     public JTree getWarmupsTree ()
     {
         
@@ -109,11 +127,11 @@ public class WarmupsViewer extends AbstractProjectViewer
 
     }
 
-    public ActionListener getAction (int               name,
+    public Action getAction (int               name,
                                      final NamedObject other)
     {
 
-        ActionListener a = super.getAction (name,
+        Action a = super.getAction (name,
                                             other);
 
         if (a != null)
@@ -142,7 +160,7 @@ public class WarmupsViewer extends AbstractProjectViewer
 
                     new ConvertWarmupToProject (_this,
                                                 w,
-                                                aep.getEditor ().getText ()).init ();
+                                                aep).init ();
 
                     _this.fireProjectEvent (Warmup.OBJECT_TYPE,
                                             ProjectEvent.CONVERT_TO_PROJECT,
@@ -360,18 +378,48 @@ public class WarmupsViewer extends AbstractProjectViewer
         final WarmupsViewer _this = this;
 
         SwingUtilities.invokeLater (new Runner ()
+        {
+
+            public void run ()
             {
 
-                public void run ()
-                {
+                // Get the word counts.
+                _this.startWordCounts = _this.getAllChapterCounts ();
 
-                    // Get the word counts.
-                    _this.startWordCounts = _this.getAllChapterCounts ();
+            }
 
-                }
+        });
 
-            });
+        // See if we should be doing a warmup exercise.
+        Properties userProps = Environment.getUserProperties ();
 
+        if ((userProps.getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME)) &&
+            (Environment.getOpenProjects ().size () == 0))
+        {
+
+            javax.swing.Timer t = new javax.swing.Timer (2000,
+                                                         new ActionAdapter ()
+                                                         {
+
+                                                             public void actionPerformed (ActionEvent ev)
+                                                             {
+
+                                                                 WarmupPromptSelect w = new WarmupPromptSelect (_this);
+
+                                                                 w.init ();
+
+                                                                 _this.fireProjectEvent (Warmup.OBJECT_TYPE,
+                                                                                         ProjectEvent.WARMUP_ON_STARTUP);
+
+                                                             }
+
+                                                         });
+
+            t.setRepeats (false);
+            t.start ();
+
+        }            
+            
     }
 
     public void handleItemChangedEvent (ItemChangedEvent ev)
@@ -396,16 +444,23 @@ public class WarmupsViewer extends AbstractProjectViewer
     public Chapter getChapterCurrentlyEdited ()
     {
 
-        WarmupEditorPanel qep = (WarmupEditorPanel) this.getCurrentlyVisibleTab ();
-
-        if (qep != null)
+        QuollPanel qp = this.getCurrentlyVisibleTab ();
+        
+        if (qp instanceof WarmupEditorPanel)
         {
+        
+            WarmupEditorPanel qep = (WarmupEditorPanel) qp;
 
-            // Get the chapter.
-            return qep.getChapter ();
+            if (qep != null)
+            {
+    
+                // Get the chapter.
+                return qep.getChapter ();
+    
+            }
 
         }
-
+            
         return null;
 
     }
@@ -602,6 +657,21 @@ public class WarmupsViewer extends AbstractProjectViewer
 
     }
 
+    public TypesHandler getObjectTypesHandler (String objType)
+    {
+        
+        return null;
+        
+    }
+    
+    public void updateChapterIndexes (Book b)
+                               throws GeneralException
+    {
+        
+        throw new UnsupportedOperationException ("Not supported");
+        
+    }
+    
     public void deleteChapter (Chapter c)
     {
 
@@ -609,6 +679,33 @@ public class WarmupsViewer extends AbstractProjectViewer
 
     }
 
+    public void deleteObject (NamedObject o,
+                              boolean     deleteChildObjects)
+                       throws GeneralException
+    {
+
+        if (o instanceof Chapter)
+        {
+            
+            this.deleteChapter ((Chapter) o);
+             
+        } else {
+            
+            this.deleteObject (o);
+            
+        }
+    
+    }    
+    
+    public void deleteObject (NamedObject o)
+                              throws      GeneralException
+    {
+        
+        this.deleteObject (o,
+                           true);
+        
+    }
+    
     public void deleteWarmup (Chapter c)
     {
 
@@ -620,15 +717,19 @@ public class WarmupsViewer extends AbstractProjectViewer
 
             this.warmups.remove (w);
 
-            this.deleteObject (w);
+            this.dBMan.deleteObject (w,
+                                     false,
+                                     null);
 
             // Remove the chapter from the book.
             Book b = c.getBook ();
 
             b.removeChapter (c);
 
-            this.deleteObject (c);
-
+            this.dBMan.deleteObject (c,
+                                     false,
+                                     null);
+            
             this.fireProjectEvent (w.getObjectType (),
                                    ProjectEvent.DELETE,
                                    w);
@@ -778,7 +879,7 @@ public class WarmupsViewer extends AbstractProjectViewer
         titlePopup.addSeparator ();
 
         // Do a New Warm-up Exercise
-        titlePopup.add (this.createMenuItem ("Do a Warm-up Exercise",
+        titlePopup.add (this.createMenuItem ("Do a {Warmup} Exercise",
                                              Constants.WARMUPS_ICON_NAME,
                                              AbstractProjectViewer.WARMUP_EXERCISE_ACTION));
         
@@ -801,7 +902,7 @@ public class WarmupsViewer extends AbstractProjectViewer
     public String getViewerTitle ()
     {
 
-        return "Warm-ups";
+        return "{Warmups}";
 
     }
     

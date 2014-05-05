@@ -20,8 +20,8 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
     private JTextField urlEdit = null;
 
-    public ResearchItemDetailsEditPanel(Asset         a,
-                                        ProjectViewer pv)
+    public ResearchItemDetailsEditPanel (Asset                 a,
+                                         AbstractProjectViewer pv)
     {
 
         super (a,
@@ -29,8 +29,21 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
         this.urlEdit = UIUtils.createTextField ();
 
+        UIUtils.addDoActionOnReturnPressed (this.urlEdit,
+                                            this.getDoSaveAction ());
+        
     }
 
+    public Set<String> getObjectChangeEventTypes ()
+    {
+        
+        Set<String> types = new HashSet ();
+        types.add (ResearchItem.URL);
+        
+        return types;
+        
+    }    
+    
     public String getViewDescription ()
     {
         
@@ -53,7 +66,8 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
                 
             }
             
-            d = "<b>Web Page: </b>" + url + "<br /><br />" + d;
+            // Add a space after the url to ensure that the markup code finds the "end".
+            d = url + " <br /><br />" + d;
             
         }
         

@@ -142,7 +142,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
         int rows = lm.getSize () / SHOW_ROWS;
 
-        if ((rows % SHOW_ROWS) != 0)
+        if ((lm.size () % SHOW_ROWS) != 0)
         {
 
             rows++;
@@ -155,7 +155,8 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         this.list.addListSelectionListener (this);
         this.list.setOpaque (true);
         this.list.setBackground (Color.white);
-
+        UIUtils.setAsButton (this.list);
+        
         this.list.addMouseListener (new MouseAdapter ()
         {
            
@@ -446,12 +447,11 @@ public class BackgroundSelector extends Box implements ListSelectionListener
             if (c == null)
             {
             
-                Image i = UIUtils.getImage (f);
+                BufferedImage i = UIUtils.getImage (f);
                 
                 c = new ImagePanel (UIUtils.getScaledImage (i,
-                                                            75,
-                                                            75,
-                                                            this),
+                                                            75),
+                                                            //75),
                                     null);
     
                 c.setToolTipText ("Click to select this background");
@@ -508,8 +508,8 @@ public class BackgroundSelector extends Box implements ListSelectionListener
             {
     
                 JLabel l = new JLabel ("Add Image",
-                                Environment.getIcon ("add",
-                                                         Constants.ICON_BG_SWATCH),
+                                Environment.getIcon (Constants.ADD_ICON_NAME,
+                                                     Constants.ICON_BG_SWATCH),
                                 SwingConstants.CENTER);
 
                 l.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -589,6 +589,8 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
         c.setBorder (ccBorder);
 
+        UIUtils.setAsButton (c);
+        
         return c;
 
     }

@@ -24,6 +24,7 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends B
         
     protected E projectViewer = null;
     protected Header header = null;
+    private JComponent content = null;
     
     public AbstractSideBar (E pv)
     {
@@ -36,7 +37,28 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends B
                                             200));
         
     }
-
+        
+    public Dimension getPreferredSize ()
+    {
+        
+        if (this.content != null)
+        {
+            
+            return this.content.getPreferredSize ();
+            
+        }
+        
+        return super.getPreferredSize ();
+        
+    }
+    
+    public E getProjectViewer ()
+    {
+        
+        return this.projectViewer;
+        
+    }
+    
     public abstract String getTitle ();
     
     public abstract String getIconType ();
@@ -99,6 +121,8 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends B
             
         }
 
+        this.content = c;
+        
         this.add (c);
         
     }

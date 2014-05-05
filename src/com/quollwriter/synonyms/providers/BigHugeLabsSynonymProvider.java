@@ -20,11 +20,27 @@ public class BigHugeLabsSynonymProvider implements SynonymProvider
 
     public static final String WORD_TAG = "[[WORD]]";
 
+    private String language = null;
+    
     public BigHugeLabsSynonymProvider()
     {
 
     }
 
+    public boolean isLanguageSupported (String language)
+    {
+        
+        return true;
+        
+    }
+    
+    public void init (String language)
+    {
+        
+        this.language = language;
+        
+    }
+    
     public void setUseCache (boolean v)
     {
 

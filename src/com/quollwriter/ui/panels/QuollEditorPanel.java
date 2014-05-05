@@ -1,6 +1,7 @@
 package com.quollwriter.ui.panels;
 
 import java.awt.*;
+import java.awt.im.*;
 import java.awt.event.*;
 
 import java.io.*;
@@ -15,6 +16,7 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
+import java.awt.datatransfer.*;
 
 import com.gentlyweb.properties.*;
 
@@ -34,20 +36,35 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.ScrollablePanel;
 import com.quollwriter.ui.renderers.*;
 
 import com.swabunga.spell.engine.*;
 import com.swabunga.spell.event.*;
 
-
 public class QuollEditorPanel extends AbstractEditorPanel
 {
 
+    public static final String SHOW_WORD_CLOUD_ACTION_NAME = "show-word-cloud";
+    public static final String SHOW_EDITORS_ACTION_NAME = "show-editors";
+    public static final String CHAPTER_INFO_ACTION_NAME = "chapter-info";
+    public static final String PROBLEM_FINDER_ACTION_NAME = "problem-finder";
+    public static final String SPLIT_CHAPTER_ACTION_NAME = "split-chapter";
+    public static final String SET_EDIT_COMPLETE_ACTION_NAME = "set-edit-complete";
+    public static final String REMOVE_EDIT_POINT_ACTION_NAME = "remove-edit-point";
+
+    public static final String NEW_SCENE_ACTION_NAME = "new" + Scene.OBJECT_TYPE;
+    public static final String NEW_OUTLINE_ITEM_ACTION_NAME = "new" + OutlineItem.OBJECT_TYPE;
+    public static final String NEW_NOTE_ACTION_NAME = "new" + Note.OBJECT_TYPE;
+    public static final String NEW_EDIT_NEEDED_NOTE_ACTION_NAME = "new-edit-needed-" + Note.OBJECT_TYPE;
+    
     public static final String TAB = String.valueOf ('\t');
 
     public static final String SECTION_BREAK_FIND = "***";
     public static final String SECTION_BREAK = "*" + TAB + TAB + "*" + TAB + TAB + "*";
 
+    private static final CutNPasteTransferHandler cnpTransferHandler = new CutNPasteTransferHandler ();
+    
     // private QTextEditor editor = null;
     private IconColumn              iconColumn = null;
     protected ProjectViewer         projectViewer = null;
@@ -56,6 +73,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
     private ProblemFinderRuleConfig problemFinderRuleConfig = null;
     private JLabel                  ignoredProblemsLabel = null;
     private int                     lastCaret = -1;
+    private ChapterItemTransferHandler chItemTransferHandler = null;
 
     public QuollEditorPanel(ProjectViewer pv,
                             Chapter       c)
@@ -64,17 +82,193 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         super (pv,
                c);
-
+        
         this.projectViewer = pv;
 
         final QuollEditorPanel _this = this;
 
-        this.iconColumn = new IconColumn (this,
-                                          this.projectViewer);
+        this.iconColumn = new IconColumn (this);
 
         this.iconColumn.addMouseListener (this);
 
-        this.actions.put ("chapter-info",
+        this.iconColumn.addMouseListener (new MouseAdapter ()
+        {
+
+            public void mouseClicked (MouseEvent ev)
+            {
+               
+               if (ev.getClickCount () == 2)
+               {
+
+                  JPopupMenu popup = new JPopupMenu ();
+                  
+                  // Convert the mouse position to a point in the text.
+                  
+                  String pref = "Shortcut: Ctrl+Shift+";
+                  
+                  JMenuItem mi = null;
+
+                  mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
+                                               Scene.OBJECT_TYPE,
+                                               _this.getActionListenerForTextPosition (NEW_SCENE_ACTION_NAME,
+                                                                                       ev.getPoint ()),
+                                               null,
+                                               null);
+                                             
+                  popup.add (mi);
+                      
+                  char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
+              
+                  mi.setMnemonic (fc);
+                  mi.setToolTipText (pref + fc);
+              
+                  mi = UIUtils.createMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
+                                               OutlineItem.OBJECT_TYPE,
+                                               _this.getActionListenerForTextPosition (NEW_OUTLINE_ITEM_ACTION_NAME,
+                                                                                       ev.getPoint ()),
+                                               null,
+                                               null);
+          
+                  popup.add (mi);
+          
+                  fc = Character.toUpperCase ("O".charAt (0));
+          
+                  mi.setMnemonic (fc);
+                  mi.setToolTipText (pref + fc);
+          
+                  mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                               Note.OBJECT_TYPE,
+                                               _this.getActionListenerForTextPosition (NEW_NOTE_ACTION_NAME,
+                                                                                       ev.getPoint ()),
+                                               null,
+                                               null);
+      
+                  popup.add (mi);
+                                            
+                  fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+          
+                  mi.setMnemonic (fc);
+                  mi.setToolTipText (pref + fc);
+      
+                  mi = UIUtils.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                               Constants.EDIT_NEEDED_NOTE_ICON_NAME,
+                                               _this.getActionListenerForTextPosition (NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                                                                       ev.getPoint ()),
+                                               null,
+                                               null);
+              
+                  popup.add (mi);
+              
+                  fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+          
+                  mi.setMnemonic (fc);
+                  mi.setToolTipText (pref + fc);
+                        
+                  popup.show ((Component) ev.getSource (),
+                              ev.getPoint ().x,
+                              ev.getPoint ().y);
+                  
+               }
+               
+            }
+         
+        });
+        
+        this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
+        
+        this.setTransferHandler (this.chItemTransferHandler);
+
+        this.actions.put (SPLIT_CHAPTER_ACTION_NAME,
+                          new SplitChapterActionHandler (this.chapter,
+                                                         this.projectViewer));
+        
+        this.actions.put (REMOVE_EDIT_POINT_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+                           
+                             public void actionPerformed (ActionEvent ev)
+                             {
+                               
+                                 _this.removeEditPosition ();
+                                                                               
+                             }
+                           
+                          });
+        
+        this.actions.put (SET_EDIT_COMPLETE_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+                           
+                             public void actionPerformed (ActionEvent ev)
+                             {
+                               
+                                 _this.setEditComplete (true);
+                                                                               
+                             }
+                           
+                          });
+        
+        this.actions.put (NEW_SCENE_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.performAction (ev,
+                                                       NEW_SCENE_ACTION_NAME,
+                                                       -1);
+
+                              }
+
+                          });
+
+        this.actions.put (NEW_OUTLINE_ITEM_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.performAction (ev,
+                                                       NEW_OUTLINE_ITEM_ACTION_NAME,
+                                                       -1);
+
+                              }
+
+                          });
+
+        this.actions.put (NEW_NOTE_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.performAction (ev,
+                                                       NEW_NOTE_ACTION_NAME,
+                                                       -1);
+
+                              }
+
+                          });
+
+        this.actions.put (NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.performAction (ev,
+                                                       NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                                       -1);
+
+                              }
+
+                          });
+
+        this.actions.put (CHAPTER_INFO_ACTION_NAME,
                           new ActionAdapter ()
                           {
 
@@ -101,86 +295,151 @@ public class QuollEditorPanel extends AbstractEditorPanel
                               }
 
                           });
-
-        this.actions.put ("new" + Scene.OBJECT_TYPE,
+                          
+        this.actions.put (SHOW_EDITORS_ACTION_NAME,
                           new ActionAdapter ()
                           {
 
                               public void actionPerformed (ActionEvent ev)
                               {
 
-                                  _this.performAction (ev,
-                                                       "new" + Scene.OBJECT_TYPE,
-                                                       -1);
+                                  try
+                                  {
+
+                                      _this.projectViewer.viewEditors ();
+
+                                  } catch (Exception e)
+                                  {
+
+                                      Environment.logError ("Unable to show editors",
+                                                            e);
+
+                                      UIUtils.showErrorMessage (_this,
+                                                                Environment.replaceObjectNames ("Unable to show editors."));
+
+                                  }
 
                               }
 
                           });
 
-        this.actions.put ("new" + OutlineItem.OBJECT_TYPE,
+        this.actions.put (SHOW_WORD_CLOUD_ACTION_NAME,
                           new ActionAdapter ()
                           {
 
                               public void actionPerformed (ActionEvent ev)
                               {
 
-                                  _this.performAction (ev,
-                                                       "new" + OutlineItem.OBJECT_TYPE,
-                                                       -1);
+                                  try
+                                  {
+
+                                      _this.projectViewer.viewWordCloud ();
+
+                                  } catch (Exception e)
+                                  {
+
+                                      Environment.logError ("Unable to show word cloud",
+                                                            e);
+
+                                      UIUtils.showErrorMessage (_this,
+                                                                Environment.replaceObjectNames ("Unable to show word cloud."));
+
+                                  }
 
                               }
 
                           });
 
-        this.actions.put ("new" + Note.OBJECT_TYPE,
+        this.actions.put (PROBLEM_FINDER_ACTION_NAME,
                           new ActionAdapter ()
                           {
 
                               public void actionPerformed (ActionEvent ev)
                               {
 
-                                  _this.performAction (ev,
-                                                       "new" + Note.OBJECT_TYPE,
-                                                       -1);
+                                  _this.showProblemFinder ();
 
                               }
 
                           });
-
-        this.actions.put ("new-edit-needed" + Note.OBJECT_TYPE,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  _this.performAction (ev,
-                                                       "new-edit-needed" + Note.OBJECT_TYPE,
-                                                       -1);
-
-                              }
-
-                          });
-
+                          
         InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+        // Remove ctrl+shift+O from the when_focused set since it conflicts.
+        this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
+                                                               "none");
+        
         im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0))),
-                "new" + Scene.OBJECT_TYPE);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0))),
-                "new" + OutlineItem.OBJECT_TYPE);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0))),
-                "new" + Note.OBJECT_TYPE);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift P"),
-                "find-problems");
+                NEW_SCENE_ACTION_NAME);
 
+        im.put (KeyStroke.getKeyStroke ("ctrl shift O"),
+                NEW_OUTLINE_ITEM_ACTION_NAME);
+        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0))),
+                NEW_NOTE_ACTION_NAME);
+        im.put (KeyStroke.getKeyStroke ("ctrl shift E"),
+                NEW_EDIT_NEEDED_NOTE_ACTION_NAME);
+        im.put (KeyStroke.getKeyStroke ("ctrl shift P"),
+                PROBLEM_FINDER_ACTION_NAME);
+
+        this.editor.setTransferHandler (QuollEditorPanel.cnpTransferHandler);
+                
     }
 
+    public int getTextPositionForMousePosition (Point p)
+    {
+      
+       Point pp = p;
+      
+       if (this.iconColumn.getMousePosition () != null)
+       {
+         
+          pp = new Point (0,
+                          p.y);
+         
+       }
+
+       return this.editor.viewToModel (pp);
+      
+    }
+    
+    public ActionListener getActionListenerForTextPosition (final String actionName,
+                                                            final Point  p)
+    {
+      
+         final QuollEditorPanel _this = this;
+
+         final int pos = this.getTextPositionForMousePosition (p);
+      
+         return new ActionAdapter ()
+         {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                              
+               _this.performAction (ev,
+                                    actionName,
+                                    pos);
+               
+            }
+            
+         };      
+      
+    }
+    
+/*
+    public ChapterItemTransferHandler getChapterItemTransferHandler ()
+    {
+        
+        return this.chItemTransferHandler;
+        
+    }
+  */  
     public JComponent getEditorWrapper (QTextEditor q)
     {
-
+/*
         FormLayout fl = new FormLayout ("50px, fill:200px:grow",
                                         "fill:p:grow");
-
+         fl.setHonorsVisibility (true);
         PanelBuilder builder = new PanelBuilder (fl);
 
         CellConstraints cc = new CellConstraints ();
@@ -194,11 +453,31 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         JPanel p = builder.getPanel ();
         p.setBorder (null);
+        p.setOpaque (false);
+*/
+
+        Box b = new Box /*com.quollwriter.ui.components.ScrollableBox*/ (BoxLayout.X_AXIS);
+        b.add (this.iconColumn);
+        b.add (q);
+        q.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+        q.setMinimumSize (new Dimension (200, 200));
+        q.setAlignmentY (Component.TOP_ALIGNMENT);
+        q.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        this.iconColumn.setAlignmentY (Component.TOP_ALIGNMENT);
+        this.iconColumn.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.iconColumn.setMinimumSize (new Dimension (50, 200));
+        this.iconColumn.setPreferredSize (new Dimension (50, 200));
+        this.iconColumn.setMaximumSize (new Dimension (50, Integer.MAX_VALUE));
+        
+        JPanel p = new ScrollablePanel (new BorderLayout ());
+        p.add (b);
 
         return p;
-
+        
     }
-
+    
     public void showProblemFinderRuleConfig ()
     {
 
@@ -219,29 +498,29 @@ public class QuollEditorPanel extends AbstractEditorPanel
                                       JPopupMenu  p)
     {
 
-        final QuollEditorPanel _this = this;
+         // Need a more elegant way of handling this, maybe via cue.language?
+         if (this.projectViewer.isLanguageEnglish ())
+         {
+    
+            p.add (this.createMenuItem ("Find Problems",
+                                        Constants.PROBLEM_FINDER_ICON_NAME,
+                                        PROBLEM_FINDER_ACTION_NAME,
+                                         KeyStroke.getKeyStroke (KeyEvent.VK_P,
+                                                                 ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)));
 
-        ActionAdapter aa = new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.performAction (ev);
-
-            }
-
-        };
-
-        JMenuItem mi = new JMenuItem ("Find Problems",
-                                      Environment.getIcon ("eye",
-                                                           Constants.ICON_MENU));
-        mi.setActionCommand ("find-problems");
-        mi.addActionListener (aa);
-        mi.setAccelerator (KeyStroke.getKeyStroke (KeyEvent.VK_P,
-                                                   ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
-        p.add (mi);
-
+         }
+/*        
+        p.add (this.createMenuItem ("Editors",
+                                    Constants.EDITORS_ICON_NAME,
+                                    SHOW_EDITORS_ACTION_NAME,
+                                    null));
+*/
+/*
+        p.add (this.createMenuItem ("Word Cloud",
+                                    Constants.EDITORS_ICON_NAME,
+                                    SHOW_WORD_CLOUD_ACTION_NAME,
+                                    null));
+  */                                  
     }
 
     public void doFillToolBar (JToolBar acts)
@@ -262,7 +541,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         };
 
         final JButton b = UIUtils.createToolBarButton ("new",
-                                                       Environment.replaceObjectNames ("Click to add a new {Outlineitem}, {Character}, {Note}, {Object} etc."),
+                                                       "Click to add a new {Outlineitem}, {Character}, {Note}, {Object} etc.",
                                                        "new",
                                                        null);
 
@@ -276,7 +555,8 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
                 _this.addNewItemsForPopupMenu (m,
                                                b,
-                                               -1);
+                                               -1,
+                                               false);
 
                 Component c = (Component) ev.getSource ();
 
@@ -291,26 +571,9 @@ public class QuollEditorPanel extends AbstractEditorPanel
         b.addActionListener (ab);
 
         acts.add (b);
-/*
-        acts.add (UIUtils.createToolBarButton ("timeline",
-                                               "Click to view the Timeline",
-                                               "timeline",
-                                               new ActionAdapter ()
-                                               {
-
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-
-                                                        _this.projectViewer.viewTimeline ();
-
-                                                    }
-
-                                                }));
-*/
-        acts.add (UIUtils.createToolBarButton ("information",
-                                               Environment.replaceObjectNames ("Click to view/edit the {chapter} information"),
-                                               "chapter-info",
-                                               aa));
+        acts.add (this.createToolbarButton (Constants.INFO_ICON_NAME,
+                                            "Click to view/edit the {chapter} information",
+                                            CHAPTER_INFO_ACTION_NAME));
 
     }
 
@@ -326,7 +589,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         }
 
-        if (c.equals ("new" + Scene.OBJECT_TYPE))
+        if (c.equals (NEW_SCENE_ACTION_NAME))
         {
 
             Scene s = new Scene (-1,
@@ -343,7 +606,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         }
 
-        if (c.equals ("new" + OutlineItem.OBJECT_TYPE))
+        if (c.equals (NEW_OUTLINE_ITEM_ACTION_NAME))
         {
 
             AbstractActionHandler aah = new OutlineItemChapterActionHandler (this.chapter,
@@ -356,12 +619,12 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         }
 
-        if (c.equals ("new" + Note.OBJECT_TYPE))
+        if (c.equals (NEW_NOTE_ACTION_NAME))
         {
 
             AbstractActionHandler aah = new NoteActionHandler (this.chapter,
                                                                this,
-                                                               null);
+                                                               pos);
 
             aah.actionPerformed (ev);
 
@@ -369,12 +632,13 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         }
 
-        if (c.equals ("new-edit-needed" + Note.OBJECT_TYPE))
+        if (c.equals (NEW_EDIT_NEEDED_NOTE_ACTION_NAME))
         {
 
             AbstractActionHandler aah = new NoteActionHandler (this.chapter,
                                                                this,
-                                                               Note.EDIT_NEEDED_NOTE_TYPE);
+                                                               Note.EDIT_NEEDED_NOTE_TYPE,
+                                                               pos);
 
             aah.actionPerformed (ev);
 
@@ -395,7 +659,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
                             pos);
 
     }
-
+/*
     private void addNewItemsForPopupMenu (final JComponent popup,
                                           Component        showAt,
                                           int              pos)
@@ -480,103 +744,498 @@ public class QuollEditorPanel extends AbstractEditorPanel
                                              null);
 
     }
-
-    public void doFillPopupMenu (final MouseEvent ev,
-                                 final JPopupMenu popup)
+*/
+    private void addNewItemsForPopupMenu (final JComponent popup,
+                                                Component  showAt,
+                                                int        pos,
+                                                boolean    compress)
     {
 
         final QuollEditorPanel _this = this;
 
-        ActionAdapter aa = new ActionAdapter ()
+        final PositionActionAdapter aa = new PositionActionAdapter (pos)
         {
 
             public void actionPerformed (ActionEvent ev)
             {
 
-                _this.performAction (ev);
+                _this.performAction (ev,
+                                     this.pos);
 
             }
 
         };
 
-        JMenu nm = new JMenu ("New");
-        nm.setIcon (Environment.getIcon ("new",
-                                         Constants.ICON_MENU));
+        if (compress)
+        {
+        
+            List<JComponent> buts = new ArrayList ();
 
-        popup.add (nm);
+            buts.add (this.createButton (Scene.OBJECT_TYPE,
+                                         Constants.ICON_MENU,
+                                         String.format ("Add a new {%s}", Scene.OBJECT_TYPE),
+                                         NEW_SCENE_ACTION_NAME,
+                                         aa));
 
-        int pos = this.editor.viewToModel (new Point (ev.getPoint ().x, // 0,
-                                                      ev.getPoint ().y));
+            buts.add (this.createButton (OutlineItem.OBJECT_TYPE,
+                                         Constants.ICON_MENU,
+                                         String.format ("Add a new {%s}", OutlineItem.OBJECT_TYPE),
+                                         NEW_OUTLINE_ITEM_ACTION_NAME,
+                                         aa));
+
+            buts.add (this.createButton (Note.OBJECT_TYPE,
+                                         Constants.ICON_MENU,
+                                         String.format ("Add a new {%s}", Note.OBJECT_TYPE),
+                                         NEW_NOTE_ACTION_NAME,
+                                         aa));
+
+            buts.add (this.createButton ("edit-needed-note",
+                                         Constants.ICON_MENU,
+                                         String.format ("Add a new Edit Needed Note"),
+                                         NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                         aa));
+                                  
+            if (popup instanceof JPopupMenu)
+            {                                            
+            
+               JPopupMenu pm = (JPopupMenu) popup;
+            
+               pm.addSeparator ();
+                                                           
+               popup.add (UIUtils.createPopupMenuButtonBar ("New",
+                                                            pm,
+                                                            buts));
+        
+               UIUtils.addNewAssetItemsAsToolbarToPopupMenu (pm,
+                                                             null,
+                                                             (ProjectViewer) this.projectViewer,
+                                                             null,
+                                                             null);
+                    
+               pm.addSeparator ();
+               
+            }
+        
+        } else {
+        
+            String pref = "Shortcut: Ctrl+Shift+";
+            
+            JMenuItem mi = null;
+            
+            mi = this.createMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
+                                      Scene.OBJECT_TYPE,
+                                      NEW_SCENE_ACTION_NAME,
+                                      null,
+                                      aa);
+                
+            popup.add (mi);
+                
+            char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
+        
+            mi.setMnemonic (fc);
+            mi.setToolTipText (pref + fc);
+        
+            mi = this.createMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
+                                      OutlineItem.OBJECT_TYPE,
+                                      NEW_OUTLINE_ITEM_ACTION_NAME,
+                                      null,
+                                      aa);
+    
+            popup.add (mi);
+    
+            fc = Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0));
+    
+            mi.setMnemonic (fc);
+            mi.setToolTipText (pref + fc);
+    
+            mi = this.createMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                      Note.OBJECT_TYPE,
+                                      NEW_NOTE_ACTION_NAME,
+                                      null,
+                                      aa);
+
+            popup.add (mi);
+                                      
+            fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+    
+            mi.setMnemonic (fc);
+            mi.setToolTipText (pref + fc);
+
+            mi = this.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                      Constants.EDIT_NEEDED_NOTE_ICON_NAME,
+                                      NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                      null,
+                                      aa);
+        
+            popup.add (mi);
+        
+            fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+    
+            mi.setMnemonic (fc);
+            mi.setToolTipText (pref + fc);
+    
+            UIUtils.addNewAssetItemsToPopupMenu (popup,
+                                                 showAt,
+                                                 this.projectViewer,
+                                                 null,
+                                                 null);
+
+        }
+                                                 
+    }
+    
+    public void showIconColumn (boolean v)
+    {
+      
+         this.iconColumn.setVisible (v);
+         
+         this.validate ();
+         this.repaint ();
+      
+    }
+    
+    public void setEditPosition (int textPos)
+    {
+
+        try
+        {
+
+            int tl = Utils.stripEnd (this.editor.getText ()).length ();
+        
+            if (textPos > tl)
+            {
+                
+                textPos = tl;
+                
+            }
+        
+            this.iconColumn.setEditPosition (textPos);
+            
+            // See if we are on the last line (it may be that the user is in the icon
+            // column).
+            Rectangle pp = this.editor.modelToView (textPos);
+            
+            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+            {
+            
+                if (textPos < tl)
+                {
+                    
+                    Rectangle ep = this.editor.modelToView (tl);
+
+                    boolean complete = false;
+                    
+                    if (ep.y == pp.y)                    
+                    {
+                        
+                        complete = true;
+                        
+                    }
+                        
+                    // Last line.
+                    this.chapter.setEditComplete (complete);
+                                                                
+                }
+
+            }
+
+            ((ProjectViewer) this.projectViewer).reloadChapterTree ();
+            
+            this.projectViewer.saveObject (this.chapter,
+                                           false);
+                                                                
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set edit position for chapter: " +
+                                  this.chapter,
+                                  e);
+                                                            
+        }
+        
+    }
+    
+    public void setEditPosition (Point mouseP)
+    {
+
+        this.setEditPosition (this.editor.viewToModel (mouseP));
+        
+    }
+    
+    public void removeEditPosition ()
+    {
+        
+        try
+        {
+            
+            this.iconColumn.setEditPosition (-1);
+
+            this.setEditComplete (false);
+            
+            this.projectViewer.saveObject (this.chapter,
+                                           false);
+
+            ((ProjectViewer) this.projectViewer).reloadChapterTree ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set edit position for chapter: " +
+                                  this.chapter,
+                                  e);
+                                                            
+        }
+        
+    }
+    
+    public void setEditComplete (boolean v)
+    {
+        
+        try
+        {
+            
+            this.chapter.setEditComplete (v);
+            
+            if (v)
+            {
+            
+                int tl = Utils.stripEnd (this.editor.getText ()).length ();
+            
+                this.iconColumn.setEditPosition (tl);
+                                
+            }
+            
+            this.projectViewer.saveObject (this.chapter,
+                                           false);
+
+            this.iconColumn.init ();
+
+            if (this.projectViewer instanceof ProjectViewer)
+            {
+                
+                ProjectViewer pv = (ProjectViewer) this.projectViewer;
+                
+                pv.reloadChapterTree ();
+                                                                        
+            }
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set edit complete for chapter: " +
+                                  this.chapter,
+                                  e);
+                                                            
+        }        
+        
+    }
+    
+    public void doFillPopupMenu (final MouseEvent ev,
+                                 final JPopupMenu popup,
+                                       boolean    compress)
+    {
+
+        final QuollEditorPanel _this = this;
+
+        // Get the mouse position, don't get it later since the mouse could have moved.
+        Point mP = this.editor.getMousePosition ();        
+        
+        if (mP == null)
+        {
+            
+            mP = this.iconColumn.getMousePosition ();
+            
+        }
+        
+        final Point mouseP = mP;
+        
+        int pos = this.getTextPositionForMousePosition (ev.getPoint ());
 
         // This is needed to move to the correct character, the call above seems to get the character
         // before what was clicked on.
         // pos++;
-
-        this.addNewItemsForPopupMenu (nm,
-                                      this,
-                                      pos);
-
-/*
-        JMenuItem mi = new JMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
-                                      Environment.getIcon (Scene.OBJECT_TYPE,
-                                                           false));
-
-        Scene s = new Scene (-1,
-                             this.chapter);
-
-        AbstractActionHandler aah = new ChapterItemActionHandler (s,
-                                                                  this,
-                                                                  AbstractActionHandler.ADD,
-                                                                  pos);
-
-        mi.addActionListener (aah);
-        nm.add (mi);
-
-        mi = new JMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
-                            Environment.getIcon (OutlineItem.OBJECT_TYPE,
-                                                 false));
-
-        aah = new OutlineItemChapterActionHandler (this.chapter,
-                                                   this,
-                                                   pos);
-
-        mi.addActionListener (aah);
-        nm.add (mi);
-
-        mi = new JMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
-                            Environment.getIcon (Note.OBJECT_TYPE,
-                                                 false));
-
-        mi.addActionListener (new NoteActionHandler (this.chapter,
-                                                     this,
-                                                     pos));
-        nm.add (mi);
-*/
-/*
-        UIUtils.addNewAssetItemsToPopupMenu (nm,
-                                             this,
-                                             this.projectViewer);
-*/
-        JMenuItem mi = new JMenuItem ("Chapter Below",
-                                      Environment.getIcon (Chapter.OBJECT_TYPE,
-                                                           Constants.ICON_MENU));
+        
+        JMenuItem mi = null;
+        
+                         /*                          
         AddChapterActionHandler ac = new AddChapterActionHandler (this.chapter.getBook (),
                                                                   this.chapter,
                                                                   this.projectViewer);
+
+        JMenuItem mi = UIUtils.createMenuItem ("{Chapter} Below",
+                                               Chapter.OBJECT_TYPE,
+                                               ac);
         ac.setPopupOver (this);
         mi.addActionListener (ac);
         nm.add (mi);
+*/
+                         
+        if (compress)
+        {
+                         
+            List<JComponent> buts = new ArrayList ();
+            
+            buts.add (this.createButton (Constants.SAVE_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Save {Chapter}",
+                                         SAVE_ACTION_NAME));
+                                                                                                
+            if ((this.editor.getCaret ().getDot () > 0)
+                ||
+                (this.editor.getSelectionStart () > 0)
+               )
+            {
 
-        mi = new JMenuItem ("Find Problems",
-                            Environment.getIcon ("eye",
-                                                 Constants.ICON_MENU));
+                buts.add (this.createButton (Constants.CHAPTER_SPLIT_ICON_NAME,
+                                             Constants.ICON_MENU,
+                                             "Split {Chapter}",
+                                             SPLIT_CHAPTER_ACTION_NAME));
+                                            
+            }
+                        
+            buts.add (this.createButton (Constants.PROBLEM_FINDER_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Find Problems",
+                                         PROBLEM_FINDER_ACTION_NAME));
+                                            
+            buts.add (this.createButton (Constants.FIND_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Find",
+                                         Constants.SHOW_FIND_ACTION));
+                                            
+            popup.add (UIUtils.createPopupMenuButtonBar (Environment.replaceObjectNames ("{Chapter}"),
+                                                         popup,
+                                                         buts));
 
-        mi.setActionCommand ("find-problems");
+            buts = new ArrayList ();
+                                                                     
+            buts.add (UIUtils.createButton (Constants.EDIT_IN_PROGRESS_ICON_NAME,
+                                            Constants.ICON_MENU,
+                                            "Set Edit Point",
+                                            new ActionAdapter ()
+                                            {
+                                               
+                                               public void actionPerformed (ActionEvent ev)
+                                               {
+                                                   
+                                                   _this.setEditPosition (mouseP);
+                                                   
+                                               }
+                                               
+                                            }));
 
-        mi.addActionListener (aa);
+            if (this.chapter.getEditPosition () > 0)
+            {
+    
+                buts.add (this.createButton (Constants.REMOVE_EDIT_POINT_ICON_NAME,
+                                             Constants.ICON_MENU,
+                                             "Remove Edit Point",
+                                             REMOVE_EDIT_POINT_ACTION_NAME));
+                   
+            }
 
-        popup.add (mi);
+            if (!this.chapter.isEditComplete ())
+            {
+                
+                buts.add (this.createButton (Constants.EDIT_COMPLETE_ICON_NAME,
+                                             Constants.ICON_MENU,
+                                             "Set as Edit Complete",
+                                             SET_EDIT_COMPLETE_ACTION_NAME));
+                    
+            } 
 
+            popup.add (UIUtils.createPopupMenuButtonBar (null,
+                                                         popup,
+                                                         buts));
+
+            this.addNewItemsForPopupMenu (popup,
+                                          this,
+                                          pos,
+                                          compress);        
+                         
+        } else {
+
+            // Save.
+            
+            mi = this.createMenuItem ("Save {Chapter}",
+                                      Constants.SAVE_ICON_NAME,
+                                      SAVE_ACTION_NAME,
+                                      KeyStroke.getKeyStroke (KeyEvent.VK_S,
+                                                              ActionEvent.CTRL_MASK));
+            mi.setMnemonic (KeyEvent.VK_S);
+
+            popup.add (mi);
+                
+            JMenu m = new JMenu (Environment.replaceObjectNames ("{Chapter} Edit"));
+            m.setIcon (Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                            Constants.ICON_MENU));
+    
+            popup.add (m);
+            
+            if ((this.editor.getCaret ().getDot () > 0)
+                ||
+                (this.editor.getSelectionStart () > 0)
+               )
+            {
+    
+                m.add (this.createMenuItem ("Split {Chapter}",
+                                            Constants.CHAPTER_SPLIT_ICON_NAME,
+                                            SPLIT_CHAPTER_ACTION_NAME,
+                                            null));
+            
+            }
+            
+            mi = UIUtils.createMenuItem ("Set Edit Point",
+                                         Constants.EDIT_IN_PROGRESS_ICON_NAME,
+                                         new ActionAdapter ()
+                                         {
+                                            
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                
+                                                _this.setEditPosition (mouseP);
+                                                
+                                            }
+                                            
+                                         });
+                
+            m.add (mi);
+    
+            if (this.chapter.getEditPosition () > 0)
+            {
+    
+                m.add (this.createMenuItem ("Remove Edit Point",
+                                            Constants.REMOVE_EDIT_POINT_ICON_NAME,
+                                            REMOVE_EDIT_POINT_ACTION_NAME,
+                                            null));
+    
+            }
+    
+            if (!this.chapter.isEditComplete ())
+            {
+                
+                m.add (this.createMenuItem ("Set as Edit Complete",
+                                            Constants.EDIT_COMPLETE_ICON_NAME,
+                                            SET_EDIT_COMPLETE_ACTION_NAME,
+                                            null));
+    
+            } 
+            
+            popup.add (this.createMenuItem ("Find Problems",
+                                            Constants.PROBLEM_FINDER_ICON_NAME,
+                                            PROBLEM_FINDER_ACTION_NAME,
+                                            null));
+
+            JMenu nm = new JMenu ("New");
+            nm.setIcon (Environment.getIcon (Constants.NEW_ICON_NAME,
+                                             Constants.ICON_MENU));
+
+            popup.add (nm);
+
+            this.addNewItemsForPopupMenu (nm,
+                                          this,
+                                          pos,
+                                          compress);        
+                                            
+        }
+                    
     }
 
     public IconColumn getIconColumn ()
@@ -604,8 +1263,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
                   throws GeneralException
     {
 
-        this.iconColumn.addItem (c,
-                                 this);
+        this.iconColumn.addItem (c);
 
     }
 
@@ -625,80 +1283,241 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
     }
 
-    public void editNote (Note n)
+    public void editNote (final Note n)
                    throws GeneralException
     {
 
-        this.scrollToNote (n);
+      final QuollEditorPanel _this = this;
 
-        new NoteActionHandler (n,
-                               this).actionPerformed (new ActionEvent (this,
-                                                                       0,
-                                                                       "edit"));
+      UIUtils.doLater (new ActionListener ()
+      {
+         
+         public void actionPerformed (ActionEvent ev)
+         {
+            
+            try
+            {
+               
+    
+               _this.scrollToNote (n);
+       
+               new NoteActionHandler (n,
+                                     _this).actionPerformed (new ActionEvent (_this,
+                                                                               0,
+                                                                               "edit"));
+                                           
+            } catch (Exception e) {
+               
+               Environment.logError ("Unable to edit item: " +
+                                     n,
+                                     e);
+               
+               UIUtils.showErrorMessage (_this,
+                                         "Unable to edit item, please contact Quoll Writer support for assistance.");
 
-    }
-
-    public void showNote (Note n)
-                   throws GeneralException
-    {
-
-        this.scrollToNote (n);
-
-        new ShowNoteActionHandler (n,
-                                   this).showItem ();
-
-    }
-
-    public void editScene (Scene s)
-                    throws GeneralException
-    {
-
-        this.scrollToItem (s);
-
-        new ChapterItemActionHandler (s,
-                                      this,
-                                      AbstractActionHandler.EDIT,
-                                      s.getPosition ()).actionPerformed (new ActionEvent (this,
-                                                                                          0,
-                                                                                          "edit"));
-
-    }
-
-    public void showScene (Scene s)
-                    throws GeneralException
-    {
-
-        this.scrollToItem (s);
-
-        new ShowSceneActionHandler (s,
-                                    this).showItem ();
+            }
+                                       
+         }
+            
+      });
 
     }
 
-    public void editOutlineItem (OutlineItem n)
-                          throws GeneralException
-    {
+   public void showNote (final  Note n)
+                         throws GeneralException
+   {
 
-        this.scrollToOutlineItem (n);
+      final QuollEditorPanel _this = this;
 
-        new ChapterItemActionHandler (n,
-                                      this,
-                                      AbstractActionHandler.EDIT,
-                                      n.getPosition ()).actionPerformed (new ActionEvent (this,
-                                                                                          0,
-                                                                                          "edit"));
+      UIUtils.doLater (new ActionListener ()
+      {
+                                 
+         public void actionPerformed (ActionEvent ev)
+         {
+         
+            try
+            {
+               
+               _this.scrollToNote (n);
+       
+               _this.iconColumn.showItem (n);
+                                           
+            } catch (Exception e) {
+               
+               Environment.logError ("Unable to show item: " +
+                                     n,
+                                     e);
+               
+               UIUtils.showErrorMessage (_this,
+                                         "Unable to show item, please contact Quoll Writer support for assistance.");
 
-    }
-
-    public void showOutlineItem (OutlineItem n)
-                          throws GeneralException
-    {
-
-        this.scrollToOutlineItem (n);
-
-        new ShowOutlineItemActionHandler (n,
+            }
+                                       
+         }
+            
+      });
+        /*
+        new ShowChapterItemActionHandler (n,
                                           this).showItem ();
+*/
+    }
 
+   public void editScene (final  Scene s)
+                          throws GeneralException
+   {
+
+      final QuollEditorPanel _this = this;
+   
+      UIUtils.doLater (new ActionListener ()
+      {
+         
+         public void actionPerformed (ActionEvent ev)
+         {
+            
+            try
+            {
+               
+               _this.scrollToItem (s);
+
+               new ChapterItemActionHandler (s,
+                                             _this,
+                                             AbstractActionHandler.EDIT,
+                                             s.getPosition ()).actionPerformed (new ActionEvent (_this,
+                                                                                                 0,
+                                                                                                 "edit"));
+            } catch (Exception e) {
+               
+               Environment.logError ("Unable to edit item: " +
+                                     s,
+                                     e);
+               
+               UIUtils.showErrorMessage (_this,
+                                         "Unable to edit item, please contact Quoll Writer support for assistance.");
+
+            }            
+            
+         }
+         
+      });
+   
+    }
+
+   public void showScene (final  Scene s)
+                          throws GeneralException
+    {
+
+      final QuollEditorPanel _this = this;
+
+      UIUtils.doLater (new ActionListener ()
+      {
+         
+         public void actionPerformed (ActionEvent ev)
+         {
+            
+            try
+            {
+               
+               _this.scrollToItem (s);
+       
+               _this.iconColumn.showItem (s);
+                                           
+            } catch (Exception e) {
+               
+               Environment.logError ("Unable to show item: " +
+                                     s,
+                                     e);
+               
+               UIUtils.showErrorMessage (_this,
+                                         "Unable to show item, please contact Quoll Writer support for assistance.");
+
+            }
+                                       
+         }
+            
+      });
+    
+        /*
+        new ShowChapterItemActionHandler (s,
+                                          this).showItem ();
+*/
+    }
+
+    public void editOutlineItem (final  OutlineItem n)
+                                 throws GeneralException
+    {
+
+      final QuollEditorPanel _this = this;
+
+      UIUtils.doLater (new ActionListener ()
+      {
+         
+         public void actionPerformed (ActionEvent ev)
+         {
+            
+            try
+            {
+
+               _this.scrollToOutlineItem (n);
+       
+               new ChapterItemActionHandler (n,
+                                             _this,
+                                             AbstractActionHandler.EDIT,
+                                             n.getPosition ()).actionPerformed (new ActionEvent (this,
+                                                                                                 0,
+                                                                                                 "edit"));
+            } catch (Exception e) {
+               
+               Environment.logError ("Unable to show item: " +
+                                     n,
+                                     e);
+               
+               UIUtils.showErrorMessage (_this,
+                                         "Unable to show item, please contact Quoll Writer support for assistance.");
+
+            }
+
+         }
+         
+      });
+            
+    }
+
+   public void showOutlineItem (final  OutlineItem n)
+   {
+
+      final QuollEditorPanel _this = this;
+
+      UIUtils.doLater (new ActionListener ()
+      {
+                                 
+         public void actionPerformed (ActionEvent ev)
+         {
+         
+            try
+            {
+               
+               _this.scrollToOutlineItem (n);
+       
+               _this.iconColumn.showItem (n);
+                                           
+            } catch (Exception e) {
+               
+               Environment.logError ("Unable to show item: " +
+                                     n,
+                                     e);
+               
+               UIUtils.showErrorMessage (_this,
+                                         "Unable to show item, please contact Quoll Writer support for assistance.");
+
+            }
+                                       
+         }
+            
+      });
+        /*
+        new ShowChapterItemActionHandler (n,
+                                          this).showItem ();
+*/
     }
 
     public void scrollToNote (Note n)
@@ -708,7 +1527,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         this.scrollToPosition (n.getPosition ());
 
     }
-
+/*
     public void scrollToPosition (int p)
                            throws GeneralException
     {
@@ -745,7 +1564,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         this.scrollPane.getVerticalScrollBar ().setValue (y);
 
     }
-
+*/
     public List<Component> getTopLevelComponents ()
     {
 
@@ -777,16 +1596,30 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
     }
 
+    public void reinitIconColumn ()
+                                  throws GeneralException
+    {
+
+        try
+        {
+    
+            this.iconColumn.init ();
+            
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to init icon column",
+                                        e);
+            
+        }
+        
+    }
+    
     public void doInit ()
                  throws GeneralException
     {
 
         final QuollEditorPanel _this = this;
 
-        ProjectViewer.addAssetActionMappings (this,
-                                              this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW),
-                                              this.getActionMap ());
-        
         this.problemFinderPanel = new Box (BoxLayout.Y_AXIS);
         this.problemFinderPanel.setOpaque (true);
         this.problemFinderPanel.setBackground (UIUtils.getComponentColor ());
@@ -813,22 +1646,28 @@ public class QuollEditorPanel extends AbstractEditorPanel
                                             
                                         }));
 
+         ActionAdapter finishAction = new ActionAdapter ()
+         {
+             
+             public void actionPerformed (ActionEvent ev)
+             {
+
+                 _this.problemFinderPanel.setVisible (false);
+
+                 _this.problemFinder.reset ();
+                                               
+                 _this.editor.setHighlightWritingLine (_this.projectViewer.isHighlightWritingLine ());
+                                                    
+                  _this.editor.grabFocus ();
+                                                                 
+             }
+             
+         };
+                                        
         hbuts.add (UIUtils.createButton ("cancel",
                                         Constants.ICON_MENU,
                                         "Click to stop looking for problems.",
-                                        new ActionAdapter ()
-                                        {
-                                            
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-
-                                                _this.problemFinderPanel.setVisible (false);
-                            
-                                                _this.problemFinder.reset ();
-                                                                                                
-                                            }
-                                            
-                                        }));
+                                        finishAction));
 
         hbuts.add (UIUtils.createHelpPageButton ("chapters/problem-finder",
                                                 Constants.ICON_MENU,
@@ -865,7 +1704,9 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         buts.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        JButton cbut = UIUtils.createButton ("config",
+        JButton cbut = null;
+        /*
+        UIUtils.createButton ("config",
                                              Constants.ICON_MENU,
                                              "Click to configure the text rules.",
                                              new ActionAdapter ()
@@ -883,7 +1724,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         buts.add (cbut);
 
         buts.add (Box.createHorizontalStrut (5));
-
+*/
         JButton prev = new JButton (Environment.getIcon ("previous",
                                                          Constants.ICON_MENU));
         prev.addActionListener (new ActionAdapter ()
@@ -960,27 +1801,15 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         buts.add (Box.createHorizontalStrut (5));
 
-        JButton cancel = UIUtils.createButton ("Finish",
+        JButton finish = UIUtils.createButton ("Finish",
                                                null);
 
-        cancel.addActionListener (new ActionAdapter ()
-            {
+        finish.addActionListener (finishAction);
 
-                public void actionPerformed (ActionEvent ev)
-                {
+        finish.setToolTipText ("Stop looking for problems");
+        finish.setHorizontalTextPosition (SwingConstants.LEFT);
 
-                    _this.problemFinderPanel.setVisible (false);
-
-                    _this.problemFinder.reset ();
-
-                }
-
-            });
-
-        cancel.setToolTipText ("Stop looking for problems");
-        cancel.setHorizontalTextPosition (SwingConstants.LEFT);
-
-        buts.add (cancel);
+        buts.add (finish);
                 
         buts.add (Box.createHorizontalGlue ());
 
@@ -997,21 +1826,34 @@ public class QuollEditorPanel extends AbstractEditorPanel
             public void mousePressed (MouseEvent ev)
             {
                 
-                int s = _this.problemFinder.getIgnoredIssues ().size ();
-                
-                if (JOptionPane.showConfirmDialog (_this.projectViewer,
-                                                   "Please confirm you wish to un-ignore the " + s + " problem" + (s > 1 ? "s" :"") + "?",
-                                                   UIUtils.getFrameTitle ("Un-ignore problems"),
-                                                   JOptionPane.YES_NO_OPTION,
-                                                   JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-                {
-                
-                    _this.problemFinder.removeAllIgnores ();
-                    
-                    _this.updateIgnoredProblemsLabel ();
+               int s = _this.problemFinder.getIgnoredIssues ().size ();
 
-                }
-                
+               String pl = (s > 1 ? "s" :"");
+  
+               UIUtils.createQuestionPopup (_this.projectViewer,
+                                            "Un-ignore " + s + " problem" + pl,
+                                            Constants.PROBLEM_FINDER_ICON_NAME,
+                                            "Please confirm you wish to un-ignore the " +
+                                            s +
+                                            " problem" + pl + "?",
+                                            "Yes, un-ignore " + (s == 1 ? "it" : "them"),
+                                            null,
+                                            new ActionListener ()
+                                            {
+                                               
+                                               public void actionPerformed (ActionEvent ev)
+                                               {
+
+                                                  _this.problemFinder.removeAllIgnores ();
+                                                  
+                                                  _this.updateIgnoredProblemsLabel ();
+
+                                               }
+                                               
+                                            },
+                                            null,
+                                            null);
+                                
             }
             
         });
@@ -1027,106 +1869,70 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         this.add (this.problemFinderPanel);
 
-        this.actions.put ("chapter-info",
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  try
-                                  {
-
-                                      _this.projectViewer.viewChapterInformation (_this.chapter);
-
-                                  } catch (Exception e)
-                                  {
-
-                                      Environment.logError ("Unable to show chapter information for: " +
-                                                            _this.chapter,
-                                                            e);
-
-                                      UIUtils.showErrorMessage (_this,
-                                                                Environment.replaceObjectNames ("Unable to show {chapter}."));
-
-                                  }
-
-                              }
-
-                          });
-
-        this.actions.put ("find-problems",
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  _this.showProblemFinder ();
-
-                              }
-
-                          });
-
-        this.iconColumn.setOutlineItems (this.chapter.getOutlineItems (),
-                                         this);
-
-        this.iconColumn.setNotes (this.chapter.getNotes (),
-                                  this);
-
-        this.iconColumn.setScenes (this.chapter.getScenes (),
-                                   this);
+        this.reinitIconColumn ();
 
     }
 
-    public void showProblemFinder ()
-    {
+   public void showProblemFinder ()
+   {
+
+      if (!this.projectViewer.isLanguageFunctionAvailable ())
+      {
+
+         return;
+      
+      }
         
-        try
-        {
-              
-            this.problemFinder.start ();
+      // Disable typewriter scrolling when the problem finder is active.
+      this.setUseTypewriterScrolling (false);
+      this.editor.setHighlightWritingLine (false);
 
-        } catch (Exception e)
-        {
+      this.problemFinderPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                              this.problemFinderPanel.getPreferredSize ().height));
 
-            Environment.logError ("Unable to start problem finding",
-                                  e);
+      this.problemFinderPanel.setVisible (true);
 
-            UIUtils.showErrorMessage (this,
-                                      "Unable to open problem finding panel");
-
-            return;
-
-        }
-
-        this.problemFinderPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                                this.problemFinderPanel.getPreferredSize ().height));
-
-        this.problemFinderPanel.setVisible (true);
-
-        this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                             ProjectEvent.SHOW);
-        
-        try
-        {
-        
-            this.problemFinder.next ();
+      this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                           ProjectEvent.SHOW);
+      
+      try
+      {
             
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to start problem finding",
-                                  e);
-            
-            UIUtils.showErrorMessage (this,
-                                      "Unable to start problem finding");
-            
-            return;
-                        
-        }
-        
+          this.problemFinder.start ();
+
+      } catch (Exception e)
+      {
+
+         Environment.logError ("Unable to start problem finding",
+                               e);
+
+         UIUtils.showErrorMessage (this,
+                                   "Unable to open problem finding panel");
+
+         return;
+
+      }
+
+      /*
+      try
+      {
+      
+          this.problemFinder.next ();
+          
+      } catch (Exception e) {
+          
+          Environment.logError ("Unable to start problem finding",
+                                e);
+          
+          UIUtils.showErrorMessage (this,
+                                    "Unable to start problem finding");
+          
+          return;
+                      
+      }
+        */
     }
-
+    
     private void updateIgnoredProblemsLabel ()
     {
         
@@ -1205,4 +2011,92 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
     }
 
+   private static class CutNPasteTransferHandler extends TransferHandler 
+   {
+        public void exportToClipboard(JComponent comp, Clipboard clipboard,
+                                      int action)
+        throws IllegalStateException
+        {
+         
+            if (comp instanceof JTextComponent)
+            {
+               
+                JTextComponent text = (JTextComponent)comp;
+                int p0 = text.getSelectionStart();
+                int p1 = text.getSelectionEnd();
+                if (p0 != p1) {
+                    try {
+                        Document doc = text.getDocument();
+                        String srcData = doc.getText(p0, p1 - p0);
+         
+                        StringSelection contents =new StringSelection(srcData);
+
+                        // this may throw an IllegalStateException,
+                        // but it will be caught and handled in the
+                        // action that invoked this method
+                        clipboard.setContents(contents, null);
+
+                        if (action == TransferHandler.MOVE) {
+                            doc.remove(p0, p1 - p0);
+                        }
+                    } catch (BadLocationException ble) {}
+                }
+            }
+        }
+        
+        public boolean importData(JComponent comp, Transferable t)
+        {
+        
+            if (comp instanceof JTextComponent) {
+                DataFlavor flavor = getFlavor(t.getTransferDataFlavors());
+
+                if (flavor != null) {
+                    InputContext ic = comp.getInputContext();
+                    if (ic != null) {
+                        ic.endComposition();
+                    }
+                    try {
+                        String data = (String)t.getTransferData(flavor);
+
+                        ((JTextComponent)comp).replaceSelection(data);
+                        return true;
+                    } catch (UnsupportedFlavorException ufe) {
+                    } catch (IOException ioe) {
+                    }
+                }
+            }
+            return false;
+        }
+        
+        public boolean canImport(JComponent comp,
+                                 DataFlavor[] transferFlavors)
+        {
+         
+            JTextComponent c = (JTextComponent)comp;
+            if (!(c.isEditable() && c.isEnabled())) {
+                return false;
+            }
+            return (getFlavor(transferFlavors) != null);
+        }
+        
+        public int getSourceActions(JComponent c)
+        {
+        
+            return NONE;
+        
+        }
+        
+        private DataFlavor getFlavor(DataFlavor[] flavors)
+        {
+            if (flavors != null) {
+                for (int counter = 0; counter < flavors.length; counter++) {
+                    if (flavors[counter].equals(DataFlavor.stringFlavor)) {
+                        return flavors[counter];
+                    }
+                }
+            }
+            return null;
+        }
+    }    
+    
 }

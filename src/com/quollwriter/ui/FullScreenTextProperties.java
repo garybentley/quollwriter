@@ -37,7 +37,11 @@ public class FullScreenTextProperties extends TextProperties
                            proj.getPropertyAsFloat (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
                                                     Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
                            UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME)),
-                           UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME)));
+                           UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME)),
+                           UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                                               Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
+                           proj.getPropertyAsBoolean (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
+                                                      Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
         
     }
 
@@ -133,6 +137,26 @@ public class FullScreenTextProperties extends TextProperties
         
     }
     
+    public void setWritingLineColor (Color c)
+    {
+
+        super.setWritingLineColor (c);
+
+        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                              UIUtils.colorToHex (this.getWritingLineColor ())));    
+    
+    }    
+ 
+    public void setHighlightWritingLine (boolean v)
+    {
+
+        super.setHighlightWritingLine (v);
+
+        this.setProperty (new BooleanProperty (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
+                                               this.isHighlightWritingLine ()));    
+    
+    }
+    
     public void setLineSpacing (float v)
     {
         
@@ -140,7 +164,7 @@ public class FullScreenTextProperties extends TextProperties
         
         this.setProperty (new FloatProperty (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
                                              this.getLineSpacing ()));
-        
+            
     }
     
     public void setFirstLineIndent (boolean v)
@@ -185,7 +209,7 @@ public class FullScreenTextProperties extends TextProperties
     
     private void setProperty (AbstractProperty prop)
     {
-        
+
         com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
 
         prop.setDescription ("N/A");

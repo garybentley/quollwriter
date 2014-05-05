@@ -20,21 +20,118 @@ import com.quollwriter.ui.components.FormEvent;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
 
-
-public class NewIdeaTypeActionHandler extends FormAdapter
+public class NewIdeaTypeActionHandler extends TextInputActionHandler
 {
 
-    private JTextField nameField = UIUtils.createTextField ();
-    private Form       f = null;
     private IdeaBoard  ideaBoard = null;
 
-    public NewIdeaTypeActionHandler(IdeaBoard ib)
+    public NewIdeaTypeActionHandler (IdeaBoard ib)
     {
 
+        super (ib.getProjectViewer ());
+    
         this.ideaBoard = ib;
 
     }
 
+    public String getIcon ()
+    {
+        
+        return Constants.ADD_ICON_NAME;
+        
+    }
+    
+    public String getTitle ()
+    {
+        
+        return "Add New Idea Type";
+        
+    }
+    
+    public String getHelp ()
+    {
+        
+        return "Add the name of the new Idea type below.";
+        
+    }
+    
+    public String getConfirmButtonLabel ()
+    {
+        
+        return "Add";
+        
+    }
+    
+    public String getInitialValue ()
+    {
+        
+        return null;
+        
+    }
+    
+    public String isValid (String v)
+    {
+        
+        if ((v == null)
+            ||
+            (v.trim ().length () == 0)
+           )
+        {
+            
+            return "Please enter a name.";
+            
+        }
+
+        if (this.ideaBoard.hasTypeWithName (v))
+        {
+
+            return "A type called: " + v + " already exists.";
+
+        }
+        
+        return null;
+    
+    }
+    
+    public boolean onConfirm (String v)
+                              throws Exception
+    {
+
+        try
+        {
+
+            this.ideaBoard.addNewType (v,
+                                       null,
+                                       true);
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to add new idea type with name: " +
+                                        v,
+                                        e);
+
+        }
+        
+        return true;
+        
+    }
+    
+    public boolean onCancel ()
+                             throws Exception
+    {
+        
+        return true;
+        
+    }
+    
+    public Point getShowAt ()
+    {
+        
+        return null;
+        
+    }
+/*    
     private void initForm ()
     {
 
@@ -156,5 +253,5 @@ public class NewIdeaTypeActionHandler extends FormAdapter
         this.f.hideForm ();
 
     }
-
+*/
 }

@@ -7,27 +7,39 @@ public class Issue
 {
 
     private String   desc = null;
-    private Position sentenceStartPos = null;
-    private Position sentenceEndPos = null;
-    private int      startWordPosition = -1;
+    private Position startPos = null;
+    private Position endPos = null;
+    private int      startIssuePosition = -1;
     private int      length = -1;
     private String   ruleId = null;
     private Rule     rule = null;
 
-    public Issue(String desc,
-                 int    startWordPosition,
-                 int    length,
-                 Rule   rule)
+    public Issue (String    desc,
+                  TextBlock text,
+                  Rule      rule)
+    {
+
+        this (desc,
+              text.getAllTextStartOffset (),
+              text.getText ().length (),
+              rule);
+
+    }
+
+    public Issue (String    desc,
+                  int       startIssuePosition,
+                  int       length,
+                  Rule      rule)
     {
 
         this.desc = desc;
-        this.startWordPosition = startWordPosition;
+        this.startIssuePosition = startIssuePosition;
         this.length = length;
         this.rule = rule;
         this.ruleId = rule.getId ();
 
     }
-
+    
     public String getRuleId ()
     {
 
@@ -45,8 +57,8 @@ public class Issue
     public boolean equals (Issue iss)
     {
 
-        if ((this.sentenceStartPos.getOffset () == iss.sentenceStartPos.getOffset ()) &&
-            (this.startWordPosition == iss.startWordPosition) &&
+        if ((this.startPos.getOffset () == iss.startPos.getOffset ()) &&
+            (this.startIssuePosition == iss.startIssuePosition) &&
             (this.ruleId.equals (iss.ruleId)))
         {
 
@@ -79,13 +91,20 @@ public class Issue
 
     }
 
-    public int getStartWordPosition ()
+    public int getStartIssuePosition ()
     {
 
-        return this.startWordPosition;
+        return this.startIssuePosition;
 
     }
 
+    public int getEndIssuePosition ()
+    {
+        
+        return this.startIssuePosition + this.getLength ();
+        
+    }
+    
     public int getLength ()
     {
 
@@ -93,38 +112,38 @@ public class Issue
 
     }
 
-    public Position getSentenceStartPosition ()
+    public Position getStartPosition ()
     {
 
-        return this.sentenceStartPos;
+        return this.startPos;
 
     }
 
-    public Position getSentenceEndPosition ()
+    public Position getEndPosition ()
     {
 
-        return this.sentenceEndPos;
+        return this.endPos;
 
     }
 
-    public void setSentenceStartPosition (Position p)
+    public void setStartPosition (Position p)
     {
 
-        this.sentenceStartPos = p;
+        this.startPos = p;
 
     }
 
-    public void setSentenceEndPosition (Position p)
+    public void setEndPosition (Position p)
     {
 
-        this.sentenceEndPos = p;
+        this.endPos = p;
 
     }
 
     public String toString ()
     {
 
-        return this.desc + ": " + this.sentenceStartPos + " - " + this.sentenceEndPos + "(" + this.startWordPosition + " - " + this.length + ")";
+        return this.desc + ": " + this.startPos + " - " + this.endPos + "(" + this.startIssuePosition + " - " + this.length + ")";
 
     }
 

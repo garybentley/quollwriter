@@ -7,7 +7,7 @@ import java.util.*;
 import com.quollwriter.ui.events.*;
 
 import com.swabunga.spell.engine.*;
-
+import com.swabunga.spell.event.*;
 
 public class DictionaryProvider
 {
@@ -17,6 +17,7 @@ public class DictionaryProvider
     private QWSpellDictionaryHashMap       userDict = null;
     private QWSpellDictionaryHashMap       projDict = null;
     private File                           userDictFile = null;
+    private SpellChecker                   checker = null;
 
     public DictionaryProvider(List<InputStream> files,
                               List<String>      projWords,
@@ -24,15 +25,29 @@ public class DictionaryProvider
                        throws IOException
     {
 
-        for (int i = 0; i < files.size (); i++)
+        this.checker = new SpellChecker ();    
+    
+        if (files != null)
         {
-
-            InputStreamReader r = new InputStreamReader ((InputStream) files.get (i));
-
-            this.dicts.add (new QWSpellDictionaryHashMap (r));
+    
+            for (InputStream in : files)
+            {
+                
+                if (in == null)
+                {
+                    
+                    continue;
+                    
+                }
+            
+                InputStreamReader r = new InputStreamReader (in);
+    
+                this.checker.addDictionary (new QWSpellDictionaryHashMap (r));            
+                    
+            }
 
         }
-
+            
         if (projWords != null)
         {
 
@@ -48,7 +63,9 @@ public class DictionaryProvider
 
             this.projDict = new QWSpellDictionaryHashMap (new StringReader (b.toString ()));
 
-            this.dicts.add (this.projDict);
+            this.checker.addDictionary (this.projDict);
+            
+            //this.dicts.add (this.projDict);
 
         }
 
@@ -56,6 +73,8 @@ public class DictionaryProvider
 
         this.userDictFile = userDict;
 
+        this.checker.setUserDictionary (this.userDict);
+        
     }
 
     public void addDictionaryChangedListener (DictionaryChangedListener l)
@@ -91,6 +110,13 @@ public class DictionaryProvider
 
         }
 
+    }
+    
+    public SpellChecker getSpellChecker ()
+    {
+        
+        return this.checker;
+        
     }
 
     public void removeWord (String word,
@@ -197,7 +223,7 @@ public class DictionaryProvider
         }
 
     }
-
+/*
     public QWSpellDictionaryHashMap getUserDictionary ()
     {
 
@@ -205,11 +231,11 @@ public class DictionaryProvider
 
     }
 
-    public List getDictionaries ()
+    public List<QWSpellDictionaryHashMap> getDictionaries ()
     {
 
         return this.dicts;
 
     }
-
+*/
 }

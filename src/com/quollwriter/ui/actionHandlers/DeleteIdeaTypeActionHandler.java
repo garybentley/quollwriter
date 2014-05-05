@@ -12,73 +12,46 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.panels.*;
 
-public class DeleteIdeaTypeActionHandler extends ActionAdapter
+public class DeleteIdeaTypeActionHandler extends YesDeleteConfirmTextInputActionHandler
 {
 
     private IdeaType  ideaType = null;
     private IdeaBoard ideaBoard = null;
 
-    public DeleteIdeaTypeActionHandler(IdeaType  it,
-                                       IdeaBoard ib)
+    public DeleteIdeaTypeActionHandler (IdeaType  it,
+                                        IdeaBoard ib)
     {
 
+        super (ib.getProjectViewer (),
+               it);
+    
         this.ideaType = it;
         this.ideaBoard = ib;
 
     }
 
-    private String showDialog ()
+    public String getWarning ()
     {
-
-        Object o = JOptionPane.showInputDialog (this.ideaBoard,
-                                                "Please confirm you wish to delete Idea Type: " +
-                                                this.ideaType.getName () +
-                                                "\nby entering the word \"Yes\" in the box below." +
-                                                "\n\nWarning!  All ideas associated with the type\nwill be deleted.  Once deleted a type and ideas cannot be restored.\n",
-                                                "Confirm deletion of Idea Type: " + this.ideaType.getName (),
-                                                JOptionPane.WARNING_MESSAGE);
-
-        if (o == null)
-        {
-
-            return "cancel";
-
-        }
-
-        if (!o.toString ().toLowerCase ().equals ("yes"))
-        {
-
-            return "error";
-
-        }
-
-        return "ok";
-
+        
+        return "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored.";
+        
     }
-
-    public void actionPerformed (ActionEvent ev)
+    
+    public String getDeleteType ()
     {
-
-        String res = "";
-
-        while ((res = this.showDialog ()).equals ("error"))
-        {
-
-            UIUtils.showErrorMessage (this.ideaBoard,
-                                      "Please enter the word \"Yes\" to confirm deletion of " +
-                                      this.ideaType.getName ());
-
-        }
-
-        if (res.equals ("cancel"))
-        {
-
-            return;
-
-        }
-
+        
+        return "Idea Type";
+        
+    }
+    
+    public boolean onConfirm (String v)
+                              throws Exception
+    {
+        
         this.ideaBoard.deleteIdeaType (this.ideaType);
-
+        
+        return true;
+        
     }
 
 }

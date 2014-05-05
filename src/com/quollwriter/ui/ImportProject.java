@@ -422,7 +422,11 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
             this.newProjectPanel = new NewProjectPanel ();
 
-            ws.panel = this.newProjectPanel.createPanel (this);
+            ws.panel = this.newProjectPanel.createPanel (this,
+                                                         null,
+                                                         false,
+                                                         null,
+                                                         false);
 
         }
 

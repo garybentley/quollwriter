@@ -15,114 +15,94 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.FormAdapter;
-import com.quollwriter.ui.components.FormEvent;
-import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.ActionAdapter;
 
-
-public class AddNewNoteTypeActionHandler extends FormAdapter
+public class AddNewNoteTypeActionHandler extends TextInputActionHandler
 {
 
-    private JTextField            nameField = UIUtils.createTextField ();
-    private Form                  f = null;
-    private Project               project = null;
-    private ProjectViewer projectViewer = null;
-
-    public AddNewNoteTypeActionHandler (ProjectViewer pv)
+    public AddNewNoteTypeActionHandler (AbstractProjectViewer pv)
     {
 
-        this.project = pv.getProject ();
-        this.projectViewer = pv;
-
+        super (pv);
+    
     }
 
-    private void initForm ()
+    public String getIcon ()
     {
-
-        List items = new ArrayList ();
-        items.add (new FormItem ("Name",
-                                 this.nameField));
-
-        this.f = new Form ("Add New Note Type",
-                           Environment.getIcon ("add",
-                                                Constants.ICON_POPUP),
-                           items,
-                           this.projectViewer,
-                           Form.SAVE_CANCEL_BUTTONS);
-
-        f.addFormListener (this);
-
-        final Form form = this.f;
-
-        this.nameField.addKeyListener (new KeyAdapter ()
+        
+        return Constants.ADD_ICON_NAME;
+        
+    }
+    
+    public String getTitle ()
+    {
+        
+        return "Add New {Note} Type";
+        
+    }
+    
+    public String getHelp ()
+    {
+        
+        return "Add the name of the new {note} type below.";
+        
+    }
+    
+    public String getConfirmButtonLabel ()
+    {
+        
+        return "Add";
+        
+    }
+    
+    public String getInitialValue ()
+    {
+        
+        return null;
+        
+    }
+    
+    public String isValid (String v)
+    {
+        
+        if ((v == null)
+            ||
+            (v.trim ().length () == 0)
+           )
         {
-
-            public void keyPressed (KeyEvent ev)
-            {
-
-                if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                {
-
-                    // This is the same as save for the form.
-                    form.fireFormEvent (FormEvent.SAVE,
-                                        FormEvent.SAVE_ACTION_NAME);
-
-                }
-
-            }
-
-        });
-
-    }
-
-    public void actionPerformed (ActionEvent ev)
-    {
-
-        this.initForm ();
-
-        this.f.setBounds (200,
-                          200,
-                          this.f.getPreferredSize ().width,
-                          this.f.getPreferredSize ().height);
-
-        this.projectViewer.addPopup (this.f);
-
-        this.f.setVisible (true);
-
-        this.nameField.grabFocus ();
-
-        this.nameField.selectAll ();
-
-    }
-
-    public void actionPerformed (FormEvent ev)
-    {
-
-        if (ev.getID () != FormEvent.SAVE)
-        {
-
-            return;
-
+            
+            return "Please enter a name.";
+            
         }
-
-        String newName = this.nameField.getText ().trim ();
-
-        if (newName.equals (""))
-        {
-
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Please select a name.");
-
-            return;
-
-        }
-
-        this.projectViewer.getNoteTypeHandler ().addType (newName,
-                                                          false);
-
-        this.f.hideForm ();
-
+        
+        return null;
+    
+    }
+    
+    public boolean onConfirm (String v)
+                              throws Exception
+    {
+        
+        this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).addType (v,
+                                                                             false);
+        
+        return true;
+        
+    }
+    
+    public boolean onCancel ()
+                             throws Exception
+    {
+        
+        return true;
+        
+    }
+    
+    public Point getShowAt ()
+    {
+        
+        return null;
+        
     }
 
 }

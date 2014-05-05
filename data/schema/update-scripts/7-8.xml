@@ -1,0 +1,16 @@
+<update-script from="7" to="8">
+  <item>
+    <log>Add the edit position for a chapter.</log>
+    <sql>
+ALTER TABLE chapter ADD editposition INTEGER
+    </sql>
+  </item>
+
+  <item>
+    <log>Add the edit complete flag for a chapter.</log>
+    <sql>
+ALTER TABLE chapter ADD editcomplete BOOLEAN
+    </sql>
+  </item>
+  
+</update-script>

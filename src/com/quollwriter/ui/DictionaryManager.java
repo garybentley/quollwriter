@@ -49,6 +49,8 @@ public class DictionaryManager extends PopupWindow
     private JTree       itemsTree = null;
     private JScrollPane itemsTreeScroll = null;
     private Project     proj = null;
+    private JTable      wordTable = null;
+    private FileWatcher watcher = null;
 
     public DictionaryManager(AbstractProjectViewer pv)
     {
@@ -87,35 +89,19 @@ public class DictionaryManager extends PopupWindow
 
     }
 
-    public JComponent getContentPanel ()
+    private void update ()
     {
-
-        final DictionaryManager _this = this;
-
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.setOpaque (true);
-        b.setBackground (null);
-
-        b.add (UIUtils.createBoldSubHeader ("New Words",
-                                            null));
-
-        JTextPane tp = UIUtils.createHelpTextPane ("Enter the new words to add below, separate the words with commas or semi-colons.");
-
-        tp.setBorder (new EmptyBorder (5,
-                                       5,
-                                       0,
-                                       5));
-
-        b.add (tp);
-
-        final JTextField newWords = UIUtils.createTextField ();
-        newWords.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+        
+        if (this.wordTable == null)
+        {
+            
+            return;
+            
+        }
+        
         // Get the words.
         File userDict = Environment.getUserDictionaryFile ();
-
+        
         Vector<Vector> words = new Vector ();
 
         String w = null;
@@ -128,6 +114,8 @@ public class DictionaryManager extends PopupWindow
         } catch (Exception e)
         {
 
+            w = "";
+        
             Environment.logError ("Unable to get user dictionary file: " +
                                   userDict,
                                   e);
@@ -160,38 +148,89 @@ public class DictionaryManager extends PopupWindow
         Vector<String> cols = new Vector ();
         cols.add ("Word");
 
-        final JTable wordTable = new JTable ();
+        this.wordTable.setModel (new DefaultTableModel (words,
+                                                        cols)
+        {
 
-        wordTable.setModel (new DefaultTableModel (words,
-                                                   cols)
+            public boolean isCellEditable (int row,
+                                           int col)
             {
 
-                public boolean isCellEditable (int row,
-                                               int col)
-                {
+                return false;
 
-                    return false;
+            }
 
-                }
+        });
 
-            });
+        this.validate ();
+        this.repaint ();
+        
+    }
+    
+    public JComponent getContentPanel ()
+    {
 
-        Box fb = new Box (BoxLayout.X_AXIS);
+        final DictionaryManager _this = this;
+    
+        this.watcher = new FileWatcher ();
+        this.watcher.addFile (Environment.getUserDictionaryFile ());
+
+        this.watcher.addFileChangeListener (new FileChangeListener ()
+                                  {
+                                                                
+                                      public void fileChanged (FileChangeEvent ev,
+                                                               int             types)
+                                      {
+                                                                    
+                                          _this.update ();
+                                                                    
+                                      }
+                                                                
+                                  },
+                                  FileChangeEvent.MODIFIED | FileChangeEvent.EXISTS);
+
+        this.watcher.start ();    
+    
+        Box b = new Box (BoxLayout.Y_AXIS);
+
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        b.setOpaque (true);
+        b.setBackground (null);
+
+        b.add (UIUtils.createBoldSubHeader ("New Words",
+                                            null));
+
+        JTextPane tp = UIUtils.createHelpTextPane ("Enter the new words to add below, separate the words with commas or semi-colons.",
+                                                   this.projectViewer);
+
+        tp.setBorder (new EmptyBorder (5,
+                                       5,
+                                       0,
+                                       5));
+
+        b.add (tp);
+
+        final JTextField newWords = UIUtils.createTextField ();
+        newWords.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        this.wordTable = new JTable ();
+
+        this.update ();
+        
+        Box fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
         fb.add (newWords);
-
+        fb.add (Box.createVerticalStrut (5));
+        
         fb.setBorder (new EmptyBorder (5,
                                        5,
-                                       5,
+                                       20,
                                        5));
-        b.add (fb);
-
-        Box buts = new Box (BoxLayout.X_AXIS);
 
         final JButton add = new JButton ("Add");
 
-        buts.add (add);
-
+        JButton[] buts = new JButton[] { add };
+        
         final ActionAdapter aa = new ActionAdapter ()
         {
 
@@ -232,35 +271,26 @@ public class DictionaryManager extends PopupWindow
 
         add.addActionListener (aa);
 
-        newWords.addKeyListener (new KeyAdapter ()
-            {
+        UIUtils.addDoActionOnReturnPressed (newWords,
+                                            aa);        
 
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        aa.actionPerformed (null);
-
-                    }
-
-                }
-
-            });
-
-        buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buts.setBorder (new EmptyBorder (0,
-                                         5,
-                                         20,
-                                         5));
-
-        b.add (buts);
-
-        b.add (UIUtils.createBoldSubHeader ("Words in Dictionary",
-                                            null));
+        fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
+        
         b.add (Box.createVerticalStrut (5));
 
+        b.add (fb);
+        
+        b.add (UIUtils.createBoldSubHeader ("Words in Dictionary",
+                                            null));
+
+        fb = new Box (BoxLayout.Y_AXIS);
+        fb.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        fb.setBorder (new EmptyBorder (5,
+                                       5,
+                                       0,
+                                       5));
+        
         wordTable.setAlignmentX (Component.LEFT_ALIGNMENT);
         wordTable.setOpaque (false);
         wordTable.setFillsViewportHeight (true);
@@ -272,18 +302,14 @@ public class DictionaryManager extends PopupWindow
         // ppsp.setBorder (null);
         ppsp.setOpaque (false);
         ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        ppsp.setBorder (new CompoundBorder (new EmptyBorder (5,
-                                                             5,
-                                                             5,
-                                                             5),
-                                            ppsp.getBorder ()));
 
         ppsp.setPreferredSize (new Dimension (500,
                                               200));
         ppsp.getViewport ().setOpaque (false);
 
-        b.add (ppsp);
-
+        fb.add (ppsp);
+        fb.add (Box.createVerticalStrut (5));
+        
 /*
         ppsp.setMinimumSize (new Dimension (500,
                                             t.getRowHeight () * 10));
@@ -294,11 +320,9 @@ public class DictionaryManager extends PopupWindow
  */
 
 
-        buts = new Box (BoxLayout.X_AXIS);
-
         final JButton remove = new JButton ("Remove Selected");
 
-        buts.add (remove);
+        buts = new JButton[] { remove };
 
         remove.addActionListener (new ActionAdapter ()
             {
@@ -329,13 +353,9 @@ public class DictionaryManager extends PopupWindow
 
             });
 
-        buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buts.setBorder (new EmptyBorder (0,
-                                         5,
-                                         20,
-                                         5));
-
-        b.add (buts);
+        fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
+                                         
+        b.add (fb);
 
         return b;
 

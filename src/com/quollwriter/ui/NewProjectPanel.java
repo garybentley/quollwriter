@@ -9,6 +9,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
@@ -30,20 +31,43 @@ public class NewProjectPanel
     private JPasswordField passwordField2 = null;
     private JPasswordField passwordField = null;
     private JCheckBox      encryptField = null;
-
+    private JLabel         error = null;
+    
     public NewProjectPanel()
     {
-
+    
     }
 
-    public JPanel createPanel (final Component parent)
+    public JTextField getNameField ()
+    {
+        
+        return this.nameField;
+        
+    }
+        
+    public JComponent createPanel (final Component      parent,
+                                   final ActionListener onCreate,
+                                         boolean        createOnReturn,
+                                   final ActionListener onCancel,
+                                         boolean        addButtons)
     {
 
         final NewProjectPanel _this = this;
 
+        String rows = "p, 6px, p, 6px, p, 6px, p";
+        
+        if (addButtons)
+        {
+            
+            rows = rows + ", 6px, p";
+            
+        }
+        
+        int row = 1;
+        
         final FormLayout fl = new FormLayout ("right:p, 6px, fill:200px:grow, 2px, p",
-                                              "p, 6px, p, 6px, p, 6px, p, 6px, p");
-
+                                              rows);
+        fl.setHonorsVisibility (true);
         final PanelBuilder builder = new PanelBuilder (fl);
 
         final CellConstraints cc = new CellConstraints ();
@@ -52,14 +76,16 @@ public class NewProjectPanel
 
         builder.addLabel ("Name",
                           cc.xy (1,
-                                 1));
+                                 row));
         builder.add (this.nameField,
                      cc.xy (3,
-                            1));
+                            row));
 
+        row += 2;
+                            
         builder.addLabel ("Save In",
                           cc.xy (1,
-                                 3));
+                                 row));
 
         String defDir = null;
 
@@ -109,7 +135,7 @@ public class NewProjectPanel
 
         builder.add (this.saveField,
                      cc.xy (3,
-                            3));
+                            row));
 
         JButton findBut = new JButton (Environment.getIcon ("find",
                                                             Constants.ICON_MENU));
@@ -142,79 +168,262 @@ public class NewProjectPanel
 
         builder.add (findBut,
                      cc.xy (5,
-                            3));
+                            row));
 
-        this.encryptField = new JCheckBox ("Encrypt this project?  You will be prompted for a password.");
+        row += 2;
+                            
+        this.encryptField = UIUtils.createCheckBox ("Encrypt this {project}?  You will be prompted for a password.");
         this.encryptField.setBackground (Color.WHITE);
 
         builder.add (this.encryptField,
                      cc.xyw (3,
-                             5,
+                             row,
                              2));
 
-        FormLayout pfl = new FormLayout ("right:p, 6px, 100px, 6px, p, 6px, fill:100px",
-                                         "6px, p, 6px");
-
+        FormLayout pfl = new FormLayout ("right:p, 6px, 100px, 20px, p, 6px, fill:100px",
+                                         "p, 6px");
+        pfl.setHonorsVisibility (true);
         PanelBuilder pbuilder = new PanelBuilder (pfl);
 
         this.passwordField = new JPasswordField ();
 
         pbuilder.addLabel ("Password",
                            cc.xy (1,
-                                  2));
+                                  1));
 
         pbuilder.add (this.passwordField,
                       cc.xy (3,
-                             2));
+                             1));
 
         this.passwordField2 = new JPasswordField ();
 
         pbuilder.addLabel ("Confirm",
                            cc.xy (5,
-                                  2));
+                                  1));
 
         pbuilder.add (this.passwordField2,
                       cc.xy (7,
-                             2));
+                             1));
 
+        row += 2;
+                             
         final JPanel ppanel = pbuilder.getPanel ();
-
         ppanel.setVisible (false);
         ppanel.setOpaque (false);
 
         builder.add (ppanel,
                      cc.xyw (3,
-                             7,
+                             row,
                              2));
 
         this.encryptField.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void actionPerformed (ActionEvent ev)
+                ppanel.setVisible (_this.encryptField.isSelected ());
+
+                parent.repaint ();
+                
+                if (parent instanceof PopupWindow)
                 {
-
-                    ppanel.setVisible (_this.encryptField.isSelected ());
-
-                    parent.repaint ();
                     
-                    if (parent instanceof PopupWindow)
-                    {
-                        
-                        ((PopupWindow) parent).resize ();
-                        
-                    }
+                    ((PopupWindow) parent).resize ();
                     
                 }
+                
+            }
 
-            });
+        });
 
+        ActionListener createProjectAction = new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                                
+                if (!_this.createProject (parent))
+                {
+                    
+                    return;
+                         
+                } 
+                
+                if (onCreate != null)
+                {
+                    
+                    onCreate.actionPerformed (new ActionEvent (_this,
+                                                               0,
+                                                               _this.nameField.getText ()));
+                    
+                }
+                
+                if (parent instanceof PopupWindow)
+                {
+                    
+                    ((PopupWindow) parent).close ();
+                    
+                }                
+                
+            }
+            
+        };                    
+            
+        if (addButtons)
+        {
+            
+            row += 2;
+            
+            JButton createBut = new JButton ();
+            createBut.setText ("Create");
+
+            createBut.addActionListener (createProjectAction);
+                
+            JButton cancelBut = new JButton ();
+            cancelBut.setText ("Cancel");
+
+            if (onCancel != null)
+            {
+            
+                cancelBut.addActionListener (onCancel);
+                
+            }
+
+            if (parent instanceof PopupWindow)
+            {
+                
+                cancelBut.addActionListener (((PopupWindow) parent).getCloseAction ());
+                
+            }                
+            
+            JButton[] buts = { createBut, cancelBut };
+
+            JPanel bp = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
+            bp.setOpaque (false);
+            bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            builder.add (bp,
+                         cc.xyw (3,
+                                 row,
+                                 3));
+                        
+        }
+        
         JPanel p = builder.getPanel ();
         p.setOpaque (false);
+        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        
+        if (createOnReturn)
+        {
+                    
+            UIUtils.addDoActionOnReturnPressed (this.nameField,
+                                                createProjectAction);        
+            UIUtils.addDoActionOnReturnPressed (this.saveField,
+                                                createProjectAction);        
+            UIUtils.addDoActionOnReturnPressed (this.passwordField,
+                                                createProjectAction);        
+            UIUtils.addDoActionOnReturnPressed (this.passwordField2,
+                                                createProjectAction);        
 
-        return p;
+        }
+
+        this.error = UIUtils.createErrorLabel ("");
+        this.error.setVisible (false);
+        this.error.setBorder (new EmptyBorder (0,
+                                               0,
+                                               5,
+                                               0));
+        
+        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        b.add (this.error);
+        b.add (p);
+        
+        return b;
 
     }
 
+    public boolean createProject (Component parent)
+    {
+        
+        if (!this.checkForm (parent))
+        {
+            
+            return false;
+            
+        }
+
+        Project proj = new Project (this.getName ());
+
+        AbstractProjectViewer pj = null;
+
+        try
+        {
+
+            pj = Environment.getProjectViewerForType (proj);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to create new project: " +
+                                  proj,
+                                  e);
+
+            UIUtils.showErrorMessage (parent,
+                                      "Unable to create new project: " + proj.getName ());
+
+            return false;
+
+        }
+
+        try
+        {
+
+            pj.newProject (this.getSaveDirectory (),
+                           proj.getName (),
+                           this.getPassword ());
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to create new project: " +
+                                  proj,
+                                  e);
+
+            UIUtils.showErrorMessage (parent,
+                                      "Unable to create new project: " + proj.getName ());
+
+            return false;
+
+        }                
+        
+        return true;
+        
+    }
+    
+    private boolean showError (Component parent,
+                               String    text)
+    {
+        
+        this.error.setText (Environment.replaceObjectNames (text));
+        
+        this.error.setVisible (true);
+
+        parent.repaint ();
+        
+        if (parent instanceof PopupWindow)
+        {
+            
+            ((PopupWindow) parent).resize ();
+            
+        }
+        
+        return false;
+        
+    }
+    
     public boolean checkForm (Component parent)
     {
 
@@ -223,11 +432,9 @@ public class NewProjectPanel
         if (n.equals (""))
         {
 
-            UIUtils.showMessage (parent,
-                                 "Please provide a Name for the Project.");
-
-            return false;
-
+            return this.showError (parent,
+                                   "Please provide a name for the {project}.");
+                
         }
 
         // See if the project already exists.
@@ -236,12 +443,10 @@ public class NewProjectPanel
         if (pf.exists ())
         {
 
-            UIUtils.showMessage (parent,
-                                 "A Project with name: " +
-                                 n +
-                                 " already exists.");
-
-            return false;
+            return this.showError (parent,
+                                   "A {project} called: " +
+                                   n +
+                                   " already exists.");
 
         }
 
@@ -258,30 +463,24 @@ public class NewProjectPanel
             if (pwd.equals (""))
             {
 
-                UIUtils.showMessage (parent,
-                                     "Please provide a password for securing the Project files.");
-
-                return false;
+                return this.showError (parent,
+                                       "Please provide a password for securing the {project}.");
 
             }
 
             if (pwd2.equals (""))
             {
 
-                UIUtils.showMessage (parent,
-                                     "Please confirm your password.");
-
-                return false;
+                return this.showError (parent,
+                                       "Please confirm your password.");
 
             }
 
             if (!pwd.equals (pwd2))
             {
 
-                UIUtils.showMessage (parent,
-                                     "The passwords do not match.");
-
-                return false;
+                return this.showError (parent,
+                                       "The passwords do not match.");
 
             }
 
@@ -320,5 +519,5 @@ public class NewProjectPanel
         return this.nameField.getText ();
 
     }
-
+    
 }

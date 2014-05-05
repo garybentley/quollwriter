@@ -5,12 +5,16 @@ import java.awt.event.*;
 
 import java.io.File;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
+import javax.swing.filechooser.*;
 
 import com.gentlyweb.xml.*;
 
@@ -24,26 +28,28 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.events.*;
+import com.quollwriter.text.*;
+import com.quollwriter.db.*;
 
 import org.jdom.*;
 
 
-public class FindOrOpen extends JFrame
+public class FindOrOpen extends PopupWindow //JFrame
 {
 
-    public static int SHOW_TITLE = 1;
     public static int SHOW_OPEN = 2;
     public static int SHOW_NEW = 4;
-    public static int SHOW_ALL = FindOrOpen.SHOW_TITLE | FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW;
 
-    public static String SHOW_ALL_WINDOW_TITLE = "Open/Create New Project";
-    public static String SHOW_OPEN_WINDOW_TITLE = "Open a Project";
-    public static String SHOW_NEW_WINDOW_TITLE = "Create a New Project";
-
+    public static String SHOW_OPEN_WINDOW_TITLE = "Open a {Project}";
+    public static String SHOW_NEW_WINDOW_TITLE = "Create a New {Project}";
+    public static String SHOW_ALL_WINDOW_TITLE = "Open or create a {Project}";
+    
     private class ProjectTableModel extends AbstractTableModel
     {
 
         private java.util.List projs = null;
+        private Project loading = null;
 
         public ProjectTableModel(java.util.List projs)
         {
@@ -52,6 +58,38 @@ public class FindOrOpen extends JFrame
 
         }
 
+        public void removeProject (Project p)
+        {
+            
+            int r = this.projs.indexOf (p);
+            
+            this.projs.remove (p);
+            
+            this.fireTableRowsDeleted (r, r);
+            
+        }
+        
+        public void setLoading (Project p)
+        {
+            
+            this.loading = p;
+            
+        }
+        
+        public Class getColumnClass (int colInd)
+        {
+            
+            if (colInd == 0)
+            {
+                
+                return ImageIcon.class;
+                
+            }
+            
+            return String.class;
+            
+        }
+        
         public int getRowCount ()
         {
 
@@ -62,7 +100,7 @@ public class FindOrOpen extends JFrame
         public int getColumnCount ()
         {
 
-            return 2;
+            return 3;
 
         }
 
@@ -72,10 +110,17 @@ public class FindOrOpen extends JFrame
             if (colInd == 0)
             {
 
-                return "Name";
+                return "";
 
             }
 
+            if (colInd == 1)
+            {
+                
+                return "Name";
+                
+            }
+            
             return "Last Edited";
 
         }
@@ -86,7 +131,46 @@ public class FindOrOpen extends JFrame
 
             Project ps = (Project) this.projs.get (row);
 
+            // Check to see if the project is encrypted and/or is valid (i.e. project directory is
+            // available).
             if (col == 0)
+            {
+                
+                ImageIcon l = null;
+
+                if (!ps.getProjectDirectory ().exists ())
+                {
+                    
+                    // Return a problem icon.
+                    l = Environment.getIcon (Constants.ERROR_ICON_NAME,
+                                             Constants.ICON_TREE);
+                    
+                }
+                
+                if ((l == null)
+                    &&
+                    (ps.isEncrypted ())
+                   )
+                {
+                    
+                    // Return the lock icon.
+                    l = Environment.getIcon (Constants.LOCK_ICON_NAME,
+                                             Constants.ICON_TREE);
+                    
+                }
+                /*
+                if (ps == this.loading)
+                {
+Won't animate due to rubber stamping in renderer.
+                    l = Environment.getLoadingIcon ();
+                    
+                }
+                */
+                return l;
+                
+            }
+            
+            if (col == 1)
             {
 
                 return ps.getName ();
@@ -106,111 +190,29 @@ public class FindOrOpen extends JFrame
 
     }
 
-    private JTextField     nameField = null;
-    private JTextField     saveField = null;
-    private JCheckBox      encryptField = null;
-    private JPasswordField passwordField = null;
-    private JPasswordField passwordField2 = null;
+    private String windowTitle = null;
+    private int show = -1;
+    private JTable projOpenTable = null;
 
-    public FindOrOpen(int show)
+    public JComponent getContentPanel ()
     {
 
-        super ();
-
-        String t = FindOrOpen.SHOW_ALL_WINDOW_TITLE;
-
-        if (show == FindOrOpen.SHOW_NEW)
-        {
-
-            t = FindOrOpen.SHOW_NEW_WINDOW_TITLE;
-
-        }
-
-        if (show == FindOrOpen.SHOW_OPEN)
-        {
-
-            t = FindOrOpen.SHOW_OPEN_WINDOW_TITLE;
-
-        }
-
-        UIUtils.setFrameTitle (this,
-                               t);
-
-        this.setIconImage (Environment.getWindowIcon ().getImage ());
-
-        this.setMinimumSize (new Dimension (500,
-                                            0));
+        Box b = new Box (BoxLayout.Y_AXIS);    
 
         final FindOrOpen _this = this;
 
-        this.setDefaultCloseOperation (WindowConstants.DISPOSE_ON_CLOSE);
-
-        JPanel content = new JPanel (new BorderLayout (),
-                                     true);
-/*
- * old
-        content.setBorder (new CompoundBorder (new EmptyBorder (5,
-                                                                5,
-                                                                5,
-                                                                5),
-                                               new LineBorder (new Color (127,
-                                                                          127,
-                                                                          127),
-                                                               1,
-                                                               true)));
-*/
-        final Box b = new Box (BoxLayout.PAGE_AXIS);
-        content.add (b);
-
-        b.setOpaque (true);
-        b.setBackground (Color.WHITE);
-        /*
-         * old
-        b.setBorder (new EmptyBorder (20,
-                                      20,
-                                      20,
-                                      20));
-*/
-        b.setBorder (new EmptyBorder (10,
-                                      10,
-                                      10,
-                                      10));
-
-        JLabel title = null;
-
-        if ((show & FindOrOpen.SHOW_TITLE) == FindOrOpen.SHOW_TITLE)
+        final ActionListener closeAction = new ActionListener ()
         {
-
-            // Create the header.
-            title = new JLabel ("Welcome to " + Constants.QUOLL_WRITER_NAME);
-            title.setFont (UIUtils.getHeaderFont ().deriveFont (20f));
-            title.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            title.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                                  0,
-                                                                  1,
-                                                                  0,
-                                                                  new Color (127,
-                                                                             127,
-                                                                             127)),
-                                                 new EmptyBorder (0,
-                                                                  0,
-                                                                  3,
-                                                                  0)));
-            b.add (title);
-
-            String text = "Please select one of the options below.";
-
-            if ((show & FindOrOpen.SHOW_OPEN) != 0)
+          
+            public void actionPerformed (ActionEvent ev)
             {
-
-                b.add (UIUtils.createHelpTextPane (text));
-
+                
+                _this.close ();
+                
             }
-
-            b.add (Box.createVerticalStrut (10));
-
-        }
-
+            
+        };
+        
         java.util.List pss = new ArrayList ();
 
         try
@@ -226,36 +228,87 @@ public class FindOrOpen extends JFrame
 
         }
 
-        final java.util.List projs = pss;
-
+        final java.util.List projs = pss;        
+        
         Collections.sort (projs,
                           new ProjectSorter ());
 
         if ((show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
         {
 
-            // Create the "open existing project" section.
-            Header h = getHeader ("Open an existing Project",
-                                  "open-project");
-
+            Header h = UIUtils.createHeader ("Open an existing {Project}",
+                                             Constants.POPUP_WINDOW_TITLE,
+                                             null,
+                                             null);
+        
             b.add (h);
 
-            b.add (UIUtils.createHelpTextPane ("Please select one of Projects/Books below.  Double click to open."));
-
+            JTextPane help = UIUtils.createHelpTextPane ("Please select one of {Projects} below.  Double click to open.",
+                                                         null);
+            help.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                         help.getPreferredSize ().height + 10));
+            b.add (help);
+            
             JPanel p = new JPanel (new BorderLayout ());
             p.setOpaque (false);
             p.setBorder (new EmptyBorder (0,
-                                          10,
                                           5,
-                                          10));
+                                          5,
+                                          0));
             p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
-            final JTable projOpenTable = new JTable ();
+            projOpenTable = new JTable ()
+            {
+              
+                //Implement table cell tool tips.           
+                public String getToolTipText(MouseEvent e)
+                {
+                
+                    String tip = null;
+                    
+                    int rowIndex = this.rowAtPoint (e.getPoint ());
+        
+                    Project p = (Project) projs.get (rowIndex);
+    
+                    tip = Environment.canOpenProject (p);
+                          
+                    if (tip != null)
+                    {
+                        
+                        tip = "This {project} cannot be opened for the following reason:<br /><br />" + tip + "<br /><br />Right click to remove this from your list of {projects}.";
+                                        
+                    }
+                    
+                    if ((tip == null)                    
+                        &&
+                        (p.isEncrypted ())
+                       )
+                    {
+                            
+                        tip = "This {project} is encrypted and needs a password to access it.";
+                            
+                    }
+                        
+                    if (tip == null)
+                    {
+                        
+                        return null;
+                        
+                    }
+                    
+                    return "<html>" + Environment.replaceObjectNames (tip) + "</html>";
+                
+                }              
+                
+            };
 
             projOpenTable.setAlignmentX (JComponent.LEFT_ALIGNMENT);
             projOpenTable.setOpaque (false);
             projOpenTable.setSelectionMode (ListSelectionModel.SINGLE_SELECTION);
-
+            projOpenTable.setRowMargin (3);
+            projOpenTable.setShowVerticalLines (false);
+            projOpenTable.setRowHeight (24);
+            
             projOpenTable.addKeyListener (new KeyAdapter ()
                 {
 
@@ -286,19 +339,142 @@ public class FindOrOpen extends JFrame
             projOpenTable.addMouseListener (new MouseAdapter ()
                 {
 
+                    public void mouseReleased (MouseEvent ev)
+                    {
+
+                        int rowInd = projOpenTable.rowAtPoint (ev.getPoint ());
+                        
+                        projOpenTable.setRowSelectionInterval (rowInd,
+                                                               rowInd);
+                    
+                        final Project p = (Project) projs.get (rowInd);
+                        
+                        if (p == null)
+                        {
+                            
+                            return;
+                            
+                        }
+
+                        if (ev.isPopupTrigger ())
+                        {
+
+                            JPopupMenu popup = new JPopupMenu ();
+            
+                            JMenuItem mi = null;
+            
+                            // If invalid, show remove option.
+                            if (Environment.canOpenProject (p) != null)
+                            {
+                                                                
+                                mi = UIUtils.createMenuItem ("Remove",
+                                                             Constants.CLOSE_ICON_NAME,
+                                                             new ActionListener ()
+                                                             {
+                                                                                     
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+                                                                                                                                                                                                    
+                                                                    _this.showRemoveProject (p,
+                                                                                             "Remove {project}?",
+                                                                                             null,
+                                                                                             new ActionListener ()
+                                                                                             {
+                                                                                                
+                                                                                                public void actionPerformed (ActionEvent ev)
+                                                                                                {
+                                                                                                    
+                                                                                                    // Remove the row.
+                                                                                                    ((ProjectTableModel) projOpenTable.getModel ()).removeProject (p);
+    
+                                                                                                }
+                                                                                             });
+                                                                    
+                                                                }
+                                                                
+                                                             },
+                                                             null,
+                                                             null);
+                                                     
+                                popup.add (mi);                                
+                                
+                            } else {
+                            
+                                // If ok, show open and show folder
+                                mi = UIUtils.createMenuItem ("Open",
+                                                             Constants.OPEN_PROJECT_ICON_NAME,
+                                                             new ActionListener ()
+                                                             {
+                                                                
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+
+                                                                    if (_this.handleOpenProject (p))
+                                                                    {
+                                        
+                                                                        _this.close ();
+                                        
+                                                                    }
+                                                                                                                                        
+                                                                }
+                                                                
+                                                             },
+                                                             null,
+                                                             null);
+                                                           
+                                popup.add (mi);                                
+
+                                mi = UIUtils.createMenuItem ("Show Folder",
+                                                             Constants.FOLDER_ICON_NAME,
+                                                             new ActionListener ()
+                                                             {
+                                                                
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+                                                                    
+                                                                    UIUtils.showFile (null,
+                                                                                      p.getProjectDirectory ());
+                                                                    
+                                                                }
+                                                                
+                                                             },
+                                                             null,
+                                                             null);
+                                                           
+                                popup.add (mi);                                
+
+                            }
+
+                            popup.show ((Component) ev.getSource (),
+                                        ev.getPoint ().x,
+                                        ev.getPoint ().y);
+            
+                            return;
+                
+                        }    
+                        
+                    }
+                
                     public void mouseClicked (MouseEvent ev)
                     {
 
+                        Project p = (Project) projs.get (projOpenTable.rowAtPoint (ev.getPoint ()));
+                        
+                        if (p == null)
+                        {
+                            
+                            return;
+                            
+                        }
+                    
                         if (ev.getClickCount () == 2)
                         {
 
-                            Project p = (Project) projs.get (projOpenTable.rowAtPoint (ev.getPoint ()));
-
+                            
                             if (_this.handleOpenProject (p))
                             {
 
-                                _this.setVisible (false);
-                                _this.dispose ();
+                                _this.close ();
 
                             }
 
@@ -311,7 +487,10 @@ public class FindOrOpen extends JFrame
             ProjectTableModel pstm = new ProjectTableModel (projs);
 
             projOpenTable.setModel (pstm);
-
+            projOpenTable.getColumnModel ().getColumn (0).setMinWidth (0);
+            projOpenTable.getColumnModel ().getColumn (0).setMaxWidth (24);
+            
+            projOpenTable.getColumnModel ().getColumn (2).setMaxWidth (80);
             JScrollPane s = new JScrollPane (projOpenTable);
             s.setBorder (new LineBorder (Environment.getBorderColor (),
                                          1));
@@ -332,9 +511,9 @@ public class FindOrOpen extends JFrame
 
             b.add (Box.createVerticalStrut (5));
 
-            JButton openBut = new JButton ();
-            openBut.setText ("Open Project");
-
+            final JButton openBut = UIUtils.createButton ("Open",
+                                                          null);
+            openBut.setEnabled (false);
             openBut.addActionListener (new ActionAdapter ()
                 {
 
@@ -354,12 +533,11 @@ public class FindOrOpen extends JFrame
                         }
 
                         Project p = (Project) projs.get (sel);
-
+                        
                         if (_this.handleOpenProject (p))
                         {
 
-                            _this.setVisible (false);
-                            _this.dispose ();
+                            //_this.close ();
 
                         }
 
@@ -367,34 +545,279 @@ public class FindOrOpen extends JFrame
 
                 });
 
+            projOpenTable.getSelectionModel ().addListSelectionListener (new ListSelectionListener ()
+            {
+                
+                public void valueChanged (ListSelectionEvent ev)
+                {
+
+                    int sel = projOpenTable.getSelectedRow ();
+                
+                    if (sel < 0)
+                    {
+                        
+                        return;
+                        
+                    }
+                
+                    Project p = (Project) projs.get (sel);
+
+                    openBut.setEnabled ((Environment.canOpenProject (p) == null));
+                    
+                }
+                
+            });
+            
             JButton cancelBut = new JButton ();
             cancelBut.setText ("Cancel");
 
-            cancelBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.setVisible (false);
-                        _this.dispose ();
-
-                    }
-
-                });
+            cancelBut.addActionListener (closeAction);
 
             JButton[] buts = { openBut, cancelBut };
 
-            JPanel bp = ButtonBarFactory.buildLeftAlignedBar (buts);
+            JPanel bp = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
             bp.setOpaque (false);
             bp.setBorder (new EmptyBorder (0,
-                                           10,
+                                           5,
                                            0,
-                                           10));
+                                           0));
             bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+            bp.setMaximumSize (bp.getPreferredSize ());
             b.add (bp);
 
+            b.add (Box.createVerticalStrut (20));
+            
+            h = UIUtils.createHeader ("Is your {Project} not listed?",
+                                      Constants.POPUP_WINDOW_TITLE,
+                                      null,
+                                      null);
+        
+            b.add (h);
+
+            help = UIUtils.createHelpTextPane ("This can happen if you are using Dropbox or another file syncing service and are syncing the {project} directory but not your projects file.  Use the box below to find your {project}.",
+                                               null);
+            help.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                         help.getPreferredSize ().height + 10));
+            b.add (help);
+            
             b.add (Box.createVerticalStrut (5));
+            
+            final JLabel message = new JLabel ("");
+            
+            message.setBorder (new EmptyBorder (0,
+                                                5,
+                                                5,
+                                                0));
+            message.setVisible (false);
+            b.add (message);
+
+            final JButton openBut2 = UIUtils.createButton ("Open",
+                                                           null);
+            openBut2.setEnabled (false);
+            
+            final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
+                                                              "Select a Directory",
+                                                              JFileChooser.DIRECTORIES_ONLY,
+                                                              "Select",
+                                                              null);
+            finder.setFindButtonToolTip ("Click to find the {project} directory");
+                        
+            finder.setOnSelectHandler (new ActionAdapter ()
+            {
+                                                            
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    boolean valid = true;
+                
+                    VetoableActionEvent ve = (VetoableActionEvent) ev;
+                
+                    File f = finder.getSelectedFile ();
+                
+                    if (!f.isDirectory ())
+                    {
+                        
+                        valid = false;
+                        
+                    }
+                                      
+                    if (valid)
+                    {                                                
+                    
+                        // Look for files names, "projectdb.h2.db" and "___quollwriter_dir.txt"
+                        File nf = new File (f.getPath () + "/" + Constants.QUOLLWRITER_DIR_FILE_NAME);
+                        
+                        if ((!nf.exists ())
+                            ||
+                            (!nf.isFile ())
+                           )
+                        {
+                            
+                            valid = false;
+                            
+                        }
+                        
+                        nf = new File (f.getPath () + "/projectdb.h2.db");
+                        
+                        if ((!nf.exists ())
+                            ||
+                            (!nf.isFile ())
+                           )
+                        {
+                            
+                            valid = false;
+                            
+                        }
+    
+                        if (!valid)
+                        {
+                            
+                            // Show an error
+                            message.setText (Environment.replaceObjectNames ("Sorry, that doesn't appear to be a Quoll Writer {project} directory."));
+                            message.setForeground (UIUtils.getColor (Constants.ERROR_TEXT_COLOR));
+                            message.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
+                                                                  Constants.ICON_MENU));
+                                                        
+                        } else {
+                        
+                            // See if the project is already in their project list.
+                        
+                            message.setText (Environment.replaceObjectNames ("That looks like a Quoll Writer {project} directory."));
+                            message.setForeground (UIUtils.getColor ("#558631"));
+                            message.setIcon (Environment.getIcon ("ok-green",
+                                                                  Constants.ICON_MENU));
+    
+                        }
+
+                        message.setVisible (true);
+
+                        openBut2.setEnabled (valid);
+    
+                        _this.resize ();
+                        
+                    }
+                                        
+                }
+                
+            });
+
+            finder.setBorder (new EmptyBorder (0,
+                                               5,
+                                               0,
+                                               0));
+                        
+            b.add (finder);
+            b.add (Box.createVerticalStrut (5));
+                                                        
+            openBut2.addActionListener (new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    // See if there is a project file in the directory.
+                    final File f = finder.getSelectedFile ();
+                                    
+                    File nf = new File (f.getPath () + "/project.qwpr");
+                    
+                    if (nf.exists ())
+                    {
+                        
+                        _this.close ();
+                        
+                        // Open the file.
+                        Environment.openProject (nf);
+                        
+                        return;
+                        
+                    }
+                    
+                    final String name = WordsCapitalizer.capitalizeEveryWord (f.getName ());
+                    
+                    TextInputWindow.create (null,
+                                            "Confirm name of {project}",
+                                            null,
+                                            "Please confirm this is the name of your {project}.",
+                                            "Open",
+                                            name,
+                                            new ValueValidator<String> ()
+                                            {
+                                                
+                                                public String isValid (String v)
+                                                {
+                                                    
+                                                    if ((v == null)
+                                                        ||
+                                                        (v.trim ().length () == 0)
+                                                       )
+                                                    {
+                                                        
+                                                        return "Please enter the name of the {project}";
+                                                        
+                                                    }
+                                                                                                        
+                                                    return null;
+                                                    
+                                                }
+                                                
+                                            },
+                                            new ActionListener ()
+                                            {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                              
+                                                    _this.close ();
+
+                                                    // Open the project.
+                                                    Project p = new Project (name);
+                                                    p.setProjectDirectory (f);
+                                                    
+                                                    if (_this.handleOpenProject (p))
+                                                    {
+                                                        
+                                                        try
+                                                        {
+                                                        
+                                                            Environment.addOpenedProject (Environment.getProjectViewer (p));
+                                                            
+                                                        } catch (Exception e) {
+                                                            
+                                                            Environment.logError ("Unable to add project to projects file: " +
+                                                                                  p.getName (),
+                                                                                  e);                                                        
+                                                            
+                                                        }                                                        
+                                                        
+                                                    }
+                                                    
+                                                }
+                                                
+                                            },
+                                            null);
+                    
+                }
+
+            });
+
+            cancelBut = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+                                              null);
+
+            cancelBut.addActionListener (closeAction);
+
+            buts = new JButton[] { openBut2, cancelBut };
+
+            bp = UIUtils.createButtonBar2 (buts,
+                                           Component.LEFT_ALIGNMENT); 
+            bp.setOpaque (false);
+            bp.setBorder (new EmptyBorder (0,
+                                           5,
+                                           0,
+                                           0));
+            bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+            bp.setMaximumSize (bp.getPreferredSize ());
+            b.add (bp);
 
         }
 
@@ -408,256 +831,241 @@ public class FindOrOpen extends JFrame
 
             }
 
-            // Create the "new project" section.
-            Header h = getHeader ("Create a New Project",
-                                  "new-project");
-
+            Header h = UIUtils.createHeader ("Create a New {Project}",
+                                             Constants.POPUP_WINDOW_TITLE,
+                                             null,
+                                             null);
+            h.setBorder (null);
             b.add (h);
 
-            b.add (UIUtils.createHelpTextPane ("To create a new Project enter the name below, select the directory it should be saved to and press the Create button."));
-
-            KeyAdapter k = new KeyAdapter ()
-            {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        _this.handleCreateNewProject ();
-
-                    }
-
-                }
-
-            };
-
-            final FormLayout fl = new FormLayout ("right:p, 6px, fill:200px:grow, 2px, p",
-                                                  "p, 6px, p, 6px, p, 6px, p, 6px, p");
-
-            final PanelBuilder builder = new PanelBuilder (fl);
-
-            final CellConstraints cc = new CellConstraints ();
-
-            this.nameField = UIUtils.createTextField ();
-
-            builder.addLabel ("Name",
-                              cc.xy (1,
-                                     1));
-            builder.add (this.nameField,
-                         cc.xy (3,
-                                1));
-
-            builder.addLabel ("Save In",
-                              cc.xy (1,
-                                     3));
-
-            String defDir = null;
-
-            if (projs.size () > 0)
-            {
-
-                Project p = (Project) projs.get (0);
-
-                defDir = p.getProjectDirectory ().getParentFile ().getPath ();
-
-            } else
-            {
-
-                File projsDir = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.DEFAULT_PROJECTS_DIR_NAME);
-
-                projsDir.mkdirs ();
-
-                defDir = projsDir.getPath ();
-
-            }
-
-            this.saveField = UIUtils.createTextField ();
-            this.saveField.setText (defDir);
-
-            this.nameField.addKeyListener (k);
-            this.saveField.addKeyListener (k);
-
-            builder.add (this.saveField,
-                         cc.xy (3,
-                                3));
-
-            JButton findBut = new JButton (Environment.getIcon ("find",
-                                                                Constants.ICON_MENU));
-
-            findBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        JFileChooser f = new JFileChooser ();
-                        f.setDialogTitle ("Select a Directory");
-                        f.setFileSelectionMode (JFileChooser.DIRECTORIES_ONLY);
-                        f.setApproveButtonText ("Select");
-                        f.setCurrentDirectory (new File (_this.saveField.getText ()));
-
-                        // Need to run: attrib -r "%USERPROFILE%\My Documents" on XP to allow a new directory
-                        // to be created in My Documents.
-
-                        if (f.showOpenDialog (_this) == JFileChooser.APPROVE_OPTION)
-                        {
-
-                            _this.saveField.setText (f.getSelectedFile ().getPath ());
-
-                        }
-
-                    }
-
-                });
-
-            builder.add (findBut,
-                         cc.xy (5,
-                                3));
-
-            this.encryptField = new JCheckBox ("Encrypt this project?  You will be prompted for a password.");
-            this.encryptField.setBackground (Color.WHITE);
-
-            builder.add (this.encryptField,
-                         cc.xyw (3,
-                                 5,
-                                 2));
-
-            FormLayout pfl = new FormLayout ("right:p, 6px, 100px, 6px, p, 6px, fill:100px",
-                                             "6px, p, 6px");
-
-            PanelBuilder pbuilder = new PanelBuilder (pfl);
-
-            this.passwordField = new JPasswordField ();
-
-            pbuilder.addLabel ("Password",
-                               cc.xy (1,
-                                      2));
-
-            pbuilder.add (this.passwordField,
-                          cc.xy (3,
-                                 2));
-
-            this.passwordField2 = new JPasswordField ();
-
-            pbuilder.addLabel ("Confirm",
-                               cc.xy (5,
-                                      2));
-
-            pbuilder.add (this.passwordField2,
-                          cc.xy (7,
-                                 2));
-
-            final JPanel ppanel = pbuilder.getPanel ();
-
-            ppanel.setVisible (false);
-            ppanel.setOpaque (false);
-
-            builder.add (ppanel,
-                         cc.xyw (3,
-                                 7,
-                                 2));
-
-            this.encryptField.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        ppanel.setVisible (_this.encryptField.isSelected ());
-                        
-                        _this.getContentPane ().setPreferredSize (new Dimension (500,
-                                                                                b.getPreferredSize ().height));
-                        
-                        _this.pack ();
-                        _this.repaint ();
-                    }
-
-                });
-
-            JButton createBut = new JButton ();
-            createBut.setText ("Create");
-
-            createBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.handleCreateNewProject ();
-
-                    }
-
-                });
-
-            JButton cancelBut = new JButton ();
-            cancelBut.setText ("Cancel");
-
-            cancelBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.setVisible (false);
-                        _this.dispose ();
-
-                    }
-
-                });
-
-            JButton[] buts = { createBut, cancelBut };
-
-            JPanel bp = ButtonBarFactory.buildRightAlignedBar (buts);
-            bp.setOpaque (false);
-            builder.add (bp,
-                         cc.xy (3,
-                                9));
-
-            JPanel fp = builder.getPanel ();
-            fp.setBorder (new EmptyBorder (5,
-                                           20,
-                                           0,
-                                           30));
-            fp.setOpaque (false);
-            fp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-            b.add (fp);
-
-            b.add (Box.createVerticalStrut (20));
+            b.add (UIUtils.createHelpTextPane ("To create a new {Project} enter the name below, select the directory it should be saved to and press the Create button.",
+                                               null));
+
+            final NewProjectPanel newProjPanel = new NewProjectPanel ();
+                                                
+            JComponent cp = newProjPanel.createPanel (this,
+                                                      null,
+                                                      true,
+                                                      closeAction,
+                                                      true);
+            
+            cp.setBorder (new EmptyBorder (10, 10, 0, 10));
+            
+            b.add (cp);
 
         }
 
-        this.getContentPane ().add (content);
+        return b;    
+    
+    }
+    
+    public void init ()
+    {
+        
+        super.init ();
+        
+        this.getHeader ().setVisible (false);
+        
+        this.resize ();
+                
+    }
+    
+    public FindOrOpen(int show)
+    {
 
-        this.setResizable (false);
+        super ();
 
-        this.getContentPane ().setPreferredSize (new Dimension (500,
-                                                                this.getContentPane ().getPreferredSize ().height));
+        this.show = show;
+        
+        String t = null;
 
-        this.pack ();
-
-        UIUtils.setCenterOfScreenLocation (this);
-
-        if (title != null)
+        if ((show & FindOrOpen.SHOW_NEW) == FindOrOpen.SHOW_NEW)
         {
 
-            title.setPreferredSize (new Dimension (500,
-                                                   title.getPreferredSize ().height));
-            title.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                 title.getPreferredSize ().height));
+            t = FindOrOpen.SHOW_NEW_WINDOW_TITLE;
 
         }
+
+        if ((show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
+        {
+
+            if (t != null)
+            {
+                
+                t = FindOrOpen.SHOW_ALL_WINDOW_TITLE;
+                
+            } else {
+        
+                t = FindOrOpen.SHOW_OPEN_WINDOW_TITLE;
+                
+            }
+
+        }
+
+        this.windowTitle = t;
 
     }
 
+    public String getHeaderIconType ()
+    {
+        
+        return null;
+        
+    }
+
+    public String getWindowTitle ()
+    {
+        
+        return this.windowTitle;
+        
+    }
+    
+    public String getHeaderTitle ()
+    {
+    
+        if ((this.show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
+        {
+        
+            return FindOrOpen.SHOW_OPEN_WINDOW_TITLE;
+                
+        }
+
+        if ((this.show & FindOrOpen.SHOW_NEW) == FindOrOpen.SHOW_NEW)
+        {
+
+            return FindOrOpen.SHOW_NEW_WINDOW_TITLE;
+
+        }
+        
+        return null;
+        
+    }
+    
+    public JButton[] getButtons ()
+    {
+        
+        return null;
+        
+    }
+    
+    public String getHelpText ()
+    {
+        
+        return null;
+        
+    }
+    
+    private void showRemoveProject (final Project        p,
+                                    String         title,
+                                    String         message,
+                                    final ActionListener onRemove)
+    {
+
+        final FindOrOpen _this = this;
+    
+        if (title == null)
+        {
+            
+            title = "Unable to open {project}";
+            
+        }
+            
+        Map<String, ActionListener> buts = new LinkedHashMap ();
+        buts.put ("Yes, remove it",
+                  new ActionListener ()
+                  {
+                    
+                     public void actionPerformed (ActionEvent ev)
+                     {
+
+                        try
+                        {
+                     
+                            Environment.removeProject (p);
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to remove project: " +
+                                                  p.getName () +
+                                                  " from the project list",
+                                                  e);
+                
+                            UIUtils.showErrorMessage (_this,
+                                                      "Unable to remove project, please contact Quoll Writer support for assistance.");
+                            
+                            return;                            
+                            
+                        }
+                        
+                        if (onRemove != null)
+                        {
+                            
+                            onRemove.actionPerformed (ev);
+                            
+                        }
+                        
+                     }
+                    
+                  });
+        
+        buts.put ("No, keep it",
+                  new ActionListener ()
+                  {
+                    
+                     public void actionPerformed (ActionEvent ev)
+                     {
+                        
+                        // Don't do anything...
+                        
+                     }
+                    
+                  });
+
+        if (message == null)
+        {
+            
+            message = String.format ("Please confirm you wish to remove {project} <b>%s</b> from your list of {projects}.",
+                                     p.getName ());
+                  
+        }
+        
+        message = message + "<br /><br />Note: this will <b>only</b> remove the {project} from the list it will not remove any other data.";
+        
+        UIUtils.createQuestionPopup (this,
+                                     title,
+                                     Constants.ERROR_ICON_NAME,
+                                     message,
+                                     buts,
+                                     null,
+                                     null);
+        
+    }
+    
     private boolean handleOpenProject (Project p)
     {
 
+        String reason = Environment.canOpenProject (p);
+        
+        if (reason != null)
+        {
+
+            this.showRemoveProject (p,
+                                    null,
+                                    String.format ("Sorry, {project} <b>%s</b> cannot be opened for the following reason:<br /><br /><b>%s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of projects?",
+                                                   p.getName (),
+                                                   reason),
+                                    null);
+
+            return false;
+                                         
+        }
+    
         try
         {
 
+            // Change the icon to be loading.
+            ((ProjectTableModel) this.projOpenTable.getModel ()).setLoading (p);
+        
             Environment.openProject (p);
 
             return true;
@@ -665,6 +1073,52 @@ public class FindOrOpen extends JFrame
         } catch (Exception e)
         {
 
+            // Check for encryption.
+            if ((ObjectManager.isEncryptionException (e))
+                &&
+                (!p.isEncrypted ())
+               )
+            {
+                
+                // Try with no credentials.
+                try
+                {
+
+                    p.setNoCredentials (true);
+                    Environment.openProject (p);
+                
+                    return true;
+                
+                } catch (Exception ee) {
+                
+                    p.setNoCredentials (false);
+                    
+                    // Check for encryption.
+                    if (ObjectManager.isEncryptionException (e))
+                    {
+                    
+                        p.setEncrypted (true);
+                        
+                        this.handleOpenProject (p);
+                        
+                        return true;
+                    
+                    }
+
+                    Environment.logError ("Unable to open project: " +
+                                          p.getName (),
+                                          ee);
+        
+                    UIUtils.showErrorMessage (this,
+                                              "Unable to open project: " +
+                                              p.getName ());
+                    
+                    return false;
+                    
+                }
+                
+            }
+        
             Environment.logError ("Unable to open project: " +
                                   p.getName (),
                                   e);
@@ -677,161 +1131,6 @@ public class FindOrOpen extends JFrame
 
         return false;
 
-    }
-
-    private void handleCreateNewProject ()
-    {
-
-        String n = this.nameField.getText ().trim ();
-
-        if (n.equals (""))
-        {
-
-            UIUtils.showMessage (this,
-                                 "Please provide a Name for the Project.");
-
-            return;
-
-        }
-
-        // See if the project already exists.
-        File pf = new File (saveField.getText () + "/" + Utils.sanitizeForFilename (n));
-
-        if (pf.exists ())
-        {
-
-            UIUtils.showMessage (this,
-                                 "A Project with name: " +
-                                 n +
-                                 " already exists.");
-
-            return;
-
-        }
-
-        String pwd = null;
-
-        if (this.encryptField.isSelected ())
-        {
-
-            // Make sure a password has been provided.
-            pwd = new String (this.passwordField.getPassword ()).trim ();
-
-            String pwd2 = new String (this.passwordField2.getPassword ()).trim ();
-
-            if (pwd.equals (""))
-            {
-
-                UIUtils.showMessage (this,
-                                     "Please provide a password for securing the Project files.");
-
-                return;
-
-            }
-
-            if (pwd2.equals (""))
-            {
-
-                UIUtils.showMessage (this,
-                                     "Please confirm your password.");
-
-                return;
-
-            }
-
-            if (!pwd.equals (pwd2))
-            {
-
-                UIUtils.showMessage (this,
-                                     "The passwords do not match.");
-
-                return;
-
-            }
-
-        }
-
-        Project proj = new Project (n);
-
-        AbstractProjectViewer pj = null;
-
-        try
-        {
-
-            pj = Environment.getProjectViewerForType (proj);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to create new project: " +
-                                  proj,
-                                  e);
-
-            UIUtils.showErrorMessage (this,
-                                      "Unable to create new project: " + proj.getName ());
-
-            return;
-
-        }
-
-        try
-        {
-
-            pj.newProject (new File (saveField.getText ()),
-                           n,
-                           pwd);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to create new project: " +
-                                  proj,
-                                  e);
-
-            UIUtils.showErrorMessage (this,
-                                      "Unable to create new project: " + proj.getName ());
-
-            return;
-
-        }
-
-        this.setVisible (false);
-        this.dispose ();
-
-    }
-
-    private Header getHeader (String title,
-                              String icon)
-    {
-        
-        Icon ic = null;
-        
-        if (icon != null)
-        {
-            
-            ic = Environment.getIcon (icon,
-                                      Constants.ICON_POPUP);
-
-        }
-        
-        Header h = new Header (title,
-                               ic,
-                               null);
-        h.setFont (UIUtils.getHeaderFont ());
-        
-        // new
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (16d)).deriveFont (Font.PLAIN));
-        h.setPaintProvider (null);
-        h.setTitleColor (UIUtils.getColor ("#333333"));
-        h.setIcon (null);
-        h.setPadding (null);
-        // end new
-        
-        h.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        return h;
-        
-        
     }
     
 }

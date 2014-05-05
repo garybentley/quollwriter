@@ -19,6 +19,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.panels.*;
 
@@ -104,7 +105,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
         this.descField.setLineWrap (true);
         this.descField.setWrapStyleWord (true);
 
-        this.addToChapter.setText ("Add the description to the Chapter");
+        this.addToChapter.setText (Environment.replaceObjectNames ("Add the description to the {Chapter}"));
         
         boolean sel = true;
 
@@ -119,25 +120,21 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
         final ChapterItemActionHandler _this = this;
 
-        this.descField.addKeyListener (new KeyAdapter ()
+        ActionListener doSave = new ActionAdapter ()
         {
-
-            public void keyPressed (KeyEvent ev)
+          
+            public void actionPerformed (ActionEvent ev)
             {
-
-                if (((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) &&
-                    (ev.getKeyCode () == KeyEvent.VK_ENTER))
-                {
-
-                    // This is the same as save for the form.
-                    _this.submitForm ();
-
-                }
-
+                
+                _this.submitForm ();
+                
             }
+            
+        };
 
-        });
-
+        UIUtils.addDoActionOnReturnPressed (this.descField,
+                                            doSave);
+        
     }
 
     public List<FormItem> getFormItems (int         mode,
@@ -259,16 +256,14 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
                 // Add the item to the chapter.
                 this.chapter.addChapterItem (it);
-
+                
                 // Force a save of the chapter.
                 this.projectViewer.saveObject (this.chapter,
                                                true);
-
+                                               
                 this.projectViewer.fireProjectEvent (it.getObjectType (),
                                                      ProjectEvent.NEW,
                                                      it);                                               
-                                               
-                // this.projectViewer.addChapterItemToChapterTree (it);
 
             } catch (Exception e)
             {
@@ -285,7 +280,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
         } else
         {
-
+        
             try
             {
 
@@ -313,7 +308,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
         }
 
         // Reload the entire tree.
-        this.projectViewer.reloadChapterTree ();        
+        this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
         
         editor.grabFocus ();
 

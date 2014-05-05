@@ -20,6 +20,10 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import nl.siegmann.epublib.epub.*;
+import nl.siegmann.epublib.domain.Author;
+import nl.siegmann.epublib.domain.Resource;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -28,6 +32,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.text.*;
 
 
 public class EPUBDocumentExporter extends AbstractDocumentExporter
@@ -228,105 +233,70 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
         try
         {
-
-            // Get the Author.
-            // Get the title.
-            // Get the language.
-            // Get the id (ISBN/URL).
-
-            // Format of the zip should be.
-            // mimetype (should contain application/epub+zip)
-            // META-INF/
-            // container.xml
-            // OPS/
-            // book.opf
-            // chapters/
-            // chapter[1-X].xhtml
-            // appendix-a-characters.xhtml
-            // appendix-b-locations.xhtml
-            // appendix-c-items.xhtml
-            // appendix-d-research.xhtml
-            // appendix-e-notes.xhtml
-            // appendix-f-outline.xhtml
-            // css/
-            // main.css
-
-            // Create each chapter .xhtml
-
+    
             Project p = ExportUtils.getSelectedItems (this.itemsTree,
                                                       this.proj);
-
-            String name = this.sanitizeName (this.proj.getName ());
-
-            this.zout = new ZipOutputStream (new PrintStream (new File (dir.getPath () + "/" + name + Constants.EPUB_FILE_EXTENSION),
-                                                              "utf-8"));
-
-            this.zout.setLevel (0);
-
-            this.addEntry ("mimetype",
-                           "application/epub+zip");
-
-            // Create the container.xml
-            this.addEntry ("META-INF/container.xml",
-                           Environment.getResourceFileAsString ("/data/export/epub/container-template.xml"));
-
-            // Create the book.opf
-
-            // Get all the chapters.
-
-            // Add other objects as Appendices
-
-            String cTemp = Environment.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
-
+        
+            // Create new Book
+            nl.siegmann.epublib.domain.Book book = new nl.siegmann.epublib.domain.Book ();
+             
+            // Set the title
+            book.getMetadata ().addTitle (this.proj.getName ());
+             
+            // Add an Author
+            book.getMetadata ().addAuthor (new Author (this.author.getText ()));
+             
+            // Set cover image
+            //book.getMetadata().setCoverImage(new Resource(Simple1.class.getResourceAsStream("/book1/test_cover.png"), "cover.png"));
+    
+            String css = Environment.getResourceFileAsString ("/data/export/epub/css-template.xml");
+    
+            css = StringUtils.replaceString (css,
+                                             "[[FONT_NAME]]",
+                                             this.proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
+            css = StringUtils.replaceString (css,
+                                             "[[FONT_SIZE]]",
+                                             this.proj.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME) + "pt");
+            css = StringUtils.replaceString (css,
+                                             "[[LINE_SPACING]]",
+                                             (100 * this.proj.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME)) + "%");
+            css = StringUtils.replaceString (css,
+                                             "[[ALIGN]]",
+                                             this.proj.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toLowerCase ());
+    
+            String indent = "0px";
+    
+            if (this.proj.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
+            {
+    
+                indent = "5em";
+    
+            }
+    
+            css = StringUtils.replaceString (css,
+                                             "[[INDENT]]",
+                                             indent);
+    
+            book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ()),
+                                                    "main.css"));        
+            
             Book b = this.proj.getBook (0);
 
+            String cTemp = Environment.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
+    
             List<Chapter> chapters = b.getChapters ();
-
-            StringBuilder manifest = new StringBuilder ();
-            StringBuilder spine = new StringBuilder ();
-            StringBuilder navMap = new StringBuilder ();
-
-            String nmItem = "<navPoint class='chapter' id='[[CHAPTER_ID]]' playOrder='[[C]]'><navLabel><text>[[NAME]]</text></navLabel><content src='chapters/[[CHAPTER_ID]].xhtml' /></navPoint>";
-
-            String mItem = "<item id='[[CHAPTER_ID]]' href='chapters/[[CHAPTER_ID]].xhtml' media-type='application/xhtml+xml' />";
-
-            String sItem = "<itemref idref='[[CHAPTER_ID]]' />";
-
-            int count = 1;
-
+    
+            int count = 0;
+            
             for (Chapter c : chapters)
             {
-
-                String cid = this.sanitizeName (c.getName ());
-
-                String nm = StringUtils.replaceString (nmItem,
-                                                       "[[CHAPTER_ID]]",
-                                                       cid);
-                nm = StringUtils.replaceString (nm,
-                                                "[[C]]",
-                                                count + "");
-                nm = StringUtils.replaceString (nm,
-                                                "[[NAME]]",
-                                                c.getName ());
-
+    
                 count++;
 
-                navMap.append (nm);
-
-                manifest.append (StringUtils.replaceString (mItem,
-                                                            "[[CHAPTER_ID]]",
-                                                            cid));
-                manifest.append ("\n");
-                spine.append (StringUtils.replaceString (sItem,
-                                                         "[[CHAPTER_ID]]",
-                                                         cid));
-                spine.append ("\n");
-
-                // Create the chapter entry.
                 String chapterText = StringUtils.replaceString (cTemp,
                                                                 "[[TITLE]]",
                                                                 c.getName ());
-
+                
                 StringBuilder ct = new StringBuilder ();
 
                 String t = c.getText ();
@@ -352,7 +322,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                  last.end);
 
                         boolean styled = last.isStyled ();
-
+                        
                         if (styled)
                         {
 
@@ -360,17 +330,18 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                             ct.append (last.getStyles (" "));
                             ct.append ("\">");
 
-                        }
-
-                        ct.append (st);
-
-                        if (styled)
-                        {
+                            ct.append (StringUtils.replaceString (st,
+                                                                  String.valueOf ('\n'),
+                                                                  "<br />"));
 
                             ct.append ("</span>");
 
-                        }
+                        } else {
 
+                            ct.append (st);
+                        
+                        }
+                            
                     }
 
                     if (last.end < t.length ())
@@ -390,30 +361,44 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                 // Split the text on new line, for each one output a p tag if not empty.
 
                 // Get the text and split it.
-                StringTokenizer tt = new StringTokenizer (ct.toString (),
-                                                          String.valueOf ('\n'));
+                ParagraphIterator it = new ParagraphIterator (ct.toString ());
+                it.init (0);
 
                 ct = new StringBuilder ();
 
-                while (tt.hasMoreTokens ())
+                boolean lastWasText = false;
+                
+                String tok = null;
+                
+                while ((tok = it.next ()) != null)
                 {
 
-                    String tok = tt.nextToken ().trim ();
+                    //String tok = it.next ();
 
-                    if (tok.length () > 0)
+                    if ((tok.equals (String.valueOf ('\n')))
+                        ||
+                        (tok.trim ().length () == 0)
+                       )
                     {
-
-                        ct.append ("<p>" + tok + "</p>");
-
+                                            
+                        ct.append ("<p>&nbsp;</p>");
+                        
+                    } else {
+                                        
+                        ct.append ("<p>" + tok.trim () + "</p>");
+                        
                     }
 
                 }
+                
+                chapterText = StringUtils.replaceString (chapterText,
+                                                         "[[CONTENT]]",
+                                                         ct.toString ());
 
-                this.addEntry ("OPS/chapters/" + cid + ".xhtml",
-                               StringUtils.replaceString (chapterText,
-                                                          "[[CONTENT]]",
-                                                          ct.toString ()));
-
+                book.addSection (c.getName (),
+                                 new Resource (new ByteArrayInputStream (chapterText.getBytes ()),
+                                               "chapter" + count + ".html"));
+            
             }
 
             String appendixTemp = Environment.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
@@ -428,29 +413,6 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 String title = "Appendix A - Characters";
 
-                String nm = StringUtils.replaceString (nmItem,
-                                                       "[[CHAPTER_ID]]",
-                                                       cid);
-                nm = StringUtils.replaceString (nm,
-                                                "[[C]]",
-                                                count + "");
-                nm = StringUtils.replaceString (nm,
-                                                "[[NAME]]",
-                                                title);
-
-                count++;
-
-                navMap.append (nm);
-
-                manifest.append (StringUtils.replaceString (mItem,
-                                                            "[[CHAPTER_ID]]",
-                                                            cid));
-                manifest.append ("\n");
-                spine.append (StringUtils.replaceString (sItem,
-                                                         "[[CHAPTER_ID]]",
-                                                         cid));
-                spine.append ("\n");
-
                 String t = StringUtils.replaceString (appendixTemp,
                                                       "[[TITLE]]",
                                                       title);
@@ -458,9 +420,10 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                "[[CONTENT]]",
                                                this.getAssetsPage (characters));
 
-                this.addEntry ("OPS/chapters/" + cid + ".xhtml",
-                               t);
-
+                book.addSection (title,
+                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
+                                               cid + ".html"));
+                                               
             }
 
             // Get the locations.
@@ -473,29 +436,6 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 String title = "Appendix B - Locations";
 
-                String nm = StringUtils.replaceString (nmItem,
-                                                       "[[CHAPTER_ID]]",
-                                                       cid);
-                nm = StringUtils.replaceString (nm,
-                                                "[[C]]",
-                                                count + "");
-                nm = StringUtils.replaceString (nm,
-                                                "[[NAME]]",
-                                                title);
-
-                count++;
-
-                navMap.append (nm);
-
-                manifest.append (StringUtils.replaceString (mItem,
-                                                            "[[CHAPTER_ID]]",
-                                                            cid));
-                manifest.append ("\n");
-                spine.append (StringUtils.replaceString (sItem,
-                                                         "[[CHAPTER_ID]]",
-                                                         cid));
-                spine.append ("\n");
-
                 String t = StringUtils.replaceString (appendixTemp,
                                                       "[[TITLE]]",
                                                       title);
@@ -503,8 +443,9 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                "[[CONTENT]]",
                                                this.getAssetsPage (locs));
 
-                this.addEntry ("OPS/chapters/" + cid + ".xhtml",
-                               t);
+                book.addSection (title,
+                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
+                                               cid + ".html"));
 
             }
 
@@ -518,29 +459,6 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 String title = "Appendix C - Items";
 
-                String nm = StringUtils.replaceString (nmItem,
-                                                       "[[CHAPTER_ID]]",
-                                                       cid);
-                nm = StringUtils.replaceString (nm,
-                                                "[[C]]",
-                                                count + "");
-                nm = StringUtils.replaceString (nm,
-                                                "[[NAME]]",
-                                                title);
-
-                count++;
-
-                navMap.append (nm);
-
-                manifest.append (StringUtils.replaceString (mItem,
-                                                            "[[CHAPTER_ID]]",
-                                                            cid));
-                manifest.append ("\n");
-                spine.append (StringUtils.replaceString (sItem,
-                                                         "[[CHAPTER_ID]]",
-                                                         cid));
-                spine.append ("\n");
-
                 String t = StringUtils.replaceString (appendixTemp,
                                                       "[[TITLE]]",
                                                       title);
@@ -548,8 +466,9 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                "[[CONTENT]]",
                                                this.getAssetsPage (objs));
 
-                this.addEntry ("OPS/chapters/" + cid + ".xhtml",
-                               t);
+                book.addSection (title,
+                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
+                                               cid + ".html"));
 
             }
 
@@ -563,29 +482,6 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
                 String title = "Appendix D - Research";
 
-                String nm = StringUtils.replaceString (nmItem,
-                                                       "[[CHAPTER_ID]]",
-                                                       cid);
-                nm = StringUtils.replaceString (nm,
-                                                "[[C]]",
-                                                count + "");
-                nm = StringUtils.replaceString (nm,
-                                                "[[NAME]]",
-                                                title);
-
-                count++;
-
-                navMap.append (nm);
-
-                manifest.append (StringUtils.replaceString (mItem,
-                                                            "[[CHAPTER_ID]]",
-                                                            cid));
-                manifest.append ("\n");
-                spine.append (StringUtils.replaceString (sItem,
-                                                         "[[CHAPTER_ID]]",
-                                                         cid));
-                spine.append ("\n");
-
                 String t = StringUtils.replaceString (appendixTemp,
                                                       "[[TITLE]]",
                                                       title);
@@ -593,118 +489,28 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                "[[CONTENT]]",
                                                this.getAssetsPage (res));
 
-                this.addEntry ("OPS/chapters/" + cid + ".xhtml",
-                               t);
+                book.addSection (title,
+                                 new Resource (new ByteArrayInputStream (t.getBytes ()),
+                                               cid + ".html"));
 
             }
+                      
+            // Create EpubWriter
+            EpubWriter epubWriter = new EpubWriter ();
+             
+            // Write the Book as Epub
+            epubWriter.write (book, new FileOutputStream (new File (dir.getPath () + "/" + this.sanitizeName (this.proj.getName ()) + Constants.EPUB_FILE_EXTENSION)));
 
-            String opf = Environment.getResourceFileAsString ("/data/export/epub/opf-template.xml");
-
-            opf = StringUtils.replaceString (opf,
-                                             "[[TITLE]]",
-                                             p.getName ());
-
-            String id = this.id.getText ();
-            String scheme = "ISBN";
-
-            if ((id.indexOf (".") != -1) ||
-                (id.indexOf ("/") != -1) ||
-                (id.indexOf ("://") != -1))
-            {
-
-                scheme = "URL";
-
-            }
-
-            opf = StringUtils.replaceString (opf,
-                                             "[[ID]]",
-                                             id);
-            opf = StringUtils.replaceString (opf,
-                                             "[[SCHEME]]",
-                                             scheme);
-            opf = StringUtils.replaceString (opf,
-                                             "[[AUTHOR]]",
-                                             this.author.getText ());
-
-            opf = StringUtils.replaceString (opf,
-                                             "[[MANIFEST]]",
-                                             manifest.toString ());
-            opf = StringUtils.replaceString (opf,
-                                             "[[SPINE]]",
-                                             spine.toString ());
-
-            this.addEntry ("OPS/book.opf",
-                           opf);
-
-            String ncx = Environment.getResourceFileAsString ("/data/export/epub/ncx-template.xml");
-
-            ncx = StringUtils.replaceString (ncx,
-                                             "[[TITLE]]",
-                                             p.getName ());
-            ncx = StringUtils.replaceString (ncx,
-                                             "[[AUTHOR]]",
-                                             this.author.getText ());
-            ncx = StringUtils.replaceString (ncx,
-                                             "[[ID]]",
-                                             id);
-            ncx = StringUtils.replaceString (ncx,
-                                             "[[CHAPTERS]]",
-                                             navMap.toString ());
-
-            this.addEntry ("OPS/book.ncx",
-                           ncx);
-
-            String css = Environment.getResourceFileAsString ("/data/export/epub/css-template.xml");
-
-            css = StringUtils.replaceString (css,
-                                             "[[FONT_NAME]]",
-                                             this.proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
-            css = StringUtils.replaceString (css,
-                                             "[[FONT_SIZE]]",
-                                             this.proj.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME) + "pt");
-            css = StringUtils.replaceString (css,
-                                             "[[LINE_SPACING]]",
-                                             "" + this.proj.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
-            css = StringUtils.replaceString (css,
-                                             "[[ALIGN]]",
-                                             this.proj.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toLowerCase ());
-
-            String indent = "0px";
-
-            if (this.proj.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
-            {
-
-                indent = "5em";
-
-            }
-
-            css = StringUtils.replaceString (css,
-                                             "[[INDENT]]",
-                                             indent);
-
-            this.addEntry ("OPS/css/main.css",
-                           css);
-
-            zout.finish ();
-            zout.close ();
-
-            // Save the author and id values.
-            this.proj.setProperty (Constants.AUTHOR_NAME_PROPERTY_NAME,
-                                   this.author.getText ());
-            this.proj.setProperty (Constants.BOOK_ID_PROPERTY_NAME,
-                                   this.id.getText ());
-
-        } catch (Exception e)
-        {
-
+        } catch (Exception e) {
+            
             throw new GeneralException ("Unable to export project: " +
                                         this.proj,
-                                        e);
-
+                                        e);            
+            
         }
-
+        
     }
-
+    
     private String getAssetsPage (List<? extends Asset> assets)
     {
 

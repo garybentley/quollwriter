@@ -69,6 +69,15 @@ public class Note extends ChapterItem
 
     }
 
+    public void setChapter (Chapter c)
+    {
+        
+        this.setObject (c);
+        
+        super.setChapter (c);
+        
+    }
+    
     public Chapter getChapter ()
     {
 
@@ -128,7 +137,7 @@ public class Note extends ChapterItem
     public String toString ()
     {
 
-        return Note.OBJECT_TYPE + "(summary: " + this.name + ", id: " + this.getKey () + ", due: " + this.due + ", position: " + this.getPosition () + ", end: " + this.getEndPosition () + ")";
+        return Note.OBJECT_TYPE + "(summary: " + this.name + ", id: " + this.getKey () + ", due: " + this.due + ", position: " + this.getPosition () + ", end: " + this.getEndPosition () + ", hash: " + this.hashCode () + ")";
 
     }
 

@@ -9,8 +9,8 @@ public class IssueSorter implements Comparator<Issue>
                         Issue o2)
     {
 
-        int o1p = o1.getSentenceStartPosition ().getOffset ();
-        int o2p = o2.getSentenceStartPosition ().getOffset ();
+        int o1p = o1.getStartPosition ().getOffset ();
+        int o2p = o2.getStartPosition ().getOffset ();
         
         if (o1p > o2p)
         {
@@ -26,8 +26,8 @@ public class IssueSorter implements Comparator<Issue>
             
         }
 
-        o1p = o1.getStartWordPosition ();
-        o2p = o2.getStartWordPosition ();
+        o1p = o1.getStartIssuePosition ();
+        o2p = o2.getStartIssuePosition ();
         
         if (o1p > o2p)
         {

@@ -66,6 +66,13 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
                                                   popupParent);
                         
     }
+
+    public Dimension getMinimumSize ()
+    {
+        
+        return this.getPreferredSize ();        
+        
+    }    
     
     public List<JButton> getHeaderControls ()
     {

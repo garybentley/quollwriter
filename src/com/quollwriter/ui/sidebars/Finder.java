@@ -120,12 +120,10 @@ public class Finder extends AbstractSideBar
         this.text = UIUtils.createTextField ();
         this.text.setBorder (new CompoundBorder (new EmptyBorder (5, 10, 5, 10),
                                                  this.text.getBorder ()));
-        
-        this.setMinimumSize (new Dimension (250,
-                                            250));
-
-        this.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                            Short.MAX_VALUE));
+        /*
+        this.text.setMinimumSize (new Dimension (300,
+                                                 this.text.getPreferredSize ().height));
+        */
 
         this.projectViewer.fireProjectEvent (ProjectEvent.FIND,
                                              ProjectEvent.SHOW);
@@ -177,6 +175,11 @@ public class Finder extends AbstractSideBar
         this.content.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.content.setOpaque (false);
         this.content.setBorder (new EmptyBorder (0, 0, 0, 0));
+
+        this.content.setMinimumSize (new Dimension (250,
+                                         250));
+        this.content.setPreferredSize (new Dimension (250,
+                                           250));
 
         b.add (this.wrapInScrollPane (this.content));
 
@@ -274,6 +277,8 @@ public class Finder extends AbstractSideBar
 
         this.outlineItemResults.clearResults ();        
                         
+        this.chapterResults.clearResults ();
+                        
         String t = this.text.getText ().trim ();
         
         if (t.length () == 0)
@@ -285,7 +290,7 @@ public class Finder extends AbstractSideBar
      
         // Get the snippets.
         Map<Chapter, List<Segment>> snippets = UIUtils.getTextSnippets (t,
-                                                                        this.projectViewer.getProject ());
+                                                                        this.projectViewer);
 
         if (snippets.size () > 0)
         {
@@ -401,7 +406,9 @@ public class Finder extends AbstractSideBar
             AbstractEditorPanel p = null;
         
             Chapter c = (Chapter) o;        
-        
+                
+            this.projectViewer.viewObject ((DataObject) o);
+
             if (this.projectViewer instanceof ProjectViewer)
             {
             
@@ -419,8 +426,6 @@ public class Finder extends AbstractSideBar
                 p = wv.getEditorForWarmup (c);
                 
             }
-        
-            this.projectViewer.viewObject ((DataObject) o);
             
             final Finder _this = this;
             final AbstractEditorPanel aep = p;

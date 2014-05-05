@@ -132,7 +132,7 @@ public class Form extends QPopup
 */
         }
 
-        String cols = "right:pref, 6px, 300px";
+        String cols = "right:pref, 6px, 300px:grow";
 
         StringBuilder rows = new StringBuilder ();
 
@@ -173,7 +173,7 @@ public class Form extends QPopup
         FormLayout   fl = new FormLayout (cols,
                                           rows.toString () + ", 6px, fill:p:grow");
         PanelBuilder b = new PanelBuilder (fl);
-        b.setDefaultDialogBorder ();
+        b.border (Borders.DIALOG);
 
         CellConstraints cc = new CellConstraints ();
 
@@ -272,7 +272,7 @@ public class Form extends QPopup
                     }
 
                 }
-
+                
                 if ((c instanceof JTextArea) ||
                     (c instanceof JTextPane) ||
                     (c instanceof JList))
@@ -350,7 +350,7 @@ public class Form extends QPopup
 
         }
 
-        b.add (ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
+        b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
                cc.xy (3,
                       r));
 

@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Font;
+import java.awt.KeyboardFocusManager;
+import java.awt.image.*;
 import java.awt.event.*;
 
 import java.beans.*;
@@ -41,6 +43,7 @@ import com.jgoodies.looks.*;
 import com.jgoodies.looks.windows.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.events.*;
@@ -50,6 +53,8 @@ import com.quollwriter.importer.*;
 import com.quollwriter.synonyms.*;
 
 import com.quollwriter.text.rules.*;
+
+import com.quollwriter.db.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -69,41 +74,10 @@ public class Environment
 
     public static String GZIP_EXTENSION = ".gz";
 
-    public final static PrintStream nullOut = new PrintStream (new OutputStream ()
-        {
-            public void close ()
-            {
-            }
-
-            public void flush ()
-            {
-            }
-
-            public void write (byte[] b)
-            {
-            }
-
-            public void write (byte[] b,
-                               int    off,
-                               int    len)
-            {
-            }
-
-            public void write (int b)
-            {
-            }
-
-        });
-
-    // public static String WINDOW_NAME_PREFIX = "Quoll Writer - ";
-    // public static String DEFAULT_CHAPTER_NAME = "Chapter 1";
-
     private static Map<Project, AbstractProjectViewer> openProjects = new HashMap ();
 
     public static Map defaultObjectProperties = new HashMap ();
 
-    // public static DictionaryProvider dictionaryProvider = null;
-    private static SynonymProvider                    synonymProvider = null;
     public static com.gentlyweb.properties.Properties userProperties = new com.gentlyweb.properties.Properties ();
     public static IconProvider                        iconProvider = new DefaultIconProvider ();
 
@@ -118,6 +92,7 @@ public class Environment
     private static int    schemaVersion = 0;
 
     private static SimpleDateFormat dateFormatter = null;
+    private static SimpleDateFormat timeFormatter = null;
 
     public static boolean  debugMode = false;
     private static boolean doneVersionCheck = false;
@@ -130,26 +105,120 @@ public class Environment
     private static boolean upgradeRequired = false;
     
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
+    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.0");
 
     private static Map<String, Image> backgroundImages = new HashMap ();
 
-    public static String quollWriterWebsite = null;
+    //public static String quollWriterWebsite = null;
 
     private static AchievementsManager achievementsManager = null;
 
+    private static Map<String, String> objectTypeNamesSingular = new HashMap ();
+    private static Map<String, String> objectTypeNamesPlural = new HashMap ();
+        
+    private static EditorsWebServiceHandler editorsHandler = null;
+    public static boolean editorServiceAvailable = false;
+    
+    private static Map<String, SynonymProvider> synonymProviders = new WeakHashMap ();
+    
+    private static Map<String, String> buttonLabels = new HashMap ();
+    
+    static
+    {
+        
+        Map m = Environment.buttonLabels;
+        
+        m.put (Constants.CANCEL_BUTTON_LABEL_ID,
+               "Cancel");
+        m.put (Constants.CONFIRM_BUTTON_LABEL_ID,
+               "Ok, got it");
+        
+    }
+    
     public class XMLConstants
     {
-
-        public static final String projects = "projects";
+/*
         public static final String directory = "directory";
-        public static final String name = "name";
         public static final String lastEdited = "lastEdited";
         public static final String encrypted = "encrypted";
         public static final String noCredentials = "noCredentials";
+        public static final String backupService = "backupService";
+*/
+        public static final String projects = "projects";
         public static final String type = "type";
+        public static final String name = "name";
+        public static final String object = "object";
+        public static final String singular = "singular";
+        public static final String plural = "plural";
 
     }
+    
+    public static boolean isDistractionFreeModeEnabled ()
+    {
+        
+        for (AbstractProjectViewer pv : Environment.openProjects.values ())
+        {
+            
+            if (pv.isDistractionFreeModeEnabled ())
+            {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public static String getUrlFileAsString (URL    url)
+                                             throws Exception
+    {
+        
+        URLConnection c = url.openConnection ();
+        
+        BufferedInputStream bin = new BufferedInputStream (c.getInputStream ());
+        
+        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
+        
+        IOUtils.streamTo (bin,
+                          bout,
+                          4096);
 
+        // This "should" be ok.
+        return new String (bout.toByteArray ());
+                
+    }
+    
+    public static Set<String> getWritingGenres ()
+    {
+        
+        String gt = Environment.getProperty (Constants.WRITING_GENRES_PROPERTY_NAME);
+        
+        Set<String> gitems = new LinkedHashSet ();
+        
+        StringTokenizer t = new StringTokenizer (gt,
+                                                 ",");
+        
+        while (t.hasMoreTokens ())
+        {
+            
+            gitems.add (t.nextToken ().trim ());
+            
+        }
+        
+        return gitems;
+        
+    }
+    
+    public static EditorsWebServiceHandler getEditorsWebServiceHandler ()
+    {
+        
+        return Environment.editorsHandler;
+        
+    }
+    
     public static AbstractProjectViewer getProjectViewer (Project p)
     {
         
@@ -157,6 +226,46 @@ public class Environment
         
     }
 
+    public static Book createTestBook ()
+                                       throws Exception
+    {
+        
+        Element root = JDOMUtils.getStringAsElement (Environment.getResourceFileAsString (Constants.TEST_BOOK_FILE));
+
+        String name = JDOMUtils.getAttributeValue (root,
+                                                   XMLConstants.name);
+        
+        Book b = new Book ();
+        
+        b.setName (name);
+        
+        List chEls = JDOMUtils.getChildElements (root,
+                                                 Chapter.OBJECT_TYPE,
+                                                 false);
+        
+        for (int i = 0; i < chEls.size (); i++)
+        {
+            
+            Element el = (Element) chEls.get (i);
+            
+            name = JDOMUtils.getAttributeValue (el,
+                                                XMLConstants.name);
+            
+            Chapter ch = new Chapter ();
+            ch.setName (name);
+            
+            String text = JDOMUtils.getChildContent (el);
+            
+            ch.setText (text);
+            
+            b.addChapter (ch);
+            
+        }
+        
+        return b;
+        
+    }
+    
     public static boolean areDifferent (Comparable o,
                                         Comparable n)
     {
@@ -231,47 +340,134 @@ public class Environment
 
     }
 
-    public static String getWordTypes (String word)
-                                throws GeneralException
-    {
-
-        return Environment.synonymProvider.getWordTypes (word);
-
-    }
-
-    public static void setSynonymProviderUseCache (boolean c)
-    {
-
-        Environment.synonymProvider.setUseCache (c);
-
-    }
-
-    public static SynonymProvider getSynonymProvider ()
+    public static void setUserObjectTypeNames (Map<String, String> singular,
+                                               Map<String, String> plural)
+                                               throws Exception
     {
         
-        return Environment.synonymProvider;
+        Element root = new Element ("object-names");
         
-    }
+        Map<String, Element> els = new HashMap ();
+        
+        for (String ot : singular.keySet ())
+        {
+            
+            ot = ot.toLowerCase ();
+            
+            String s = singular.get (ot);
+            
+            Element el = els.get (ot);
+                        
+            if (el == null)
+            {
+                
+                el = new Element (XMLConstants.object);
+                
+                el.setAttribute (XMLConstants.type,
+                                 ot);
+                
+                els.put (ot,
+                         el);
+                
+                root.addContent (el);
+                
+            }
 
-    public static boolean hasSynonym (String word)
-                                      throws GeneralException
+            Element sel = new Element (XMLConstants.singular);
+            
+            CDATA cd = new CDATA (s);
+            
+            sel.addContent (cd);
+            
+            el.addContent (sel);
+            
+        }
+
+        for (String ot : plural.keySet ())
+        {
+            
+            ot = ot.toLowerCase ();
+            
+            String p = plural.get (ot);
+            
+            Element el = els.get (ot);
+                        
+            if (el == null)
+            {
+                
+                el = new Element (XMLConstants.object);
+                
+                el.setAttribute (XMLConstants.type,
+                                 ot);
+                
+                els.put (ot,
+                         el);
+                
+                root.addContent (el);
+                
+            }
+
+            Element pel = new Element (XMLConstants.plural);
+            
+            CDATA cd = new CDATA (p);
+            
+            pel.addContent (cd);
+            
+            el.addContent (pel);
+            
+        }
+        
+        JDOMUtils.writeElementToFile (root,
+                                      Environment.getUserObjectTypeNamesFile (),
+                                      true);
+                
+        // Now force a reload.
+        Environment.loadObjectTypeNames (root);
+                
+    }
+        
+    public static Map<String, String> getObjectTypeNamePlurals ()
     {
         
-        return Environment.synonymProvider.hasSynonym (word);
+        return new HashMap (Environment.objectTypeNamesPlural);
         
     }
-
-    public static Synonyms getSynonyms (String word)
-                                 throws GeneralException
+    
+    public static Map<String, String> getObjectTypeNames ()
     {
-
-        return Environment.synonymProvider.getSynonyms (word);
-
+        
+        return new HashMap (Environment.objectTypeNamesSingular);
+        
+    }
+    
+    public static String getObjectTypeName (DataObject t)
+    {
+        
+        if (t == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return Environment.getObjectTypeName (t.getObjectType ());
+        
     }
 
     public static String getObjectTypeName (String t)
     {
 
+        if (t == null)
+        {
+            
+            return null;
+            
+        }
+    
+        t = t.toLowerCase ();
+        
+        return Environment.objectTypeNamesSingular.get (t);
+/*    
         if (Warmup.OBJECT_TYPE.equals (t))
         {
 
@@ -343,7 +539,7 @@ public class Environment
         }
 
         return null;
-
+*/
     }
 
     public static int getPercent (float t,
@@ -354,9 +550,34 @@ public class Environment
         
     }
     
+    public static String getObjectTypeNamePlural (DataObject t)
+    {
+        
+        if (t == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return Environment.getObjectTypeNamePlural (t.getObjectType ());
+        
+    }
+    
     public static String getObjectTypeNamePlural (String t)
     {
 
+        if (t == null)
+        {
+            
+            return null;
+            
+        }
+    
+        t = t.toLowerCase ();
+       
+        return Environment.objectTypeNamesPlural.get (t);
+/*    
         if (Warmup.OBJECT_TYPE.equals (t))
         {
 
@@ -428,7 +649,7 @@ public class Environment
         }
 
         return null;
-
+*/
     }
 
     public static String getObjectTypeName (NamedObject n)
@@ -486,13 +707,6 @@ public class Environment
         }
 
         return false;
-
-    }
-
-    public static boolean synonymLookupsSupported ()
-    {
-
-        return Environment.synonymProvider != null;
 
     }
 
@@ -701,7 +915,7 @@ public class Environment
                 } else
                 {
 
-                    if (start > 0)
+                    if (start > -1)
                     {
 
                         if (Character.isUpperCase (ot.charAt (0)))
@@ -737,6 +951,70 @@ public class Environment
 
     }
 
+    public static String canOpenProject (Project p)
+    {
+        
+        if (p == null)
+        {
+            
+            return "{Project} does not exist.";
+            
+        }
+        
+        if (!p.getProjectDirectory ().exists ())
+        {
+            
+            return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
+            
+        }
+        
+        if (!p.getProjectDirectory ().isDirectory ())
+        {
+            
+            return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
+            
+        }
+        
+        if (!Utils.getQuollWriterDirFile (p.getProjectDirectory ()).exists ())
+        {
+            
+            return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public static boolean checkCanOpenProject (Project p,
+                                               boolean showFindOrOpen)
+    {
+                
+        String r = Environment.canOpenProject (p);
+        
+        if (r != null)
+        {
+
+            // Do this first to ensure the error shows above it.
+            if (showFindOrOpen)
+            {
+                
+                FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN);
+                f.setVisible (true);                                                
+                
+            }
+            
+            UIUtils.showErrorMessage (null,
+                                      "Unable to open {project} <b>" + p.getName () + "</b>, reason:<br /><br />" + r);
+                        
+            return false;
+            
+        }
+        
+        return true;
+        
+    }
+    
     public static boolean openLastEditedProject ()
                                           throws Exception
     {
@@ -751,6 +1029,16 @@ public class Environment
 
             Project p = (Project) projs.get (0);
 
+            // Check to see if the project directory exists.
+            if (!Environment.checkCanOpenProject (p,
+                                                  true))
+            {
+                
+                // We return true here since we don't want further errors to be displayed or the find/open.
+                return true;
+                
+            }
+            
             try
             {
 
@@ -777,8 +1065,37 @@ public class Environment
         return false;
 
     }
+    
+    public static Project getProject (String name)
+                                      throws Exception
+    {
+        
+        Set<Project> projs = Environment.getAllProjects ();
 
-    public static AbstractProjectViewer openProject (Project p)
+        for (Project p : projs)
+        {
+            
+            if (p.getName ().equalsIgnoreCase (name))
+            {
+                
+                return p;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public static void openProject (File f)
+    {
+        
+        // Check the file extension
+  
+    }
+    
+    public static /*AbstractProjectViewer*/ void  openProject (final Project p)
                                               throws Exception
     {
 
@@ -808,44 +1125,108 @@ public class Environment
 
             }
 
+            if (pv == null)
+            {
+                
+                throw new GeneralException ("Unable to open project: " +
+                                            p);
+                
+            }
+            
+            final AbstractProjectViewer fpv = pv;
+            
             Startup.ss.setProgress (75);
 
-            String password = null;
+            String password = p.getFilePassword ();
 
+            
             if ((p.isEncrypted ()) &&
-                (p.getFilePassword () == null))
+                (password == null))
             {
 
                 Startup.ss.finish ();
 
-                // Need to pop up a window to ask for the password.
-                final JPasswordField pwdField = new JPasswordField ();
+                PasswordInputWindow.create ("Enter password",
+                                            "lock",
+                                            "{Project}: <b>" + p.getName () + "</b> is encrypted, please enter the password.",
+                                            "Open",
+                                            new ValueValidator<String> ()
+                                            {
+                                                
+                                                public String isValid (String v)
+                                                {
+                                                    
+                                                    if ((v == null)
+                                                        ||
+                                                        (v.trim ().equals (""))
+                                                       )
+                                                    {
+                                                        
+                                                        return "Please enter the password.";
+                                                        
+                                                    }
+    
+                                                    try
+                                                    {
+    
+                                                        fpv.openProject (p,
+                                                                         v);
+                                            
+                                                        // Need to get the object again because the one passed in could be the one from the open.
+                                                        Environment.openProjects.put (fpv.getProject (),
+                                                                                      fpv);
+                                
+                                                    } catch (Exception e) {
+                                                        
+                                                        if (ObjectManager.isEncryptionException (e))
+                                                        {
+                                                        
+                                                            return "Password is not valid.";
 
-                Object[] array = { Environment.getObjectTypeName (Project.OBJECT_TYPE) + ": " + p.getName () + " is encrypted, please enter the password.", pwdField };
-
-                // Ask for the password.
-                JOptionPane op = new JOptionPane (array,
-                                                  JOptionPane.QUESTION_MESSAGE,
-                                                  JOptionPane.OK_CANCEL_OPTION);
-
-                final JDialog d = op.createDialog (UIUtils.getFrameTitle ("Enter password for " + Environment.getObjectTypeName (Project.OBJECT_TYPE)));
-
-                d.setIconImage (Environment.getWindowIcon ().getImage ());
-                d.pack ();
-                d.setVisible (true);
-                d.toFront ();
-
-                d.dispose ();
-
-                password = new String (pwdField.getPassword ());
-
-                if ((password != null) &&
-                    (password.trim ().length () == 0))
-                {
-
-                    password = null;
-
-                }
+                                                        }
+                                                            
+                                                        Environment.logError ("Cant open project: " +
+                                                                              p,
+                                                                              e);
+                                                        
+                                                        UIUtils.showErrorMessage (null,
+                                                                                  "Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
+                                                        
+                                                        return null;
+                                                        
+                                                    }
+                                                    
+                                                    return null;
+                                                    
+                                                }
+                                                
+                                            },
+                                            new ActionAdapter ()
+                                            {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    // All handled by the validator.
+                                                    
+                                                }
+                                                
+                                            },
+                                            new ActionAdapter ()
+                                            {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                        
+                                                    // Show the open/close.
+                                                    FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
+                                                    f.setVisible (true);                                                
+                                                    
+                                                }
+                                                
+                                            });
+                
+                return;
 
             }
 
@@ -860,7 +1241,7 @@ public class Environment
 
         }
 
-        return pv;
+        //return pv;
 
     }
 
@@ -900,16 +1281,28 @@ public class Environment
         
     }
 
+    public static void logDebugMessage (String m)
+    {
+        
+        if (Environment.debugMode)
+        {
+            
+            Environment.logMessage (m);
+            
+        }
+        
+    }
+    
     public static void logMessage (String m)
     {
-/*
-        if (!Environment.debugMode)
+
+        if (Environment.debugMode)
         {
 
-            return;
+            //System.out.println (m);
 
         }
-*/
+
         Environment.generalLog.logInformationMessage (m);
 
     }
@@ -920,15 +1313,12 @@ public class Environment
         if (Environment.errorLog == null)
         {
             
-            System.err.println (m);
-            
             return;
             
         }
     
-        Environment.errorLog.logError (m,
-                                       null,
-                                       null);
+        Environment.logError (m,
+                              null);
 
     }
 
@@ -953,18 +1343,63 @@ public class Environment
 
         if (Environment.errorLog == null)
         {
-            
-            System.err.println (m);
-            ex.printStackTrace ();
-            
+                        
             return;
             
         }
-    
+        
         Environment.errorLog.logError (m,
                                        ex,
                                        null);
 
+        if ((!Environment.debugMode)
+            &&
+            (Environment.getUserProperties ().getPropertyAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME))
+           )
+        {
+
+            Map details = new HashMap ();
+            
+            try
+            {
+                
+                details.put ("errorLog",
+                             IOUtils.getFile (Environment.getErrorLogFile ()));
+                details.put ("generalLog",
+                             IOUtils.getFile (Environment.getGeneralLogFile ()));
+
+            } catch (Exception e) {
+                
+                // NOt much we can do here!                
+                             
+            }
+            
+            details.put ("reason",
+                         m);
+            
+            if (ex != null)
+            {
+            
+                details.put ("stackTrace",
+                             Utils.getStackTrace (ex));
+                
+            }
+                         
+            try
+            {                         
+            
+                Environment.sendMessageToSupport ("error",
+                                                  details,
+                                                  null);            
+
+            } catch (Exception e) {
+                
+                // Nothing we can do.
+                                       
+            }
+            
+        }
+        
     }
 
     public static com.gentlyweb.properties.Properties getDefaultProperties (String objType)
@@ -1055,7 +1490,7 @@ public class Environment
         Environment.saveProjectsFile (projs);
 
     }
-
+    
     public static boolean hasProjectsFile ()
     {
 
@@ -1088,6 +1523,13 @@ public class Environment
 
         }
 
+        if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+        {
+
+            return new EditorViewer ();
+
+        }
+
         if (p.getType ().equals (Project.WARMUPS_PROJECT_TYPE))
         {
 
@@ -1101,6 +1543,28 @@ public class Environment
 
     }
 
+    public static String getButtonLabel (String preferredValue,
+                                         String id)
+    {
+        
+        if (preferredValue != null)
+        {
+            
+            return preferredValue;
+            
+        }
+        
+        return Environment.getButtonLabel (id);
+        
+    }
+    
+    public static String getButtonLabel (String id)
+    {
+        
+        return Environment.buttonLabels.get (id.toLowerCase ());
+        
+    }
+    
     public static void saveProjectsFile (Set<Project> projs)
                                   throws Exception
     {
@@ -1114,6 +1578,9 @@ public class Environment
 
             Project p = iter.next ();
 
+            Element pEl = p.getAsJDOMElement ();
+            root.addContent (pEl);
+            /*
             Element pEl = new Element (Project.OBJECT_TYPE);
             root.addContent (pEl);
 
@@ -1131,6 +1598,14 @@ public class Environment
             pEl.setAttribute (Environment.XMLConstants.type,
                               p.getType ());
 
+            if (p.getBackupService () != null)
+            {
+                
+                pEl.setAttribute (Environment.XMLConstants.backupService,
+                                  p.getBackupService ());
+                              
+            }
+            
             Element dEl = new Element (Environment.XMLConstants.directory);
             pEl.addContent (dEl);
             dEl.addContent (p.getProjectDirectory ().getPath ());
@@ -1156,6 +1631,15 @@ public class Environment
 
             }
 
+            String id = p.getEditorsProjectId ();
+            
+            if (id != null)
+            {
+                
+                pEl.setAttribute (Environment.XMLConstants.)
+                
+            }
+            */
         }
 
         JDOMUtils.writeElementToFile (root,
@@ -1164,11 +1648,11 @@ public class Environment
 
     }
 
-    public static Set getAllProjects ()
-                               throws Exception
+    public static Set<Project> getAllProjects ()
+                                        throws Exception
     {
 
-        Set ret = new LinkedHashSet ();
+        Set<Project> ret = new LinkedHashSet ();
 
         File f = Environment.getProjectsFile ();
 
@@ -1189,9 +1673,11 @@ public class Environment
 
         for (int i = 0; i < pels.size (); i++)
         {
-
+        
             Element pEl = (Element) pels.get (i);
 
+            Project p = new Project (pEl);
+/*            
             String name = JDOMUtils.getChildElementContent (pEl,
                                                             Environment.XMLConstants.name);
             String type = JDOMUtils.getAttributeValue (pEl,
@@ -1228,6 +1714,10 @@ public class Environment
                                                     Environment.XMLConstants.lastEdited,
                                                     false);
 
+            String bs = JDOMUtils.getAttributeValue (pEl,
+                                                     Environment.XMLConstants.backupService,
+                                                     false);
+                                                    
             File dir = new File (directory);
 
             Project p = new Project (name);
@@ -1235,6 +1725,13 @@ public class Environment
             p.setEncrypted (encrypted);
             p.setNoCredentials (noCredentials);
 
+            if (!bs.equals (""))
+            {
+                
+                p.setBackupService (bs);
+                
+            }
+            
             if (type != null)
             {
 
@@ -1258,7 +1755,7 @@ public class Environment
                 }
 
             }
-
+*/
             ret.add (p);
 
         }
@@ -1267,6 +1764,18 @@ public class Environment
 
     }
 
+    /**
+     * A special call that looks for the English subdirectory in the dictionaries dir.
+     */
+    public static boolean hasEnglishDictionaryFiles ()
+    {
+        
+        File dir = Environment.getDictionaryDirectory ("English");
+            
+        return dir.exists ();
+        
+    }
+    
     public static Project getWarmupsProject ()
                                       throws Exception
     {
@@ -1311,6 +1820,13 @@ public class Environment
 
     }
 
+    public static File getDictionaryDirectory (String lang)
+    {
+        
+        return new File (Environment.getUserQuollWriterDir ().getPath () + Constants.DICTIONARIES_DIR + lang);
+    
+    }
+    
     public static File getLogDir ()
     {
 
@@ -1322,6 +1838,15 @@ public class Environment
 
     }
 
+    public static File getUserObjectTypeNamesFile ()
+    {
+        
+        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.OBJECT_TYPE_NAMES_FILE_NAME);
+
+        return f;
+
+    }
+    
     public static File getUserPropertiesFile ()
     {
 
@@ -1331,6 +1856,128 @@ public class Environment
 
         return f;
 
+    }
+    
+    public static File getEditorsAuthorAvatarImageFile (String suffix)
+    {
+
+        if (suffix == null)
+        {
+            
+            return null;
+                
+        }
+        
+        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
+
+        f.getParentFile ().mkdirs ();
+
+        return f;
+        
+    }
+
+    public static File getEditorsAuthorAvatarImageFile ()
+    {
+        
+        if (Environment.editorsHandler == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (Environment.editorsHandler.getAccount () == null)
+        {
+            
+            return null;
+            
+        }
+
+        EditorAuthor au = Environment.editorsHandler.getAccount ().getAuthor ();
+        
+        if (au == null)
+        {
+            
+            return null;
+            
+        }
+                
+        String t = Environment.getProperty (Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_TYPE_PROPERTY_NAME);
+                        
+        return Environment.getEditorsAuthorAvatarImageFile (t);
+        
+    }
+
+    public static File getEditorsAuthorFile ()
+    {
+        
+        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_AUTHOR_FILE_NAME);
+        
+        f.getParentFile ().mkdirs ();
+        
+        return f;
+        
+    }
+        
+    public static File getEditorsEditorAvatarImageFile (String suffix)
+    {
+
+        if (suffix == null)
+        {
+            
+            return null;
+                
+        }
+        
+        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
+
+        f.getParentFile ().mkdirs ();
+
+        return f;
+        
+    }
+
+    public static File getEditorsEditorAvatarImageFile ()
+    {
+        
+        if (Environment.editorsHandler == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (Environment.editorsHandler.getAccount () == null)
+        {
+            
+            return null;
+            
+        }
+
+        EditorEditor ed = Environment.editorsHandler.getAccount ().getEditor ();
+        
+        if (ed == null)
+        {
+            
+            return null;
+            
+        }
+                
+        String t = Environment.getProperty (Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_TYPE_PROPERTY_NAME);
+                        
+        return Environment.getEditorsEditorAvatarImageFile (t);
+        
+    }
+
+    public static File getEditorsEditorFile ()
+    {
+        
+        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_EDITOR_FILE_NAME);
+        
+        f.getParentFile ().mkdirs ();
+        
+        return f;
+        
     }
 
     public static com.gentlyweb.properties.Properties getUserProperties ()
@@ -1398,10 +2045,36 @@ public class Environment
 
     }
 
+    public static Date parseDate (String d)
+    {
+        
+        try
+        {
+            
+            return Environment.dateFormatter.parse (d);
+        
+        } catch (Exception e) {
+            
+            // Bugger
+            e.printStackTrace ();
+            
+        }
+        
+        return null;
+        
+    }
+    
     public static String formatDate (Date d)
     {
 
         return Environment.dateFormatter.format (d);
+
+    }
+
+    public static String formatTime (Date d)
+    {
+
+        return Environment.timeFormatter.format (d);
 
     }
 
@@ -1427,10 +2100,12 @@ public class Environment
         // Setup our stream handler for the objectref protocol.
         URL.setURLStreamHandlerFactory (new ObjectRefURLStreamHandlerFactory ());
 
-        Environment.dateFormatter = new SimpleDateFormat ("dd MMM yyyy HH:mm");
+        Environment.dateFormatter = new SimpleDateFormat ("dd MMM yyyy");
+        Environment.timeFormatter = new SimpleDateFormat ("HH:mm");
 
         UIManager.put("SplitPane.background", UIUtils.getComponentColor ());
         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 1, 0));
+        //UIManager.put("TabbedPane.tabInsets", new Insets(0, 5, 0, 0));
         UIManager.put("Tree.selectionBackground", UIUtils.getColor ("#aaaaaa"));//UIUtils.getTitleColor ());
         UIManager.put("SplitPane.shadow", UIUtils.getColor ("#aaaaaa"));
         UIManager.put("Tree.textForeground", UIUtils.getTitleColor ());
@@ -1454,6 +2129,41 @@ public class Environment
 
         }
 
+        // Load the default object type names.
+        try
+        {
+            
+            Environment.loadObjectTypeNames (JDOMUtils.getStringAsElement (Environment.getResourceFileAsString (Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE)));
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to load default object type names from resource file: " +
+                                  Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE);
+            
+        }
+        
+        // Load the user specific ones, if present.
+        File otf = Environment.getUserObjectTypeNamesFile ();
+        
+        if (otf.exists ())
+        {
+            
+            try
+            {
+            
+                Environment.loadObjectTypeNames (JDOMUtils.getFileAsElement (otf,
+                                                                             Environment.GZIP_EXTENSION));
+
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to load user object type names from file: " +
+                                      otf,
+                                      e);
+                
+            }
+            
+        }
+        
         com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROPERTIES_FILE),
                                                                                                 null);
 
@@ -1496,17 +2206,6 @@ public class Environment
 
         // Load the "system" properties.
         Environment.userProperties.setParentProperties (sysProps);
-
-        if (Environment.debugMode)
-        {
-
-            Environment.quollWriterWebsite = Environment.getProperty (Constants.QUOLL_WRITER_DEBUG_WEBSITE_PROPERTY_NAME);
-
-        } else {
-
-            Environment.quollWriterWebsite = Environment.getProperty (Constants.QUOLL_WRITER_WEBSITE_PROPERTY_NAME);
-            
-        }
 
         // Get the system default project properties.
         com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
@@ -1564,7 +2263,7 @@ public class Environment
                 Options.setUseSystemFonts (true);
 
                 UIManager.setLookAndFeel (new WindowsLookAndFeel ());
-
+ 
             } catch (Exception e)
             {
 
@@ -1594,91 +2293,7 @@ public class Environment
 
         Startup.ss.setProgress (20);
 
-        /*
-        List dictFiles = new ArrayList ();
-
-        String dFiles = Environment.getProperty (Constants.DICTIONARY_FILES_PROPERTY_NAME);
-
-        if (dFiles != null)
-        {
-
-            StringTokenizer t = new StringTokenizer (dFiles,
-                                                     ",");
-
-            while (t.hasMoreTokens ())
-            {
-
-                String tok = t.nextToken ().trim ();
-
-                dictFiles.add (Environment.class.getResourceAsStream (Constants.DICTIONARIES_DIR + tok));
-
-            }
-
-        }
-
-        File userDict = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.USER_DICTIONARY_FILE_NAME);
-
-        userDict.createNewFile ();
-
-        Environment.dictionaryProvider = new DictionaryProvider (dictFiles,
-                                                                 userDict);
-         */
         Startup.ss.setProgress (40);
-
-        String synCl = Environment.getProperty (Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME);
-
-        if (synCl != null)
-        {
-
-            Class c = null;
-
-            try
-            {
-
-                c = Class.forName (synCl);
-
-            } catch (Exception e)
-            {
-
-                throw new GeneralException ("Unable to load synonym provider class: " +
-                                            synCl +
-                                            " specified by property: " +
-                                            Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME,
-                                            e);
-
-            }
-
-            if (!SynonymProvider.class.isAssignableFrom (c))
-            {
-
-                throw new GeneralException ("Expected synonym provider class: " +
-                                            synCl +
-                                            " specified by property: " +
-                                            Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME +
-                                            " to implement interface: " +
-                                            SynonymProvider.class.getName ());
-
-            }
-
-            // Create the instance.
-            try
-            {
-
-                Environment.synonymProvider = (SynonymProvider) c.newInstance ();
-
-            } catch (Exception e)
-            {
-
-                // Record the error but don't barf, it's just a service that isn't available
-                Environment.logError ("Unable to create new instance of synonym provider class: " +
-                                      synCl +
-                                      " specified by property: " +
-                                      Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME,
-                                      e);
-
-            }
-
-        }
 
         try
         {
@@ -1741,8 +2356,358 @@ public class Environment
 
         Startup.ss.setProgress (50);
 
+        KeyboardFocusManager.getCurrentKeyboardFocusManager ().addKeyEventPostProcessor (new java.awt.KeyEventPostProcessor ()
+        {
+            
+            public boolean postProcessKeyEvent (KeyEvent ev)
+            {
+            
+                if (!(ev.getSource () instanceof JComponent))
+                {
+                
+                    return true;
+                
+                }
+                
+                final JComponent focused = (JComponent) ev.getSource ();
+                                
+                Environment.scrollIntoView (focused);
+/*                                        
+                if (!(focused.getParent () instanceof JComponent))
+                {
+                    
+                    return true;
+                                                    
+                }
+                
+                JComponent parent = (JComponent) focused.getParent ();
+                
+                if (parent == null)
+                {
+                    
+                    return true;
+                    
+                }
+                
+                if (parent instanceof JViewport)
+                {
+
+                    parent = (JComponent) parent.getParent ();
+                    
+                }
+                                
+                parent.scrollRectToVisible (focused.getBounds ());
+                */
+                return true;
+                
+            }
+        });
+        
+        if (Environment.editorServiceAvailable)
+        {
+        
+            Environment.editorsHandler = new EditorsWebServiceHandler ();
+            Environment.editorsHandler.init ();
+            
+        }
+                                
     }
 
+    public static String getQuollWriterWebsite ()
+    {
+        
+        if (Environment.debugMode)
+        {
+
+            return Environment.getProperty (Constants.QUOLL_WRITER_DEBUG_WEBSITE_PROPERTY_NAME);
+
+        } else {
+
+            return Environment.getProperty (Constants.QUOLL_WRITER_WEBSITE_PROPERTY_NAME);
+            
+        }        
+        
+    }
+    
+    public static String getWordTypes (String word,
+                                       String language)
+                                       throws GeneralException
+    {
+        
+        SynonymProvider sp = Environment.getSynonymProvider (language);
+        
+        if (sp != null)
+        {
+            
+            return sp.getWordTypes (word);
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public static SynonymProvider getSynonymProvider (String language)
+                                                      throws GeneralException
+    {
+        
+        if (language == null)
+        {
+            
+            language = Constants.ENGLISH;
+            
+        }
+        
+        if (Environment.isEnglish (language))
+        {
+            
+            language = Constants.ENGLISH;
+            
+        }
+        
+        // For now, until we are able to support other languages return null for non-english.
+        if (!language.equals (Constants.ENGLISH))
+        {
+            
+            return null;
+            
+        }
+        
+        SynonymProvider prov = Environment.synonymProviders.get (language.toLowerCase ());
+        
+        if (prov != null)
+        {
+            
+            return prov;
+            
+        }
+        
+        String synCl = Environment.getProperty (Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME);
+
+        if (synCl != null)
+        {
+
+            Class c = null;
+
+            try
+            {
+
+                c = Class.forName (synCl);
+
+            } catch (Exception e)
+            {
+
+                throw new GeneralException ("Unable to load synonym provider class: " +
+                                            synCl +
+                                            " specified by property: " +
+                                            Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME,
+                                            e);
+
+            }
+
+            if (!SynonymProvider.class.isAssignableFrom (c))
+            {
+
+                throw new GeneralException ("Expected synonym provider class: " +
+                                            synCl +
+                                            " specified by property: " +
+                                            Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME +
+                                            " to implement interface: " +
+                                            SynonymProvider.class.getName ());
+
+            }
+            
+            // Create the instance.
+            try
+            {
+
+                prov = (SynonymProvider) c.newInstance ();
+
+            } catch (Exception e)
+            {
+
+                // Record the error but don't barf, it's just a service that isn't available
+                Environment.logError ("Unable to create new instance of synonym provider class: " +
+                                      synCl +
+                                      " specified by property: " +
+                                      Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME,
+                                      e);
+
+            }
+            
+            if (!prov.isLanguageSupported (language))
+            {
+                
+                return null;
+                
+            }
+            
+            try
+            {
+                
+                
+                
+                prov.init (language);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to init synonym provider instance for language: " +
+                                      language +
+                                      ", class: " +
+                                      synCl +
+                                      ", specified by property: " +
+                                      Constants.SYNONYM_PROVIDER_CLASS_PROPERTY_NAME,
+                                      e);
+                
+            }
+            
+            Environment.synonymProviders.put (language.toLowerCase (),
+                                              prov);
+                        
+        }        
+
+        return prov;
+        
+    }
+    
+    public static void scrollIntoView (JComponent c)
+    {
+        
+        if (c == null)
+        {
+
+            return;
+                                        
+        }
+
+        if (!(c.getParent () instanceof JComponent))
+        {
+            
+            return;
+            
+        }
+        
+        JComponent parent = (JComponent) c.getParent ();
+        
+        if (!(parent instanceof JComponent))
+        {
+
+            return;
+                                            
+        }
+                
+        if (parent == null)
+        {
+
+            return;
+            
+        }
+        
+        if (parent instanceof JViewport)
+        {
+
+            parent = (JComponent) parent.getParent ();
+            
+        }
+
+        parent.scrollRectToVisible (c.getBounds ());        
+        
+    }
+    
+    public static boolean isEnglish (String language)
+    {
+        
+        if (language == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return Constants.BRITISH_ENGLISH.equalsIgnoreCase (language)
+               ||
+               Constants.US_ENGLISH.equalsIgnoreCase (language);
+        
+    }
+    
+    public static void resetObjectTypeNamesToDefaults ()
+    {
+
+        Environment.objectTypeNamesSingular.clear ();
+        Environment.objectTypeNamesPlural.clear ();
+        
+        // Load the default object type names.
+        try
+        {
+            
+            Environment.loadObjectTypeNames (JDOMUtils.getStringAsElement (Environment.getResourceFileAsString (Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE)));
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to load default object type names from resource file: " +
+                                  Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE);
+            
+        }
+        
+        File otf = Environment.getUserObjectTypeNamesFile ();
+
+        // Remove the file.
+        otf.delete ();
+        
+    }
+    
+    public static void loadObjectTypeNames (Element root)
+                                            throws  Exception
+    {
+        
+        Map<String, String> singular = new HashMap ();
+        Map<String, String> plural = new HashMap ();
+        
+        List els = JDOMUtils.getChildElements (root,
+                                               XMLConstants.object,
+                                               false);
+        
+        for (int i = 0; i < els.size (); i++)
+        {
+            
+            Element el = (Element) els.get (i);
+            
+            String objType = JDOMUtils.getAttributeValue (el,
+                                                          XMLConstants.type);
+            
+            objType = objType.toLowerCase ();
+            
+            String s = JDOMUtils.getChildElementContent (el,
+                                                         XMLConstants.singular,
+                                                         false);
+            
+            if (!s.equals (""))
+            {
+                
+                singular.put (objType,
+                              s);
+                
+            }
+
+            String p = JDOMUtils.getChildElementContent (el,
+                                                         XMLConstants.plural,
+                                                         false);
+            
+            if (!p.equals (""))
+            {
+                
+                plural.put (objType,
+                            p);
+                
+            }
+            
+        }
+
+        Environment.objectTypeNamesSingular.putAll (singular);
+        Environment.objectTypeNamesPlural.putAll (plural);
+        
+    }
+    
     public static URL getSupportUrl (String pagePropertyName)
                                      throws Exception
     {
@@ -1911,6 +2876,40 @@ public class Environment
         
     }
 
+    public static ImageIcon getObjectIcon (String ot,
+                                           int    iconType)
+    {
+        
+        return Environment.getIcon (ot,
+                                    iconType);
+        
+    }
+    
+    public static ImageIcon getObjectIcon (DataObject d,
+                                           int        iconType)
+    {
+        
+        String ot = d.getObjectType ();
+        
+        if (d instanceof Note)
+        {
+            
+            Note n = (Note) d;
+            
+            if (n.isEditNeeded ())
+            {
+                
+                ot = Constants.EDIT_NEEDED_NOTE_ICON_NAME;
+                
+            }
+            
+        }
+        
+        return Environment.getObjectIcon (ot,
+                                          iconType);
+        
+    }
+    
     public static URL getIconURL (String  name,
                                   int     type)
                                   //boolean large)
@@ -1932,6 +2931,13 @@ public class Environment
             {
                 
                 size = 20;
+                
+            }
+
+            if (type == Constants.ICON_MENU_INNER)
+            {
+                
+                size = 16;
                 
             }
             
@@ -2003,7 +3009,49 @@ public class Environment
         return Environment.class.getResource (name);
 
     }
+    
+    public static ImageIcon getLoadingIcon ()
+    {
 
+        URL url = Environment.class.getResource (Constants.IMGS_DIR + Constants.LOADING_GIF_NAME);
+
+        if (url == null)
+        {
+
+            if (Environment.debugMode)
+            {
+
+                // Can't find image, log the problem but keep going.
+                Environment.logError ("Unable to find loading image: " +
+                                      Constants.LOADING_GIF_NAME +
+                                      ", check images jar to ensure file is present.",
+                                      // Gives a stack trace
+                                      new Exception ());
+
+            }
+
+            return null;
+
+        }
+
+        try
+        {
+
+            // Can't use ImageIO here, won't animate only reads first frame.
+            return new ImageIcon (url);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to find loading image: " +
+                                  Constants.LOADING_GIF_NAME,
+                                  e);
+            
+        }
+
+        return null;        
+        
+    }
+    
     public static ImageIcon getIcon (String  name,
                                      int     type)
     {
@@ -2055,13 +3103,35 @@ public class Environment
 
     }
 
+    public static BufferedImage getImage (String fileName)
+    {
+        
+        try
+        {
+        
+            return ImageIO.read (Environment.class.getResource (fileName));
+        
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to read resource stream for image: " +
+                                  fileName,
+                                  e);
+            
+        }
+        
+        return null;
+        
+        //return new ImageIcon (Environment.class.getResource (fileName)).getImage ();
+        
+    }
+    
     public static Image getTransparentImage ()
     {
 
         return new ImageIcon (Environment.class.getResource (Constants.IMGS_DIR + Constants.TRANSPARENT_PNG_NAME)).getImage ();
 
     }
-
+    
     public static ImageIcon getLogo ()
     {
 
@@ -2069,6 +3139,13 @@ public class Environment
 
     }
 
+    public static ImageIcon get3rdPartyLogo (String type)
+    {
+
+        return new ImageIcon (Environment.class.getResource (Constants.IMGS_DIR + type + "-logo.png"));
+
+    }
+    
     public static String getWindowTitle (String title)
     {
 
@@ -2310,8 +3387,8 @@ public class Environment
 
                         final String digest = tok.nextToken ();
 
-                         int oldVer = Environment.getVersionAsInt (Environment.appVersion);
-                        
+                        int oldVer = Environment.getVersionAsInt (Environment.appVersion);
+
                         final int newVer = Environment.getVersionAsInt (newVersion);
 
                         if (newVer > oldVer)
@@ -2328,7 +3405,8 @@ public class Environment
                                                                           Short.MAX_VALUE));
 
                                         JTextPane p = UIUtils.createHelpTextPane ("A new version of " + Constants.QUOLL_WRITER_NAME + " is available.  <a href='http://quollwriter.com/user-guide/version-changes/" + newVersion.replace (".",
-                                                                                                                                                                                                                                          "_") + ".html'>View the changes.</a>");
+                                                                                                                                                                                                                                          "_") + ".html'>View the changes.</a>",
+                                                                                  pv);
                                         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
                                         p.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -2352,7 +3430,7 @@ public class Environment
 
                                         final ActionListener removeNot = pv.addNotification (ib,
                                                                                              "notify",
-                                                                                             120);
+                                                                                             600);
 
                                         installNow.addActionListener (new ActionAdapter ()
                                         {
@@ -2373,20 +3451,6 @@ public class Environment
 
                                         installLater.addActionListener (removeNot);
 
-                                        /*
-                                            int res = JOptionPane.showConfirmDialog (pv,
-                                                                                     "A new version of " + Constants.QUOLL_WRITER_NAME + " is available.\n\nWould you like to download and install it now?",
-                                                                                     "New Version of " + Constants.QUOLL_WRITER_NAME + " Available",
-                                                                                     JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                                     JOptionPane.QUESTION_MESSAGE);
-
-                                            if (res != JOptionPane.YES_OPTION)
-                                            {
-
-                                                return;
-
-                                            }
-                                         */
                                     }
 
                                 });
@@ -2439,6 +3503,34 @@ public class Environment
 
     }
 
+    public static String formatNumber (int i)
+    {
+       
+        return Environment.numFormat.format (i);
+        
+    }
+
+    public static String formatNumber (long i)
+    {
+       
+        return Environment.numFormat.format (i);
+        
+    }
+    
+    public static String formatNumber (float f)
+    {
+      
+        return Environment.floatNumFormat.format (f);
+        
+    }
+
+    public static String formatNumber (double f)
+    {
+      
+        return Environment.floatNumFormat.format (f);
+        
+    }
+/*   
     public static String formatNumber (Number n)
     {
 
@@ -2449,91 +3541,176 @@ public class Environment
             
         }
     
+        if (n instanceof Float)
+        {
+            
+            return Environment.floatNumFormat.format (n);
+            
+        }
+    
         return Environment.numFormat.format (n);
 
     }
-
-    public static void sendMessageToSupport (String type,
-                                             Map    info)
-                                      throws Exception
+*/
+    public static void sendMessageToSupport (final String         type,
+                                             final Map            info,
+                                             final ActionListener onComplete)
     {
 
-        info.put ("quollWriterVersion",
-                  Environment.getQuollWriterVersion ().trim ());
-        info.put ("javaVersion",
-                  System.getProperty ("java.version"));
-        info.put ("osName",
-                  System.getProperty ("os.name"));
-        info.put ("osVersion",
-                  System.getProperty ("os.version"));
-        info.put ("osArch",
-                  System.getProperty ("os.arch"));
-
-        Element root = new Element ("message");
-        root.setAttribute ("quollWriterVersion",
-                           Environment.getQuollWriterVersion ().trim ());
-        root.setAttribute ("javaVersion",
-                           System.getProperty ("java.version"));
-        root.setAttribute ("osName",
-                           System.getProperty ("os.name"));
-        root.setAttribute ("osVersion",
-                           System.getProperty ("os.version"));
-        root.setAttribute ("osArch",
-                           System.getProperty ("os.arch"));
-        root.setAttribute ("type",
-                           type);
-
-        // Encode as XML.
-        Iterator iter = info.keySet ().iterator ();
-
-        while (iter.hasNext ())
+        Thread t = new Thread (new Runnable ()
         {
-
-            Object k = iter.next ();
-
-            Object v = info.get (k);
-
-            Element el = new Element (k.toString ());
-
-            el.addContent (v.toString ());
-
-            root.addContent (el);
-
-        }
-
-        // Get as a string.
-        String data = JDOMUtils.getElementAsString (root);
-
-        List l = new ArrayList ();
-
-        URL u = Environment.getSupportUrl (Constants.SEND_MESSAGE_TO_SUPPORT_PAGE_PROPERTY_NAME);
-
-        HttpURLConnection conn = (HttpURLConnection) u.openConnection ();
-
-        conn.setDoInput (true);
-        conn.setDoOutput (true);
-
-        conn.connect ();
-
-        BufferedWriter bout = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream ()));
-
-        bout.write (data);
-        bout.flush ();
-        bout.close ();
-
-        BufferedReader b = new BufferedReader (new InputStreamReader (conn.getInputStream ()));
-
-        String detail = b.readLine ();
-
-        b.close ();
-
-        if ((detail == null) ||
-            (!detail.equals ("SUCCESS")))
-        {
-
-            throw new GeneralException ("Unable to get send message to support");
-
-        }
+            
+            public void run ()
+            {
+                
+                try
+                {
+            
+                    info.put ("quollWriterVersion",
+                              Environment.getQuollWriterVersion ().trim ());
+                    info.put ("javaVersion",
+                              System.getProperty ("java.version"));
+                    info.put ("osName",
+                              System.getProperty ("os.name"));
+                    info.put ("osVersion",
+                              System.getProperty ("os.version"));
+                    info.put ("osArch",
+                              System.getProperty ("os.arch"));
+            
+                    Element root = new Element ("message");
+                    root.setAttribute ("quollWriterVersion",
+                                       Environment.getQuollWriterVersion ().trim ());
+                    root.setAttribute ("javaVersion",
+                                       System.getProperty ("java.version"));
+                    root.setAttribute ("osName",
+                                       System.getProperty ("os.name"));
+                    root.setAttribute ("osVersion",
+                                       System.getProperty ("os.version"));
+                    root.setAttribute ("osArch",
+                                       System.getProperty ("os.arch"));
+                    root.setAttribute ("type",
+                                       type);
+            
+                    // Encode as XML.
+                    Iterator iter = info.keySet ().iterator ();
+            
+                    while (iter.hasNext ())
+                    {
+            
+                        Object k = iter.next ();
+            
+                        Object v = info.get (k);
+            
+                        Element el = new Element (k.toString ());
+            
+                        el.addContent (v.toString ());
+            
+                        root.addContent (el);
+            
+                    }
+            
+                    // Get as a string.
+                    String data = JDOMUtils.getElementAsString (root);
+            
+                    List l = new ArrayList ();
+            
+                    URL u = Environment.getSupportUrl (Constants.SEND_MESSAGE_TO_SUPPORT_PAGE_PROPERTY_NAME);
+            
+                    HttpURLConnection conn = (HttpURLConnection) u.openConnection ();
+            
+                    conn.setDoInput (true);
+                    conn.setDoOutput (true);
+            
+                    conn.connect ();
+            
+                    BufferedWriter bout = new BufferedWriter (new OutputStreamWriter (conn.getOutputStream ()));
+            
+                    bout.write (data);
+                    bout.flush ();
+                    bout.close ();
+            
+                    BufferedReader b = new BufferedReader (new InputStreamReader (conn.getInputStream ()));
+            
+                    String detail = b.readLine ();
+            
+                    b.close ();
+            
+                    if (((detail == null)
+                          ||
+                         (!detail.equals ("SUCCESS"))
+                        )
+                        &&
+                        (!type.equals ("error"))
+                       )
+                    {
+            
+                        throw new GeneralException ("Unable to get send message to support for url: " +
+                                                    u +
+                                                    ", response is: " +
+                                                    detail);
+            
+                    }                
+                
+                    if (onComplete != null)
+                    {
+                        
+                        final ActionEvent ev = new ActionEvent (this,
+                                                                0,
+                                                                "success");
+                        
+                        SwingUtilities.invokeLater (new Runnable ()
+                        {
+                            
+                            public void run ()
+                            {
+                                
+                                onComplete.actionPerformed (ev);
+                                
+                            }
+                            
+                        });
+                        
+                    }
+                
+                } catch (Exception e) {
+                    
+                    if (onComplete != null)
+                    {
+                        
+                        final ActionEvent ev = new ActionEvent (this,
+                                                                0,
+                                                                "error");
+                        
+                        SwingUtilities.invokeLater (new Runnable ()
+                        {
+                            
+                            public void run ()
+                            {
+                                
+                                onComplete.actionPerformed (ev);
+                                
+                            }
+                            
+                        });
+                        
+                    }
+    
+                    if (!type.equals ("error"))
+                    {
+                        
+                        Environment.logError ("Unable to send message to support",
+                                              e);
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        });
+        
+        t.setDaemon (true);
+        t.start ();
 
     }
 

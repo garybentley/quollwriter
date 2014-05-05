@@ -106,7 +106,8 @@ public class DebugConsole extends JFrame
 
         bs.add (but);
 
-        b.add (ButtonBarFactory.buildRightAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])));
+        b.add (UIUtils.createButtonBar2 ((JButton[]) bs.toArray (new JButton[bs.size ()]),
+                                         Component.LEFT_ALIGNMENT));
 
         this.getContentPane ().setPreferredSize (new Dimension (800,
                                                                 600));

@@ -64,6 +64,7 @@ public class IdeaBoard extends QuollPanel
         private AddEditBox editBox = null;
         private JTextPane  shortDesc = null;
         private JTextPane  fullDesc = null;
+        private IdeaBoard ideaBoard = null;
 
         public IdeaBox(Idea    i,
                        TypeBox tb,
@@ -74,7 +75,7 @@ public class IdeaBoard extends QuollPanel
 
             this.typeBox = tb;
             this.idea = i;
-
+            
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             this.createViewBox (showToolBar);
@@ -240,23 +241,37 @@ public class IdeaBoard extends QuollPanel
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    if (JOptionPane.showConfirmDialog (_this,
-                                                       "Please confirm you wish to delete this idea?",
-                                                       "Confirm deletion of idea",
-                                                       JOptionPane.YES_NO_OPTION,
-                                                       JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-                    {
-
-                        if (_this.typeBox.getIdeaBoard ().projectViewer.deleteIdea (_this.idea))
-                        {
-                        
-                            _this.idea.getType ().removeIdea (_this.idea);
-                        
-                            _this.typeBox.removeIdea (_this.idea);
-                        
-                        }
-                        
-                    }
+                    Point p = SwingUtilities.convertPoint ((Component) ev.getSource (),
+                                                           0,
+                                                           0,
+                                                           IdeaBoard.this.projectViewer);
+                
+                    UIUtils.createQuestionPopup (_this.typeBox.getIdeaBoard ().projectViewer,
+                                                 "Delete the {idea}?",
+                                                 Constants.DELETE_ICON_NAME,
+                                                 "Please confirm you wish to delete this {idea}?",
+                                                 "Yes, delete it",
+                                                 null,
+                                                 new ActionListener ()
+                                                 {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        if (_this.typeBox.getIdeaBoard ().projectViewer.deleteIdea (_this.idea))
+                                                        {
+                                                        
+                                                            _this.idea.getType ().removeIdea (_this.idea);
+                                                        
+                                                            _this.typeBox.removeIdea (_this.idea);
+                                                        
+                                                        }
+                                                        
+                                                    }
+                                                    
+                                                 },
+                                                 null,
+                                                 p);
 
                 }
                 
@@ -449,6 +464,13 @@ public class IdeaBoard extends QuollPanel
             String firstSent = this.idea.getDescription ().substring (si.first (),
                                                                       si.next ()).trim ();
 
+            if (si.next () != BreakIterator.DONE)
+            {
+                
+                firstSent += " more... ";
+                                                 
+            }
+            
             this.shortDesc.setText (UIUtils.getWithHTMLStyleSheet (this.shortDesc,
                                                                    UIUtils.markupStringForAssets (firstSent,
                                                                                                   this.typeBox.ideaBoard.getProjectViewer ().getProject (),
@@ -537,11 +559,12 @@ public class IdeaBoard extends QuollPanel
 
             this.initTextArea ();
 
-            JScrollPane sp = new JScrollPane (_this.text);
+            final JScrollPane sp = new JScrollPane (_this.text);
 
             sp.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             sp.setBorder (null);
+            
             this.add (sp);
 
             this.setVisible (false);
@@ -757,6 +780,7 @@ public class IdeaBoard extends QuollPanel
 
             this.ideaBox = new Box (BoxLayout.Y_AXIS);
 
+            UIUtils.setAsButton (this.getHeader ());
             this.getHeader ().addMouseListener (new MouseAdapter ()
                 {
 
@@ -923,7 +947,7 @@ public class IdeaBoard extends QuollPanel
                             p.add (mi);
 
                             mi = new JMenuItem ("Edit the name of this type",
-                                                Environment.getIcon ("edit",
+                                                Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                      Constants.ICON_MENU));
 
                             p.add (mi);
@@ -932,7 +956,7 @@ public class IdeaBoard extends QuollPanel
                                                                                  _this.ideaBoard));
 
                             mi = new JMenuItem ("Delete this type of Idea",
-                                                Environment.getIcon ("delete",
+                                                Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                                      Constants.ICON_MENU));
 
                             p.add (mi);
@@ -992,7 +1016,7 @@ public class IdeaBoard extends QuollPanel
                 });
 
             this.getHeader ().setToolTipText ("Click to show/hide the Ideas");
-
+            
             Box content = new Box (BoxLayout.Y_AXIS);
             content.setMinimumSize (new Dimension (300,
                                                    50));
@@ -1006,7 +1030,8 @@ public class IdeaBoard extends QuollPanel
             this.ideaBox.setOpaque (false);//true);
             this.setContent (content);//this.ideaBox);
 
-            this.helpText = UIUtils.createHelpTextPane ("You currently have no <b>" + this.getIdeaTypeName () + "</b> ideas recorded.  To add a new Idea perform one of the actions below:<ul><li>Use the green plus button on the header.</li><li>Click anywhere in this box.</li><li>Right click on the header and select <b>Add new Idea</b>.</li></ul>");
+            this.helpText = UIUtils.createHelpTextPane ("You currently have no <b>" + this.getIdeaTypeName () + "</b> ideas recorded.  To add a new Idea perform one of the actions below:<ul><li>Use the green plus button on the header.</li><li>Click anywhere in this box.</li><li>Right click on the header and select <b>Add new Idea</b>.</li></ul>",
+                                                        IdeaBoard.this.projectViewer);
 
             this.helpText.addMouseListener (new MouseAdapter ()
                 {
@@ -1169,7 +1194,9 @@ public class IdeaBoard extends QuollPanel
         public void hideAdd ()
         {
 
-            this.showHelpText (true);
+            // Only show help if there are no ideas.
+            this.showHelpText (this.ideaType.getIdeas ().size () == 0);
+
             this.addBox.setVisible (false);
 
             this._repaint ();
@@ -1358,11 +1385,10 @@ public class IdeaBoard extends QuollPanel
         
         //this.categories.setBackgroundObject (Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
     
-        this.categories.setBorder (new CompoundBorder (new MatteBorder (1, 0, 0, 0, Environment.getInnerBorderColor ()),
-                                                       new EmptyBorder (20,
-                                                                        20,
-                                                                        20,
-                                                                        20)));
+        this.categories.setBorder (new EmptyBorder (20,
+                                                    20,
+                                                    20,
+                                                    20));
 
         this.categories.setBackground (null);
         this.categories.setOpaque (false);
@@ -1370,6 +1396,31 @@ public class IdeaBoard extends QuollPanel
         final JScrollPane cscroll = new JScrollPane (this.categories);
 
         cscroll.setBorder (null);
+        
+        cscroll.setBorder (new EmptyBorder (1, 0, 0, 0));
+     
+        cscroll.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
+        {
+           
+            public void adjustmentValueChanged (AdjustmentEvent ev)
+            {
+                
+                if (cscroll.getVerticalScrollBar ().getValue () > 0)
+                {
+                
+                    cscroll.setBorder (new MatteBorder (1, 0, 0, 0,
+                                                        UIUtils.getInnerBorderColor ()));
+
+                } else {
+                    
+                    cscroll.setBorder (new EmptyBorder (1, 0, 0, 0));
+                    
+                }
+                    
+            }
+            
+        });
+        
         cscroll.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         cscroll.getVerticalScrollBar ().setUnitIncrement (20);
         cscroll.setOpaque (false);
@@ -1449,8 +1500,7 @@ public class IdeaBoard extends QuollPanel
         this.header = UIUtils.createHeader ("Idea Board",
                                             Constants.PANEL_TITLE,
                                             "idea",
-                                            null);
-                                            //UIUtils.createButtonBar (buts));
+                                            UIUtils.createButtonBar (buts));
 
         this.add (this.header);
 
@@ -1481,7 +1531,7 @@ public class IdeaBoard extends QuollPanel
                              false);
 
             this.addNewType ("Dialogue",
-                             null,
+                             "dialogue",
                              false);
 
             this.addNewType (Environment.replaceObjectNames ("{Characters}"),
@@ -1654,8 +1704,9 @@ public class IdeaBoard extends QuollPanel
 
             this.backgroundSelectorPopup.setDraggable (this);
 
-            this.addPopup (this.backgroundSelectorPopup,
-                           true);
+            this.projectViewer.addPopup (this.backgroundSelectorPopup,
+                                         true,
+                                         false);
 
         } else
         {
@@ -1671,7 +1722,7 @@ public class IdeaBoard extends QuollPanel
 
         }
 
-        this.showPopupAt (this.backgroundSelectorPopup,
+        this.projectViewer.showPopupAt (this.backgroundSelectorPopup,
                           new Point (100,
                                      100));
 

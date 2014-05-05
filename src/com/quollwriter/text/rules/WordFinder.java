@@ -8,6 +8,7 @@ import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.components.*;
@@ -15,7 +16,7 @@ import com.quollwriter.ui.components.*;
 import org.jdom.*;
 
 
-public class WordFinder extends AbstractDialogueRule
+public class WordFinder extends AbstractDialogueRule 
 {
 
     public static final String CREATE_TYPE = "wordFinder";
@@ -32,35 +33,22 @@ public class WordFinder extends AbstractDialogueRule
     private String word = null;
 
     private JTextField words = null;
+    private List<String> tWords = null;
 
     public WordFinder(boolean user)
     {
 
         super (user);
-        /*
-          this.words = new ArrayList ();
-          this.words.add ("that");
-          this.words.add (RuleUtilities.getAsWords ("there are"));
-          this.words.add (RuleUtilities.getAsWords ("there were"));
-          this.words.add (RuleUtilities.getAsWords ("there was"));
-          this.words.add ("feeling");
-          this.words.add ("feel");
-          this.words.add ("seem");
-          this.words.add ("seemed");
-         */
-        // That
-        // There are
-        // There was
-        // There were
-        // It is
-        // It was
-        // Feel
-        // Feeling
-        // Seem
-        // Seemed
 
     }
 
+    public boolean isForLanguage (String language)
+    {
+        
+        return Environment.isEnglish (language);
+        
+    }
+    
     public String toString ()
     {
         
@@ -80,6 +68,8 @@ public class WordFinder extends AbstractDialogueRule
 
         this.word = w;
 
+        this.tWords = TextUtilities.getAsWords (this.word.toLowerCase ());
+        
     }
 
     public String getSummary ()
@@ -121,9 +111,9 @@ public class WordFinder extends AbstractDialogueRule
 
         super.init (root);
 
-        this.word = JDOMUtils.getAttributeValue (root,
-                                                 XMLConstants.word);
-
+        this.setWord (JDOMUtils.getAttributeValue (root,
+                                                   XMLConstants.word));
+                                                 
     }
 
     public String getWord ()
@@ -144,7 +134,7 @@ public class WordFinder extends AbstractDialogueRule
         return root;
 
     }
-
+/*
     public List<Issue> getIssues (String  sentence,
                                   boolean inDialogue)
     {
@@ -176,12 +166,50 @@ public class WordFinder extends AbstractDialogueRule
 
         }
 
-/*
-There is an obvious distinction between the two.
-Obviously the distinction between one and the other is significant.
-There is a(1) distinction between them both.
-There is an obvious difference(1) between the two of(2) them(3).
+        return issues;
+
+    }
 */
+    public List<Issue> getIssues (Sentence sentence)
+    {
+
+        // Check our list of words.
+
+        List<Word> swords = sentence.getWords ();
+        List<Issue>  issues = new ArrayList ();
+
+        Set<Integer> inds = sentence.find (this.tWords,
+                                           this.getConstraints ());
+
+        if (inds != null)
+        {
+
+            for (Integer i : inds)
+            {
+
+                Word w = sentence.getWordAt (i);
+                
+                int l = w.getText ().length ();
+                
+                if (this.tWords.size () > 1)
+                {
+                    
+                    Word nw = w.getWordsAhead (this.tWords.size ());
+                    
+                    l = nw.getAllTextEndOffset () - w.getAllTextStartOffset ();
+                    
+                }
+            
+                Issue iss = new Issue ("Contains: <b>" + this.word + "</b>",
+                                       w.getAllTextStartOffset (),
+                                       l,
+                                       this);
+                issues.add (iss);
+
+            }
+
+        }
+
         return issues;
 
     }
@@ -196,7 +224,7 @@ There is an obvious difference(1) between the two of(2) them(3).
 
         }
 
-        this.word = this.words.getText ();
+        this.setWord (this.words.getText ());
 
     }
 

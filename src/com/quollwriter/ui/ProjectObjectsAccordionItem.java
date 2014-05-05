@@ -86,7 +86,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
             v = false;
             
         }
-        
+
         super.setContentVisible (v);
                 
         this.updateItemCount (c);
@@ -218,7 +218,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
         this.tree.setEditable (this.isTreeEditable ());
 
-        MouseAdapter mm = new PopupPreviewListener (this);
+        PopupPreviewListener mm = new PopupPreviewListener (this);
         
         this.tree.addMouseMotionListener (mm);
         this.tree.addMouseListener (mm);
@@ -242,6 +242,24 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
                 Object d = ((DefaultMutableTreeNode) tp.getLastPathComponent ()).getUserObject ();
 
+                if (d instanceof TreeParentNode)
+                {
+                    
+                    if (_this.tree.isCollapsed (tp))
+                    {
+                        
+                        _this.tree.expandPath (tp);
+                        
+                    } else {
+                        
+                        _this.tree.collapsePath (tp);
+                        
+                    }
+                    
+                    return;
+                    
+                }
+                
                 if ((ev.getClickCount () == _this.getViewObjectClickCount (d)) &&
                     (!ev.isPopupTrigger ()))
                 {
@@ -296,6 +314,9 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         private NamedObjectPreviewPopup popup = null;
         private NamedObject lastObject = null;
         private ProjectObjectsAccordionItem item = null;
+        
+        // This timer is used when the user presses a button
+        private Timer showDelayTimer = null;
                   
         public PopupPreviewListener (ProjectObjectsAccordionItem item)
         {
@@ -306,9 +327,24 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                   
         }
         
+        public void mousePressed (MouseEvent ev)
+        {
+            
+            this.popup.hidePopup ();
+            
+        }
+        
         public void mouseMoved (MouseEvent ev)
         {
 
+            // Should be an achievement for having such a long var name...
+            if (!this.item.projectViewer.getProject ().getPropertyAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME))
+            {
+                
+                return;
+                
+            }
+        
             final PopupPreviewListener _this = this;
         
             // Edit the chapter.
@@ -364,8 +400,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
             
             // Show the first line of the description.
             this.popup.show ((NamedObject) d,
-                             500,
-                             750,
+                             1000,
+                             250,
                              po,
                              new ActionAdapter ()
                              {
@@ -383,10 +419,15 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         
         public void mouseExited (MouseEvent ev)
         {
-
+/*
             Point p = new Point (0,
                                  0);
-
+*/
+            this.lastObject = null;
+        
+            this.popup.hidePopup ();
+/*
+ *No idea what was going on down here... leave for now, clean up if not used
             SwingUtilities.convertPointToScreen (p,
                                                  this.item.tree);
 
@@ -403,7 +444,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                 this.popup.hidePopup ();
 
             }
-            
+            */
         }        
         
     }

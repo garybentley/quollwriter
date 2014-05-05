@@ -34,7 +34,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                      throws Exception
     {
 
-        this.p = new Project (null);
+        this.p = new Project ();
 
         Book b = new Book (this.p,
                            null);

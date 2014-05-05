@@ -16,11 +16,12 @@ import com.quollwriter.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.panels.*;
 
-public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer>
+public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractProjectViewer>
 {
         
-    public ChaptersAccordionItem (ProjectViewer pv)
+    public ChaptersAccordionItem (AbstractProjectViewer pv)
     {
         
         super (Chapter.OBJECT_TYPE,
@@ -31,8 +32,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
     public void init (JTree tree)
     {
 
-        this.addHeaderPopupMenuItem ("Add New " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE),
-                                     "add",
+        this.addHeaderPopupMenuItem ("Add New {Chapter}",
+                                     Constants.ADD_ICON_NAME,
                                      this.projectViewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
                                                                    this.projectViewer.getProject ().getBooks ().get (0)));
 
@@ -96,18 +97,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
                 
     }
 
-    public void showTreePopupMenu (MouseEvent ev)
+    public void fillTreePopupMenu (final JPopupMenu m,
+                                   final TreePath   tp)
     {
-
+        
         final ChaptersAccordionItem _this = this;
 
         final AbstractProjectViewer pv = this.projectViewer;
         
-        final TreePath tp = this.tree.getPathForLocation (ev.getX (),
-                                                          ev.getY ());
-
-        final JPopupMenu m = new JPopupMenu ();
-
         JMenuItem mi = null;
 
         if (tp != null)
@@ -117,6 +114,37 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
             final DataObject d = (DataObject) node.getUserObject ();
 
+            if (d instanceof Note)
+            {
+                
+                final Note n = (Note) d;
+                
+                m.add (UIUtils.createMenuItem ("View",
+                                               Constants.VIEW_ICON_NAME,
+                                               new ActionAdapter ()
+                                               {
+                                
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                
+                                                        pv.viewObject (n);
+                                
+                                                    }
+                                
+                                               }));
+
+                m.add (UIUtils.createMenuItem ("Edit",
+                                               Constants.EDIT_ICON_NAME,
+                                               pv.getAction (ProjectViewer.EDIT_NOTE_ACTION,
+                                                             n)));
+
+                m.add (UIUtils.createMenuItem ("Delete",
+                                               Constants.DELETE_ICON_NAME,
+                                               pv.getAction (ProjectViewer.DELETE_NOTE_ACTION,
+                                                             n)));
+                
+            }
+            
             if (d instanceof Chapter)
             {
 
@@ -124,25 +152,79 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
                 final String chapterObjTypeName = Environment.getObjectTypeName (c);
 
-                mi = new JMenuItem ("Edit " + chapterObjTypeName,
-                                    Environment.getIcon ("edit",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.EDIT_CHAPTER_ACTION,
-                                                    c));
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("Edit {Chapter}",
+                                               Constants.EDIT_ICON_NAME,
+                                               pv.getAction (ProjectViewer.EDIT_CHAPTER_ACTION,
+                                                             c)));
 
-                mi = new JMenuItem ("View " + chapterObjTypeName + " Information",
-                                    Environment.getIcon ("information",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.VIEW_CHAPTER_INFO_ACTION,
-                                                    c));
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("View {Chapter} Information",
+                                               Constants.INFO_ICON_NAME,
+                                               pv.getAction (ProjectViewer.VIEW_CHAPTER_INFO_ACTION,
+                                                             c)));
 
-                mi = new JMenuItem ("Add New " + chapterObjTypeName + " Below",
-                                    Environment.getIcon (Chapter.OBJECT_TYPE + "-add",
-                                                         Constants.ICON_MENU));
-
-                ActionListener h = new ActionAdapter ()
+                if (!c.isEditComplete ())
+                {                                                             
+                
+                    m.add (UIUtils.createMenuItem ("Set as Edit Complete",
+                                                   Constants.EDIT_COMPLETE_ICON_NAME,
+                                                   new ActionAdapter ()
+                    {
+                        
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                            
+                            QuollEditorPanel qp = (QuollEditorPanel) pv.getEditorForChapter (c);
+                            
+                            qp.setEditComplete (true);
+                            
+                        }
+                        
+                    }));
+                
+                } else {
+                    
+                    m.add (UIUtils.createMenuItem ("Set as Edit Needed",
+                                                   Constants.EDIT_ICON_NAME,
+                                                   new ActionAdapter ()
+                    {
+                        
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                            
+                            QuollEditorPanel qp = (QuollEditorPanel) pv.getEditorForChapter (c);
+                            
+                            qp.setEditComplete (false);
+                            
+                        }
+                        
+                    }));
+                    
+                }
+                
+                if (c.getEditPosition () > 0)
+                {
+                    
+                    m.add (UIUtils.createMenuItem ("Remove Edit Point",
+                                                   Constants.CANCEL_ICON_NAME,
+                                                   new ActionAdapter ()
+                    {
+                        
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                            
+                            QuollEditorPanel qp = (QuollEditorPanel) pv.getEditorForChapter (c);
+                            
+                            qp.removeEditPosition ();
+                            
+                        }
+                        
+                    }));
+                    
+                }
+                
+                m.add (UIUtils.createMenuItem ("Add New {Chapter} Below",
+                                               Constants.ADD_ICON_NAME,
+                                               new ActionAdapter ()
                 {
 
                     public void actionPerformed (ActionEvent ev)
@@ -173,55 +255,41 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
                     }
 
-                };
+                }));
 
-                mi.addActionListener (h);
+                m.add (UIUtils.createMenuItem ("Rename {Chapter}",
+                                               Constants.RENAME_ICON_NAME,
+                                               new ActionAdapter ()
+                {
 
-                m.add (mi);
-
-                mi = new JMenuItem ("Rename " + chapterObjTypeName,
-                                    Environment.getIcon (Chapter.OBJECT_TYPE + "-edit",
-                                                         Constants.ICON_MENU));
-
-                mi.addActionListener (new ActionAdapter ()
+                    public void actionPerformed (ActionEvent ev)
                     {
 
-                        public void actionPerformed (ActionEvent ev)
-                        {
+                        _this.tree.setSelectionPath (tp);
+                        _this.tree.startEditingAtPath (tp);
 
-                            _this.tree.setSelectionPath (tp);
-                            _this.tree.startEditingAtPath (tp);
+                    }
 
-                        }
+                }));
 
-                    });
+                m.add (UIUtils.createMenuItem ("Close {Chapter}",
+                                               Constants.CLOSE_ICON_NAME,
+                                               new ActionAdapter ()                       
+                {
 
-                m.add (mi);
-
-                mi = new JMenuItem ("Close " + chapterObjTypeName,
-                                    Environment.getIcon (Chapter.OBJECT_TYPE + "-delete",
-                                                         Constants.ICON_MENU));
-
-                mi.addActionListener (new ActionAdapter ()
+                    public void actionPerformed (ActionEvent ev)
                     {
 
-                        public void actionPerformed (ActionEvent ev)
-                        {
+                        pv.closePanel (c);
 
-                            pv.closePanel (c);
+                    }
 
-                        }
+                }));
 
-                    });
-
-                m.add (mi);
-
-                mi = new JMenuItem ("Delete " + chapterObjTypeName,
-                                    Environment.getIcon ("delete",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.DELETE_CHAPTER_ACTION,
-                                                    c));
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("Delete {Chapter}",
+                                               Constants.DELETE_ICON_NAME,
+                                               pv.getAction (ProjectViewer.DELETE_CHAPTER_ACTION,
+                                                             c)));
 
             }
 
@@ -230,10 +298,9 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
                 final OutlineItem oi = (OutlineItem) d;
 
-                mi = new JMenuItem ("View",
-                                    Environment.getIcon ("view",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (new ActionAdapter ()
+                m.add (UIUtils.createMenuItem ("View",
+                                               Constants.VIEW_ICON_NAME,
+                                               new ActionAdapter ()
                 {
 
                     public void actionPerformed (ActionEvent ev)
@@ -243,23 +310,17 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
                     }
 
-                });
+                }));
 
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("Edit",
+                                               Constants.EDIT_ICON_NAME,
+                                               pv.getAction (ProjectViewer.EDIT_PLOT_OUTLINE_ITEM_ACTION,
+                                                             oi)));
 
-                mi = new JMenuItem ("Edit",
-                                    Environment.getIcon ("edit",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.EDIT_PLOT_OUTLINE_ITEM_ACTION,
-                                                    oi));
-                m.add (mi);
-
-                mi = new JMenuItem ("Delete",
-                                    Environment.getIcon ("delete",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.DELETE_PLOT_OUTLINE_ITEM_ACTION,
-                                                    oi));
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("Delete",
+                                               Constants.DELETE_ICON_NAME,
+                                               pv.getAction (ProjectViewer.DELETE_PLOT_OUTLINE_ITEM_ACTION,
+                                                             oi)));
 
             }
 
@@ -268,10 +329,9 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
                 final Scene s = (Scene) d;
 
-                mi = new JMenuItem ("View",
-                                    Environment.getIcon ("view",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (new ActionAdapter ()
+                m.add (UIUtils.createMenuItem ("View",
+                                               Constants.VIEW_ICON_NAME,
+                                               new ActionAdapter ()
                 {
 
                     public void actionPerformed (ActionEvent ev)
@@ -281,37 +341,42 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
 
                     }
 
-                });
+                }));
 
-                m.add (mi);
+                m.add (UIUtils.createMenuItem ("Edit",
+                                               Constants.EDIT_ICON_NAME,
+                                               pv.getAction (ProjectViewer.EDIT_SCENE_ACTION,
+                                                             s)));
 
-                mi = new JMenuItem ("Edit",
-                                    Environment.getIcon ("edit",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.EDIT_SCENE_ACTION,
-                                                    s));
-                m.add (mi);
-
-                mi = new JMenuItem ("Delete",
-                                    Environment.getIcon ("delete",
-                                                         Constants.ICON_MENU));
-                mi.addActionListener (pv.getAction (ProjectViewer.DELETE_SCENE_ACTION,
-                                                    s));
-                m.add (mi);
-
+                m.add (UIUtils.createMenuItem ("Delete",
+                                               Constants.DELETE_ICON_NAME,
+                                               pv.getAction (ProjectViewer.DELETE_SCENE_ACTION,
+                                                             s)));
+                
             }
 
         } else
         {
 
-            mi = new JMenuItem ("Add New " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE),
-                                Environment.getIcon (Chapter.OBJECT_TYPE + "-add",
-                                                     Constants.ICON_MENU));
-            mi.addActionListener (pv.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
-                                                pv.getProject ().getBooks ().get (0)));
-            m.add (mi);
+            m.add (UIUtils.createMenuItem ("Add New {Chapter}",
+                                           Constants.ADD_ICON_NAME,
+                                           pv.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
+                                                         pv.getProject ().getBooks ().get (0))));        
 
         }
+
+    }
+    
+    public void showTreePopupMenu (MouseEvent ev)
+    {
+
+        final TreePath tp = this.tree.getPathForLocation (ev.getX (),
+                                                          ev.getY ());
+    
+        final JPopupMenu m = new JPopupMenu ();
+
+        this.fillTreePopupMenu (m,
+                                tp);
 
         m.show ((Component) ev.getSource (),
                 ev.getX (),
@@ -319,8 +384,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
         
     }
     
-    public TreeCellEditor getTreeCellEditor (ProjectViewer pv,
-                                             JTree         tree)
+    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv,
+                                             JTree                 tree)
     {
         
         return new ProjectTreeCellEditor (pv,
@@ -349,11 +414,11 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
         
     }
     
-    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv,
-                                                       JTree         tree)
+    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv,
+                                                       JTree                 tree)
     {
         
-        return new ChapterTreeDragActionHandler ((ProjectViewer) pv,
+        return new ChapterTreeDragActionHandler (pv,
                                                  tree);
         
     }
@@ -368,11 +433,11 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
     public class ChapterTreeDragActionHandler implements DragActionHandler
     {
     
-        private ProjectViewer projectViewer = null;
+        private AbstractProjectViewer projectViewer = null;
         private JTree tree = null;
     
-        public ChapterTreeDragActionHandler(ProjectViewer pv,
-                                            JTree         tree)
+        public ChapterTreeDragActionHandler (AbstractProjectViewer pv,
+                                             JTree         tree)
         {
     
             this.projectViewer = pv;
@@ -432,7 +497,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<ProjectVi
             this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                  ProjectEvent.MOVE);
     
-            ((ProjectViewer) this.projectViewer).reloadChapterTree ();
+            this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
     
             return true;
     

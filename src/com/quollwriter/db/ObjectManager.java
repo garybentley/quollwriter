@@ -13,11 +13,14 @@ import com.gentlyweb.xml.JDOMUtils;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
 
 import com.quollwriter.ui.*;
 
 import org.apache.commons.dbcp.*;
 import org.apache.commons.pool.impl.*;
+
+import org.h2.jdbc.*;
 
 import org.jdom.*;
 
@@ -117,6 +120,10 @@ public class ObjectManager
                            new IdeaDataHandler (this));
         this.handlers.put (Idea.class.getName (),
                            this.handlers.get (Idea.OBJECT_TYPE));
+        this.handlers.put (EditorProject.class.getName (),
+                           new EditorProjectDataHandler (this));
+        this.handlers.put (EditorProject.OBJECT_TYPE,
+                           this.handlers.get (EditorProject.OBJECT_TYPE));
 
         this.actionLogHandlers.put (ResearchItem.class,
                                     this.handlers.get (ResearchItem.OBJECT_TYPE));
@@ -144,6 +151,8 @@ public class ObjectManager
                                     this.handlers.get (IdeaType.OBJECT_TYPE));
         this.actionLogHandlers.put (Idea.class,
                                     this.handlers.get (Idea.OBJECT_TYPE));
+        this.actionLogHandlers.put (EditorProject.class,
+                                    this.handlers.get (EditorProject.OBJECT_TYPE));
 
     }
 
@@ -835,6 +844,39 @@ public class ObjectManager
 
     }
 
+    public static boolean isEncryptionException (Throwable e)
+    {
+        
+        if (e instanceof JdbcSQLException)
+        {
+            
+            JdbcSQLException ex = (JdbcSQLException) e;
+            
+            if ((ex.getErrorCode () == org.h2.constant.ErrorCode.FILE_ENCRYPTION_ERROR_1)
+                ||
+                (ex.getErrorCode () == org.h2.constant.ErrorCode.WRONG_USER_OR_PASSWORD)
+               )
+            {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        Throwable cause = e.getCause ();
+        
+        if (cause != null)
+        {
+            
+            return ObjectManager.isEncryptionException (cause);
+            
+        }
+        
+        return false;
+        
+    }
+    
     public Connection getConnection ()
                               throws GeneralException
     {
@@ -842,7 +884,10 @@ public class ObjectManager
         try
         {
 
-            return this.ds.getConnection ();
+            Connection conn = this.ds.getConnection ();
+            conn.setAutoCommit (false);
+            
+            return conn;
 
         } catch (Exception e)
         {
@@ -1646,23 +1691,31 @@ public class ObjectManager
 
         }
 
-        // Get the schema creation script.
-        this.runUpgradeScript (0,
-                               1,
-                               conn);
-
-        this.runCreateViewsScript (conn);
-
         try
         {
+        
+            // Get the schema creation script.
+            this.runUpgradeScript (0,
+                                   1,
+                                   conn,
+                                   false);
+    
+            this.runCreateViewsScript (conn);
 
-            this.releaseConnection (conn);
+        } finally {            
+        
+            try
+            {
+    
+                this.releaseConnection (conn);
+    
+            } catch (Exception e)
+            {
+                e.printStackTrace ();
+            }
 
-        } catch (Exception e)
-        {
-            e.printStackTrace ();
         }
-
+            
     }
 
     private void updateSchema (int oldVersion,
@@ -1688,33 +1741,41 @@ public class ObjectManager
         int oVer = oldVersion;
         int nVer = oVer++;
 
-        // Get the update script.
-        while (nVer < (newVersion + 1))
-        {
-
-            // Get the script.
-            this.runUpgradeScript (oVer,
-                                   nVer,
-                                   conn);
-
-            oVer = nVer;
-            nVer++;
-
-        }
-
-        // Run the create views script.
-        this.runCreateViewsScript (conn);
-
         try
         {
+        
+            // Get the update script.
+            while (nVer < (newVersion + 1))
+            {
+    
+                // Get the script.
+                this.runUpgradeScript (oVer,
+                                       nVer,
+                                       conn,
+                                       false);
+    
+                oVer = nVer;
+                nVer++;
+    
+            }
+    
+            // Run the create views script.
+            this.runCreateViewsScript (conn);
 
-            this.releaseConnection (conn);
-
-        } catch (Exception e)
-        {
+        } finally {            
+        
+            try
+            {
+    
+                this.releaseConnection (conn);
+    
+            } catch (Exception e)
+            {
+    
+            }
 
         }
-
+            
     }
 
     private void runCreateViewsScript (Connection conn)
@@ -1738,7 +1799,8 @@ public class ObjectManager
             Element root = JDOMUtils.getStringAsElement (xml);
 
             this.runScriptElements (root,
-                                    conn);
+                                    conn,
+                                    false);
 
         } catch (Exception e)
         {
@@ -1750,9 +1812,63 @@ public class ObjectManager
 
     }
 
+    public void forceRunUpgradeScript (int version)
+                                       throws GeneralException
+    {
+        
+        if (!Environment.debugMode)
+        {
+            
+            throw new GeneralException ("This is a debug method and can only be called in debug mode.");
+            
+        }
+
+        Connection conn = null;
+
+        try
+        {
+
+            conn = this.getConnection ();
+
+        } catch (Exception e)
+        {
+
+            throw new GeneralException ("Unable to get connection",
+                                        e);
+
+        }
+
+        try
+        {
+        
+            this.runUpgradeScript ((version - 1),
+                                   version,
+                                   conn,
+                                   true);
+
+            // Run the create views script.
+            this.runCreateViewsScript (conn);
+
+        } finally {            
+        
+            try
+            {
+    
+                this.releaseConnection (conn);
+    
+            } catch (Exception e)
+            {
+    
+            }
+
+        }
+            
+    }
+    
     private void runUpgradeScript (int        oldVersion,
                                    int        newVersion,
-                                   Connection conn)
+                                   Connection conn,
+                                   boolean    allowAllToFail)
                             throws GeneralException
     {
 
@@ -1795,7 +1911,8 @@ public class ObjectManager
             }
 
             this.runScriptElements (root,
-                                    conn);
+                                    conn,
+                                    allowAllToFail);
 
             List params = new ArrayList ();
             params.add (newVersion);
@@ -1818,10 +1935,21 @@ public class ObjectManager
     }
 
     private void runScriptElements (Element    root,
-                                    Connection conn)
+                                    Connection conn,
+                                    boolean    allowAllToFail)
                              throws GeneralException,
                                     JDOMException
     {
+        
+        if ((allowAllToFail)
+            &&
+            (!Environment.debugMode)
+           )
+        {
+            
+            throw new IllegalStateException ("allowAllToFail can only be set to true when in debug mode.");
+            
+        }
 
         List itemEls = JDOMUtils.getChildElements (root,
                                                    XMLConstants.item,
@@ -1841,7 +1969,7 @@ public class ObjectManager
             boolean canFail = JDOMUtils.getAttributeValueAsBoolean (el,
                                                                     XMLConstants.canFail,
                                                                     false);
-
+            
             // See if there is a file attribute.
             String file = JDOMUtils.getAttributeValue (sqlEl,
                                                        XMLConstants.file,
@@ -1885,7 +2013,10 @@ public class ObjectManager
             } catch (Exception e)
             {
 
-                if (canFail)
+                if ((canFail)
+                    ||
+                    (allowAllToFail)
+                   )
                 {
 
                     Environment.logError ("Unable to execute sql: " +

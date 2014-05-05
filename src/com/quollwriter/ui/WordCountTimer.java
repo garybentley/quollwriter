@@ -255,9 +255,14 @@ public class WordCountTimer
 
         }
         
-        this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                             (this.startCount > 1 ? ProjectEvent.TIMER_RESTART : ProjectEvent.TIMER_STARTED));
-        
+        // Only fire in full screen mode.
+        if (this.projectViewer.isInFullScreen ())
+        {
+            
+            this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                                 (this.startCount > 1 ? ProjectEvent.TIMER_RESTART : ProjectEvent.TIMER_STARTED));
+
+        }        
         
     }
 

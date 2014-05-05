@@ -539,7 +539,7 @@
     <description>Continue the warm-up after the timer runs out/word count is reached.</description>
   </item>
 
-  <item id="fullscreentimerstart" category="user" icon="fullscreen" type="event" event="chapter.timerstarted">
+  <item id="fullscreentimerstart" category="user" icon="clock" type="event" event="chapter.timerstarted">
     <name>Stay on target</name>
     <description>Use the timer in full screen mode.</description>
   </item>

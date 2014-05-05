@@ -46,7 +46,7 @@ public class EditItemTypes extends TypesEditor
     {
 
         super (pv,
-               pv.getItemTypeHandler ());
+               pv.getObjectTypesHandler (QObject.OBJECT_TYPE));
 
     }
 

@@ -16,10 +16,10 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 
-public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer>
+public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProjectViewer>
 {
         
-    public NotesAccordionItem (ProjectViewer pv)
+    public NotesAccordionItem (AbstractProjectViewer pv)
     {
         
         super (Note.OBJECT_TYPE,
@@ -160,8 +160,8 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                 
                                                             NamedObject nt = (NamedObject) n.getUserObject ();
                                 
-                                                            _this.projectViewer.getNoteTypeHandler ().removeType (nt.getName (),
-                                                                                                                  false);
+                                                            _this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).removeType (nt.getName (),
+                                                                                                                                     false);
                                 
                                                             dtm.removeNodeFromParent (n);
                                 
@@ -208,8 +208,8 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         
     }
     
-    public TreeCellEditor getTreeCellEditor (ProjectViewer pv,
-                                             JTree         tree)
+    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv,
+                                             JTree                 tree)
     {
         
         return new ProjectTreeCellEditor (pv,
@@ -238,8 +238,8 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         
     }
     
-    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv,
-                                                       JTree         tree)
+    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv,
+                                                       JTree                 tree)
     {
         
         return null;
