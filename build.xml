@@ -5,18 +5,18 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.2" />
+  <property name="currVersion" value="2.2.1" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
   <property name="srcDir" value="./src" />
   <property name="binDir" value="./bin" />
-  <property name="jarName" value="${binDir}/${projectName}-${currVersion}.jar" />
-  <property name="toolsJarName" value="${binDir}/${projectName}-tools-${currVersion}.jar" />
-  <property name="imagesJarName" value="${binDir}/${projectName}-images-${currVersion}.jar" />
-  <property name="dataJarName" value="${binDir}/${projectName}-data-${currVersion}.jar" />
-  <property name="promptsJarName" value="${binDir}/${projectName}-prompts-${currVersion}.jar" />  
-  <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries-${currVersion}.jar" />
+  <property name="jarName" value="${binDir}/${projectName}.jar" />
+  <property name="toolsJarName" value="${binDir}/${projectName}-tools.jar" />
+  <property name="imagesJarName" value="${binDir}/${projectName}-images.jar" />
+  <property name="dataJarName" value="${binDir}/${projectName}-data.jar" />
+  <property name="promptsJarName" value="${binDir}/${projectName}-prompts.jar" />  
+  <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries.jar" />
   <property name="upgradeQuollWriterJar" value="${binDir}/${projectName}-upgrade.jar" />
   <property name="docsDir" value="./docs" />
   <property name="year" value="2014"/>
