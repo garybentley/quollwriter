@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.quollwriter.text.rules.*;
 
+@Deprecated
 
 public class SentenceIterator implements Iterator<String>
 {
@@ -117,7 +118,7 @@ public class SentenceIterator implements Iterator<String>
         if (this.current != null)
         {
 
-            List<String> swords = TextUtilities.getAsWords (this.current);
+            //List<String> swords = TextUtilities.getAsWords (this.current);
 /*
             this.inDialogue = TextUtilities.stillInDialogue (swords,
                                                              this.inDialogue);
@@ -152,7 +153,7 @@ public class SentenceIterator implements Iterator<String>
         if (this.current != null)
         {
 
-            List<String> swords = TextUtilities.getAsWords (this.current);
+            //List<String> swords = TextUtilities.getAsWords (this.current);
 /*
             this.inDialogue = TextUtilities.stillInDialogue (swords,
                                                              this.inDialogue);

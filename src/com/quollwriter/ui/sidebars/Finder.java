@@ -402,44 +402,42 @@ public class Finder extends AbstractSideBar
                 
         if (o instanceof Chapter)
         {
+        
+            final Chapter c = (Chapter) o;        
 
-            AbstractEditorPanel p = null;
-        
-            Chapter c = (Chapter) o;        
+            final Finder _this = this;            
                 
-            this.projectViewer.viewObject ((DataObject) o);
+            this.projectViewer.viewObject ((DataObject) o,
+                                           new ActionListener ()
+            {
 
-            if (this.projectViewer instanceof ProjectViewer)
-            {
-            
-                ProjectViewer pv = (ProjectViewer) this.projectViewer;
-        
-                p = pv.getEditorForChapter (c);
-        
-            }
-        
-            if (this.projectViewer instanceof WarmupsViewer)
-            {
-                
-                WarmupsViewer wv = (WarmupsViewer) this.projectViewer;
-                
-                p = wv.getEditorForWarmup (c);
-                
-            }
-            
-            final Finder _this = this;
-            final AbstractEditorPanel aep = p;
-            
-            SwingUtilities.invokeLater (new Runnable ()
-            {
-                
-                public void run ()
+                public void actionPerformed (ActionEvent ev)
                 {
             
+                    AbstractEditorPanel p = null;
+
+                    if (_this.projectViewer instanceof ProjectViewer)
+                    {
+                    
+                        ProjectViewer pv = (ProjectViewer) _this.projectViewer;
+                
+                        p = pv.getEditorForChapter (c);
+                
+                    }
+        
+                    if (_this.projectViewer instanceof WarmupsViewer)
+                    {
+                        
+                        WarmupsViewer wv = (WarmupsViewer) _this.projectViewer;
+                        
+                        p = wv.getEditorForWarmup (c);
+                        
+                    }
+                        
                     try
                     {
                         
-                        aep.scrollToPosition (s.getBeginIndex ());
+                        p.scrollToPosition (s.getBeginIndex ());
                         
                     } catch (Exception e) {
                         
@@ -449,11 +447,8 @@ public class Finder extends AbstractSideBar
                         return;
                         
                     }
-                    /*
-                    pv.scrollTo (c,
-                                 s.getBeginIndex ());
-                */
-                    final QTextEditor ed = aep.getEditor ();
+
+                    final QTextEditor ed = p.getEditor ();
                                 
                     _this.highlightId = ed.addHighlight (s.getBeginIndex (),
                                                          s.getEndIndex (),

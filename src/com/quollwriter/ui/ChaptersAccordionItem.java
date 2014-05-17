@@ -259,18 +259,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Rename {Chapter}",
                                                Constants.RENAME_ICON_NAME,
-                                               new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.tree.setSelectionPath (tp);
-                        _this.tree.startEditingAtPath (tp);
-
-                    }
-
-                }));
+                                               pv.getAction (ProjectViewer.RENAME_CHAPTER_ACTION,
+                                                             c)));
 
                 m.add (UIUtils.createMenuItem ("Close {Chapter}",
                                                Constants.CLOSE_ICON_NAME,

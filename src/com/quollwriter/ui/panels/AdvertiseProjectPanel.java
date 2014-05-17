@@ -686,6 +686,8 @@ System.out.println ("CREATED/SAVED PROJECT");
                           boolean                   hasFocus)
     {
 
+        this.setReadyForUse (true);
+    
     }
 
     public void getState (Map<String, Object> m)

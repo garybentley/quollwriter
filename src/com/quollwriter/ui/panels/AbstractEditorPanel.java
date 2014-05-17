@@ -461,7 +461,14 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         }
         
         this.chapterInfo = null;
-        this.autoSave.cancel ();
+        
+        if (this.autoSave != null)
+        {
+            
+            this.autoSave.cancel ();
+            
+        }
+        
         this.autoSave = null;
         
     }
@@ -2024,7 +2031,9 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                     _this.editor.getCaret ().setDot (v);
 
                     _this.initScrollBar ();
-                                
+                        
+                    _this.setReadyForUse (true);
+                        
                 } catch (Exception e)
                 {
         

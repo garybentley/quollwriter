@@ -169,6 +169,20 @@ public class Word implements TextBlock<Sentence, Word, NoTextBlock>
         
     }
     
+    public boolean textEquals (Word w)
+    {
+        
+        if (w == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return this.word.equalsIgnoreCase (w.getText ());
+        
+    }
+
     public void setNext (Word w)
     {
         

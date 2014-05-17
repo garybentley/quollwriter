@@ -190,6 +190,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             m.add (mi);
 
+            m.add (UIUtils.createMenuItem ("Rename",
+                                           Constants.EDIT_ICON_NAME,
+                                           AssetViewPanel.getRenameAssetAction (this.projectViewer,
+                                                                                (Asset) d)));
+            /*
             mi = new JMenuItem ("Rename",
                                 Environment.getIcon ("edit",
                                                      Constants.ICON_MENU));
@@ -208,7 +213,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 }
 
             });
-
+*/
             mi = new JMenuItem ("Delete",
                                 Environment.getIcon ("delete",
                                                      Constants.ICON_MENU));

@@ -2768,36 +2768,41 @@ public class UIUtils
 
         TextIterator ti = new TextIterator (text);
 
-        Map<Sentence, Set<Integer>> matches = ti.findInSentences (names,
-                                                                  null);
-        
-        if (matches != null)
+        for (String n : names)
         {
-            
-            Iterator<Sentence> iter = matches.keySet ().iterator ();
-
-            char[] tchar = text.toCharArray ();
-            
-            while (iter.hasNext ())
+        
+            Map<Sentence, Set<Integer>> matches = ti.findInSentences (n,
+                                                                      null);
+        
+            if (matches != null)
             {
                 
-                Sentence sen = iter.next ();
+                Iterator<Sentence> iter = matches.keySet ().iterator ();
+    
+                char[] tchar = text.toCharArray ();
                 
-                Set<Integer> inds = matches.get (sen);
-                
-                if ((inds != null)
-                    &&
-                    (inds.size () > 0)
-                   )
+                while (iter.hasNext ())
                 {
                     
-                    Segment s = new Segment (tchar,
-                                             sen.getAllTextStartOffset (),
-                                             sen.getText ().length ());
-
-                    snippets.add (s);
-
-                }                
+                    Sentence sen = iter.next ();
+                    
+                    Set<Integer> inds = matches.get (sen);
+                    
+                    if ((inds != null)
+                        &&
+                        (inds.size () > 0)
+                       )
+                    {
+                        
+                        Segment s = new Segment (tchar,
+                                                 sen.getAllTextStartOffset (),
+                                                 sen.getText ().length ());
+    
+                        snippets.add (s);
+    
+                    }                
+                    
+                }
                 
             }
             
@@ -6125,6 +6130,118 @@ public class UIUtils
         
     }
 
+    public static void doActionWhenPanelIsReady (final QuollPanel     p,
+                                                 final ActionListener action,
+                                                 final Object         contextObject,
+                                                 final String         actionTypeName)
+    {
+        
+        final javax.swing.Timer t = new javax.swing.Timer (100,
+                                                           null);   
+        
+        ActionListener l = new ActionListener ()
+        {
+            
+            private int count = 0;
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (p.isReadyForUse ())
+                {
+                    
+                    t.setRepeats (false);
+                    t.stop ();
+
+                    try
+                    {
+                        
+                        action.actionPerformed (new ActionEvent ((contextObject != null ? contextObject : action),
+                                                                 1,
+                                                                 (actionTypeName != null ? actionTypeName : "any")));
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to perform action",
+                                              e);
+            
+                        UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
+                                                
+                    }
+                                
+                    return;
+                    
+                }
+
+                // 2s delay max.
+                if (count > 20)
+                {
+                    
+                    Environment.logError ("Unable to perform action",
+                                          new Exception ("Unable to perform action for panel: " + p.getPanelId ()));
+        
+                    UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
+                    
+                    t.setRepeats (false);
+                    t.stop ();
+                    
+                }
+                
+                count++;
+                                
+            }
+            
+        };
+        
+        t.setRepeats (true);
+        t.addActionListener (l);
+        
+        t.start ();
+        
+    }
+    
+    public static void doActionLater (final ActionListener action)
+    {
+        
+        UIUtils.doActionLater (action,
+                               null,
+                               null);
+        
+    }
+    
+    public static void doActionLater (final ActionListener action,
+                                      final Object         contextObject,
+                                      final String         actionTypeName)
+    {
+        
+        SwingUtilities.invokeLater (new Runner ()
+        {
+           
+            public void run ()
+            {
+                
+                try
+                {
+                    
+                    action.actionPerformed (new ActionEvent ((contextObject != null ? contextObject : action),
+                                                             1,
+                                                             (actionTypeName != null ? actionTypeName : "any")));
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to perform action",
+                                          e);
+        
+                    UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
+                                            
+                }
+                
+            }
+            
+        });
+        
+    }
+    
     public static void addDoActionOnReturnPressed (final JTextComponent text,
                                                     final ActionListener action)
     {

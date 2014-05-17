@@ -1318,6 +1318,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     public abstract boolean viewObject (DataObject d);
 
+    public abstract boolean viewObject (DataObject     d,
+                                        ActionListener doAfterView);
+
     public abstract boolean openPanel (String id);
 
     public abstract void deleteChapter (Chapter c);
@@ -3296,7 +3299,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 final AbstractProjectViewer _this = this;
                 
                 final String lang = this.getSpellCheckLanguage ();
-                Environment.logMessage ("LANG: " + lang);
+                
                 // Download them.
                 this.downloadDictionaryFiles (this.getSpellCheckLanguage (),
                                               new ActionAdapter ()
@@ -3609,7 +3612,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                     qp.setState (UIUtils.parseState (state),
                                                      visible);
-
+                    
                 }
 
             };
@@ -5135,8 +5138,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     if (!_this.closePanel (qp))
                     {
                         
-                        
-                        
+
                     }
                     
                 }
@@ -5234,7 +5236,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         if (qp == null)
         {
-            
+
             return false;
             
         }
@@ -5283,7 +5285,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         qp.close ();
 
         this.panels.remove (panelId);
-                
+
         return true;
         
     }
@@ -5988,6 +5990,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             return false;
 
         }
+
+        remove.actionPerformed (new ActionEvent (this,
+                                                 0,
+                                                 "deleted"));
   
         return true;
 

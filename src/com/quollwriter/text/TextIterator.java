@@ -91,7 +91,7 @@ public class TextIterator
      * @param constraints Limit the search to the specified constraints.
      * @return A set of sentences with the matching sentence local indexes.
      */
-    public Map<Sentence, Set<Integer>> findInSentences (Collection<String>  words,
+    public Map<Sentence, Set<Integer>> findInSentences (String              words,
                                                         DialogueConstraints constraints)
     {
         
@@ -299,6 +299,61 @@ public class TextIterator
         }
         
         return null;
+        
+    }
+
+    public int getThreeSyllableWordCount ()
+    {
+
+        int c = 0;
+        
+        for (Paragraph p : this.paragraphs)
+        {
+            
+            c += p.getThreeSyllableWordCount ();
+            
+        }
+        
+        return c;        
+
+    }
+    
+    public int getSyllableCount ()
+    {
+        
+        int c = 0;
+        
+        for (Paragraph p : this.paragraphs)
+        {
+            
+            c += p.getSyllableCount ();
+            
+        }
+        
+        return c;        
+        
+    }
+    
+    public int getWordCount ()
+    {
+        
+        int c = 0;
+        
+        for (Paragraph p : this.paragraphs)
+        {
+            
+            c += p.getWordCount ();
+            
+        }
+        
+        return c;
+        
+    }
+    
+    public String toString ()
+    {
+        
+        return "" + this.paragraphs.size ();
         
     }
     

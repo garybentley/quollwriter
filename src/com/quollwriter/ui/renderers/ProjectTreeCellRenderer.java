@@ -38,7 +38,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                                                    boolean hasFocus)
     {
 
-        super.getTreeCellRendererComponent (tree,
+        Component co= super.getTreeCellRendererComponent (tree,
                                             value,
                                             sel,
                                             expanded,

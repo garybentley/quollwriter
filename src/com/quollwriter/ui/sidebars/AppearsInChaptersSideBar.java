@@ -1,5 +1,6 @@
 package com.quollwriter.ui.sidebars;
 
+import java.awt.Dimension;
 import java.awt.Component;
 
 import java.util.List;
@@ -136,6 +137,11 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         tree.setBorder (new EmptyBorder (0, 10, 5, 5));
         
         b.add (treeScroll);        
+
+        b.setMinimumSize (new Dimension (250,
+                                         250));
+        b.setPreferredSize (new Dimension (250,
+                                           250));
                 
         return b;
         

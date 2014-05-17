@@ -2632,6 +2632,8 @@ public class OptionsPanel extends QuollPanel
 
                 _this.scrollPane.getVerticalScrollBar ().setValue (o);
 
+                _this.setReadyForUse (true);
+                
             }
             
         });

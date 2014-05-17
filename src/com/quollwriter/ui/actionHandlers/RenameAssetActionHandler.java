@@ -21,17 +21,17 @@ import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
 
 
-public class RenameChapterActionHandler extends TextInputActionHandler
+public class RenameAssetActionHandler extends TextInputActionHandler
 {
 
-    private Chapter               chapter = null;
+    private Asset asset = null;
 
-    public RenameChapterActionHandler (Chapter               c,
-                                       AbstractProjectViewer pv)
+    public RenameAssetActionHandler (Asset                 a,
+                                     AbstractProjectViewer pv)
     {
 
         super (pv);
-        this.chapter = c;
+        this.asset = a;
 
     }
 
@@ -45,14 +45,15 @@ public class RenameChapterActionHandler extends TextInputActionHandler
     public String getTitle ()
     {
         
-        return "Rename {Chapter}";
+        return "Rename " + Environment.getObjectTypeName (this.asset);
         
     }
     
     public String getHelp ()
     {
         
-        return "Enter the new {chapter} name below.";
+        return String.format ("Enter the new %s name below.",
+                              Environment.getObjectTypeName (this.asset).toLowerCase ());
         
     }
 
@@ -66,7 +67,7 @@ public class RenameChapterActionHandler extends TextInputActionHandler
     public String getInitialValue ()
     {
         
-        return this.chapter.getName ();
+        return this.asset.getName ();
         
     }
     
@@ -87,15 +88,16 @@ public class RenameChapterActionHandler extends TextInputActionHandler
         
         boolean exists = false;
         
-        Set<Chapter> cs = this.chapter.getBook ().getAllChaptersWithName (v);
+        Set<? extends Asset> as = this.projectViewer.getProject ().getAllAssetsByName (v,
+                                                                                       this.asset.getObjectType ());
         
-        if (cs.size () > 0)
+        if (as.size () > 0)
         {
             
-            for (Chapter c : cs)
+            for (Asset a : as)
             {
                 
-                if (c.getKey () != this.chapter.getKey ())
+                if (a.getKey () != this.asset.getKey ())
                 {
                     
                     exists = true;
@@ -109,10 +111,11 @@ public class RenameChapterActionHandler extends TextInputActionHandler
         if (exists)
         {
                                                                         
-            return "Another {chapter} with that name already exists.";
+            return String.format ("Another %s with that name already exists.",
+                                  Environment.getObjectTypeName (this.asset.getObjectType ()));
 
         }
-                
+
         return null;
     
     }
@@ -124,17 +127,17 @@ public class RenameChapterActionHandler extends TextInputActionHandler
         try
         {
 
-            this.chapter.setName (v);
+            this.asset.setName (v);
 
-            this.projectViewer.saveObject (this.chapter,
+            this.projectViewer.saveObject (this.asset,
                                            true);
 
             // Inform the chapter tree that something has changed.
             this.projectViewer.handleItemChangedEvent (new ItemChangedEvent (this,
-                                                                             this.chapter,
+                                                                             this.asset,
                                                                              AbstractProjectViewer.NAME_CHANGED));
     
-            this.projectViewer.fireProjectEventLater (this.chapter.getObjectType (),
+            this.projectViewer.fireProjectEventLater (this.asset.getObjectType (),
                                                       ProjectEvent.RENAME);
 
             return true;
@@ -142,14 +145,15 @@ public class RenameChapterActionHandler extends TextInputActionHandler
         } catch (Exception e)
         {
 
-            Environment.logError ("Unable to change name of chapter: " +
-                                  this.chapter +
+            Environment.logError ("Unable to change name of asset: " +
+                                  this.asset +
                                   " to: " +
                                   v,
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to change name of chapter.");
+                                      String.format ("An internal error has occurred.\n\nUnable to change name of %s.",
+                                                     Environment.getObjectTypeName (this.asset)));
 
         }
         

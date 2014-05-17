@@ -319,6 +319,8 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
                           boolean             hasFocus)
     {
 
+        this.setReadyForUse (true);
+    
     }
     
     public void getState (Map<String, Object> m)

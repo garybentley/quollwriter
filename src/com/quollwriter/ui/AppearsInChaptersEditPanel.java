@@ -250,50 +250,60 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         
     }
     
-    public void showSnippet (Chapter c,
-                             Segment s,
-                             JTree   tree)
+    public void showSnippet (final Chapter c,
+                             final Segment s,
+                             final JTree   tree)
     {
 
+        final AppearsInChaptersEditPanel _this = this;
+    
         if (c != null)
         {
-
-            Object v = c;
     
-            this.viewer.viewObject (c);
-
-            if (s != null)
+            this.viewer.viewObject (c,
+                                    new ActionListener ()
             {
-    
-                v = s;
-    
-                this.viewer.scrollTo (c,
-                                      s.getBeginIndex ());
-    
-                final QTextEditor ed = this.viewer.getEditorForChapter (c).getEditor ();
-    
-                this.removeHighlight ();
-    
-                this.editor = ed;
-    
-                this.highlightId = ed.addHighlight (s.getBeginIndex (),
-                                                    s.getEndIndex (),
-                                                    null,
-                                                    true);
-    
-            }
-
-            // See how many children there are.
-            TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) tree.getModel ().getRoot (),
-                                                            v);
-    
-            if (tp != null)
-            {
-    
-                tree.setSelectionPath (tp);
                 
-            }
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    Object v = c;
+                
+                    if (s != null)
+                    {
             
+                        v = s;
+            
+                        _this.viewer.scrollTo (c,
+                                               s.getBeginIndex ());
+            
+                        final QTextEditor ed = _this.viewer.getEditorForChapter (c).getEditor ();
+            
+                        _this.removeHighlight ();
+            
+                        _this.editor = ed;
+            
+                        _this.highlightId = ed.addHighlight (s.getBeginIndex (),
+                                                             s.getEndIndex (),
+                                                             null,
+                                                             true);
+            
+                    }
+
+                    // See how many children there are.
+                    TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) tree.getModel ().getRoot (),
+                                                                    v);
+            
+                    if (tp != null)
+                    {
+            
+                        tree.setSelectionPath (tp);
+                        
+                    }
+
+                }
+                
+            });
             
         }            
         

@@ -617,6 +617,8 @@ System.out.println ("AV FILE: " + _this.avatarF.getValue ());
                           boolean                   hasFocus)
     {
 
+        this.setReadyForUse (true);
+
     }
 
     public void getState (Map<String, Object> m)

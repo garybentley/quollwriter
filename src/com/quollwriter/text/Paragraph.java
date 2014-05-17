@@ -107,6 +107,38 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         return ret;
     
     }
+
+    public int getThreeSyllableWordCount ()
+    {
+
+        int c = 0;
+        
+        for (Sentence s : this.sentences)
+        {
+            
+            c += s.getThreeSyllableWordCount ();
+            
+        }
+        
+        return c;
+        
+    }
+    
+    public int getSyllableCount ()
+    {
+
+        int c = 0;
+        
+        for (Sentence s : this.sentences)
+        {
+            
+            c += s.getSyllableCount ();
+            
+        }
+        
+        return c;
+        
+    }
     
     public int getSentenceCount ()
     {
@@ -387,11 +419,11 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
     /**
      * Look for the collection of words in each sentence.
      *
-     * @param words The words to look for.
+     * @param text The text to look for.
      * @param constraints Limit the search to the specified constraints.
      * @return The matching sentences with sentence local indexes of the matches.
      */
-    public Map<Sentence, Set<Integer>> findInSentences (Collection<String>  words,
+    public Map<Sentence, Set<Integer>> findInSentences (String              text,
                                                         DialogueConstraints constraints)
     {
         
@@ -400,7 +432,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         for (Sentence s : this.sentences)
         {
             
-            Set<Integer> inds = s.find (words,
+            Set<Integer> inds = s.find (text,
                                         constraints);
             
             if ((inds != null)

@@ -426,6 +426,42 @@ public class Project extends NamedObject
 
     }
 
+    public Set<? extends Asset> getAllAssetsByName (String n,
+                                                    String objType)
+    {
+
+        if (objType.equals (Location.OBJECT_TYPE))
+        {
+
+            return this.getAllLocationsByName (n);
+
+        }
+
+        if (objType.equals (QCharacter.OBJECT_TYPE))
+        {
+
+            return this.getAllCharactersByName (n);
+
+        }
+
+        if (objType.equals (QObject.OBJECT_TYPE))
+        {
+
+            return this.getAllQObjectsByName (n);
+
+        }
+
+        if (objType.equals (ResearchItem.OBJECT_TYPE))
+        {
+
+            return this.getAllResearchItemsByName (n);
+
+        }
+
+        return null;
+        
+    }
+    
     public Asset getAssetByName (String n,
                                  String objType)
     {
@@ -481,6 +517,62 @@ public class Project extends NamedObject
         }
 
         return null;
+
+    }
+
+    private Set<? extends Asset> getAllAssetsByName_Int (List<? extends Asset> assets,
+                                                         String                n)
+    {
+
+        Set<Asset> matched = new LinkedHashSet ();
+    
+        n = n.toLowerCase ();
+
+        for (Asset a : assets)
+        {
+
+            if (a.getName ().toLowerCase ().equals (n))
+            {
+
+                matched.add (a);
+
+            }
+
+        }
+
+        return matched;
+
+    }
+
+    public Set<QCharacter> getAllCharactersByName (String n)
+    {
+
+        return (Set<QCharacter>) this.getAllAssetsByName_Int (this.characters,
+                                                              n);
+
+    }
+    
+    public Set<Location> getAllLocationsByName (String n)
+    {
+
+        return (Set<Location>) this.getAllAssetsByName_Int (this.locations,
+                                                            n);
+
+    }
+
+    public Set<QObject> getAllQObjectsByName (String n)
+    {
+
+        return (Set<QObject>) this.getAllAssetsByName_Int (this.objects,
+                                                           n);
+
+    }
+
+    public Set<ResearchItem> getAllResearchItemsByName (String n)
+    {
+
+        return (Set<ResearchItem>) this.getAllAssetsByName_Int (this.researchItems,
+                                                                n);
 
     }
 

@@ -160,6 +160,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         
         this.init (this.tree);
         
+        this.tree.setOpaque (false);
+        
         super.init ();        
         
     }

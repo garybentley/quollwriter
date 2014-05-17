@@ -49,7 +49,8 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
     private java.util.List<PropertyChangedListener> propertyChangedListeners = new ArrayList ();
     private boolean                                 hasUnsavedChanges = false;
     private JToolBar                                toolBar = null;
-
+    private boolean                                 readyForUse = false;
+    
     public QuollPanel(AbstractProjectViewer pv,
                       NamedObject           obj)
     {
@@ -71,6 +72,20 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
                 
     }
 
+    public boolean isReadyForUse ()
+    {
+        
+        return this.readyForUse;
+        
+    }
+    
+    public void setReadyForUse (boolean v)
+    {
+        
+        this.readyForUse = true;
+        
+    }
+    
     public abstract void close ();
 
     public abstract void init ()

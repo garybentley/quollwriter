@@ -283,6 +283,29 @@ public class Book extends NamedObject
 
     }
 
+    public Set<Chapter> getAllChaptersWithName (String name)
+    {
+        
+        Set<Chapter> ret = new LinkedHashSet ();
+        
+        for (int i = 0; i < this.chapters.size (); i++)
+        {
+
+            Chapter c = (Chapter) this.chapters.get (i);
+
+            if (c.getName ().equalsIgnoreCase (name))
+            {
+
+                ret.add (c);
+
+            }
+
+        }
+
+        return ret;
+
+    }
+    
     public Chapter getChapterByName (String name)
     {
 

@@ -43,7 +43,12 @@ public class ReadabilityIndices
             return;
 
         }
-
+        
+        TextIterator ti = new TextIterator (str);
+        this.wordCount = ti.getWordCount ();
+        this.syllableCount = ti.getSyllableCount ();
+        this.threeSyllableWordCount = ti.getThreeSyllableWordCount ();
+/*
         SentenceIterator si = new SentenceIterator (str);
 
         String s = si.next ();
@@ -52,11 +57,13 @@ public class ReadabilityIndices
         {
 
             this.sentenceCount++;
-
-            List<String> words = TextUtilities.getAsWords (s);
-
+            
+            List<String> words = null;
+            
+            words = TextUtilities.getAsWords (s);
+                
             words = TextUtilities.stripPunctuation (words);
-
+            
             this.wordCount += words.size ();
 
             for (String w : words)
@@ -82,7 +89,7 @@ public class ReadabilityIndices
         // Turn off the cache, it may have used quite a bit of memory.
         // Shouldn't be needed anymore.
         //Environment.setSynonymProviderUseCache (true);
-        
+        */
     }
 
     public float getFleschKincaidGradeLevel ()

@@ -202,17 +202,18 @@ public class NamedObjectPreviewPopup extends Box
                       Point       showAt)
     {
 
-        String firstLine = new SentenceIterator (obj.getDescription ()).next ();
+        String firstLine = "<b><i>No description.</i></b>";
         
-        if (firstLine == null)
+        if ((obj.getDescription () != null)
+            &&
+            (obj.getDescription ().length () > 0)
+           )
         {
             
-            firstLine = "<b><i>No description.</i></b>";
+            firstLine = new Paragraph (obj.getDescription (), 0).getFirstSentence ().getText ();
             
         }
-        
-        firstLine = firstLine.trim ();
-        
+                        
         this.removeAll ();
                         
         JEditorPane desc = UIUtils.createHelpTextPane (firstLine,

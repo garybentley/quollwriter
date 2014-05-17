@@ -681,15 +681,7 @@ public class ProjectViewer extends AbstractProjectViewer
             }
 
         }
-/*
-        if (name == ProjectViewer.RENAME_CHAPTER_ACTION)
-        {
 
-            return new RenameChapterActionHandler ((Chapter) other,
-                                                   pv);
-
-        }
-*/
         if (name == ProjectViewer.EDIT_PLOT_OUTLINE_ITEM_ACTION)
         {
 
@@ -1457,11 +1449,20 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
     
+    public boolean editChapter (Chapter c)
+    {
+        
+        return this.editChapter (c,
+                                 null);
+        
+    }
+    
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter has been opened for editing.
      */
-    public boolean editChapter (Chapter c)
+    public boolean editChapter (final Chapter        c,
+                                final ActionListener doAfterView)
     {
 
         // Check our tabs to see if we are already editing this chapter, if so then just switch to it instead.
@@ -1473,6 +1474,16 @@ public class ProjectViewer extends AbstractProjectViewer
             this.setPanelVisible (qep);
             
             this.getEditorForChapter (c).getEditor ().grabFocus ();
+        
+            if (doAfterView != null)
+            {
+                
+                UIUtils.doActionWhenPanelIsReady (qep,
+                                                  doAfterView,
+                                                  c,
+                                                  "afterview");
+                                
+            }
         
             return true;
 
@@ -1527,53 +1538,57 @@ public class ProjectViewer extends AbstractProjectViewer
                                     qep);
 
         // Open the tab :)
-        return this.editChapter (c);
+        return this.editChapter (c,
+                                 doAfterView);
 
     }
 
     public boolean viewObject (DataObject d)
     {
 
+        return this.viewObject (d,
+                                null);
+    
+    }
+    
+    public boolean viewObject (final DataObject     d,
+                               final ActionListener doAfterView)
+    {
+
+        final ProjectViewer _this = this;
+        
         if (d instanceof OutlineItem)
         {
 
             final OutlineItem oi = (OutlineItem) d;
 
-            if (!this.editChapter (oi.getChapter ()))
+            this.viewObject (oi.getChapter (),
+                             new ActionListener ()
             {
-
-                return false;
-
-            }
-
-            final ProjectViewer _this = this;
-
-            SwingUtilities.invokeLater (new Runner ()
+                
+                public void actionPerformed (ActionEvent ev)
                 {
-
-                    public void run ()
+            
+                    try
                     {
 
-                        try
-                        {
+                        _this.getEditorForChapter (oi.getChapter ()).showOutlineItem (oi);
+                        
+                    } catch (Exception e)
+                    {
 
-                            _this.getEditorForChapter (oi.getChapter ()).showOutlineItem (oi);
+                        Environment.logError ("Unable to scroll to outline item: " +
+                                              oi,
+                                              e);
 
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to scroll to outline item: " +
-                                                  oi,
-                                                  e);
-
-                            UIUtils.showErrorMessage (_this,
-                                                      "Unable to display {Plot Outline Item} in {Chapter}.");
-
-                        }
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to display {Plot Outline Item} in {Chapter}.");
 
                     }
 
-                });
+                }
+
+            });
 
             return true;
 
@@ -1584,91 +1599,70 @@ public class ProjectViewer extends AbstractProjectViewer
 
             final Scene s = (Scene) d;
 
-            if (!this.editChapter (s.getChapter ()))
+            this.viewObject (s.getChapter (),
+                             new ActionListener ()
             {
-
-                return false;
-
-            }
-
-            final ProjectViewer _this = this;
-
-            SwingUtilities.invokeLater (new Runner ()
+                
+                public void actionPerformed (ActionEvent ev)
                 {
-
-                    public void run ()
+            
+                    try
                     {
 
-                        try
-                        {
+                        _this.getEditorForChapter (s.getChapter ()).showScene (s);
+                        
+                    } catch (Exception e)
+                    {
 
-                            _this.getEditorForChapter (s.getChapter ()).showScene (s);
+                        Environment.logError ("Unable to scroll to scene: " +
+                                              s,
+                                              e);
 
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to scroll to scene: " +
-                                                  s,
-                                                  e);
-
-                            UIUtils.showErrorMessage (_this,
-                                                      Environment.replaceObjectNames ("Unable to display {outlineitem} in {chapter}."));
-
-                        }
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to display {Scene} in {Chapter}.");
 
                     }
 
-                });
+                }
+
+            });
 
             return true;
 
         }
-
+            
         if (d instanceof Note)
         {
 
             final Note n = (Note) d;
 
-            if (n.getObject () != null)
+            this.viewObject (n.getChapter (),
+                             new ActionListener ()
             {
-
-                if (!this.editChapter ((Chapter) n.getObject ()))
+                
+                public void actionPerformed (ActionEvent ev)
                 {
+            
+                    try
+                    {
 
-                    return false;
+                        _this.getEditorForChapter (n.getChapter ()).showNote (n);
+                        
+                    } catch (Exception e)
+                    {
+
+                        Environment.logError ("Unable to scroll to note: " +
+                                              n,
+                                              e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to display {Note} in {Chapter}.");
+
+                    }
 
                 }
 
-                final ProjectViewer _this = this;
-
-                SwingUtilities.invokeLater (new Runner ()
-                    {
-
-                        public void run ()
-                        {
-
-                            try
-                            {
-
-                                _this.getEditorForChapter (((Chapter) n.getObject ())).showNote (n);
-
-                            } catch (Exception e)
-                            {
-
-                                Environment.logError ("Unable to scroll to note: " +
-                                                      n,
-                                                      e);
-
-                                UIUtils.showErrorMessage (_this,
-                                                          "Unable to display {Note} in {Chapter}.");
-
-                            }
-
-                        }
-
-                    });
-
-            }
+            });
 
             return true;
 
@@ -1694,7 +1688,8 @@ public class ProjectViewer extends AbstractProjectViewer
             } else
             {
 
-                return this.editChapter (c);
+                return this.editChapter (c,
+                                         doAfterView);
 
             }
 
@@ -1703,10 +1698,11 @@ public class ProjectViewer extends AbstractProjectViewer
         if (d instanceof Asset)
         {
 
-            return this.viewAsset ((Asset) d);
+            return this.viewAsset ((Asset) d,
+                                   doAfterView);
 
         }
-
+/*
         if (d instanceof Note)
         {
 
@@ -1715,7 +1711,8 @@ public class ProjectViewer extends AbstractProjectViewer
             return true;
 
         }
-
+        */
+/*
         if (d instanceof OutlineItem)
         {
 
@@ -1724,14 +1721,14 @@ public class ProjectViewer extends AbstractProjectViewer
             return true;
 
         }
-
+*/
         // Record the error, then ignore.
         Environment.logError ("Unable to open object: " + d);
 
         return false;
 
     }
-    
+    /*
     public void viewNote (Note n)
     {
 
@@ -1767,7 +1764,8 @@ public class ProjectViewer extends AbstractProjectViewer
         }
 
     }
-
+    */
+/*
     public void viewOutlineItem (OutlineItem n)
     {
 
@@ -1793,7 +1791,7 @@ public class ProjectViewer extends AbstractProjectViewer
         }
 
     }
-
+*/
     public boolean openPanel (String id)
     {
     
@@ -1931,11 +1929,20 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
     
+    public boolean viewAsset (Asset a)
+    {
+        
+        return this.viewAsset (a,
+                               null);
+        
+    }
+    
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the asset is viewed.
      */
-    public boolean viewAsset (Asset a)
+    public boolean viewAsset (final Asset          a,
+                              final ActionListener doAfterView)
     {
 
         // Check our tabs to see if we are already editing this asset, if so then just switch to it instead.
@@ -1948,6 +1955,16 @@ public class ProjectViewer extends AbstractProjectViewer
             
             avp.initDividers ();
 
+            if (doAfterView != null)
+            {
+                
+                UIUtils.doActionWhenPanelIsReady (avp,
+                                                  doAfterView,
+                                                  a,
+                                                  "afterview");
+                                
+            }
+            
             return true;
 
         }
@@ -1985,7 +2002,8 @@ public class ProjectViewer extends AbstractProjectViewer
                                     avp);
         
         // Open the tab :)
-        return this.viewAsset (a);
+        return this.viewAsset (a,
+                               doAfterView);
 
     }
 

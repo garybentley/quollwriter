@@ -1312,6 +1312,8 @@ public class QTextEditor extends JTextPane implements TextStylable
         
         this.doc.remove (where,
                          length);
+                
+        this.removeAllHighlights (null);
         
     }
     

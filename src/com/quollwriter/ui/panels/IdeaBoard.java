@@ -36,6 +36,7 @@ import com.jgoodies.forms.factories.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
+import com.quollwriter.text.*;
 
 import com.quollwriter.events.*;
 
@@ -120,7 +121,7 @@ public class IdeaBoard extends QuollPanel
                                                                       this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                       this.typeBox.ideaBoard.getProjectViewer (),
                                                                       this.typeBox.ideaBoard);
-
+            this.shortDesc.setBorder (new EmptyBorder (3, 5, 0, 5));
             this.viewBox.add (this.shortDesc);
             this.shortDesc.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -128,7 +129,7 @@ public class IdeaBoard extends QuollPanel
                                                                      this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                      this.typeBox.ideaBoard.getProjectViewer (),
                                                                      this.typeBox.ideaBoard);
-
+            this.fullDesc.setBorder (new EmptyBorder (3, 5, 0, 5));
             this.updateViewText ();
 
             this.viewBox.add (this.fullDesc);
@@ -230,7 +231,7 @@ public class IdeaBoard extends QuollPanel
 
             buttons.add (mb);
 
-            mb = new JButton (Environment.getIcon ("delete",
+            mb = new JButton (Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                    Constants.ICON_MENU));
             mb.setOpaque (false);
             mb.setToolTipText ("Click to delete this item");
@@ -276,10 +277,15 @@ public class IdeaBoard extends QuollPanel
                 }
                 
             });
-
-            // mb.addActionListener (this.getDeleteItemActionHandler ());
-            // mb.addActionListener (aa);
+            
             buttons.add (mb);
+
+            JButton hideBut = new JButton (Environment.getIcon (Constants.UP_ICON_NAME,
+                                                                Constants.ICON_MENU));
+            hideBut.setOpaque (false);
+            hideBut.setToolTipText ("Click to hide");
+            
+            buttons.add (hideBut);
 
             JToolBar tb = UIUtils.createButtonBar (buttons);
 
@@ -289,7 +295,7 @@ public class IdeaBoard extends QuollPanel
             tbb.setAlignmentX (Component.LEFT_ALIGNMENT);
             tbb.setBorder (new EmptyBorder (3,
                                             3,
-                                            3,
+                                            0,
                                             3));
             tbb.add (tb);
             tbb.add (Box.createHorizontalGlue ());
@@ -298,69 +304,34 @@ public class IdeaBoard extends QuollPanel
 
             this.viewBox.add (tbb);
 
+            hideBut.addActionListener (new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.shortDesc.setVisible (true);
+                    _this.fullDesc.setVisible (false);
+                    tbb.setVisible (false);
+
+                    _this.typeBox._repaint ();
+
+                }
+                
+            });
+            
             MouseAdapter vis = new MouseAdapter ()
             {
 
-                private Timer show = new Timer (500,
-                                                new ActionAdapter ()
-                                                {
-
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-
-                                                        _this.shortDesc.setVisible (false);
-                                                        _this.fullDesc.setVisible (true);
-                                                        tbb.setVisible (true);
-
-                                                        _this.typeBox._repaint ();
-
-                                                    }
-
-                                                });
-
-                private Timer hide = new Timer (750,
-                                                new ActionAdapter ()
-                                                {
-
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-
-                                                        _this.shortDesc.setVisible (true);
-                                                        _this.fullDesc.setVisible (false);
-                                                        tbb.setVisible (false);
-
-                                                        _this.typeBox._repaint ();
-
-                                                    }
-
-                                                });
-
-                private void stopTimers ()
+                public void mousePressed (MouseEvent ev)
                 {
+                    
+                    _this.shortDesc.setVisible (false);
+                    _this.fullDesc.setVisible (true);
+                    tbb.setVisible (true);
 
-                    this.hide.setRepeats (false);
-                    this.show.setRepeats (false);
-                    this.hide.stop ();
-                    this.show.stop ();
-
-                }
-
-                public void mouseEntered (MouseEvent ev)
-                {
-
-                    this.stopTimers ();
-
-                    this.show.start ();
-
-                }
-
-                public void mouseExited (MouseEvent ev)
-                {
-
-                    this.stopTimers ();
-
-                    this.hide.start ();
-
+                    _this.typeBox._repaint ();
+                    
                 }
 
             };
@@ -458,24 +429,32 @@ public class IdeaBoard extends QuollPanel
         private void updateViewText ()
         {
 
-            BreakIterator si = BreakIterator.getSentenceInstance ();
-            si.setText (this.idea.getDescription ());
-
-            String firstSent = this.idea.getDescription ().substring (si.first (),
-                                                                      si.next ()).trim ();
-
-            if (si.next () != BreakIterator.DONE)
+            Paragraph p = new Paragraph (this.idea.getDescription (),
+                                         0);
+        
+            String firstSent = "";
+        
+            if (p.getSentenceCount () > 0)
             {
                 
-                firstSent += " more... ";
-                                                 
-            }
+                firstSent = p.getFirstSentence ().getText ();
             
+                if (p.getSentenceCount () > 1)
+                {
+                    
+                    firstSent += " more...";
+                    
+                }
+                
+            }
+                    
             this.shortDesc.setText (UIUtils.getWithHTMLStyleSheet (this.shortDesc,
                                                                    UIUtils.markupStringForAssets (firstSent,
                                                                                                   this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                                                   null)));
 
+            this.shortDesc.setToolTipText ("Click to show the full text");
+                                                                                                  
             this.fullDesc.setText (UIUtils.getWithHTMLStyleSheet (this.fullDesc,
                                                                   UIUtils.markupStringForAssets (this.idea.getDescription (),
                                                                                                  this.typeBox.ideaBoard.getProjectViewer ().getProject (),
@@ -1992,6 +1971,8 @@ public class IdeaBoard extends QuollPanel
         this.validate ();
         this.repaint ();
 
+        this.setReadyForUse (true);
+        
     }
 
     public void fillToolBar (JToolBar acts,

@@ -14,17 +14,13 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     private Sentence previous = null;
     private int syllableCount = -1;
     private int wordCount = -1;
-    
-    public Sentence (Paragraph   parent,
-                     String      sentence,
-                     int         start,
+
+    public Sentence (String      sentence,
                      DialogueInd inDialogue)
     {
-        
-        this.parent = parent;
-        this.sentence = sentence;
-        this.start = start;
 
+        this.sentence = sentence;
+    
         Word last = null;
                 
         BreakIterator iter = BreakIterator.getWordInstance ();
@@ -122,6 +118,41 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
             last = w;
             
         }        
+    
+    }
+    
+    public Sentence (Paragraph   parent,
+                     String      sentence,
+                     int         start,
+                     DialogueInd inDialogue)
+    {
+        
+        this (sentence,
+              inDialogue);
+        
+        this.parent = parent;
+        this.start = start;
+        
+    }
+    
+    public int getThreeSyllableWordCount ()
+    {
+        
+        int c = 0;
+        
+        for (Word w : this.words)
+        {
+            
+            if (w.getSyllableCount () > 2)
+            {
+                
+                c++;
+                
+            }
+                        
+        }
+            
+        return c;
         
     }
     
@@ -229,16 +260,16 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     }
 
     /**
-     * Look for the collection of words in the sentence.
+     * Look for the text in the sentence.
      *
-     * @param find The words to find.
+     * @param find The text to find.
      * @param constraints Limit the search to the specified constraints.
      * @return A set of positions within the sentence of the specified words.
      */
-    public Set<Integer> find (Collection<String>  find,
+    public Set<Integer> find (List<Word>          findWords,
                               DialogueConstraints constraints)
     {
-        
+
         if (constraints == null)
         {
             
@@ -247,12 +278,10 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                                                    DialogueConstraints.ANYWHERE);
             
         }
-        
-        List<String> _find = new ArrayList (find);
-        
+                
         Set<Integer> ret = new LinkedHashSet ();
 
-        int fc = _find.size ();
+        int fc = findWords.size ();
 
         int wc = this.words.size ();
 
@@ -289,9 +318,9 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 for (int j = 0; j < fc; j++)
                 {
 
-                    String fw = _find.get (j);
+                    Word fw = findWords.get (j);
 
-                    if (!fw.equals (TextUtilities.ANY_WORD))
+                    if (!fw.getText ().equals (TextUtilities.ANY_WORD))
                     {
 
                         Word w2 = words.get (i + wfc);
@@ -406,7 +435,26 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         }
 
         return ret;
+
+    }
+    
+    /**
+     * Look for the text in the sentence.
+     *
+     * @param find The text to find.
+     * @param constraints Limit the search to the specified constraints.
+     * @return A set of positions within the sentence of the specified words.
+     */
+    public Set<Integer> find (String              find,
+                              DialogueConstraints constraints)
+    {
                 
+        List<Word> findWords = new Sentence (find,
+                                             new DialogueInd ()).getWords ();
+                
+        return this.find (findWords,
+                          constraints);
+        
     }    
     
     /**

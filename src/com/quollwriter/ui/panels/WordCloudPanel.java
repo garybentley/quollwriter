@@ -97,6 +97,8 @@ public class WordCloudPanel extends QuollPanel
     public void setState (Map<String, String> s,
                           boolean             hasFocus)
     {
+
+        this.setReadyForUse (true);
         
     }
 

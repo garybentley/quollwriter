@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.quollwriter.text.rules.*;
 
+@Deprecated 
 
 public class ParagraphIterator implements Iterator<String>
 {
@@ -184,7 +185,7 @@ public class ParagraphIterator implements Iterator<String>
         if (this.current != null)
         {
 
-            List<String> swords = TextUtilities.getAsWords (this.current);
+            //List<String> swords = TextUtilities.getAsWords (this.current);
 
 /*
             this.inDialogue = TextUtilities.stillInDialogue (swords,
@@ -220,7 +221,7 @@ public class ParagraphIterator implements Iterator<String>
         if (this.current != null)
         {
 
-            List<String> swords = TextUtilities.getAsWords (this.current);
+            //List<String> swords = TextUtilities.getAsWords (this.current);
 /*
             this.inDialogue = TextUtilities.stillInDialogue (swords,
                                                              this.inDialogue);

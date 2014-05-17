@@ -33,7 +33,7 @@ public class WordFinder extends AbstractDialogueRule
     private String word = null;
 
     private JTextField words = null;
-    private List<String> tWords = null;
+    private List<Word> tWords = null;
 
     public WordFinder(boolean user)
     {

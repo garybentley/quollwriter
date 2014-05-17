@@ -60,7 +60,6 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
 
-    private ActionListener assetDeleteAction = null;
     private AppearsInChaptersEditPanel appearsInPanel = null;
 
     public AssetViewPanel (AbstractProjectViewer pv,
@@ -145,6 +144,15 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
 */
+    public static ActionListener getRenameAssetAction (final AbstractProjectViewer pv,
+                                                       final Asset                 a)
+    {
+
+        return new RenameAssetActionHandler (a,
+                                             pv);
+
+    }
+    
     public static ActionListener getDeleteAssetAction (final AbstractProjectViewer pv,
                                                        final Asset                 a)
     {
@@ -204,15 +212,17 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
                                                  NamedObject           n)
     {
 
-        if (this.assetDeleteAction == null)
-        {
+        return AssetViewPanel.getDeleteAssetAction (pv,
+                                                    (Asset) n);
 
-            this.assetDeleteAction = AssetViewPanel.getDeleteAssetAction (pv,
-                                                                          (Asset) n);
+    }
 
-        }
+    public ActionListener getRenameObjectAction (AbstractProjectViewer pv,
+                                                 NamedObject           n)
+    {
 
-        return this.assetDeleteAction;
+        return AssetViewPanel.getRenameAssetAction (pv,
+                                                    (Asset) n);
 
     }
 

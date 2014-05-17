@@ -335,32 +335,28 @@ public class TextUtilities
     public static int getSentenceCount (String text)
     {
         
-        SentenceIterator iter = new SentenceIterator (text);
-        
-        int c = 0;
-        
-        String v = null;
-        
-        while ((v = iter.next ()) != null)
-        {
-                        
-            c++;
-            
-        }
-        
-        return c;
+        Paragraph p = new Paragraph (text,
+                                     0);
+
+        return p.getSentenceCount ();
         
     }    
-    
+   
     public static int getWordCount (String l)
     {
         
-        List<String> words = TextUtilities.getAsWords (l);
-        
-        return TextUtilities.stripPunctuation (words).size ();
+        return TextUtilities.getAsWords (l).size ();
         
     }
+
+    public static List<Word> getAsWords (String l)
+    {
+
+        return new Sentence (l,
+                             new DialogueInd ()).getWords ();
     
+    }
+    /*
     public static List<String> getAsWords (String l)
     {
 
@@ -436,7 +432,7 @@ public class TextUtilities
         return ret;
 
     }
-
+*/
     public static int charCount (String l,
                                  char   c)
     {
@@ -483,7 +479,7 @@ public class TextUtilities
         return false;
 
     }
-    
+    /*
     public static int getSyllableCount (String text)
     {
         
@@ -505,7 +501,7 @@ public class TextUtilities
         return c;
         
     }
-    
+    */
     /**
      * This method is based on:
      *    http://english.glendale.cc.ca.us/phonics.rules.html

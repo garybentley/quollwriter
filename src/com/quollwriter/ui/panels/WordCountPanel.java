@@ -593,6 +593,8 @@ public class WordCountPanel extends QuollPanel
 
         }
 
+        this.setReadyForUse (true);
+        
     }
 
     public void getState (Map<String, Object> m)

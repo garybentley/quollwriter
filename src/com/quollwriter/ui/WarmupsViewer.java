@@ -523,6 +523,14 @@ public class WarmupsViewer extends AbstractProjectViewer
 
     }
 
+    public boolean viewObject (DataObject d,
+                               ActionListener doAfterView)
+    {
+        
+        throw new UnsupportedOperationException ("Not yet supported");        
+        
+    }
+    
     public boolean viewObject (DataObject d)
     {
 

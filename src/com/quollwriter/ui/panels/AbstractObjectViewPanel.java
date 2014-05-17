@@ -576,7 +576,7 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
             this.mainSplitPane.setDividerLocation (v);
 
             this.panesInited = true;
-
+            
         } catch (Exception e)
         {
 
@@ -595,6 +595,8 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
         {
 
         }
+
+        this.setReadyForUse (true);
 
     }
 

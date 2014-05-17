@@ -254,11 +254,19 @@ public class SplitChapterActionHandler extends AbstractActionHandler
         
         String text = this.getSelectedText ();
     
-        SentenceIterator iter = new SentenceIterator (text);
+        Paragraph para = new Paragraph (text,
+                                        0);
+    
+        //SentenceIterator iter = new SentenceIterator (text);
 
-        int count = UIUtils.getWordCount (text);
+        int count = para.getWordCount ();
         
-        text = iter.next ();
+        //int count = UIUtils.getWordCount (text);
+        
+        // Get the first sentence.
+        text = para.getFirstSentence ().getText ();
+        
+        //text = iter.next ();
         
         if (text != null)
         {
@@ -293,7 +301,7 @@ public class SplitChapterActionHandler extends AbstractActionHandler
             int start = ed.getSelectionStart ();
             int end = ed.getSelectionEnd ();
             
-            text = iter.last ();
+            text = para.getLastSentence ().getText ();//iter.last ();
                  
             if ((end > start)
                 &&

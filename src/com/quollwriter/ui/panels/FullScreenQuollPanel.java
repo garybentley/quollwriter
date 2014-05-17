@@ -85,6 +85,8 @@ public class FullScreenQuollPanel extends QuollPanel
         this.child.setState (s,
                              hasFocus);
 
+        this.setReadyForUse (true);
+                             
     }
 
     public boolean saveUnsavedChanges ()
