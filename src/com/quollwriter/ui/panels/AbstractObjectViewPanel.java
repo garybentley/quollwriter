@@ -121,6 +121,8 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
                                            this.getIconType (),
                                            null);
 
+        final AbstractObjectViewPanel _this = this;
+                                           
         final Header tTitle = this.title;
 
         Map events = new HashMap ();
@@ -133,8 +135,10 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
                 public void propertyChanged (PropertyChangedEvent ev)
                 {
 
-                    tTitle.setTitle (((NamedObject) ev.getSource ()).getName ());
+                    //tTitle.setTitle (((NamedObject) ev.getSource ()).getName ());
 
+                    _this.refresh (_this.obj);
+                    
                 }
 
             },
@@ -148,8 +152,6 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
         JToolBar titleC = new JToolBar ();
         titleC.setFloatable (false);
         titleC.setOpaque (false);
-
-        final AbstractObjectViewPanel _this = this;
 
         JButton sb = new JButton (Environment.getIcon ("delete",
                                                        Constants.ICON_PANEL_ACTION));

@@ -1267,6 +1267,20 @@ public class ProjectViewer extends AbstractProjectViewer
     public void handleItemChangedEvent (ItemChangedEvent ev)
     {
 
+        Object o = ev.getChangedObject ();
+        
+        if (o instanceof DataObject)
+        {
+    
+            if (ev.getChangedObject () instanceof Chapter)
+            {
+    
+                this.reloadTreeForObjectType (((DataObject) o).getObjectType ());
+    
+            }
+
+        }
+            /*
         if (ev.getChangedObject () instanceof Chapter)
         {
 
@@ -1280,7 +1294,7 @@ public class ProjectViewer extends AbstractProjectViewer
             this.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
         }
-        
+        */
     }
 
     public void showObjectInTree (String      treeObjType,

@@ -267,6 +267,13 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
         this.getDetailsPanel ().refreshViewPanel ();
     
+        if (this.appearsInPanel != null)
+        {
+            
+            this.appearsInPanel.refreshViewPanel ();
+            
+        }
+    
     }    
     
     public EditPanel getBottomEditPanel ()
