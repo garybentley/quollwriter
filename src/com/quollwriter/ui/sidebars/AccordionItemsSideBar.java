@@ -96,7 +96,17 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
     public JComponent getContent ()
     {
                 
-        Box b = new ScrollableBox (BoxLayout.Y_AXIS);
+        Box b = new ScrollableBox (BoxLayout.Y_AXIS)
+        {
+            
+            public Dimension getMinimumSize ()
+            {
+                
+                return this.getPreferredSize ();        
+                
+            }                
+            
+        };
         
         b.setOpaque (false);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -122,14 +132,12 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
           
         b.add (Box.createVerticalGlue ());
 
-        b.setMinimumSize (new Dimension (255,
+        b.setMinimumSize (new Dimension (300,
                                          250));
+        /*
         b.setPreferredSize (new Dimension (255,
                                            250));
-
-        b.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         Short.MAX_VALUE));
-
+*/
         this.scrollPane = this.wrapInScrollPane (b);
                 
         return this.scrollPane;

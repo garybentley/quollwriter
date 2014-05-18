@@ -236,7 +236,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 this.chapterReadabilityHeader.setVisible (true);
             
                 ReadabilityIndices ri = this.projectViewer.getReadabilityIndices (c);
-              
+
                 this.chapterFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
                 
                 this.chapterGunningFog.setText (Environment.formatNumber (Math.round (ri.getGunningFogIndex ())));

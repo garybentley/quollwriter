@@ -38,9 +38,10 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
                null);
         
         this.chapter = c;
-        /*
+        
         this.setMinimumSize (new Dimension (300,
                                             250));
+        /*
         this.setPreferredSize (new Dimension (300,
                                               250));
         */

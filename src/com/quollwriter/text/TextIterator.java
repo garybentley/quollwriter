@@ -108,7 +108,7 @@ public class TextIterator
         return matches;
         
     }
-    
+        
     public Sentence getSentenceAt (int i)
     {
         
@@ -343,6 +343,22 @@ public class TextIterator
         {
             
             c += p.getWordCount ();
+            
+        }
+        
+        return c;
+        
+    }
+
+    public int getSentenceCount ()
+    {
+
+        int c = 0;
+        
+        for (Paragraph p : this.paragraphs)
+        {
+            
+            c += p.getSentenceCount ();
             
         }
         

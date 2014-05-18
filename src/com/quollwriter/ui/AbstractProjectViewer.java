@@ -1052,7 +1052,28 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                 ", no sidebar found with that name.");
             
         }
+
+        int lastDivLoc = this.splitPane.getLastDividerLocation ();
         
+        int csw = 0;
+        
+        if (this.currentSideBar != null)
+        {
+            
+            csw = this.currentSideBar.getSize ().width;
+            
+        }
+        
+        boolean sideBarLeft = (this.splitPane.getLeftComponent () == this.sideBar);
+                
+        int w = b.getPreferredSize ().width;
+        
+        w = Math.max (w, csw);
+
+        int tbw = this.toolbarPanel.getPreferredSize ().width;
+
+        w = Math.max (w, tbw);
+
         this.finder.clearHighlight ();
                 
         // Get the current sidebar.
@@ -1070,59 +1091,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.sideBar.validate ();
         this.sideBar.repaint ();
 
-        // See if we have a width for the sidebar.
-        Integer w = this.sideBarWidths.get (name);
-        
-        if ((w == null)
-            ||
-            (w == 0)
-           )
+        int divLoc = w;
+  
+        if (!sideBarLeft)
         {
             
-            w = b.getPreferredSize ().width;
-
-        }
-
-        int divLoc = -1;
-        
-        if (w != null)
-        {
-            
-            if (this.splitPane.getLeftComponent () == this.sideBar)
-            {
-                
-                divLoc = w;
-                                
-            } else {
-                
-                divLoc = this.splitPane.getSize ().width - w;
-                                
-            }
-            
-        } else {
-            
-            divLoc = b.getPreferredSize ().width;
+            divLoc = this.splitPane.getSize ().width - w;
             
         }
-
-        int sw = b.getPreferredSize ().width;
-        
-        if (divLoc < sw)
-        {
-            
-            sw = divLoc;
-            
-        }
-        
-        int tbw = this.toolbarPanel.getPreferredSize ().width;
-        
-        if (divLoc < tbw)
-        {
-            
-            divLoc = tbw;
-            
-        }
-        
+  
         this.splitPane.setDividerLocation (divLoc);            
         
         this.currentSideBar = b;

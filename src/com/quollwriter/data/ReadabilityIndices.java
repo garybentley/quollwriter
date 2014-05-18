@@ -45,9 +45,11 @@ public class ReadabilityIndices
         }
         
         TextIterator ti = new TextIterator (str);
-        this.wordCount = ti.getWordCount ();
-        this.syllableCount = ti.getSyllableCount ();
-        this.threeSyllableWordCount = ti.getThreeSyllableWordCount ();
+        this.wordCount += ti.getWordCount ();
+        this.syllableCount += ti.getSyllableCount ();
+        this.threeSyllableWordCount += ti.getThreeSyllableWordCount ();
+        this.sentenceCount += ti.getSentenceCount ();
+        
 /*
         SentenceIterator si = new SentenceIterator (str);
 
@@ -101,7 +103,7 @@ public class ReadabilityIndices
             return 0;
             
         }
-    
+
         return (0.39f * (this.wordCount / this.sentenceCount)) + (11.8f * (this.syllableCount / this.wordCount)) - 15.59f;
 
     }
