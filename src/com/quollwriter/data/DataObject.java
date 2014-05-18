@@ -454,10 +454,7 @@ public abstract class DataObject
             return false;
 
         }
-        if (this.objType.equals ("note"))
-        {
 
-        }
         if ((d.key.equals (this.key)) &&
             (d.objType.equals (this.objType)))
         {

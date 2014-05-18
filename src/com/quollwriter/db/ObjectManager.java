@@ -637,6 +637,20 @@ public class ObjectManager
                 String o2type = rs.getString (4);
                 long   key = rs.getLong (5);
 
+                if (o1type == null)
+                {
+                    
+                    continue;
+                    
+                }
+                
+                if (o2type == null)
+                {
+                    
+                    continue;
+                    
+                }
+
                 ObjectReference o1 = new ObjectReference (o1type,
                                                           o1key,
                                                           null);
