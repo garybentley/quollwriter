@@ -464,14 +464,15 @@
     <match accessor="url"
            value="!null" />
   </item>
-
+<!--
+  There is no social accessor in ResearchItem!
   <item id="addresearchitemsocialweblink" category="project" icon="researchitem" type="item" objectType="researchitem" action="new">
     <name>The Hive mind has spoken</name>
     <description>Create a {Research Item} with a social media site link.</description>
     <match accessor="social"
            value="true" />
   </item>
-
+-->
   <item id="personaldictionaryaddword" category="user" icon="edit" type="event" event="personaldictionary.addword">
     <name>I'll be needing that later</name>
     <description>Add a word to your personal dictionary.</description>

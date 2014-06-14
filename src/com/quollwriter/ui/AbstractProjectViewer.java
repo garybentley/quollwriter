@@ -3016,7 +3016,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         if (openTabs != null)
         {
-
+Environment.logMessage ("OPEN TABS: " + openTabs);
             java.util.List<String> objIds = new ArrayList ();
         
             // Split on :
@@ -4492,22 +4492,31 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         StringBuilder openTabs = new StringBuilder ();
 
-        for (QuollPanel qp : this.panels.values ())
+        for (int i = 0; i < this.tabs.getTabCount (); i++)
         {
-
-            panelId = qp.getPanelId ();
-
-            if (openTabs.length () > 0)
+            
+            Component p = this.tabs.getComponentAt (i);
+            
+            if (p instanceof QuollPanel)
             {
-
-                openTabs.append (",");
+                
+                QuollPanel qp = (QuollPanel) p;
+                
+                panelId = qp.getPanelId ();
+    
+                if (openTabs.length () > 0)
+                {
+    
+                    openTabs.append (",");
+    
+                }
+    
+                openTabs.append (panelId);
 
             }
-
-            openTabs.append (panelId);
-
-        }
-
+                        
+        }        
+        
         try
         {
 

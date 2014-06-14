@@ -1,5 +1,13 @@
 <whatsnew>
 
+  <version id="2.2.3">        
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes</title>
+      <description><![CDATA[This update fixes a problem with the Finder not displaying all the results and not showing scrollbars when needed.  A problem with exporting an empty chapter to a docx file has been fixed and the tab order is now saved and restored properly.]]></description>
+    </item>
+
+  </version>
+
   <version id="2.2.2">        
     <item onlyIfCurrentVersion="true">
       <title>Fixing a couple of oopsies</title>

@@ -178,8 +178,6 @@ public class Finder extends AbstractSideBar
 
         this.content.setMinimumSize (new Dimension (250,
                                          250));
-        this.content.setPreferredSize (new Dimension (250,
-                                           250));
 
         b.add (this.wrapInScrollPane (this.content));
 

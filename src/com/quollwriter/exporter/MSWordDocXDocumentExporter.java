@@ -201,6 +201,13 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         String m = c.getMarkup ();
         String chapterText = c.getText ();
 
+        if (chapterText == null)
+        {
+            
+            chapterText = "";
+            
+        }
+        
         P para = null;//this.createParagraph (style);
 
         Body b = mp.getJaxbElement ().getBody ();
