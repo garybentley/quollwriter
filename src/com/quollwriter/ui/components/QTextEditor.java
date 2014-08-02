@@ -577,7 +577,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         inAttrs.addAttributes (attrs);
             
     }
-
+    
     public void toggleBold ()
     {
         
@@ -590,6 +590,18 @@ public class QTextEditor extends JTextPane implements TextStylable
             
         }
 
+        if (this.getSelectionEnd () == start)
+        {
+            
+            if (start > 0)
+            {
+                
+                start--;
+                
+            }
+
+        }
+        
         AbstractDocument.AbstractElement el = (AbstractDocument.AbstractElement) this.doc.getCharacterElement (start);
 
         SimpleAttributeSet attr = new SimpleAttributeSet ();
@@ -621,6 +633,18 @@ public class QTextEditor extends JTextPane implements TextStylable
             
         }
 
+        if (this.getSelectionEnd () == start)
+        {
+            
+            if (start > 0)
+            {
+                
+                start--;
+                
+            }
+
+        }
+
         AbstractDocument.AbstractElement el = (AbstractDocument.AbstractElement) this.doc.getCharacterElement (start);
 
         SimpleAttributeSet attr = new SimpleAttributeSet ();
@@ -650,6 +674,18 @@ public class QTextEditor extends JTextPane implements TextStylable
             
             start = this.getCaret ().getDot ();
             
+        }
+
+        if (this.getSelectionEnd () == start)
+        {
+            
+            if (start > 0)
+            {
+                
+                start--;
+                
+            }
+
         }
 
         AbstractDocument.AbstractElement el = (AbstractDocument.AbstractElement) this.doc.getCharacterElement (start);

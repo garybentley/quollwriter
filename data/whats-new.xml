@@ -1,5 +1,13 @@
 <whatsnew>
 
+  <version id="2.2.4">        
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes</title>
+      <description><![CDATA[This update fixes a few issues:<ul><li>The project export will now export all text.</li><li>Having special characters in your project name will no longer the project from being exported.</li><li>The keyboard shortcuts for bold, italic and underline will now toggle properly.</li><li>When exiting with unsaved changes you can now elect to not save.</li><li>Finally the links to assets in descriptions won't match to longer words, for example, the <b>Ben</b> part of <b>Bend</b> will no longer link to Ben the character.</li></ul>]]></description>
+    </item>
+
+  </version>
+
   <version id="2.2.3">        
     <item onlyIfCurrentVersion="true">
       <title>Bug fixes</title>
@@ -32,7 +40,7 @@
 
     <item id="distractionfreemode">
       <title>Distraction free mode</title>
-      <description><![CDATA[Want to keep distractions at bay?  Now you can with distraction free mode.  It switches off all the extra bits like borders and scrollbars to let you focus purely on writing.  But, it is only available in full screen mode, yes a mode within a mode.  Just use the <i>headphones</i> icon on the top bar to switch the mode on and off.<br /><br /><a href='help:distraction-free-mode'>Click here to find out more about distraction free mode</a>]]></description>
+      <description><![CDATA[Want to keep distractions at bay?  Now you can with distraction free mode.  It switches off all the extra bits like borders and scrollbars to let you focus purely on writing.  But, it is only available in full screen mode, yes a mode within a mode.  Just use the <i>headphones</i> icon on the top bar to switch the mode on and off.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more about distraction free mode</a>]]></description>
     </item>
 
     <item id="highlightwritingline">

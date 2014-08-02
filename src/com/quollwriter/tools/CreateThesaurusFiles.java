@@ -34,7 +34,7 @@ public class CreateThesaurusFiles
             {
 
                 StringTokenizer t = new StringTokenizer (l,
-                                                         "×");
+                                                         "Ã—");
 
                 if (t.countTokens () == 2)
                 {

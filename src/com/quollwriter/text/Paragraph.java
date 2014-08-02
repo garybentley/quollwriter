@@ -423,17 +423,17 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
      * @param constraints Limit the search to the specified constraints.
      * @return The matching sentences with sentence local indexes of the matches.
      */
-    public Map<Sentence, Set<Integer>> findInSentences (String              text,
-                                                        DialogueConstraints constraints)
+    public Map<Sentence, NavigableSet<Integer>> findInSentences (String              text,
+                                                                 DialogueConstraints constraints)
     {
         
-        Map<Sentence, Set<Integer>> matches = new LinkedHashMap ();
+        Map<Sentence, NavigableSet<Integer>> matches = new LinkedHashMap ();
         
         for (Sentence s : this.sentences)
         {
             
-            Set<Integer> inds = s.find (text,
-                                        constraints);
+            NavigableSet<Integer> inds = s.find (text,
+                                                 constraints);
             
             if ((inds != null)
                 &&

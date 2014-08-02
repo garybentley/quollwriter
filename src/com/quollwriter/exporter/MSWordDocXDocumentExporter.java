@@ -311,13 +311,35 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             //Iterator<Markup.MarkupItem> iter = mu.iterator ();
 
             Markup.MarkupItem last = null;
-
+            
+            int start = -1;
+            int end = -1;
+            
             for (Markup.MarkupItem item : items)
             {
 
+                start = -1;
+                end = -1;
+            
+                if (last == null)
+                {
+                    
+                    start = 0;
+                    end = item.start;
+                    
+                    this.addText (paraText,
+                                  start,
+                                  end,
+                                  null,
+                                  para);
+                    
+                }
+            
                 last = item;
 
                 this.addText (paraText,
+                              last.start,
+                              last.end,
                               last,
                               para);
 
@@ -326,7 +348,9 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             if (last.end < paraText.length ())
             {
 
-                this.addText (paraText.substring (last.end),
+                this.addText (paraText,
+                              last.end,
+                              -1,
                               null,
                               para);
 
@@ -335,6 +359,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         } else {
             
             this.addText (paraText,
+                          -1,
+                          -1,
                           null,
                           para);
             
@@ -343,6 +369,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     }
     
     private void addText (String            chapterText,
+                          int               start,
+                          int               end,
                           Markup.MarkupItem item,
                           P                 para)
     {
@@ -353,32 +381,28 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         org.docx4j.wml.Text tel = factory.createText ();
 
         String t = chapterText;
-        
-        if (item != null)
-        {
 
-            int end = item.end;
-            int start = item.start;
-            
-            if (end > chapterText.length ())
-            {
-                
-                end = chapterText.length ();
-                
-            }
-            
-            if (start > chapterText.length ())
-            {
-                
-                start = chapterText.length ();
-                
-            }
+        if ((start > -1)
+            &&
+            (end > -1)
+           )
+        {
             
             t = chapterText.substring (start,
                                        end);
-
+            
         }
-
+        
+        if ((start > -1)
+            &&
+            (end == -1)
+           )
+        {
+            
+            t = chapterText.substring (start);
+            
+        }
+               
         tel.setValue (t);
 
         org.docx4j.wml.R run = factory.createR ();
@@ -626,6 +650,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         name = name.replace ('\\',
                              '_');
 
+        name = Utils.sanitizeForFilename (name);
+                             
         File f = new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.DOCX_FILE_EXTENSION);
 
         wordMLPackage.save (f);

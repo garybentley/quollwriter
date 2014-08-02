@@ -88,7 +88,7 @@ public class GetLatestVersion extends PopupWindow implements Runnable
         this.fileText = "Downloading file";
         this.cancelButtonText = "Cancel";
 
-        this.digest = Base64.decode (digest);
+        this.digest = com.quollwriter.Base64.decode (digest);
 
         try
         {

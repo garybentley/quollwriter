@@ -49,7 +49,8 @@ public class PDFDocumentExporter extends MSWordDocXDocumentExporter
 
         name = name.replace ('\\',
                              '_');
-
+        name = Utils.sanitizeForFilename (name);
+                             
         Conversion c = new Conversion (wordMLPackage);
 
         FileOutputStream out = new FileOutputStream (new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.PDF_FILE_EXTENSION));

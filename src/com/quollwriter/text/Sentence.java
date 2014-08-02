@@ -266,8 +266,8 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      * @param constraints Limit the search to the specified constraints.
      * @return A set of positions within the sentence of the specified words.
      */
-    public Set<Integer> find (List<Word>          findWords,
-                              DialogueConstraints constraints)
+    public NavigableSet<Integer> find (List<Word>          findWords,
+                                       DialogueConstraints constraints)
     {
 
         if (constraints == null)
@@ -279,7 +279,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
             
         }
                 
-        Set<Integer> ret = new LinkedHashSet ();
+        NavigableSet<Integer> ret = new TreeSet ();
 
         int fc = findWords.size ();
 
@@ -445,8 +445,8 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
      * @param constraints Limit the search to the specified constraints.
      * @return A set of positions within the sentence of the specified words.
      */
-    public Set<Integer> find (String              find,
-                              DialogueConstraints constraints)
+    public NavigableSet<Integer> find (String              find,
+                                       DialogueConstraints constraints)
     {
                 
         List<Word> findWords = new Sentence (find,

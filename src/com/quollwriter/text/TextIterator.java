@@ -83,6 +83,52 @@ public class TextIterator
         }
                 
     }
+        
+    /**
+     * Look for the collection of words and return a set of all text indexes (indexes within the entire text) for the
+     * matches.
+     *
+     * @param words The words to look for.
+     * @param constraints Limit the search to the specified constraints.
+     * @return A navigable set of all text indexes of the matches.
+     */
+    public NavigableSet<Integer> findAllTextIndexes (String              words,
+                                                     DialogueConstraints constraints)
+    {
+
+        NavigableSet<Integer> matches = new TreeSet ();
+        
+        for (Paragraph p : this.paragraphs)
+        {
+            
+            for (Sentence s : p.getSentences ())
+            {
+                
+                int st = s.getAllTextStartOffset ();
+
+                // These indexes will be sentence local.
+                NavigableSet<Integer> found = s.find (words,
+                                                      constraints);
+                    
+                if (found != null)
+                {
+                    
+                    for (Integer i : found)
+                    {
+                        
+                        matches.add (i + st);
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+        return matches;
+                
+    }
     
     /**
      * Look for the collection of words in each sentence.
@@ -91,11 +137,11 @@ public class TextIterator
      * @param constraints Limit the search to the specified constraints.
      * @return A set of sentences with the matching sentence local indexes.
      */
-    public Map<Sentence, Set<Integer>> findInSentences (String              words,
-                                                        DialogueConstraints constraints)
+    public Map<Sentence, NavigableSet<Integer>> findInSentences (String              words,
+                                                                 DialogueConstraints constraints)
     {
         
-        Map<Sentence, Set<Integer>> matches = new LinkedHashMap ();
+        Map<Sentence, NavigableSet<Integer>> matches = new LinkedHashMap ();
         
         for (Paragraph p : this.paragraphs)
         {

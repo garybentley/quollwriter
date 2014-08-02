@@ -2771,8 +2771,8 @@ public class UIUtils
         for (String n : names)
         {
         
-            Map<Sentence, Set<Integer>> matches = ti.findInSentences (n,
-                                                                      null);
+            Map<Sentence, NavigableSet<Integer>> matches = ti.findInSentences (n,
+                                                                               null);
         
             if (matches != null)
             {
@@ -3513,88 +3513,76 @@ public class UIUtils
 
         }
 
-        // Get all the names.
-        Set<String> names = items.keySet ();
-
-        List<String> namesL = new ArrayList (names);
-
-        try
-        {
-
-            JoSQLComparator jc = new JoSQLComparator ("SELECT * FROM java.lang.String ORDER BY toString.length DESC");
-
-            Collections.sort (namesL,
-                              jc);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to construct josql comparator",
-                                  e);
-
-        }
-
-        //List<String> words = TextUtilities.getAsWords (t.toLowerCase ());
-                
-        for (String name : namesL)
-        {
-/*
-            List<String> nameWords = TextUtilities.getAsWords (name);
+        NavigableMap<Integer, NamedObjectNameWrapper> reps = new TreeMap ();
         
-            List<Integer> inds = TextUtilities.indexOf (words,
-                                                        nameWords,
-                                                        false,
-                                                        cons);
-                                                        */
+        TextIterator ti = new TextIterator (t);
+                
+        for (NamedObject n : objs)
+        {
+                        
+            Set<Integer> matches = ti.findAllTextIndexes (n.getName (),
+                                                          null);
+            
+            // This needs to be on a language basis.
+            Set<Integer> matches2 = ti.findAllTextIndexes (n.getName () + "'s",
+                                                           null);
 
-            int           ind = 0;
-            int           start = 0;
-            StringBuilder b = new StringBuilder ();
-            String        tl = t.toLowerCase ();
-
-            while (ind != -1)
+            matches.addAll (matches2);
+                                                           
+            if (matches != null)
             {
+                                                        
+                Iterator<Integer> iter = matches.iterator ();
 
-                ind = tl.indexOf (name,
-                                  start);
-
-                if (ind != -1)
+                while (iter.hasNext ())
                 {
-
-                    String tag = "[[_$@" + name.hashCode () + "@$_]]";
-
-                    b.append (t.substring (start,
-                                           ind));
-                    b.append (tag);
-
-                    start = ind + name.length ();
-
-                } else
-                {
-
-                    b.append (t.substring (start));
+                    
+                    Integer ind = iter.next ();
+                    
+                    // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
+                    if (Character.isLowerCase (t.charAt (ind)))
+                    {
+                        
+                        reps.put (ind,
+                                  new NamedObjectNameWrapper (n.getName ().toLowerCase (),
+                                                              n));
+                        
+                    } else {
+                        
+                        // Uppercase each of the words in the name.
+                        reps.put (ind,
+                                  new NamedObjectNameWrapper (TextUtilities.capitalize (n.getName ()),
+                                                              n));
+                        
+                    }
 
                 }
-
-            }
-
-            t = b.toString ();
+                
+            }            
 
         }
-
-        for (String name : namesL)
+        
+        StringBuilder b = new StringBuilder (t);
+        
+        // We iterate backwards over the indexes so we don't have to choppy-choppy the string.
+        Iterator<Integer> iter = reps.descendingKeySet ().iterator ();
+        
+        while (iter.hasNext ())
         {
-
-            List<NamedObjectNameWrapper> nitems = items.get (name);
-
-            NamedObjectNameWrapper nw = nitems.get (0);
-
-            t = StringUtils.replaceString (t,
-                                           "[[_$@" + name.hashCode () + "@$_]]",
-                                           "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + nw.namedObject.getObjectReference ().asString () + "'>" + nw.name + "</a>");
-
+            
+            Integer ind = iter.next ();
+            
+            NamedObjectNameWrapper obj = reps.get (ind);
+            
+            b = b.replace (ind,
+                           ind + obj.name.length (),
+                           "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + obj.namedObject.getObjectReference ().asString () + "'>" + obj.name + "</a>");
+            
+            
         }
-
+        
+        t = b.toString ();
+        
         t = StringUtils.replaceString (t,
                                        String.valueOf ('\n'),
                                        "<br />");
@@ -6306,7 +6294,7 @@ public class UIUtils
                                                      Point                 showAt)
     {
         
-        Map<String, ActionListener> buttons = new HashMap ();
+        Map<String, ActionListener> buttons = new LinkedHashMap ();
                 
         if (onConfirm != null)
         {

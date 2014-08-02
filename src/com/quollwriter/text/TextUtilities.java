@@ -40,7 +40,7 @@ public class TextUtilities
         // "And I said, 'Bonjour Monsieur'."
         // Then the writer will use quotation marks that are consistent for their PRIMARY language, in this case
         // English.  Thus you should never see:
-        // "And I said, «Bonjour Monsieur»"
+        // "And I said, Â«Bonjour MonsieurÂ»"
         // In theory it could happen but then you have a potential reader confusion problem and thus
         // outside of what QW can deal with anyway.
         
@@ -346,6 +346,41 @@ public class TextUtilities
     {
         
         return TextUtilities.getAsWords (l).size ();
+        
+    }
+    
+    public static String capitalize (String l)
+    {
+        
+        char[] chars = l.toCharArray ();
+        
+        boolean lastWhiteSpace = false;
+        
+        for (int i = 0; i < chars.length; i++)
+        {
+                        
+            if (Character.isWhitespace (chars[i]))
+            {
+                
+                lastWhiteSpace = true;
+                
+                continue;
+                
+            }
+        
+            if (lastWhiteSpace)
+            {
+                
+                // This char should be upper cased.
+                chars[i] = Character.toUpperCase (chars[i]);
+                
+            }
+            
+            lastWhiteSpace = false;
+            
+        }
+        
+        return new String (chars);
         
     }
 

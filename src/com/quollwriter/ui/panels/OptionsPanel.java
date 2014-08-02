@@ -960,7 +960,7 @@ public class OptionsPanel extends QuollPanel
         try
         {                
         
-            downloadFiles.setVisible (this.projectViewer.getDictionaryFiles (this.projectViewer.getSpellCheckLanguage ()) == null);
+            downloadFiles.setVisible (!DictionaryProvider.isLanguageInstalled (this.projectViewer.getSpellCheckLanguage ()));
             
         } catch (Exception e) {
             
@@ -1154,7 +1154,7 @@ public class OptionsPanel extends QuollPanel
                 try
                 {
                     
-                    if (!_this.projectViewer.hasDictionaryFiles (lang))
+                    if (!DictionaryProvider.isLanguageInstalled (lang))
                     {
     
                         downloadFiles.setVisible (true);

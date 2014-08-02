@@ -104,7 +104,7 @@ public class EncodeStrings
                           outFile,
                           4096);
 
-        String fileStr = Base64.encodeBytes (file);
+        String fileStr = com.quollwriter.Base64.encodeBytes (file);
 
         // Get the digest.
         MessageDigest md = MessageDigest.getInstance ("SHA-256");
@@ -212,7 +212,7 @@ public class EncodeStrings
                                                  String.valueOf ('\r'),
                                                  "");
 
-                data = Base64.decode (str);
+                data = com.quollwriter.Base64.decode (str);
 
             }
 

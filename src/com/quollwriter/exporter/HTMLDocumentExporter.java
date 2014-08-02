@@ -49,6 +49,8 @@ public class HTMLDocumentExporter extends MSWordDocXDocumentExporter
         name = name.replace ('\\',
                              '_');
 
+        name = Utils.sanitizeForFilename (name);                             
+                             
         HtmlExporterNG export = new HtmlExporterNG ();
 
         export.setWmlPackage (wordMLPackage);

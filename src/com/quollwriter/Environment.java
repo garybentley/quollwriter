@@ -1763,18 +1763,6 @@ public class Environment
         return ret;
 
     }
-
-    /**
-     * A special call that looks for the English subdirectory in the dictionaries dir.
-     */
-    public static boolean hasEnglishDictionaryFiles ()
-    {
-        
-        File dir = Environment.getDictionaryDirectory ("English");
-            
-        return dir.exists ();
-        
-    }
     
     public static Project getWarmupsProject ()
                                       throws Exception
@@ -1801,7 +1789,7 @@ public class Environment
         return null;
 
     }
-
+    
     public static String getProperty (String name)
     {
 

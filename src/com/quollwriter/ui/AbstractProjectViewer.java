@@ -2048,7 +2048,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         return null;
 
     }
-
+/*
     public boolean hasDictionaryFiles (String lang)
                                        throws IOException
     {
@@ -2058,7 +2058,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     }
     
     public java.util.List<InputStream> getDictionaryFiles (String lang)
-                                                           throws IOException
+                                                                     throws IOException
     {
         
         java.util.List<InputStream> dictFiles = new ArrayList<InputStream> ();
@@ -2101,6 +2101,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         if (dir.exists ())
         {
+            
+            // Check to see if this is an indexed language, if so it will have
+            // sub-dirs "words" and "db".
+            if (Environment.isIndexedDictionaryDirectory (dir))
+            {
+                
+                // Just add the dir.
+                
+            }
             
             // Load all files.
             File[] files = dir.listFiles ();
@@ -2148,7 +2157,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         return dictFiles;
         
     }
-    
+    */
     public void setSpellCheckLanguage (String  lang,
                                        boolean updateEditors)
                                 throws GeneralException,
@@ -2192,7 +2201,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
-        java.util.List<InputStream> dictFiles = this.getDictionaryFiles (lang);
+        //java.util.List<InputStream> dictFiles = this.getDictionaryFiles (lang);
 
         File userDict = Environment.getUserDictionaryFile ();
 
@@ -2232,7 +2241,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
-        this.dictProv = new DictionaryProvider (dictFiles,
+        this.dictProv = new DictionaryProvider (lang,
                                                 names,
                                                 userDict);
 
@@ -3016,7 +3025,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         if (openTabs != null)
         {
-Environment.logMessage ("OPEN TABS: " + openTabs);
+
             java.util.List<String> objIds = new ArrayList ();
         
             // Split on :
@@ -3270,7 +3279,7 @@ Environment.logMessage ("OPEN TABS: " + openTabs);
         try
         {
         
-            if (!this.hasDictionaryFiles (this.getSpellCheckLanguage ()))
+            if (!DictionaryProvider.isLanguageInstalled (this.getSpellCheckLanguage ()))
             {
                 
                 final AbstractProjectViewer _this = this;
@@ -3325,12 +3334,12 @@ Environment.logMessage ("OPEN TABS: " + openTabs);
     public void downloadDictionaryFiles (String         lang,
                                          final ActionListener onComplete)
     {
-
+/*
         if (Environment.isEnglish (lang))
         {
             
             // See if we already have a set of english language files.
-            if (Environment.hasEnglishDictionaryFiles ())
+            if (DictionaryProvider.isBasicEnglishInstalled ())
             {
                 
                 // So we only need the country specific files.
@@ -3339,7 +3348,7 @@ Environment.logMessage ("OPEN TABS: " + openTabs);
             }
             
         }
-
+*/
         final String langOrig = lang;
         final String language = lang;
         
@@ -4330,26 +4339,47 @@ Environment.logMessage ("OPEN TABS: " + openTabs);
             {
 
                 final AbstractProjectViewer _this = this;
+
+                Map<String, ActionListener> buttons = new LinkedHashMap ();
+                    
+                buttons.put ("Yes, save the changes",
+                            new ActionListener ()
+                            {
+                               
+                               public void actionPerformed (ActionEvent ev)
+                               {
+
+                                   _this.closeInternal (true,
+                                                        afterClose);
+                               
+                               }
+                               
+                            });
+
+                buttons.put ("No, discard the changes",
+                            new ActionListener ()
+                            {
+                               
+                               public void actionPerformed (ActionEvent ev)
+                               {
+
+                                   _this.closeInternal (false,
+                                                        afterClose);
+                               
+                               }
+                               
+                            });
+
+                buttons.put (Environment.getButtonLabel ("Cancel",
+                                                         Constants.CANCEL_BUTTON_LABEL_ID),
+                             null);
             
                 UIUtils.createQuestionPopup (this,
                                              "Save changes before exiting?",
                                              Constants.SAVE_ICON_NAME,
                                              String.format ("The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
                                                             b.toString ()),
-                                             "Yes, save the changes",
-                                             null,
-                                             new ActionListener ()
-                                             {
-                                                
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-        
-                                                    _this.closeInternal (true,
-                                                                         afterClose);
-                                                
-                                                }
-                                                
-                                             },
+                                             buttons,
                                              null,
                                              null);
 

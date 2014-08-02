@@ -204,6 +204,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
     private String sanitizeName (String name)
     {
 
+        name = Utils.sanitizeForFilename (name);
+    /*
         name = name.replace ('/',
                              '_').replace ('\\',
                                            '_').replace ('*',
@@ -222,7 +224,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                    name.length () - 1);
 
         }
-
+*/
         return name;
 
     }
