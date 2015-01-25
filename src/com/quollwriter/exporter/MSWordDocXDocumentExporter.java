@@ -27,6 +27,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.text.*;
 
 import org.docx4j.jaxb.*;
 
@@ -218,87 +219,127 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         // Get the markup, if present.
         Markup mu = new Markup (m);
 
-        StringTokenizer t = new StringTokenizer (chapterText,
-                                                 String.valueOf ('\n'),
-                                                 true);
-     
-        int l = 0;
+        TextIterator iter = new TextIterator (chapterText);
         
-        while (t.hasMoreTokens ())
+        for (Paragraph p : iter.getParagraphs ())
         {
-        
-            String paraText = t.nextToken ();
-        
-            if ((paraText.length () == 1)
-                &&
-                (paraText.equals (String.valueOf ('\n')))
-               )
-            {
-               
-               l++;
-
-               continue;
-               
-            }
             
-            para = this.createParagraph (style);
-
-            b.getEGBlockLevelElts ().add (para);
-            
-            List<Markup.MarkupItem> items = mu.getMarkupBetween (l,
-                                                                 l + paraText.length () + 1);
-
-            String nullS = null;
-            Markup pm = new Markup (nullS);
-            pm.items = items;
-            pm.shiftBy (-1 * l);
-        
-            this.addParagraph (paraText,
-                               items,
-                               para);
-
-            l += paraText.length ();
-                
-        }
-            
-            /*
-            Iterator<Markup.MarkupItem> iter = mu.iterator ();
-
-            Markup.MarkupItem last = null;
-
-            while (iter.hasNext ())
-            {
-
-                last = iter.next ();
-
-                this.addText (chapterText,
-                              last,
-                              para);
-
-            }
-
-            if (last.end < chapterText.length ())
-            {
-
-                this.addText (chapterText.substring (last.end),
-                              null,
-                              para);
-
-            }
-*/
-            /*
-        } else
-        {
-
-            this.addText (chapterText,
-                          null,
-                          para);
+            this.addParagraph (p,
+                               mu,
+                               style,
+                               b);
 
         }
-*/
+        
     }
 
-    private void addParagraph (String                  paraText,
+    private void addParagraph (Paragraph      para,
+                               Markup         markup,
+                               PPrBase.PStyle style,
+                               Body           body)
+    {
+
+        P p = this.createParagraph (style);
+
+        body.getEGBlockLevelElts ().add (p);
+
+        // Get the markup items.
+        List<Markup.MarkupItem> items = TextUtilities.getParagraphMarkup (para,
+                                                                          markup);
+
+        String ptext = para.getText ();
+        int textLength = ptext.length ();
+        
+        if (items.size () > 0)
+        {
+
+            Markup.MarkupItem last = null;
+            
+            int start = -1;
+            int end = -1;
+
+            int lastEnd = 0;
+            
+            // Check the first item.
+            Markup.MarkupItem fitem = items.get (0);
+            
+            if (fitem.start > 0)
+            {
+                
+                start = 0;
+                end = fitem.start;
+                
+                if (end > textLength)
+                {
+                    
+                    end = textLength;
+                    
+                }
+                
+                // Add the start text.
+                p.getParagraphContent ().add (this.createRun (ptext.substring (0, end),
+                                                              null));
+                
+                lastEnd = end;
+                
+            }
+            
+            for (Markup.MarkupItem item : items)
+            {
+
+                start = item.start;
+
+                end = item.end;
+
+                if (start > lastEnd)
+                {
+
+                    // Add some normal text.
+                    p.getParagraphContent ().add (this.createRun (ptext.substring (lastEnd, Math.min(item.start, textLength)),
+                                                                  null));            
+                                                                  
+                }
+                
+                if ((end >= textLength)
+                    ||
+                    (end == -1)
+                   )
+                {
+                    
+                    end = textLength;
+                    
+                }
+
+                p.getParagraphContent ().add (this.createRun (ptext.substring (start, end),
+                                                              item));            
+            
+                lastEnd = end;
+            
+            }
+            
+            // Check the last item.
+            Markup.MarkupItem litem = items.get (items.size () - 1);
+            
+            // Does it end before the end of the text, if so then add normal text.
+            if (litem.end < textLength)
+            {
+                
+                // Add the last text.
+                p.getParagraphContent ().add (this.createRun (ptext.substring (litem.end),
+                                                              null));                            
+                
+            }
+                            
+        } else {
+            
+            p.getParagraphContent ().add (this.createRun (ptext,
+                                                          null));
+            
+        }
+        
+    }
+            
+    private void addParagraphX (String                  paraText,
                                List<Markup.MarkupItem> items,
                                P                       para)
     {
@@ -368,6 +409,61 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         
     }
     
+    private org.docx4j.wml.R createRun (String            text,
+                                        Markup.MarkupItem item)
+    {
+        
+        // Create the text element
+        ObjectFactory factory = Context.getWmlObjectFactory ();
+
+        org.docx4j.wml.Text tel = factory.createText ();
+
+        tel.setValue (text);
+
+        org.docx4j.wml.R run = factory.createR ();
+
+        org.docx4j.wml.RPr pr = factory.createRPr ();
+
+        BooleanDefaultTrue bool = new BooleanDefaultTrue ();
+        bool.setVal (true);
+
+        if (item != null)
+        {
+
+            if (item.bold)
+            {
+
+                pr.setB (bool);
+
+            }
+
+            if (item.italic)
+            {
+
+                pr.setI (bool);
+
+            }
+
+            if (item.underline)
+            {
+
+                U u = factory.createU ();
+                u.setVal (UnderlineEnumeration.SINGLE);
+
+                pr.setU (u);
+
+            }
+
+        }
+
+        run.setRPr (pr);
+
+        run.getRunContent ().add (tel);
+
+        return run;
+        
+    }
+    
     private void addText (String            chapterText,
                           int               start,
                           int               end,
@@ -387,10 +483,10 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             (end > -1)
            )
         {
-            
+
             t = chapterText.substring (start,
                                        end);
-            
+            Environment.logMessage ("T: " + t);
         }
         
         if ((start > -1)

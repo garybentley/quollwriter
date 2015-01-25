@@ -1327,7 +1327,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         return this.splitPane.getInputMap (m);
 
     }
-
+xxx
+Show notification saying that next version will require java7+
     public Notification addNotification (JComponent comp,
                                          String     iconType,
                                          int        duration)

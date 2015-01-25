@@ -5,7 +5,7 @@ import java.text.*;
 import java.util.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.ui.components.Markup;
 
 public class TextUtilities
 {
@@ -165,51 +165,78 @@ public class TextUtilities
         return TextUtilities.contractionEnds.containsKey (v.toLowerCase ());
         
     }
-    /*
-    public static boolean isCloseQ (char c)
-    {
-        
-        return (c == '"') ||
-               (c == '\'') ||
-               (c == '\u00bb') ||
-               (c == '\u2019') ||
-               (c == '\u201b') ||
-               (c == '\u201d') ||
-               (c == '\u203a') ||
-               (c == '\u300d') ||
-               (c == '\u300f') ||
-               (c == '\u301f') ||
-               // These are the "reversed double prime" marks that Word seems to use.
-               (c == '\u2036') ||
-               (c == '\u301e');
-        
-    }
-    */
     
     public static boolean isOpenQ (char c)
     {
 
         return TextUtilities.openCloseQs.containsKey (c);
-    /*
-        return (c == '"') ||
-               (c == '\'') ||
-               (c == '\u00ab') ||
-               (c == '\u2018') ||
-               (c == '\u201a') ||
-               (c == '\u201b') ||
-               (c == '\u201c') ||
-               (c == '\u201e') ||
-               (c == '\u2039') ||
-               (c == '\u300c') ||
-               (c == '\u300e') ||
-               (c == '\u301d') ||
-               (c == '\u301f') ||
-               // These are the "double prime" marks that Word seems to use.
-               (c == '\u2033') ||
-               (c == '\u301d');
-      */         
+
     }
 
+    /**
+     * From the markup
+     */
+    public static List<Markup.MarkupItem> getParagraphMarkup (Paragraph para,
+                                                              Markup    mu)
+    {
+        
+        // Get the markup from the start of the paragraph (all text) to the end of the text.
+        List<Markup.MarkupItem> items = new ArrayList ();
+        
+        //int end = -1;
+        
+        int textStart = para.getAllTextStartOffset ();
+        int textEnd = para.getAllTextEndOffset ();
+        
+        for (Markup.MarkupItem it : mu.items)
+        {
+            
+            if (it.start >= textEnd)
+            {
+
+                break;
+                
+            }
+
+            if (it.end >= textStart)
+            {
+                
+                // This falls in this paragraph.
+                int start = it.start;
+                int end = it.end;
+                
+                if (start < textStart)
+                {
+                    
+                    // It starts in a previous paragraph.
+                    start = textStart;
+                    
+                    
+                }
+                
+                if (end > textEnd)
+                {
+                    
+                    // It ends in another paragraph.
+                    end = textEnd;
+                    
+                }
+                
+                items.add (mu.createItem (start - textStart,
+                                          end - textStart,
+                                          it.bold,
+                                          it.italic,
+                                          it.underline));
+                
+            }
+                        
+        }
+        
+        Environment.logMessage ("RET: " + items);
+        return items;
+        
+    }
+    
     public static int getWordPosition (String text,
                                        Issue  i)
     {
@@ -345,6 +372,16 @@ public class TextUtilities
     public static int getWordCount (String l)
     {
         
+        if ((l == null)
+            ||
+            (l.length () == 0)
+           )
+        {
+            
+            return 0;
+            
+        }
+        
         return TextUtilities.getAsWords (l).size ();
         
     }
@@ -387,6 +424,13 @@ public class TextUtilities
     public static List<Word> getAsWords (String l)
     {
 
+        if (l == null)
+        {
+            
+            return null;
+            
+        }
+    
         return new Sentence (l,
                              new DialogueInd ()).getWords ();
     
@@ -726,419 +770,5 @@ public class TextUtilities
                 (c == 'y'));
 
     }
-/*
-    public static List<Integer> indexOf (List<String>        words,
-                                         List<String>        find,
-                                         boolean             inDialogue,
-                                         DialogueConstraints cons)
-    {
 
-        List<Integer> ret = new ArrayList ();
-
-        int fc = find.size ();
-
-        int wc = words.size ();
-
-        int firstWord = -1;
-        
-        for (int i = 0; i < wc; i++)
-        {
-
-            String w = words.get (i);
-
-            if (w.length () == 1)
-            {
-
-                inDialogue = TextUtilities.stillInDialogue (w,
-                                                            inDialogue);
-
-                // Need to skip to the next word if this is the start of dialogue, i.e. "
-                if ((inDialogue) &&
-                    (TextUtilities.isOpenQ (w.charAt (0))))
-                {
-
-                    continue;
-
-                }
-
-            }
-
-            if ((cons.ignoreInDialogue) &&
-                (inDialogue))
-            {
-
-                continue;
-
-            }
-
-            if ((cons.onlyInDialogue) &&
-                (!inDialogue))
-            {
-                
-                continue;
-
-            }
-
-            int wfc = 0;
-
-            if ((i + fc) < (wc + 1))
-            {
-
-                boolean match = false;
-
-                for (int j = 0; j < fc; j++)
-                {
-
-                    String fw = find.get (j);
-
-                    if (!fw.equals (TextUtilities.ANY_WORD))
-                    {
-
-                        String w2 = words.get (i + wfc);
-
-                        if (w2.length () == 1)
-                        {
-
-                            inDialogue = TextUtilities.stillInDialogue (w2,
-                                                                        inDialogue);
-
-                        }
-
-                        if ((cons.ignoreInDialogue) &&
-                            (inDialogue))
-                        {
-
-                            wfc++;
-
-                            continue;
-
-                        }
-
-                        if ((cons.onlyInDialogue) &&
-                            (!inDialogue))
-                        {
-
-                            wfc++;
-                            
-                            continue;
-
-                        }
-
-                        if (!w2.equals (fw))
-                        {
-
-                            match = false;
-
-                            break;
-
-                        } else
-                        {
-
-                            match = true;
-
-                        }
-
-                    }
-
-                    wfc++;
-
-                }
-
-                // If we are here then all words match.
-                if (match)
-                {
-
-                    if (cons.where.equals (DialogueConstraints.START))
-                    {
-
-                        // Make sure i is 0 or perhaps 1 ignoring a punctuation character.
-                        if (i > 0)
-                        {
-
-                            for (int m = i - 1; m > -1; m--)
-                            {
-
-                                if (TextUtilities.isWord (words.get (m)))
-                                {
-
-                                    // Can't match.
-                                    return new ArrayList ();
-
-                                }
-
-                            }
-
-                        }
-
-                    } else
-                    {
-
-                        if (cons.where.equals (DialogueConstraints.END))
-                        {
-
-                            // Check to make sure that the match is at the end, ignoring a trailing punctation char.
-                            if (i < (wc - 1))
-                            {
-
-                                for (int m = i + find.size (); m < wc; m++)
-                                {
-
-                                    if (TextUtilities.isWord (words.get (m)))
-                                    {
-
-                                        // Can't match.
-                                        return new ArrayList ();
-
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                    ret.add (i + wfc - find.size ());
-
-                }
-
-            } else
-            {
-
-                // Couldn't possibly match.
-                return ret;
-
-            }
-
-        }
-
-        return ret;
-
-    }
-*/
-/*
-    public static List<Integer> indexOf (List<Word>          words,
-                                         List<String>        find,
-                                         DialogueConstraints cons)
-    {
-
-        List<Integer> ret = new ArrayList ();
-
-        int fc = find.size ();
-
-        int wc = words.size ();
-
-        int firstWord = -1;
-        
-        for (int i = 0; i < wc; i++)
-        {
-
-            Word w = words.get (i);
-            
-            if ((cons.ignoreInDialogue) &&
-                (w.isInDialogue ()))
-            {
-
-                continue;
-
-            }
-
-            if ((cons.onlyInDialogue) &&
-                (!w.isInDialogue ()))
-            {
-            
-                continue;
-
-            }
-
-            int wfc = 0;
-
-            if ((i + fc) < (wc + 1))
-            {
-
-                boolean match = false;
-
-                for (int j = 0; j < fc; j++)
-                {
-
-                    String fw = find.get (j);
-
-                    if (!fw.equals (TextUtilities.ANY_WORD))
-                    {
-
-                        Word w2 = words.get (i + wfc);
-                    
-                        if ((cons.ignoreInDialogue) &&
-                            (w2.isInDialogue ()))
-                        {
-
-                        break;
-                        }
-
-                        if ((cons.onlyInDialogue) &&
-                            (!w2.isInDialogue ()))
-                        {
-
-break;
-                        }
-
-                        if (!w2.textEquals (fw))
-                        {
-
-                            match = false;
-
-                            break;
-
-                        } else
-                        {
-
-                            match = true;
-
-                        }
-
-                    }
-
-                    wfc++;
-
-                }
-
-                // If we are here then all words match.
-                if (match)
-                {
-
-                    if (cons.where.equals (DialogueConstraints.START))
-                    {
-
-                        // Make sure i is 0 or perhaps 1 ignoring a punctuation character.
-                        if (i > 0)
-                        {
-
-                            for (int m = i - 1; m > -1; m--)
-                            {
-
-                                Word mw = words.get (m);
-                            
-                                if (!mw.isPunctuation ())
-                                {
-                                    
-                                    return new ArrayList ();
-                                    
-                                }
-
-                            }
-
-                        }
-
-                    } else
-                    {
-
-                        if (cons.where.equals (DialogueConstraints.END))
-                        {
-
-                            // Check to make sure that the match is at the end, ignoring a trailing punctation char.
-                            if (i < (wc - 1))
-                            {
-
-                                for (int m = i + find.size (); m < wc; m++)
-                                {
-
-                                    Word mw = words.get (m);
-                                
-                                    if (!mw.isPunctuation ())
-                                    {
-                                        
-                                        return new ArrayList ();
-                                        
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                    ret.add (i + wfc - find.size ());
-
-                }
-
-            } else
-            {
-
-                // Couldn't possibly match.
-                return ret;
-
-            }
-
-        }
-
-        return ret;
-
-    }
-*/
-/*
-    public static boolean stillInDialogue (List<String> words,
-                                           boolean      inDialogue)
-    {
-
-        for (String w : words)
-        {
-
-            if (w.length () == 1)
-            {
-
-                inDialogue = TextUtilities.stillInDialogue (w,
-                                                            inDialogue);
-
-            }
-
-        }
-
-        return inDialogue;
-
-    }
-*/
-/*        
-    public static boolean isQuoteChar (char c)
-    {
-        
-        return TextUtilities.isOpenQ (c) || TextUtilities.isCloseQ (c);        
-        
-    }
-  */
-/*
-    public static boolean stillInDialogue (String  word,
-                                           boolean inDialogue)
-    {
-
-        char c = word.charAt (0);
-
-        if (c == '"')
-        {
-
-            return !inDialogue;
-
-        }
-
-        if (TextUtilities.isOpenQ (c))
-        {
-
-            return true;
-
-        }
-
-        if (TextUtilities.isCloseQ (c))
-        {
-
-            return false;
-
-
-        }
-
-        return inDialogue;
-
-    }
-*/
 }

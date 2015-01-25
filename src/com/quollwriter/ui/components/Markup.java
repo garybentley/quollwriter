@@ -267,7 +267,7 @@ public class Markup
             
                 if (it.start > lastInd)
                 {
-                    
+                    /*
                     // Create the dummy item.
                     MarkupItem dit = new MarkupItem (lastInd,
                                                      it.start,
@@ -276,7 +276,7 @@ public class Markup
                                                      false);
                     
                     this.items.add (dit);
-                    
+                    */
                 }
                 
                 lastInd = it.end;
@@ -439,6 +439,21 @@ public class Markup
 
     }
 
+    public MarkupItem createItem (int     start,
+                                  int     end,
+                                  boolean bold,
+                                  boolean italic,
+                                  boolean underline)
+    {
+        
+        return new MarkupItem (start,
+                               end,
+                               bold,
+                               italic,
+                               underline);
+        
+    }
+    
     private String formatItems ()
     {
 
