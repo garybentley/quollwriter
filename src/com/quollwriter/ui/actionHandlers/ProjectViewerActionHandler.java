@@ -74,14 +74,14 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
 
         if ((this.mode == AbstractActionHandler.ADD) &&
             (this.dataObject instanceof ChapterItem) &&
-            (this.editorPanel instanceof QuollEditorPanel))
+            (this.editorPanel instanceof ChapterItemViewer))
         {
 
             ChapterItem c = (ChapterItem) this.dataObject;
 
             // QuollEditorPanel qep = (QuollEditorPanel) this.projectViewer.getEditorForChapter (c.getChapter ());
 
-            ((QuollEditorPanel) this.editorPanel).removeItem (c);
+            ((ChapterItemViewer) this.editorPanel).removeItem (c);
 
             this.editorPanel.repaint ();
 

@@ -21,10 +21,14 @@ import java.awt.Point;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
+import java.awt.FontMetrics;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.awt.font.*;
 import java.awt.image.*;
+import java.beans.*;
+
+import java.util.concurrent.atomic.*;
 
 import java.net.*;
 
@@ -41,6 +45,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.tree.*;
+import javax.swing.table.*;
 
 import javax.imageio.*;
 import javax.activation.*;
@@ -66,6 +71,8 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.sidebars.*;
+import com.quollwriter.editors.messages.*;
+import com.quollwriter.editors.*;
 
 import com.quollwriter.text.*;
 
@@ -86,6 +93,7 @@ public class UIUtils
 {
 
     public static int DEFAULT_POPUP_WIDTH = 450;
+    public static int DEFAULT_SCROLL_BY_AMOUNT = 20;
 
     public static Font headerFont = null; 
 
@@ -94,10 +102,13 @@ public class UIUtils
                                                                    3,
                                                                    3);
 
-    private static final QTextEditor pageCountTextEditor = new QTextEditor (null,
-                                                                            false,
-                                                                            QuollEditorPanel.SECTION_BREAK);                         
+    public static int getScrollByAmount ()
+    {
+        
+        return DEFAULT_SCROLL_BY_AMOUNT;
                    
+    }
+    
     public static int getPopupWidth ()
     {
         
@@ -105,6 +116,7 @@ public class UIUtils
         
                                                                    
     }
+    
     public static TreePath getTreePathForUserObject (DefaultMutableTreeNode node,
                                                      Object                 o)
     {
@@ -174,7 +186,7 @@ public class UIUtils
         return null;
 
     }
-
+    
     public static void createTree (Collection             items,
                                    DefaultMutableTreeNode parent)
     {
@@ -403,6 +415,143 @@ public class UIUtils
 
     }
 
+    public static void initTable (JTable t)
+    {
+        
+        t.setAlignmentX (Component.LEFT_ALIGNMENT);
+        t.setOpaque (false);
+        t.setFillsViewportHeight (true);
+        t.setShowVerticalLines (false);        
+        t.setRowHeight (24);
+        t.setBorder (null);
+        
+        t.setDefaultRenderer (Object.class,
+                              new DefaultTableCellRenderer ()
+                              {
+                                
+                                  @Override
+                                  public Component getTableCellRendererComponent (JTable  t,
+                                                                                  Object  value,
+                                                                                  boolean isSelected,
+                                                                                  boolean hasFocus,
+                                                                                  int     row,
+                                                                                  int     column)
+                                  {
+                                    
+                                      super.getTableCellRendererComponent (t,
+                                                                           value,
+                                                                           isSelected,
+                                                                           hasFocus,
+                                                                           row,
+                                                                           column);
+                                    
+                                      this.setBorder (UIUtils.createPadding (0, 3, 0, 3));
+                                   
+                                      return this;
+                                    
+                                  }
+                                
+                              });
+        
+    }
+    
+    public static JTable createTable ()
+    {
+        
+        JTable t = new JTable ();
+        
+        UIUtils.initTable (t);
+        
+        return t;        
+        
+    }
+    
+    public static JTree createSelectableTree ()
+    {
+
+        final JTree tree = UIUtils.createTree ();
+
+        tree.setCellRenderer (new SelectableProjectTreeCellRenderer ());
+
+        tree.setOpaque (false);
+        tree.setBorder (null);
+        tree.setBorder (UIUtils.createPadding (5, 5, 5, 5));
+
+        tree.setRootVisible (false);
+        tree.setShowsRootHandles (true);
+        tree.setScrollsOnExpand (true);
+
+        tree.addMouseListener (new MouseAdapter ()
+        {
+
+            private void selectAllChildren (DefaultTreeModel       model,
+                                            DefaultMutableTreeNode n,
+                                            boolean                v)
+            {
+
+                Enumeration<DefaultMutableTreeNode> en = n.children ();
+
+                while (en.hasMoreElements ())
+                {
+
+                    DefaultMutableTreeNode c = en.nextElement ();
+
+                    SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
+
+                    s.selected = v;
+
+                    // Tell the model that something has changed.
+                    model.nodeChanged (c);
+
+                    // Iterate.
+                    this.selectAllChildren (model,
+                                            c,
+                                            v);
+
+                }
+
+            }
+
+            public void mousePressed (MouseEvent ev)
+            {
+
+                TreePath tp = tree.getPathForLocation (ev.getX (),
+                                                       ev.getY ());
+
+                if (tp != null)
+                {
+
+                    DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
+                    // Tell the model that something has changed.
+                    DefaultTreeModel model = (DefaultTreeModel) tree.getModel ();
+
+                    SelectableDataObject s = (SelectableDataObject) n.getUserObject ();
+
+                    s.selected = !s.selected;
+
+                    model.nodeChanged (n);
+
+                    this.selectAllChildren (model,
+                                            n,
+                                            s.selected);
+                    
+                }
+
+            }
+
+        });
+
+        tree.putClientProperty (com.jgoodies.looks.Options.TREE_LINE_STYLE_KEY,
+                                com.jgoodies.looks.Options.TREE_LINE_STYLE_NONE_VALUE);
+
+        tree.putClientProperty ("Tree.paintLines",
+                                Boolean.FALSE);
+        
+        return tree;
+        
+    }
+    
     public static JTree createLinkedToTree (final AbstractProjectViewer projectViewer,
                                             final NamedObject           dataObject,
                                             boolean                     editMode)
@@ -728,6 +877,46 @@ public class UIUtils
 
     }
 
+    public static QPopup createClosablePopup (final String                title,
+                                              final Icon                  icon,
+                                              final ActionListener        onClose,
+                                              final Component             content,
+                                              final AbstractProjectViewer viewer,
+                                                    Point                 showAt)
+    {
+        
+        final QPopup ep = UIUtils.createClosablePopup (title,
+                                                       icon,
+                                                       onClose);
+
+        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+        
+        b.add (content);
+        
+        ep.setContent (b);
+
+        b.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
+                                           b.getPreferredSize ().height));
+   
+        if (showAt == null)
+        {
+            
+            showAt = UIUtils.getCenterShowPosition (viewer,
+                                                    ep);
+            
+        }
+   
+        viewer.showPopupAt (ep,
+                            showAt,
+                            false);
+        ep.setDraggable (viewer);
+        
+        return ep;
+        
+    }
+    
     public static QPopup createClosablePopup (final String         title,
                                               final Icon           icon,
                                               final ActionListener onClose)
@@ -767,15 +956,6 @@ public class UIUtils
 
             public void actionPerformed (ActionEvent ev)
             {
-        
-                qp.setVisible (false);
-                
-                if (onClose != null)
-                {
-                    
-                    onClose.actionPerformed (ev);
-                    
-                }
 
                 qp.removeFromParent ();
                 
@@ -991,8 +1171,21 @@ public class UIUtils
     public static JCheckBox createCheckBox (String text)
     {
         
-        JCheckBox b = new JCheckBox (Environment.replaceObjectNames (text));
+        JCheckBox b = new JCheckBox ()
+        {
+          
+            @Override 
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+            
+        };
         
+        b.setText (text);
         b.setBackground (null);
         b.setOpaque (false);
         
@@ -1408,7 +1601,7 @@ public class UIUtils
         }
 
     }
-
+    
     public static void getSelectedObjects (DefaultMutableTreeNode n,
                                            Set                    s)
     {
@@ -1575,10 +1768,10 @@ public class UIUtils
 
     }
 
-    private static DefaultMutableTreeNode createTreeNode (Object     o,
-                                                          Collection exclude,
-                                                          Collection init,
-                                                          boolean    selectable)
+    public static DefaultMutableTreeNode createTreeNode (Object     o,
+                                                         Collection exclude,
+                                                         Collection init,
+                                                         boolean    selectable)
     {
 
         if ((exclude != null) &&
@@ -1810,65 +2003,84 @@ public class UIUtils
 
     }
 
-    private static void showErrorMessage (PopupsSupported parent,
-                                         String    message)
+    private static void showErrorMessage (final PopupsSupported parent,
+                                          final String    message)
     {
 
-        final Box content = new Box (BoxLayout.Y_AXIS);
-
-        AbstractProjectViewer pv = null;
-        
-        if (parent instanceof AbstractProjectViewer)
+        if (parent == null)
         {
             
-            pv = (AbstractProjectViewer) parent;
+            return;
             
         }
-        
-        JTextPane m = UIUtils.createHelpTextPane (message + "<br /><br /><a href='qw:/report-a-bug'>Click here to contact Quoll Writer support about this problem.</a>",
-                                                  pv);
-        m.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
-                                  m.getPreferredSize ().height));
-        m.setBorder (null);
-        content.add (m);
-
-        content.add (Box.createVerticalStrut (10));
-        
-        JButton close = UIUtils.createButton ("Close",
-                                              null);
-        
-        JButton[] buts = new JButton[] { close };
-        
-        JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                       Component.LEFT_ALIGNMENT); 
-        buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
-        content.add (buttons);
-        content.setBorder (new EmptyBorder (10, 10, 10, 10));
-        
-        final QPopup ep = UIUtils.createPopup ("Oops, an error has occurred...",
-                                               Constants.ERROR_ICON_NAME,
-                                               content,
-                                               true,
-                                               null);
-
-        close.addActionListener (new ActionListener ()
+    
+        // Force back onto event thread.
+        UIUtils.doActionLater (new ActionListener ()
         {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                
-                ep.removeFromParent ();                
-                                         
-            }
-        });
         
-        content.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
-                                                 content.getPreferredSize ().height));
-                                            
-        parent.showPopupAt (ep,
-                            UIUtils.getCenterShowPosition ((Component) parent,
-                                                           ep));
-        ep.setDraggable ((Component) parent);
+                final Box content = new Box (BoxLayout.Y_AXIS);
+        
+                AbstractProjectViewer pv = null;
+                
+                if (parent instanceof AbstractProjectViewer)
+                {
+                    
+                    pv = (AbstractProjectViewer) parent;
+                    
+                }
+        
+                JTextPane m = UIUtils.createHelpTextPane (message + "<br /><br /><a href='qw:/report-a-bug'>Click here to contact Quoll Writer support about this problem.</a>",
+                                                          pv);
+                m.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+                                          m.getPreferredSize ().height));
+                m.setBorder (null);
+                content.add (m);
+        
+                content.add (Box.createVerticalStrut (10));
+                
+                JButton close = UIUtils.createButton ("Close",
+                                                      null);
+                
+                JButton[] buts = new JButton[] { close };
+                
+                JComponent buttons = UIUtils.createButtonBar2 (buts,
+                                                               Component.LEFT_ALIGNMENT); 
+                buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
+                content.add (buttons);
+                content.setBorder (new EmptyBorder (10, 10, 10, 10));
+        
+                final QPopup ep = UIUtils.createPopup ("Oops, an error has occurred...",
+                                                       Constants.ERROR_ICON_NAME,
+                                                       content,
+                                                       true,
+                                                       null);
+        
+                close.addActionListener (new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        ep.removeFromParent ();                
+                                                 
+                    }
+                });
+                
+                content.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
+                                                         content.getPreferredSize ().height));
+                                                    
+                parent.showPopupAt (ep,
+                                    UIUtils.getCenterShowPosition ((Component) parent,
+                                                                   ep),
+                                    false);
+                ep.setDraggable ((Component) parent);
+                
+            }
+            
+        });
 
     }
 
@@ -1879,8 +2091,8 @@ public class UIUtils
      * @param parent The parent to show the error against.
      * @param message The message to show.
      */
-    public static void showErrorMessage (Component parent,
-                                         String    message)
+    public static void showErrorMessage (Object parent,
+                                         String message)
     {
         
         if (parent == null)
@@ -1901,7 +2113,7 @@ public class UIUtils
             return;
             
         }
-        
+
         if (parent instanceof PopupWindow)
         {
             
@@ -1936,57 +2148,171 @@ public class UIUtils
         
     }
 
-    private static void showErrorMessage (AbstractProjectViewer pv,
-                                          String                message)
+    private static void showErrorMessage (final AbstractProjectViewer pv,
+                                          final String                message)
     {
+
+        if (pv == null)
+        {
+            
+            return;
+            
+        }
+    
+        UIUtils.doActionLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
         
-        ErrorWindow ew = new ErrorWindow (pv,
-                                          message);
-        
-        ew.init ();
+                ErrorWindow ew = new ErrorWindow (pv,
+                                                  message);
+                
+                ew.init ();
+                
+            }
+            
+        });
 
     }
     
-    private static void showErrorMessage (PopupWindow p,
-                                          String      message)
+    private static void showErrorMessage (final PopupWindow p,
+                                          final String      message)
     {
         
-        ErrorWindow ew = new ErrorWindow (p.getProjectViewer (),
-                                          message);
+        if (p == null)
+        {
+            
+            return;
+            
+        }
         
-        ew.init ();
+        UIUtils.doActionLater (new ActionListener ()
+        {
 
-        Rectangle pbounds = p.getBounds ();
+            public void actionPerformed (ActionEvent ev)
+            {
 
-        Dimension size = ew.getPreferredSize ();
+                ErrorWindow ew = new ErrorWindow (p.getProjectViewer (),
+                                                  message);
+                
+                ew.init ();
         
-        int x = ((pbounds.width - size.width) / 2) + pbounds.x;
-        int y = ((pbounds.height - size.height) / 2) + pbounds.y;
-
-        // Move the window
-        Point showAt = new Point (x,
-                                  y);
+                Rectangle pbounds = p.getBounds ();
         
-        ew.setShowAt (showAt);
+                Dimension size = ew.getPreferredSize ();
+                
+                int x = ((pbounds.width - size.width) / 2) + pbounds.x;
+                int y = ((pbounds.height - size.height) / 2) + pbounds.y;
+        
+                // Move the window
+                Point showAt = new Point (x,
+                                          y);
+                
+                ew.setShowAt (showAt);
+                
+            }
+            
+        });
         
     }
 
-    private static void showErrorMessage (String      message)
+    private static void showErrorMessage (final String      message)
     {
 
-        ErrorWindow ew = new ErrorWindow (null,
-                                          message);
+        UIUtils.doActionLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+    
+                ErrorWindow ew = new ErrorWindow (null,
+                                                  message);
+                
+                ew.init ();
+                
+            }
+            
+        });
+
+    }
         
-        ew.init ();
+    public static void showMessage (final PopupsSupported parent,
+                                    final String          title,
+                                    final Component       message,
+                                    final String          confirmButtonLabel,
+                                    final ActionListener  onConfirm)
+    {
+
+        if (parent == null)
+        {
+            
+            return;
+            
+        }
+    
+        UIUtils.doActionLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+    
+                final Box content = new Box (BoxLayout.Y_AXIS);
+                        
+                content.setOpaque (true);
+                content.setBackground (UIUtils.getComponentColor ());
+                content.add (message);
+                        
+                content.add (Box.createVerticalStrut (10));
+                
+                JButton close = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : "Close"),
+                                                      null);
+                
+                if (onConfirm != null)
+                {
+                    
+                    close.addActionListener (onConfirm);
+                    
+                }
+                
+                JButton[] buts = new JButton[] { close };
+                
+                JComponent buttons = UIUtils.createButtonBar2 (buts,
+                                                               Component.LEFT_ALIGNMENT); 
+                buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
+                content.add (buttons);
+                content.setBorder (new EmptyBorder (10, 10, 10, 10));
+                        
+                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : "Just so you know..."),
+                                                               Environment.getIcon (Constants.INFO_ICON_NAME,
+                                                                                    Constants.ICON_POPUP),
+                                                               onConfirm);
+                
+                ep.setContent (content);
+
+                close.addActionListener (ep.getCloseAction ());
+        
+                content.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
+                                                    content.getPreferredSize ().height));
+                                                    
+                parent.showPopupAt (ep,
+                                    UIUtils.getCenterShowPosition ((Component) parent,
+                                                                   ep),
+                                    false);
+                ep.setDraggable ((Component) parent);
+                
+            }
+            
+        });
 
     }
 
-    private static void showMessage (PopupsSupported parent,
-                                     String          title,
-                                     String          message)
+    public static void showMessage (final PopupsSupported parent,
+                                    final String          title,
+                                    final String          message,
+                                    final String          confirmButtonLabel,
+                                    final ActionListener  onConfirm)
     {
-
-        final Box content = new Box (BoxLayout.Y_AXIS);
 
         AbstractProjectViewer pv = null;
         
@@ -1996,74 +2322,76 @@ public class UIUtils
             pv = (AbstractProjectViewer) parent;
             
         }
-        
+    
         JTextPane m = UIUtils.createHelpTextPane (message,
                                                   pv);
+        
         m.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
                                   m.getPreferredSize ().height));
         m.setBorder (null);
-        content.add (m);
 
-        content.add (Box.createVerticalStrut (10));
-        
-        JButton close = UIUtils.createButton ("Close",
-                                              null);
-        
-        JButton[] buts = new JButton[] { close };
-        
-        JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                       Component.LEFT_ALIGNMENT); 
-        buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
-        content.add (buttons);
-        content.setBorder (new EmptyBorder (10, 10, 10, 10));
-        
-        final QPopup ep = UIUtils.createPopup ((title != null ? title : "Just so you know..."),
-                                               Constants.INFO_ICON_NAME,
-                                               content,
-                                               true,
-                                               null);
-
-        close.addActionListener (new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                ep.removeFromParent ();                
-                                         
-            }
-        });
-
-        content.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
-                                            content.getPreferredSize ().height));
-                                            
-        parent.showPopupAt (ep,
-                            UIUtils.getCenterShowPosition ((Component) parent,
-                                                           ep));
-        ep.setDraggable ((Component) parent);
+        UIUtils.showMessage (parent,
+                             title,
+                             m,
+                             confirmButtonLabel,
+                             onConfirm);
 
     }
 
-    public static void showMessage (Component parent,
-                                    String    message)
+    public static void showMessage (PopupsSupported parent,
+                                    String          title,
+                                    String          message)
     {
-
+        
         UIUtils.showMessage (parent,
+                             title,
+                             message,
                              null,
-                             message);
-    
-    }    
- 
-    public static void showMessage (Component parent,
-                                    String    title,
-                                    String    message)
+                             null);
+        
+    }                                
+     
+    public static void showMessage (AbstractProjectViewer parent,
+                                    String                title,
+                                    String                message,
+                                    String                confirmButtonLabel,
+                                    ActionListener        onConfirm)
     {
 
         if (parent == null)
         {
             
             UIUtils.showMessage (title,
-                                 message);
+                                 message,
+                                 confirmButtonLabel,
+                                 onConfirm);
+            
+            return;
+            
+        }
+
+        UIUtils.showMessage ((PopupsSupported) parent,
+                             title,
+                             message,
+                             confirmButtonLabel,
+                             onConfirm);    
+    
+    }
+    
+    public static void showMessage (Component      parent,
+                                    String         title,
+                                    String         message,
+                                    String         confirmButtonLabel,
+                                    ActionListener onConfirm)
+    {
+        
+        if (parent == null)
+        {
+            
+            UIUtils.showMessage (title,
+                                 message,
+                                 confirmButtonLabel,
+                                 onConfirm);
             
             return;
             
@@ -2074,7 +2402,9 @@ public class UIUtils
             
             UIUtils.showMessage ((PopupsSupported) ((QuollPanel) parent).getProjectViewer (),
                                  title,
-                                 message);
+                                 message,
+                                 confirmButtonLabel,
+                                 onConfirm);
             
             return;
             
@@ -2085,7 +2415,9 @@ public class UIUtils
             
             UIUtils.showMessage ((PopupsSupported) parent,
                                  title,
-                                 message);
+                                 message,
+                                 confirmButtonLabel,
+                                 onConfirm);
             
             return;
             
@@ -2096,40 +2428,62 @@ public class UIUtils
             
             UIUtils.showMessage (((PopupWindow) parent).getProjectViewer (),
                                  title,
-                                 message);
+                                 message,
+                                 confirmButtonLabel,
+                                 onConfirm);
             
             return;
             
         }
             
         UIUtils.showMessage (title,
-                             message);
+                             message,
+                             confirmButtonLabel,
+                             onConfirm);
 
     }
 
-    private static void showMessage (AbstractProjectViewer pv,
-                                     String                title,
-                                     String                message)
+    public static void showMessage (Component parent,
+                                    String    title,
+                                    String    message)
+    {
+
+        UIUtils.showMessage (parent,
+                             title,
+                             message,
+                             null,
+                             null);
+    
+    }
+
+    public static void showMessage (Component parent,
+                                    String    message)
+    {
+
+        UIUtils.showMessage (parent,
+                             null,
+                             message,
+                             null,
+                             null);
+    
+    }    
+
+    private static void showMessage (String                title,
+                                     String                message,
+                                     String                confirmButtonLabel,
+                                     ActionListener        onConfirm)
     {
         
-        MessageWindow ew = new MessageWindow (pv,
+        MessageWindow ew = new MessageWindow (null,
                                               title,
-                                              message);
+                                              message,
+                                              confirmButtonLabel,
+                                              onConfirm);
         
         ew.init ();
 
     }
     
-    private static void showMessage (String title,
-                                     String message)
-    {
-
-        UIUtils.showMessage (null,
-                             title,
-                             message);
-
-    }
-
     public static QPopup createPopup (String         title,
                                       String         icon,
                                       JComponent     content,
@@ -2187,14 +2541,80 @@ public class UIUtils
         
     }
 
+    public static JLabel createInformationLabel (String message)
+    {
+        
+        JLabel l = new JLabel ()
+        {
+            
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html><i>%s</i></html>",
+                                              Environment.replaceObjectNames (t)));
+                                
+            }
+            
+        };
+                
+        l.setText (message);
+        l.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        return l;
+
+    }
+    
+    public static JLabel createLoadingLabel (String message)
+    {
+    
+        JLabel l = new JLabel (Environment.getLoadingIcon (),
+                               SwingConstants.LEFT)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames ((t != null ? t : "Loading..."))));
+                
+            }
+            
+        };
+                
+        l.setText (message);
+        l.setVisible (false);
+        l.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        return l;
+        
+    }
+    
     public static JLabel createErrorLabel (String message)
     {
         
-        JLabel err = new JLabel (message);
+        JLabel err = new JLabel ()
+        {
+        
+            @Override 
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+            
+        };
+        
+        err.setText (message);
         err.setForeground (UIUtils.getColor (Constants.ERROR_TEXT_COLOR));
         err.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
                                           Constants.ICON_MENU));
         err.setAlignmentX (Component.LEFT_ALIGNMENT);
+        err.setVerticalTextPosition (SwingConstants.TOP);
+        err.setVerticalAlignment (SwingConstants.TOP);
+        
         return err;
         
     }
@@ -3520,45 +3940,50 @@ public class UIUtils
         for (NamedObject n : objs)
         {
                         
-            Set<Integer> matches = ti.findAllTextIndexes (n.getName (),
-                                                          null);
+            for (String name : n.getAllNames ())
+            {                        
             
-            // This needs to be on a language basis.
-            Set<Integer> matches2 = ti.findAllTextIndexes (n.getName () + "'s",
-                                                           null);
-
-            matches.addAll (matches2);
-                                                           
-            if (matches != null)
-            {
-                                                        
-                Iterator<Integer> iter = matches.iterator ();
-
-                while (iter.hasNext ())
+                Set<Integer> matches = ti.findAllTextIndexes (name,
+                                                              null);
+                
+                // This needs to be on a language basis.
+                Set<Integer> matches2 = ti.findAllTextIndexes (name + "'s",
+                                                               null);
+    
+                matches.addAll (matches2);
+                                                               
+                if (matches != null)
                 {
-                    
-                    Integer ind = iter.next ();
-                    
-                    // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
-                    if (Character.isLowerCase (t.charAt (ind)))
+                                                            
+                    Iterator<Integer> iter = matches.iterator ();
+    
+                    while (iter.hasNext ())
                     {
                         
-                        reps.put (ind,
-                                  new NamedObjectNameWrapper (n.getName ().toLowerCase (),
-                                                              n));
+                        Integer ind = iter.next ();
                         
-                    } else {
-                        
-                        // Uppercase each of the words in the name.
-                        reps.put (ind,
-                                  new NamedObjectNameWrapper (TextUtilities.capitalize (n.getName ()),
-                                                              n));
-                        
+                        // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
+                        if (Character.isLowerCase (t.charAt (ind)))
+                        {
+                            
+                            reps.put (ind,
+                                      new NamedObjectNameWrapper (name.toLowerCase (),
+                                                                  n));
+                            
+                        } else {
+                            
+                            // Uppercase each of the words in the name.
+                            reps.put (ind,
+                                      new NamedObjectNameWrapper (TextUtilities.capitalize (name),
+                                                                  n));
+                            
+                        }
+    
                     }
-
+                    
                 }
                 
-            }            
+            }
 
         }
         
@@ -3668,7 +4093,19 @@ public class UIUtils
     {
 
         JButton bt = new JButton (Environment.getIcon (icon,
-                                                       Constants.ICON_TOOLBAR)); 
+                                                       Constants.ICON_TOOLBAR))
+        {
+        
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (Environment.replaceObjectNames (t));
+                
+            }
+            
+        };
+        
         UIUtils.setAsButton (bt);
         bt.setToolTipText (Environment.replaceObjectNames (tooltip));
         bt.setActionCommand (actionCommand);
@@ -3947,6 +4384,79 @@ public class UIUtils
 
     }
 
+    public static String formatTextForHelpPane (String text)
+    {
+        
+        if (text != null)
+        {
+
+            StringBuilder buf = new StringBuilder ();
+    
+            text = Environment.replaceObjectNames (text);
+    
+            text = StringUtils.replaceString (text,
+                                              String.valueOf ('\n'),
+                                              "<br />");        
+            
+            text = UIUtils.markupLinks (text);
+            
+            int ind = text.indexOf ("[");
+            
+            while (ind > -1)
+            {
+                
+                int end = text.indexOf ("]",
+                                        ind + 1);
+    
+                if (end > ind + 1)
+                {
+                    
+                    String v = text.substring (ind + 1,
+                                               end);
+                   
+                    StringTokenizer st = new StringTokenizer (v,
+                                                              ",;");
+                    
+                    String icon = st.nextToken ().trim ().toLowerCase ();
+                    String action = null;
+                    
+                    if (st.hasMoreTokens ())
+                    {
+                        
+                        action = st.nextToken ().trim ().toLowerCase ();
+                        
+                    }
+                    
+                    v = "<img src=\"" + Environment.getIconURL (icon, Constants.ICON_MENU) + "\" />";
+                                    
+                    if (action != null)
+                    {
+                        
+                        v = "<a href=\"action:" + action + "\">" + v + "</a>";
+                                    
+                    }
+                    
+                    // Split up the value.
+                    text = text.substring (0,
+                                           ind) + v + text.substring (end + 1);
+                    
+                    ind = text.indexOf ("[",
+                                        ind + v.length ());
+                    
+                    
+                }
+                
+            }        
+        
+            text = UIUtils.getWithHTMLStyleSheet (new JTextField ("abcdABCD"),
+                                                  text);
+
+        }
+
+        return text;
+        
+    }
+    
     public static JTextPane createHelpTextPane (String text,
                                                 AbstractProjectViewer projectViewer)
     {
@@ -3954,7 +4464,18 @@ public class UIUtils
         HTMLEditorKit kit = new HTMLEditorKit ();
         HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
 
-        final JTextPane desc = new JTextPane (doc);
+        final JTextPane desc = new JTextPane (doc)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (UIUtils.formatTextForHelpPane (t));
+                
+            }
+            
+        };
 
         desc.setEditorKit (kit);
         desc.setEditable (false);
@@ -3963,18 +4484,13 @@ public class UIUtils
 
         desc.setSize (new Dimension (500,
                                      500));
-
-        if (text != null)
-        {
-
-            desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
-                                                         text));
-
-        }
         
+        desc.setText (text);
+        
+        /*
         desc.setMaximumSize (new Dimension (500,
                                             500)); // desc.getPreferredSize ());
-
+*/
                                             /* old
         desc.setBorder (new EmptyBorder (10,
                                          5,
@@ -3983,16 +4499,42 @@ public class UIUtils
 */ 
                                          
         // new
+        /*
         desc.setBorder (new EmptyBorder (5,
                                          5,
                                          10,
                                          5));
+          */                               
         // end new
                                          
         UIUtils.addHyperLinkListener (desc,
                                       projectViewer);
 
         return desc;
+
+    }
+
+    public static HTMLPanel createHelpTextPane2 (String text,
+                                                 AbstractProjectViewer projectViewer)
+    {
+
+        HTMLPanel p = new HTMLPanel (text,
+                                     projectViewer);
+    
+        p.setOpaque (false);
+        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+
+        p.setBorder (new EmptyBorder (5,
+                                         5,
+                                         15,
+                                         5));
+
+        p.setSize (UIUtils.getPopupWidth () - 20, 10000);
+        
+        p.doDocumentLayout (p.getGraphics ());
+                                         
+                                         
+        return p;
 
     }
 
@@ -4126,7 +4668,7 @@ public class UIUtils
         }
 
     }
-    
+        
     public static void openURL (Component parent,
                                 URL       url)
     {
@@ -4141,11 +4683,18 @@ public class UIUtils
         if (url.getProtocol ().equals (Constants.QUOLLWRITER_PROTOCOL))
         {
             
-            String u = Environment.getProperty (Constants.QUOLL_WRITER_WEBSITE_PROPERTY_NAME);
-
+            String u = Environment.getQuollWriterWebsite ();
+            
             String p = url.getPath ();
 
-            if (!p.endsWith (".html"))
+            if ((!p.endsWith (".html"))
+                &&
+                // Only add if the url isn't of the form [name].html?parms
+                (p.indexOf (".html?") < 1)
+                &&
+                // Only add if the url isn't of the form [name].html#id
+                (p.indexOf (".html#") < 1)
+               )
             {
 
                 p += ".html";
@@ -4154,6 +4703,13 @@ public class UIUtils
 
             u = u + "/" + p;
             
+            if (url.getQuery () != null)
+            {
+                
+                u += "?" + url.getQuery ();
+                
+            }
+
             if (url.getRef () != null)
             {
                 
@@ -4228,6 +4784,82 @@ public class UIUtils
                 
             }
             
+        }
+
+        if (url.getProtocol ().equals (Constants.OPENPROJECT_PROTOCOL))
+        {
+
+            String projId = url.getPath ();
+
+            Project proj = null;
+            
+            try
+            {
+                
+                proj = Environment.getProjectById (projId,
+                                                   null);
+
+                if (proj != null)
+                {
+                    
+                    Environment.openProject (proj);
+                    
+                }
+
+                return;
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get project for id: " + projId,
+                                      e);
+                
+            }
+            
+            return;
+        
+        }
+        
+        if (url.getProtocol ().equals (Constants.OPENEDITORMESSAGE_PROTOCOL))
+        {
+
+            int key = 0;
+            
+            try
+            {
+                
+                key = Integer.parseInt (url.getPath ());
+                
+            } catch (Exception e) {
+                
+                // Ignore?
+                
+            }
+       
+            // Get the message.
+            EditorMessage mess = null;
+            
+            try
+            {
+                
+                mess = EditorsEnvironment.getMessageByKey (key);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get message for key: " + key,
+                                      e);
+                
+            }
+            
+            if (mess != null)
+            {
+                
+                // Need to work out what to do.
+                //EditorsEnvironment.openEditorMessage (mess);
+                
+            }
+        
+            return;
+        
         }
 
         if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
@@ -4356,27 +4988,27 @@ public class UIUtils
 
             });
 
-        Map events = new HashMap ();
-        events.put (NamedObject.DESCRIPTION,
-                    "");
-
         PropertyChangedAdapter pca = new PropertyChangedAdapter ()
         {
 
             public void propertyChanged (PropertyChangedEvent ev)
             {
 
-                desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
-                                                             UIUtils.markupStringForAssets (description,
-                                                                                            pv.getProject (),
-                                                                                            n)));
+                if (ev.getChangeType ().equals (NamedObject.DESCRIPTION))
+                {
+            
+                    desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
+                                                                 UIUtils.markupStringForAssets (description,
+                                                                                                pv.getProject (),
+                                                                                                n)));
 
+                }
+                                                                                                
             }
 
         };
 
-        qp.addObjectPropertyChangedListener (pca,
-                                             events);
+        qp.addObjectPropertyChangedListener (pca);
 
         pca.propertyChanged (new PropertyChangedEvent (qp,
                                                        NamedObject.DESCRIPTION,
@@ -4462,7 +5094,7 @@ public class UIUtils
             size = (int) f.getSize ();
             
         }
-        
+                
         t.append ("<style>");
         t.append ("*{font-family: \"" + f.getFontName () + "\"; font-size: " + size + "px; background-color: transparent; color: " + textColor + ";}\n");
         t.append ("body{padding: 0px; margin: 0px;color: " + textColor + "; font-size: " + size + "pt; font-family: \"" + f.getFontName () + "\";}");
@@ -4479,6 +5111,9 @@ public class UIUtils
         t.append ("ul{margin-left: 20px;}\n");
         t.append ("li{font-size: " + ((int) f.getSize ()) + "pt; font-family: \"" + f.getFontName () + "\";}\n");
         t.append ("p.error{padding: 0px; margin: 0px; color: red;}");
+        t.append ("h1.help{font-size:" + (((int) f.getSize ()) + 6) + "pt; padding: 0px; margin: 0px; border-bottom: solid 1px " + UIUtils.colorToHex (Environment.getBorderColor ()) + "; font-weight: normal;}");
+        t.append ("p.help{margin: 0px; margin-left: 5px; margin-top: 5px; padding: 0px; margin-bottom: 10px;}");
+        t.append ("p.help img{padding-left: 3px; padding-right: 3px;}");
         t.append ("</style>");
 
         return t.toString ();
@@ -4661,6 +5296,20 @@ public class UIUtils
         
     }
     
+    public static Color getBorderHighlightColor ()
+    {
+        
+        return UIUtils.getColor ("#275C92");
+        
+    }
+    
+    public static Color getHintTextColor ()
+    {
+        
+        return UIUtils.getColor ("#aaaaaa");
+        
+    }
+    
     public static Color getColor (String hexCode)
     {
 
@@ -4825,8 +5474,27 @@ public class UIUtils
                                              final boolean useLabelText)
     {
 
-        final JLabel web = new JLabel ("<html><u>" + ((display == null) ? website : display) + "</u></html>");
-
+        final JLabel web = new JLabel (String.format ("<html>%s</html>",
+                                                      Environment.replaceObjectNames (((display == null) ? website : display))))
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                if (!this.getText ().equals (""))
+                {
+                
+                    throw new IllegalStateException ("Once set the website label text cannot be modified.");
+                
+                }
+                
+                super.setText (t);
+                
+            }
+            
+        };
+        
         // web.setEditable (false);
         web.setOpaque (false);
         web.setBorder (null);
@@ -4836,76 +5504,76 @@ public class UIUtils
         web.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
 
         web.addMouseListener (new MouseAdapter ()
+        {
+
+            public void mouseEntered (MouseEvent ev)
             {
 
-                public void mouseEntered (MouseEvent ev)
+                Map attrs = new HashMap ();
+                attrs.put (TextAttribute.UNDERLINE,
+                           TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
+
+                web.setFont (web.getFont ().deriveFont (attrs));
+
+            }
+
+            public void mouseExited (MouseEvent ev)
+            {
+
+                Map attrs = new HashMap ();
+                attrs.put (TextAttribute.UNDERLINE,
+                           null);
+
+                web.setFont (web.getFont ().deriveFont (attrs));
+
+            }
+
+            public void mouseClicked (MouseEvent ev)
+            {
+
+                String w = website;
+
+                if (useLabelText)
                 {
 
-                    Map attrs = new HashMap ();
-                    attrs.put (TextAttribute.UNDERLINE,
-                               TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-
-                    web.setFont (web.getFont ().deriveFont (attrs));
+                    w = web.getText ();
 
                 }
 
-                public void mouseExited (MouseEvent ev)
+                if ((w == null) ||
+                    (w.trim ().equals ("")))
                 {
 
-                    Map attrs = new HashMap ();
-                    attrs.put (TextAttribute.UNDERLINE,
-                               null);
-
-                    web.setFont (web.getFont ().deriveFont (attrs));
+                    return;
 
                 }
 
-                public void mouseClicked (MouseEvent ev)
+                if ((!w.toLowerCase ().startsWith ("http://")) &&
+                    (!w.toLowerCase ().startsWith ("https://")))
                 {
 
-                    String w = website;
-
-                    if (useLabelText)
-                    {
-
-                        w = web.getText ();
-
-                    }
-
-                    if ((w == null) ||
-                        (w.trim ().equals ("")))
-                    {
-
-                        return;
-
-                    }
-
-                    if ((!w.toLowerCase ().startsWith ("http://")) &&
-                        (!w.toLowerCase ().startsWith ("https://")))
-                    {
-
-                        w = "http://" + w;
-
-                    }
-
-                    try
-                    {
-
-                        UIUtils.openURL (web,
-                                         w);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to visit website: " +
-                                              w,
-                                              e);
-
-                    }
+                    w = "http://" + w;
 
                 }
 
-            });
+                try
+                {
+
+                    UIUtils.openURL (web,
+                                     w);
+
+                } catch (Exception e)
+                {
+
+                    Environment.logError ("Unable to visit website: " +
+                                          w,
+                                          e);
+
+                }
+
+            }
+
+        });
 
         return web;
 
@@ -4914,15 +5582,95 @@ public class UIUtils
     public static JLabel createClickableLabel (String title,
                                                Icon   icon)
     {
+        
+        String ns = null;
+        
+        return UIUtils.createClickableLabel (title,
+                                             icon,
+                                             ns);
+        
+    }
 
-        final JLabel l = new JLabel (Environment.replaceObjectNames (title),
+    public static JLabel createClickableLabel (final String title,
+                                               final Icon   icon,
+                                               final String gotoURLOnClick)
+    {
+        
+        return UIUtils.createClickableLabel (title,
+                                             icon,
+                                             new ActionListener ()
+        {
+           
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (gotoURLOnClick != null)
+                {
+                
+                    UIUtils.openURL (null,
+                                     gotoURLOnClick);
+
+                }
+                
+            }
+            
+        });
+        
+    }
+    
+    public static JLabel createClickableLabel (final String         title,
+                                               final Icon           icon,
+                                               final ActionListener onClick)
+    {
+
+        final JLabel l = new JLabel (null,
                                      icon,
-                                     SwingConstants.LEFT);
+                                     SwingConstants.LEFT)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+            
+        };
+        
+        l.setText (title);
         l.setForeground (UIUtils.getColor (Constants.HTML_LINK_COLOR));
         l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+        l.setVerticalAlignment (SwingConstants.TOP);
+        l.setVerticalTextPosition (SwingConstants.TOP);
         l.addMouseListener (new MouseAdapter ()
         {
 
+            @Override
+            public void mousePressed (MouseEvent ev)
+            {
+                
+                if (onClick != null)
+                {
+                    
+                    try
+                    {
+                        
+                        onClick.actionPerformed (new ActionEvent (l, 1, "clicked"));
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to perform action",
+                                              e);
+                        
+                    }
+                    
+                }
+                
+            }
+        /*
+            @Override
             public void mouseEntered (MouseEvent ev)
             {
 
@@ -4934,6 +5682,7 @@ public class UIUtils
 
             }
 
+            @Override
             public void mouseExited (MouseEvent ev)
             {
 
@@ -4944,7 +5693,7 @@ public class UIUtils
                 l.setFont (l.getFont ().deriveFont (attrs));
 
             }
-
+*/
         });
 
         return l;
@@ -4967,8 +5716,8 @@ public class UIUtils
         
         // Create a new editor.
         QTextEditor ed = new QTextEditor (null,
-                                          false,
-                                          QuollEditorPanel.SECTION_BREAK);
+                                          false);
+        ed.setSectionBreak (Constants.SECTION_BREAK);
 
         ed.setLineSpacing (c.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
         ed.setFontSize ((int) (UIUtils.getEditorFontSize (c.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))));
@@ -5097,7 +5846,31 @@ public class UIUtils
         return ret;
         
     }
+    
+    public static JScrollPane createScrollPane (JComponent c)
+    {
+        
+        JScrollPane sp = new JScrollPane (c);
+        sp.setOpaque (true);
+        sp.getViewport ().setBackground (UIUtils.getComponentColor ());
+        sp.setBackground (UIUtils.getComponentColor ());
+        sp.setBorder (UIUtils.createLineBorder ());
+        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        sp.getVerticalScrollBar ().setUnitIncrement (DEFAULT_SCROLL_BY_AMOUNT);
 
+        // Ease of use thing since you want all tables to scroll on rows.
+        if (c instanceof JTable)
+        {
+            
+            sp.getVerticalScrollBar ().setUnitIncrement (((JTable) c).getRowHeight ());
+            sp.getVerticalScrollBar ().setBlockIncrement (1);
+            
+        }
+        
+        return sp;
+        
+    }
+        
     public static JScrollPane createScrollPane (JTextComponent t)
     {
 
@@ -5109,7 +5882,7 @@ public class UIUtils
                                                            5),
                                           UIUtils.createLineBorder ()));
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        sp.getVerticalScrollBar ().setUnitIncrement (20);
+        sp.getVerticalScrollBar ().setUnitIncrement (DEFAULT_SCROLL_BY_AMOUNT);
         sp.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                           t.getPreferredSize ().height + sp.getInsets ().top + sp.getInsets ().bottom));
         //sp.setPreferredSize (sp.getMaximumSize ());
@@ -5166,7 +5939,7 @@ public class UIUtils
         
         c.setOpaque (true);
         c.setBackground (UIUtils.getComponentColor ());
-        c.setBorder (UIUtils.createTestLineBorder ());
+
         return c;
         
     }
@@ -5252,7 +6025,7 @@ public class UIUtils
             
         }
             
-        JLabel l = new JLabel (title);
+        JLabel l = new JLabel (Environment.replaceObjectNames (title));
 
         l.setForeground (UIUtils.getColor ("#444444"));
         l.setFont (l.getFont ().deriveFont (Font.ITALIC));
@@ -5337,6 +6110,7 @@ public class UIUtils
         }
 
         tb.setBackground (null);
+        tb.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return tb;
 
@@ -5382,7 +6156,7 @@ public class UIUtils
                                         String icon)
     {
 
-        JButton b = new JButton (Environment.replaceObjectNames (label),
+        JButton b = new JButton (Environment.replaceObjectNames (Environment.getButtonLabel (label)),
                                  (icon == null ? null : Environment.getIcon (icon,
                                                                              Constants.ICON_MENU)));
 
@@ -5436,11 +6210,14 @@ public class UIUtils
         } else
         {
 
-            link = "<a title='Click to visit the website' href='" + p.getURL () + "'>" + p.getStoryName () + " by " + p.getAuthor () + "</a></span>";
-
+            link = String.format ("<a title='Click to visit the website' href='%s'>%s by %s</a>",
+                                  p.getURL (),
+                                  p.getStoryName (),
+                                  p.getAuthor ());
+            
         }
 
-        return p.getText () + " - " + link;
+        return p.getText () + "<br /> - " + link;
 
 
     }
@@ -5730,6 +6507,155 @@ public class UIUtils
 
     }
 
+    /**
+     * Draw a string on the image at a specified "location", supported values for <b>where</b> are:
+     *      - tl - draw the string starting at the top left corner.
+     *      - bl - bottom left corner.
+     *      - tr - top right corner. (so start the text in from the right)
+     *      - br - bottom right corner (start, in from the right and bottom)
+     *
+     * @param im The image to draw on, this image is untouched.
+     * @param text The text to draw on the image.
+     * @param font The font to use.
+     * @param color The color to use.
+     * @param where Where the text should be drawn.
+     * @returns A new image with the text drawn on top of <b>im</b>.
+     */
+    public static BufferedImage drawStringOnImage (BufferedImage im,
+                                                   String        text,
+                                                   Font          font,
+                                                   Color         color,
+                                                   String        where)
+    {
+        
+        FontMetrics m = im.getGraphics ().getFontMetrics (font);
+        
+        int sh = m.getHeight ();
+        int sw = m.stringWidth (text);
+        
+        int imw = im.getWidth ();
+        int imh = im.getHeight ();
+        
+        int nw = 0;
+        int nh = 0;
+        
+        Point w = null;
+                
+        if (where.equals ("tr"))
+        {
+            
+            nw = imw - sw;
+            nh = sh;
+            
+        }
+        
+        if (where.equals ("bl"))
+        {
+            
+            nh = imh - sh;
+            
+        }
+        
+        if (where.equals ("br"))
+        {
+            
+            nh = imh;// - sh;
+            nw = imw - sw;
+            
+        }
+
+        return UIUtils.drawStringOnImage (im,
+                                          text,
+                                          font,
+                                          color,
+                                          new Point (nw, nh));
+        
+    }
+    
+    public static BufferedImage getImageOfComponent (Component c,
+                                                     int       width,
+                                                     int       height)
+    {
+        
+        width = (width > 0 ? width : c.getWidth ());
+        height = (height > 0 ? height : c.getHeight ());
+        
+        BufferedImage image = new BufferedImage (width,
+                                                 height,
+                                                 BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = image.getGraphics ();
+                    
+        if (c.isOpaque ())
+        {
+
+            g.setColor (c.getBackground ());
+                                                 
+            g.fillRect (0,
+                        0,
+                        width,
+                        height);
+
+        }
+                                                                                                 
+        c.paint (g); 
+        return image;        
+        
+    }
+    
+    public static BufferedImage copyImage (BufferedImage im)
+    {
+        
+        BufferedImage b = new BufferedImage (im.getWidth (), 
+                                             im.getHeight (),
+                                             im.getType ());
+        Graphics g = b.getGraphics ();
+        g.drawImage (im,
+                     0,
+                     0,
+                     null);
+        g.dispose ();        
+        
+        return b;
+        
+    }
+    
+    /**
+     * Draw a string onto an image at the specified point (<b>where</b>).
+     *
+     * @param im The image to draw onto.
+     * @param text The text to draw.
+     * @param font The font to use.
+     * @param color The color to use.
+     * @param where Where to draw the text.
+     * @returns A new image with the text overlaid on the image.
+     */
+    public static BufferedImage drawStringOnImage (BufferedImage im,
+                                                   String        text,
+                                                   Font          font,
+                                                   Color         color,
+                                                   Point         where)
+    {
+        
+        BufferedImage newIm = UIUtils.copyImage (im);
+        
+        Graphics2D g = (Graphics2D) newIm.getGraphics ();
+        
+        g.setFont (font);
+        
+        g.setRenderingHint (RenderingHints.KEY_TEXT_ANTIALIASING,
+                            RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);        
+        
+        g.setColor (color);
+        
+        g.drawString (text,
+                      where.x,
+                      where.y);
+        
+        return newIm;
+        
+    }
+    
     public static BufferedImage getBufferedImage (Image     im,
                                                   Component io)
     {
@@ -5781,6 +6707,42 @@ public class UIUtils
         
     }
     
+    public static BufferedImage getImage (byte[] bytes)
+                                   throws Exception
+    {
+        
+        if (bytes == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return ImageIO.read (new ByteArrayInputStream (bytes));
+        
+    }
+    
+    public static byte[] getImageBytes (BufferedImage im)
+                                 throws Exception
+    {
+        
+        if (im == null)
+        {
+            
+            return null;
+            
+        }
+        
+        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
+        ImageIO.write (im,
+                       "jpeg",
+                       bout);
+        bout.flush ();
+        bout.close ();
+        return bout.toByteArray ();
+        
+    }
+    
     public static BufferedImage getImage (File f)
     {
         
@@ -5824,6 +6786,13 @@ public class UIUtils
                                                 int           targetWidth)
     {
 
+        if (img == null)
+        {
+            
+            return null;
+            
+        }
+    
         return Scalr.resize (img,
                              Scalr.Method.QUALITY,
                              Scalr.Mode.FIT_TO_WIDTH,
@@ -6127,6 +7096,7 @@ public class UIUtils
         final javax.swing.Timer t = new javax.swing.Timer (100,
                                                            null);   
         
+        // TODO: Change this to be based on an event that the panel fires when ready.
         ActionListener l = new ActionListener ()
         {
             
@@ -6156,13 +7126,13 @@ public class UIUtils
                         UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
                                                 
                     }
-                                
+                                                            
                     return;
                     
                 }
 
                 // 2s delay max.
-                if (count > 20)
+                if (count > 50)
                 {
                     
                     Environment.logError ("Unable to perform action",
@@ -6230,6 +7200,15 @@ public class UIUtils
         
     }
     
+    public static void addDoActionOnReturnPressed (TextArea       text,
+                                                   ActionListener action)
+    {
+        
+        UIUtils.addDoActionOnReturnPressed (text.getTextArea (),
+                                            action);
+        
+    }
+
     public static void addDoActionOnReturnPressed (final JTextComponent text,
                                                     final ActionListener action)
     {
@@ -6464,7 +7443,7 @@ public class UIUtils
         return mw;
         
     }
-    
+        
     public static QPopup createQuestionPopup (AbstractProjectViewer viewer,
                                               String                title,
                                               String                icon,
@@ -6473,6 +7452,7 @@ public class UIUtils
                                               String                cancelButtonLabel,
                                               final ActionListener  onConfirm,
                                               final ActionListener  onCancel,
+                                              final ActionListener  onClose,
                                               Point                 showAt)
     {
                         
@@ -6496,7 +7476,7 @@ public class UIUtils
                                             icon,
                                             message,
                                             buttons,
-                                            onCancel,
+                                            onClose,
                                             showAt);
         
     }
@@ -6509,6 +7489,31 @@ public class UIUtils
                                               ActionListener              onClose,
                                               Point                       showAt)
     {
+        
+        JComponent mess = UIUtils.createHelpTextPane (Environment.replaceObjectNames (message),
+                                                      viewer);
+        mess.setBorder (null);
+        mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+                                     500));
+
+        return UIUtils.createQuestionPopup (viewer,
+                                            title,
+                                            icon,
+                                            mess,
+                                            buttons,
+                                            onClose,
+                                            showAt);
+                                     
+    }
+    
+    public static QPopup createQuestionPopup (AbstractProjectViewer       viewer,
+                                              String                      title,
+                                              String                      icon,
+                                              JComponent                  mess,
+                                              Map<String, ActionListener> buttons,
+                                              ActionListener              onClose,
+                                              Point                       showAt)
+    {
                 
         final QPopup qp = UIUtils.createClosablePopup (title,
                                                        Environment.getIcon (icon,
@@ -6516,12 +7521,6 @@ public class UIUtils
                                                        onClose);
         
         Box content = new Box (BoxLayout.Y_AXIS);
-
-        JComponent mess = UIUtils.createHelpTextPane (Environment.replaceObjectNames (message),
-                                                      viewer);
-        mess.setBorder (null);
-        mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
-                                     500));
         
         content.add (mess);
         content.add (Box.createVerticalStrut (10));
@@ -6576,7 +7575,8 @@ public class UIUtils
         }
         
         viewer.showPopupAt (qp,
-                            showAt);
+                            showAt,
+                            false);
         
         qp.setDraggable (viewer);
         
@@ -6589,6 +7589,7 @@ public class UIUtils
                                                String                icon,
                                                String                message,
                                                String                confirmButtonLabel,
+                                               String                cancelButtonLabel,
                                                String                initValue,
                                                final ValueValidator  validator,
                                                final ActionListener  onConfirm,
@@ -6643,8 +7644,11 @@ public class UIUtils
                                                       viewer);
         mess.setBorder (null);
         mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+                                     mess.getPreferredSize ().height));
+        /*
+        mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
                                      500));
-
+*/
         content.add (mess);
 
         content.add (Box.createVerticalStrut (10));
@@ -6682,15 +7686,15 @@ public class UIUtils
         content.add (Box.createVerticalStrut (10));
         
         JButton confirm = null;
-        JButton cancel = UIUtils.createButton ("Cancel",
+        JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : Constants.CANCEL_BUTTON_LABEL_ID),
                                                null);
         
         if (onConfirm != null)
         {
             
-            confirm = UIUtils.createButton (confirmButtonLabel,
+            confirm = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
                                             null);
-
+                                            
             ActionListener confirmAction = new ActionAdapter ()
             {
                 
@@ -6705,7 +7709,8 @@ public class UIUtils
                         if (mess != null)
                         {
 
-                            error.setText (Environment.replaceObjectNames (mess));
+                            // Should probably wrap this in a 
+                            error.setText (mess);
                                                         
                             error.setVisible (true);
                                                 
@@ -6716,14 +7721,15 @@ public class UIUtils
                                                                      content.getPreferredSize ().height));
 
                             viewer.showPopupAt (qp,
-                                                qp.getLocation ());
+                                                qp.getLocation (),
+                                                false);
                             
                             return;
                             
                         }
-                                                
+                                                                        
                     }
-                                        
+                    
                     onConfirm.actionPerformed (new ActionEvent (text,
                                                                 0,
                                                                 text.getText ().trim ()));
@@ -6791,9 +7797,10 @@ public class UIUtils
         }
 
         qp.setDraggable (viewer);
-                                            
+                                                    
         viewer.showPopupAt (qp,
-                            showAt);
+                            showAt,
+                            false);
 
         if (initValue != null)
         {
@@ -6830,7 +7837,7 @@ public class UIUtils
     }
 
     public static void doLater (final ActionListener l,
-                                final Component      c,
+                                final Object         c,
                                 final String         showOnError)
     {
         
@@ -6855,16 +7862,26 @@ public class UIUtils
                         Environment.logError (showOnError,
                                               e);
                         
-                        UIUtils.showErrorMessage (c,
-                                                  showOnError);
+                        if (c instanceof Component)
+                        {
+                        
+                            UIUtils.showErrorMessage ((Component) c,
+                                                      showOnError);
 
+                        }
+                                                      
                    } else {
                     
                         Environment.logError ("Unable to perform action",
                                               e);
                         
-                        UIUtils.showErrorMessage (c,
-                                                  "Unable to perform action");                        
+                        if (c instanceof Component)
+                        {
+                        
+                            UIUtils.showErrorMessage ((Component) c,
+                                                      "Unable to perform action");                        
+                    
+                        }
                     
                    }
                    
@@ -6874,6 +7891,524 @@ public class UIUtils
             
         });
                 
+        
+    }
+
+    public static String getOpenProjectHTML (String projId)
+    {
+        
+        Project proj = null;
+        
+        try
+        {
+            
+            proj = Environment.getProjectById (projId,
+                                               null);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get project for id: " +
+                                  projId,
+                                  e);
+            
+            return "Unknown Project";
+            
+        }
+        
+        if (proj == null)
+        {
+            
+            Environment.logError ("Unable to get project with id: " +
+                                  projId);
+            
+            return "Unknown Project";
+            
+        }
+        
+        String projName = proj.getName ();        
+
+        return String.format ("<a href='%s:%s'>%s</a>",
+                              Constants.OPENPROJECT_PROTOCOL,
+                              projId,
+                              proj.getName ());
+    
+    }
+
+    /**
+     * Set the specified empty border (padding) around the component, this is shorthand for:
+     *      c.setBorder (UIUtils.createPadding (top, left, bottom, right));
+     *
+     * @param c The component to set the border on.
+     * @param top The top padding.
+     * @param left The left padding.
+     * @param bottom The bottom padding.
+     * @param right The right padding.
+     */
+    public static void setPadding (JComponent c,
+                                   int        top,
+                                   int        left,
+                                   int        bottom,
+                                   int        right)
+    {
+        
+        c.setBorder (UIUtils.createPadding (top, left, bottom, right));
+        
+    }
+    
+    /**
+     * Is a wrapper for:
+     * <code>
+     *  new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
+     *                      UIUtils.createPadding (top, left, bottom, right));
+     * </code>
+     *
+     * @returns A compound border with an outer line and an inner padding.
+     */
+    public static CompoundBorder createBottomLineWithPadding (int top,
+                                                              int left,
+                                                              int bottom,
+                                                              int right)
+    {
+       
+        return new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
+                                   UIUtils.createPadding (top, left, bottom, right));
+        
+    }
+    
+    public static EmptyBorder createPadding (int top,
+                                             int left,
+                                             int bottom,
+                                             int right)
+    {
+        
+        return new EmptyBorder (top, left, bottom, right);
+        
+    }
+
+    public static void closePopupParent (Container parent)
+    {
+        
+        if (parent == null)
+        {
+            
+            return;
+            
+        }
+
+        if (parent instanceof QPopup)
+        {
+          
+            ((QPopup) parent).removeFromParent ();
+        
+            return;
+            
+        }
+        
+        UIUtils.closePopupParent (parent.getParent ());
+
+    }
+    
+    public static void resizeParent (Container parent)
+    {
+        
+        if (parent == null)
+        {
+            
+            return;
+            
+        }
+        
+        if (parent instanceof QPopup)
+        {
+            
+            ((QPopup) parent).resize ();
+        
+            return;
+            
+        }
+        
+        if (parent instanceof PopupWindow)
+        {
+            
+            ((PopupWindow) parent).resize ();
+        
+            return;
+            
+        }
+
+        UIUtils.resizeParent (parent.getParent ());
+        
+    }
+    
+    public static QPopup createWizardPopup (String         title,
+                                            String         iconType,
+                                            ActionListener onClose,
+                                            Wizard         wizard)
+    {
+        
+        QPopup p = UIUtils.createClosablePopup (title,
+                                                (iconType != null ? Environment.getIcon (iconType, Constants.ICON_POPUP) : null),
+                                                onClose);
+                
+        wizard.init ();
+        
+        wizard.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+                        wizard.getPreferredSize ().height));
+        wizard.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+        p.setContent (wizard);
+        
+        return p;
+        
+    }
+
+    /**
+     * Return a new value validator that ensures that the word (case-insensitive) "yes" is provided.
+     *
+     * @returns The validator.
+     */
+    public static ValueValidator getYesValueValidator ()
+    {
+        
+        return new ValueValidator<String> ()
+        {
+
+            public String isValid (String v)
+            {
+              
+                if ((v == null)
+                    ||
+                    (!v.trim ().equalsIgnoreCase ("yes"))
+                   )
+                {
+                    
+                    return "Please enter the word Yes below.";
+                    
+                }
+                
+                return null;
+              
+            }    
+        
+        };
+        
+    }
+
+    public static JTextField createSearchBox (final int            delay,
+                                              final ActionListener onSearch)
+    {
+        
+        final JTextField text = UIUtils.createTextField ();
+        text.setBorder (new CompoundBorder (UIUtils.createPadding (5, 10, 5, 10),
+                                            text.getBorder ()));
+
+        KeyAdapter vis = new KeyAdapter ()
+        {
+
+            private javax.swing.Timer searchT = new javax.swing.Timer (delay,
+                                               onSearch);
+
+            public void keyPressed (KeyEvent ev)
+            {
+
+                this.searchT.setRepeats (false);
+                this.searchT.stop ();
+
+                // If enter was pressed then search, don't start the timer.
+                if (ev.getKeyCode () == KeyEvent.VK_ENTER)
+                {
+                    
+                    if (onSearch != null)
+                    {
+                        
+                        onSearch.actionPerformed (new ActionEvent (text, 1, text.getText ().trim ()));
+                        
+                    }
+                    
+                    
+                    return;
+                    
+                }
+
+                this.searchT.start ();
+
+            }
+
+        };
+
+        text.addKeyListener (vis);
+        text.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                            text.getPreferredSize ().height));
+        
+        text.addMouseListener (new MouseAdapter ()
+        {
+           
+            @Override
+            public void mouseEntered (MouseEvent ev)
+            {
+                
+                text.grabFocus ();
+                text.selectAll ();
+                
+            }
+            
+        });
+        
+        return text;
+        
+    }
+
+    public static JComponent showTemporaryNotification (String                t,
+                                                        AbstractProjectViewer parent,
+                                                        Component             showAt,
+                                                        int                   showFor)
+    {
+        
+        Box outer = new Box (BoxLayout.Y_AXIS);
+        
+        outer.setBorder (QPopup.defaultBorder);
+        outer.setOpaque (false);
+        outer.setDoubleBuffered (true);
+        outer.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                            Short.MAX_VALUE));
+        Box inner = new Box (BoxLayout.Y_AXIS);
+        inner.setBackground (UIUtils.getComponentColor ());
+        inner.setOpaque (true);
+        
+        inner.setBorder (UIUtils.createPadding (5, 5, 5, 5));
+        
+        JTextPane m = UIUtils.createHelpTextPane (t,
+                                                  parent);
+        m.setSize (new Dimension (150 - 20,
+                                  m.getPreferredSize ().height));
+        
+        inner.add (m);
+        
+        outer.add (inner);
+   
+        parent.showPopupAt (outer,
+                            showAt,
+                            false);
+        
+        return outer;
+        
+    }
+    
+    public static javax.swing.Timer createCyclicAnimator (final PropertyChangeListener cycleUp,
+                                                          final PropertyChangeListener cycleDown,
+                                                          final int                    fps,
+                                                          final int                    duration,
+                                                          final int                    startValue,
+                                                          final int                    endValue,
+                                                          final int                    repeatCount,
+                                                          final ActionListener         onComplete)
+    {
+
+        final boolean incr = (startValue <= endValue);
+
+        final AtomicInteger count = new AtomicInteger (0);
+        
+        final Map<String, javax.swing.Timer> animators = new HashMap ();
+        
+        final javax.swing.Timer up = UIUtils.createAnimator (cycleUp,
+                                           fps,
+                                           duration / 2,
+                                           (incr ? startValue : endValue),
+                                           (incr ? endValue : startValue),
+                                           new ActionListener ()
+                                           {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    if (incr)
+                                                    {
+                                                        
+                                                        count.incrementAndGet ();
+                                                        
+                                                    }
+
+                                                    if ((!incr)
+                                                        &&
+                                                        (count.get () == repeatCount)
+                                                       )
+                                                    {
+                                                        
+                                                        if (onComplete != null)
+                                                        {
+                                                            
+                                                            onComplete.actionPerformed (new ActionEvent ("complete", endValue, "complete"));
+                                                            
+                                                        }
+                                                        
+                                                        return;
+                                                        
+                                                    }
+                                                        
+                                                    animators.get ("down").restart ();
+                                                    
+                                                }
+                                            
+                                           });
+        
+        animators.put ("up",
+                       up);
+        
+        final javax.swing.Timer down = UIUtils.createAnimator (cycleDown,
+                                           fps,
+                                           duration / 2,
+                                           (incr ? endValue : startValue),
+                                           (incr ? startValue : endValue),
+                                           new ActionListener ()
+                                           {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    
+                                                    if (!incr)
+                                                    {
+                                                        
+                                                        count.incrementAndGet ();
+                                                        
+                                                    }
+                                                    
+                                                    if ((incr)
+                                                        &&
+                                                        (count.get () == repeatCount)
+                                                       )
+                                                    {
+                                                        
+                                                        if (onComplete != null)
+                                                        {
+                                                            
+                                                            onComplete.actionPerformed (new ActionEvent ("complete", endValue, "complete"));
+                                                            
+                                                        }                                                            
+                                                    
+                                                        return;
+                                                            
+                                                    }
+                                                    
+                                                    animators.get ("up").restart ();
+                                                    
+                                                }
+                                            
+                                           });
+
+        animators.put ("down",
+                       down);
+                                           
+        javax.swing.Timer t = new javax.swing.Timer (0, null);
+
+        t.addActionListener (new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (incr)
+                {
+                    
+                    up.start ();
+                    
+                } else {
+                    
+                    down.start ();
+                    
+                }
+                                                
+            }
+            
+        });
+        
+        t.setRepeats (false);
+                
+        return t;
+        
+    }
+    
+    public static javax.swing.Timer createAnimator (final PropertyChangeListener l,
+                                                    final int                    fps,
+                                                    final int                    duration,
+                                                    final double                 startValue,
+                                                    final double                 endValue,
+                                                    final ActionListener         onComplete)
+    {
+        
+        final javax.swing.Timer t = new javax.swing.Timer (1000 / fps, null);
+        
+        final double increment = ((endValue - startValue) / (double) fps) * (1000d / (double) duration);
+        
+        final boolean incr = (startValue <= endValue);
+        
+        t.addActionListener (new ActionListener ()
+        {
+            
+            private double v = startValue;
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if ((incr && (this.v >= endValue))
+                    ||
+                    (!incr && (this.v <= endValue))
+                   )
+                {
+                    
+                    t.stop ();
+                    
+                    if (onComplete != null)
+                    {
+                        
+                        this.v = startValue;
+                        
+                        onComplete.actionPerformed (new ActionEvent ("complete", 1, "complete"));
+                        
+                    }
+                    
+                    return;
+                    
+                }
+                
+                double nv = this.v + increment;
+                
+                if ((incr)
+                    &&
+                    (nv > endValue)
+                   )
+                {
+                    
+                    nv = endValue;
+                    
+                }
+                
+                if ((!incr)
+                    &&
+                    (nv < endValue)
+                   )
+                {
+                    
+                    nv = endValue;
+                    
+                }
+
+                l.propertyChange (new PropertyChangeEvent (this,
+                                                           "value",
+                                                           this.v,
+                                                           nv));
+                
+                this.v = nv;
+                                                                            
+            }
+            
+        });
+        
+        t.setCoalesce (true);
+        
+        return t;
         
     }
     

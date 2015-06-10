@@ -104,6 +104,18 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
         
     }
     
+    @Override
+    public void onShow ()
+    {
+        
+    }
+    
+    @Override
+    public void onHide ()
+    {
+        
+    }
+    
     public void onClose ()
     {
         
@@ -117,6 +129,7 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
     }
     
     public void init ()
+               throws GeneralException
     {
         
         super.init ();

@@ -380,8 +380,18 @@ public class SessionAchievementRule extends AbstractAchievementRule
             
             sessions.add (this.currData);
             
+            // Only keep sessions within the past 2 weeks.
+            long last = System.currentTimeMillis () - (14 * 24 * 60 * 60 * 1000);
+            
             for (SessionData sd : sessions)
             {
+                
+                if (sd.end < last)
+                {
+                    
+                    continue;
+                    
+                }
                 
                 root.addContent (sd.getAsElement ());
                 

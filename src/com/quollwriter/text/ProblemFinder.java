@@ -32,7 +32,7 @@ public class ProblemFinder extends Box
     private BlockPainter         lineHighlight = new BlockPainter (Environment.getHighlightColor ());
     private TextUnderlinePainter issueHighlight = new TextUnderlinePainter (Color.RED);
     private List<IgnoreCheckbox>  ignores = new ArrayList ();
-    private Set<Issue>           issuesToIgnore = new TreeSet (new IssueSorter ());
+    private Set<Issue>           issuesToIgnore = new HashSet ();//new TreeSet (new IssueSorter ());
     private ActionListener       showIgnores = null;
     private boolean              endReached = false;
     private boolean              startReached = false;
@@ -42,7 +42,15 @@ public class ProblemFinder extends Box
     private Paragraph            paragraph = null;
     private Sentence             sentence = null;
     private TextIterator         textIter = null;
-    private boolean              inited = false;
+    private TextBlockIterator    iter = null;
+    private int                  start = 0;
+    private int                  end = -1;
+    private JLabel               limitLabel = null;
+    private JLabel               noProblemsLabel = null;
+    private int origStart = -1;
+    private int origEnd = -1;
+    private Box issuesBox = null;
+    private boolean inited = false;
 
     public ProblemFinder(QuollEditorPanel editor)
     {
@@ -54,7 +62,7 @@ public class ProblemFinder extends Box
                                             Short.MAX_VALUE));
 
         this.editor = editor;
-
+        
         // Load the ignores.
         try
         {
@@ -85,33 +93,48 @@ public class ProblemFinder extends Box
                     return;
                     
                 }
-            
-                _this.reset ();
                             
                 _this.inited = false;
-                
+                                        
+                _this.start = _this.editor.getEditor ().getSelectionStart ();
+                _this.end = _this.editor.getEditor ().getSelectionEnd ();
+                                                                         
             }
             
         });
+        
+        this.limitLabel = new JLabel ("Limiting find to selected text.",
+                                      Environment.getIcon ("information",
+                                                           Constants.ICON_MENU),
+                                      SwingConstants.TRAILING);
 
-        this.editor.getEditor ().addFocusListener (new FocusAdapter ()
-        {
-           
-            public void focusGained (FocusEvent ev)
-            {
+        this.limitLabel.setVisible (false);
+        
+        this.limitLabel.setBorder (UIUtils.createPadding (5, 10, 3, 3));        
 
-                //_this.clearHighlights ();
+        this.noProblemsLabel = new JLabel ("No problems found.",
+                                           Environment.getIcon ("information",
+                                                                Constants.ICON_MENU),
+                                           SwingConstants.TRAILING);
+
+        this.noProblemsLabel.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.noProblemsLabel.setOpaque (false);
+        this.noProblemsLabel.setBorder (UIUtils.createPadding (5, 10, 3, 3));
+        this.noProblemsLabel.setVisible (false);
+        
+        this.issuesBox = new Box (BoxLayout.Y_AXIS);
+        this.issuesBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        this.add (this.limitLabel);
+        this.add (this.noProblemsLabel);
+        this.add (this.issuesBox);
                 
-            }
-            
-        });
-
     }
 
     public void removeAllIgnores ()
     {
         
-        this.issuesToIgnore = new TreeSet (new IssueSorter ());
+        this.issuesToIgnore = new HashSet (); //new TreeSet (new IssueSorter ());
         
         if (this.showIgnores != null)
         {
@@ -126,7 +149,7 @@ public class ProblemFinder extends Box
                                                           ProjectEvent.UNIGNORE);
         
     }
-
+    
     public Set<Issue> getIgnoredIssues ()
     {
         
@@ -167,274 +190,59 @@ public class ProblemFinder extends Box
 
         this.clearHighlights ();
         
-        this.textIter = null;
-        this.sentence = null;
-        this.paragraph = null;        
-
     }
 
+    private void init (int start,
+                       int end)
+    {
+    
+        this.start = start;
+        this.end = end;
+    
+        this.getIgnores ();
+        this.clearHighlights ();
+             
+        if (this.end < this.start)
+        {
+            
+            this.end = -1;
+             
+        }
+        
+        if (this.start == this.end)
+        {
+            
+            this.end = -1;
+            
+        } 
+        
+        this.noProblemsLabel.setVisible (false);
+        this.clearIssuesBox ();
+        
+        this.limitLabel.setVisible (this.end > -1);
+        
+        this.iter = new TextBlockIterator (this.editor.getEditor ().getText (),
+                                           this.start,
+                                           this.end);
+
+        this.inited = true;
+                                           
+    }
+    
     public int start ()
                       throws Exception
     {
-        
-        int c = 0;
-        
-        if (!this.inited)
-        {
-        
-            c = this.start (this.editor.getEditor ().getSelectionStart ());
-            
-            this.inited = true;
-            
-        } else {
-            
-            c = this.start (0);
-            
-        }
-        
-        return c;
-        
-    }
-    
-    public int startPrevious ()
-                              throws Exception
-    {
-        
-        int c = 0;
-        
-        if (!this.inited)
-        {
-        
-            c = this.startPrevious (this.editor.getEditor ().getSelectionStart ());
-            
-            this.inited = true;
-            
-        } else {
-            
-            c = this.startPrevious (this.editor.getEditor ().getText ().length ());
-            
-        }
-        
-        return c;
-        
-    }
-
-    private int startPrevious (int    startAt)
-                               throws Exception
-    {
-        
-        this.donePara = true;
-        
-        this.textIter = new TextIterator (this.editor.getEditor ().getText ());
-        this.paragraph = this.textIter.getPreviousClosestParagraphTo (startAt);
-
-        if (this.paragraph == null)
-        {
-            
-            // Show no problems.
-            this.addNoProblems ();
-            
-            return 0;
-            
-        }
-        
-        this.sentence = this.paragraph.getPreviousClosestSentenceTo (startAt - this.paragraph.getAllTextStartOffset ());
-        
-        if (this.sentence == null)
-        {
-            
-            // How???
-            throw new GeneralException ("Unable to find sentence in paragraph");
-            
-        }
-            
-        int count = this.handleSentence (this.sentence);
+               
+        this.origStart = this.editor.getEditor ().getSelectionStart ();
+        this.origEnd = this.editor.getEditor ().getSelectionEnd ();
                 
-        if (count == 0)
-        {
-            
-            return this.previous ();
-            
-        }
-        
-        return count;
-        
+        this.init (this.origStart,
+                   this.origEnd);
+               
+        return this.next ();
+                
     }
-    
-    public int start (int    startAt)
-                      throws Exception
-    {
-        
-        this.doSentences = true;
-        this.endReached = false;
-
-        if (startAt == this.editor.getEditor ().getText ().length ())
-        {
             
-            startAt = 0;
-            
-        }
-            
-        this.textIter = new TextIterator (this.editor.getEditor ().getText ());
-        this.paragraph = this.textIter.getNextClosestParagraphTo (startAt);
-
-        if (this.paragraph == null)
-        {
-            
-            if (startAt == 0)
-            {
-                
-                return 0;
-                
-            }
-            
-            return this.start (0);
-                        
-        }
-                    
-        int count = -1;
-        
-        // If the sentence is the first then we start with the paragraph.
-        if ((startAt == this.paragraph.getAllTextStartOffset ())
-            ||
-            (startAt < this.paragraph.getAllTextStartOffset ())
-           )
-        {
-            
-            count = this.handleParagraph (this.paragraph);
-                
-        } else {
-        
-            this.sentence = this.paragraph.getNextClosestSentenceTo (startAt - this.paragraph.getAllTextStartOffset ());
-            
-            if (this.sentence == null)
-            {
-                
-                // How???
-                throw new GeneralException ("Unable to find sentence in paragraph");
-                
-            }
-        
-            count = this.handleSentence (this.sentence);
-            
-        }
-        
-        if (count == 0)
-        {
-            
-            return this.next ();
-            
-        }
-        
-        return count;
-                        
-    }
-
-    private Sentence moveToNextSentence ()
-    {
-
-        if (this.sentence == null)
-        {
-            
-            if (this.paragraph != null)
-            {
-                            
-                this.sentence = this.paragraph.getFirstSentence ();
-                
-            }
-            
-        } else {
-            
-            this.sentence = this.sentence.getNext ();
-                        
-        }
-        
-        return this.sentence;
-        
-    }
-        
-    private Paragraph moveToNextParagraph ()
-    {
-        
-        if (this.paragraph == null)
-        {
-            
-            return null;
-        
-        }
-                        
-        this.paragraph = this.paragraph.getNext ();
-        
-        return this.paragraph;
-        
-    }
-    
-    private Paragraph moveToPreviousParagraph ()
-    {
-                    
-        if (this.paragraph == null)
-        {
-            
-            return null;
-                    
-        }
-        
-        this.paragraph = this.paragraph.getPrevious ();
-        
-        return this.paragraph;
-        
-    }
-
-    private Sentence moveToPreviousSentence ()
-    {
-                
-        if (this.sentence == null)
-        {
-            
-            if (this.paragraph != null)
-            {
-                            
-                this.sentence = this.paragraph.getLastSentence ();
-                
-            }
-            
-        } else {
-            
-            this.sentence = this.sentence.getPrevious ();
-                        
-        }
-        
-        return this.sentence;  
-        
-    }
-    
-    private void init ()
-    {
-        
-        if (true)
-        {
-            
-            return;
-            
-        }
-        
-        this.doSentences = false;
-        this.endReached = false;
-        this.donePara = true;
-        
-        if (this.lastCaret == this.editor.getEditor ().getText ().length ())
-        {
-            
-            this.lastCaret = 0;
-            
-        }
-            
-        this.textIter = new TextIterator (this.editor.getEditor ().getText ());
-        this.sentence = this.textIter.getSentenceAt (this.lastCaret);
-        this.paragraph = this.textIter.getParagraphAt (this.lastCaret);
-                  
-    }
-    
     private void clearHighlights ()
     {
 
@@ -443,6 +251,37 @@ public class ProblemFinder extends Box
 
     }
 
+    private int processTextBlock (TextBlock b)
+                           throws Exception
+    {
+        
+        if (b == null)
+        {
+            
+            return 0;
+            
+        }
+        
+        if (b instanceof Paragraph)
+        {
+            
+            return this.handleParagraph ((Paragraph) b);
+            
+        }
+        
+        if (b instanceof Sentence)
+        {
+            
+            return this.handleSentence ((Sentence) b);
+            
+        }
+        
+        throw new GeneralException ("Type: " +
+                                    b.getClass ().getName () +
+                                    " not supported.");
+        
+    }
+    
     private int handleParagraph (Paragraph p)
                                  throws    Exception
     {
@@ -494,291 +333,222 @@ public class ProblemFinder extends Box
         return 0;
         
     }
-    /*
-    private int handleSentence (String s,
-                                String para)
-                                throws Exception
-    {
-        
-        List<Issue> issues = RuleFactory.getSentenceIssues (s,
-                                                            this.sentIter.inDialogue (),
-                                                            this.sentIter.clone (),
-                                                            this.editor.getProjectViewer ().getProject ().getProperties ());
 
-        // This needs to be done here because the ignore needs the sentence start/end positions.
-        this.setSentencePositions (issues);
-
-        if ((issues.size () != 0)
-            &&
-            (!this.allIgnores (issues))
-           )
-        {
-            this.handleIssues (issues,
-                               this.sentIter.getOffset () + this.paraIter.getOffset (),
-                               this.paraIter.getOffset () + this.sentIter.getOffset () + this.sentIter.current ().trim ().length (),
-                               true);
-
-            return issues.size ();
-
-        }
-
-        return 0;
-        
-    }
-    */
-/*
-    private int handleParagraph (String p)
-                                 throws Exception
-    {
-        
-        this.donePara = true;
-        
-        List<Issue> pissues = RuleFactory.getParagraphIssues (p,
-                                                              this.paraIter.inDialogue (),
-                                                              this.paraIter.clone (),
-                                                              this.editor.getProjectViewer ().getProject ().getProperties ());
-
-        this.setParagraphPositions (pissues);
-
-        if ((pissues.size () != 0)
-            &&
-            (!this.allIgnores (pissues))
-           )
-        {
-
-            this.handleIssues (pissues,
-                               this.paraIter.getOffset (),
-                               this.paraIter.getOffset () + this.paraIter.current ().trim ().length (),
-                               false);
-                                    
-            return pissues.size ();
-
-        }                        
-        
-        return 0;
-        
-    }
-  */  
     public int next ()
               throws Exception
     {
-
-        // Needed in case we move previous, forces it to check the sentences first.
-        this.donePara = true;
-    
-        if (this.textIter == null)
+        
+        if (!this.inited)
         {
             
-            return this.start ();
-                        
+            this.init (this.start,
+                       this.end);
+            
         }
         
+        this.noProblemsLabel.setVisible (false);        
+        
+        // Prevent the block being highlighted but ensure that inited is still true since the caret
+        // change will set it to false.
+        this.editor.getEditor ().setSelectionEnd (this.start);        
+        
+        this.inited = true;
+        
+        final ProblemFinder _this = this;        
+
         this.getIgnores ();
 
         this.clearHighlights ();
-
-        boolean resetPerformed = false;
         
-        final ProblemFinder _this = this;
+        TextBlock b = null;
         
-        while (true)
+        while ((b = this.iter.next ()) != null)
         {
-
-            if (!this.doSentences)
+            
+            Environment.logDebugMessage ("Looking for problems in: " + b);
+            
+            int c = this.processTextBlock (b);
+            
+            if (c > 0)
             {
                 
-                this.moveToNextParagraph ();
-                                
-                if (this.paragraph == null)
-                {
-
-                    this.addNoProblems ();
-                    
-                    UIUtils.createQuestionPopup (this.editor.getProjectViewer (),
-                                                 "No more problems found",
-                                                 Constants.INFO_ICON_NAME,
-                                                 "No more problems found.  Return to the start of the {chapter}?",
-                                                 "Yes, return to the start",
-                                                 null,
-                                                 new ActionListener ()
-                                                 {
-                                                    
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        try
-                                                        {
-                                                            
-                                                            _this.start (0);
-                                                            
-                                                        } catch (Exception e) {
-                                                            
-                                                            Environment.logError ("Unable to move back to start",
-                                                                                  e);
-                                                            
-                                                            UIUtils.showErrorMessage (_this.editor.getProjectViewer (),
-                                                                                      "Unable to move back to start of {chapter}");
-                                                            
-                                                        }
-                                                        
-                                                    }
-                                                    
-                                                 },
-                                                 new ActionListener ()
-                                                 {
-                                                    
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        _this.reset ();
-                                                        
-                                                    }
-                                                    
-                                                 },
-                                                 null);
-                    
-                    return 0;
-                                        
-                } else {
-                    
-                    int count = this.handleParagraph (this.paragraph);
-                    
-                    if (count > 0)
-                    {
-                        
-                        return count;
-                        
-                    }
-                    
-                }
-
-                this.doSentences = true;
-
-            } else {
+                Environment.logDebugMessage ("Got: " + c + " problems for text: " + b);
                 
-                this.moveToNextSentence ();
-
-                if (this.sentence == null)
-                {
-                    this.doSentences = false;
-                    
-                    continue;
-                    
-                } else {
-                    
-                    int count = this.handleSentence (this.sentence);
-                    
-                    if (count > 0)
-                    {
-                        
-                        return count;
-                        
-                    }
-                    
-                }
-
+                return c;
+                
             }
 
         }
 
+        this.addNoProblems ();        
+                
+        if (this.end > -1)
+        {
+            
+            UIUtils.showMessage (this.editor.getProjectViewer (),
+                                 "No more problems found",
+                                 "No more problems found in selected text.",
+                                 "Finish",
+                                 new ActionListener ()
+                                 {
+                                    
+                                    public void actionPerformed (ActionEvent ev)
+                                    {
+                                        
+                                        _this.editor.getEditor ().select (_this.start,
+                                                                          _this.end);
+                                        
+                                        _this.inited = false;
+                                        
+                                    }
+                                    
+                                 });
+            
+            return 0;
+
+        }
+        
+        ActionListener onCancel = new ActionListener ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+               
+               _this.reset ();
+               
+           }
+           
+        };
+        
+        UIUtils.createQuestionPopup (this.editor.getProjectViewer (),
+                                     "No more problems found",
+                                     Constants.INFO_ICON_NAME,
+                                     "No more problems found.  Return to the start of the {chapter}?",
+                                     "Yes, return to the start",
+                                     null,
+                                     new ActionListener ()
+                                     {
+                                        
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
+                                            
+                                            UIUtils.doLater (new ActionListener ()
+                                            {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+
+                                                    try
+                                                    {
+                                                        
+                                                        _this.init (0,
+                                                                    -1);
+                                                        
+                                                        _this.next ();
+                                                        
+                                                    } catch (Exception e) {
+                                                        
+                                                        Environment.logError ("Unable to move back to start",
+                                                                              e);
+                                                        
+                                                        UIUtils.showErrorMessage (_this.editor.getProjectViewer (),
+                                                                                  "Unable to move back to start of {chapter}");
+                                                        
+                                                    }
+                                                    
+                                                }
+                                                
+                                            });
+                                            
+                                        }
+                                        
+                                     },
+                                     onCancel,
+                                     onCancel,
+                                     null);
+        
+        return 0;
+        
     }
 
     public int previous ()
                   throws Exception
     {
-
-        if (this.textIter == null)
+        
+        if (!this.inited)
         {
-
-            return this.startPrevious ();
-                        
+            
+            this.init (this.start,
+                       this.end);
+            
         }
-    
+        
+        this.noProblemsLabel.setVisible (false);        
+        
+        final ProblemFinder _this = this;        
+
         this.getIgnores ();
 
         this.clearHighlights ();
         
-        while (true)
+        TextBlock b = null;
+        
+        while ((b = this.iter.previous ()) != null)
         {
             
-            if (!this.donePara)
+            Environment.logDebugMessage ("Looking for problems in: " + b);
+            
+            int c = this.processTextBlock (b);
+            
+            if (c > 0)
             {
                 
-                this.moveToPreviousParagraph ();
-
-                this.sentence = null;
-
-                if (this.paragraph == null)
-                {
-                    
-                    this.addNoProblems ();
-    
-                    UIUtils.showMessage (this.editor,
-                                         "No more problems found");
-                    
-                    this.reset ();
-                    
-                    return 0;
-                    
-                }
-
-                int count = this.handleParagraph (this.paragraph);
+                Environment.logDebugMessage ("Got: " + c + " problems for text: " + b);
                 
-                if (count > 0)
-                {
-                    
-                    return count;
-                    
-                }
-                                
-                this.donePara = true;
-                
-            } else {
-                
-                this.moveToPreviousSentence ();
-
-                if (this.sentence == null)
-                {
-                    
-                    this.donePara = false;
-                    continue;
-                    
-                }
-
-                int count = this.handleSentence (this.sentence);
-                
-                if (count > 0)
-                {
-                    
-                    return count;
-                    
-                }
+                return c;
                 
             }
-            
+
         }
+
+        this.addNoProblems ();        
+
+        if (this.end > -1)
+        {
+            
+            UIUtils.showMessage (this.editor.getProjectViewer (),
+                                 "No more problems found",
+                                 "No more problems found in selected text.",
+                                 "Finish",
+                                 new ActionListener ()
+                                 {
+                                    
+                                    public void actionPerformed (ActionEvent ev)
+                                    {
+                                                                                
+                                    }
+                                    
+                                 });
+            
+            return 0;
+
+        }
+        
+        UIUtils.showMessage ((PopupsSupported) this.editor,
+                             "No more problems",
+                             "No more problems found");
+        
+        return 0;
         
     }
 
     private void addNoProblems ()
     {
         
-        this.removeAll ();
-
-        JLabel l = new JLabel ("No problems found.",
-                               Environment.getIcon ("information",
-                                                    Constants.ICON_MENU),
-                               SwingConstants.TRAILING);
-
-        l.setAlignmentX (Component.LEFT_ALIGNMENT);
-        l.setOpaque (false);
-        l.setBorder (new EmptyBorder (5,
-                                      10,
-                                      3,
-                                      3));
-
-        this.add (l);
-
+        this.clearIssuesBox ();
+        
+        this.noProblemsLabel.setVisible (true);
+        
         this.getParent ().getParent ().validate ();
         this.getParent ().getParent ().repaint ();
                 
@@ -819,10 +589,10 @@ public class ProblemFinder extends Box
                                                                   ProjectEvent.IGNORE);
 
             } else {
-                
+
                 if (this.issuesToIgnore.remove (b.issue))
                 {
-    
+
                     this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
                                                                       ProjectEvent.UNIGNORE);
 
@@ -846,9 +616,12 @@ public class ProblemFinder extends Box
         
         IgnoreCheckbox cb = this.createIssueItem (iss);
         
-        final int sentenceStart = sentence.getAllTextStartOffset ();
-        final int sentenceEnd = sentence.getAllTextEndOffset ();
+        //final int sentenceStart = sentence.getAllTextStartOffset ();
+        //final int sentenceEnd = sentence.getAllTextEndOffset ();
 
+        //final int sentenceStart = textBlock.getAllTextStartOffset ();
+        //final int sentenceEnd = textBlock.getAllTextEndOffset ();
+        
         final Issue issue = iss;
 
         cb.addMouseListener (new MouseAdapter ()
@@ -890,7 +663,7 @@ public class ProblemFinder extends Box
     private IgnoreCheckbox createIssueItem (Issue iss)
     {
         
-        IgnoreCheckbox cb = new IgnoreCheckbox ("<html>" + iss.getDescription () + "</html>",
+        IgnoreCheckbox cb = new IgnoreCheckbox (iss.getDescription (),
                                                 iss,
                                                 this.editor);
         cb.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -932,6 +705,13 @@ public class ProblemFinder extends Box
         
     }
     
+    private void clearIssuesBox ()
+    {
+        
+        this.issuesBox.removeAll ();
+        
+    }
+    
     private void handleIssues (final List<Issue> issues,
                                final TextBlock   textBlock)
                         throws Exception
@@ -945,7 +725,7 @@ public class ProblemFinder extends Box
         if (issues.size () > 0)
         {
 
-            this.removeAll ();
+            this.clearIssuesBox ();
 
             final ProblemFinder _this = this;
 
@@ -954,10 +734,10 @@ public class ProblemFinder extends Box
             // Convert to the view.
             int height = -1;
 
-            SwingUtilities.invokeLater (new Runnable ()
+            UIUtils.doLater (new ActionListener ()
             {
 
-                public void run ()
+                public void actionPerformed (ActionEvent ev)
                 {
                     
                     try
@@ -985,12 +765,12 @@ public class ProblemFinder extends Box
                 if (i.getRule () instanceof SentenceRule)
                 {
             
-                    this.add (this.createSentenceIssueItem (i,
-                                                            textBlock));
+                    this.issuesBox.add (this.createSentenceIssueItem (i,
+                                                                      textBlock));
                     
                 } else {
                     
-                    this.add (this.createIssueItem (i));
+                    this.issuesBox.add (this.createIssueItem (i));
                     
                 }
 
@@ -1008,7 +788,7 @@ public class ProblemFinder extends Box
                                               3,
                                               3));
 
-                this.add (l);
+                this.issuesBox.add (l);
 
                 final java.util.List<IgnoreCheckbox> ignoredItems = new ArrayList ();
 
@@ -1020,10 +800,7 @@ public class ProblemFinder extends Box
                     ignoredItems.add (icb);
                     icb.setVisible (false);
                     icb.setSelected (true);
-                    this.add (icb);
-
-                    this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                      ProjectEvent.UNIGNORE);
+                    this.issuesBox.add (icb);
                                         
                 }
 
@@ -1046,6 +823,9 @@ public class ProblemFinder extends Box
 
                         l.setVisible (false);
 
+                        _this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                                           ProjectEvent.UNIGNORE);
+                        
                         _this.getParent ().getParent ().validate ();
                         _this.getParent ().getParent ().repaint ();
                         
@@ -1148,4 +928,186 @@ public class ProblemFinder extends Box
 
     }
 
+    private class TextBlockIterator
+    {
+        
+        private TextIterator iter = null;
+        private Paragraph para = null;
+        private Sentence sent = null;
+        private int endAt = -1;
+        private int startAt = -1;
+        private TextBlock current = null;
+        
+        public TextBlockIterator (String text,
+                                  int    startAt,
+                                  int    endAt)
+        {
+            
+            this.iter = new TextIterator (text);
+            this.startAt = startAt;            
+            
+            this.endAt = endAt;
+            
+        }
+        
+        public TextBlock next ()
+        {
+            
+            if (this.para == null)
+            {
+                
+                this.para = this.iter.getNextClosestParagraphTo (this.startAt);
+                
+                if (this.para == null)
+                {
+                    
+                    // At the end.
+                    return null;
+                    
+                }
+                
+                if (this.startAt > this.para.getStart ())
+                {
+                    
+                    this.sent = this.para.getNextClosestSentenceTo (this.startAt - this.para.getStart ());
+                    
+                    return this.sent;
+                    
+                }
+                                
+            } else {
+            
+                if (this.sent == null)
+                {
+                    
+                    this.sent = this.para.getFirstSentence ();
+                    
+                } else {
+                    
+                    this.sent = this.sent.getNext ();
+                    
+                }
+                
+                if (this.sent == null)
+                {
+                    
+                    // Get the next paragraph.
+                    this.para = this.para.getNext ();
+                        
+                } else {
+                    
+                    if ((this.sent.getAllTextStartOffset () > this.endAt)
+                        &&
+                        (this.endAt > -1)
+                       )
+                    {
+                        
+                        return null;
+                        
+                    }
+                    
+                    return this.sent;
+                    
+                }
+                
+                if (this.para == null)
+                {
+                    
+                    // Reached the end;
+                    return null;
+                    
+                }
+                                
+            }
+            
+            if ((this.para.getAllTextStartOffset () > this.endAt)
+                &&
+                (this.endAt > -1)
+               )
+            {
+                
+                return null;
+                
+            }
+            
+            return this.para;
+                        
+        }
+        
+        public TextBlock previous ()
+        {
+            
+            if (this.para == null)
+            {
+                
+                this.para = this.iter.getPreviousClosestParagraphTo (this.startAt);
+
+                if (this.startAt > this.para.getEnd ())
+                {
+                    
+                    this.sent = this.para.getLastSentence ();
+                    
+                } else {
+                
+                    this.sent = this.para.getPreviousClosestSentenceTo (this.startAt - this.para.getStart ());
+                    
+                }
+                
+            } else {
+                
+                if (this.sent == null)
+                {
+                    
+                    this.para = this.para.getPrevious ();
+                    
+                    if (this.para == null)
+                    {
+                        
+                        return null;
+                        
+                    }
+                    
+                    this.sent = this.para.getLastSentence ();
+                    
+                } else {
+                
+                    this.sent = this.sent.getPrevious ();
+                 
+                }
+
+                if (this.sent == null)
+                {
+                    
+                    if ((this.startAt > this.para.getAllTextStartOffset ())
+                        &&
+                        (this.endAt > -1)
+                       )
+                    {
+                        
+                        return null;
+                        
+                    }
+                    
+                    return this.para;
+                    
+                } 
+                
+            }
+            
+            if ((this.startAt > this.sent.getAllTextStartOffset ())
+                &&
+                (this.endAt > 1)
+               )
+            {
+                
+                return null;
+                
+            }
+
+            return this.sent;
+            
+        }
+        
+    }
+    
 }

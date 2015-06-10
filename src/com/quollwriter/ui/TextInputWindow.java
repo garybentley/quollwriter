@@ -37,10 +37,7 @@ public class TextInputWindow extends PopupWindow
         this.error = UIUtils.createErrorLabel ("Please enter a value.");
         
         this.error.setVisible (false);
-        this.error.setBorder (new EmptyBorder (0,
-                                               0,
-                                               5,
-                                               0));
+        this.error.setBorder (UIUtils.createPadding (5, 0, 0, 0));
         
     }
 
@@ -68,6 +65,31 @@ public class TextInputWindow extends PopupWindow
                                           final ActionListener onConfirm,
                                           final ActionListener onCancel)
     {
+
+        return TextInputWindow.create (viewer,
+                                       title,
+                                       icon,
+                                       message,
+                                       confirmButtonLabel,
+                                       null,
+                                       initValue,
+                                       validator,
+                                       onConfirm,
+                                       onCancel);
+    
+    }
+    
+    public static TextInputWindow create (AbstractProjectViewer viewer,
+                                          String                title,
+                                          String                icon,
+                                          String                message,
+                                          String                confirmButtonLabel,
+                                          String                cancelButtonLabel,
+                                          String                initValue,
+                                          final ValueValidator<String> validator,
+                                          final ActionListener onConfirm,
+                                          final ActionListener onCancel)
+    {
         
         final TextInputWindow ti = new TextInputWindow (viewer);
         
@@ -86,7 +108,7 @@ public class TextInputWindow extends PopupWindow
         ti.setWindowTitle (title);
                 
         JButton confirm = null;
-        JButton cancel = UIUtils.createButton ("Cancel",
+        JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : Constants.CANCEL_BUTTON_LABEL_ID),
                                                null);
         
         if (onConfirm != null)
@@ -271,17 +293,16 @@ public class TextInputWindow extends PopupWindow
                                                    this.text.getPreferredSize ().height));
         this.text.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                  this.text.getPreferredSize ().height));
+        
         this.text.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.error.setAlignmentX (Component.LEFT_ALIGNMENT);        
 
         this.content.add (this.error);
 
+        this.content.add (Box.createVerticalStrut (5));
         this.content.add (this.text);
                                         
-        this.content.setBorder (new EmptyBorder (0,
-                                                 0,
-                                                 0,
-                                                 0));
+        this.content.setBorder (UIUtils.createPadding (0, 0, 0, 0));
                                 
         return this.content;
         

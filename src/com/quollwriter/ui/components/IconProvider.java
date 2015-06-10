@@ -6,7 +6,7 @@ import javax.swing.*;
 public interface IconProvider
 {
 
-    public ImageIcon getIcon (String  name,
-                              int     type);
+    public ImageIcon getIcon (Object obj,
+                              int    type);
 
 }

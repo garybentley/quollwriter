@@ -47,16 +47,14 @@ public class QTextEditor extends JTextPane implements TextStylable
     private String                sectionBreak = null;
     private Set<StyleChangeListener> styleChangeListeners = new LinkedHashSet ();
     private LineHighlighter  lineHighlighter = null;
+    private boolean               canCopy = true;
 
     public QTextEditor(DictionaryProvider prov,
-                       boolean            spellCheckerEnabled,
-                       String             sectionBreak)
+                       boolean            spellCheckerEnabled)
     {
 
         this.setCaret (new QCaret ());
         this.getCaret ().setBlinkRate (500);
-
-        this.sectionBreak = sectionBreak;
 
         this.doc = new DefaultStyledDocument ();
 
@@ -370,6 +368,35 @@ public class QTextEditor extends JTextPane implements TextStylable
                 
     }
 
+    public void setCanCopy (boolean c)
+    {
+        
+        this.canCopy = c;
+        
+    }
+    
+    public boolean isCanCopy ()
+    {
+        
+        return this.canCopy;
+        
+    }
+    
+    @Override
+    public void copy ()
+    {
+        
+        if (!this.canCopy)
+        {
+            
+            return;
+        
+        }
+                
+        super.copy ();
+        
+    }
+    
     protected QTextEditor()
     {
 
@@ -432,8 +459,9 @@ public class QTextEditor extends JTextPane implements TextStylable
     {
 
         QTextEditor qt = new QTextEditor (null,
-                                          false,
-                                          this.sectionBreak);
+                                          false);
+        
+        qt.setSectionBreak (this.sectionBreak);
 
         qt.setLineSpacing (this.getLineSpacing ());
         qt.setFontSize (this.getPrintFontSize (this.getFontSize ()));
@@ -940,6 +968,13 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setFontFamily (String name)
     {
 
+        if (name == null)
+        {
+            
+            throw new IllegalArgumentException ("Font family name cannot be null");
+            
+        }
+    
         StyleConstants.setFontFamily (this.styles,
                                       name);
 
@@ -1030,9 +1065,9 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
-    public List getSpellCheckSuggestions (Point p)
+    public List getSpellCheckSuggestions (String word)
     {
-
+        
         if (this.spellChecker == null)
         {
 
@@ -1040,7 +1075,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         }
 
-        return this.spellChecker.getSuggestions (p);
+        return this.spellChecker.getSuggestions (word);
 
     }
 
@@ -1051,6 +1086,13 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public void setSectionBreak (String b)
+    {
+        
+        this.sectionBreak = b;
+        
+    }
+    
     private void initSectionBreaks (String t)
     {
 
@@ -1374,4 +1416,20 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
+    public boolean isPositionAtTextEnd (int p)
+    {
+        
+        int cl = this.getText ().length ();
+        
+        if (cl == 0)
+        {
+                        
+            return p == cl;
+            
+        }
+
+        return p >= cl;
+        
+    }    
+    
 }

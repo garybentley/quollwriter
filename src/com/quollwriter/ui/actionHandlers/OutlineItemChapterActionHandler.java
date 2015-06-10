@@ -249,6 +249,18 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 
                 }
 
+                // See if we are adding at the end of the chapter.
+                if (editor.isPositionAtTextEnd (it.getPosition ()))
+                {
+                    
+                    // Add a newline to the end of the chapter.
+                    editor.insertText (it.getPosition (),
+                                       "\n");
+                    
+                    it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () - 1));
+                    
+                }
+                
                 Scene s = this.chapter.getLastScene (it.getPosition ());
 
                 if (s != null)
@@ -279,7 +291,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
                                       e);
 
                 UIUtils.showErrorMessage (this.projectViewer,
-                                          "An internal error has occurred.\n\nUnable to add new plot outline item.");
+                                          "An internal error has occurred.\n\nUnable to add new {outlineitem}.");
 
                 return false;
 

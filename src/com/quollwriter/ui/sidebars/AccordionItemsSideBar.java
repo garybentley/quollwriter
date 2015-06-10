@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
@@ -49,6 +50,18 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
             }
             
         });
+        
+    }
+    
+    @Override
+    public void onShow ()
+    {
+        
+    }
+    
+    @Override
+    public void onHide ()
+    {
         
     }
     
@@ -164,6 +177,7 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
     }
  
     public void init ()
+               throws GeneralException
     {
         
         super.init ();

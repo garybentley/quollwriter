@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -25,6 +27,7 @@ import com.jgoodies.forms.layout.*;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.components.*;
@@ -86,6 +89,13 @@ public class FindOrOpen extends PopupWindow //JFrame
                 
             }
             
+            if (colInd == 2)
+            {
+                
+                return String.class;
+                
+            }
+            
             return String.class;
             
         }
@@ -137,7 +147,7 @@ public class FindOrOpen extends PopupWindow //JFrame
             {
                 
                 ImageIcon l = null;
-
+                
                 if (!ps.getProjectDirectory ().exists ())
                 {
                     
@@ -158,10 +168,35 @@ public class FindOrOpen extends PopupWindow //JFrame
                                              Constants.ICON_TREE);
                     
                 }
+                
+                if ((l == null)
+                    &&
+                    (ps.isEditorProject ())
+                   )
+                {
+                    
+                    // Return an editor icon.
+                    l = Environment.getIcon (Constants.EDITORS_ICON_NAME,
+                                             Constants.ICON_TREE);
+
+                }
+                
+                if ((l == null)
+                    &&
+                    (ps.isWarmupsProject ())
+                   )
+                {
+                    
+                    // Return an editor icon.
+                    l = Environment.getIcon (Constants.WARMUPS_ICON_NAME,
+                                             Constants.ICON_TREE);
+
+                }
+
                 /*
                 if (ps == this.loading)
                 {
-Won't animate due to rubber stamping in renderer.
+Won't animate due to rubber stamping in table renderer.
                     l = Environment.getLoadingIcon ();
                     
                 }
@@ -180,7 +215,7 @@ Won't animate due to rubber stamping in renderer.
             if (ps.getLastEdited () == null)
             {
 
-                return "Not yet edited";
+                return "N/A";
 
             }
 
@@ -249,15 +284,53 @@ Won't animate due to rubber stamping in renderer.
                                          help.getPreferredSize ().height + 10));
             b.add (help);
             
-            JPanel p = new JPanel (new BorderLayout ());
-            p.setOpaque (false);
-            p.setBorder (new EmptyBorder (0,
-                                          5,
-                                          5,
-                                          0));
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+            final JLabel loading = UIUtils.createLoadingLabel ("Opening {project}...");
+            
+            loading.setBorder (new EmptyBorder (10, 10, 10, 10));            
+            
+            JPanel panel = new JPanel (new BorderLayout ());
+            panel.setOpaque (false);
+            panel.setBorder (new EmptyBorder (0, 5, 5, 0));
+            panel.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
-            projOpenTable = new JTable ()
+            final ActionListener openProject = new ActionListener ()
+            {
+              
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    final Project p = (Project) ev.getSource ();
+                    
+                    //loading.setVisible (true);
+                    //_this.resize ();
+                    
+                    UIUtils.doLater (new ActionListener ()
+                    {
+                    
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                            
+                            if (_this.handleOpenProject (p))
+                            {
+        
+                                _this.close ();
+        
+                                return;
+                                
+                            } 
+                            
+                            //loading.setVisible (false);
+                            //_this.resize ();
+                            
+                        }
+
+                    });
+                    
+                }
+                
+            };
+            
+            this.projOpenTable = new JTable ()
             {
               
                 //Implement table cell tool tips.           
@@ -289,6 +362,33 @@ Won't animate due to rubber stamping in renderer.
                             
                     }
                         
+                    if ((tip == null)
+                        &&
+                        (p.isEditorProject ())
+                       )
+                    {
+                        
+                        EditorEditor ed = p.getForEditor ();
+                        
+                        if (ed != null)
+                        {
+                        
+                            tip = "You are editing this {project} for <b>" + ed.getMainName () + "</b>.";
+                            
+                        }
+                        
+                    }
+
+                    if ((tip == null)
+                        &&
+                        (p.isWarmupsProject ())
+                       )
+                    {
+                        
+                        tip = "This is your {warmups} {project}.";
+                        
+                    }
+
                     if (tip == null)
                     {
                         
@@ -296,20 +396,17 @@ Won't animate due to rubber stamping in renderer.
                         
                     }
                     
-                    return "<html>" + Environment.replaceObjectNames (tip) + "</html>";
+                    return String.format ("<html>%s</html>",
+                                          Environment.replaceObjectNames (tip));
                 
                 }              
                 
             };
 
-            projOpenTable.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            projOpenTable.setOpaque (false);
-            projOpenTable.setSelectionMode (ListSelectionModel.SINGLE_SELECTION);
-            projOpenTable.setRowMargin (3);
-            projOpenTable.setShowVerticalLines (false);
-            projOpenTable.setRowHeight (24);
+            UIUtils.initTable (this.projOpenTable);
+            this.projOpenTable.setSelectionMode (ListSelectionModel.SINGLE_SELECTION);
             
-            projOpenTable.addKeyListener (new KeyAdapter ()
+            this.projOpenTable.addKeyListener (new KeyAdapter ()
                 {
 
                     public void keyPressed (KeyEvent ev)
@@ -320,13 +417,7 @@ Won't animate due to rubber stamping in renderer.
 
                             Project p = (Project) projs.get (projOpenTable.getSelectedRow ());
 
-                            if (_this.handleOpenProject (p))
-                            {
-
-                                _this.setVisible (false);
-                                _this.dispose ();
-
-                            }
+                            openProject.actionPerformed (new ActionEvent (p, 1, "open"));
 
                             ev.consume ();
 
@@ -470,13 +561,7 @@ Won't animate due to rubber stamping in renderer.
                         if (ev.getClickCount () == 2)
                         {
 
-                            
-                            if (_this.handleOpenProject (p))
-                            {
-
-                                _this.close ();
-
-                            }
+                            openProject.actionPerformed (new ActionEvent (p, 1, "open"));
 
                         }
 
@@ -491,26 +576,64 @@ Won't animate due to rubber stamping in renderer.
             projOpenTable.getColumnModel ().getColumn (0).setMaxWidth (24);
             
             projOpenTable.getColumnModel ().getColumn (2).setMaxWidth (80);
-            JScrollPane s = new JScrollPane (projOpenTable);
-            s.setBorder (new LineBorder (Environment.getBorderColor (),
-                                         1));
-            s.setOpaque (false);
-            s.getViewport ().setOpaque (false);
-
-            s.setMinimumSize (new Dimension (200,
-                                             projOpenTable.getRowHeight () * 10));
-
+            JScrollPane s = UIUtils.createScrollPane (projOpenTable);
+            
+            projOpenTable.setRowSorter (new TableRowSorter (pstm)
+            {
+                
+                @Override
+                public Comparator<?> getComparator (int c)
+                {
+                    
+                    if (c == 2)
+                    {
+                        
+                        return new Comparator<String> ()
+                        {
+                        
+                            @Override 
+                            public int compare (String ds1,
+                                                String ds2)
+                            {
+                                
+                                // wtf... have to do it this way otherwise we'd have to do a convulted thing with the date column.
+                                Date d1 = Environment.parseDate (ds1);
+                                
+                                Date d2 = Environment.parseDate (ds2);
+                                
+                                return d1.compareTo (d2);
+                                
+                            }
+                        
+                            @Override
+                            public boolean equals (Object o)
+                            {
+                                
+                                return o == this;
+                                
+                            }
+                        
+                        };
+                        
+                    }
+                    
+                    return super.getComparator (c);
+                    
+                }
+                
+            });
+            
             projOpenTable.setPreferredScrollableViewportSize (new Dimension (-1,
                                                                              projOpenTable.getRowHeight () * 10));
 
-            projOpenTable.setFillsViewportHeight (true);
+            // Add a warning for the overdue editor projects.
+                                                                             
+            panel.add (s);
 
-            p.add (s);
-
-            b.add (p);
-
-            b.add (Box.createVerticalStrut (5));
-
+            b.add (panel);
+            
+            b.add (loading);
+            
             final JButton openBut = UIUtils.createButton ("Open",
                                                           null);
             openBut.setEnabled (false);
@@ -533,14 +656,9 @@ Won't animate due to rubber stamping in renderer.
                         }
 
                         Project p = (Project) projs.get (sel);
+
+                        openProject.actionPerformed (new ActionEvent (p, 1, "open"));
                         
-                        if (_this.handleOpenProject (p))
-                        {
-
-                            //_this.close ();
-
-                        }
-
                     }
 
                 });
@@ -578,10 +696,8 @@ Won't animate due to rubber stamping in renderer.
             JPanel bp = UIUtils.createButtonBar2 (buts,
                                                   Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
             bp.setOpaque (false);
-            bp.setBorder (new EmptyBorder (0,
-                                           5,
-                                           0,
-                                           0));
+            bp.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+                                           
             bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
             bp.setMaximumSize (bp.getPreferredSize ());
             b.add (bp);
@@ -981,7 +1097,7 @@ Won't animate due to rubber stamping in renderer.
                         try
                         {
                      
-                            Environment.removeProject (p);
+                            Environment.removeProjectFromProjectsFile (p);
                             
                         } catch (Exception e) {
                             

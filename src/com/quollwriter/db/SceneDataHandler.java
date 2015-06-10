@@ -9,12 +9,11 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class SceneDataHandler implements DataHandler
+public class SceneDataHandler implements DataHandler<Scene, Chapter>
 {
 
+    private final static String STD_SELECT_PREFIX = "SELECT chapterdbkey, position, dbkey, name, description, lastmodified, datecreated, properties FROM scene_v ";
     private ObjectManager objectManager = null;
-    private List<Scene>   allScenes = new ArrayList ();
-    private boolean       loaded = false;
 
     public SceneDataHandler(ObjectManager om)
     {
@@ -24,6 +23,7 @@ public class SceneDataHandler implements DataHandler
     }
 
     private Scene getScene (ResultSet rs,
+                            Chapter   parent,
                             boolean   loadChildObjects)
                      throws GeneralException
     {
@@ -39,10 +39,7 @@ public class SceneDataHandler implements DataHandler
             long key = rs.getLong (ind++);
 
             Scene s = new Scene (pos,
-                                 (Chapter) this.objectManager.getObjectByKey (Chapter.class,
-                                                                              chapterKey,
-                                                                              rs.getStatement ().getConnection (),
-                                                                              false));
+                                 parent);
             s.setKey (key);
             s.setName (rs.getString (ind++));
             s.setDescription (rs.getString (ind++));
@@ -51,27 +48,27 @@ public class SceneDataHandler implements DataHandler
             s.setDateCreated (rs.getTimestamp (ind++));
             s.setPropertiesAsString (rs.getString (ind++));
 
+            if (parent != null)
+            {
+            
+                parent.addScene (s);
+                
+            }
+            
             // Get all the notes.
-/*
+
             if (loadChildObjects)
             {
 
                 Connection conn = rs.getStatement ().getConnection ();
 
-                List items = this.objectManager.getObjects (OutlineItem.class,
-                                                            s,
-                                                            conn,
-                                                            loadChildObjects);
-
-                for (int i = 0; i < items.size (); i++)
-                {
-
-                    s.addOutlineItem ((OutlineItem) items.get (i));
-
-                }
+                this.objectManager.getObjects (OutlineItem.class,
+                                               s,
+                                               conn,
+                                               loadChildObjects);
 
             }
-*/
+
             return s;
 
         } catch (Exception e)
@@ -84,112 +81,22 @@ public class SceneDataHandler implements DataHandler
 
     }
 
-    private void loadAllScenes (Connection conn,
-                                boolean    loadChildObjects)
-                         throws GeneralException
+    @Override
+    public List<Scene> getObjects (Chapter     parent,
+                                   Connection  conn,
+                                   boolean     loadChildObjects)
+                            throws GeneralException
     {
-
-        if (!this.loaded)
-        {
-
-            this.loaded = true;
-
-            try
-            {
-
-                ResultSet rs = this.objectManager.executeQuery ("SELECT chapterdbkey, position, dbkey, name, description, lastmodified, datecreated, properties FROM scene_v",
-                                                                null,
-                                                                conn);
-
-                while (rs.next ())
-                {
-
-                    this.addScene (this.getScene (rs,
-                                                  loadChildObjects));
-
-                }
-
-                try
-                {
-
-                    rs.close ();
-
-                } catch (Exception e)
-                {
-                }
-
-                // Doing it this way so that if the child needs to perform the lookup then
-                // we won't go into a loop.
-                if (loadChildObjects)
-                {
-
-                    for (Scene s : this.allScenes)
-                    {
-
-                        List items = this.objectManager.getObjects (OutlineItem.class,
-                                                                    s,
-                                                                    conn,
-                                                                    loadChildObjects);
-
-                        for (int i = 0; i < items.size (); i++)
-                        {
-
-                            s.addOutlineItem ((OutlineItem) items.get (i));
-
-                        }
-
-                    }
-
-                }
-
-            } catch (Exception e)
-            {
-
-                throw new GeneralException ("Unable to load all scenes",
-                                            e);
-
-            }
-
-        }
-
-    }
-
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
-    {
-
-        this.loadAllScenes (conn,
-                            loadChildObjects);
-
-        List<Scene> ret = new ArrayList ();
-
-        for (Scene s : this.allScenes)
-        {
-
-            if (s.getChapter ().getKey ().equals (parent.getKey ()))
-            {
-
-                ret.add (s);
-
-            }
-
-        }
-
-        return ret;
-
-/*
-
-        List<Scene> ret = new ArrayList ();
 
         try
         {
 
+            List<Scene> ret = new ArrayList ();
+        
             List params = new ArrayList ();
             params.add (parent.getKey ());
-
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, position FROM scene_v WHERE chapterdbkey = ?",
+        
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE chapterdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -197,6 +104,7 @@ public class SceneDataHandler implements DataHandler
             {
 
                 ret.add (this.getScene (rs,
+                                        parent,
                                         loadChildObjects));
 
             }
@@ -206,89 +114,67 @@ public class SceneDataHandler implements DataHandler
 
                 rs.close ();
 
-            } catch (Exception e) {}
+            } catch (Exception e)
+            {
+            }
 
-        } catch (Exception e) {
+            return ret;
+            
+        } catch (Exception e)
+        {
 
-            throw new GeneralException ("Unable to load scenes for: " +
+            throw new GeneralException ("Unable to scenes for chapter: " +
                                         parent,
                                         e);
 
         }
 
-        return ret;
-*/
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public Scene getObjectByKey (int        key,
+                                 Chapter    parent,
+                                 Connection conn,
+                                 boolean    loadChildObjects)
+                          throws GeneralException
     {
-
-        this.loadAllScenes (conn,
-                            loadChildObjects);
-
-        for (Scene s : this.allScenes)
-        {
-
-            if (s.getKey ().intValue () == key)
-            {
-
-                return s;
-
-            }
-
-        }
-
-        return null;
-
-/*
-        Scene s = null;
 
         try
         {
-
+    
             List params = new ArrayList ();
             params.add (key);
-
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, position FROM scene_v WHERE dbkey = ?",
+        
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
                                                             params,
                                                             conn);
-
+    
             if (rs.next ())
             {
-
-                s = this.getScene (rs,
-                                   loadChildObjects);
-
+    
+                return this.getScene (rs,
+                                      parent,
+                                      loadChildObjects);
+    
             }
-
-            try
-            {
-
-                rs.close ();
-
-            } catch (Exception e) {}
-
+    
+            return null;
+        
         } catch (Exception e) {
-
-            throw new GeneralException ("Unable to load scene for key: " +
+            
+            throw new GeneralException ("Unable to get scene with key: " +
                                         key,
                                         e);
-
+            
         }
 
-        return s;
-*/
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (Scene      s,
                               Connection conn)
                        throws GeneralException
     {
-
-        Scene s = (Scene) d;
 
         List params = new ArrayList ();
         params.add (s.getKey ());
@@ -307,24 +193,14 @@ public class SceneDataHandler implements DataHandler
 
         }
 
-        this.addScene (s);
-
     }
 
-    private void addScene (Scene s)
-    {
-
-        this.allScenes.add (s);
-
-    }
-
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (Scene      s,
                               boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
-
-        Scene s = (Scene) d;
 
         if (deleteChildObjects)
         {
@@ -362,16 +238,13 @@ public class SceneDataHandler implements DataHandler
                                              params,
                                              conn);
 
-        this.allScenes.remove (s);
-
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (Scene      s,
                               Connection conn)
                        throws GeneralException
     {
-
-        Scene s = (Scene) d;
 
         List params = new ArrayList ();
         params.add (s.getPosition ());

@@ -28,6 +28,8 @@ import com.quollwriter.ui.components.FormAdapter;
 import com.quollwriter.ui.components.FormEvent;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.PopupAdapter;
+import com.quollwriter.ui.components.PopupEvent;
 import com.quollwriter.ui.renderers.*;
 
 
@@ -50,6 +52,7 @@ public abstract class AbstractActionHandler extends FormAdapter
     private boolean                 addHideControl = false;
     private Object                  highlight = null;
     private ActionListener          onShowAction = null;
+    private ActionListener          onHideAction = null;
 
     public AbstractActionHandler(NamedObject           d,
                                  AbstractProjectViewer pv,
@@ -106,6 +109,13 @@ public abstract class AbstractActionHandler extends FormAdapter
         
     }
     
+    public void setOnHideAction (ActionListener a)
+    {
+        
+        this.onHideAction = a;
+        
+    }
+
     public void setShowPopupAtPoint (Point  p,
                                      String position)
     {
@@ -410,14 +420,16 @@ public abstract class AbstractActionHandler extends FormAdapter
 
         Point p = null;
 
-        if ((this.popupOver instanceof QuollEditorPanel) &&
+        if ((this.popupOver instanceof ChapterItemViewer) &&
             (this.dataObject instanceof ChapterItem))
         {
 
-            QuollEditorPanel qep = (QuollEditorPanel) this.popupOver;
+            ChapterItemViewer qep = (ChapterItemViewer) this.popupOver;
 
             int y = 0;
 
+            Point lastMousePosition = qep.getLastMousePosition ();
+            
             int at = this.getShowAtPosition ();
 
             QTextEditor editor = qep.getEditor ();
@@ -448,11 +460,11 @@ public abstract class AbstractActionHandler extends FormAdapter
                     } else
                     {
 
-                        if (qep.lastMousePosition != null)
+                        if (lastMousePosition != null)
                         {
 
-                            at = editor.viewToModel (new Point (qep.lastMousePosition.x,
-                                                                qep.lastMousePosition.y));
+                            at = editor.viewToModel (new Point (lastMousePosition.x,
+                                                                lastMousePosition.y));
 
                         } else
                         {
@@ -515,16 +527,18 @@ public abstract class AbstractActionHandler extends FormAdapter
 
             }
 
-            int yOffset = 36;
+            y -= this.f.getPreferredSize ().height;
+            
+            int xOffset = 36;
 
             if (this.dataObject instanceof OutlineItem)
             {
 
-                yOffset = 22;
+                xOffset = 22;
 
             }
-
-            p = new Point (qep.getIconColumn ().getWidth () - yOffset,
+            
+            p = new Point (qep.getIconColumn ().getWidth () - xOffset,
                            y);
 
             /*
@@ -658,16 +672,18 @@ public abstract class AbstractActionHandler extends FormAdapter
         }
         
         this.popupOver.showPopupAt (this.f,
-                                    p);
-
+                                    p,
+                                    false);
+/*
         if (this.onShowAction != null)
         {
-            
+
             this.onShowAction.actionPerformed (new ActionEvent (this,
                                                                 1,
                                                                 "onShow"));
                                     
         }
+        */
     }
 
     private QTextEditor getEditor ()
@@ -675,31 +691,30 @@ public abstract class AbstractActionHandler extends FormAdapter
 
         QTextEditor editor = null;
 
-        if (this.popupOver instanceof ProjectViewer)
+        if (this.popupOver instanceof AbstractEditorPanel)
         {
 
-            QuollPanel qp = this.projectViewer.getCurrentlyVisibleTab ();
+            AbstractEditorPanel qep = (AbstractEditorPanel) this.popupOver;
 
-            if (qp instanceof AbstractEditorPanel)
+            editor = qep.getEditor ();
+
+        } else {
+
+            if (this.popupOver instanceof AbstractProjectViewer)
             {
-
-                AbstractEditorPanel qep = (AbstractEditorPanel) qp;
-
-                editor = qep.getEditor ();
-
-            }
-
-        } else
-        {
-
-            if (this.popupOver instanceof AbstractEditorPanel)
-            {
-
-                AbstractEditorPanel qep = (AbstractEditorPanel) this.popupOver;
-
-                editor = qep.getEditor ();
-
-            }
+    
+                QuollPanel qp = this.projectViewer.getCurrentlyVisibleTab ();
+    
+                if (qp instanceof AbstractEditorPanel)
+                {
+    
+                    AbstractEditorPanel qep = (AbstractEditorPanel) qp;
+    
+                    editor = qep.getEditor ();
+    
+                }
+    
+            } 
 
         }
 
@@ -726,15 +741,56 @@ public abstract class AbstractActionHandler extends FormAdapter
 
         }
 
+        final AbstractActionHandler _this = this;
+        
         QTextEditor editor = this.getEditor ();
 
         this.initForm (((editor != null) ? editor.getSelectedText () : null));
 
-        this.f.setVisible (true);
+        if ((this.onShowAction != null)
+            ||
+            (this.onHideAction != null)
+           )
+        {
 
-            this.f.getContent ().setPreferredSize (null);        
-            this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                                    this.f.getContent ().getPreferredSize ().height));
+            this.f.addPopupListener (new PopupAdapter ()
+            {
+             
+                public void popupShown (PopupEvent ev)
+                {
+                    
+                    if (_this.onShowAction != null)
+                    {
+                        
+                        _this.onShowAction.actionPerformed (new ActionEvent (_this,
+                                                                             1,
+                                                                             "onShow"));
+                        
+                    }
+                    
+                }
+                
+                public void popupHidden (PopupEvent ev)
+                {
+
+                    if (_this.onHideAction != null)
+                    {
+                        
+                        _this.onHideAction.actionPerformed (new ActionEvent (_this,
+                                                                             1,
+                                                                             "onHide"));
+                        
+                    }
+                    
+                }
+
+            });
+            
+        }
+        
+        this.f.getContent ().setPreferredSize (null);        
+        this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                this.f.getContent ().getPreferredSize ().height));
 
         this.showPopup (false);
 
@@ -761,7 +817,16 @@ public abstract class AbstractActionHandler extends FormAdapter
 
         if (editor != null)
         {
+/*
+            editor.setSelectionStart (s);
+            
+            if (e > s)
+            {
+                
+                editor.setSelectionEnd (e);
 
+            }                        
+  */      
             if (e > s)
             {
 

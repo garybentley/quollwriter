@@ -88,6 +88,7 @@ public class DeleteChapterItemActionHandler extends ActionAdapter
                                         
                                      },
                                      null,
+                                     null,
                                      showAt);
 
     }
@@ -163,6 +164,7 @@ public class DeleteChapterItemActionHandler extends ActionAdapter
                                                 }
                                                 
                                              },
+                                             null,
                                              null);
                 
                 return;

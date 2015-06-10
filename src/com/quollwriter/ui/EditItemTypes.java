@@ -49,7 +49,7 @@ public class EditItemTypes extends TypesEditor
                pv.getObjectTypesHandler (QObject.OBJECT_TYPE));
 
     }
-
+/*
     public String getWindowTitle ()
     {
 
@@ -77,7 +77,7 @@ public class EditItemTypes extends TypesEditor
         return null;
 
     }
-
+*/
     public String getNewTypeHelp ()
     {
         

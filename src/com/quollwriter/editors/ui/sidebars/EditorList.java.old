@@ -1,0 +1,112 @@
+package com.quollwriter.editors.ui.sidebars;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.image.*;
+import java.awt.event.*;
+
+import java.io.*;
+
+import java.util.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.border.*;
+import javax.activation.*;
+
+import com.quollwriter.*;
+import com.quollwriter.events.*;
+import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
+import com.quollwriter.ui.*;
+
+import com.quollwriter.ui.components.ScrollableBox;
+import com.quollwriter.ui.components.ActionAdapter;
+
+public class EditorList extends Box//ScrollableBox
+{
+    
+    private EditorsSideBar edSideBar = null;
+    private Map<EditorEditor.EditorStatus, AccordionItem> sections = new HashMap ();
+    
+    public EditorList (EditorsSideBar     sb,
+                       List<EditorEditor> editors)
+    {
+        
+        super (BoxLayout.Y_AXIS);
+        
+        this.edSideBar = sb;
+        this.setOpaque (true);
+        this.setBackground (UIUtils.getComponentColor ());
+
+        this.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                            Short.MAX_VALUE));
+                
+        Map<EditorEditor.EditorStatus, List<EditorEditor>> meditors = new HashMap ();
+        
+        // Sort them into buckets depending on status.
+        for (EditorEditor ed : editors)
+        {
+            
+            List<EditorEditor> eds = meditors.get (ed.getEditorStatus ());
+            
+            if (eds == null)
+            {
+                
+                eds = new ArrayList ();
+                
+                meditors.put (ed.getEditorStatus (),
+                              eds);
+                
+            }
+            
+            eds.add (ed);
+            
+        }
+          
+        this.sections.put (EditorEditor.EditorStatus.pending,
+                           this.createEditorsSection ("Current Editors",
+                                                      meditors.get (EditorEditor.EditorStatus.current)));
+
+        this.sections.put (EditorEditor.EditorStatus.pending,
+                           this.createEditorsSection ("Pending Editors",
+                                                      meditors.get (EditorEditor.EditorStatus.pending)));
+
+        this.sections.put (EditorEditor.EditorStatus.pending,
+                           this.createEditorsSection ("Previous Editors",
+                                                      meditors.get (EditorEditor.EditorStatus.previous)));
+        
+        this.add (UIUtils.createOpaqueGlue (BoxLayout.Y_AXIS));
+
+    }
+            
+    private AccordionItem createEditorsSection (String                    title,
+                                                List<EditorEditor>        eds)
+    {
+                  
+        AccordionItem ai = new AccordionItem (title,
+                                              null,
+                                              this.edSideBar.createEditorsList (eds));
+        
+        if (eds == null)
+        {
+            
+            ai.setVisible (false);
+            
+        }
+        
+        ai.init ();
+
+        this.add (ai);
+        
+        return ai;
+        
+    }
+    
+    public void init ()
+    {
+        
+        
+        
+    }
+    
+}

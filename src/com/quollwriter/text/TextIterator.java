@@ -10,11 +10,7 @@ public class TextIterator
     
     public TextIterator (String t)
     {
-        
-        //ParagraphIterator pi = new ParagraphIterator (t);
-        
-        //int st = pi.init (0);
-        
+                
         int l = t.length ();
                 
         Paragraph last = null;
@@ -160,10 +156,33 @@ public class TextIterator
         
         Paragraph p = this.getParagraphAt (i);
         
+        if (p == null)
+        {
+            
+            return null;
+            
+        }
+        
         return p.getSentenceAt (i - p.getAllTextStartOffset ());
         
     }
 
+    public Word getWordAt (int i)
+    {
+        
+        Sentence s = this.getSentenceAt (i);
+        
+        if (s == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return s.getWordAt (i - s.getAllTextStartOffset ());
+        
+    }
+    
     /**
      * For index i, find the paragraph that either contains the index or the previous paragraph closest
      * to the index.
@@ -396,6 +415,22 @@ public class TextIterator
         
     }
 
+    public List<Word> getWords ()
+    {
+        
+        List<Word> words = new ArrayList ();
+        
+        for (Paragraph p : this.paragraphs)
+        {
+            
+            words.addAll (p.getWords ());
+            
+        }
+        
+        return words;        
+        
+    }
+    
     public int getSentenceCount ()
     {
 

@@ -54,4 +54,9 @@
     <plural>Scenes</plural>
   </object>
   
+  <object type="editor">
+    <singular>Editor</singular>
+    <plural>Editors</plural>
+  </object>
+
 </objectNames>

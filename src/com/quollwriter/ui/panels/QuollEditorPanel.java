@@ -37,12 +37,13 @@ import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.ScrollablePanel;
+import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.renderers.*;
 
 import com.swabunga.spell.engine.*;
 import com.swabunga.spell.event.*;
 
-public class QuollEditorPanel extends AbstractEditorPanel
+public class QuollEditorPanel extends AbstractEditableEditorPanel implements ChapterItemViewer
 {
 
     public static final String SHOW_WORD_CLOUD_ACTION_NAME = "show-word-cloud";
@@ -70,10 +71,11 @@ public class QuollEditorPanel extends AbstractEditorPanel
     protected ProjectViewer         projectViewer = null;
     private Box                     problemFinderPanel = null;
     private ProblemFinder           problemFinder = null;
-    private ProblemFinderRuleConfig problemFinderRuleConfig = null;
+    //private ProblemFinderRuleConfig problemFinderRuleConfig = null;
     private JLabel                  ignoredProblemsLabel = null;
     private int                     lastCaret = -1;
     private ChapterItemTransferHandler chItemTransferHandler = null;
+    private BlockPainter highlight = null;    
 
     public QuollEditorPanel(ProjectViewer pv,
                             Chapter       c)
@@ -87,7 +89,42 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         final QuollEditorPanel _this = this;
 
-        this.iconColumn = new IconColumn (this);
+        DefaultIconProvider iconProv = new DefaultIconProvider ()
+        {
+
+            @Override
+            public ImageIcon getIcon (DataObject d,
+                                      int        type)
+            {
+               
+               if (d instanceof Note)
+               {
+                  
+                  Note n = (Note) d;
+                  
+                  if (n.isEditNeeded ())
+                  {
+                     
+                     return super.getIcon (Constants.EDIT_NEEDED_NOTE_ICON_NAME,
+                                           type);
+                     
+                  }
+                  
+               }
+               
+               return super.getIcon (d,
+                                     type);
+               
+            }
+
+         
+        };
+        
+        this.highlight = new BlockPainter (Environment.getHighlightColor ());                
+        
+        this.iconColumn = new IconColumn (this,
+                                          this.projectViewer.getIconProvider (),
+                                          this.projectViewer.getChapterItemViewPopupProvider ());
 
         this.iconColumn.addMouseListener (this);
 
@@ -189,8 +226,23 @@ public class QuollEditorPanel extends AbstractEditorPanel
                              public void actionPerformed (ActionEvent ev)
                              {
                                
-                                 _this.removeEditPosition ();
+                                 try
+                                 {
+                               
+                                    _this.projectViewer.removeChapterEditPosition (_this.chapter);
+                                    
+                                 } catch (Exception e) {
+                                    
+                                    Environment.logError ("Unable to remove edit position for chapter: " +
+                                                          _this.chapter,
+                                                          e);
+                                    
+                                    UIUtils.showErrorMessage (_this.projectViewer,
+                                                              "Unable to remove edit position.");
+                                    
                                                                                
+                                 }
+
                              }
                            
                           });
@@ -202,7 +254,22 @@ public class QuollEditorPanel extends AbstractEditorPanel
                              public void actionPerformed (ActionEvent ev)
                              {
                                
-                                 _this.setEditComplete (true);
+                                 try
+                                 {
+                                    
+                                    _this.projectViewer.setChapterEditComplete (_this.chapter,
+                                                                                true);
+
+                                 } catch (Exception e) {
+                                    
+                                    Environment.logError ("Unable to set chapter edit complete: " +
+                                                          _this.chapter,
+                                                          e);
+                                    
+                                    UIUtils.showErrorMessage (_this.projectViewer,
+                                                              "Unable to set {chapter} as edit complete.");
+                                                                               
+                                 }
                                                                                
                              }
                            
@@ -426,35 +493,16 @@ public class QuollEditorPanel extends AbstractEditorPanel
       
     }
     
-/*
+
     public ChapterItemTransferHandler getChapterItemTransferHandler ()
     {
         
         return this.chItemTransferHandler;
         
     }
-  */  
+    
     public JComponent getEditorWrapper (QTextEditor q)
     {
-/*
-        FormLayout fl = new FormLayout ("50px, fill:200px:grow",
-                                        "fill:p:grow");
-         fl.setHonorsVisibility (true);
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        builder.add (this.iconColumn,
-                     cc.xy (1,
-                            1));
-        builder.add (q,
-                     cc.xy (2,
-                            1));
-
-        JPanel p = builder.getPanel ();
-        p.setBorder (null);
-        p.setOpaque (false);
-*/
 
         Box b = new Box /*com.quollwriter.ui.components.ScrollableBox*/ (BoxLayout.X_AXIS);
         b.add (this.iconColumn);
@@ -481,6 +529,8 @@ public class QuollEditorPanel extends AbstractEditorPanel
     public void showProblemFinderRuleConfig ()
     {
 
+         this.projectViewer.showProblemFinderRuleConfig ();
+    /*
         if (this.problemFinderRuleConfig == null)
         {
 
@@ -491,7 +541,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         }
 
         this.problemFinderRuleConfig.setVisible (true);
-
+*/
     }
 
     public void doFillToolsPopupMenu (ActionEvent ev,
@@ -893,7 +943,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
          this.repaint ();
       
     }
-    
+    /*
     public void setEditPosition (int textPos)
     {
 
@@ -953,14 +1003,16 @@ public class QuollEditorPanel extends AbstractEditorPanel
         }
         
     }
-    
+    */
     public void setEditPosition (Point mouseP)
+                          throws Exception
     {
 
-        this.setEditPosition (this.editor.viewToModel (mouseP));
+        this.projectViewer.setChapterEditPosition (this.chapter,
+                                                   this.editor.viewToModel (mouseP));
         
     }
-    
+    /*
     public void removeEditPosition ()
     {
         
@@ -985,7 +1037,8 @@ public class QuollEditorPanel extends AbstractEditorPanel
         }
         
     }
-    
+    */
+    /*
     public void setEditComplete (boolean v)
     {
         
@@ -1026,7 +1079,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         }        
         
     }
-    
+    */
     public void doFillPopupMenu (final MouseEvent ev,
                                  final JPopupMenu popup,
                                        boolean    compress)
@@ -1115,7 +1168,21 @@ public class QuollEditorPanel extends AbstractEditorPanel
                                                public void actionPerformed (ActionEvent ev)
                                                {
                                                    
-                                                   _this.setEditPosition (mouseP);
+                                                   try
+                                                   {
+                                                   
+                                                      _this.setEditPosition (mouseP);
+                                                      
+                                                   } catch (Exception e) {
+                                                      
+                                                      Environment.logError ("Unable to set edit position for chapter: " +
+                                                                            _this.chapter,
+                                                                            e);
+                                                      
+                                                      UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                "Unable to set edit position.");
+                                                                                                 
+                                                   }
                                                    
                                                }
                                                
@@ -1190,8 +1257,22 @@ public class QuollEditorPanel extends AbstractEditorPanel
                                             public void actionPerformed (ActionEvent ev)
                                             {
                                                 
-                                                _this.setEditPosition (mouseP);
+                                                try
+                                                {
                                                 
+                                                   _this.setEditPosition (mouseP);
+                                                   
+                                                } catch (Exception e) {
+                                                   
+                                                   Environment.logError ("Unable to set edit position for chapter: " +
+                                                                         _this.chapter,
+                                                                         e);
+                                                   
+                                                   UIUtils.showErrorMessage (_this.projectViewer,
+                                                                             "Unable to set edit position.");
+                                                                                              
+                                                }
+                                                                                                
                                             }
                                             
                                          });
@@ -1356,10 +1437,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
          }
             
       });
-        /*
-        new ShowChapterItemActionHandler (n,
-                                          this).showItem ();
-*/
+
     }
 
    public void editScene (final  Scene s)
@@ -1436,10 +1514,6 @@ public class QuollEditorPanel extends AbstractEditorPanel
             
       });
     
-        /*
-        new ShowChapterItemActionHandler (s,
-                                          this).showItem ();
-*/
     }
 
     public void editOutlineItem (final  OutlineItem n)
@@ -1514,10 +1588,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
          }
             
       });
-        /*
-        new ShowChapterItemActionHandler (n,
-                                          this).showItem ();
-*/
+
     }
 
     public void scrollToNote (Note n)
@@ -1527,44 +1598,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         this.scrollToPosition (n.getPosition ());
 
     }
-/*
-    public void scrollToPosition (int p)
-                           throws GeneralException
-    {
 
-        Rectangle r = null;
-
-        try
-        {
-
-            r = this.editor.modelToView (p);
-
-        } catch (Exception e)
-        {
-
-            // BadLocationException!
-            throw new GeneralException ("Position: " +
-                                        p +
-                                        " is not valid.",
-                                        e);
-
-        }
-
-        if (r == null)
-        {
-
-            throw new GeneralException ("Position: " +
-                                        p +
-                                        " is not valid.");
-
-        }
-
-        int y = r.y - r.height;
-
-        this.scrollPane.getVerticalScrollBar ().setValue (y);
-
-    }
-*/
     public List<Component> getTopLevelComponents ()
     {
 
@@ -1614,10 +1648,14 @@ public class QuollEditorPanel extends AbstractEditorPanel
         
     }
     
-    public void doInit ()
-                 throws GeneralException
-    {
 
+   @Override    
+   public void init ()
+              throws GeneralException
+   {
+
+         super.init ();
+   
         final QuollEditorPanel _this = this;
 
         this.problemFinderPanel = new Box (BoxLayout.Y_AXIS);
@@ -1694,7 +1732,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
         this.problemFinderPanel.add (h);
         this.problemFinderPanel.setVisible (false);
         this.problemFinderPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+        
         this.problemFinder = new ProblemFinder (this);
         this.problemFinder.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -1743,11 +1781,11 @@ public class QuollEditorPanel extends AbstractEditorPanel
                 } catch (Exception e)
                 {
 
-                    Environment.logError ("Unable to goto previous sentence",
+                    Environment.logError ("Unable to goto previous.",
                                           e);
 
                     UIUtils.showErrorMessage (_this,
-                                              "Unable to go to previous sentence.");
+                                              "Unable to go to previous.");
 
                 }
 
@@ -1755,7 +1793,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         });
 
-        prev.setToolTipText ("Go back to the previous sentence with problems");
+        prev.setToolTipText ("Go back to the problem(s)");
 
         buts.add (prev);
         buts.add (Box.createHorizontalStrut (5));
@@ -1794,7 +1832,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
             });
 
-        next.setToolTipText ("Go to the next sentence with problems");
+        next.setToolTipText ("Find the next problem(s)");
         next.setHorizontalTextPosition (SwingConstants.LEFT);
 
         buts.add (next);
@@ -1852,6 +1890,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
                                                
                                             },
                                             null,
+                                            null,
                                             null);
                                 
             }
@@ -1871,6 +1910,8 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
         this.reinitIconColumn ();
 
+        this.setReadyForUse (true);        
+        
     }
 
    public void showProblemFinder ()
@@ -1889,7 +1930,7 @@ public class QuollEditorPanel extends AbstractEditorPanel
 
       this.problemFinderPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                               this.problemFinderPanel.getPreferredSize ().height));
-
+                                                              
       this.problemFinderPanel.setVisible (true);
 
       this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
@@ -1933,6 +1974,40 @@ public class QuollEditorPanel extends AbstractEditorPanel
         */
     }
     
+   public int getIconColumnXOffset (ChapterItem i)
+   {
+     
+      int xOffset = 36;
+
+      if (i instanceof OutlineItem)
+      {
+
+          xOffset = 22;
+
+      }
+      
+      return xOffset;
+     
+   }
+    
+   public void removeItemHighlightTextFromEditor (ChapterItem it)
+   {
+      
+      this.editor.removeAllHighlights (this.highlight);      
+    
+   }
+   
+   public void highlightItemTextInEditor (ChapterItem it)
+   {
+      
+      this.editor.removeAllHighlights (this.highlight);
+      this.editor.addHighlight (it.getStartPosition (),
+                                it.getEndPosition (),
+                                this.highlight,
+                                false);                    
+      
+   }
+    
     private void updateIgnoredProblemsLabel ()
     {
         
@@ -1963,14 +2038,14 @@ public class QuollEditorPanel extends AbstractEditorPanel
         this.problemFinder.saveIgnores ();
 
     }
-
+/*
     public ProblemFinderRuleConfig getProblemFinderRuleConfig ()
     {
 
         return this.problemFinderRuleConfig;
 
     }
-
+*/
     public void removeIgnoreCheckboxesForRule (Rule r)
     {
 
@@ -2098,5 +2173,6 @@ public class QuollEditorPanel extends AbstractEditorPanel
             return null;
         }
     }    
+
     
 }

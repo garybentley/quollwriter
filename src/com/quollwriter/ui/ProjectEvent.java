@@ -22,14 +22,18 @@ public class ProjectEvent extends EventObject
     public static final String PERSONAL_DICTIONARY = "personaldictionary";
     public static final String HELP = "help";
     public static final String BUG_REPORT = "bugreport";
+    public static final String CONTACT = "contact";
     public static final String EXPORT = "export";
     public static final String IMPORT = "import";
     public static final String PROBLEM_FINDER = "problemfinder";
+    public static final String PROBLEM_FINDER_RULE_CONFIG = "problemfinderruleconfig";
     public static final String ITEM_TYPES = "itemtypes";
+    public static final String NOTE_TYPES = "notetypes";
     public static final String IDEA_BOARD = "ideaboard";
     public static final String ACHIEVEMENTS = "achievements";
     public static final String TIPS = "tips";
     public static final String TABS = "tabs";
+    public static final String WHATS_NEW = "whatsnew";
     
     public static final String CHANGE_BACKGROUND = "changebackground";
     public static final String CHANGE_LANGUAGE = "changelanguage";

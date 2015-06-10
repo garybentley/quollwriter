@@ -1,54 +1,129 @@
 <update-script from="8" to="9">
   <item>
-    <log>Create the editor project table.</log>
+    <log>Add the version to dataobject.</log>
     <sql>
-CREATE TABLE editorproject
+ALTER TABLE dataobject ADD version UUID DEFAULT RANDOM_UUID()
+    </sql>
+  </item>
+    
+  <item>
+    <log>Add the latest flag to a dataobject.</log>
+    <sql>
+ALTER TABLE dataobject ADD latest BOOLEAN DEFAULT TRUE
+    </sql>
+  </item>
+
+  <item>
+    <log>Add the id to the dataobject.</log>
+    <sql>
+ALTER TABLE dataobject ADD id UUID DEFAULT RANDOM_UUID()
+    </sql>
+  </item>
+  
+  <item>
+    <log>Add the dealtwith to the note.</log>
+    <sql>
+ALTER TABLE note ADD dealtwith TIMESTAMP
+    </sql>
+  </item>
+
+  <item>
+    <log>Add a unique constraint on the id/version dataobject.</log>
+    <sql>
+ALTER TABLE dataobject ADD CONSTRAINT dataobject_idversion_uk UNIQUE(id, version)
+    </sql>
+  </item>
+
+  <item>
+    <log>Add the version to the note.</log>
+    <sql>
+ALTER TABLE note ADD objectversion UUID 
+    </sql>
+  </item>
+
+  <item>
+    <log>Init the note.objectversion.</log>
+    <sql>
+  UPDATE note n
+  SET    objectversion = (SELECT version FROM dataobject WHERE dbkey = objectdbkey);
+    </sql>
+  </item>
+  
+  <item>
+    <log>Make the objectversion mandatory for the note table.</log>
+    <sql>
+ALTER TABLE note MODIFY objectversion UUID NOT NULL
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for note.dbkey/objectversion - dataobject.dbkey/version.</log>
+    <sql>
+ALTER TABLE note ADD CONSTRAINT note_objectdbkeyversion_dataobject_dbkeyversion_fk FOREIGN KEY(objectdbkey, objectversion) REFERENCES dataobject(dbkey, version)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create the editorcomment table.</log>
+    <sql>
+CREATE TABLE editorcomment
 (
     dbkey BIGINT NOT NULL,
-    id VARCHAR(100) NOT NULL,
-    genres CLOB NOT NULL,
-    expectations CLOB NOT NULL,
-    wordcounttypelength VARCHAR(100) NOT NULL,
+    editor VARCHAR(500) NOT NULL,
+    forobjectdbkey BIGINT NOT NULL,
+    forobjectversion UUID NOT NULL,
+    position INTEGER NOT NULL,
+    end_position INTEGER,
+    dealtwith BOOLEAN DEFAULT false,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create foreign key constraint for editorcomment.objectdbkey/objectversion - dataobject.dbkey/version.</log>
+    <sql>
+ALTER TABLE editorcomment ADD CONSTRAINT editorcomment_forobjectdbkeyversion_dataobject_dbkeyversion_fk FOREIGN KEY(forobjectdbkey, forobjectversion) REFERENCES dataobject(dbkey, version)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create the projectversion table.</log>
+    <sql>
+CREATE TABLE projectversion
+(
+    dbkey BIGINT NOT NULL,
+    due TIMESTAMP,
     PRIMARY KEY (dbkey)
 )
     </sql>
   </item>
 
   <item>
-    <log>Create the editor table.</log>
+    <log>Create foreign key constraint for projectversion(dbkey)/namedobject(dbkey).</log>
     <sql>
-CREATE TABLE editor
-(
-    dbkey BIGINT NOT NULL,
-    id VARCHAR(100) NOT NULL,
-    shortname VARCHAR(500),
-    avatarimage BLOB,
-    publickey BLOB NOT NULL,
-    yourpublickey BLOB NOT NULL,
-    yourprivatekey BLOB NOT NULL,
-    PRIMARY KEY (dbkey)
-)
+ALTER TABLE projectversion ADD CONSTRAINT projver_dbkey_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
     </sql>
   </item>
-
+  
   <item>
-    <log>Create the chatmessage table.</log>
+    <log>Add the version to the note.</log>
     <sql>
-CREATE TABLE chatmessage
-(
-    dbkey BIGINT NOT NULL,
-    datereceived TIMESTAMP,
-    editordbkey BIGINT NOT NULL,
-    message CLOB,
-    PRIMARY KEY (dbkey)
-)
+ALTER TABLE chapter ADD projectversiondbkey BIGINT
     </sql>
   </item>
-
+  
   <item>
-    <log>Create foreign key constraint for editor/chatmessage.</log>
+    <log>Create foreign key constraint for chapter(projectversiondbkey)/projectversion(dbkey).</log>
     <sql>
-ALTER TABLE chatmessage ADD CONSTRAINT editor_fk FOREIGN KEY(editordbkey) REFERENCES editor(dbkey)
+ALTER TABLE chapter ADD CONSTRAINT chapter_projverdbkey_projver_fk FOREIGN KEY(projectversiondbkey) REFERENCES projectversion(dbkey)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Add the issue id to the problemfinderignore table.</log>
+    <sql>
+ALTER TABLE problemfinderignore ADD issueid CLOB
     </sql>
   </item>
   

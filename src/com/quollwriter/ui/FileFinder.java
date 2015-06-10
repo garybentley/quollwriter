@@ -9,6 +9,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
+import com.jgoodies.forms.builder.*;
+import com.jgoodies.forms.factories.*;
+import com.jgoodies.forms.layout.*;
+
 import com.quollwriter.*;
 
 import com.quollwriter.ui.components.ActionAdapter;
@@ -154,23 +158,23 @@ public class FileFinder extends Box
         
         this.text.setEditable (this.allowUserEntry);
         this.text.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.text.setPreferredSize (new Dimension (350,
-                                                   this.text.getPreferredSize ().height));
-        this.text.setMaximumSize (new Dimension (350,
-                                                 this.text.getPreferredSize ().height));
+/*
+        this.setMaximumSize (new Dimension (350,
+                                                 this.getPreferredSize ().height));
+  */                                               
         this.text.setToolTipText (Environment.replaceObjectNames ("Click to open the finder"));
                                                  
         this.setAlignmentX (Component.LEFT_ALIGNMENT);                                              
                                               
-        this.add (text);
-        this.add (Box.createHorizontalStrut (2));
+        //this.add (text);
+        //this.add (Box.createHorizontalStrut (2));
 
         final JButton dbut = UIUtils.createButton ("find",
                                                    Constants.ICON_MENU,
                                                    Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")),
                                                    null);
         
-        this.add (dbut);
+        //this.add (dbut);
 
         if (this.chooser == null)
         {
@@ -247,9 +251,9 @@ public class FileFinder extends Box
         if (this.cancelButton != null)
         {
             
-            this.add (Box.createHorizontalStrut (2));
+            //this.add (Box.createHorizontalStrut (2));
         
-            this.add (this.cancelButton);    
+            //this.add (this.cancelButton);    
                 
             if (this.onCancel != null)
             {
@@ -277,6 +281,40 @@ public class FileFinder extends Box
             }
             
         }
+        
+        FormLayout fl = new FormLayout ("fill:300px:grow, 2px, p" + (this.cancelButton != null ? ", 2px, p" : ""),
+                                        "p");
+
+        PanelBuilder builder = new PanelBuilder (fl);
+
+        CellConstraints cc = new CellConstraints ();
+                        
+        builder.add (this.text,
+                     cc.xy (1,
+                            1));
+
+        builder.add (dbut,
+                     cc.xy (3,
+                            1));
+
+        if (this.cancelButton != null)
+        {
+            
+            builder.add (this.cancelButton,
+                         cc.xy (5,
+                                1));
+                        
+        }
+
+        JPanel p = builder.getPanel ();
+        p.setOpaque (false);
+        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        
+        this.setOpaque (false);
+        this.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        p.setAlignmentY (JComponent.TOP_ALIGNMENT);
+        this.add (p);
+        
     }
 
     public File getSelectedFile ()

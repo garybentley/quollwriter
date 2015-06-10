@@ -43,8 +43,11 @@ import com.jgoodies.looks.*;
 import com.jgoodies.looks.windows.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.data.comparators.*;
+
+import com.quollwriter.text.*;
 
 import com.quollwriter.events.*;
 
@@ -66,8 +69,9 @@ import com.quollwriter.ui.components.Runner;
 import com.quollwriter.achievements.*;
 import com.quollwriter.achievements.rules.*;
 
-import org.jdom.*;
+import com.quollwriter.editors.ui.*;
 
+import org.jdom.*;
 
 public class Environment
 {
@@ -79,7 +83,6 @@ public class Environment
     public static Map defaultObjectProperties = new HashMap ();
 
     public static com.gentlyweb.properties.Properties userProperties = new com.gentlyweb.properties.Properties ();
-    public static IconProvider                        iconProvider = new DefaultIconProvider ();
 
     private static Logger generalLog = null;
     private static Logger errorLog = null;
@@ -89,12 +92,13 @@ public class Environment
     public static boolean seenReportBugMessage = false;
 
     private static String appVersion = null;
+    private static boolean betaVersion = false;
     private static int    schemaVersion = 0;
 
     private static SimpleDateFormat dateFormatter = null;
     private static SimpleDateFormat timeFormatter = null;
 
-    public static boolean  debugMode = false;
+    private static boolean  debugMode = false;
     private static boolean doneVersionCheck = false;
     public static boolean  isWindows = false;
     public static boolean  isMac = false;
@@ -115,13 +119,13 @@ public class Environment
 
     private static Map<String, String> objectTypeNamesSingular = new HashMap ();
     private static Map<String, String> objectTypeNamesPlural = new HashMap ();
-        
-    private static EditorsWebServiceHandler editorsHandler = null;
-    public static boolean editorServiceAvailable = false;
-    
+            
     private static Map<String, SynonymProvider> synonymProviders = new WeakHashMap ();
     
     private static Map<String, String> buttonLabels = new HashMap ();
+    
+    private static List<PropertyChangedListener> startupProgressListeners = new ArrayList ();
+    private static int startupProgress = 0;
     
     static
     {
@@ -132,6 +136,12 @@ public class Environment
                "Cancel");
         m.put (Constants.CONFIRM_BUTTON_LABEL_ID,
                "Ok, got it");
+        m.put (Constants.SAVE_BUTTON_LABEL_ID,
+               "Save");
+        m.put (Constants.SEND_BUTTON_LABEL_ID,
+               "Send");
+        m.put (Constants.UPDATE_BUTTON_LABEL_ID,
+               "Update");
         
     }
     
@@ -151,6 +161,69 @@ public class Environment
         public static final String singular = "singular";
         public static final String plural = "plural";
 
+    }
+        
+    public static void addStartupProgressListener (PropertyChangedListener l)
+    {
+        
+        Environment.startupProgressListeners.add (l);
+        
+    }
+    
+    private static void fireStartupProgressEvent ()
+    {
+
+        PropertyChangedEvent ev = new PropertyChangedEvent (new Object (),
+                                                            "progress",
+                                                            0,
+                                                            Environment.startupProgress);
+        
+        for (PropertyChangedListener l : Environment.startupProgressListeners)
+        {
+            
+            l.propertyChanged (ev);
+            
+        }
+        
+    }
+        
+    public static void incrStartupProgress ()
+    {
+        
+        if (Environment.isStartupComplete ())
+        {
+            
+            return;
+            
+        }
+        
+        Environment.startupProgress += 9;
+        
+        Environment.fireStartupProgressEvent ();
+        
+    }
+    
+    public static void startupComplete ()
+    {
+        
+        if (Environment.isStartupComplete ())
+        {
+            
+            return;
+            
+        }
+        
+        Environment.startupProgress = 100;
+
+        Environment.fireStartupProgressEvent ();
+                
+    }
+
+    public static boolean isStartupComplete ()
+    {
+        
+        return Environment.startupProgress == 100;
+        
     }
     
     public static boolean isDistractionFreeModeEnabled ()
@@ -172,6 +245,46 @@ public class Environment
         
     }
     
+    public static AbstractProjectViewer getFocusedProjectViewer ()
+    {
+
+        if (Environment.openProjects.size () == 0)
+        {
+            
+            return null;
+            
+        }
+    
+        for (AbstractProjectViewer viewer : Environment.openProjects.values ())
+        {
+            
+            if (viewer.isFocused ())
+            {
+                
+                return viewer;
+                
+            }
+            
+        }
+        
+        // Return the first viewer that is showing.
+        for (AbstractProjectViewer viewer : Environment.openProjects.values ())
+        {
+            
+            if (viewer.isShowing ())
+            {
+                
+                return viewer;
+                
+            }
+            
+        }
+        
+        // What the derp... Return the first.
+        return Environment.openProjects.values ().iterator ().next ();
+                
+    }
+    
     public static String getUrlFileAsString (URL    url)
                                              throws Exception
     {
@@ -190,35 +303,7 @@ public class Environment
         return new String (bout.toByteArray ());
                 
     }
-    
-    public static Set<String> getWritingGenres ()
-    {
         
-        String gt = Environment.getProperty (Constants.WRITING_GENRES_PROPERTY_NAME);
-        
-        Set<String> gitems = new LinkedHashSet ();
-        
-        StringTokenizer t = new StringTokenizer (gt,
-                                                 ",");
-        
-        while (t.hasMoreTokens ())
-        {
-            
-            gitems.add (t.nextToken ().trim ());
-            
-        }
-        
-        return gitems;
-        
-    }
-    
-    public static EditorsWebServiceHandler getEditorsWebServiceHandler ()
-    {
-        
-        return Environment.editorsHandler;
-        
-    }
-    
     public static AbstractProjectViewer getProjectViewer (Project p)
     {
         
@@ -226,6 +311,18 @@ public class Environment
         
     }
 
+    public static void removeSideBarFromAllProjectViewers (String name)
+    {
+        
+        for (AbstractProjectViewer pv : Environment.openProjects.values ())
+        {
+            
+            pv.removeSideBar (pv.getSideBar (name));
+            
+        }        
+        
+    }
+    
     public static Book createTestBook ()
                                        throws Exception
     {
@@ -302,7 +399,7 @@ public class Environment
     {
         
         Environment.upgradeRequired = true;
-        
+                
     }
     
     public static void addInstallJarToDelete (File oldFile,
@@ -699,6 +796,16 @@ public class Environment
 
         }
 
+        if ((p1.getId () != null)
+            &&
+            (p2.getId () != null)
+           )
+        {
+            
+            return p1.equals (p2);
+            
+        }
+        
         if (p1.getName ().equalsIgnoreCase (p2.getName ()))
         {
 
@@ -710,10 +817,86 @@ public class Environment
 
     }
 
-    public static void removeProject (Project p)
+    public static void deleteProject (Project pr)
+    {
+
+        Environment.deleteProject (pr,
+                                   null);
+        
+    }
+    
+    public static void deleteProject (Project        pr,
+                                      ActionListener onDelete)
+    {
+        
+        AbstractProjectViewer viewer = Environment.openProjects.get (pr);
+        
+        if (viewer != null)
+        {
+            
+            viewer.close (true,
+                          null);
+            
+        }
+        
+        // Delete the directory.
+        Utils.deleteDir (pr.getProjectDirectory ());
+
+        // Remove the project from the list.
+        try
+        {
+
+            Environment.removeProjectFromProjectsFile (pr);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to remove project: " +
+                                  pr +
+                                  " from list of projects.",
+                                  e);
+
+        }
+
+        if (onDelete != null)
+        {
+            
+            onDelete.actionPerformed (new ActionEvent (pr, 1, "deleted"));
+            
+        } else {
+        
+            Environment.showFindOrOpenIfNoOpenProjects ();
+
+        }
+        
+    }
+    
+    public static void showFindOrOpenIfNoOpenProjects ()
+    {
+        
+        // Show the welcome screen if there are no projects open.
+        if (Environment.getOpenProjects ().size () == 0)
+        {
+
+            FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
+
+            f.pack ();
+
+            UIUtils.setCenterOfScreenLocation (f);
+
+            f.setVisible (true);
+
+        }
+        
+    }
+    
+    public static void removeProjectFromProjectsFile (Project p)
                                throws Exception
     {
 
+        // Remove all the project editors for the project.
+        EditorsEnvironment.removeProjectEditors (p);
+    
         Set<Project> projs = Environment.getAllProjects ();
 
         Set<Project> nprojs = new LinkedHashSet ();
@@ -796,11 +979,17 @@ public class Environment
 
             Project p = iter.next ();
 
-            if (p.getName ().equalsIgnoreCase (proj.getName ()))
+            if (Environment.projectsEqual (p,
+                                           proj))
             {
-
+            
                 p.setLastEdited (new Date ());
-
+                                
+                // Need to do it here since when we getAllProjects we do a fresh read
+                // of the projects file.
+                Environment.initProjectId (p,
+                                           pv.getProject ());                                
+                                
             }
 
         }
@@ -851,6 +1040,18 @@ public class Environment
 
     }
 
+    public static void addProjectToListOfProjects (Project p)
+                                            throws Exception
+    {
+        
+        Set<Project> projs = Environment.getAllProjects ();
+
+        projs.add (p);
+
+        Environment.saveProjectsFile (projs);
+        
+    }
+    
     public static void addOpenedProject (AbstractProjectViewer pv)
                                   throws Exception
     {
@@ -858,14 +1059,10 @@ public class Environment
         Environment.openProjects.put (pv.getProject (),
                                       pv);
 
-        Set<Project> projs = Environment.getAllProjects ();
-
-        projs.add (pv.getProject ());
-
-        Environment.saveProjectsFile (projs);
+        Environment.addProjectToListOfProjects (pv.getProject ());
 
     }
-
+    
     public static String replaceObjectNames (String t)
     {
 
@@ -894,7 +1091,16 @@ public class Environment
 
                 String newot = ot.toLowerCase ();
 
-                if (ot.endsWith ("s"))
+                boolean an = newot.startsWith ("an ");
+                        
+                if (an)
+                {
+                    
+                    newot = newot.substring (3);
+                                
+                }
+                
+                if (newot.endsWith ("s"))
                 {
 
                     newot = Environment.getObjectTypeNamePlural (newot.substring (0,
@@ -915,25 +1121,36 @@ public class Environment
                 } else
                 {
 
-                    if (start > -1)
+                    if (Character.isUpperCase (ot.charAt (0)))
                     {
 
-                        if (Character.isUpperCase (ot.charAt (0)))
-                        {
+                        newot = Character.toUpperCase (newot.charAt (0)) + newot.substring (1);
 
-                            newot = Character.toUpperCase (newot.charAt (0)) + newot.substring (1);
+                    } else
+                    {
 
-                        } else
-                        {
-
-                            newot = newot.toLowerCase ();
-
-                        }
+                        newot = newot.toLowerCase ();
 
                     }
 
                 }
 
+                if (an)
+                {
+                    
+                    if (TextUtilities.isVowel (newot.toLowerCase ().charAt (0)))
+                    {
+                        
+                        newot = "an " + newot;
+                        
+                    } else {
+                        
+                        newot = "a " + newot;
+                        
+                    }
+                    
+                }
+                
                 b.replace (start,
                            end + 1,
                            newot);
@@ -1052,7 +1269,7 @@ public class Environment
                                       p,
                                       e);
 
-                Startup.ss.finish ();
+                Environment.startupComplete ();
 
                 return false;
 
@@ -1066,9 +1283,16 @@ public class Environment
 
     }
     
-    public static Project getProject (String name)
-                                      throws Exception
+    public static Project getProjectByName (String name)
+                                     throws Exception
     {
+        
+        if (name == null)
+        {
+            
+            return null;
+            
+        }
         
         Set<Project> projs = Environment.getAllProjects ();
 
@@ -1088,6 +1312,382 @@ public class Environment
         
     }
     
+    public static Project getProjectById (String id,
+                                          String projType)
+                                   throws Exception
+    {
+        
+        if (id == null)
+        {
+            
+            return null;
+            
+        }
+        
+        Set<Project> projs = Environment.getAllProjects ();
+
+        for (Project p : projs)
+        {
+            
+            String pid = p.getId ();
+            
+            if (pid == null)
+            {
+                
+                continue;
+                
+            }
+            
+            if (projType != null)
+            {
+                
+                if (!p.getType ().equals (projType))
+                {
+                    
+                    continue;
+                    
+                }
+                
+            }
+            
+            if (pid.equals (id))
+            {
+                
+                return p;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+        
+    /** For a given project, get the project version object by its id.
+     *
+     * @param p The project.
+     * @param id The project version id.
+     * @param filePassword The password for the project file if it is encrypted.
+     * @return The project version, if it can be found.
+     * @throws Exception If something goes wrong.
+     * TODO: Move the filepassword into the project and expect it there instead.
+     */
+    public static ProjectVersion getProjectVersionById (Project p,
+                                                        String  id,
+                                                        String  filePassword)
+                                                 throws Exception
+    {
+        
+        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+        
+        ObjectManager om = null;
+        
+        if (pv != null)
+        {
+            
+            // Load up the chapters.
+            om = pv.getObjectManager ();
+            
+        } else {
+                                          
+            // Open the project.
+            om = Environment.getProjectObjectManager (p,
+                                                      filePassword);
+            
+            om.getProject ();
+            
+        }
+        
+        ProjectVersionDataHandler pdh = (ProjectVersionDataHandler) om.getHandler (ProjectVersion.class);
+        
+        return pdh.getById (id);
+        
+    }
+    
+    /**
+     * For a given project get the text/data for the versions of the chapters passed in.  This assumes that the
+     * text is not already available in the chapter object, for example when you only know the id and version.
+     *
+     * @param p The project.
+     * @param chaps The chapters to look up.
+     * @param filePassword The password for the project file if it is encrypted.
+     * @return The set of versioned chapters.
+     * @throws If something goes wrong.
+     * TODO: Move the filepassword into the project and expect it there instead.
+     */
+    public static Set<Chapter> getVersionedChapters (Project             p,
+                                                     Collection<Chapter> chaps,
+                                                     String              filePassword)
+                                              throws Exception
+    {
+        
+        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+        
+        ObjectManager om = null;
+        
+        if (pv != null)
+        {
+            
+            // Load up the chapters.
+            om = pv.getObjectManager ();
+            
+        } else {
+                                          
+            // Open the project.
+            om = Environment.getProjectObjectManager (p,
+                                                      filePassword);
+            
+            om.getProject ();
+            
+        }
+        
+        ChapterDataHandler cdh = (ChapterDataHandler) om.getHandler (Chapter.class);
+        
+        return cdh.getVersionedChapters (chaps);
+        
+    }
+    
+    /**
+     * Update the chapters to the versions provided.  This creates new chapter objects with new keys but
+     * keeps the id/version in the chapter.
+     *
+     * @param p The project.
+     * @param projVer The new project version to update to.
+     * @param chaps The chapters to update.
+     * @param filePassword The password for the project file if it is encrypted.
+     * @return The set of versioned chapters.
+     * @throws If something goes wrong.
+     * TODO: Move the filepassword into the project and expect it there instead.
+     */
+    public static Set<Chapter> updateToNewVersions (Project             p,
+                                                    ProjectVersion      projVer,
+                                                    Collection<Chapter> chaps,
+                                                    String              filePassword)
+                                             throws Exception
+    {
+        
+        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+        
+        ObjectManager om = null;
+        
+        if (pv != null)
+        {
+            
+            // Load up the chapters.
+            om = pv.getObjectManager ();
+            
+        } else {
+                                        
+            // Open the project.
+            om = Environment.getProjectObjectManager (p,
+                                                      filePassword);
+            
+            om.getProject ();
+            
+        }
+        
+        ChapterDataHandler cdh = (ChapterDataHandler) om.getHandler (Chapter.class);
+        
+        return cdh.updateToNewVersions (projVer,
+                                        chaps);
+        
+    }
+
+    /**
+     * Get an object manager for the specified project and init it.
+     *
+     * @param p The project.
+     * @param filePassword Optional, the password for the project if it is encrypted.
+     * @returns The object manager for the project.
+     * @throws An exception if the object manager cannot be inited.
+     * TODO: Move the filepassword into the project and expect it there instead.
+     */
+    public static ObjectManager getProjectObjectManager (Project p,
+                                                         String  filePassword)
+                                                  throws GeneralException
+    {
+        
+        // Get the username and password.
+        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+        
+        ObjectManager dBMan = new ObjectManager ();
+        dBMan.init (new File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+                    username,
+                    password,
+                    filePassword,
+                    Environment.getSchemaVersion ());
+        
+        return dBMan;
+    
+    }
+    
+    /**
+     * Creates a completely new project with the specified name at the <b>saveDir/name</b> location.
+     * If the project is to be encrypted then a <b>filePassword</b> should be supplied.  The schema will be created.
+     *
+     * @param saveDir The directory to save the project to.
+     * @param name The name of the project.
+     * @param filePassword Optional, provide if the project is to be encrypted.
+     * @returns The new project object created.
+     * @throws An exception if the schema cannot be created or if the save location already exists.
+     */
+    public static Project createNewProject (File   saveDir,
+                                            String name,
+                                            String filePassword)
+                                     throws Exception
+    {
+        
+        File projDir = new File (saveDir,
+                                 Utils.sanitizeForFilename (name));
+
+        if (projDir.exists ())
+        {
+            
+            throw new IllegalArgumentException ("A project with name: " +
+                                                name +
+                                                " already exists at: " +
+                                                projDir);
+                                 
+        }
+        
+        Project p = new Project ();
+        p.setName (name);
+        
+        // Get the username and password.
+        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+
+        ObjectManager dBMan = new ObjectManager ();
+        dBMan.init (new File (projDir.getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+                    username,
+                    password,
+                    filePassword,
+                    0);
+
+        // Create a file that indicates that the directory can be deleted.
+        Utils.createQuollWriterDirFile (projDir);
+
+        p.setProjectDirectory (projDir);
+        p.setEncrypted (filePassword != null);
+
+        Book b = new Book (p,
+                           p.getName ());
+                
+        p.addBook (b);
+        
+        dBMan.saveObject (p,
+                          null);        
+        
+        dBMan.closeConnectionPool ();
+        
+        return p;
+        
+    }
+    
+    /**
+     * Creates the specified project (containing the relevant information) at the <b>saveDir/p.getName ()</b> location.
+     * If the project is to be encrypted then a <b>filePassword</b> should be supplied.  The schema will be created.
+     *
+     * @param saveDir The directory to save the project to.
+     * @param p The project.
+     * @param filePassword Optional, provide if the project is to be encrypted.
+     * @throws An exception if the schema cannot be created or if a project already exists at the save location.
+     */
+    public static void createProject (File    saveDir,
+                                      Project p,
+                                      String  filePassword)
+                               throws Exception
+    {
+        
+        File projDir = new File (saveDir,
+                                 Utils.sanitizeForFilename (p.getName ()));
+
+        if (projDir.exists ())
+        {
+            
+            throw new IllegalArgumentException ("A project with name: " +
+                                                p.getName () +
+                                                " already exists at: " +
+                                                projDir);
+                                 
+        }
+                
+        // Get the username and password.
+        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+
+        ObjectManager dBMan = new ObjectManager ();
+        dBMan.init (new File (projDir.getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
+                         username,
+                         password,
+                         filePassword,
+                         0);
+
+        // Create a file that indicates that the directory can be deleted.
+        Utils.createQuollWriterDirFile (projDir);
+
+        p.setProjectDirectory (projDir);
+        p.setEncrypted (filePassword != null);        
+        
+        dBMan.saveObject (p,
+                          null);
+        
+        dBMan.closeConnectionPool ();
+        
+    }
+
+    public static void openObjectInProject (final Project    proj,
+                                            final DataObject obj)
+                                     throws Exception
+    {
+        
+        final DataObject dobj = obj;
+         
+        Project p = null;
+                                    
+        try
+        {
+            
+            p = Environment.getProjectById (p.getId (),
+                                            p.getType ());
+            
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to get project for id: " +
+                                        proj.getId (),
+                                        e);
+            
+        }
+        
+        if (p == null)
+        {
+            
+            throw new GeneralException ("Unable to get project for id: " +
+                                        proj.getId ());
+            
+        }
+        
+        final Project fp = p;
+    
+        Environment.openProject (p,
+                                 new ActionListener ()
+                                 {
+                                    
+                                    public void actionPerformed (ActionEvent ev)
+                                    {
+                                        
+                                        // View the object.
+                                        AbstractProjectViewer viewer = Environment.getProjectViewer (fp);
+                                        
+                                        viewer.viewObject (obj);
+                                        
+                                    }
+                                    
+                                 });
+                                
+    }
+    
     public static void openProject (File f)
     {
         
@@ -1095,8 +1695,18 @@ public class Environment
   
     }
     
-    public static /*AbstractProjectViewer*/ void  openProject (final Project p)
-                                              throws Exception
+    public static void  openProject (final Project p)
+                              throws Exception
+    {
+        
+        Environment.openProject (p,
+                                 null);
+        
+    }
+
+    public static void  openProject (final Project        p,
+                                     final ActionListener onProjectOpen)
+                              throws Exception
     {
 
         AbstractProjectViewer pv = (AbstractProjectViewer) Environment.openProjects.get (p);
@@ -1107,6 +1717,13 @@ public class Environment
             pv.setVisible (true);
             pv.setState (java.awt.Frame.NORMAL);
             pv.toFront ();
+            
+            if (onProjectOpen != null)
+            {
+                
+                onProjectOpen.actionPerformed (new ActionEvent ("open", 1, "open"));
+                
+            }
 
         } else
         {
@@ -1132,19 +1749,54 @@ public class Environment
                                             p);
                 
             }
-            
+                        
             final AbstractProjectViewer fpv = pv;
-            
-            Startup.ss.setProgress (75);
 
+            if (onProjectOpen != null)
+            {
+                
+                pv.addProjectEventListener (new ProjectEventListener ()
+                {
+                   
+                    @Override
+                    public void eventOccurred (ProjectEvent ev)
+                    {
+                        
+                        if ((ev.getType ().equals (Project.OBJECT_TYPE))
+                            &&
+                            (ev.getAction ().equals (ProjectEvent.OPEN))
+                           )
+                        {
+                        
+                            try
+                            {
+                            
+                                onProjectOpen.actionPerformed (new ActionEvent (fpv, 1, "open"));
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to perform action after project open",
+                                                      e);
+                                
+                            }
+
+                        }
+                        
+                    }
+                    
+                });
+                
+            }
+            
+            Environment.incrStartupProgress ();
+            
             String password = p.getFilePassword ();
 
-            
             if ((p.isEncrypted ()) &&
                 (password == null))
             {
 
-                Startup.ss.finish ();
+                Environment.startupComplete ();
 
                 PasswordInputWindow.create ("Enter password",
                                             "lock",
@@ -1171,7 +1823,7 @@ public class Environment
     
                                                         fpv.openProject (p,
                                                                          v);
-                                            
+                                                                                        
                                                         // Need to get the object again because the one passed in could be the one from the open.
                                                         Environment.openProjects.put (fpv.getProject (),
                                                                                       fpv);
@@ -1232,8 +1884,8 @@ public class Environment
 
             pv.openProject (p,
                             password);
-
-            Startup.ss.setProgress (90);
+                       
+            Environment.startupComplete ();
 
             // Need to get the object again because the one passed in could be the one from the open.
             Environment.openProjects.put (pv.getProject (),
@@ -1281,6 +1933,22 @@ public class Environment
         
     }
 
+    public static boolean isDebugModeEnabled ()
+    {
+        
+        return Environment.debugMode;
+        
+    }
+    
+    public static void setDebugModeEnabled (boolean v)
+    {
+        
+        Environment.debugMode = v;
+        
+        // TODO: Maybe have an EnvironmentEvent?
+        
+    }
+    
     public static void logDebugMessage (String m)
     {
         
@@ -1436,6 +2104,22 @@ public class Environment
 
     }
 
+    private static void initProjectId (Project envProj,
+                                       Project realProj)
+    {
+        
+        if ((envProj.getId () == null)
+            &&
+            (realProj.getId () != null)
+           )
+        {
+            
+            envProj.setId (realProj.getId ());
+            
+        }
+        
+    }
+    
     public static void renameProject (String oldName,
                                       String newName)
                                throws Exception
@@ -1449,7 +2133,7 @@ public class Environment
         {
 
             Project p = iter.next ();
-
+            
             if (p.getName ().equals (oldName))
             {
 
@@ -1526,7 +2210,7 @@ public class Environment
         if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
         {
 
-            return new EditorViewer ();
+            return new EditorProjectViewer ();
 
         }
 
@@ -1561,6 +2245,13 @@ public class Environment
     public static String getButtonLabel (String id)
     {
         
+        if (!id.startsWith (Constants.BUTTON_LABEL_ID_PREFIX))
+        {
+            
+            return id;
+            
+        }
+        
         return Environment.buttonLabels.get (id.toLowerCase ());
         
     }
@@ -1580,66 +2271,7 @@ public class Environment
 
             Element pEl = p.getAsJDOMElement ();
             root.addContent (pEl);
-            /*
-            Element pEl = new Element (Project.OBJECT_TYPE);
-            root.addContent (pEl);
 
-            Element nEl = new Element (Environment.XMLConstants.name);
-            pEl.addContent (nEl);
-            nEl.addContent (p.getName ());
-
-            if (p.getType () == null)
-            {
-
-                p.setType (Project.NORMAL_PROJECT_TYPE);
-
-            }
-
-            pEl.setAttribute (Environment.XMLConstants.type,
-                              p.getType ());
-
-            if (p.getBackupService () != null)
-            {
-                
-                pEl.setAttribute (Environment.XMLConstants.backupService,
-                                  p.getBackupService ());
-                              
-            }
-            
-            Element dEl = new Element (Environment.XMLConstants.directory);
-            pEl.addContent (dEl);
-            dEl.addContent (p.getProjectDirectory ().getPath ());
-
-            Date lastEdited = p.getLastEdited ();
-
-            if (lastEdited != null)
-            {
-
-                pEl.setAttribute (Environment.XMLConstants.lastEdited,
-                                  String.valueOf (lastEdited.getTime ()));
-
-            }
-
-            pEl.setAttribute (Environment.XMLConstants.encrypted,
-                              Boolean.valueOf (p.isEncrypted ()).toString ());
-
-            if (p.isNoCredentials ())
-            {
-
-                pEl.setAttribute (Environment.XMLConstants.noCredentials,
-                                  Boolean.valueOf (p.isNoCredentials ()).toString ());
-
-            }
-
-            String id = p.getEditorsProjectId ();
-            
-            if (id != null)
-            {
-                
-                pEl.setAttribute (Environment.XMLConstants.)
-                
-            }
-            */
         }
 
         JDOMUtils.writeElementToFile (root,
@@ -1676,86 +2308,24 @@ public class Environment
         
             Element pEl = (Element) pels.get (i);
 
-            Project p = new Project (pEl);
-/*            
-            String name = JDOMUtils.getChildElementContent (pEl,
-                                                            Environment.XMLConstants.name);
-            String type = JDOMUtils.getAttributeValue (pEl,
-                                                       Environment.XMLConstants.type,
-                                                       false);
-
-            if (type.equals (""))
-            {
-
-                type = null;
-
-            }
-
-            String directory = JDOMUtils.getChildElementContent (pEl,
-                                                                 Environment.XMLConstants.directory);
-
-            boolean encrypted = JDOMUtils.getAttributeValueAsBoolean (pEl,
-                                                                      Environment.XMLConstants.encrypted,
-                                                                      false);
-
-            boolean noCredentials = false;
-
-            if (JDOMUtils.getAttribute (pEl,
-                                        Environment.XMLConstants.noCredentials,
-                                        false) != null)
-            {
-
-                noCredentials = JDOMUtils.getAttributeValueAsBoolean (pEl,
-                                                                      Environment.XMLConstants.noCredentials);
-
-            }
-
-            String d = JDOMUtils.getAttributeValue (pEl,
-                                                    Environment.XMLConstants.lastEdited,
-                                                    false);
-
-            String bs = JDOMUtils.getAttributeValue (pEl,
-                                                     Environment.XMLConstants.backupService,
-                                                     false);
-                                                    
-            File dir = new File (directory);
-
-            Project p = new Project (name);
-            p.setProjectDirectory (dir);
-            p.setEncrypted (encrypted);
-            p.setNoCredentials (noCredentials);
-
-            if (!bs.equals (""))
-            {
-                
-                p.setBackupService (bs);
-                
-            }
+            Project p = null;
             
-            if (type != null)
+            try
             {
-
-                p.setType (type);
-
+                
+                p = new Project (pEl);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to convert element: " +
+                                      JDOMUtils.getPath (pEl) +
+                                      " to a project",
+                                      e);
+                
+                continue;
+                
             }
 
-            if (!d.equals (""))
-            {
-
-                try
-                {
-
-                    p.setLastEdited (new Date (Long.parseLong (d)));
-
-                } catch (Exception e)
-                {
-
-                    // Ignore it.
-
-                }
-
-            }
-*/
             ret.add (p);
 
         }
@@ -1790,6 +2360,13 @@ public class Environment
 
     }
     
+    public static boolean getPropertyAsBoolean (String name)
+    {
+        
+        return Environment.userProperties.getPropertyAsBoolean (name);
+        
+    }
+    
     public static String getProperty (String name)
     {
 
@@ -1807,18 +2384,34 @@ public class Environment
         return d;
 
     }
-
+/*
     public static File getDictionaryDirectory (String lang)
     {
         
         return new File (Environment.getUserQuollWriterDir ().getPath () + Constants.DICTIONARIES_DIR + lang);
     
     }
+  */  
+    public static File getDictionaryFile (String lang)
+    {
+        
+        return Environment.getUserFile (Constants.DICTIONARIES_DIR + lang + ".zip");
     
+    }
+
+    public static boolean hasSynonymsDirectory (String lang)
+    {
+        
+        File f = Environment.getUserFile (Constants.THESAURUS_DIR + lang);
+        
+        return (f.exists () && f.isDirectory ());
+    
+    }
+
     public static File getLogDir ()
     {
 
-        File d = new File (Environment.getUserQuollWriterDir ().getPath () + Constants.LOGS_DIR);
+        File d = Environment.getUserFile (Constants.LOGS_DIR);
 
         d.mkdirs ();
 
@@ -1826,148 +2419,34 @@ public class Environment
 
     }
 
+    public static File getUserFile (String name)
+    {
+        
+        return new File (Environment.getUserQuollWriterDir ().getPath (), name);
+        
+    }
+    
     public static File getUserObjectTypeNamesFile ()
     {
         
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.OBJECT_TYPE_NAMES_FILE_NAME);
+        return Environment.getUserFile (Constants.OBJECT_TYPE_NAMES_FILE_NAME);
 
-        return f;
+    }
+
+    public static File getUserEditorsPropertiesFile ()
+    {
+
+        return Environment.getUserFile (Constants.EDITORS_PROPERTIES_FILE_NAME);
 
     }
     
     public static File getUserPropertiesFile ()
     {
 
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.PROPERTIES_FILE_NAME);
-
-        f.getParentFile ().mkdirs ();
-
-        return f;
+        return Environment.getUserFile (Constants.PROPERTIES_FILE_NAME);
 
     }
     
-    public static File getEditorsAuthorAvatarImageFile (String suffix)
-    {
-
-        if (suffix == null)
-        {
-            
-            return null;
-                
-        }
-        
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
-
-        f.getParentFile ().mkdirs ();
-
-        return f;
-        
-    }
-
-    public static File getEditorsAuthorAvatarImageFile ()
-    {
-        
-        if (Environment.editorsHandler == null)
-        {
-            
-            return null;
-            
-        }
-        
-        if (Environment.editorsHandler.getAccount () == null)
-        {
-            
-            return null;
-            
-        }
-
-        EditorAuthor au = Environment.editorsHandler.getAccount ().getAuthor ();
-        
-        if (au == null)
-        {
-            
-            return null;
-            
-        }
-                
-        String t = Environment.getProperty (Constants.EDITORS_AUTHOR_AVATAR_IMAGE_FILE_TYPE_PROPERTY_NAME);
-                        
-        return Environment.getEditorsAuthorAvatarImageFile (t);
-        
-    }
-
-    public static File getEditorsAuthorFile ()
-    {
-        
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_AUTHOR_FILE_NAME);
-        
-        f.getParentFile ().mkdirs ();
-        
-        return f;
-        
-    }
-        
-    public static File getEditorsEditorAvatarImageFile (String suffix)
-    {
-
-        if (suffix == null)
-        {
-            
-            return null;
-                
-        }
-        
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_NAME_PREFIX + "." + suffix);
-
-        f.getParentFile ().mkdirs ();
-
-        return f;
-        
-    }
-
-    public static File getEditorsEditorAvatarImageFile ()
-    {
-        
-        if (Environment.editorsHandler == null)
-        {
-            
-            return null;
-            
-        }
-        
-        if (Environment.editorsHandler.getAccount () == null)
-        {
-            
-            return null;
-            
-        }
-
-        EditorEditor ed = Environment.editorsHandler.getAccount ().getEditor ();
-        
-        if (ed == null)
-        {
-            
-            return null;
-            
-        }
-                
-        String t = Environment.getProperty (Constants.EDITORS_EDITOR_AVATAR_IMAGE_FILE_TYPE_PROPERTY_NAME);
-                        
-        return Environment.getEditorsEditorAvatarImageFile (t);
-        
-    }
-
-    public static File getEditorsEditorFile ()
-    {
-        
-        File f = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.EDITORS_EDITOR_FILE_NAME);
-        
-        f.getParentFile ().mkdirs ();
-        
-        return f;
-        
-    }
-
     public static com.gentlyweb.properties.Properties getUserProperties ()
     {
 
@@ -2000,6 +2479,19 @@ public class Environment
         
     }
 
+    public static void setUserProperty (String  name,
+                                        boolean value)
+                                 throws Exception
+    {
+        
+        Environment.userProperties.setProperty (name,
+                                                new BooleanProperty (name,
+                                                                     value));
+        
+        Environment.saveUserProperties (Environment.userProperties);
+        
+    }
+
     public static void saveUserProperties (com.gentlyweb.properties.Properties props)
                                     throws Exception
     {
@@ -2019,7 +2511,7 @@ public class Environment
                                       true);
 
     }
-
+    
     public static void saveDefaultProperties (String                              objType,
                                               com.gentlyweb.properties.Properties props)
                                        throws Exception
@@ -2036,6 +2528,13 @@ public class Environment
     public static Date parseDate (String d)
     {
         
+        if (d == null)
+        {
+            
+            return null;
+            
+        }
+        
         try
         {
             
@@ -2044,11 +2543,20 @@ public class Environment
         } catch (Exception e) {
             
             // Bugger
-            e.printStackTrace ();
+            Environment.logError ("Unable to parse date: " +
+                                  d,
+                                  e);
             
         }
         
         return null;
+        
+    }
+    
+    public static String formatDateTime (Date d)
+    {
+        
+        return Environment.formatDate (d) + " " + Environment.formatTime (d);
         
     }
     
@@ -2088,7 +2596,7 @@ public class Environment
         // Setup our stream handler for the objectref protocol.
         URL.setURLStreamHandlerFactory (new ObjectRefURLStreamHandlerFactory ());
 
-        Environment.dateFormatter = new SimpleDateFormat ("dd MMM yyyy");
+        Environment.dateFormatter = new SimpleDateFormat ("d MMM yyyy");
         Environment.timeFormatter = new SimpleDateFormat ("HH:mm");
 
         UIManager.put("SplitPane.background", UIUtils.getComponentColor ());
@@ -2105,6 +2613,13 @@ public class Environment
         
         Environment.appVersion = Environment.getResourceFileAsString (Constants.VERSION_FILE).trim ();
 
+        if (Environment.appVersion.endsWith ("b"))
+        {
+            
+            Environment.betaVersion = true;
+            
+        }
+        
         try
         {
 
@@ -2155,7 +2670,7 @@ public class Environment
         com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROPERTIES_FILE),
                                                                                                 null);
 
-        Startup.ss.setProgress (7);
+        Environment.incrStartupProgress ();
 
         sysProps.setId ("system");
 
@@ -2217,7 +2732,7 @@ public class Environment
         Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
                                                  sysDefProjProps);
 
-        Startup.ss.setProgress (10);
+        Environment.incrStartupProgress ();
 
         File f = Environment.getErrorLogFile ();
 
@@ -2240,7 +2755,7 @@ public class Environment
         Environment.sqlLog = new Logger ();
         Environment.sqlLog.initLogFile (f);
 
-        Startup.ss.setProgress (15);
+        Environment.incrStartupProgress ();
 
         if (Environment.isWindows)
         {
@@ -2279,10 +2794,8 @@ public class Environment
                                             3,
                                             3));
 
-        Startup.ss.setProgress (20);
-
-        Startup.ss.setProgress (40);
-
+        Environment.incrStartupProgress ();
+                                            
         try
         {
 
@@ -2323,27 +2836,27 @@ public class Environment
 
         // Set up the importers in the background.
         Thread t = new Thread (new Runner ()
+        {
+
+            public void run ()
             {
 
-                public void run ()
-                {
+                Importer.init ();
+/*
+                UIUtils.getFontsComboBox (null,
+                                          null);
+*/
+            }
 
-                    Importer.init ();
-
-                    UIUtils.getFontsComboBox (null,
-                                              null);
-
-                }
-
-            });
+        });
 
         t.setDaemon (true);
         t.setPriority (Thread.MIN_PRIORITY);
 
         t.start ();
 
-        Startup.ss.setProgress (50);
-
+        Environment.incrStartupProgress ();
+        
         KeyboardFocusManager.getCurrentKeyboardFocusManager ().addKeyEventPostProcessor (new java.awt.KeyEventPostProcessor ()
         {
             
@@ -2391,16 +2904,125 @@ public class Environment
             }
         });
         
-        if (Environment.editorServiceAvailable)
+        try
         {
         
-            Environment.editorsHandler = new EditorsWebServiceHandler ();
-            Environment.editorsHandler.init ();
+            // Get the user editor properties.
+            File edPropsFile = Environment.getUserEditorsPropertiesFile ();
+        
+            if (edPropsFile.exists ())
+            {
+        
+                com.gentlyweb.properties.Properties eprops = new com.gentlyweb.properties.Properties (edPropsFile,
+                                                                                                      Environment.GZIP_EXTENSION);
+            
+                eprops.setParentProperties (userProperties);
+
+                EditorsEnvironment.init (eprops);
+            
+            }
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to init editors environment",
+                                  e);
             
         }
+        
+        Environment.addStartupProgressListener (new PropertyChangedListener ()
+        {
+           
+            public void propertyChanged (PropertyChangedEvent ev)
+            {
+
+                if (Environment.isStartupComplete ())
+                {
+
+                    // See if we should be doing a warmup exercise.
+                    if (Environment.userProperties.getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME))
+                    {
+            
+                        UIUtils.doLater (new ActionListener ()
+                        {
+                            
+                            public void actionPerformed (ActionEvent ev)
+                            {            
+            
+                                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                            
+                                if (viewer != null)
+                                {
+                            
+                                    viewer.showWarmupPromptSelect ();
                                 
+                                    viewer.fireProjectEvent (Warmup.OBJECT_TYPE,
+                                                             ProjectEvent.WARMUP_ON_STARTUP);
+            
+                                }
+                                                             
+                            }
+            
+                        });
+            
+                    }        
+                
+                }
+                
+            }
+            
+        });
+        
     }
 
+    public static int getJavaVersion ()
+    {
+        
+        String[] els = System.getProperty("java.version").split("\\.");
+        
+        return Integer.parseInt (els[1]);
+        
+    }
+    
+    public static String getQuollWriterWebsiteLink (String url,
+                                                    String linkText)
+    {
+        
+        if (linkText == null)
+        {
+            
+            return String.format ("%s:%s",
+                                  Constants.QUOLLWRITER_PROTOCOL,
+                                  url);
+            
+        }
+        
+        return String.format ("<a href='%s:%s'>%s</a>",
+                              Constants.QUOLLWRITER_PROTOCOL,
+                              url,
+                              linkText);
+        
+    }
+    
+    public static String getQuollWriterHelpLink (String url,
+                                                 String linkText)
+    {
+
+        if (linkText == null)
+        {
+            
+            return String.format ("%s:%s",
+                                  Constants.HELP_PROTOCOL,
+                                  url);
+            
+        }
+    
+        return String.format ("<a href='%s:%s'>%s</a>",
+                              Constants.HELP_PROTOCOL,
+                              url,
+                              linkText);
+        
+    }
+    
     public static String getQuollWriterWebsite ()
     {
         
@@ -2612,7 +3234,9 @@ public class Environment
             
         }
         
-        return Constants.BRITISH_ENGLISH.equalsIgnoreCase (language)
+        return Constants.ENGLISH.equalsIgnoreCase (language)
+               ||
+               Constants.BRITISH_ENGLISH.equalsIgnoreCase (language)
                ||
                Constants.US_ENGLISH.equalsIgnoreCase (language);
         
@@ -2699,6 +3323,16 @@ public class Environment
     public static URL getSupportUrl (String pagePropertyName)
                                      throws Exception
     {
+
+        return Environment.getSupportUrl (pagePropertyName,
+                                          null);
+    
+    }
+    
+    public static URL getSupportUrl (String pagePropertyName,
+                                     String parms)
+                                     throws Exception
+    {
                 
         String prefName = Constants.SUPPORT_URL_BASE_PROPERTY_NAME;
         
@@ -2708,8 +3342,8 @@ public class Environment
             prefName = Constants.DEBUG_SUPPORT_URL_BASE_PROPERTY_NAME;
             
         }
-        
-        return new URL (Environment.getProperty (prefName) + Environment.getProperty (pagePropertyName));
+                
+        return new URL (Environment.getProperty (prefName) + Environment.getProperty (pagePropertyName) + (parms != null ? parms : ""));
         
     }
     
@@ -2915,6 +3549,13 @@ public class Environment
 
             int size = 16;
         
+            if (type == Constants.ICON_EDITOR_MESSAGE)
+            {
+                
+                size = 20;
+                
+            }
+        
             if (type == Constants.ICON_TOOLBAR)
             {
                 
@@ -2985,6 +3626,13 @@ public class Environment
                 
             }
                 
+            if (type == Constants.ICON_EDITORS_LIST_TAB_HEADER)
+            {
+                
+                size = 24;
+                
+            }
+            
             name = Constants.IMGS_DIR + name + size + ".png";
 
         } else
@@ -2996,6 +3644,48 @@ public class Environment
 
         return Environment.class.getResource (name);
 
+    }
+
+    public static ImageIcon getTypingIcon ()
+    {
+
+        URL url = Environment.class.getResource (Constants.IMGS_DIR + Constants.TYPING_GIF_NAME);
+
+        if (url == null)
+        {
+
+            if (Environment.debugMode)
+            {
+
+                // Can't find image, log the problem but keep going.
+                Environment.logError ("Unable to find loading image: " +
+                                      Constants.TYPING_GIF_NAME +
+                                      ", check images jar to ensure file is present.",
+                                      // Gives a stack trace
+                                      new Exception ());
+
+            }
+
+            return null;
+
+        }
+
+        try
+        {
+
+            // Can't use ImageIO here, won't animate only reads first frame.
+            return new ImageIcon (url);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to find loading image: " +
+                                  Constants.TYPING_GIF_NAME,
+                                  e);
+            
+        }
+
+        return null;        
+        
     }
     
     public static ImageIcon getLoadingIcon ()
@@ -3044,6 +3734,20 @@ public class Environment
                                      int     type)
     {
     
+        if (name == null)
+        {
+        
+            return null;
+            
+        }
+        
+        if (name.equals (Constants.LOADING_GIF_NAME))
+        {
+            
+            return Environment.getLoadingIcon ();
+            
+        }
+    
         URL url = Environment.getIconURL (name,
                                           type);
 
@@ -3091,6 +3795,13 @@ public class Environment
 
     }
 
+    public static BufferedImage getNoEditorAvatarImage ()
+    {
+        
+        return Environment.getImage (Constants.EDITOR_NO_AVATAR_IMAGE);
+        
+    }
+    
     public static BufferedImage getImage (String fileName)
     {
         
@@ -3310,8 +4021,46 @@ public class Environment
         return f;
 
     }
+        
+    public static URL getUpgradeURL (String version)
+                              throws Exception
+    {
 
-    public static void doVersionCheck (final AbstractProjectViewer pv)
+        String parms = "?version=" + version;
+                
+        return Environment.getSupportUrl (Constants.GET_UPGRADE_FILE_PAGE_PROPERTY_NAME,
+                                          parms);
+        
+    }
+    
+    private static URL getNewsAndVersionCheckURL ()
+                                           throws Exception
+    {
+
+        String parms = "?";
+        
+        if (Environment.userProperties.getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME))
+        {
+            
+            parms += "beta=true&";
+            
+        }
+    
+        String lastVersionCheckTime = Environment.userProperties.getProperty (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME);
+        
+        if (lastVersionCheckTime != null)
+        {
+            
+            parms += "since=" + lastVersionCheckTime;
+            
+        }
+    
+        return Environment.getSupportUrl (Constants.GET_LATEST_VERSION_PAGE_PROPERTY_NAME,
+                                          parms);
+        
+    }
+    
+    public static void doNewsAndVersionCheck (final AbstractProjectViewer pv)
     {
 
         if (Environment.doneVersionCheck)
@@ -3335,7 +4084,7 @@ public class Environment
                     try
                     {
 
-                        URL u = Environment.getSupportUrl (Constants.GET_LATEST_VERSION_PAGE_PROPERTY_NAME);
+                        URL u = Environment.getNewsAndVersionCheckURL ();
 
                         HttpURLConnection conn = (HttpURLConnection) u.openConnection ();
 
@@ -3344,56 +4093,57 @@ public class Environment
 
                         conn.connect ();
 
-                        BufferedReader b = new BufferedReader (new InputStreamReader (conn.getInputStream ()));
+                        BufferedInputStream bin = new BufferedInputStream (conn.getInputStream ());
+                        
+                        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
+                        
+                        IOUtils.streamTo (bin,
+                                          bout,
+                                          8192);
+                        
+                        Environment.setUserProperty (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME,
+                                                     String.valueOf (System.currentTimeMillis ()));                        
+                        
+                        String info = new String (bout.toByteArray (),
+                                                  "utf-8");
+                        
+                        // Should be json.
+                        Map data = (Map) JSONDecoder.decode (info);
+                        
+                        Map version = (Map) data.get ("version");
 
-                        String detail = b.readLine ();
-
-                        b.close ();
-
-                        if ((detail == null) ||
-                            (detail.length () == 0))
+                        if (version != null)
                         {
+                            
+                            final String newVersion = (String) version.get ("version");
+                            
+                            final boolean isBeta = (Boolean) version.get ("beta");
+                            
+                            final long size = ((Number) version.get ("size")).longValue ();
 
-                            throw new GeneralException ("Unable to get latest version information from: " + u);
+                            final String digest = (String) version.get ("digest");
 
-                        }
+                            int oldVer = Environment.getVersionAsInt (Environment.getQuollWriterVersion ());
 
-                        StringTokenizer tok = new StringTokenizer (detail,
-                                                                   "|");
+                            final int newVer = Environment.getVersionAsInt (newVersion);
 
-                        if (tok.countTokens () < 2)
-                        {
+                            if (newVer > oldVer)
+                            {
 
-                            // No upgrade information.
-                            return;
-
-                        }
-
-                        final String newVersion = tok.nextToken ();
-
-                        final String size = tok.nextToken ();
-
-                        final String digest = tok.nextToken ();
-
-                        int oldVer = Environment.getVersionAsInt (Environment.appVersion);
-
-                        final int newVer = Environment.getVersionAsInt (newVersion);
-
-                        if (newVer > oldVer)
-                        {
-
-                            SwingUtilities.invokeLater (new Runner ()
+                                UIUtils.doLater (new ActionListener ()
                                 {
 
-                                    public void run ()
+                                    public void actionPerformed (ActionEvent ev)
                                     {
 
                                         Box ib = new Box (BoxLayout.Y_AXIS);
                                         ib.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                                           Short.MAX_VALUE));
 
-                                        JTextPane p = UIUtils.createHelpTextPane ("A new version of " + Constants.QUOLL_WRITER_NAME + " is available.  <a href='http://quollwriter.com/user-guide/version-changes/" + newVersion.replace (".",
-                                                                                                                                                                                                                                          "_") + ".html'>View the changes.</a>",
+                                        JTextPane p = UIUtils.createHelpTextPane (String.format ("A new version of %s is available.  <a href='help:version-changes/%s'>View the changes.</a>",
+                                                                                                 Constants.QUOLL_WRITER_NAME,
+                                                                                                 newVersion.replace (".",
+                                                                                                                     "_")),
                                                                                   pv);
                                         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -3404,7 +4154,7 @@ public class Environment
                                         ib.add (p);
                                         ib.add (Box.createVerticalStrut (5));
 
-                                        JButton installNow = new JButton ("Install Now");
+                                        JButton installNow = new JButton ("Install now");
                                         JButton installLater = new JButton ("Later");
 
                                         Box bb = new Box (BoxLayout.X_AXIS);
@@ -3429,9 +4179,10 @@ public class Environment
                                                 removeNot.actionPerformed (ev);
 
                                                 new GetLatestVersion (pv,
+                                                                      isBeta,
                                                                       newVersion,
                                                                       size,
-                                                                      digest).init ();
+                                                                      digest).start ();
 
                                             }
 
@@ -3443,6 +4194,126 @@ public class Environment
 
                                 });
 
+                            }
+                            
+                        }
+                        
+                        // Get the news.
+                        List news = (List) data.get ("news");
+                        
+                        if (news != null)
+                        {
+                            
+                            final Set<String> seenIds = new HashSet ();
+                            
+                            String seenNewsIds = Environment.userProperties.getProperty (Constants.SEEN_NEWS_IDS_PROPERTY_NAME);
+                            
+                            if (seenNewsIds == null)
+                            {
+                                
+                                seenNewsIds = "";
+                                
+                            }
+                            
+                            StringTokenizer t = new StringTokenizer (seenNewsIds,
+                                                                     ",");
+                            
+                            while (t.hasMoreTokens ())
+                            {
+                                
+                                seenIds.add (t.nextToken ().trim ());
+                                
+                            }
+                            
+                            for (int i = 0; i < news.size (); i++)
+                            {
+                                
+                                Map ndata = (Map) news.get (i);
+                                
+                                final String id = (String) ndata.get ("id");
+                                
+                                if (seenIds.contains (id))
+                                {
+                                    
+                                    continue;
+                                    
+                                }
+                                
+                                String m = (String) ndata.get ("message");
+                            
+                                Box ib = new Box (BoxLayout.Y_AXIS);
+                                ib.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                                  Short.MAX_VALUE));
+
+                                JTextPane p = UIUtils.createHelpTextPane (m,
+                                                                          pv);
+                                p.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+                                p.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                                 Short.MAX_VALUE));
+                                p.setBorder (null);
+
+                                ib.add (p);
+                                ib.add (Box.createVerticalStrut (5));                                
+
+                                JButton ok = new JButton ("Ok, got it");
+
+                                Box bb = new Box (BoxLayout.X_AXIS);
+                                bb.add (ok);
+
+                                ib.add (bb);
+                                bb.setAlignmentX (Component.LEFT_ALIGNMENT);
+                                
+                                final ActionListener removeNot = pv.addNotification (ib,
+                                                                                     "notify",
+                                                                                     -1);
+
+                                ok.addActionListener (new ActionAdapter ()
+                                {
+
+                                    public void actionPerformed (ActionEvent ev)
+                                    {
+
+                                        seenIds.add (id);
+                                        
+                                        StringBuilder sb = new StringBuilder ();
+                                        
+                                        for (String s : seenIds)
+                                        {
+                                            
+                                            if (sb.length () > 0)
+                                            {
+                                                
+                                                sb.append (",");
+                                                
+                                            }
+                                            
+                                            sb.append (s);
+                                            
+                                        }
+                                    
+                                        try
+                                        {
+                                    
+                                            Environment.setUserProperty (Constants.SEEN_NEWS_IDS_PROPERTY_NAME,
+                                                                         sb.toString ());
+                                            
+                                        } catch (Exception e) {
+                                            
+                                            Environment.logError ("Unable to update seen news ids to: " +
+                                                                  sb,
+                                                                  e);
+                                            
+                                        }
+                                    
+                                        removeNot.actionPerformed (ev);
+
+                                    }
+
+                                });
+                            
+                            }
+                            
                         }
 
                     } catch (Exception e)
@@ -3556,6 +4427,8 @@ public class Environment
             
                     info.put ("quollWriterVersion",
                               Environment.getQuollWriterVersion ().trim ());
+                    info.put ("beta",
+                              Environment.betaVersion);
                     info.put ("javaVersion",
                               System.getProperty ("java.version"));
                     info.put ("osName",
@@ -3568,6 +4441,8 @@ public class Environment
                     Element root = new Element ("message");
                     root.setAttribute ("quollWriterVersion",
                                        Environment.getQuollWriterVersion ().trim ());
+                    root.setAttribute ("beta",
+                                       String.valueOf (Environment.betaVersion));
                     root.setAttribute ("javaVersion",
                                        System.getProperty ("java.version"));
                     root.setAttribute ("osName",
@@ -3646,17 +4521,7 @@ public class Environment
                                                                 0,
                                                                 "success");
                         
-                        SwingUtilities.invokeLater (new Runnable ()
-                        {
-                            
-                            public void run ()
-                            {
-                                
-                                onComplete.actionPerformed (ev);
-                                
-                            }
-                            
-                        });
+                        UIUtils.doLater (onComplete);
                         
                     }
                 
@@ -3669,17 +4534,7 @@ public class Environment
                                                                 0,
                                                                 "error");
                         
-                        SwingUtilities.invokeLater (new Runnable ()
-                        {
-                            
-                            public void run ()
-                            {
-                                
-                                onComplete.actionPerformed (ev);
-                                
-                            }
-                            
-                        });
+                        UIUtils.doLater (onComplete);
                         
                     }
     
@@ -3846,6 +4701,20 @@ public class Environment
     public static int getVersionAsInt (String version)
     {
 
+        if (version == null)
+        {
+            
+            return -1;
+            
+        }
+    
+        if (version.endsWith ("b"))
+        {
+            
+            version = version.substring (0, version.length () - 1);
+            
+        }
+    
         List<Integer> parts = Environment.getVersionParts (version);
         
         int mult = 100;
@@ -3934,6 +4803,20 @@ public class Environment
                                                String newVersion)
     {
 
+        if (oldVersion.endsWith ("b"))
+        {
+            
+            oldVersion = oldVersion.substring (0, oldVersion.length () - 1);
+            
+        }
+    
+        if (newVersion.endsWith ("b"))
+        {
+            
+            newVersion = newVersion.substring (0, newVersion.length () - 1);
+            
+        }
+
         List<Integer> oldVer = Environment.getVersionParts (oldVersion);
         List<Integer> newVer = Environment.getVersionParts (newVersion);
     
@@ -3964,7 +4847,7 @@ public class Environment
 
     }
 
-    public static boolean isInFullScreen ()
+    public static AbstractProjectViewer getFullScreenProjectViewer ()
     {
         
         for (AbstractProjectViewer v : Environment.openProjects.values ())
@@ -3973,14 +4856,94 @@ public class Environment
             if (v.isInFullScreen ())
             {
                 
-                return true;
+                return v;
+                
+            }
+            
+        }
+
+        return null;
+        
+    }
+    
+    public static boolean isInFullScreen ()
+    {
+        
+        return Environment.getFullScreenProjectViewer () != null;
+        
+    }
+
+    public static void doForOpenProjects (String              projectType,
+                                          ProjectViewerAction act)
+    {
+
+        for (Project p : Environment.openProjects.keySet ())
+        {
+    
+            AbstractProjectViewer pv = Environment.openProjects.get (p);
+    
+            if (p.getType ().equals (projectType))
+            {
+                                
+                act.doAction (pv);
                 
             }
             
         }
         
-        return false;
+    }
+    
+    public static void doForOpenProjectViewers (Class               projectViewerType,
+                                                ProjectViewerAction act)
+    {
+
+        for (Project p : Environment.openProjects.keySet ())
+        {
+    
+            AbstractProjectViewer pv = Environment.openProjects.get (p);
+    
+            if (projectViewerType.isAssignableFrom (pv.getClass ()))
+            {
+                                
+                act.doAction (pv);
+                
+            }
+            
+        }        
         
     }
 
+    public static String formatObjectToStringProperties (DataObject d)
+    {
+        
+        Map<String, Object> props = new LinkedHashMap ();
+        
+        d.fillToStringProperties (props);        
+        
+        return Environment.formatObjectToStringProperties (props);
+        
+    }
+    
+    public static String formatObjectToStringProperties (Map<String, Object> props)
+    {
+        
+        try
+        {
+        
+            return JSONEncoder.encode (props,
+                                       true,
+                                       "");
+        
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to encode properties: " +
+                                  props,
+                                  e);
+        
+            return props + "";
+                
+        }
+        
+    }
+    
 }

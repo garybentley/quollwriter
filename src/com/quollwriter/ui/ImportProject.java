@@ -35,10 +35,11 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
 
-public class ImportProject extends PopupWizard implements ImportCallback
+public class ImportProject extends Wizard implements ImportCallback
 {
 
-    private JTextField      fileField = null;
+    private FileFinder      fileFind = null;
+    private JLabel          fileFindError = null;
     private JTextField      urlField = null;
     private JRadioButton    addToProject = null;
     private JRadioButton    createNewProject = null;
@@ -49,37 +50,17 @@ public class ImportProject extends PopupWizard implements ImportCallback
     private NewProjectPanel newProjectPanel = null;
     private ProjectViewer   pv = null;
 
-    public ImportProject(ProjectViewer pv)
+    public ImportProject (ProjectViewer pv)
     {
 
         super (pv);
 
         this.pv = pv;
+        this.proj = pv.getProject ();
 
     }
 
-    public String getWindowTitle ()
-    {
-
-        return "Import File";
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return this.getWindowTitle ();
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return Project.OBJECT_TYPE + "-import";
-
-    }
-
-    public String getHelpText ()
+    public String getFirstHelpText ()
     {
 
         return "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function.  The import expects the file(s) to be in a certain format.";
@@ -117,7 +98,7 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
                         this.pv.createActionLogEntry (a,
                                                       "Imported asset from: " +
-                                                      this.fileField.getText ());
+                                                      this.fileFind.getSelectedFile ());
 
                     } catch (Exception e)
                     {
@@ -134,6 +115,8 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
                     this.pv.reloadAssetTree (a);
 
+                    this.pv.openObjectSection (a.getObjectType ());
+                    
                 }
 
                 if (n instanceof Chapter)
@@ -151,7 +134,7 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
                         this.pv.createActionLogEntry (c,
                                                       "Imported chapter from: " +
-                                                      this.fileField.getText ());
+                                                      this.fileFind.getSelectedFile ());
 
                     } catch (Exception e)
                     {
@@ -171,10 +154,16 @@ public class ImportProject extends PopupWizard implements ImportCallback
                     this.pv.addChapterToTreeAfter (c,
                                                    null);
 
+                    this.pv.openObjectSection (c.getObjectType ());
+                                                   
                 }
 
             }
 
+            UIUtils.showMessage ((PopupsSupported) this.pv,
+                                 "Import complete",
+                                 String.format ("The items have been imported into your {project}"));            
+            
         } else
         {
 
@@ -194,7 +183,7 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
                 pj.createActionLogEntry (pj.getProject (),
                                          "Project imported from: " +
-                                         this.fileField.getText ());
+                                         this.fileFind.getSelectedFile ());
 
             } catch (Exception e)
             {
@@ -330,6 +319,72 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
     }
 
+    private boolean checkForFileToImport ()
+    {
+        
+        this.fileFindError.setVisible (false);
+    
+        if (this.fileFind.getSelectedFile () == null)
+        {
+            
+            this.fileFindError.setText ("Please select a file to import.");
+            this.fileFindError.setVisible (true);
+            
+            this.resize ();
+            return false;
+            
+        }
+    
+        if (!this.fileFind.getSelectedFile ().exists ())
+        {
+            
+            this.fileFindError.setText ("File does not exist, please select a valid file.");
+            this.fileFindError.setVisible (true);
+            
+            this.resize ();
+            return false;                    
+            
+        }
+    
+        if (this.fileFind.getSelectedFile ().isDirectory ())
+        {
+            
+            this.fileFindError.setText ("Selection is a directory, please select a file instead.");
+            this.fileFindError.setVisible (true);
+            
+            this.resize ();
+            return false;
+    
+        }
+    
+        try
+        {
+
+            Importer.importProject (this.fileFind.getSelectedFile ().toURI (),
+                                    this);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to convert: " +
+                                  this.fileFind.getSelectedFile () +
+                                  " to a uri",
+                                  e);
+
+            this.fileFindError.setText ("Unable to open selected file.");
+            this.fileFindError.setVisible (true);
+            
+            this.resize ();
+            return false;
+            
+        }
+        
+        this.resize ();
+        
+        return true;
+        
+    }
+    
     public boolean handleStageChange (String oldStage,
                                       String newStage)
     {
@@ -344,10 +399,16 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
         if (newStage != null)
         {
-
-            if ((oldStage != null) &&
-                (oldStage.equals ("new-project")) &&
-                (!newStage.equals ("decide")))
+        
+            if ((oldStage != null)
+                &&
+                ((oldStage.equals ("new-project"))
+                 ||
+                 (oldStage.equals ("select-items"))
+                )
+                &&
+                (!newStage.equals ("decide"))
+               )
             {
 
                 return this.newProjectPanel.checkForm (this);
@@ -362,40 +423,13 @@ public class ImportProject extends PopupWizard implements ImportCallback
             if (newStage.equals ("select-items"))
             {
 
-                try
-                {
-
-                    Importer.importProject (new File (this.fileField.getText ()).toURI (),
-                                            this);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to convert: " +
-                                          this.fileField.getText () +
-                                          " to a uri",
-                                          e);
-
-                    UIUtils.showErrorMessage (this,
-                                              "Unable to open file: " +
-                                              this.fileField.getText ());
-
-                    return false;
-
-                }
-
+                return this.checkForFileToImport ();
+            
             }
 
         }
 
         return true;
-
-    }
-
-    public int getMaximumContentHeight ()
-    {
-
-        return 200;
 
     }
 
@@ -416,9 +450,9 @@ public class ImportProject extends PopupWizard implements ImportCallback
         if (stage.equals ("new-project"))
         {
 
-            ws.title = "Enter the new " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + " details";
+            ws.title = "Enter the new {Project} details";
 
-            ws.helpText = "To create a new Project enter the name below and select the directory it should be saved.";
+            ws.helpText = "To create a new {Project} enter the name below and select the directory where it should be saved.";
 
             this.newProjectPanel = new NewProjectPanel ();
 
@@ -464,6 +498,8 @@ public class ImportProject extends PopupWizard implements ImportCallback
                         public void actionPerformed (ActionEvent ev)
                         {
 
+                            _this.showStage ("select-file");
+                        
                             _this.enableButton ("next",
                                                 true);
 
@@ -476,6 +512,8 @@ public class ImportProject extends PopupWizard implements ImportCallback
 
                         public void actionPerformed (ActionEvent ev)
                         {
+
+                            _this.showStage ("new-project");
 
                             _this.enableButton ("next",
                                                 true);
@@ -605,77 +643,76 @@ public class ImportProject extends PopupWizard implements ImportCallback
         if (stage.equals ("select-file"))
         {
 
-            ws.title = "Select the file to import";
+            ws.title = "Select a file to import";
             ws.helpText = "Microsoft Word files (.doc and .docx) are supported.";
 
-            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 2px, p, 10px",
+            Box b = new Box (BoxLayout.Y_AXIS);
+            
+            this.fileFindError = UIUtils.createErrorLabel ("Please select a file to import.");
+            this.fileFindError.setVisible (false);
+            this.fileFindError.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+            b.add (this.fileFindError);
+            
+            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
                                             "p");
 
             PanelBuilder builder = new PanelBuilder (fl);
 
             CellConstraints cc = new CellConstraints ();
 
-            this.fileField = UIUtils.createTextField ();
+            this.fileFind = new FileFinder ();
+        
+            this.fileFind.setOnSelectHandler (new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+            
+                    _this.checkForFileToImport ();
+                    
+                }
+                
+            });
+            
+            this.fileFind.setApproveButtonText ("Select");
+            this.fileFind.setFinderSelectionMode (JFileChooser.FILES_ONLY);
+            this.fileFind.setFinderTitle ("Select a file to import");
+                        
+            String def = this.proj.getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
 
+            File defFile = FileSystemView.getFileSystemView ().getDefaultDirectory ();
+            
+            if (def != null)
+            {
+
+                defFile = new File (def);
+
+            }
+
+            this.fileFind.setFile (defFile);                            
+                        
+            this.fileFind.setFileFilter (new FileNameExtensionFilter ("Supported Files (docx, doc)",
+                                                                      "docx",
+                                                                      "doc"));
+                                    
+            this.fileFind.setFindButtonToolTip ("Click to find a file");
+            this.fileFind.setClearOnCancel (true);
+            this.fileFind.init ();
+                        
             builder.addLabel ("File",
                               cc.xy (2,
                                      1));
-            builder.add (this.fileField,
+            builder.add (this.fileFind, 
                          cc.xy (4,
-                                1));
-
-            JButton findBut = new JButton (Environment.getIcon ("find",
-                                                                Constants.ICON_MENU));
-
-            findBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        String ff = _this.fileField.getText ();
-
-                        JFileChooser f = new JFileChooser ();
-                        f.setDialogTitle ("Select a File");
-                        f.setFileSelectionMode (JFileChooser.FILES_ONLY);
-                        f.setApproveButtonText ("Select");
-                        f.setFileFilter (new FileNameExtensionFilter ("Supported Files (docx, doc)",
-                                                                      "docx",
-                                                                      "doc"));
-
-                        if (ff != null)
-                        {
-
-                            f.setCurrentDirectory (new File (ff));
-
-                        }
-
-                        // Need to run: attrib -r "%USERPROFILE%\My Documents" on XP to allow a new directory
-                        // to be created in My Documents.
-
-                        if (f.showOpenDialog (_this) == JFileChooser.APPROVE_OPTION)
-                        {
-
-                            _this.fileField.setText (f.getSelectedFile ().getPath ());
-
-                            _this.enableButton ("next",
-                                                true);
-
-                        }
-
-                    }
-
-                });
-
-            builder.add (findBut,
-                         cc.xy (6,
                                 1));
 
             JPanel p = builder.getPanel ();
             p.setOpaque (false);
             p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
-            ws.panel = p;
+            b.add (p);
+            
+            ws.panel = b;
 
         }
 
@@ -715,21 +752,26 @@ public class ImportProject extends PopupWizard implements ImportCallback
         final ImportProject _this = this;
 
         // Not on the swing event thread, need swingutilities.invokelater.
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void run ()
+                if (_this.itemsTree != null)
                 {
-
+            
                     _this.itemsTree.setModel (new DefaultTreeModel (_this.createTree (p)));
-
+    
                     UIUtils.expandAllNodesWithChildren (_this.itemsTree);
-
+    
                     _this.proj = p;
 
                 }
+                    
+            }
 
-            });
+        });
 
     }
 

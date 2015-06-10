@@ -43,7 +43,7 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
-import com.quollwriter.ui.components.Runner;
+import com.quollwriter.editors.*;
 
 public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarListener
 {
@@ -180,10 +180,18 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
     }
             
+    public void sideBarHidden (SideBarEvent ev)
+    {
+        
+        // TODO
+        
+            
+    }
+    
     public void sideBarShown (SideBarEvent ev)
     {
         
-        if (!this.projectViewer.isMainSideBarName (ev.getName ()))
+        if (!this.projectViewer.isMainSideBarName (ev.getSideBar ().getName ()))
         {
             
             //this.noHideSideBar = true;
@@ -261,7 +269,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.projectViewer.removeSideBarListener (this);
     
         this.projectViewer.removeSideBar (this.properties);
-    
+        
         this.clockTimer.stop ();
         
         this.restorePanel ();
@@ -279,12 +287,13 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                             
         });                
 
- 
         this.setVisible (false);
         this.dispose ();
         
         this.projectViewer.fullScreenClosed (this.panel.getChild ());
 
+        EditorsEnvironment.fullScreenExited ();
+        
         this.projectViewer.fireProjectEventLater (ProjectEvent.FULL_SCREEN,
                                                   ProjectEvent.EXIT);
                                                   
@@ -353,6 +362,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
     }    
     
+    @Override
     public void addPopup (final Component c,
                           boolean         hideOnClick,
                           boolean         hideViaVisibility)
@@ -433,8 +443,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
     }
 
+    @Override
     public void showPopupAt (Component popup,
-                             Component showAt)
+                             Component showAt,
+                             boolean   hideOnParentClick)
     {
 
         Point po = SwingUtilities.convertPoint (showAt,
@@ -443,13 +455,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                 this.getContentPane ());
 
         this.showPopupAt (popup,
-                          po);
+                          po,
+                          hideOnParentClick);
 
 
     }
 
+    @Override
     public void showPopupAt (Component c,
-                             Point     p)
+                             Point     p,
+                             boolean   hideOnParentClick)
     {
 
         Insets ins = this.getInsets ();
@@ -463,7 +478,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             {
 
                 this.addPopup (c,
-                               true,
+                               hideOnParentClick,
                                false);
 
             }
@@ -514,33 +529,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             p.x = 10;
 
         }
-
-/*
-        Dimension s = c.getPreferredSize ();
-
-        if (p.y < 0)
-        {
-
-            p.y = p.y + s.height;
-
-        }
-
-        Dimension t = this.getPreferredSize ();
-
-        if ((p.x + s.width) > (t.width))
-        {
-
-            p.x = t.width - 20 - s.width;
-
-        }
-
-        if (p.x < 0)
-        {
-
-            p.x = 20;
-
-        }
-*/
 
         c.setBounds (p.x,
                      p.y,
@@ -736,6 +724,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     }
 
     public void init ()
+               throws GeneralException
     {
 
         final FullScreenFrame _this = this;
@@ -1269,6 +1258,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.repaint ();
         this.setVisible (true);
 
+        EditorsEnvironment.fullScreenEntered ();
+        
         this.projectViewer.fireProjectEventLater (ProjectEvent.FULL_SCREEN,
                                                   ProjectEvent.ENTER);
 
@@ -1316,7 +1307,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         this.sideBarInner.add (cp);
                 
-        cp.add (this.projectViewer.getSideBarPanel ());
+        cp.add (this.projectViewer.getSideBarForFullScreen ());
         
         this.sideBar.add (this.sideBarInner);        
                                            
@@ -1819,7 +1810,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         }
 
         this.showPopupAt (this.backgroundSelectorPopup,
-                          showAt);
+                          showAt,
+                          true);
 
         ((BackgroundSelector) this.backgroundSelectorPopup.getContent ()).setSelected (this.backgroundObject);
 

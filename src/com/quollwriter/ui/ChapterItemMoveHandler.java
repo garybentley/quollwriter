@@ -21,8 +21,6 @@ import com.quollwriter.ui.components.ImagePanel;
 public class ChapterItemMoveHandler 
 {
     
-    private static Map<String, ImageIcon> coloredIcons = new HashMap ();
-
     private boolean dragging = false;
     private int fontHeight = 0;
     private int lastY = -1;
@@ -64,6 +62,8 @@ public class ChapterItemMoveHandler
                        
         this.fontHeight = 0;
         this.lastY = -1;
+        
+        ((ChapterItemViewer) this.ep).removeItemHighlightTextFromEditor (this.item);        
         
         this.iconColumn.setCursor (Cursor.getPredefinedCursor (Cursor.DEFAULT_CURSOR));
         this.dragIcon.setVisible (false);
@@ -189,7 +189,7 @@ public class ChapterItemMoveHandler
 
             this.iconColumn.repaint ();
 
-            ((ProjectViewer) this.ep.getProjectViewer ()).reloadChapterTree ();            
+            this.ep.getProjectViewer ().reloadTreeForObjectType (Chapter.OBJECT_TYPE);            
             
         } catch (Exception e)
         {
@@ -272,7 +272,8 @@ public class ChapterItemMoveHandler
         }
 
         this.ep.showPopupAt (this.dragIcon,
-                             pp);
+                             pp,
+                             false);
 
         SwingUtilities.convertPointToScreen (pp,
                                              this.iconColumn);
@@ -296,27 +297,25 @@ public class ChapterItemMoveHandler
         Color c = UIUtils.getDragIconColor ();
         
         String id = this.item.getObjectType () + UIUtils.colorToHex (c);
-    
-        ImageIcon im = ChapterItemMoveHandler.coloredIcons.get (id);
         
-        if (im == null)
-        {
-    
-            Image image = Environment.getObjectIcon (this.item,
-                                                     Constants.ICON_COLUMN).getImage ();
+        Image image = this.iconColumn.getIconProvider ().getIcon (this.item,
+                                                                  Constants.ICON_COLUMN).getImage ();
 
-            im = UIUtils.getColoredIcon (image,
-                                         c);
+        ImageIcon im = UIUtils.getColoredIcon (image,
+                                               c);
             
-            ChapterItemMoveHandler.coloredIcons.put (id,
-                                                     im);
-            
-        }
-    
         this.dragIcon.setIcon (im);
         
         this.fontHeight = this.ep.getGraphics ().getFontMetrics (this.editor.getFontForStyles ()).getHeight ();
 
+        if (this.item.getEndPosition () > this.item.getStartPosition ())
+        {
+            
+            // Add a highlight.
+            ((ChapterItemViewer) this.ep).highlightItemTextInEditor (this.item);
+            
+        }
+        
         try
         {
             

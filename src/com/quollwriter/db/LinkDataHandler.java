@@ -9,7 +9,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class LinkDataHandler implements DataHandler
+public class LinkDataHandler implements DataHandler<Link, NamedObject>
 {
 
     private ObjectManager objectManager = null;
@@ -21,32 +21,34 @@ public class LinkDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<Link> getObjects (NamedObject parent,
+                                  Connection  conn,
+                                  boolean     loadChildObjects)
+                           throws GeneralException
     {
 
-        throw new GeneralException ("Not supported");
+        throw new UnsupportedOperationException ("Not supported");
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public Link getObjectByKey (int         key,
+                                NamedObject parent,
+                                Connection conn,
+                                boolean    loadChildObjects)
+                         throws GeneralException
     {
 
-        throw new GeneralException ("Not supported");
+        throw new UnsupportedOperationException ("Not supported");
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (Link       l,
                               Connection conn)
                        throws GeneralException
     {
-
-        Link l = (Link) d;
 
         // Check to see if it already exists. ???
 
@@ -63,7 +65,8 @@ public class LinkDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (Link       d,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
@@ -78,11 +81,14 @@ public class LinkDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (Link       l,
                               Connection conn)
                        throws GeneralException
     {
 
+        throw new UnsupportedOperationException ("Not supported");
+    
     }
 
 }

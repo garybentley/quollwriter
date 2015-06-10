@@ -10,6 +10,8 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.comparators.*;
 
+import com.quollwriter.text.*;
+
 import com.quollwriter.ui.events.*;
 
 import org.jdom.*;
@@ -31,7 +33,6 @@ public class Book extends NamedObject
 
     private Project       project = null;
     private List<Chapter> chapters = new ArrayList ();
-    private int           lastChapterId = 0;
     private ChapterSorter sort = null;
 
     public Book()
@@ -62,6 +63,18 @@ public class Book extends NamedObject
 
     }
 
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "chapterCount",
+                                    this.chapters.size ());
+            
+    }
+    
     public void setChapterSorter (ChapterSorter c)
     {
 
@@ -101,6 +114,25 @@ public class Book extends NamedObject
 
     }
 
+    public void removeAllChapters ()
+    {
+        
+        synchronized (this)
+        {
+        
+            for (Chapter c : this.chapters)
+            {
+                
+                c.setBook (null);
+                
+            }
+
+            this.chapters = new ArrayList ();
+            
+        }
+        
+    }
+    
     private void setChapters (List<Chapter> c)
     {
 
@@ -173,6 +205,22 @@ public class Book extends NamedObject
 
     }
 
+    public int getChapterWordCount ()
+    {
+        
+        int i = 0;
+        
+        for (Chapter c : this.chapters)
+        {
+            
+            i += TextUtilities.getWordCount (c.getText ());
+            
+        }
+        
+        return i;
+        
+    }
+    
     public int getChapterIndex (Chapter c)
     {
 
@@ -237,16 +285,11 @@ public class Book extends NamedObject
 
     }
 
-    public String toString ()
-    {
-
-        return this.getObjectType () + "(name: " + this.name + ", id: " + this.getKey () + "), in: " + this.project;
-
-    }
-
     public void removeChapter (Chapter c)
     {
 
+        c.setBook (null);
+    
         this.chapters.remove (c);
 
     }
@@ -254,9 +297,13 @@ public class Book extends NamedObject
     public void moveChapter (Chapter c,
                              int     newIndex)
     {
-
+    
+        Book b = c.getBook ();
+    
         this.removeChapter (c);
 
+        c.setBook (b);
+        
         this.chapters.add (newIndex,
                            c);
 
@@ -376,11 +423,9 @@ public class Book extends NamedObject
 
     public void addChapter (Chapter c)
     {
-
+    
         this.addChapter (c,
                          -1);
-
-        c.setBook (this);
 
     }
 
@@ -388,6 +433,14 @@ public class Book extends NamedObject
                              int     where)
     {
 
+        if (this.chapters.contains (c))
+        {
+            
+            throw new IllegalStateException ("Already have chapter: " +
+                                             c);
+            
+        }
+    
         if ((where > this.chapters.size ()) ||
             (where < 0))
         {

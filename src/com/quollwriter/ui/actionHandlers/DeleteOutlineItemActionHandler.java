@@ -71,6 +71,7 @@ public class DeleteOutlineItemActionHandler extends ActionAdapter
                                         
                                      },
                                      null,
+                                     null,
                                      null);
 
     }

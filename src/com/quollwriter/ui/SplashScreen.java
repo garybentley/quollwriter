@@ -6,11 +6,11 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.events.*;
 import com.quollwriter.ui.components.*;
 
 
-public class SplashScreen extends JWindow
+public class SplashScreen extends JWindow implements PropertyChangedListener
 {
 
     private JProgressBar progressBar = null;
@@ -64,12 +64,21 @@ public class SplashScreen extends JWindow
         this.setVisible (true);
         this.toFront ();
 
+        Environment.addStartupProgressListener (this);
+        
     }
 
+    public void propertyChanged (PropertyChangedEvent ev)
+    {
+        
+        this.setProgress (((Number) ev.getNewValue ()).intValue ());
+        
+    }
+    
     public void finish ()
     {
 
-        this.setProgress (100);
+        this.progressBar.setValue (100);    
 
         try
         {
@@ -111,7 +120,14 @@ public class SplashScreen extends JWindow
     {
 
         this.progressBar.setValue (v);
-
+        
+        if (v >= 100)
+        {
+            
+            this.finish ();
+            
+        }
+        
     }
 
 }

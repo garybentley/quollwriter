@@ -28,7 +28,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.*;
 
 
-public class WarmupPromptSelect extends PopupWindow
+public class WarmupPromptSelect extends Box
 {
 
     public static final String PANEL_ID = "warmups";
@@ -36,107 +36,75 @@ public class WarmupPromptSelect extends PopupWindow
     public static final String DEFAULT_WORDS = "500 words";
     public static final String DEFAULT_MINS = "30 minutes";
 
-    private JTextArea ownPrompt = null;
+    private TextArea ownPrompt = null;
     private Prompt    prompt = null;
     private JComboBox mins = null;
     private JComboBox words = null;
     private JCheckBox doOnStartup = null;
+    private AbstractProjectViewer projectViewer = null;
+    private JTextPane promptPreview = null;
+    private boolean inited = false;
 
     public WarmupPromptSelect(AbstractProjectViewer v)
     {
 
-        super (v);
+        super (BoxLayout.Y_AXIS);
 
-    }
-
-
-    public String getWindowTitle ()
-    {
-
-        return Environment.replaceObjectNames (String.format ("Do a {Warmup} Exercise", Warmup.OBJECT_TYPE));
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return this.getWindowTitle ();
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return "warmups";
-
-    }
-
-    public String getHelpText ()
-    {
-
-        return null;
-
-    }
-
-    public JComponent getContentPanel ()
-    {
-
-        final WarmupPromptSelect _this = this;
-
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.setOpaque (true);
-        b.setBackground (null);
-
-        b.add (UIUtils.createBoldSubHeader ("Choose a prompt",
-                                            null));
+        this.projectViewer = v;
+        
+        this.ownPrompt = new TextArea ("Enter your prompt text here...",
+                                       3,
+                                       -1);
+        
+        this.ownPrompt.setBorder (UIUtils.createPadding (5, 5, 15, 5));
 
         Prompts.shuffle ();
 
         this.prompt = Prompts.next ();
+        
+        this.mins = WarmupPromptSelect.getTimeOptions ();
+        
+        this.words = WarmupPromptSelect.getWordsOptions ();
 
-        HTMLEditorKit kit = new HTMLEditorKit ();
-        HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
+        this.promptPreview = UIUtils.createHelpTextPane (null,
+                                                         v);
 
-        final JTextPane promptPreview = new JTextPane (doc);
+        this.doOnStartup = WarmupPromptSelect.getDoWarmupOnStartupCheckbox ();
+        
+    }
 
-        promptPreview.setEditorKit (kit);
-        promptPreview.setEditable (false);
+    public void init ()
+    {
 
-        promptPreview.setBackground (Color.WHITE);
+        if (this.inited)
+        {
+            
+            return;
+            
+        }
+    
+        this.inited = true;
+    
+        final WarmupPromptSelect _this = this;
 
-        promptPreview.setText (UIUtils.getWithHTMLStyleSheet (promptPreview,
-                                                              UIUtils.formatPrompt (prompt)));
+        this.promptPreview.setText (UIUtils.formatPrompt (this.prompt));
+        
+        this.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.setOpaque (false);
 
-        promptPreview.addHyperlinkListener (new HyperlinkAdapter ()
-            {
+        this.add (UIUtils.createBoldSubHeader ("Choose a prompt",
+                                               null));
 
-                public void hyperlinkUpdate (HyperlinkEvent ev)
-                {
-
-                    if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
-                    {
-
-                        URL url = ev.getURL ();
-
-                        UIUtils.openURL (promptPreview,
-                                         url);
-
-                    }
-
-                }
-
-            });
-
-        final JScrollPane ppsp = UIUtils.createScrollPane (promptPreview);
+        final JScrollPane ppsp = UIUtils.createScrollPane (this.promptPreview);
         ppsp.setBorder (null);
+        ppsp.setOpaque (false);
+        ppsp.getViewport ().setOpaque (false);
 
         ppsp.setPreferredSize (new Dimension (500,
                                               75));
-
-        b.add (ppsp);
-        b.add (Box.createVerticalStrut (10));
+        ppsp.setBorder (UIUtils.createPadding (0, 5, 10, 5));
+                                              
+        this.add (ppsp);
 
         Box buts = new Box (BoxLayout.X_AXIS);
 
@@ -162,9 +130,13 @@ public class WarmupPromptSelect extends PopupWindow
                     for (PromptWebsite w : ws)
                     {
 
-                        JMenuItem item = new JMenuItem (w.getName () + " (" + w.getCount () + ")");
+                        JMenuItem item = new JMenuItem (String.format ("%s (%s)",
+                                                                       w.getName (),
+                                                                       w.getCount ()));
 
-                        item.setToolTipText ("Click to go to the " + w.getName () + " website (" + w.getURL () + ")");
+                        item.setToolTipText (String.format ("Click to go to the %s website (%s)",
+                                                            w.getName (),
+                                                            w.getURL ()));
                         item.setActionCommand (w.getURL ());
 
                         item.addActionListener (new ActionAdapter ()
@@ -224,15 +196,14 @@ public class WarmupPromptSelect extends PopupWindow
 
                         _this.prompt = p;
 
-                        promptPreview.setText (UIUtils.getWithHTMLStyleSheet (promptPreview,
-                                                                              UIUtils.formatPrompt (p)));
+                        _this.promptPreview.setText (UIUtils.formatPrompt (p));
 
-                        promptPreview.setCaretPosition (0);
+                        _this.promptPreview.setCaretPosition (0);
 
                     } else
                     {
 
-                        promptPreview.setText ("");
+                        _this.promptPreview.setText ("");
 
                         UIUtils.showMessage (_this,
                                              "You have excluded all the prompts.");
@@ -272,15 +243,14 @@ public class WarmupPromptSelect extends PopupWindow
 
                         _this.prompt = p;
 
-                        promptPreview.setText (UIUtils.getWithHTMLStyleSheet (promptPreview,
-                                                                              UIUtils.formatPrompt (p)));
+                        _this.promptPreview.setText (UIUtils.formatPrompt (p));
 
-                        promptPreview.setCaretPosition (0);
+                        _this.promptPreview.setCaretPosition (0);
 
                     } else
                     {
 
-                        promptPreview.setText ("");
+                        _this.promptPreview.setText ("");
 
                         UIUtils.showMessage (_this,
                                              "You have excluded all the prompts.");
@@ -297,33 +267,20 @@ public class WarmupPromptSelect extends PopupWindow
         next.setHorizontalTextPosition (SwingConstants.LEFT);
 
         buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buts.setBorder (new EmptyBorder (0,
-                                         5,
-                                         20,
-                                         5));
+        buts.setBorder (UIUtils.createPadding (0, 10, 15, 5));
 
         buts.add (next);
 
         buts.add (Box.createHorizontalStrut (30));
 
         buts.add (doNotShow);
-        b.add (buts);
+        this.add (buts);
 
-        b.add (UIUtils.createBoldSubHeader ("OR, Enter your own prompt",
-                                            null));
-
-        this.ownPrompt = UIUtils.createTextArea (3);
+        this.add (UIUtils.createBoldSubHeader ("OR, Enter your own prompt",
+                                               null));
+        
+        this.add (this.ownPrompt);
 /*
-        this.ownPrompt.setPreferredSize (new Dimension (500,
-                                                        this.ownPrompt.getPreferredSize ().height));
-*/
-        JScrollPane sp = UIUtils.createScrollPane (this.ownPrompt);
-
-        sp.setPreferredSize (new Dimension (500,
-                                            sp.getPreferredSize ().height));
-
-        b.add (sp);
-
         buts = new Box (BoxLayout.X_AXIS);
 
         JButton share = UIUtils.createButton ("Share your prompt",
@@ -355,46 +312,9 @@ public class WarmupPromptSelect extends PopupWindow
                 }
 
             });
-
-        JButton clear = UIUtils.createButton ("Clear",
-                                              null);
-        clear.setToolTipText ("Click to clear the text above");
-
-        clear.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.ownPrompt.setText ("");
-
-                }
-
-            });
-/*
-        buts.add (share);
-        buts.add (Box.createHorizontalStrut (5));
 */
-
-        buts.add (clear);
-
-        buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-        buts.setBorder (new EmptyBorder (0,
-                                         5,
-                                         20,
-                                         5));
-/*
-        buts.setPreferredSize (new Dimension (Short.MAX_VALUE,
-                                              buts.getPreferredSize ().height));
-        buts.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                              buts.getPreferredSize ().height));
-*/
-        // b.add (buts);
-
-        b.add (Box.createVerticalStrut (20));
-
-        b.add (UIUtils.createBoldSubHeader ("And do the {warmup} for",
-                                            null));
+        this.add (UIUtils.createBoldSubHeader ("And do the {warmup} for",
+                                               null));
 
         FormLayout fl = new FormLayout ("p, 6px, p, 6px, p, 6px, p",
                                         "p, 15px, p");
@@ -402,8 +322,6 @@ public class WarmupPromptSelect extends PopupWindow
         PanelBuilder builder = new PanelBuilder (fl);
 
         CellConstraints cc = new CellConstraints ();
-
-        this.words = WarmupPromptSelect.getWordsOptions ();
 
         builder.add (this.words,
                      cc.xy (1,
@@ -413,8 +331,6 @@ public class WarmupPromptSelect extends PopupWindow
                           cc.xy (3,
                                  1));
 
-        this.mins = WarmupPromptSelect.getTimeOptions ();
-
         builder.add (this.mins,
                      cc.xy (5,
                             1));
@@ -422,8 +338,6 @@ public class WarmupPromptSelect extends PopupWindow
         builder.addLabel ("(whichever is reached first)",
                           cc.xy (7,
                                  1));
-
-        this.doOnStartup = WarmupPromptSelect.getDoWarmupOnStartupCheckbox ();
         
         builder.add (this.doOnStartup,
                      cc.xyw (1,
@@ -433,171 +347,100 @@ public class WarmupPromptSelect extends PopupWindow
         JPanel p = builder.getPanel ();
         p.setOpaque (false);
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
-        p.setBorder (new EmptyBorder (5,
-                                      5,
-                                      0,
-                                      5));
+        p.setBorder (UIUtils.createPadding (5, 5, 0, 5));
 /*
         p.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          p.getPreferredSize ().height));
 */
-        b.add (p);
+        this.add (p);
 
-        SwingUtilities.invokeLater (new Runner ()
+        JButton start = UIUtils.createButton ("Start Writing",
+                                              null);
+        
+        start.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void run ()
+                final int mins = WarmupPromptSelect.getMinsCount (_this.mins);
+                final int words = WarmupPromptSelect.getWordCount (_this.words);
+            
+                if ((mins == 0)
+                    &&
+                    (words == 0)
+                   )
+                {
+                    
+                    UIUtils.showErrorMessage (_this.projectViewer,
+                                              "o_O  The timer can't be unlimited for both time and words.");
+                    
+                    return;
+                    
+                }        
+            
+                Prompt prompt = _this.prompt;
+
+                final String ownPromptT = _this.ownPrompt.getText ().trim ();
+
+                if (!ownPromptT.equals (""))
                 {
 
-                    ppsp.getVerticalScrollBar ().setValue (0);
-
-                }
-
-            });
-
-        return b;
-
-    }
-
-    public JButton[] getButtons ()
-    {
-
-        final WarmupPromptSelect _this = this;
-
-        JButton b = new JButton ("Start Writing");
-
-        b.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    Prompt prompt = _this.prompt;
-
-                    final String ownPromptT = _this.ownPrompt.getText ().trim ();
-
-                    if (!ownPromptT.equals (""))
-                    {
-
-                        // Create a user prompt.
-                        try
-                        {
-
-                            prompt = Prompts.addUserPrompt (ownPromptT);
-
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to create user prompt with text: " +
-                                                  ownPromptT,
-                                                  e);
-
-                            UIUtils.showErrorMessage (_this,
-                                                      "Unable to save your prompt, please contact support for assistance.");
-
-                            return;
-
-                        }
-
-                        
-
-                    }
-
-                    // See if we already have the warmups project, if so then just open it.
-                    Project p = null;
-
+                    // Create a user prompt.
                     try
                     {
 
-                        p = Environment.getWarmupsProject ();
+                        prompt = Prompts.addUserPrompt (ownPromptT);
 
                     } catch (Exception e)
                     {
 
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to get {Warmups} {project}.");
-
-                        Environment.logError ("Unable to get all projects",
+                        Environment.logError ("Unable to create user prompt with text: " +
+                                              ownPromptT,
                                               e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to save your prompt, please contact support for assistance.");
 
                         return;
 
                     }
 
-                    WarmupsViewer v = null;
+                }
 
+                final Prompt _prompt = prompt;
+                
+                // See if we already have the warmups project, if so then just open it.
+                Project p = null;
+
+                try
+                {
+
+                    p = Environment.getWarmupsProject ();
+
+                } catch (Exception e)
+                {
+
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to get {Warmups} {project}.");
+
+                    Environment.logError ("Unable to get warmups projects",
+                                          e);
+
+                    return;
+
+                }
+
+                if (p != null)
+                {
+                
                     try
                     {
 
-                        if (p != null)
-                        {
+                        Environment.openProject (p);
 
-                            Environment.openProject (p);
-
-                        } else
-                        {
-
-                            v = new WarmupsViewer ();
-
-                            // If we don't then output a message telling the user that it will be created
-                            // then create it.
-                            UIUtils.showMessage (_this,
-                                                 "A {Warmups} {project} will now be created to hold each of the {warmups} you write.");
-
-                            p = new Project (Constants.DEFAULT_WARMUPS_PROJECT_NAME);
-                            p.setType (Project.WARMUPS_PROJECT_TYPE);
-
-                            // Put it in the user's directory.
-                            v.newProject (Environment.getUserQuollWriterDir (),
-                                          p,
-                                          null);
-
-                        }
-
-                        final Project fp = p;
+                        _this.addWarmupToProject (_prompt);                                                        
                         
-                        final Warmup w = new Warmup ();
-                        w.setPrompt (prompt);
-                        w.setWords (WarmupPromptSelect.getWordCount (_this.words));
-                        w.setMins (WarmupPromptSelect.getMinsCount (_this.mins));
-
-                        SwingUtilities.invokeLater (new Runner ()
-                        {
-
-                            public void run ()
-                            {                                
-                                
-                                try
-                                {
-                                    
-                                    WarmupsViewer v = (WarmupsViewer) Environment.getProjectViewer (fp);
-                                
-                                    v.addNewWarmup (w);
-                                    
-                                    if (!ownPrompt.equals (""))
-                                    {
-                                        
-                                        v.fireProjectEvent (Warmup.OBJECT_TYPE,
-                                                            ProjectEvent.CREATE_OWN_PROMPT,
-                                                            w);
-                                        
-                                    }
-                                    
-                                } catch (Exception e) {
-                                    
-                                    UIUtils.showErrorMessage (_this,
-                                                              "Unable to add warm-up.");
-            
-                                    Environment.logError ("Unable to add warm-up" +
-                                                          w,
-                                                          e);
-                                    
-                                }
-                                
-                            }
-                            
-                        });
-
                     } catch (Exception e)
                     {
 
@@ -611,34 +454,185 @@ public class WarmupPromptSelect extends PopupWindow
 
                     }
 
-                    _this.close ();
+                } else {                        
+
+                    // If we don't then output a message telling the user that it will be created
+                    // then create it.
+                    UIUtils.showMessage (null,
+                                         "{Warmups} project",
+                                         "A {Warmups} {project} will now be created to hold each of the {warmups} you write.",
+                                         null,
+                                         new ActionListener ()
+                                         {
+                                            
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                
+                                                WarmupsViewer v = new WarmupsViewer ();
+                                                
+                                                Project p = new Project (Constants.DEFAULT_WARMUPS_PROJECT_NAME);
+                                                p.setType (Project.WARMUPS_PROJECT_TYPE);
+                    
+                                                try
+                                                {
+                    
+                                                    // Put it in the user's directory.
+                                                    v.newProject (Environment.getUserQuollWriterDir (),
+                                                                  p,
+                                                                  null);
+
+                                                } catch (Exception e) {
+                                                    
+                                                    Environment.logError ("Unable to create warmups project",
+                                                                          e);
+                                                    
+                                                    UIUtils.showErrorMessage (null,
+                                                                              "Unable to create {Warmups} project please contact Quoll Writer support for assistance.");
+                                                    
+                                                    return;
+                                                    
+                                                }
+                                                
+                                                _this.addWarmupToProject (_prompt);
+                                                
+                                            }
+                                            
+                                         });
 
                 }
 
-            });
+                UIUtils.closePopupParent (_this);
 
-        JButton c = new JButton ("Cancel");
+            }
 
-        c.addActionListener (new ActionAdapter ()
+        });
+
+        JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                               null);
+
+        cancel.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void actionPerformed (ActionEvent ev)
-                {
+                UIUtils.closePopupParent (_this);
 
-                    _this.close ();
+            }
 
-                }
+        });        
 
-            });
+        JButton[] buts2 = {start, cancel};
+        //buts[0] = b;
+        //buts[1] = c;
+            
+            
+        JPanel bp = UIUtils.createButtonBar2 (buts2,
+                                              Component.LEFT_ALIGNMENT);
 
-        JButton[] buts = new JButton[2];
-        buts[0] = b;
-        buts[1] = c;
+        bp.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+                                              
+        this.add (bp);
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+        
+                ppsp.getVerticalScrollBar ().setValue (0);
 
-        return buts;
+            }
+
+        });
 
     }
 
+    private void addWarmupToProject (final Prompt prompt)
+    {        
+        
+        final WarmupPromptSelect _this = this;
+        
+        final int mins = WarmupPromptSelect.getMinsCount (this.mins);
+        final int words = WarmupPromptSelect.getWordCount (this.words);
+    
+        if ((mins == 0)
+            &&
+            (words == 0)
+           )
+        {
+            
+            UIUtils.showErrorMessage (_this.projectViewer,
+                                      "o_O  The timer can't be unlimited for both time and words.");
+            
+            return;
+            
+        }        
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {                                
+                
+                Project p = null;
+                
+                try
+                {
+
+                    p = Environment.getWarmupsProject ();
+
+                } catch (Exception e)
+                {
+
+                    UIUtils.showErrorMessage (null,
+                                              "Unable to get {Warmups} {project}.");
+
+                    Environment.logError ("Unable to get warmups projects",
+                                          e);
+
+                    return;
+
+                }
+                
+                final Warmup w = new Warmup ();
+                w.setPrompt (prompt);
+                w.setWords (words);
+                w.setMins (mins);                
+                
+                try
+                {
+                    
+                    WarmupsViewer v = (WarmupsViewer) Environment.getProjectViewer (p);
+                
+                    v.addNewWarmup (w);
+                    
+                    if (!prompt.isUserPrompt ())
+                    {
+                        
+                        v.fireProjectEvent (Warmup.OBJECT_TYPE,
+                                            ProjectEvent.CREATE_OWN_PROMPT,
+                                            w);
+                        
+                    }
+                    
+                } catch (Exception e) {
+                    
+                    UIUtils.showErrorMessage (null,
+                                              "Unable to add {warmup}.");
+
+                    Environment.logError ("Unable to add warm-up" +
+                                          w,
+                                          e);
+                    
+                }
+                
+            }
+            
+        });
+        
+    }
+    
     public static JComboBox getTimeOptions (int minsC)
     {
 

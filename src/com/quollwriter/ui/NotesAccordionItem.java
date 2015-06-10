@@ -22,7 +22,9 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
     public NotesAccordionItem (AbstractProjectViewer pv)
     {
         
-        super (Note.OBJECT_TYPE,
+        super (Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE),
+               Note.OBJECT_TYPE,
+               Note.OBJECT_TYPE,
                pv);
             
     }
@@ -101,15 +103,15 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
                 
     }
 
-    public void showTreePopupMenu (MouseEvent ev)
+    @Override
+    public void fillTreePopupMenu (JPopupMenu m,
+                                   MouseEvent ev)
     {
 
         final NotesAccordionItem _this = this;
 
         final TreePath tp = this.tree.getPathForLocation (ev.getX (),
                                                           ev.getY ());
-
-        final JPopupMenu m = new JPopupMenu ();
 
         JMenuItem mi = null;
 
@@ -201,10 +203,6 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
             }
 
         } 
-
-        m.show ((Component) ev.getSource (),
-                ev.getX (),
-                ev.getY ());
         
     }
     

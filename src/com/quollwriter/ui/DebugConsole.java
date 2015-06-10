@@ -121,20 +121,191 @@ public class DebugConsole extends JFrame
 
     }
 
+    private Header createHeader (String title)
+    {
+
+        Header h = UIUtils.createHeader ("Schema Information",
+                                         Constants.SUB_PANEL_TITLE,
+                                         null,
+                                         null);
+        
+        h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
+                                                             new EmptyBorder (0, 0, 3, 0)));
+
+        return h;
+        
+    }
+    
     private JComponent createSQLConsolePanel ()
     {
 
+        final DebugConsole _this = this;
+    
         Box bprops = new Box (BoxLayout.PAGE_AXIS);
-        bprops.setBorder (new EmptyBorder (10,
-                                           3,
-                                           3,
-                                           3));
+        bprops.setBorder (new EmptyBorder (5,
+                                           10,
+                                           5,
+                                           10));
 
-        JSplitPane sp = new JSplitPane (JSplitPane.VERTICAL_SPLIT);
+        bprops.add (this.createHeader ("Schema Information"));
+                                 
+        FormLayout fl = new FormLayout ("right:p, 6px, p",
+                                        "p, 6px, p, 6px, p, 6px, p");
+
+        PanelBuilder builder = new PanelBuilder (fl);
+
+        CellConstraints cc = new CellConstraints ();
+
+        final JComboBox words = WarmupPromptSelect.getWordsOptions ();
+
+        int row = 1;
+        
+        int max = Environment.getSchemaVersion ();
+        int projSchemaVersion = -1;
+        
+        try
+        {
+            
+            projSchemaVersion = this.projectViewer.getObjectManager ().getSchemaVersion ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get project schema version",
+                                  e);
+            
+        }
+        
+        builder.addLabel ("System schema version",
+                          cc.xy (1,
+                                 row));
+
+        builder.addLabel (max + "",
+                          cc.xy (3,
+                                 row));
+
+        row += 2;
+                                                                
+        builder.addLabel ("Project schema version",
+                          cc.xy (1,
+                                 row));
+
+        builder.addLabel (projSchemaVersion + "",
+                          cc.xy (3,
+                                 row));
+
+        row += 2;
+                                                               
+        builder.addLabel ("Project db file",
+                          cc.xy (1,
+                                 row));
+
+        String url = "jdbc:h2:" + this.projectViewer.getObjectManager ().getDBDir ().toString () + "/" + Constants.PROJECT_DB_FILE_NAME_PREFIX + ".h2.db";
+                                 
+        final JTextField urlf = new JTextField (url);
+        urlf.setText (url);
+        urlf.setEditable (false);
+        urlf.addMouseListener (new MouseAdapter ()
+        {
+            
+            public void mouseEntered (MouseEvent ev)
+            {
+                
+                urlf.grabFocus ();
+                urlf.selectAll ();
+                
+            }
+            
+        });
+        
+                                 
+        builder.add (urlf,
+                     cc.xy (3,
+                            row));
+
+        row += 2;
+
+        Box versBox = new Box (BoxLayout.X_AXIS);
+        versBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        Vector vers = new Vector ();
+        
+        for (int i = max; i > 0; i--)
+        {
+            
+            vers.add ("  " + i);
+            
+        }
+        
+        final JComboBox versions = new JComboBox (vers);        
+
+        versBox.add (versions);
+        versBox.add (Box.createHorizontalStrut (5));
+    
+        JButton upgradeButton = UIUtils.createButton ("Run",
+                                                      null);
+        versBox.add (upgradeButton);
+        versBox.add (Box.createHorizontalGlue ());
+    
+        upgradeButton.addActionListener (new ActionListener ()
+        {
+         
+             public void actionPerformed (ActionEvent ev)
+             {
+                 
+                 int ver = -1;
+                 
+                 try
+                 {
+                    
+                    ver = Integer.parseInt ((versions.getSelectedItem () + "").trim ());
+                    
+                 } catch (Exception e) {
+                    
+                    return;
+                    
+                 }
+                 
+                 try
+                 {
+                 
+                    _this.projectViewer.getObjectManager ().forceRunUpgradeScript (ver);
+                    
+                 } catch (Exception e) {
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to upgrade to version: " + ver + " see the log for details.");
+                    
+                    Environment.logError ("Unable to upgrade to version: " + ver,
+                                          e);
+                    
+                 }
+                 
+             }
+         
+        });
+    
+        builder.addLabel ("Upgrade to version",
+                          cc.xy (1,
+                                 row));
+
+        builder.add (versBox,
+                     cc.xy (3,
+                            row));
+
+        row += 2;
+        
+        JPanel p = builder.getPanel ();
+        p.setOpaque (false);
+        p.setAlignmentX (Component.LEFT_ALIGNMENT);
+        p.setBorder (new EmptyBorder (5, 10, 10, 5));
+
+        bprops.add (p);
+        
+        JSplitPane sp = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT);
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
         sp.setDividerLocation (0.5f);
 
-        bprops.add (sp);
+        //bprops.add (sp);
 
         final JTextArea console = new JTextArea ();
         console.setMargin (new Insets (5,

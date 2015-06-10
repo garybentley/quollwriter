@@ -165,13 +165,27 @@ public class PerChapterWordCountsChart implements QuollChart
     private void updateChart ()
     {
         
-        this.createChart ();
+        try
+        {
+            
+            this.createChart ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to create chart",
+                                  e);
+            
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to show chart, please contact Quoll Writer support for assistance.");
+            
+        }
         
         this.wcp.updateChart (this.chart);
         
     }
     
     private void createChart ()
+                       throws GeneralException
     {
         
         int days = 0;
@@ -197,7 +211,7 @@ public class PerChapterWordCountsChart implements QuollChart
 
         }
 
-        ChapterDataHandler dh = (ChapterDataHandler) this.wcp.getProjectViewer ().getDataHandler (Chapter.OBJECT_TYPE);
+        ChapterDataHandler dh = (ChapterDataHandler) this.wcp.getProjectViewer ().getDataHandler (Chapter.class);
 
         Set selected = new HashSet ();
 

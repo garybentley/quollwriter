@@ -36,7 +36,7 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
 
-public class ExportProject extends PopupWizard
+public class ExportProject extends Wizard
 {
 
     private static Map<String, String> fileTypes = new LinkedHashMap ();
@@ -90,63 +90,36 @@ public class ExportProject extends PopupWizard
     private JComboBox                     exportOthersType = null;
     private JComboBox                     exportChaptersType = null;
     private JComboBox                     fileType = null;
-    private JTextField                    fileField = null;
     private JTree                         itemsTree = null;
     private JScrollPane                   itemsTreeScroll = null;
     private Project                       proj = null;
     private Map<String, DocumentExporter> exporters = new HashMap ();
+    private ProjectViewer   pv = null;
 
+    private FileFinder      fileFind = null;
+    private JLabel          fileFindError = null;
+    
     public ExportProject(ProjectViewer pv)
     {
 
         super (pv);
 
+        this.pv = pv;
         this.proj = pv.getProject ();
 
     }
 
-    public String getWindowTitle ()
+    public String getFirstHelpText ()
     {
 
-        return "Export " + Environment.getObjectTypeName (Project.OBJECT_TYPE);
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return this.getWindowTitle ();
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return Project.OBJECT_TYPE + "-export";
-
-    }
-
-    public String getHelpText ()
-    {
-
-        return "This wizard allows you to export the information in the {project}.";
+        return "This wizard allows you to export the information in your {project}.";
 
     }
 
     public boolean handleFinish ()
     {
 
-        if (this.fileField.getText ().trim ().equals (""))
-        {
-
-            UIUtils.showMessage (this,
-                                 "Please select a directory.");
-
-            return false;
-
-        }
-
-        File dir = new File (this.fileField.getText ());
+        File dir = this.fileFind.getSelectedFile ();
 
         try
         {
@@ -159,7 +132,7 @@ public class ExportProject extends PopupWizard
 
             this.projectViewer.createActionLogEntry (this.proj,
                                                      "Exported project to directory: " +
-                                                     this.fileField.getText ());
+                                                     dir);
 
             this.projectViewer.fireProjectEvent (ProjectEvent.EXPORT,
                                                  ProjectEvent.ANY);
@@ -178,8 +151,12 @@ public class ExportProject extends PopupWizard
 
         }
 
-        UIUtils.showMessage (this,
-                             Environment.getObjectTypeName (Project.OBJECT_TYPE) + this.proj.getName () + " has been exported to:\n\n   " + this.fileField.getText ());
+        UIUtils.showMessage ((PopupsSupported) this.pv,
+                             "Your {Project} has been exported",
+                             String.format ("{Project} <b>%s</b> has been exported to:\n\n   <a href='%s'>%s</a>",
+                                            this.proj.getName (),
+                                            this.fileFind.getSelectedFile ().toURI ().toString (),
+                                            this.fileFind.getSelectedFile ()));
 
         try
         {
@@ -297,7 +274,7 @@ public class ExportProject extends PopupWizard
             {
 
                 this.proj.setProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME,
-                                       this.fileField.getText ());
+                                       this.fileFind.getSelectedFile ().toString ());
 
             } catch (Exception e)
             {
@@ -306,7 +283,7 @@ public class ExportProject extends PopupWizard
                 Environment.logError ("Unable to save property: " +
                                       Constants.EXPORT_DIRECTORY_PROPERTY_NAME +
                                       " with value: " +
-                                      this.fileField.getText (),
+                                      this.fileFind.getSelectedFile (),
                                       e);
 
             }
@@ -400,21 +377,55 @@ public class ExportProject extends PopupWizard
 
     }
 
+    private boolean checkSelectedFile ()
+    {
+        
+        if ((this.fileFind.getSelectedFile () == null)
+            ||
+            (!this.fileFind.getSelectedFile ().exists ())
+            ||
+            (this.fileFind.getSelectedFile ().isFile ())
+           )
+        {
+            
+            this.fileFindError.setText ("Please select a directory.");
+            this.fileFindError.setVisible (true);
+            
+            this.resize ();
+            return false;            
+            
+        }
+        
+        return true;
+
+    }
+    
     public boolean handleStageChange (String oldStage,
                                       String newStage)
     {
 
+        this.fileFindError.setVisible (false);
+        
+        if (!this.checkSelectedFile ())
+        {
+            
+            return false;
+            
+        }
+            
+        this.resize ();
+    
         return true;
 
     }
-
+/*
     public int getMaximumContentHeight ()
     {
 
         return 200;
 
     }
-
+*/
     public String getStartStage ()
     {
 
@@ -432,15 +443,57 @@ public class ExportProject extends PopupWizard
         if (stage.equals ("where-to-save"))
         {
 
-            ws.title = "Select the file type and the directory to save to";
+            ws.title = "Select the file type and directory to save to";
 
-            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 2px, p, 10px",
+            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
                                             "p, 6px, p");
 
+            Box b = new Box (BoxLayout.Y_AXIS);
+            
+            this.fileFindError = UIUtils.createErrorLabel ("Please select a directory.");
+            this.fileFindError.setVisible (false);
+            this.fileFindError.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+            b.add (this.fileFindError);
+                                            
             PanelBuilder builder = new PanelBuilder (fl);
 
             CellConstraints cc = new CellConstraints ();
 
+            this.fileFind = new FileFinder ();
+        
+            this.fileFind.setOnSelectHandler (new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+            
+                    _this.checkSelectedFile ();
+                    
+                }
+                
+            });
+            
+            this.fileFind.setApproveButtonText ("Select");
+            this.fileFind.setFinderSelectionMode (JFileChooser.DIRECTORIES_ONLY);
+            this.fileFind.setFinderTitle ("Select a directory to export to");
+                                
+            String def = this.proj.getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
+
+            File defFile = FileSystemView.getFileSystemView ().getDefaultDirectory ();
+            
+            if (def != null)
+            {
+
+                defFile = new File (def);
+
+            }
+
+            this.fileFind.setFile (defFile);                            
+            this.fileFind.setFindButtonToolTip ("Click to find a directory to export to");
+            this.fileFind.setClearOnCancel (true);
+            this.fileFind.init ();
+            
+            /*
             if (this.fileField == null)
             {
 
@@ -458,14 +511,14 @@ public class ExportProject extends PopupWizard
                 this.fileField.setText (def);
 
             }
-
+*/
             builder.addLabel ("Directory",
                               cc.xy (2,
                                      1));
-            builder.add (this.fileField,
+            builder.add (this.fileFind, //this.fileField,
                          cc.xy (4,
                                 1));
-
+/*
             JButton findBut = new JButton (Environment.getIcon ("find",
                                                                 Constants.ICON_MENU));
 
@@ -510,7 +563,7 @@ public class ExportProject extends PopupWizard
             builder.add (findBut,
                          cc.xy (6,
                                 1));
-
+*/
             Vector fileTypes = new Vector (ExportProject.fileTypes.keySet ());
 
             this.fileType = new JComboBox (fileTypes);
@@ -529,15 +582,17 @@ public class ExportProject extends PopupWizard
             builder.add (bb,
                          cc.xywh (4,
                                   3,
-                                  3,
+                                  2,
                                   1));
 
             JPanel p = builder.getPanel ();
             p.setOpaque (false);
             p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
-            ws.panel = p;
-
+            b.add (p);
+            
+            ws.panel = b;
+            
             return ws;
 
         }

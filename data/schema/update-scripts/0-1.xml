@@ -14,6 +14,9 @@ CREATE TABLE dataobject
   objecttype VARCHAR(255),
   datecreated TIMESTAMP,
   properties CLOB,
+  version UUID DEFAULT RANDOM_UUID(),
+  id UUID DEFAULT RANDOM_UUID(),
+  latest BOOLEAN DEFAULT TRUE,
   PRIMARY KEY (dbkey)
 )
     </sql>
@@ -74,6 +77,7 @@ CREATE TABLE chapter
     markup CLOB,
     editposition INTEGER,
     editcomplete BOOLEAN,
+    projectversiondbkey BIGINT,
     PRIMARY KEY (dbkey)
 )        
     </sql>
@@ -128,11 +132,30 @@ CREATE TABLE note
     position INTEGER,
     end_position INTEGER,
     objectdbkey BIGINT NOT NULL,
+    objectversion UUID NOT NULL,
+    dealtwith TIMESTAMP,
     PRIMARY KEY (dbkey)
 )        
     </sql>
   </item>
 
+  <item>
+    <log>Create the editorcomment table.</log>
+    <sql>
+CREATE TABLE editorcomment
+(
+    dbkey BIGINT NOT NULL,
+    editor VARCHAR(500) NOT NULL,
+    forobjectdbkey BIGINT NOT NULL,
+    forobjectversion UUID NOT NULL,
+    position INTEGER NOT NULL,
+    end_position INTEGER,
+    dealtwith TIMESTAMP,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+  
   <item>
     <log>Create outlineitem table.</log>
     <sql>
@@ -236,7 +259,8 @@ CREATE TABLE problemfinderignore
     chapterdbkey BIGINT NOT NULL,
     ruleid VARCHAR(1000) NOT NULL,
     startposition BIGINT NOT NULL,
-    wordposition INT NOT NULL
+    wordposition INT NOT NULL,
+    issueid CLOB
 )
     </sql>
   </item>
@@ -266,57 +290,23 @@ CREATE TABLE idea
 )
     </sql>
   </item>
-
-  <item>
-    <log>Create the editor project table.</log>
-    <sql>
-CREATE TABLE editorproject
-(
-    dbkey BIGINT NOT NULL,
-    id VARCHAR(100) NOT NULL,
-    genres CLOB NOT NULL,
-    expectations CLOB NOT NULL,
-    wordcounttypelength VARCHAR(100) NOT NULL,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
-
-  <item>
-    <log>Create the editor table.</log>
-    <sql>
-CREATE TABLE editor
-(
-    dbkey BIGINT NOT NULL,
-    id VARCHAR(100) NOT NULL,
-    shortname VARCHAR(500),
-    avatarimage BLOB,
-    publickey BLOB NOT NULL,
-    yourpublickey BLOB NOT NULL,
-    yourprivatekey BLOB NOT NULL,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
-
-  <item>
-    <log>Create the chatmessage table.</log>
-    <sql>
-CREATE TABLE chatmessage
-(
-    dbkey BIGINT NOT NULL,
-    datereceived TIMESTAMP,
-    editordbkey BIGINT NOT NULL,
-    message CLOB,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
   
   <item>
-    <log>Create foreign key constraint for editor/chatmessage.</log>
+    <log>Create the projectversion table.</log>
     <sql>
-ALTER TABLE chatmessage ADD CONSTRAINT editor_fk FOREIGN KEY(editordbkey) REFERENCES editor(dbkey)
+CREATE TABLE projectversion
+(
+    dbkey BIGINT NOT NULL,
+    due TIMESTAMP,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for projectversion(dbkey)/namedobject(dbkey).</log>
+    <sql>
+ALTER TABLE projectversion ADD CONSTRAINT projver_dbkey_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
     </sql>
   </item>
   
@@ -331,6 +321,13 @@ ALTER TABLE idea ADD CONSTRAINT idea_ideatype_fk FOREIGN KEY(ideatypedbkey) REFE
     <log>Create foreign key constraint for problemfinderignore/chapter.</log>
     <sql>
 ALTER TABLE problemfinderignore ADD CONSTRAINT problemfinderignore_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for chapter(projectversiondbkey)/projectversion(dbkey).</log>
+    <sql>
+ALTER TABLE chapter ADD CONSTRAINT chapter_projverdbkey_projver_fk FOREIGN KEY(projectversiondbkey) REFERENCES projectversion(dbkey)
     </sql>
   </item>
 
@@ -520,6 +517,27 @@ ALTER TABLE warmup ADD CONSTRAINT warmup_namedobject_fk FOREIGN KEY(dbkey) REFER
     <log>Create foreign key constraint for warmup/chapter.</log>
     <sql>
 ALTER TABLE warmup ADD CONSTRAINT warmup_chapter_fk FOREIGN KEY(chapterdbkey) REFERENCES chapter(dbkey)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Add a unique constraint on the id/version dataobject.</log>
+    <sql>
+ALTER TABLE dataobject ADD CONSTRAINT dataobject_idversion_uk UNIQUE(id, version)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for note.dbkey/objectversion - dataobject.dbkey/version.</log>
+    <sql>
+ALTER TABLE note ADD CONSTRAINT note_objectdbkeyversion_dataobject_dbkeyversion_fk FOREIGN KEY(objectdbkey, objectversion) REFERENCES dataobject(dbkey, version)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create foreign key constraint for editorcomment.objectdbkey/objectversion - dataobject.dbkey/version.</log>
+    <sql>
+ALTER TABLE editorcomment ADD CONSTRAINT editorcomment_forobject_dataobject_dbkeyversion_fk FOREIGN KEY(forobjectdbkey, forobjectversion) REFERENCES dataobject(dbkey, version)
     </sql>
   </item>
   

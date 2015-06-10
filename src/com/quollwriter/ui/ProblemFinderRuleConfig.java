@@ -42,7 +42,7 @@ import com.quollwriter.ui.components.*;
 import org.josql.*;
 
 
-public class ProblemFinderRuleConfig extends PopupWindow
+public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 {
 
     private class RuleWrapper
@@ -109,18 +109,8 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
             this.desc = UIUtils.createHelpTextPane (this.rule.getDescription (),
                                                     ProblemFinderRuleConfig.this.projectViewer);
-            this.desc.setBorder (new EmptyBorder (0,
-                                                  15,
-                                                  0,
-                                                  10));
-            this.desc.setSize (new Dimension (420, 500));
-            
-            this.desc.setPreferredSize (new Dimension (420,
-                                                       this.desc.getPreferredSize ().height + 10));
-                                                     
-            this.desc.setMaximumSize (new Dimension (400,
-                                                     Short.MAX_VALUE));
-                                                  
+            this.desc.setBorder (null);
+
             this.info = UIUtils.createHelpTextPane (this.rule.getSummary (),
                                                     ProblemFinderRuleConfig.this.projectViewer);
         
@@ -129,7 +119,16 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
             this.desc.setVisible (false);
             this.desc.setAlignmentX (Component.LEFT_ALIGNMENT);
-            this.add (this.desc);
+            
+            // We use this here so that the "desc" doesn't need a border, if we have a border then it screws
+            // up the height when rendered.
+            Box descWrap = new Box (BoxLayout.Y_AXIS);
+            descWrap.setAlignmentX (Component.LEFT_ALIGNMENT);
+            descWrap.add (this.desc);
+            
+            descWrap.setBorder (UIUtils.createPadding (0, 10, 0, 10));
+                        
+            this.add (descWrap);
             
             java.util.List<JButton> buttons = new ArrayList ();
             
@@ -160,12 +159,6 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                                         
                                                         _this.desc.setVisible (!_this.desc.isVisible ());
 
-                                                        _this.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                                                             _this.getPreferredSize ().height));
-                                                        
-                                                        _this.validate ();
-                                                        _this.repaint ();
-
                                                     }
                                                     
                                                }));
@@ -179,7 +172,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
-                                                        ProblemFinderRuleConfig.confirmRuleRemoval (conf,
+                                                        ProblemFinderRuleConfig.confirmRuleRemoval (conf.getProjectViewer (),
                                                                                                     _this.rule,
                                                                                                     conf.getProjectViewer ().getProject ().getProperties (),
                                                                                                     new ActionListener ()
@@ -224,16 +217,14 @@ public class ProblemFinderRuleConfig extends PopupWindow
         public void update ()
         {
 
-            this.desc.setText (UIUtils.getWithHTMLStyleSheet (this.desc,
-                                                              this.rule.getDescription ()));
-            this.info.setText (UIUtils.getWithHTMLStyleSheet (this.info,
-                                                              this.rule.getSummary ()));
+            this.desc.setText (this.rule.getDescription ());
+            this.info.setText (this.rule.getSummary ());
 
         }
 
     }
 
-    private QuollEditorPanel editor = null;
+    //private QuollEditorPanel editor = null;
     private Box              wordsBox = null;
     private Box              wordsEditBox = null;
     private JPanel           wordsWrapper = null;
@@ -246,41 +237,16 @@ public class ProblemFinderRuleConfig extends PopupWindow
     private JPanel           paragraphWrapper = null;
     private Box              paragraphControl = null;
     private DnDTabbedPane    tabs = null;
-
+    private AbstractProjectViewer projectViewer = null;
+    private boolean inited = false;
+    
     public ProblemFinderRuleConfig (AbstractProjectViewer pv)
     {
 
-        super (pv,
-               Component.CENTER_ALIGNMENT);
-                
-    }
-    
-    public String getWindowTitle ()
-    {
-
-        return "Configure the Problem Finder Rules";
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return this.getWindowTitle ();
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return "config";
-
-    }
-
-    public String getHelpText ()
-    {
-
-        return "";
-
+        super (BoxLayout.Y_AXIS);
+        
+        this.projectViewer = pv;
+                    
     }
 
     private void createSentenceWrapper ()
@@ -288,7 +254,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         final ProblemFinderRuleConfig _this = this;
      
-        this.sentenceBox = new Box (BoxLayout.Y_AXIS);
+        this.sentenceBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.sentenceBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.sentenceBox.setOpaque (false);
 
@@ -387,7 +353,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         this.sentenceControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                             this.sentenceControl.getPreferredSize ().height));
-                                                                             
+
         sentenceAll.add (this.sentenceControl);
 
         this.sentenceControl.setVisible (this.getSentenceIgnores ().size () != 0);
@@ -437,10 +403,10 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         this.sentenceBox.add (Box.createVerticalGlue ());
 
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
         {
 
-            public void run ()
+            public void actionPerformed (ActionEvent ev)
             {
                 
                 spsp.getVerticalScrollBar ().setValue (0);
@@ -456,7 +422,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         final ProblemFinderRuleConfig _this = this;
      
-        this.paragraphBox = new Box (BoxLayout.Y_AXIS);
+        this.paragraphBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.paragraphBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.paragraphBox.setOpaque (false);
 
@@ -555,7 +521,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         this.paragraphControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                              this.paragraphControl.getPreferredSize ().height));
-                                                                             
+
         paragraphAll.add (this.paragraphControl);
 
         this.paragraphControl.setVisible (this.getParagraphIgnores ().size () != 0);
@@ -604,10 +570,11 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         this.paragraphBox.add (Box.createVerticalGlue ());
 
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
         {
 
-            public void run ()
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
                 
                 spsp.getVerticalScrollBar ().setValue (0);
@@ -623,7 +590,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         final ProblemFinderRuleConfig _this = this;
      
-        this.wordsBox = new Box (BoxLayout.Y_AXIS);
+        this.wordsBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.wordsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.wordsBox.setOpaque (false);
         final JScrollPane ppsp = new JScrollPane (this.wordsBox);
@@ -754,10 +721,11 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         this.wordsBox.add (Box.createVerticalGlue ());        
 
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
         {
 
-            public void run ()
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
                 
                 ppsp.getVerticalScrollBar ().setValue (0);
@@ -768,14 +736,22 @@ public class ProblemFinderRuleConfig extends PopupWindow
      
     }
     
-    public JComponent getContentPanel ()
+    public void init ()
     {
 
+        if (this.inited)
+        {
+          
+           return;
+          
+        }
+    
         final ProblemFinderRuleConfig _this = this;
 
         this.tabs = new DnDTabbedPane ();
         // Load the "rules to ignore".
 
+        this.tabs.setAlignmentX (Component.LEFT_ALIGNMENT);        
         // Get the to ignore from the user properties.
 
         this.tabs.setTabLayoutPolicy (JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -799,9 +775,36 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                               5,
                                               0,
                                               5));
-                                       
-        return tabs;
+                     
+        this.add (this.tabs);
 
+        JButton finish = new JButton ("Finish");
+
+        finish.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.closePopupParent (_this.getParent ());
+
+            }
+
+        });
+
+        JButton[] buts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);        
+        this.add (Box.createVerticalStrut (10));
+        
+        this.add (bp);
+        
+        this.inited = true;
+        
     }
 
     private List<Rule> getParagraphIgnores ()
@@ -1130,7 +1133,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
         f.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          f.getPreferredSize ().height));
-        
+      
         editBox.add (Box.createVerticalGlue ());
         
         final Box _editBox = editBox;
@@ -1408,7 +1411,7 @@ public class ProblemFinderRuleConfig extends PopupWindow
 
     }
 
-    public static void confirmRuleRemoval (final Component                           parent,
+    public static void confirmRuleRemoval (final AbstractProjectViewer               parent,
                                            final Rule                                r,
                                            final com.gentlyweb.properties.Properties projProps,
                                            final ActionListener                      onRemove)
@@ -1467,62 +1470,21 @@ public class ProblemFinderRuleConfig extends PopupWindow
                                                  Constants.CANCEL_BUTTON_LABEL_ID),
                      null);
 
-        // Need a nicer way of doing this, ok for now, improve in a later version.
-        if (parent instanceof PopupWindow)
-        {
+          UIUtils.createQuestionPopup (parent,
+                                       "Confirm rule removal",
+                                       Constants.DELETE_ICON_NAME,
+                                       "Please confirm you wish to remove this rule.",
+                                       buttons,
+                                       null,
+                                       null);
+        
+    }
     
-            UIUtils.createQuestionPopup ((PopupWindow) parent,
-                                         "Confirm rule removal",
-                                         null,
-                                         "Please confirm you wish to remove this rule.",
-                                         buttons,
-                                         null,
-                                         null);
-
-            return;
-            
-        } 
-        
-        if (parent instanceof QuollPanel)
-        {
-            
-            UIUtils.createQuestionPopup (((QuollPanel) parent).getProjectViewer (),
-                                         "Confirm rule removal",
-                                         Constants.DELETE_ICON_NAME,
-                                         "Please confirm you wish to remove this rule.",
-                                         buttons,
-                                         null,
-                                         null);
-            
-            
-        }
-        
-    }
-
-    public JButton[] getButtons ()
+    public AbstractProjectViewer getProjectViewer ()
     {
-
-        final ProblemFinderRuleConfig _this = this;
-
-        JButton c = new JButton ("Finish");
-
-        c.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    _this.close ();
-
-                }
-
-            });
-
-        JButton[] buts = new JButton[1];
-        buts[0] = c;
-
-        return buts;
-
+     
+        return this.projectViewer;
+     
     }
-
+    
 }

@@ -22,6 +22,7 @@ public class AchievementRuleFactory
                                                    XMLConstants.type,
                                                    true);
         
+        // TODO: Make this nicer.
         if (type.equals (ItemAchievementRule.RULE_TYPE))
         {
             
@@ -64,6 +65,13 @@ public class AchievementRuleFactory
             
         }
         
+        if (type.equals (EditorMessageAchievementRule.RULE_TYPE))
+        {
+            
+            return new EditorMessageAchievementRule (root);
+            
+        }
+
         return null;
         
     }

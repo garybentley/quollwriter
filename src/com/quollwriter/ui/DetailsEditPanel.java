@@ -246,9 +246,27 @@ public abstract class DetailsEditPanel extends EditPanel
     public IconProvider getIconProvider ()
     {
 
-        DefaultIconProvider iconProv = new DefaultIconProvider ();
-        iconProv.putIcon ("header",
-                          "information");
+        DefaultIconProvider iconProv = new DefaultIconProvider ()
+        {
+          
+            @Override
+            public ImageIcon getIcon (String name,
+                                      int    type)
+            {
+                
+                if (name.equals ("header"))
+                {
+                    
+                    name = Constants.INFO_ICON_NAME;
+                    
+                }
+                
+                return super.getIcon (name,
+                                      type);
+                
+            }
+            
+        };
 
         return iconProv;
 

@@ -1,6 +1,7 @@
 package com.quollwriter.ui;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Component;
 import java.awt.event.*;
 
@@ -32,12 +33,22 @@ public class NewProjectPanel
     private JPasswordField passwordField = null;
     private JCheckBox      encryptField = null;
     private JLabel         error = null;
+    private Project        project = null;
     
     public NewProjectPanel()
     {
     
+        this.nameField = UIUtils.createTextField ();
+    
     }
 
+    public void setProject (Project p)
+    {
+        
+        this.project = p;
+        
+    }
+    
     public JTextField getNameField ()
     {
         
@@ -45,7 +56,7 @@ public class NewProjectPanel
         
     }
         
-    public JComponent createPanel (final Component      parent,
+    public JComponent createPanel (final Container      parent,
                                    final ActionListener onCreate,
                                          boolean        createOnReturn,
                                    final ActionListener onCancel,
@@ -71,8 +82,6 @@ public class NewProjectPanel
         final PanelBuilder builder = new PanelBuilder (fl);
 
         final CellConstraints cc = new CellConstraints ();
-
-        this.nameField = UIUtils.createTextField ();
 
         builder.addLabel ("Name",
                           cc.xy (1,
@@ -266,6 +275,13 @@ public class NewProjectPanel
                     
                 }                
                 
+                if (parent instanceof QPopup)
+                {
+                    
+                    ((QPopup) parent).removeFromParent ();
+                    
+                }                
+
             }
             
         };                    
@@ -297,6 +313,13 @@ public class NewProjectPanel
                 
             }                
             
+            if (parent instanceof QPopup)
+            {
+                
+                cancelBut.addActionListener (((QPopup) parent).getCloseAction ());
+                
+            }                
+
             JButton[] buts = { createBut, cancelBut };
 
             JPanel bp = UIUtils.createButtonBar2 (buts,
@@ -345,7 +368,7 @@ public class NewProjectPanel
 
     }
 
-    public boolean createProject (Component parent)
+    public boolean createProject (Container parent)
     {
         
         if (!this.checkForm (parent))
@@ -355,7 +378,14 @@ public class NewProjectPanel
             
         }
 
-        Project proj = new Project (this.getName ());
+        Project proj = this.project;
+        
+        if (proj == null)
+        {
+            
+            proj = new Project (this.getName ());
+            
+        } 
 
         AbstractProjectViewer pj = null;
 
@@ -382,7 +412,7 @@ public class NewProjectPanel
         {
 
             pj.newProject (this.getSaveDirectory (),
-                           proj.getName (),
+                           proj,
                            this.getPassword ());
 
         } catch (Exception e)
@@ -403,7 +433,7 @@ public class NewProjectPanel
         
     }
     
-    private boolean showError (Component parent,
+    private boolean showError (Container parent,
                                String    text)
     {
         
@@ -413,20 +443,30 @@ public class NewProjectPanel
 
         parent.repaint ();
         
-        if (parent instanceof PopupWindow)
-        {
-            
-            ((PopupWindow) parent).resize ();
-            
-        }
+        UIUtils.resizeParent (parent);
         
         return false;
         
     }
     
-    public boolean checkForm (Component parent)
+    private boolean hideError (Container parent)
+    {
+                
+        this.error.setVisible (false);
+
+        parent.repaint ();
+        
+        UIUtils.resizeParent (parent);
+        
+        return false;
+        
+    }
+
+    public boolean checkForm (Container parent)
     {
 
+        this.hideError (parent);
+    
         String n = this.nameField.getText ().trim ();
 
         if (n.equals (""))
@@ -438,7 +478,7 @@ public class NewProjectPanel
         }
 
         // See if the project already exists.
-        File pf = new File (saveField.getText () + "/" + Utils.sanitizeForFilename (n));
+        File pf = new File (saveField.getText (), Utils.sanitizeForFilename (n));
 
         if (pf.exists ())
         {
@@ -500,6 +540,13 @@ public class NewProjectPanel
     public String getPassword ()
     {
 
+        if (!this.encryptField.isSelected ())
+        {
+            
+            return null;
+            
+        }
+    
         String pwd = new String (this.passwordField.getPassword ());
 
         if (pwd.trim ().equals (""))

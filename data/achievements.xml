@@ -326,7 +326,7 @@
   </item>
 
   <item id="usehelp" category="user" type="event" icon="help" event="help.show">
-    <name>Help me Obi Wan Kanobi</name>
+    <name>Help me Obi Wan Kenobi</name>
     <description>Use the help.</description>
   </item>
 
@@ -563,6 +563,93 @@
   <item id="tips5" category="user" type="event" icon="help" currentSession="true" event="tips.show" count="5">
     <name>Tipster</name>
     <description>View more than 5 tips.</description>
+  </item>
+
+  <item id="addinvite"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite"
+        count="1">
+    <name>It begins!</name>
+    <description>Send an invite to an {editor}.</description>
+  </item>
+
+  <item id="addinvite3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite"
+        count="3">
+    <name>Assembling the team</name>
+    <description>Invite 3 {editors}.</description>
+  </item>
+
+  <item id="addinvite5"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite"
+        count="5">
+    <name>Editing Avengers</name>
+    <description>Invite 5 {editors}.</description>
+  </item>
+
+  <item id="inviteaccepted"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        sentByMe="false"
+        count="1">
+    <name>Not alone in this</name>
+    <description>Receive an acceptance from {an editor}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>  
+  
+  <item id="inviteaccepted3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        sentByMe="false"
+        count="3">
+    <name>Team Building</name>
+    <description>Receive acceptances from 3 {editors}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>  
+
+  <item id="acceptinvite"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response">
+    <name>I'm your [wo]man</name>
+    <description>Accept an invite to edit a {project}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>  
+
+  <item id="sendproject"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        count="1"
+        messageTypes="project-new">
+    <name>Projecting</name>
+    <description>Send a {project} to {an editor}.</description>
+  </item>
+  
+  <item id="sendproject3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="project-new"
+        count="3">
+    <name>Many eyes</name>
+    <description>Send a {project} to 3 {editors}.</description>
   </item>
 
 </achievements>

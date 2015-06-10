@@ -2,6 +2,7 @@ package com.quollwriter.ui;
 
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.event.*;
 
 import java.io.File;
 
@@ -40,22 +41,37 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
 
-public abstract class TypesEditor extends PopupWindow
+public abstract class TypesEditor extends Box //PopupWindow
 {
 
     private Project     proj = null;
     private TypesHandler handler = null;
     private DefaultTableModel typeModel = null;
+    private AbstractProjectViewer projectViewer = null;
 
     public TypesEditor (AbstractProjectViewer pv,
                         TypesHandler          handler)
     {
 
-        super (pv,
-               Component.CENTER_ALIGNMENT);
-
+        super (BoxLayout.Y_AXIS);
+        
+        this.projectViewer = pv;
         this.handler = handler;
         this.proj = pv.getProject ();
+        
+        final TypesEditor _this = this;
+        
+        this.handler.addChangeListener (new ChangeListener ()
+        {
+            
+            public void stateChanged (ChangeEvent ev)
+            {
+                
+                _this.reloadTypes ();
+                
+            }
+            
+        });
 
     }
     
@@ -70,20 +86,22 @@ public abstract class TypesEditor extends PopupWindow
 
     }
 
-    public JComponent getContentPanel ()
+    //public JComponent getContentPanel ()
+    public void init ()
     {
 
         final TypesEditor _this = this;
 
-        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        //Box b = new Box (BoxLayout.Y_AXIS);
 
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.setOpaque (true);
-        b.setBackground (null);
-        b.add (Box.createVerticalStrut (5));
+        this.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.setOpaque (true);
+        this.setBackground (null);
+        this.add (Box.createVerticalStrut (5));
 
-        b.add (UIUtils.createBoldSubHeader ("New Types",
-                                            null));
+        this.add (UIUtils.createBoldSubHeader ("New Types",
+                                               null));
 
         JTextPane tp = UIUtils.createHelpTextPane ("Enter the new types to add below, separate the types with commas or semi-colons.",
                                                    this.projectViewer);
@@ -93,13 +111,14 @@ public abstract class TypesEditor extends PopupWindow
                                        0,
                                        5));
 
-        b.add (tp);
+        this.add (tp);
 
         final JTextField newTypes = UIUtils.createTextField ();
         newTypes.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        final JTable typeTable = new JTable ();
-        
+        final JTable typeTable = UIUtils.createTable ();
+        typeTable.setTableHeader (null);
+                
         typeTable.setModel (new DefaultTableModel ()
         {
 
@@ -188,10 +207,10 @@ public abstract class TypesEditor extends PopupWindow
 
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
         
-        b.add (fb);
+        this.add (fb);
         
-        b.add (UIUtils.createBoldSubHeader (Environment.replaceObjectNames (this.getTypesName ()),
-                                            null));
+        this.add (UIUtils.createBoldSubHeader (Environment.replaceObjectNames (this.getTypesName ()),
+                                               null));
 
         fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -206,21 +225,10 @@ public abstract class TypesEditor extends PopupWindow
         fb.add (tp);
         fb.add (Box.createVerticalStrut (10));
         
-        typeTable.setAlignmentX (Component.LEFT_ALIGNMENT);
-        typeTable.setOpaque (false);
-        typeTable.setFillsViewportHeight (true);
-        typeTable.setBorder (null);
-        typeTable.setTableHeader (null);
+        final JScrollPane ppsp = UIUtils.createScrollPane (typeTable);
 
-        final JScrollPane ppsp = new JScrollPane (typeTable);
-
-        // ppsp.setBorder (null);
-        ppsp.setOpaque (false);
-        ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        ppsp.setPreferredSize (new Dimension (500,
-                                              200));
-        ppsp.getViewport ().setOpaque (false);
+        typeTable.setPreferredScrollableViewportSize (new Dimension (-1,
+                                                                     (typeTable.getRowHeight () + 3) * 5));
 
         fb.add (ppsp);
 
@@ -262,9 +270,33 @@ public abstract class TypesEditor extends PopupWindow
         
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
 
-        b.add (fb);
+        this.add (fb);
         
-        return b;
+        JButton finish = new JButton ("Finish");
+
+        finish.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.closePopupParent (_this.getParent ());
+
+            }
+
+        });
+
+        buts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        this.add (Box.createVerticalStrut (10));
+        
+        this.add (bp);        
+        
+        //return b;
 
     }
 
@@ -292,7 +324,7 @@ public abstract class TypesEditor extends PopupWindow
                                       cols);
         
     }
-
+/*
     public JButton[] getButtons ()
     {
 
@@ -307,5 +339,5 @@ public abstract class TypesEditor extends PopupWindow
         return buts;
 
     }
-
+*/
 }

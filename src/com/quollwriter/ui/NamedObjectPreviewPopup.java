@@ -202,6 +202,14 @@ public class NamedObjectPreviewPopup extends Box
                       Point       showAt)
     {
 
+        // TODO: Make this nicer later.
+        if (obj instanceof Chapter)
+        {
+            
+            Chapter c = (Chapter) obj;
+            
+        }
+    
         String firstLine = "<b><i>No description.</i></b>";
         
         if ((obj.getDescription () != null)
@@ -254,7 +262,8 @@ public class NamedObjectPreviewPopup extends Box
         }
                                   
         this.parent.showPopupAt (this,
-                                 showAt);
+                                 showAt,
+                                 true);
                                 
     }
     

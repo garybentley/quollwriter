@@ -20,7 +20,9 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
     public WarmupsAccordionItem (WarmupsViewer pv)
     {
         
-        super (Warmup.OBJECT_TYPE,
+        super (Environment.getObjectTypeNamePlural (Warmup.OBJECT_TYPE),
+               Warmup.OBJECT_TYPE,
+               Warmup.OBJECT_TYPE,
                pv);
                         
     }
@@ -65,7 +67,9 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                 
     }
 
-    public void showTreePopupMenu (MouseEvent ev)
+    @Override
+    public void fillTreePopupMenu (JPopupMenu m,
+                                   MouseEvent ev)
     {
 
         final WarmupsAccordionItem _this = this;
@@ -74,8 +78,6 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
         final TreePath tp = this.tree.getPathForLocation (ev.getX (),
                                                           ev.getY ());
-
-        final JPopupMenu m = new JPopupMenu ();
 
         JMenuItem mi = null;
 
@@ -103,19 +105,9 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
 
                 m.add (UIUtils.createMenuItem ("Rename {Warmup}",
                                                Constants.RENAME_ICON_NAME,
-                                               new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.tree.setSelectionPath (tp);
-                        _this.tree.startEditingAtPath (tp);
-
-                    }
-
-                }));
-
+                                               pv.getAction (WarmupsViewer.RENAME_WARMUP_ACTION,
+                                                             c)));
+                                                             
                 m.add (UIUtils.createMenuItem ("Close {Warmup}",
                                                Constants.CANCEL_ICON_NAME,
                                                new ActionAdapter ()
@@ -138,10 +130,6 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
             }
 
         } 
-
-        m.show ((Component) ev.getSource (),
-                ev.getX (),
-                ev.getY ());
         
     }
     

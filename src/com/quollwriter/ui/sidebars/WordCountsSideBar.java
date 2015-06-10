@@ -81,19 +81,64 @@ public class WordCountsSideBar extends AbstractSideBar
         
     }
     
-    public void onClose ()
+    /**
+     * Start the timer and call {@link update()} later.
+     */
+    @Override
+    public void onShow ()
     {
         
+        final WordCountsSideBar _this = this;
+        
+        // Start the timer.
+        this.timer.start ();
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.update ();
+                
+            }
+            
+        });
+
+    }
+  
+    @Override
+    public void onHide ()
+    {
         
     }
     
+    /**
+     * Stop the timer, we don't set the timer to null since {@link removeOnClose()} is false.
+     */
+    @Override
+    public void onClose ()
+    {
+        
+        // Pause the timer.
+        this.timer.stop ();
+        
+        this.timer = null;
+                    
+    }
+    
+    /**
+     * Always return false, we want to keep the counts around since it's a labour intensive thing.
+     *
+     * @returns Always false.
+     */
     public boolean removeOnClose ()
     {
         
         return false;
         
     }
-    
+
     public String getIconType ()
     {
         
@@ -131,6 +176,14 @@ public class WordCountsSideBar extends AbstractSideBar
         if (!this.isVisible ())
         {
             
+            return;
+            
+        }
+    
+        if (this.timer == null)
+        {
+            
+            // Probably closing down.
             return;
             
         }
@@ -255,104 +308,103 @@ public class WordCountsSideBar extends AbstractSideBar
                 try
                 {
         
-                    ChapterDataHandler dh = (ChapterDataHandler) this.projectViewer.getDataHandler (Chapter.OBJECT_TYPE);
+                    ChapterDataHandler dh = (ChapterDataHandler) this.projectViewer.getDataHandler (Chapter.class);
         
-                    org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries (c.getName ());
-        
-                    int diff = 0;
-        
-                    int min = Integer.MAX_VALUE;
-                    int max = Integer.MIN_VALUE;
-                
-                    // Get all the word counts for the chapter.
-                    java.util.List<WordCount> wordCounts = dh.getWordCounts (c,
-                                                                             -7);
-
-                    if (wordCounts.size () == 0)
+                    // TODO: Find a better way of handling this.
+                    if (dh != null)
                     {
-                        
-                        wordCounts.add (new WordCount (chc.wordCount,
-                                                       null,
-                                                       Environment.zeroTimeFieldsForDate (new Date ())));
-                        
-                    }
 
-                    // Expand the dates back if necessary.
-                    if (wordCounts.size () == 1)
-                    {
-                        
-                        // Get a date for 7 days ago.
-                        Date d = new Date (System.currentTimeMillis () - (7 * 24 * 60 * 60 * 1000));
-                        
-                        wordCounts.add (0,
-                                        new WordCount (chc.wordCount,
-                                                       null,
-                                                       Environment.zeroTimeFieldsForDate (d)));
-                        
-                    }
+                        org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries (c.getName ());
+            
+                        int diff = 0;
+            
+                        int min = Integer.MAX_VALUE;
+                        int max = Integer.MIN_VALUE;
                     
-                    for (WordCount wc : wordCounts)
-                    {
-
-                        int count = wc.getCount ();
-
-                        min = Math.min (min,
-                                        count);
-                        max = Math.max (max,
-                                        count);
-
-                        try
-                        {
-
-                            ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
-                                    count);
-
-                        } catch (Exception e) {
-                            
-                            // Ignore, trying to add a duplicate day.
-                            
-                        }
-
-                    }
-        
-                    diff = max - min;
-
-                    int wordDiff = diff;
-                    
-                    if (diff == 0)
-                    {
-
-                        diff = 100;
-
-                    }
-                
-                    if ((min < Integer.MAX_VALUE) ||
-                        (max > Integer.MIN_VALUE))
-                    {
-        
-                        String d = "";
-                        
-                        if (wordDiff != 0)
+                        // Get all the word counts for the chapter.
+                        java.util.List<WordCount> wordCounts = dh.getWordCounts (c,
+                                                                                 -7);
+    
+                        if (wordCounts.size () == 0)
                         {
                             
-                            d = ", <b>" + (wordDiff > 0 ? "+" : "-") + Environment.formatNumber (wordDiff) + "</b> words";    
-                                    
+                            wordCounts.add (new WordCount (chc.wordCount,
+                                                           null,
+                                                           Environment.zeroTimeFieldsForDate (new Date ())));
+                            
+                        }
+    
+                        // Expand the dates back if necessary.
+                        if (wordCounts.size () == 1)
+                        {
+                            
+                            // Get a date for 7 days ago.
+                            Date d = new Date (System.currentTimeMillis () - (7 * 24 * 60 * 60 * 1000));
+                            
+                            wordCounts.add (0,
+                                            new WordCount (chc.wordCount,
+                                                           null,
+                                                           Environment.zeroTimeFieldsForDate (d)));
+                            
                         }
                         
-                        this.chapterSparkLineLabel.setText ("<html>past 7 days" + d + "</html>");
+                        for (WordCount wc : wordCounts)
+                        {
+    
+                            int count = wc.getCount ();
+    
+                            min = Math.min (min,
+                                            count);
+                            max = Math.max (max,
+                                            count);
+    
+                            try
+                            {
+    
+                                ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
+                                        count);
+    
+                            } catch (Exception e) {
                                 
-                        org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
-                                                                                                                 max + (diff / 2),
-                                                                                                                 min - (diff / 2)));
-        
-                        cp.setToolTipText ("Word count activity for the past 7 days");
+                                // Ignore, trying to add a duplicate day.
+                                
+                            }
+    
+                        }
+            
+                        diff = max - min;
+    
+                        int wordDiff = diff;
                         
-                        cp.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                          16));
-                        cp.setPreferredSize (new Dimension (60,
-                                                            16));
-                        this.chapterSparkLine.add (cp);
-        
+                        if (diff == 0)
+                        {
+    
+                            diff = 100;
+    
+                        }
+                    
+                        if ((min < Integer.MAX_VALUE) ||
+                            (max > Integer.MIN_VALUE))
+                        {
+                                    
+                            this.chapterSparkLineLabel.setText (String.format ("past 7 days, <b>%s%s</b> words",
+                                                                               (wordDiff == 0 ? "" : (wordDiff > 0 ? "+" : "")),
+                                                                               Environment.formatNumber (wordDiff)));
+                                    
+                            org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
+                                                                                                                     max + (diff / 2),
+                                                                                                                     min - (diff / 2)));
+            
+                            cp.setToolTipText ("Word count activity for the past 7 days");
+                            
+                            cp.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                              16));
+                            cp.setPreferredSize (new Dimension (60,
+                                                                16));
+                            this.chapterSparkLine.add (cp);
+            
+                        }
+
                     }
         
                 } catch (Exception e)
@@ -515,7 +567,7 @@ public class WordCountsSideBar extends AbstractSideBar
                     
         }
         
-        sparkLineLabel.setText ("<html>past " + days + " days" + diff + "</html>");
+        sparkLineLabel.setText ("past " + days + " days" + diff);
         
         b.add (sparkLineLabel,
                cc.xy (3, 5));
@@ -637,21 +689,21 @@ public class WordCountsSideBar extends AbstractSideBar
                 
         final Chapter c = this.projectViewer.getChapterCurrentlyEdited ();
 
-        this.sessionWordCount = new JLabel ();
-        this.chapterWordCount = new JLabel ();
-        this.chapterPages = new JLabel ();
-        this.allChaptersWordCount = new JLabel ();        
-        this.allChaptersPages = new JLabel ();
-        this.selectedWordCount = new JLabel ();
+        this.sessionWordCount = UIUtils.createInformationLabel (null);
+        this.chapterWordCount = UIUtils.createInformationLabel (null);
+        this.chapterPages = UIUtils.createInformationLabel (null);
+        this.allChaptersWordCount = UIUtils.createInformationLabel (null);
+        this.allChaptersPages = UIUtils.createInformationLabel (null);
+        this.selectedWordCount = UIUtils.createInformationLabel (null);
         this.chapterSparkLine = new Box (BoxLayout.X_AXIS);
         this.chapterSparkLine.setOpaque (false);
-        this.chapterSparkLineLabel = new JLabel ();
-        this.selectedFleschKincaid = new JLabel ();
-        this.selectedFleschReadingEase = new JLabel ();
-        this.selectedGunningFog = new JLabel ();
-        this.editPointWordCount = new JLabel ();
-        this.allEditPointWordCount = new JLabel ();
-        this.allChaptersEditCount = new JLabel ();
+        this.chapterSparkLineLabel = UIUtils.createInformationLabel (null);
+        this.selectedFleschKincaid = UIUtils.createInformationLabel (null);
+        this.selectedFleschReadingEase = UIUtils.createInformationLabel (null);
+        this.selectedGunningFog = UIUtils.createInformationLabel (null);
+        this.editPointWordCount = UIUtils.createInformationLabel (null);
+        this.allEditPointWordCount = UIUtils.createInformationLabel (null);
+        this.allChaptersEditCount = UIUtils.createInformationLabel (null);
                 
         List<JComponent> items = new ArrayList ();
 
@@ -707,11 +759,11 @@ public class WordCountsSideBar extends AbstractSideBar
                 
         //this.chapterEditPointBox.setVisible (false);
 
-        this.chapterEditPointBox.setBorder (new EmptyBorder (0, 0, 10, 0));
+        UIUtils.setPadding (this.chapterEditPointBox, 0, 0, 10, 0);
                                                 
-        this.chapterFleschKincaid = new JLabel ();
-        this.chapterFleschReadingEase = new JLabel ();
-        this.chapterGunningFog = new JLabel ();
+        this.chapterFleschKincaid = UIUtils.createInformationLabel (null);
+        this.chapterFleschReadingEase = UIUtils.createInformationLabel (null);
+        this.chapterGunningFog = UIUtils.createInformationLabel (null);
                 
         this.chapterReadabilityHeader = this.createSubHeader ("Readability");
                 
@@ -747,63 +799,69 @@ public class WordCountsSideBar extends AbstractSideBar
         try
         {
 
-            ProjectDataHandler dh = (ProjectDataHandler) this.projectViewer.getDataHandler (Project.OBJECT_TYPE);
+            ProjectDataHandler dh = (ProjectDataHandler) this.projectViewer.getDataHandler (Project.class);
 
-            org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries ("All");
-
-            int diff = 0;
-
-            int min = Integer.MAX_VALUE;
-            int max = Integer.MIN_VALUE;
-
-            // Get all the word counts for the project.
-            java.util.List<WordCount> wordCounts = dh.getWordCounts (this.projectViewer.getProject (),
-                                                                     -30);
-
-            for (WordCount wc : wordCounts)
+            // TODO: Find a better way of handling this.
+            if (dh != null)
             {
-
-                int count = wc.getCount ();
-
-                min = Math.min (min,
-                                count);
-                max = Math.max (max,
-                                count);
-
-                ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
-                        count);
+                
+                org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries ("All");
+    
+                int diff = 0;
+    
+                int min = Integer.MAX_VALUE;
+                int max = Integer.MIN_VALUE;
+    
+                // Get all the word counts for the project.
+                java.util.List<WordCount> wordCounts = dh.getWordCounts (this.projectViewer.getProject (),
+                                                                         -30);
+    
+                for (WordCount wc : wordCounts)
+                {
+    
+                    int count = wc.getCount ();
+    
+                    min = Math.min (min,
+                                    count);
+                    max = Math.max (max,
+                                    count);
+    
+                    ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
+                            count);
+    
+                }
+    
+                diff = max - min;
+    
+                if (diff == 0)
+                {
+    
+                    diff = 100;
+    
+                }
+    
+                if ((min < Integer.MAX_VALUE) ||
+                    (max > Integer.MIN_VALUE))
+                {
+    
+                    wordCountDiff30 = max - min;    
+                
+                    org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
+                                                                                                             max + (diff / 2),
+                                                                                                             min - (diff / 2)));
+    
+                    cp.setToolTipText ("Word count activity for the past 30 days");
+                    cp.setMaximumSize (new Dimension (60,
+                                                      16));
+                    cp.setPreferredSize (new Dimension (60,
+                                                        16));
+    
+                    sparkLine = cp;
+                                                          
+                }
 
             }
-
-            diff = max - min;
-
-            if (diff == 0)
-            {
-
-                diff = 100;
-
-            }
-
-            if ((min < Integer.MAX_VALUE) ||
-                (max > Integer.MIN_VALUE))
-            {
-
-                wordCountDiff30 = max - min;    
-            
-                org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
-                                                                                                         max + (diff / 2),
-                                                                                                         min - (diff / 2)));
-
-                cp.setToolTipText ("Word count activity for the past 30 days");
-                cp.setMaximumSize (new Dimension (60,
-                                                  16));
-                cp.setPreferredSize (new Dimension (60,
-                                                    16));
-
-                sparkLine = cp;
-                                                      
-            }
-
+                
         } catch (Exception e)
         {
 
@@ -815,13 +873,13 @@ public class WordCountsSideBar extends AbstractSideBar
         items.add (this.getWords (this.allChaptersWordCount,
                                   this.allChaptersPages,
                                   sparkLine,
-                                  new JLabel (),                                  
+                                  UIUtils.createInformationLabel (null),                                  
                                   wordCountDiff30,
                                   30));        
         
-        this.allChaptersFleschKincaid = new JLabel ();
-        this.allChaptersFleschReadingEase = new JLabel ();
-        this.allChaptersGunningFog = new JLabel ();
+        this.allChaptersFleschKincaid = UIUtils.createInformationLabel (null);
+        this.allChaptersFleschReadingEase = UIUtils.createInformationLabel (null);
+        this.allChaptersGunningFog = UIUtils.createInformationLabel (null);
 
         this.allChaptersEditPointBox = new Box (BoxLayout.Y_AXIS);
         
@@ -857,7 +915,7 @@ public class WordCountsSideBar extends AbstractSideBar
                                                              Environment.getIcon ("chart",
                                                                                   Constants.ICON_MENU));
 
-        history.setBorder (new EmptyBorder (0, 5, 0, 0));
+        UIUtils.setPadding (history, 0, 5, 0, 0);
                                                                                   
         box.add (history);
         box.add (Box.createVerticalStrut (10));
@@ -874,11 +932,11 @@ public class WordCountsSideBar extends AbstractSideBar
 
         });
 
-        JLabel l = UIUtils.createClickableLabel ("<html>Click to find out more about<br />the Readability indices</html>",
+        JLabel l = UIUtils.createClickableLabel ("Click to find out more about<br />the Readability indices",
                                                  Environment.getIcon ("help",
                                                                       Constants.ICON_MENU));
 
-        l.setBorder (new EmptyBorder (0, 5, 0, 0));
+        UIUtils.setPadding (l, 0, 5, 0, 0);
                                                                       
         l.addMouseListener (new MouseEventHandler ()
         {
@@ -979,15 +1037,16 @@ public class WordCountsSideBar extends AbstractSideBar
     private JLabel createSubHeader (String title)
     {
         
-        JLabel ll = new JLabel ("<html><i>" + Environment.replaceObjectNames (title) + "</i></html>");
-        
-        ll.setBorder (new EmptyBorder (0, 10, 0, 0));
+        JLabel ll = UIUtils.createInformationLabel ("<i>" + Environment.replaceObjectNames (title) + "</i>");        
+
+        UIUtils.setPadding (ll, 0, 10, 0, 0);
         
         return ll;
         
     }
     
     public void init ()
+               throws GeneralException
     {
 
         super.init ();
@@ -1013,11 +1072,7 @@ public class WordCountsSideBar extends AbstractSideBar
                                     }
                                     
                                 });
-        
-        this.timer.start ();
-        
-        this.update ();
-        
+                
     }    
     
 }

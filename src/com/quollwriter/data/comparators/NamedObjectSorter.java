@@ -44,7 +44,7 @@ public class NamedObjectSorter implements Comparator<NamedObject>
 
     }
 
-    private static OutlineItemSorter outlineItemComp = new OutlineItemSorter ();
+    private static ChapterItemSorter chapterItemComp = new ChapterItemSorter ();
 
     public NamedObjectSorter()
     {
@@ -95,12 +95,12 @@ public class NamedObjectSorter implements Comparator<NamedObject>
 
         }
 
-        if ((o1 instanceof OutlineItem) &&
-            (o2 instanceof OutlineItem))
+        if ((o1 instanceof ChapterItem) &&
+            (o2 instanceof ChapterItem))
         {
 
-            return NamedObjectSorter.outlineItemComp.compare ((OutlineItem) o1,
-                                                              (OutlineItem) o2);
+            return NamedObjectSorter.chapterItemComp.compare ((ChapterItem) o1,
+                                                              (ChapterItem) o2);
 
         }
 
@@ -120,6 +120,20 @@ public class NamedObjectSorter implements Comparator<NamedObject>
 
             }
 
+        }
+
+        if (o1.getName () == null)
+        {
+            
+            return 1;
+            
+        }
+        
+        if (o2.getName () == null)
+        {
+            
+            return -1;
+            
         }
 
         return o1.getName ().toLowerCase ().compareTo (o2.getName ().toLowerCase ());

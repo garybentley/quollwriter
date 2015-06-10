@@ -68,6 +68,14 @@ public class IdeaType extends NamedObject
     public void addIdea (Idea i)
     {
 
+        if (this.ideas.contains (i))
+        {
+            
+            throw new IllegalStateException ("Already have idea: " +
+                                             i);
+            
+        }
+    
         i.setType (this);
 
         this.ideas.add (i);

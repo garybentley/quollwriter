@@ -28,20 +28,20 @@ import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.renderers.*;
-
 
 public class NoteActionHandler extends ProjectViewerActionHandler
 {
 
     private JTextField summaryField = UIUtils.createTextField ();
     private JTextArea  descField = UIUtils.createTextArea (-1);
-    private Chapter    chapter = null;
-    private int        showAt = -1;
+    protected Chapter    chapter = null;
+    protected int        showAt = -1;
     private JComboBox  types = null;
 
-    public NoteActionHandler(Note                n,
-                             AbstractEditorPanel qep)
+    public NoteActionHandler (final Note                n,
+                              final AbstractEditorPanel qep)
     {
 
         super (n,
@@ -54,8 +54,77 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
         this.initFormItems ();
 
-        this.setPopupOver (qep); // pv.getEditorForChapter (this.chapter));
+        this.setPopupOver (qep); 
 
+        final QTextEditor editor = qep.getEditor ();
+
+        final int origSelStart = editor.getSelectionStart ();
+        
+        final BlockPainter highlight = new BlockPainter (Environment.getHighlightColor ());                
+        
+        final Caret origCaret = editor.getCaret ();
+        
+        this.setOnShowAction (new ActionListener ()
+        {
+                      
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                            
+                editor.setCaret (new DefaultCaret ()
+                {
+                   
+                    private boolean isVis = false;
+                   
+                    @Override
+                    public void setSelectionVisible (boolean vis)
+                    {
+                        
+                        editor.removeAllHighlights (highlight);
+                        
+                        if (vis != this.isVis) {
+                            this.isVis = vis;
+                            super.setSelectionVisible(false);
+                            super.setSelectionVisible(true);
+                        }                        
+                        
+                    }
+                    
+                });                        
+                                
+                if (n.getEndPosition () > n.getStartPosition ())
+                {
+                    
+                    editor.addHighlight (n.getStartPosition (),
+                                         n.getEndPosition (),
+                                         highlight,
+                                         false);
+                    
+                }                        
+
+            }
+            
+        });
+        
+        this.setOnHideAction (new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+            
+                editor.removeAllHighlights (highlight);
+                
+                editor.setCaret (origCaret);
+
+                editor.setSelectionStart (origSelStart);
+                
+                editor.grabFocus ();
+                
+            }
+            
+        });
+        
     }
 
     public NoteActionHandler(Chapter             c,
@@ -363,11 +432,41 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             
         }
 
+        // See if we are adding at the end of the chapter.
+        if (this.editorPanel.getEditor ().isPositionAtTextEnd (n.getPosition ()))
+        {
+            
+            try
+            {
+
+                // Add a newline to the end of the chapter.
+                this.editorPanel.getEditor ().insertText (n.getPosition (),
+                                                          "\n");
+
+                n.setTextPosition (this.editorPanel.getEditor ().getDocument ().createPosition (n.getPosition () - 1));
+                                                          
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to insert newline at end of chapter",
+                                      e);
+                
+            }
+            
+        }
+        
         try
         {
 
             this.projectViewer.saveObject (n,
                                            true);
+
+            if (this.mode == AbstractActionHandler.ADD)
+            {
+    
+                // Add the item to the chapter.
+                this.chapter.addNote (n);
+    
+            }
 
         } catch (Exception e)
         {
@@ -380,14 +479,6 @@ public class NoteActionHandler extends ProjectViewerActionHandler
                                       "An internal error has occurred.\n\nUnable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + Environment.getObjectTypeName (Note.OBJECT_TYPE).toLowerCase () + ".");
 
             return false;
-
-        }
-
-        if (this.mode == AbstractActionHandler.ADD)
-        {
-
-            // Add the item to the chapter.
-            this.chapter.addNote (n);
 
         }
         
@@ -426,6 +517,9 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
         }
 
+        // Need to reindex the chapter to ensure that things are in the right order.    
+        n.getChapter ().reindex ();
+        
         this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).addType (type,
                                                                              true);
 

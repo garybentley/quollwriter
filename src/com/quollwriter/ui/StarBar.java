@@ -30,6 +30,7 @@ public class StarBar extends JToolBar
 
         }
 
+        @Override
         public void mouseEntered (MouseEvent ev)
         {
 
@@ -42,6 +43,7 @@ public class StarBar extends JToolBar
 
         }
 
+        @Override
         public void mouseExited (MouseEvent ev)
         {
 
@@ -66,6 +68,7 @@ public class StarBar extends JToolBar
 
         }
 
+        @Override
         public void handlePress (MouseEvent ev)
         {
 

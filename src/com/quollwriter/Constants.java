@@ -43,6 +43,14 @@ public class Constants
     
     public static final int ICON_MENU_INNER = 20;
     
+    public static final int ICON_EDITOR_MESSAGE = 21;
+    
+    public static final int ICON_CLICKABLE_LABEL = 22;
+    
+    public static final int ICON_SIDEBAR_NOTIFICATION = 23;
+    
+    public static final int ICON_EDITORS_LIST_TAB_HEADER = 24;
+    
     public static final int PANEL_TITLE = 1;
 
     public static final int SUB_PANEL_TITLE = 2;
@@ -75,6 +83,10 @@ public class Constants
 
     public static final String VERSION_TAG = "[[VERSION]]";
     
+    public static final String OPENPROJECT_PROTOCOL = "openproject";
+    
+    public static final String OPENEDITORMESSAGE_PROTOCOL = "openeditormessage";
+
     public static final String OBJECTREF_PROTOCOL = "objectref";
 
     public static final String ACTION_PROTOCOL = "action";
@@ -83,6 +95,12 @@ public class Constants
     
     public static final String QUOLLWRITER_PROTOCOL = "qw";
 
+    public static final String FOR_EDITOR_EMAIL_PROPERTY_NAME = "forEditorEmail";
+    
+    public static final String EDITOR_RESPONSE_MESSAGE_PROPERTY_NAME = "editorProjectResponseMessage";
+
+    public static final String EDITOR_DUE_BY_DATE_PROPERTY_NAME = "editorDueByDate";
+    
     public static final String SEEN_FIRST_TIME_IN_DISTRACTION_FREE_MODE_INFO_POPUP_PROPERTY_NAME = "seenFirstTimeInDistractionFreeModeInfoPopup";
     
     public static final String SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME = "showQuickObjectPreviewInProjectSidebar";
@@ -125,6 +143,8 @@ public class Constants
 
     public static final String SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "splitPaneDividerLocation";
 
+    public static final String PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME = "projectSideBarWidth";
+    
     public static final String WINDOW_HEIGHT_PROPERTY_NAME = "windowHeight";
 
     public static final String WINDOW_WIDTH_PROPERTY_NAME = "windowWidth";
@@ -251,6 +271,8 @@ public class Constants
 
     public static final String TOOLBAR_LOCATION_PROPERTY_NAME = "toolbarLocation";
 
+    public static final String UI_LAYOUT_PROPERTY_NAME = "uiLayout";    
+    
     public static final String SIDEBAR_LOCATION_PROPERTY_NAME = "sidebarLocation";    
 
     public static final String TABS_LOCATION_PROPERTY_NAME = "tabsLocation";    
@@ -297,6 +319,12 @@ public class Constants
 
     public static final String GET_UPGRADE_FILE_PAGE_PROPERTY_NAME = "getUpgradeFilePage";
     
+    public static final String LAST_VERSION_CHECK_TIME_PROPERTY_NAME = "lastVersionCheckTime";
+    
+    public static final String OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME = "optinToBetaVersions";
+    
+    public static final String SEEN_NEWS_IDS_PROPERTY_NAME = "seenNewsIds";
+    
     public static final String QUOLLWRITER_DOWNLOADS_URL_PROPERTY_NAME = "quollWriterDownloadsUrl";
                 
     public static final String ACCOUNTS_WEBSERVICE_URL_PROPERTY_NAME = "editorsAccountsWebserviceBaseURL";
@@ -307,13 +335,27 @@ public class Constants
 
     public static final String AUTHORS_WEBSERVICE_URL_PROPERTY_NAME = "editorsAuthorsWebserviceBaseURL";
     
-    public static final String LOGIN_WEBSERVICE_URL_PROPERTY_NAME = "editorsLoginWebserviceURL";
-
-    public static final String QW_EDITORS_AUTHOR_LAST_MODIFIED_PROPERTY_NAME = "qwEditorsAuthorLastModified";
-    public static final String QW_EDITORS_EDITOR_LAST_MODIFIED_PROPERTY_NAME = "qwEditorsEditorLastModified";
+    public static final String LOGIN_WEBSERVICE_URL_PROPERTY_NAME = "editorsLoginWebserviceBaseURL";
     
-    public static final String QW_EDITORS_EMAIL_PROPERTY_NAME = "qwEditorsEmail";
-    public static final String QW_EDITORS_PASSWORD_PROPERTY_NAME = "qwEditorsPassword";
+    public static final String INVITES_WEBSERVICE_URL_PROPERTY_NAME = "editorsInvitesWebserviceBaseURL";
+    public static final String SESSIONS_WEBSERVICE_URL_PROPERTY_NAME = "editorsSessionsWebserviceBaseURL";
+
+    public static final String EDITORS_SERVICE_HOST_PROPERTY_NAME = "editorsServiceHost";
+    public static final String EDITORS_SERVICE_PORT_PROPERTY_NAME = "editorsServicePort";
+    public static final String EDITORS_SERVICE_REPORT_MESSAGE_PAGE_PROPERTY_NAME = "editorsServiceReportMessagePage";
+    public static final String EDITORS_JID_SUFFIX_PROPERTY_NAME = "editorsJIDSuffix";
+    public static final String EDITORS_SHOW_POPUP_WHEN_NEW_MESSAGE_RECEIVED_PROPERTY_NAME = "editorsShowPopupWhenNewMessageReceived";
+    public static final String EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME = "editorsSeenOfflineSendMessage";
+        
+    public static final String QW_EDITORS_SERVICE_EDITORS_SIDEBAR_SEEN_PROPERTY_NAME = "editorsSidebarSeen";
+    public static final String QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME = "qwEditorsServicePassword";
+    public static final String QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME = "qwEditorsServiceLoginAtQWStart";
+    public static final String QW_EDITORS_SERVICE_DEFAULT_ONLINE_STATUS_PROPERTY_NAME = "qwEditorsServiceDefaultOnlineStatus";
+    public static final String QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME = "qwEditorsServiceSetBusyOnFullScreenEntered";
+    public static final String QW_EDITORS_DB_DIR_PROPERTY_NAME = "qwEditorsDbDir";
+    public static final String QW_EDITORS_SERVICE_HAS_LOGGED_IN_PROPERTY_NAME = "qwEditorsServiceHasLoggedIn";
+    public static final String EDITORS_PROPERTIES_FILE_NAME = "editors-properties.xml";
+    public static final String EDITORS_DB_FILE_NAME_PREFIX = "quoll-writer-editors-db";
     
     public static final String AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME = "autoSendErrorsToSupport";
     
@@ -324,7 +366,9 @@ public class Constants
     public static final String WINDOW_ICON_PNG_NAME = "window-icon-v2.png";
     public static final String LOGO_PNG_NAME = "logo-v2.png";
     public static final String LOADING_GIF_NAME = "loading24.gif";
+    public static final String TYPING_GIF_NAME = "typing24.gif";
 
+    public static final String PROJECT_DB_FILE_NAME_PREFIX = "projectdb";
     public static final String QUOLL_WRITER_DIR_NAME = "QuollWriter";
 
     public static final String PROPERTIES_FILE_NAME = "properties.xml";
@@ -365,10 +409,13 @@ public class Constants
     public static final String PROMPT_WEBSITES_FILE = Constants.DATA_DIR + "prompt-websites.xml";
     public static final String PROMPTS_DIR = Constants.DATA_DIR + "prompts/";
     public static final String SCHEMA_DIR = Constants.DATA_DIR + "schema/";
+    public static final String EDITOR_SCHEMA_DIR = Constants.DATA_DIR + "editor-schema/";
     public static final String WORD_SYLLABLE_COUNTS_FILE = Constants.DATA_DIR + "word-syllable-counts.txt";
     public static final String UPDATE_SCRIPTS_DIR = Constants.SCHEMA_DIR + "update-scripts";
+    public static final String EDITOR_UPDATE_SCRIPTS_DIR = Constants.EDITOR_SCHEMA_DIR + "update-scripts";
     public static final String LOGS_DIR = "/log/";
     public static final String DICTIONARIES_DIR = "/dictionaries/";
+    public static final String THESAURUS_DIR = "/thesaurus/";
     public static final String DEFAULT_PROPERTIES_FILE = Constants.DATA_DIR + "properties.xml";
     public static final String DEFAULT_PROJECT_PROPERTIES_FILE_NAME = "default-project-properties.xml";
     public static final String DEFAULT_PROJECT_PROPERTIES_FILE = Constants.DATA_DIR + DEFAULT_PROJECT_PROPERTIES_FILE_NAME;
@@ -384,16 +431,21 @@ public class Constants
 
     public static final String VERSION_FILE = Constants.DATA_DIR + "version.txt";
     public static final String SCHEMA_VERSION_FILE = Constants.DATA_DIR + "schema-version.txt";
+    public static final String EDITORS_SCHEMA_VERSION_FILE = Constants.DATA_DIR + "editors-schema-version.txt";
     public static final String WHATS_NEW_FILE = Constants.DATA_DIR + "whats-new.xml";
+    
+    public static final String EDITORS_SIDEBAR_FIRST_USE_HELP_FILE = Constants.DATA_DIR + "editors-first-use-help.txt";
     
     public static final String TEST_BOOK_FILE = Constants.DATA_DIR + "test-book.xml";
     
     public static final String ACHIEVEMENTS_FILE = Constants.DATA_DIR + "achievements.xml";
 
+    public static final String QW_EDITORS_MESSAGE_POPUP_TEST_IMAGE = Constants.DATA_DIR + "qw-editors-message-popup.png";
     public static final String DEFAULT_FIND_IMAGE_FILE = Constants.DATA_DIR + "default-find-image.png";
     public static final String EDIT_POSITION_TEST_IMAGE = Constants.DATA_DIR + "edit-position-example.png";
     public static final String COMPRESSED_CHAPTER_CONTEXT_MENU_IMAGE = Constants.DATA_DIR + "compressed-chapter-context-menu.png";
     public static final String NONE_COMPRESSED_CHAPTER_CONTEXT_MENU_IMAGE = Constants.DATA_DIR + "none-compressed-chapter-context-menu.png";
+    public static final String EDITOR_NO_AVATAR_IMAGE = Constants.DATA_DIR + "editor-no-avatar.png";
     
     public static final String MINS_5 = "5 mins";
     public static final String MINS_10 = "10 mins";
@@ -420,6 +472,12 @@ public class Constants
     public static final String US_ENGLISH = "US English";
     public static final String ENGLISH = "English";
     
+    public static final String ONLINE_STATUS_ICON_NAME_PREFIX = "status-";
+    public static final String MESSAGE_ICON_NAME = "left-quote";
+    public static final String COMMENT_ICON_NAME = "comment";
+    public static final String ACCEPTED_ICON_NAME = "accepted";
+    public static final String REJECTED_ICON_NAME = "rejected";
+    public static final String PROJECT_ICON_NAME = "project";
     public static final String FOLDER_ICON_NAME = "folder";
     public static final String STOP_ICON_NAME = "stop";
     public static final String TIPS_ICON_NAME = "tips";
@@ -492,10 +550,31 @@ public class Constants
     public static final String CLOCK_ICON_NAME = "clock";
     public static final String NOTIFY_ICON_NAME = "notify";
     public static final String ERROR_RED_ICON_NAME = "error-red";
+    public static final String PLAN_ICON_NAME = "plan";
+    public static final String SEND_ICON_NAME = "send-message";
+    public static final String RESET_ICON_NAME = "convert";
+    public static final String CONFIG_ICON_NAME = "config";
+    public static final String DICTIONARY_ICON_NAME = "dictionary";
     
     public static final String SHOW_FIND_ACTION = "find-show";
 
-    public static final String CANCEL_BUTTON_LABEL_ID = "cancel";
-    public static final String CONFIRM_BUTTON_LABEL_ID = "confirm";
+    public static final String BUTTON_LABEL_ID_PREFIX = "__$$";
+    public static final String CANCEL_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "cancel$$__";
+    public static final String CONFIRM_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "confirm$$__";
+    public static final String SAVE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "save$$__";
+    public static final String SEND_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "send$$__";
+    public static final String UPDATE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "update$$__";
+
+    public static final String LAYOUT_PS_CH = "layout-ps-ch";
+    public static final String LAYOUT_CH_PS = "layout-ch-ps";
+    public static final String LAYOUT_PS_CH_OS = "layout-ps-ch-os";
+    public static final String LAYOUT_PS_OS_CH = "layout-ps-os-ch";
+    public static final String LAYOUT_OS_CH_PS = "layout-os-ch-ps";
+    public static final String LAYOUT_CH_OS_PS = "layout-ch-os-ps";
+
+    public static final String TAB = String.valueOf ('\t');
+
+    public static final String SECTION_BREAK_FIND = "***";
+    public static final String SECTION_BREAK = "*" + TAB + TAB + "*" + TAB + TAB + "*";
     
 }

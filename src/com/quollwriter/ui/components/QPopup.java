@@ -2,9 +2,15 @@ package com.quollwriter.ui.components;
 
 import java.awt.*;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.LayerUI;
 import java.awt.event.*;
+import com.quollwriter.ui.PopupsSupported;
+import com.quollwriter.ui.AbstractProjectViewer;
 
 public class QPopup extends Box
 {
@@ -15,19 +21,12 @@ public class QPopup extends Box
                                                                               1,
                                                                               1,
                                                                               com.quollwriter.ui.UIUtils.getBorderColor ()));
-    /*
-                                                                              new Color (171,
-                                                                                         171,
-                                                                                         171,
-                                                                                         171)));
-*/
-    public static Font defaultTitleFont = new Font ("Tahoma",
-                                                    Font.BOLD,
-                                                    14);
 
     private Box      box = null;
     protected Header header = null;
     private Dragger  dragger = null;
+    private List<PopupListener> listeners = new ArrayList ();
+    private String name = null;
 
     public QPopup(String    title,
                   Icon      icon,
@@ -64,11 +63,63 @@ public class QPopup extends Box
         this.header.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.header.setPadding (new Insets (3, 5, 0, 3));
+
+        ActionMap am = this.getActionMap ();
+
+        final QPopup _this = this;
         
+        am.put ("hide",
+                new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.removeFromParent ();
+                        
+                    }
+                    
+                });
+        
+        InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+        
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
+                                        0),
+                "hide");
+        
+                
         this.add (this.box);
 
     }
-
+    
+    public void setPopupName (String n)
+    {
+        
+        this.name = n;
+        
+    }
+    
+    public String getPopupName ()
+    {
+        
+        return this.name;
+        
+    }
+    
+    public void addPopupListener (PopupListener l)
+    {
+        
+        this.listeners.add (l);
+        
+    }
+    
+    public void removePopupListener (PopupListener l)
+    {
+        
+        this.listeners.remove (l);
+        
+    }
+    
     public Header getHeader ()
     {
 
@@ -82,7 +133,48 @@ public class QPopup extends Box
         return (JComponent) this.box.getComponent (1);
 
     }
+    
+    public void resize ()
+    {
+        
+        JComponent c = this.getContent ();
+        c.setPreferredSize (null);
 
+        c.setPreferredSize (new Dimension (com.quollwriter.ui.UIUtils.getPopupWidth (),
+                                           c.getPreferredSize ().height));
+        c.setMinimumSize (c.getPreferredSize ());
+  
+        Container p = this.getParent ();
+
+        while (p != null)
+        {
+        
+            if (p instanceof PopupsSupported)
+            {
+                                      
+                ((PopupsSupported) p).showPopupAt (this,
+                                                   this.getLocation (),
+                                                   false);
+
+                break;
+        
+            }
+            
+            p = p.getParent ();
+            
+        }
+  
+        PopupEvent ev = new PopupEvent (this);
+  
+        for (PopupListener l : this.listeners)
+        {
+            
+            l.popupResized (ev);
+            
+        }
+  
+    }
+    
     public void hideIn (int     secs,
                         final boolean remove)
     {
@@ -136,11 +228,11 @@ public class QPopup extends Box
     
     public void removeFromParent ()
     {
-        
+
         this.setVisible (false);
         
         Container p = this.getParent ();
-        
+                        
         if (p != null)
         {
             
@@ -149,6 +241,55 @@ public class QPopup extends Box
             p.validate ();
             
             p.repaint ();
+            
+            while (p != null)
+            {
+                
+                if ((p instanceof AbstractProjectViewer)
+                    &&
+                    (this.name != null)
+                   )
+                {
+                    
+                    ((AbstractProjectViewer) p).removeNamedPopup (this.name);
+                    
+                }
+                
+                p = p.getParent ();
+                            
+            }
+                        
+        }
+        
+    }
+    
+    public void setVisible (boolean v)
+    {
+        
+        super.setVisible (v);
+        
+        if (v)
+        {
+            
+            PopupEvent ev = new PopupEvent (this);
+      
+            for (PopupListener l : this.listeners)
+            {
+                
+                l.popupShown (ev);
+                
+            }            
+            
+        } else {
+            
+            PopupEvent ev = new PopupEvent (this);
+      
+            for (PopupListener l : this.listeners)
+            {
+                
+                l.popupHidden (ev);
+                
+            }            
             
         }
         

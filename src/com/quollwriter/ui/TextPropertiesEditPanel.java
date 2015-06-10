@@ -337,7 +337,8 @@ public class TextPropertiesEditPanel extends Box
                 }
 
                 _this.popupParent.showPopupAt (popup,
-                                               _this.writingLineHighlightColorSwatch);
+                                               _this.writingLineHighlightColorSwatch,
+                                               true);
 
             }
             
@@ -430,7 +431,8 @@ public class TextPropertiesEditPanel extends Box
                     }
     
                     _this.popupParent.showPopupAt (popup,
-                                                   _this.textcolorSwatch);
+                                                   _this.textcolorSwatch,
+                                                   true);
                                                    //new Point (x, y));
                 
                 }
@@ -519,7 +521,8 @@ public class TextPropertiesEditPanel extends Box
                     }
     
                     _this.popupParent.showPopupAt (popup,
-                                                   new Point (x, y));
+                                                   new Point (x, y),
+                                                   true);
                     
                 }
     

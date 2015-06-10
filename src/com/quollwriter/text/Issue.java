@@ -1,7 +1,9 @@
 package com.quollwriter.text;
 
+import java.util.*;
 import javax.swing.text.*;
 
+import com.quollwriter.*;
 
 public class Issue
 {
@@ -13,15 +15,18 @@ public class Issue
     private int      length = -1;
     private String   ruleId = null;
     private Rule     rule = null;
+    private String   issueId = null;
 
     public Issue (String    desc,
                   TextBlock text,
+                  String    issueId,
                   Rule      rule)
     {
 
         this (desc,
               text.getAllTextStartOffset (),
               text.getText ().length (),
+              issueId,
               rule);
 
     }
@@ -29,6 +34,7 @@ public class Issue
     public Issue (String    desc,
                   int       startIssuePosition,
                   int       length,
+                  String    issueId,
                   Rule      rule)
     {
 
@@ -37,7 +43,44 @@ public class Issue
         this.length = length;
         this.rule = rule;
         this.ruleId = rule.getId ();
+        this.issueId = issueId;
 
+    }
+    
+    @Override
+    public String toString ()
+    {
+                
+        Map<String, Object> props = new LinkedHashMap ();
+        
+        props.put ("ruleId",
+                   this.ruleId);
+        props.put ("ruleSummary",
+                   this.rule.getSummary ());
+        props.put ("ruleCategory",
+                   this.rule.getCategory ());
+        props.put ("issueId",
+                   this.issueId);
+        props.put ("description",
+                   this.desc);
+        props.put ("startIssuePosition",
+                   this.startIssuePosition);
+        props.put ("startPosition",
+                   (this.startPos == null ? "null" : this.startPos.getOffset ()));
+        props.put ("endPosition",
+                   (this.endPos == null ? "null" : this.endPos.getOffset ()));
+        props.put ("length",
+                   this.length);
+                
+        return Environment.formatObjectToStringProperties (props);        
+        
+    }
+    
+    public String getIssueId ()
+    {
+        
+        return this.issueId;
+        
     }
     
     public String getRuleId ()
@@ -54,12 +97,30 @@ public class Issue
 
     }
 
+    @Override
+    public int hashCode ()
+    {
+        
+        int hash = 7;
+        hash = (31 * hash) + ((null == this.issueId) ? 0 : this.issueId.hashCode ());
+        hash = (31 * hash) + ((null == this.ruleId) ? 0 : this.ruleId.hashCode ());
+        hash = (31 * hash) + this.startIssuePosition;
+
+        return hash;
+    
+    }
+    
     public boolean equals (Issue iss)
     {
 
-        if ((this.startPos.getOffset () == iss.startPos.getOffset ()) &&
-            (this.startIssuePosition == iss.startIssuePosition) &&
-            (this.ruleId.equals (iss.ruleId)))
+        if ((this.startPos.getOffset () == iss.startPos.getOffset ())
+            &&
+            (this.startIssuePosition == iss.startIssuePosition)
+            &&
+            (this.ruleId.equals (iss.ruleId))
+            &&
+            (this.issueId.equals (iss.issueId))
+           )
         {
 
             return true;
@@ -70,6 +131,7 @@ public class Issue
 
     }
 
+    @Override
     public boolean equals (Object o)
     {
 
@@ -137,13 +199,6 @@ public class Issue
     {
 
         this.endPos = p;
-
-    }
-
-    public String toString ()
-    {
-
-        return this.desc + ": " + this.startPos + " - " + this.endPos + "(" + this.startIssuePosition + " - " + this.length + ")";
 
     }
 

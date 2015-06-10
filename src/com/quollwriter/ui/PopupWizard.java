@@ -70,6 +70,7 @@ public abstract class PopupWizard extends PopupWindow
                                                                     0)));
         
         this.header.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        this.contentBox.add (Box.createVerticalStrut (10));
         this.contentBox.add (this.header);
         this.contentBox.add (Box.createVerticalStrut (10));
 
@@ -90,7 +91,7 @@ public abstract class PopupWizard extends PopupWindow
                     WizardStep ws = null;
 
                     String prev = _this.getPreviousStage (_this.currentStage);
-
+                    
                     if (prev != null)
                     {
 
@@ -126,16 +127,21 @@ public abstract class PopupWizard extends PopupWindow
 
                         }
 
-                        _this.contentPanel.remove (_this.current.panel);
+                        if (_this.current.panel != null)
+                        {
+                        
+                            _this.contentPanel.remove (_this.current.panel);
+                            
+                        }
 
                         _this.current = ws;
                         _this.currentStage = prev;
 
+                        _this.enableButtons ();
+                        
                         _this.initUI ();
 
                     }
-
-                    _this.enableButtons ();
 
                     /*
                             _this.setSize (new Dimension (_this.getSize ().width,
@@ -159,7 +165,7 @@ public abstract class PopupWizard extends PopupWindow
                     WizardStep ws = null;
 
                     String next = _this.getNextStage (_this.currentStage);
-
+                    
                     if (next != null)
                     {
 
@@ -200,11 +206,18 @@ public abstract class PopupWizard extends PopupWindow
 
                         }
 
-                        _this.contentPanel.remove (_this.current.panel);
+                        if (_this.current.panel != null)
+                        {
+                            
+                            _this.contentPanel.remove (_this.current.panel);
+                            
+                        }
 
                         _this.current = ws;
                         _this.currentStage = next;
 
+                        _this.enableButtons ();
+                        
                         _this.initUI ();
 
                     } else
@@ -222,7 +235,6 @@ public abstract class PopupWizard extends PopupWindow
 
                     }
 
-                    _this.enableButtons ();
 /*
                 _this.setSize (new Dimension (_this.getSize ().width,
                                               _this.getPreferredSize ().height));
@@ -308,6 +320,49 @@ public abstract class PopupWizard extends PopupWindow
 
     }
 
+    public void showStage (String stage)
+    {
+        
+        WizardStep ws = this.stages.get (stage);
+
+        if (ws == null)
+        {
+
+            try
+            {
+
+                ws = this.getStage (stage);
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to get stage for: " +
+                                      stage,
+                                      e);
+
+            }
+
+            this.stages.put (stage,
+                             ws);
+
+        }
+
+        if (this.current.panel != null)
+        {
+        
+            this.contentPanel.remove (this.current.panel);
+            
+        }
+
+        this.current = ws;
+        this.currentStage = stage;
+
+        this.enableButtons ();
+        
+        this.initUI ();
+        
+    }
+    
     public JComponent getContentPanel ()
     {
 
@@ -343,6 +398,13 @@ public abstract class PopupWizard extends PopupWindow
 
         }
 
+        if (name.equals ("cancel"))
+        {
+
+            this.cancelBut.setEnabled (enable);
+
+        }
+
     }
 
     private void initUI ()
@@ -362,9 +424,14 @@ public abstract class PopupWizard extends PopupWindow
 
         }
 
-        this.current.panel.setOpaque (false);
-        this.contentPanel.add (this.current.panel);
+        if (this.current.panel != null)
+        {
+        
+            this.current.panel.setOpaque (false);
+            this.contentPanel.add (this.current.panel);
 
+        }
+            
     }
 
     public abstract int getMaximumContentHeight ();
@@ -383,7 +450,23 @@ public abstract class PopupWizard extends PopupWindow
     public abstract void handleCancel ();
 
     public abstract WizardStep getStage (String stage);
-
+    
+    public String getNextButtonLabel (String currStage)
+    {
+        
+        String next = this.getNextStage (currStage);
+        
+        if (next == null)
+        {
+            
+            return "Finish";
+        
+        }
+        
+        return "Next >";
+        
+    }
+    
     private void enableButtons ()
     {
 
@@ -402,14 +485,10 @@ public abstract class PopupWizard extends PopupWindow
         {
 
             this.nextBut.setEnabled (true);
-            this.nextBut.setText ("Finish");
-
-        } else
-        {
-
-            this.nextBut.setText ("Next >");
 
         }
+        
+        this.nextBut.setText (this.getNextButtonLabel (this.currentStage));
 
     }
 

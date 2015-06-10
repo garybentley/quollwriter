@@ -12,10 +12,12 @@ public interface PopupsSupported
                           boolean   hideViaVisibility);
 
     public void showPopupAt (Component c,
-                             Point     p);
+                             Point     p,
+                             boolean   hideOnClick);
 
     public void showPopupAt (Component c,
-                             Component at);
+                             Component at,
+                             boolean   hideOnClick);
 
     public void removePopup (Component c);
 

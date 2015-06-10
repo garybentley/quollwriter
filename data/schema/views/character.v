@@ -8,7 +8,10 @@ SELECT c.dbkey dbkey,
        n.objecttype objecttype,
        n.datecreated datecreated,
        n.properties  properties,
-       c.projectdbkey projectdbkey
+       c.projectdbkey projectdbkey,
+       n.id           id,
+       n.version      version,
+       n.latest       latest       
 FROM   namedobject_v n,
        character     c
 WHERE  c.dbkey = n.dbkey

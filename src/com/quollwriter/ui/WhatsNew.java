@@ -26,7 +26,7 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.whatsnewcomps.*;
 
-public class WhatsNew extends PopupWizard
+public class WhatsNew extends Wizard //PopupWizard
 {
     
     private class XMLConstants
@@ -38,8 +38,8 @@ public class WhatsNew extends PopupWizard
         
     }
     
-    private int currStage = 0;
-    private int maxStage = 2;
+    //private int currStage = 0;
+    //private int maxStage = 2;
     
     private TreeMap<Integer, WhatsNewItem> items = new TreeMap ();
     
@@ -191,7 +191,7 @@ public class WhatsNew extends PopupWizard
         }
         
     }
-
+/*
     public String getWindowTitle ()
     {
 
@@ -212,8 +212,8 @@ public class WhatsNew extends PopupWizard
         return null;//"whatsnew";
 
     }
-
-    public String getHelpText ()
+*/
+    public String getFirstHelpText ()
     {
 
         return "Welcome to version <b>" + Environment.getQuollWriterVersion () + "</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/" + Environment.getQuollWriterVersion ().replace ('.', '_') + "'>full list of changes online</a>.";
@@ -309,14 +309,14 @@ public class WhatsNew extends PopupWizard
         return true;
 
     }
-    
+    /*
     public int getMaximumContentHeight ()
     {
 
         return 350;
 
     }
-
+*/
     public String getStartStage ()
     {
 
@@ -352,7 +352,7 @@ public class WhatsNew extends PopupWizard
         }
         
         ws.title = item.title;
-        ws.helpText = this.getHelpText ();
+        ws.helpText = this.getFirstHelpText ();
         
         if ((item.description != null)
             ||

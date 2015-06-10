@@ -25,6 +25,21 @@ public class ImageSelector extends JLabel
     private JFileChooser chooser = null;
     private java.util.List<ChangeListener> listeners = new ArrayList ();
     
+    public ImageSelector (BufferedImage          image,
+                          java.util.List<String> fileTypes,
+                          Dimension              size)
+    {
+        
+        this.im = image;
+        
+        this.size = size;
+        
+        this.init (fileTypes);
+        
+        this.updateImage ();
+        
+    }
+
     public ImageSelector (File         f,
                           java.util.List<String> fileTypes,
                           Dimension    size)
@@ -33,8 +48,15 @@ public class ImageSelector extends JLabel
         this.file = f;
         this.origFile = f;
         this.size = size;
+                
+        this.init (fileTypes);
         
-        this.setFile (f);
+        this.setFile (f);        
+        
+    }
+    
+    private void init (java.util.List<String> fileTypes)
+    {
         
         this.setToolTipText ("Click to find an image file");
         
@@ -68,20 +90,17 @@ public class ImageSelector extends JLabel
         this.addMouseListener (new MouseEventHandler ()
         {
            
-            public void handlePress (MouseEvent ev)
+            @Override
+            public void fillPopup (JPopupMenu m,
+                                   MouseEvent ev)
             {
                 
-                if ((ev.isPopupTrigger ())
-                    &&
-                    ((_this.file != null)
-                     ||
-                     (_this.origFile != null)
-                    )
+                if ((_this.file != null)
+                    ||
+                    (_this.origFile != null)
                    )
                 {
                     
-                    JPopupMenu m = new JPopupMenu ();
-
                     JMenuItem mi = null;
 
                     if (_this.file != null)
@@ -186,14 +205,14 @@ public class ImageSelector extends JLabel
                                                  
                     }
                     
-                    m.show (_this,
-                            10,
-                            10);
-                    
-                    return;
-                    
                 }
-                
+
+            }
+           
+            @Override
+            public void handlePress (MouseEvent ev)
+            {
+                                
                 if (_this.file != null)
                 {
                     
@@ -214,6 +233,13 @@ public class ImageSelector extends JLabel
                 
     }
         
+    public BufferedImage getImage ()
+    {
+        
+        return this.im;        
+        
+    }
+    
     protected void fireFileChangedEvent ()
     {
         

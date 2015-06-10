@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.data.comparators.*;
 
@@ -28,14 +28,16 @@ public class Project extends NamedObject
         public static final String encrypted = "encrypted";
         public static final String noCredentials = "noCredentials";
         public static final String type = "type";
-        public static final String backupService = "backupService";
-        public static final String editorsProjectId = "editorsProjectId";
+        public static final String id = "id";
+        public static final String forEditor = "forEditor";
+        public static final String editDueDate = "editDueDate";
 
     }
 
     public static final String OBJECT_TYPE = "project";
     public static final String WORDCOUNTS_OBJECT_TYPE = "wordcounts";
 
+    // TODO: Change these to be an enum
     public static final String NORMAL_PROJECT_TYPE = "normal";
     public static final String WARMUPS_PROJECT_TYPE = "warmups";
     public static final String EDITOR_PROJECT_TYPE = "editor";
@@ -57,9 +59,13 @@ public class Project extends NamedObject
     private String             filePassword = null;
     private boolean            noCredentials = false;
     private String             type = Project.NORMAL_PROJECT_TYPE;
-    private String             backupService = null;
-    private String             editorsProjectId = null;
-    private EditorProject      editorProject = null;
+    //private String             editorsProjectId = null;
+    //private EditorProject      editorProject = null;
+    
+    // TODO: Need a new object to encapsulate this stuff
+    private EditorEditor       forEditor = null;
+    private Set<ProjectEditor> projectEditors = null;
+    private ProjectVersion     projVer = null;
     
     public Project (Element pEl)
                     throws  Exception
@@ -80,6 +86,17 @@ public class Project extends NamedObject
 
         }
         
+        String id = JDOMUtils.getAttributeValue (pEl,
+                                                 XMLConstants.id,
+                                                 false);
+
+        if (!id.equals (""))
+        {
+
+            this.setId (id);
+
+        }
+
         String directory = JDOMUtils.getChildElementContent (pEl,
                                                              XMLConstants.directory);
 
@@ -102,10 +119,6 @@ public class Project extends NamedObject
         String d = JDOMUtils.getAttributeValue (pEl,
                                                 XMLConstants.lastEdited,
                                                 false);
-
-        String bs = JDOMUtils.getAttributeValue (pEl,
-                                                 XMLConstants.backupService,
-                                                 false);
                                                 
         File dir = new File (directory);
 
@@ -114,19 +127,68 @@ public class Project extends NamedObject
         this.setProjectDirectory (dir);
         this.setEncrypted (encrypted);
         this.setNoCredentials (noCredentials);
-
-        if (!bs.equals (""))
-        {
-            
-            this.setBackupService (bs);
-            
-        }
         
         if (type != null)
         {
 
             this.setType (type);
 
+            if (this.isEditorProject ())
+            {
+                
+                this.projVer = new ProjectVersion ();
+                                
+                String dueDate = JDOMUtils.getAttributeValue (pEl,
+                                                              XMLConstants.editDueDate,
+                                                              false);
+                
+                if (!dueDate.equals (""))
+                {
+
+                    // TODO: Fix this otherwise I will go to hell...
+                    this.projVer.setDueDate (new Date (Long.parseLong (dueDate)));
+
+                }                
+                
+                String editorEmail = JDOMUtils.getChildElementContent (pEl,
+                                                                       XMLConstants.forEditor);
+                
+                if (editorEmail == null)
+                {
+                    
+                    throw new GeneralException ("Expected to find a child element: " +
+                                                XMLConstants.forEditor +
+                                                ", indicating who the project is being edited for.");
+                    
+                }
+                
+                // Get the editor.
+                EditorEditor ed = EditorsEnvironment.getEditorByEmail (editorEmail);
+                
+                // If we are in debug mode then allow a null editor through.  This is to allow
+                // testing of the send/receive cycle without having to resort to handling two
+                // different accounts or having per user projects.xml files.                
+                if ((!Environment.isDebugModeEnabled ())
+                    &&
+                    (ed == null)
+                   )
+                {
+                    
+                    throw new GeneralException ("Expected to find editor with email: " +
+                                                editorEmail);
+                    
+                } else {
+                    
+                    ed = new EditorEditor ();
+                    ed.setKey (new Long (0));
+                    ed.setEmail (editorEmail);
+                    
+                }
+                
+                this.forEditor = ed;
+                
+            }
+            
         }
 
         if (!d.equals (""))
@@ -145,7 +207,7 @@ public class Project extends NamedObject
             }
 
         }
-
+/*
         String id = JDOMUtils.getAttributeValue (pEl,
                                                  XMLConstants.editorsProjectId,
                                                  false);
@@ -156,7 +218,7 @@ public class Project extends NamedObject
             this.editorsProjectId = id;
             
         }
-        
+  */      
     }
     
     public Project()
@@ -174,6 +236,220 @@ public class Project extends NamedObject
 
     }
 
+    public ProjectEditor getProjectEditor (EditorEditor ed)
+    {
+        
+        if (this.projectEditors == null)
+        {
+
+            return null;
+        
+        }
+        
+        for (ProjectEditor pe : this.projectEditors)
+        {
+            
+            if (pe.getEditor () == ed)
+            {
+                
+                return pe;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public void addProjectEditor (ProjectEditor pe)
+    {
+        
+        if (this.projectEditors == null)
+        {
+            
+            this.projectEditors = new TreeSet ();
+            
+        }
+        
+        this.projectEditors.add (pe);
+        
+    }
+    
+    public boolean isProjectEditor (EditorEditor ed)
+    {
+        
+        if (this.projectEditors == null)
+        {
+            
+            return false;
+            
+        }
+        
+        for (ProjectEditor pe : this.projectEditors)
+        {
+            
+            if (pe.getEditor () == ed)
+            {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public Set<ProjectEditor> getProjectEditors ()
+    {
+        
+        if (this.projectEditors == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return new LinkedHashSet (this.projectEditors);
+        
+    }
+    
+    public void setProjectEditors (Collection<ProjectEditor> eds)
+    {
+        
+        if (eds == null)
+        {
+            
+            return;
+            
+        }
+        
+        this.projectEditors = new TreeSet (eds);
+        
+    }
+    
+    public void setForEditor (EditorEditor ed)
+    {
+        
+        if ((this.forEditor != null)
+            &&
+            (ed == null)
+           )
+        {
+            
+            throw new IllegalArgumentException ("Cannot remove forEditor once it has been set.");
+            
+        }
+        
+        if ((this.forEditor != null)
+            &&
+            (!this.forEditor.getEmail ().equals (ed.getEmail ()))
+           )
+        {
+            
+            throw new IllegalArgumentException ("Cannot change the forEditor once it has been set.");
+            
+        }
+                
+        this.forEditor = ed;
+
+        try
+        {
+
+            this.setProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME,
+                              this.forEditor.getEmail ());
+
+        } catch (Exception e) {
+            
+            // Not really the correct type of exception to throw but it shouldn't be
+            // checked or handled "properly" either since it should always happen, this
+            // is just the weird edge case when something terrible goes wrong.
+            throw new IllegalArgumentException ("Unable to set the for editor",
+                                                e);
+            
+        }
+        
+    }
+    
+    public String getEditResponseMessage ()
+    {
+        
+        return this.getProperty (Constants.EDITOR_RESPONSE_MESSAGE_PROPERTY_NAME);
+        
+    }
+    
+    public void setEditResponseMessage (String m)
+    {
+                    
+        try
+        {
+            
+            this.setProperty (Constants.EDITOR_RESPONSE_MESSAGE_PROPERTY_NAME,
+                              m);
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set response message: " +
+                                  m,
+                                  e);
+            
+        }
+        
+    }
+
+    public void setProjectVersion (ProjectVersion pv)
+    {
+        
+        this.projVer = pv;
+        
+    }
+    
+    public ProjectVersion getProjectVersion ()
+    {
+        
+        return this.projVer;
+        
+    }
+        
+    public EditorEditor getForEditor ()
+    {
+        
+        return this.forEditor;
+        
+    }
+    
+    public boolean isEditorProject ()
+    {
+        
+        return this.type.equals (Project.EDITOR_PROJECT_TYPE);
+        
+    }
+    
+    public boolean isWarmupsProject ()
+    {
+        
+        return this.type.equals (Project.WARMUPS_PROJECT_TYPE);
+        
+    }
+
+    public int getChapterWordCount ()
+    {
+        
+        int c = 0;
+        
+        for (Book b : this.books)
+        {
+            
+            c += b.getChapterWordCount ();
+            
+        }
+        
+        return c;
+        
+    }
+    /*
     public void setEditorProject (EditorProject p)
     {
         
@@ -194,7 +470,8 @@ public class Project extends NamedObject
         return this.editorProject;
         
     }
-    
+    */
+    /*
     public void setEditorsProjectId (String id)
     {
         
@@ -208,20 +485,7 @@ public class Project extends NamedObject
         return this.editorsProjectId;
         
     }
-    
-    public void setBackupService (String b)
-    {
-        
-        this.backupService = b;
-        
-    }
-    
-    public String getBackupService ()
-    {
-        
-        return this.backupService;
-        
-    }
+    */
     
     public String getType ()
     {
@@ -243,6 +507,28 @@ public class Project extends NamedObject
 
     }
 
+    public NamedObject getObjectById (Class  ofType,
+                                      String id)
+    {
+        
+        Set<NamedObject> objs = this.getAllNamedChildObjects (ofType);
+
+        for (NamedObject o : objs)
+        {
+            
+            if (o.getId ().equals (id))
+            {
+                
+                return o;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+    
     public Set<NamedObject> getAllNamedChildObjects (Class ofType)
     {
 
@@ -341,8 +627,17 @@ public class Project extends NamedObject
         
         if (d instanceof Chapter)
         {
+
+            Chapter c = (Chapter) d;
             
-            return ((Chapter) d).getBook ().getChapterByKey (d.getKey ()) != null;
+            if (c.getBook () == null)
+            {
+                
+                return false;
+                
+            }
+        
+            return c.getBook ().getChapterByKey (d.getKey ()) != null;
             
         }
         
@@ -677,7 +972,7 @@ public class Project extends NamedObject
         this.projectDirectory = dir;
 
     }
-
+    
     public List<QCharacter> getCharacters ()
     {
 
@@ -705,9 +1000,17 @@ public class Project extends NamedObject
         return this.ideaTypes;
         
     }
-
+    
     public void addIdeaType (IdeaType it)
     {
+        
+        if (this.ideaTypes.contains (it))
+        {
+            
+            throw new IllegalStateException ("Already have idea type: " +
+                                             it);            
+            
+        }        
         
         this.ideaTypes.add (it);
         
@@ -758,24 +1061,48 @@ public class Project extends NamedObject
     public void addResearchItem (ResearchItem c)
     {
 
+        if (this.researchItems.contains (c))
+        {
+            
+            throw new IllegalStateException ("Already have research item: " +
+                                             c);            
+            
+        }
+    
         c.setProject (this);
 
-        this.getResearchItems ().add (c);
+        this.researchItems.add (c);
 
     }
 
     public void addQObject (QObject c)
     {
 
+        if (this.objects.contains (c))
+        {
+            
+            throw new IllegalStateException ("Already have object: " +
+                                             c);
+            
+        }
+
         c.setProject (this);
 
-        this.getQObjects ().add (c);
+        this.objects.add (c);
 
     }
 
     public void addCharacter (QCharacter c)
     {
 
+        if (this.characters.contains (c))
+        {
+            
+            throw new IllegalStateException ("Already have character: " +
+                                             c);
+            
+        }
+    
         c.setProject (this);
 
         this.getCharacters ().add (c);
@@ -785,9 +1112,17 @@ public class Project extends NamedObject
     public void addLocation (Location c)
     {
 
+        if (this.locations.contains (c))
+        {
+            
+            throw new IllegalStateException ("Already have location: " +
+                                             c);            
+            
+        }
+    
         c.setProject (this);
 
-        this.getLocations ().add (c);
+        this.locations.add (c);
 
     }
 
@@ -799,31 +1134,71 @@ public class Project extends NamedObject
 
     }
 */
-    private void setCharacters (List<QCharacter> a)
+
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
     {
 
-        this.characters = a;
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "type",
+                                    this.type);
+        
+        this.addToStringProperties (props,
+                                    "projectDir",
+                                    (this.projectDirectory != null ? this.projectDirectory.getPath () : "Not set"));
+        this.addToStringProperties (props,
+                                    "lastEdited",
+                                    this.lastEdited);
+        this.addToStringProperties (props,
+                                    "encrypted",
+                                    this.encrypted);
+        this.addToStringProperties (props,
+                                    "characters",
+                                    this.characters.size ());
+        this.addToStringProperties (props,
+                                    "locations",
+                                    this.locations.size ());
+        this.addToStringProperties (props,
+                                    "objects",
+                                    this.objects.size ());
+        this.addToStringProperties (props,
+                                    "researchItems",
+                                    this.researchItems.size ());
+        this.addToStringProperties (props,
+                                    "ideaTypes",
+                                    this.ideaTypes.size ());
+        
+        if (this.forEditor != null)
+        {
+            
+            this.addToStringProperties (props,
+                                        "forEditor",
+                                        this.forEditor.getEmail ());
+            
+        }
+        
+        if (this.projectEditors != null)
+        {
+            
+            this.addToStringProperties (props,
+                                        "projectEditors",
+                                        this.projectEditors.size ());
+            
+        }
 
+        this.addToStringProperties (props,
+                                    "projectVersion",
+                                    this.projVer);
+        
     }
-
-    private void setLocations (List<Location> a)
-    {
-
-        this.locations = a;
-
-    }
-
-    private void setBooks (List b)
-    {
-
-        this.books = b;
-
-    }
-
+    
+    @Override
     public String toString ()
     {
 
-        return Project.OBJECT_TYPE + "(key: " + this.getKey () + ", name: " + this.getName () + ", dir: " + this.projectDirectory + ", encrypted: " + this.encrypted + ", lastEdited: " + this.lastEdited + ", backupVersion: " + this.backupVersion + ", backupService: " + this.backupService + ")";
+        return Environment.formatObjectToStringProperties (this);        
 
     }
 
@@ -1114,6 +1489,14 @@ public class Project extends NamedObject
     public void addBook (Book b)
     {
 
+        if (this.books.contains (b))
+        {
+            
+            throw new IllegalStateException ("Already have book: " +
+                                             b);            
+            
+        }    
+    
         b.setProject (this);
 
         this.books.add (b);
@@ -1176,18 +1559,45 @@ public class Project extends NamedObject
         pEl.setAttribute (XMLConstants.type,
                           this.getType ());
 
-        if (this.getBackupService () != null)
-        {
-            
-            pEl.setAttribute (XMLConstants.backupService,
-                              this.getBackupService ());
-                          
-        }
+        if (this.getId () != null)
+        {                          
         
+            pEl.setAttribute (XMLConstants.id,
+                              this.getId ());
+
+        }
+                                  
         Element dEl = new Element (XMLConstants.directory);
         pEl.addContent (dEl);
         dEl.addContent (this.getProjectDirectory ().getPath ());
 
+        if (this.forEditor != null)
+        {
+            
+            Element fEl = new Element (XMLConstants.forEditor);
+            pEl.addContent (fEl);
+            fEl.addContent (this.forEditor.getEmail ());            
+            
+        }
+        
+        if ((this.isEditorProject ())
+            &&
+            (this.projVer != null)
+           )
+        {
+            
+            Date d = this.projVer.getDueDate ();
+            
+            if (d != null)
+            {
+                
+                pEl.setAttribute (XMLConstants.editDueDate,
+                                  d.getTime () + "");
+                
+            }
+            
+        }
+        
         Date lastEdited = this.getLastEdited ();
 
         if (lastEdited != null)
@@ -1208,7 +1618,7 @@ public class Project extends NamedObject
                               Boolean.valueOf (this.isNoCredentials ()).toString ());
 
         }
-
+/*
         if (this.editorsProjectId != null)
         {
             
@@ -1216,7 +1626,7 @@ public class Project extends NamedObject
                               this.editorsProjectId);
             
         }
-        
+  */      
         return pEl;
         
     }

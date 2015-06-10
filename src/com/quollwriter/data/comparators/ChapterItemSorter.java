@@ -29,14 +29,20 @@ public class ChapterItemSorter implements Comparator<ChapterItem>
         if (o1.getPosition () == o2.getPosition ())
         {
             
-            if (o1.getKey () == null)
+            if ((o1.getKey () == null)
+                ||
+                (o1.getName () == null)
+               )
             {
                 
                 return 1;
                 
             }
     
-            if (o2.getKey () == null)
+            if ((o2.getKey () == null)
+                ||
+                (o2.getName () == null)
+               )
             {
                 
                 return 1;
@@ -63,7 +69,9 @@ public class ChapterItemSorter implements Comparator<ChapterItem>
                         
             }
             
-            return (int) (o1.getKey () - o2.getKey ());
+            return o1.getName ().compareTo (o2.getName ());
+            
+            //return (int) (o1.getKey () - o2.getKey ());
             
         }
 

@@ -295,7 +295,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         if (v == null)
         {
         
-            JLabel l = UIUtils.createClickableLabel ("<html><i>No " + this.getFieldNamePlural () + " set, click to edit.</i></html>",
+            JLabel l = UIUtils.createClickableLabel ("<i>No " + this.getFieldNamePlural () + " set, click to edit.</i>",
                                                      null);
 
             l.setBorder (new EmptyBorder (0, 10, 0, 0));
@@ -303,6 +303,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             l.addMouseListener (new MouseEventHandler ()
             {
                
+                @Override
                 public void handlePress (MouseEvent ev)
                 {
                     

@@ -9,6 +9,7 @@ public class WizardStep
     public String     title = null;
     public String     helpText = null;
     public JComponent panel = null;
+    public boolean alwaysRefreshPanel = false;
 
     public WizardStep()
     {

@@ -7,7 +7,10 @@ SELECT b.dbkey dbkey,
        n.objecttype objecttype,
        n.datecreated datecreated,
        n.properties  properties,
-       b.projectdbkey projectdbkey
+       b.projectdbkey projectdbkey,
+       n.id           id,
+       n.version      version,
+       n.latest       latest
 FROM   namedobject_v n,
        book          b
 WHERE  b.dbkey = n.dbkey

@@ -50,8 +50,9 @@ public class Header extends Box
 
         this.label = new JLabel ();
 
+        this.label.setAlignmentY (Component.TOP_ALIGNMENT);
         this.label.setOpaque (false);
-
+        this.label.setVerticalAlignment (SwingConstants.TOP);
         this.add (this.label);
         this.add (Box.createHorizontalGlue ());
 
@@ -84,6 +85,13 @@ public class Header extends Box
 
     }
 
+    public Component getControls ()
+    {
+        
+        return this.controls;
+        
+    }
+    
     public void setControls (Component c)
     {
 
@@ -94,6 +102,13 @@ public class Header extends Box
 
         }
 
+        if (c instanceof JComponent)
+        {
+        
+            ((JComponent) c).setAlignmentY (Component.TOP_ALIGNMENT);
+        
+        }
+        
         int ind = -1;
 
         if (this.controls != null)
@@ -253,7 +268,8 @@ public class Header extends Box
     public void setTitle (String t)
     {
 
-        this.label.setText (t);
+        this.label.setText (String.format ("<html>%s</html>",
+                                           com.quollwriter.Environment.replaceObjectNames (t)));
 
     }
 

@@ -9,9 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class WarmupDataHandler implements DataHandler
+public class WarmupDataHandler implements DataHandler<Warmup, NamedObject>
 {
 
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, chapterdbkey, promptid FROM warmup_v ";
     private ObjectManager objectManager = null;
 
     public WarmupDataHandler(ObjectManager om)
@@ -70,10 +71,11 @@ public class WarmupDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<Warmup> getObjects (NamedObject parent,
+                                    Connection  conn,
+                                    boolean     loadChildObjects)
+                             throws GeneralException
     {
 
         List<Warmup> ret = new ArrayList ();
@@ -81,7 +83,7 @@ public class WarmupDataHandler implements DataHandler
         try
         {
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, chapterdbkey, promptid FROM warmup_v",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX,
                                                             null,
                                                             conn);
 
@@ -115,10 +117,12 @@ public class WarmupDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public Warmup getObjectByKey (int         key,
+                                  NamedObject parent,
+                                  Connection  conn,
+                                  boolean     loadChildObjects)
+                           throws GeneralException
     {
 
         Warmup w = null;
@@ -129,7 +133,7 @@ public class WarmupDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (key);
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, chapterdbkey, promptid FROM warmup_v WHERE dbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
                                                             params,
                                                             conn);
 
@@ -163,12 +167,11 @@ public class WarmupDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (Warmup     w,
                               Connection conn)
                        throws GeneralException
     {
-
-        Warmup w = (Warmup) d;
 
         List params = new ArrayList ();
         params.add (w.getKey ());
@@ -181,13 +184,12 @@ public class WarmupDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (Warmup     w,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
     {
-
-        Warmup w = (Warmup) d;
 
         List params = new ArrayList ();
         params.add (w.getKey ());
@@ -198,12 +200,11 @@ public class WarmupDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (Warmup     w,
                               Connection conn)
                        throws GeneralException
     {
-
-        Warmup w = (Warmup) d;
 
         List params = new ArrayList ();
         params.add (w.getChapter ().getKey ());

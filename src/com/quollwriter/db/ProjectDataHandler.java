@@ -8,10 +8,12 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
+import com.quollwriter.editors.*;
 
-public class ProjectDataHandler implements DataHandler
+public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 {
 
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, type, lastedited, description, id, lastmodified, datecreated, properties FROM project_v ";
     private ObjectManager objectManager = null;
 
     public ProjectDataHandler(ObjectManager om)
@@ -21,8 +23,9 @@ public class ProjectDataHandler implements DataHandler
 
     }
 
-    private Project getProject (ResultSet rs,
-                                boolean   loadChildObjects)
+    private Project getProject (ResultSet      rs,
+                                ProjectVersion pv,
+                                boolean        loadChildObjects)
                          throws GeneralException
     {
 
@@ -40,90 +43,87 @@ public class ProjectDataHandler implements DataHandler
             p.setType (rs.getString (ind++));
             p.setLastEdited (rs.getTimestamp (ind++));
             p.setDescription (rs.getString (ind++));
+            p.setId (rs.getString (ind++));
 
             p.setLastModified (rs.getTimestamp (ind++));
             p.setDateCreated (rs.getTimestamp (ind++));
             p.setPropertiesAsString (rs.getString (ind++));
 
+            Connection conn = rs.getStatement ().getConnection ();            
+            
+            if (pv != null)
+            {
+                
+                p.setProjectVersion (pv);
+                
+            } else {
+                
+                ProjectVersionDataHandler pvh = (ProjectVersionDataHandler) this.objectManager.getHandler (ProjectVersion.class);
+                
+                p.setProjectVersion (pvh.getLatest (conn));
+                
+            }
+            
+            if (p.isEditorProject ())
+            {
+                
+                // Get the editor email.
+                String edEmail = p.getProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME);
+
+                if (edEmail == null)
+                {
+                    
+                    // This is a strange situation, what to do?
+                    
+                }
+                
+                EditorEditor ed = EditorsEnvironment.getEditorByEmail (edEmail);
+                
+                p.setForEditor (ed);
+                
+            } else {
+                
+                // Get the project editors.
+                p.setProjectEditors (EditorsEnvironment.getProjectEditors (p.getId ()));
+                
+            }
+            
             if (loadChildObjects)
             {
 
-                Connection conn = rs.getStatement ().getConnection ();
+                this.objectManager.getObjects (Book.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
 
-                List books = this.objectManager.getObjects (Book.class,
-                                                            p,
-                                                            conn,
-                                                            loadChildObjects);
+                this.objectManager.getObjects (QCharacter.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
 
-                for (int i = 0; i < books.size (); i++)
-                {
+                this.objectManager.getObjects (Location.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
 
-                    p.addBook ((Book) books.get (i));
-
-                }
-
-                List chars = this.objectManager.getObjects (QCharacter.class,
-                                                            p,
-                                                            conn,
-                                                            loadChildObjects);
-
-                for (int i = 0; i < chars.size (); i++)
-                {
-
-                    p.addCharacter ((QCharacter) chars.get (i));
-
-                }
-
-                List locs = this.objectManager.getObjects (Location.class,
-                                                           p,
-                                                           conn,
-                                                           loadChildObjects);
-
-                for (int i = 0; i < locs.size (); i++)
-                {
-
-                    p.addLocation ((Location) locs.get (i));
-
-                }
-
-                List objs = this.objectManager.getObjects (QObject.class,
-                                                           p,
-                                                           conn,
-                                                           loadChildObjects);
-
-                for (int i = 0; i < objs.size (); i++)
-                {
-
-                    p.addQObject ((QObject) objs.get (i));
-
-                }
+                this.objectManager.getObjects (QObject.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
 
                 this.objectManager.loadNotes (p,
                                               conn);
 
-                List ris = this.objectManager.getObjects (ResearchItem.class,
-                                                          p,
-                                                          conn,
-                                                          loadChildObjects);
+                this.objectManager.getObjects (ResearchItem.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
 
-                for (int i = 0; i < ris.size (); i++)
-                {
+                this.objectManager.getObjects (IdeaType.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
 
-                    p.addResearchItem ((ResearchItem) ris.get (i));
-
-                }
-
-                List its = this.objectManager.getObjects (IdeaType.class,
-                                                          p,
-                                                          conn,
-                                                          loadChildObjects);
-
-                for (int i = 0; i < its.size (); i++)
-                {
-
-                    p.addIdeaType ((IdeaType) its.get (i));
-
-                }
 /*
                 p.setEditorProject ((EditorProject) this.objectManager.getObjectByKey (EditorProject.class,
                                                                                        -1,
@@ -132,6 +132,107 @@ public class ProjectDataHandler implements DataHandler
   */              
             }
 
+            // Do a check of the positions of the chapter items.
+            // There is a situation where the position could be greater than the length of the chapter
+            // (if you create a chapter, add some items but then don't save the text).
+            Set<NamedObject> chaps = p.getAllNamedChildObjects (Chapter.class);
+                    
+            for (NamedObject n : chaps)
+            {
+                
+                Chapter c = (Chapter) n;
+                
+                int l = 0;
+                
+                String t = c.getText ();
+                
+                if (t != null)
+                {
+                
+                    l = t.length ();
+                    
+                }
+                
+                Set<NamedObject> items = c.getAllNamedChildObjects ();
+                
+                for (NamedObject ni : items)
+                {
+                    
+                    ChapterItem i = (ChapterItem) ni;
+                    
+                    if ((i.getPosition () >= l)
+                         ||
+                        (i.getPosition () < 0)
+                       )
+                    {
+                        
+                        i.setPosition ((l > 0 ? l : 0));
+                        
+                        Environment.logMessage ("NEW POS: " + i.getPosition ());
+                        try
+                        {
+                        
+                            this.objectManager.saveObject (i,
+                                                           conn);
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to update item: " +
+                                                  i,
+                                                  e);
+                            
+                        }
+                        
+                    }
+                    
+                    if (i instanceof Scene)
+                    {
+                        
+                        Scene s = (Scene) i;
+                        
+                        Set<OutlineItem> oitems = s.getOutlineItems ();
+                        
+                        if (oitems != null)
+                        {
+                            
+                            for (OutlineItem oi : oitems)
+                            {
+                                
+                                if ((oi.getPosition () >= l)
+                                     ||
+                                    (oi.getPosition () < 0)
+                                   )
+                                {
+                                    
+                                    oi.setPosition ((l > 0 ? l : 0));
+                                    
+                                    Environment.logMessage ("NEW POSX: " + oi.getPosition ());
+                                    try
+                                    {
+                                    
+                                        this.objectManager.saveObject (oi,
+                                                                       conn);
+                                        
+                                    } catch (Exception e) {
+                                        
+                                        Environment.logError ("Unable to update item: " +
+                                                              oi,
+                                                              e);
+                                        
+                                    }
+                                    
+                                }                                
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+            }
+            
             return p;
 
         } catch (Exception e)
@@ -143,70 +244,31 @@ public class ProjectDataHandler implements DataHandler
         }
 
     }
-
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    
+    @Override
+    public List<Project> getObjects (NamedObject parent,
+                                     Connection  conn,
+                                     boolean     loadChildObjects)
+                              throws GeneralException
     {
 
-        throw new GeneralException ("Not supported");
+        throw new UnsupportedOperationException ("Not supported");
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public Project getObjectByKey (int         key,
+                                   NamedObject parent,
+                                   Connection  conn,
+                                   boolean     loadChildObjects)
+                            throws GeneralException
     {
 
-        ResultSet rs = null;
-
-        try
-        {
-
-            rs = this.objectManager.executeQuery ("SELECT dbkey, name, type, lastedited, description, lastmodified, datecreated, properties FROM project_v",
-                                                  null,
-                                                  conn);
-
-            if (rs.next ())
-            {
-
-                Project p = this.getProject (rs,
-                                             loadChildObjects);
-
-                return p;
-
-            }
-
-            return null;
-
-        } catch (Exception e)
-        {
-
-            throw new GeneralException ("Unable to load project",
-                                        e);
-
-        } finally
-        {
-
-            try
-            {
-
-                if (rs != null)
-                {
-
-                    rs.close ();
-
-                }
-
-            } catch (Exception e)
-            {
-
-            }
-
-        }
-
+        // There can be only one...
+        return this._getProject (null,
+                                 conn,
+                                 loadChildObjects);
+    
     }
 
     public List<WordCount> getWordCounts (Project p,
@@ -214,11 +276,24 @@ public class ProjectDataHandler implements DataHandler
                                    throws GeneralException
     {
 
+        Connection conn = null;
+    
         try
         {
 
-            Connection conn = this.objectManager.getConnection ();
+            conn = this.objectManager.getConnection ();
 
+        } catch (Exception e) {
+            
+            this.objectManager.throwException (null,
+                                               "Unable to get connection",
+                                               e);
+            
+        }
+                        
+        try
+        {
+            
             List params = new ArrayList ();
             params.add (p.getKey ());
 
@@ -253,45 +328,125 @@ public class ProjectDataHandler implements DataHandler
 
             }
 
-            try
-            {
-
-                conn.close ();
-
-            } catch (Exception e)
-            {
-            }
-
             return ret;
 
         } catch (Exception e)
         {
 
-            throw new GeneralException ("Unable to load word counts for project: " +
-                                        p,
-                                        e);
+            this.objectManager.throwException (conn,
+                                               "Unable to load word counts for project: " +
+                                               p,
+                                               e);
 
+        } finally {
+            
+            this.objectManager.releaseConnection (conn);
+            
         }
+        
+        return null;
 
     }
 
+    private Project _getProject (ProjectVersion pv,
+                                 Connection     conn,
+                                 boolean        loadChildObjects)
+                          throws GeneralException    
+    {
+        
+        boolean closeConn = false;
+        
+        if (conn == null)
+        {
+            
+            conn = this.objectManager.getConnection ();
+            closeConn = true;
+            
+        }
+        
+        ResultSet rs = null;
+
+        try
+        {
+
+            rs = this.objectManager.executeQuery (STD_SELECT_PREFIX,
+                                                  null,
+                                                  conn);
+
+            if (rs.next ())
+            {
+
+                Project p = this.getProject (rs,
+                                             pv,
+                                             loadChildObjects);
+
+                return p;
+
+            }
+
+        } catch (Exception e)
+        {
+
+            this.objectManager.throwException (conn,
+                                               "Unable to load project",
+                                               e);
+
+        } finally
+        {
+            
+            if (closeConn)
+            {
+                
+                this.objectManager.releaseConnection (conn);
+                
+            }
+
+        }
+        
+        return null;
+        
+    }
+    
+    public Project getProjectAtVersion (ProjectVersion pv,
+                                        Connection     conn)
+                                 throws GeneralException
+    {
+        
+        return this._getProject (pv,
+                                 conn,
+                                 true);
+        
+    }
+    
     public Project getProject (Connection conn)
                         throws GeneralException
     {
 
-        return (Project) this.getObjectByKey (-1,
-                                              conn,
-                                              true);
+        return this._getProject (null,
+                                 conn,
+                                 true);
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (Project    p,
                               Connection conn)
                        throws GeneralException
     {
 
-        Project p = (Project) d;
-
+        if ((p.isEditorProject ())
+            &&
+            ((p.getForEditor () == null)
+             &&
+             (p.getProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME) == null)
+            )
+           )
+        {
+            
+            throw new IllegalStateException ("If the project is for an editor then the forEditor must be specified.");
+            
+        }        
+        
         List params = new ArrayList ();
         params.add (p.getKey ());
         params.add (Environment.getSchemaVersion ());
@@ -301,6 +456,15 @@ public class ProjectDataHandler implements DataHandler
                                              params,
                                              conn);
 
+        // Need to create the project version first since the chapters rely on it.
+        if (p.getProjectVersion () != null)
+        {
+            
+            this.objectManager.saveObject (p.getProjectVersion (),
+                                           conn);
+            
+        }
+                                             
         // Get all the other objects.
         for (QCharacter c : p.getCharacters ())
         {
@@ -341,10 +505,11 @@ public class ProjectDataHandler implements DataHandler
                                            conn);
 
         }
-
+        
     }
 
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (Project    p,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
@@ -354,12 +519,11 @@ public class ProjectDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (Project    p,
                               Connection conn)
                        throws GeneralException
     {
-
-        Project p = (Project) d;
 
         List params = new ArrayList ();
         params.add (p.getLastEdited ());

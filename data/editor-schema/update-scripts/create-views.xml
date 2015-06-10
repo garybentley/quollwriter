@@ -1,0 +1,60 @@
+<!--
+  Deploy the views.
+-->
+<update-script>
+
+  <item>
+    <log>Drop view editor_v</log>
+    <sql>
+DROP VIEW IF EXISTS editor_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Drop view message_v</log>
+    <sql>
+DROP VIEW IF EXISTS message_v
+    </sql>
+  </item>
+
+  <item>
+    <log>Drop view projecteditor_v</log>
+    <sql>
+DROP VIEW IF EXISTS projecteditor_v
+    </sql>
+  </item>
+
+  <!--
+    Has to be done last, all other views (nearly) use it.
+  -->
+  <item>
+    <log>Drop view namedobject_v</log>
+    <sql>
+DROP VIEW IF EXISTS namedobject_v    
+    </sql>
+  </item>
+    
+  <!--
+    Has to be done first, all other views (nearly) use it.
+  -->
+  <item>
+    <log>Create namedobject_v view</log>
+    <sql file="views/namedobject.v" />
+  </item>
+
+  <item>
+    <log>Create editor_v view</log>
+    <sql file="views/editor.v" />
+  </item>
+
+  <item>
+    <log>Create message_v view</log>
+    <sql file="views/message.v" />
+  </item>
+
+  <item>
+    <log>Create projecteditor_v view</log>
+    <sql file="views/projecteditor.v" />
+  </item>
+
+</update-script>

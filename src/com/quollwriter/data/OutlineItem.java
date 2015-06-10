@@ -72,6 +72,8 @@ public class OutlineItem extends ChapterItem
         }
     
         super.setScene (s);
+        
+        this.setParent (s);
 
     }
 

@@ -200,6 +200,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
                                                 
                                              },
                                              null,
+                                             null,
                                              null);
 
             }
@@ -235,36 +236,51 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
     public void doInit ()
     {
 
-        DetailsEditPanel edPan = this.getDetailsPanel ();
-               
-        Set<String> objChangeEventTypes = edPan.getObjectChangeEventTypes ();
-        
-        if ((objChangeEventTypes != null)
-            &&
-            (objChangeEventTypes.size () > 0)
-           )
-        {
-            
-            Map events = new HashMap ();
-            
-            for (String s : objChangeEventTypes)
-            {
-                
-                events.put (s,
-                            s);
-                
-            }
-            
-            this.obj.addPropertyChangedListener (this,
-                                                 events);            
-            
-        }               
+        this.obj.addPropertyChangedListener (this);
     
     }
 
+    @Override
     public void propertyChanged (PropertyChangedEvent ev)
     {
 
+        DetailsEditPanel edPan = this.getDetailsPanel ();
+               
+        final Set<String> objChangeEventTypes = edPan.getObjectChangeEventTypes ();
+        
+        if ((objChangeEventTypes == null)
+            ||
+            (objChangeEventTypes.size () == 0)
+           )
+        {
+            
+            return;
+            
+        }
+
+        boolean update = false;
+    
+        for (String t : objChangeEventTypes)
+        {
+        
+            if (ev.getChangeType ().equals (t))
+            {
+                
+                update = true;
+                
+                break;
+                                
+            }
+        
+        }
+
+        if (!update)
+        {
+            
+            return;
+            
+        }
+        
         this.getDetailsPanel ().refreshViewPanel ();
     
         if (this.appearsInPanel != null)
@@ -275,7 +291,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
         }
     
     }    
-    
+   
     public EditPanel getBottomEditPanel ()
     {
 

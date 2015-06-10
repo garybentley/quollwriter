@@ -75,6 +75,13 @@ public class WordFinder extends AbstractDialogueRule
     public String getSummary ()
     {
 
+        if (this.word == null)
+        {
+            
+            return null;
+            
+        }
+    
         StringBuilder b = new StringBuilder ("\"" + this.word + "\" ");
 
         if (this.where != null)
@@ -92,6 +99,20 @@ public class WordFinder extends AbstractDialogueRule
 
             }
 
+            if (this.ignoreInDialogue)
+            {
+                
+                b.append (", ignore in dialogue");
+                
+            }
+            
+            if (this.onlyInDialogue)
+            {
+                
+                b.append (", but only in dialogue");
+                
+            }            
+            
         }
 
         return b.toString ();
@@ -175,7 +196,6 @@ public class WordFinder extends AbstractDialogueRule
 
         // Check our list of words.
 
-        List<Word> swords = sentence.getWords ();
         List<Issue>  issues = new ArrayList ();
 
         Set<Integer> inds = sentence.find (this.tWords,
@@ -200,9 +220,19 @@ public class WordFinder extends AbstractDialogueRule
                     
                 }
             
-                Issue iss = new Issue ("Contains: <b>" + this.word + "</b>",
+                String suffix = "";
+            
+                if (this.onlyInDialogue)
+                {
+                    
+                    suffix = " in dialogue";
+                    
+                }
+            
+                Issue iss = new Issue ("Contains: <b>" + this.word + "</b>" + suffix,
                                        w.getAllTextStartOffset (),
                                        l,
+                                       w.getAllTextStartOffset () + "-" + this.word,
                                        this);
                 issues.add (iss);
 

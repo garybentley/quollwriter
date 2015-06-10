@@ -31,6 +31,7 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
+import com.quollwriter.text.*;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.*;
@@ -44,40 +45,28 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
-import com.quollwriter.ui.components.LineHighlighter;
-
-import com.swabunga.spell.engine.*;
-import com.swabunga.spell.event.*;
 
 public abstract class AbstractEditorPanel extends QuollPanel implements SpellCheckSupported, TextStylable
 {
 
-    public static final String SAVE_ACTION_NAME = "save";
     public static final String TOGGLE_SPELLCHECK_ACTION_NAME = "toggle-spellcheck";
     public static final String TOGGLE_WORDCOUNTS_ACTION_NAME = "toggle-wordcounts";
     public static final String EDIT_TEXT_PROPERTIES_ACTION_NAME = "edit-text-properties";
-    public static final String INSERT_SECTION_BREAK_ACTION_NAME = "insert-section-break";
-    public static final String DELETE_CHAPTER_ACTION_NAME = "delete-chapter";
-    
-    public static final String TAB = String.valueOf ('\t');
-
-    public static final String SECTION_BREAK_FIND = "***";
-    public static final String SECTION_BREAK = "*" + TAB + TAB + "*" + TAB + TAB + "*";
 
     protected QTextEditor    editor = null;
     protected ActionMap      actions = null;
     protected Chapter        chapter = null;
-    protected Timer          autoSave = new Timer (true);
-    protected javax.swing.Timer          chapterInfo = null;
-    private   long chapterInfoTimerLastRun = -1;
-    protected ChapterCounts  chapterCounts = null;
-    protected java.util.List actionListeners = new ArrayList ();
-    public Point             lastMousePosition = null;
+    //protected Timer          autoSave = new Timer (true);
+    //protected javax.swing.Timer          chapterInfo = null;
+    //private   long chapterInfoTimerLastRun = -1;
+    private ChapterCounts  chapterCounts = null;
+    //protected java.util.List actionListeners = new ArrayList ();
+    protected Point             lastMousePosition = null;
     protected JScrollPane    scrollPane = null;
     private boolean          ignoreDocumentChange = false;
     private boolean          useTypewriterScrolling = false;
     private ReadabilityIndices readability = null;
-    private int a4PageCount = 0;
+    //private int a4PageCount = 0;
     private ActionListener performAction = null;
     private int scrollOffset = 0;
     private Insets origEditorMargin = null;    
@@ -125,9 +114,8 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
         }
 
-        this.editor = new QTextEditor (dp, // Environment.dictionaryProvider,
-                                       pv.isSpellCheckingEnabled (),
-                                       SECTION_BREAK);
+        this.editor = new QTextEditor (dp,
+                                       pv.isSpellCheckingEnabled ());
 
         this.editor.setSynonymProvider (sp);//Environment.getSynonymProvider ());
         
@@ -161,10 +149,6 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.actions = this.editor.getActionMap ();
 
         super.setActionMap (this.actions);
-
-        this.actions.put (DELETE_CHAPTER_ACTION_NAME,
-                          new DeleteChapterActionHandler ((Chapter) this.obj,
-                                                                    this.projectViewer));
 
         this.actions.put (Constants.SHOW_FIND_ACTION,
                           new ActionAdapter ()
@@ -205,33 +189,6 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
                           });
 
-        this.actions.put (SAVE_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  try
-                                  {
-
-                                      _this.saveChapter ();
-
-                                  } catch (Exception e)
-                                  {
-
-                                      Environment.logError ("Unable to save chapter",
-                                                            e);
-
-                                      UIUtils.showErrorMessage (_this,
-                                                                "Unable to save chapter.");
-
-                                  }
-
-                              }
-
-                          });
-
         this.actions.put (EDIT_TEXT_PROPERTIES_ACTION_NAME,
                           new ActionAdapter ()
                           {
@@ -239,43 +196,30 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                               public void actionPerformed (ActionEvent ev)
                               {
         
-                                  _this.showTextProperties ();                                
+                                    try
+                                    {
+        
+                                        _this.showTextProperties ();
+                                        
+                                    } catch (Exception e) {
+                                        
+                                        Environment.logError ("Unable to show text properties",
+                                                              e);
+                                        
+                                        UIUtils.showErrorMessage (_this,
+                                                                  "Unable to show text properties.");
+                                        
+                                    }
         
                               }
 
                           });
-                     
-        this.actions.put (INSERT_SECTION_BREAK_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-            
-                              public void actionPerformed (ActionEvent ev)
-                              {
-            
-                                  try
-                                  {
-            
-                                      _this.insertSectionBreak ();
-            
-                                  } catch (Exception e)
-                                  {
-            
-                                      // Ignore.
-            
-                                  }
-            
-                              }
-            
-                          });
-                     
+                                          
         InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
                                         Event.CTRL_MASK),
                 EDIT_TEXT_PROPERTIES_ACTION_NAME);
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_S,
-                                        Event.CTRL_MASK),
-                SAVE_ACTION_NAME);
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_W,
                                         Event.CTRL_MASK),
                 TOGGLE_WORDCOUNTS_ACTION_NAME);
@@ -284,10 +228,6 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                 TOGGLE_SPELLCHECK_ACTION_NAME);
 
         im = this.editor.getInputMap (JComponent.WHEN_FOCUSED);
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ENTER,
-                                        Event.CTRL_MASK),
-                INSERT_SECTION_BREAK_ACTION_NAME);
 
         this.addComponentListener (new ComponentAdapter ()
         {
@@ -316,10 +256,19 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
 
+    public abstract JComponent getEditorWrapper (QTextEditor editor);    
+    
     public void setWritingLineColor (Color c)
     {
         
         this.editor.setWritingLineColor (c);
+        
+    }
+
+    @Override
+    public void close ()
+    {
+        
         
     }
     
@@ -331,6 +280,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
     }
     
     public void showTextProperties ()
+                             throws GeneralException
     {
         
         this.projectViewer.showTextProperties ();
@@ -450,33 +400,25 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
     
-    public void close ()
-    {
-        
-        if (this.chapterInfo != null)
-        {
-        
-            this.chapterInfo.stop ();
-            
-        }
-        
-        this.chapterInfo = null;
-        
-        if (this.autoSave != null)
-        {
-            
-            this.autoSave.cancel ();
-            
-        }
-        
-        this.autoSave = null;
-        
-    }
-
+/*
     public int getA4PageCount ()
     {
         
         return this.a4PageCount;
+        
+    }
+  */  
+    protected void setChapterCounts (ChapterCounts c)
+    {
+        
+        this.chapterCounts = c;
+        
+    }
+    
+    protected void setReadabilityIndices (ReadabilityIndices r)
+    {
+        
+        this.readability = r;
         
     }
     
@@ -494,24 +436,17 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
 
-    public abstract JComponent getEditorWrapper (QTextEditor editor);
-
-    public abstract void doFillToolBar (JToolBar b);
-
-    public abstract void doFillPopupMenu (MouseEvent eve,
-                                          JPopupMenu p,
-                                          boolean    compress);
-
-    public abstract void doFillToolsPopupMenu (ActionEvent eve,
-                                               JPopupMenu  p);
-
-    public abstract void doInit ()
-                          throws GeneralException;
-
     public void setIgnoreDocumentChanges (boolean v)
     {
         
         this.ignoreDocumentChange = v;
+        
+    }
+    
+    public boolean isIgnoreDocumentChanges ()
+    {
+        
+        return this.ignoreDocumentChange;
         
     }
     
@@ -525,324 +460,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
         this.editor.setText (this.chapter.getText (),
                              this.chapter.getMarkup ());
-
-        this.chapterInfo = new javax.swing.Timer (2000,
-                                      new ActionAdapter ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                new Thread (new Runnable ()
-                {
-                    
-                    public void run ()
-                    {
-                        
-                        try
-                        {
-                            
-                            Thread t = Thread.currentThread ();
-                            t.setName ("Chapter counts for: " + _this.chapter);
-                            t.setPriority (Thread.MIN_PRIORITY);
-                
-                        } catch (Exception e) {
-                            
-                            // Ignore.
-                            
-                        }
-                        
-                        try
-                        {
-                
-                            _this.chapterCounts = UIUtils.getChapterCounts (_this.editor.getText ());
-                            _this.readability = _this.projectViewer.getReadabilityIndices (_this.editor.getText ());
-                            
-                            _this.chapterInfoTimerLastRun = System.currentTimeMillis ();
-                            
-                            _this.chapterCounts.a4PageCount = UIUtils.getA4PageCountForChapter (_this.chapter,
-                                                                                                _this.editor.getText ());
-                            
-                        } catch (Exception e) {
-                            
-                            Environment.logError ("Unable to get chapter counts/readability for chapter: " +
-                                                  _this.chapter,
-                                                  e);
-                            
-                        }
-                        
-                    }
-                    
-                }).start ();
-            
-            }
-            
-        });
-        
-        this.chapterInfo.setRepeats (false);
-        this.chapterInfo.start ();
-
-        Position pos = null;
-        
-        try
-        {
-            pos = doc.createPosition (0);
-            
-        }catch(Exception e) {
-            
-        }
     
-        final Position ppos = pos;
-    
-        doc.addDocumentListener (new DocumentAdapter ()
-            {
-
-                public void insertUpdate (DocumentEvent ev)
-                {
-
-                    final int offset = ev.getOffset ();
-
-                    if (ev.getLength () > 0)
-                    {
-                        
-                        _this.restartChapterInfoTimer ();
-        
-                        _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                                              ProjectEvent.EDIT,
-                                                              _this.chapter);
-                        
-                    }
-
-                    boolean add = false;
-
-                    try
-                    {
-
-                        if (ev.getLength () == 1)
-                        {
-
-                            if (offset == 0)
-                            {
-
-                                Set<OutlineItem> its = _this.chapter.getOutlineItemsAt (0);
-    
-                                for (OutlineItem it : its)
-                                {
-    
-                                    it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () + 1));
-    
-                                }
-    
-                                Set<Scene> ss = _this.chapter.getScenesAt (0);
-    
-                                for (Scene s : ss)
-                                {
-    
-                                    s.setTextPosition (editor.getDocument ().createPosition (s.getPosition () + 1));
-    
-                                }
-    
-                                Set<Note> nn = _this.chapter.getNotesAt (0);
-    
-                                for (Note n : nn)
-                                {
-    
-                                    n.setTextPosition (editor.getDocument ().createPosition (n.getPosition () + 1));
-    
-                                }
-
-                            }
-                            
-                            String t = doc.getText (offset,
-                                                    ev.getLength ());
-
-                            String nl = String.valueOf ('\n');
-
-                            if (t.equals (nl))
-                            {
-
-                                String te = doc.getText (offset - SECTION_BREAK_FIND.length (),
-                                                         SECTION_BREAK_FIND.length ());
-
-                                if (te.equals (SECTION_BREAK_FIND))
-                                {
-
-                                    add = true;
-
-                                }
-
-                                if (doc.getLogicalStyle (offset) == _this.editor.sectionBreakStyle)
-                                {
-
-                                    SwingUtilities.invokeLater (new Runner ()
-                                        {
-
-                                            public void run ()
-                                            {
-
-                                                Style ls = doc.addStyle (null,
-                                                                         null);
-                                                StyleConstants.setAlignment (ls,
-                                                                             StyleConstants.ALIGN_LEFT);
-
-                                                doc.setParagraphAttributes (offset + 1,
-                                                                            1,
-                                                                            ls,
-                                                                            false);
-
-                                            }
-
-                                        });
-
-                                }
-
-                            }
-
-                        }
-
-                    } catch (Exception e)
-                    {
-
-                        // Ignore.
-
-                    }
-
-                    if (add)
-                    {
-
-                        SwingUtilities.invokeLater (new Runner ()
-                            {
-
-                                public void run ()
-                                {
-
-                                    try
-                                    {
-
-                                        String ins = String.valueOf ('\n') + String.valueOf ('\n') + SECTION_BREAK + String.valueOf ('\n') + String.valueOf ('\n');
-
-                                        doc.replace (offset - SECTION_BREAK_FIND.length (),
-                                                     SECTION_BREAK_FIND.length () + 1,
-                                                     ins,
-                                                     _this.editor.sectionBreakStyle);
-
-                                        doc.setParagraphAttributes (offset + 2,
-                                                                    SECTION_BREAK.length (),
-                                                                    _this.editor.sectionBreakStyle,
-                                                                    false);
-
-                                        doc.setLogicalStyle (offset + 2,
-                                                             _this.editor.sectionBreakStyle);
-
-                                        Style ls = doc.addStyle (null,
-                                                                 null);
-                                        StyleConstants.setAlignment (ls,
-                                                                     StyleConstants.ALIGN_LEFT);
-
-                                        doc.setParagraphAttributes (offset + SECTION_BREAK.length (),
-                                                                    2,
-                                                                    ls,
-                                                                    false);
-
-                                    } catch (Exception e)
-                                    {
-
-                                        Environment.logError ("Unable to add section breaks",
-                                                              e);
-
-                                    }
-
-                                }
-
-                            });
-
-                    }
-
-                }
-
-                public void removeUpdate (DocumentEvent ev)
-                {
-
-                    if (ev.getLength () > 0)
-                    {
-                        
-                        _this.restartChapterInfoTimer ();
-        
-                        _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                                              ProjectEvent.EDIT,
-                                                              _this.chapter);
-                        
-                    }                    
-
-                    final int offset = ev.getOffset ();
-
-                    if (doc.getLogicalStyle (offset) == _this.editor.sectionBreakStyle)
-                    {
-
-                        SwingUtilities.invokeLater (new Runner ()
-                            {
-
-                                public void run ()
-                                {
-
-                                    try
-                                    {
-
-                                        doc.replace (offset - SECTION_BREAK_FIND.length (),
-                                                     SECTION_BREAK_FIND.length (),
-                                                     null,
-                                                     null);
-
-                                    } catch (Exception e)
-                                    {
-
-                                    }
-
-                                }
-
-                            });
-
-                    }
-
-                }
-
-            });
-
-        this.scheduleAutoSave ();
-
-        this.editor.getDocument ().addDocumentListener (new DocumentAdapter ()
-        {
-
-            public void changedUpdate (DocumentEvent ev)
-            {
-
-                if (_this.ignoreDocumentChange)
-                {
-                    
-                    return;
-                    
-                }
-
-                _this.setHasUnsavedChanges (true);
-
-            }
-
-            public void insertUpdate (DocumentEvent ev)
-            {
-
-                _this.setHasUnsavedChanges (true);
-
-            }
-
-            public void removeUpdate (DocumentEvent ev)
-            {
-
-                _this.setHasUnsavedChanges (true);
-
-            }
-
-        });
-
         this.editor.addStyleChangeListener (new StyleChangeAdapter ()
         {
             
@@ -866,20 +484,6 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.scrollPane.setBorder (null);
         this.scrollPane.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.scrollPane.getViewport ().setOpaque (true);
-        
-        this.scrollPane.addComponentListener (new ComponentAdapter ()
-        {
-           
-            public void componentResized (ComponentEvent ev)
-            {
-                
-                // This seems to be called every time the scrollbar value
-                // is changed!  So remove for now.
-                //_this.scrollCaretIntoView ();
-                
-            }
-            
-        });
         
         this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
                                 
@@ -922,16 +526,33 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
             
         });
         
+        this.editor.addStyleChangeListener (new StyleChangeAdapter ()
+        {
+            
+            public void styleChanged (StyleChangeEvent ev)
+            {
+
+                _this.initScrollBar ();
+                        
+                _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                                      ev.getType (),
+                                                      ev);
+                                
+            }
+            
+        });
+        
         this.editor.addCaretListener (new CaretListener ()
         {
+                   
                       
             public void caretUpdate (final CaretEvent ev)
             {
                                 
-                SwingUtilities.invokeLater (new Runnable ()
+                UIUtils.doLater (new ActionListener ()
                 {
-                    
-                    public void run ()
+
+                    public void actionPerformed (ActionEvent ev)
                     {
                     
                         if (_this.useTypewriterScrolling)
@@ -948,10 +569,9 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
             }
             
         });
-        
-        this.doInit ();
-        
+                
         this.initEditor ();
+                
         /*
          *Experimental... not quite right for page-up.
         final ActionListener origPageDown = this.editor.getActionMap ().get ("page-down");
@@ -1099,12 +719,12 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
     
         final AbstractEditorPanel _this = this;
     
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
         {
             
-            public void run ()
+            public void actionPerformed (ActionEvent ev)
             {
-            
+                
                 int dot = (_this.softCaret > -1 ? _this.softCaret : _this.editor.getCaret ().getDot ());
                         
                 Rectangle r = null;
@@ -1211,27 +831,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.editor.grabFocus ();
         
     }
-
-    private void restartChapterInfoTimer ()
-    {
-        
-        if ((System.currentTimeMillis () - this.chapterInfoTimerLastRun) > 10000)
-        {
-            
-            // Been more than 10s, so force run.
-            this.chapterInfo.start ();
-            
-            return;
-            
-        } else {
-            
-            this.chapterInfo.stop ();
-            this.chapterInfo.start ();
-            
-        }
-        
-    }
-
+/*
     public void scheduleAutoSave ()
     {
 
@@ -1288,7 +888,8 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         }
                 
     }
-
+*/
+/*
     public void insertSectionBreak ()
     {
 
@@ -1335,14 +936,14 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
             });
 
     }
-
+*/
     public Chapter getChapter ()
     {
 
         return this.chapter;
 
     }
-
+/*
     public void stopAutoSave ()
     {
 
@@ -1367,24 +968,13 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.saveObject ();
 
     }
-
-    public void fillToolBar (JToolBar acts,
+*/
+  /*  
+    public abstract void fillToolBar (JToolBar acts,
                              final boolean  fullScreen)
     {
 
         final AbstractEditorPanel _this = this;
-
-        final ActionAdapter aa = new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.performAction (ev);
-
-            }
-
-        };
 
         acts.add (this.createToolbarButton (Constants.SAVE_ICON_NAME,
                                             "Click to save the {Chapter} text",
@@ -1456,7 +1046,8 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         acts.add (b);
 
     }
-
+*/
+  /*
     public void saveObject ()
                      throws Exception
     {
@@ -1467,7 +1058,8 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         super.saveObject ();
 
     }
-
+*/
+  /*
     private void addFormatItemsToPopupMenu (JPopupMenu popup,
                                             boolean    compress)
     {
@@ -1542,7 +1134,8 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         }
         
     }
-    
+    */
+  /*
     private void addEditItemsToPopupMenu (JPopupMenu popup,
                                           boolean    compress)
     {
@@ -1662,7 +1255,8 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         }
         
     }
-    
+    */
+  /*
     public void fillPopupMenu (final MouseEvent ev,
                                final JPopupMenu popup)
     {
@@ -1695,206 +1289,178 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
             };
 
-            java.util.List l = this.editor.getSpellCheckSuggestions (p);
-
-            if (l != null)
-            {
+            TextIterator iter = new TextIterator (this.editor.getText ());
             
-                final DocumentWordTokenizer wordsTok = new DocumentWordTokenizer (this.editor.getDocument ());
-                wordsTok.posStartFullWordFrom (this.editor.viewToModel (p));                
+            final Word w = iter.getWordAt (this.editor.viewToModel (p));
+            
+            if (w != null)
+            {
                 
-                final String word = wordsTok.nextWord ();
-                
-                final int loc = wordsTok.getCurrentWordPosition ();
-
-                if (l.size () == 0)
+                final String word = w.getText ();
+            
+                final int loc = w.getAllTextStartOffset ();
+    
+                java.util.List l = this.editor.getSpellCheckSuggestions (word);
+    
+                if (l != null)
                 {
-
-                    mi = new JMenuItem ("Add to Dictionary");
-                    mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
-                    mi.setActionCommand (word);
-                    mi.addActionListener (addToDict);
-
-                    popup.add (mi,
-                               0);
-
-                    mi = new JMenuItem ("(No Spelling Suggestions)");
-                    mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
-                    mi.setEnabled (false);
-
-                    popup.add (mi,
-                               0);
-
+    
+                    if (l.size () == 0)
+                    {
+    
+                        mi = new JMenuItem ("Add to Dictionary");
+                        mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
+                        mi.setActionCommand (word);
+                        mi.addActionListener (addToDict);
+    
+                        popup.add (mi,
+                                   0);
+    
+                        mi = new JMenuItem ("(No Spelling Suggestions)");
+                        mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
+                        mi.setEnabled (false);
+    
+                        popup.add (mi,
+                                   0);
+    
+                    } else
+                    {
+    
+                        JMenu more = new JMenu ("More Suggestions");
+    
+                        int i = 0;
+    
+                        for (i = 0; i < l.size (); i++)
+                        {
+    
+                            if (i == 5)
+                            {
+    
+                                popup.add (more,
+                                           5);
+    
+                            }
+    
+                            final String suggestion = (String) l.get (i);
+                            //final String suggestion = ((com.swabunga.spell.engine.Word) l.get (i)).getWord ();
+                            
+                            mi = new JMenuItem (suggestion);
+                            mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
+                            mi.setActionCommand (mi.getText ());
+                            mi.addActionListener (new ActionAdapter ()
+                            {
+    
+                                public void actionPerformed (ActionEvent ev)
+                                {
+                                    
+                                    String repWord = ev.getActionCommand ();
+                                                                    
+                                    _this.editor.replaceText (loc,
+                                                              loc + word.length (),
+                                                              repWord);
+                                
+                                    _this.projectViewer.fireProjectEvent (ProjectEvent.SPELL_CHECK,
+                                                                          ProjectEvent.REPLACE,
+                                                                          ev.getActionCommand ());
+    
+                                }
+    
+                            });
+    
+                            if (i < 5)
+                            {
+    
+                                popup.add (mi);
+                                           //0);
+    
+                            } else
+                            {
+    
+                                more.add (mi);
+    
+                            }
+    
+                        }
+    
+                        if (i > 5)
+                        {
+    
+                            i = 6;
+    
+                        }
+    
+                        mi = new JMenuItem ("Add to Dictionary");
+                        mi.setActionCommand (word);
+                        mi.addActionListener (addToDict);
+    
+                        popup.add (mi,
+                                   i);
+    
+                    }
+    
+                    popup.addSeparator ();
+    
                 } else
                 {
-
-                    JMenu more = new JMenu ("More Suggestions");
-
-                    int i = 0;
-
-                    for (i = 0; i < l.size (); i++)
+    
+                    if ((this.projectViewer.synonymLookupsSupported ()) &&
+                        (ev.getSource () == this.editor))
                     {
-
-                        if (i == 5)
+    
+                        if (Environment.isEnglish (_this.projectViewer.getSpellCheckLanguage ()))
                         {
-
-                            popup.add (more,
-                                       5);
-
-                        }
-
-                        final String suggestion = ((com.swabunga.spell.engine.Word) l.get (i)).getWord ();
                         
-                        mi = new JMenuItem (suggestion);
-                        mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
-                        mi.setActionCommand (mi.getText ());
-                        mi.addActionListener (new ActionAdapter ()
-                        {
-
-                            public void actionPerformed (ActionEvent ev)
+                            if ((word != null) &&
+                                (word.length () > 0))
                             {
-                                
-                                _this.editor.replaceText (loc,
-                                                          loc + word.length (),
-                                                          ev.getActionCommand ());
-                            
-                                _this.projectViewer.fireProjectEvent (ProjectEvent.SPELL_CHECK,
-                                                                      ProjectEvent.REPLACE,
-                                                                      ev.getActionCommand ());
-
+        
+                                String mt = "No synonyms found for: " + word;
+        
+                                try
+                                {
+        
+                                    // See if there are any synonyms.
+                                    if (this.editor.getSynonymProvider ().hasSynonym (word))
+                                    {
+            
+                                        mi = new JMenuItem ("Find synonyms for: " + word);
+            
+                                        mi.setIcon (Environment.getIcon ("find",
+                                                                         Constants.ICON_MENU));
+                                        mi.addActionListener (new FindSynonymsActionHandler (word,
+                                                                                             loc, // c
+                                                                                             this.getChapter (),
+                                                                                             _this));
+                                        
+                                    } else {
+                                        
+                                        mi = new JMenuItem ("(No synonyms for: " + word + ")");
+                                        mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
+                                        mi.setEnabled (false);        
+                                        
+                                    }
+            
+                                    popup.add (mi);
+            
+                                    popup.addSeparator ();
+        
+                                } catch (Exception e) {
+                                    
+                                    Environment.logError ("Unable to determine whether word: " +
+                                                          word +
+                                                          " has synonyms.",
+                                                          e);
+                                    
+                                }
+        
                             }
-
-                        });
-
-                        if (i < 5)
-                        {
-
-                            popup.add (mi,
-                                       0);
-
-                        } else
-                        {
-
-                            more.add (mi);
-
-                        }
-
-                    }
-
-                    if (i > 5)
-                    {
-
-                        i = 6;
-
-                    }
-
-                    mi = new JMenuItem ("Add to Dictionary");
-                    mi.setActionCommand (word);
-                    mi.addActionListener (addToDict);
-
-                    popup.add (mi,
-                               i);
-
-                }
-
-                popup.addSeparator ();
-
-            } else
-            {
-
-                if ((this.projectViewer.synonymLookupsSupported ()) &&
-                    (ev.getSource () == this.editor))
-                {
-
-                    DocumentWordTokenizer wordsTok = null;
-
-                    try
-                    {
-
-                        wordsTok = new DocumentWordTokenizer (this.editor.getDocument ());
-
-                    } catch (Exception e)
-                    {
-
-
-                    }
-
-                    // Handle selected text...
-
-                    int c = this.editor.viewToModel (p);
-                    
-                    String word = null;
-
-                    if (wordsTok != null)
-                    {
-
-                        try
-                        {
-    
-                            wordsTok.posStartFullWordFrom (c);
-    
-                            word = wordsTok.nextWord ();
-    
-                            word = word.trim ();
-    
-                            c = wordsTok.getCurrentWordPosition ();
-    
-                        } catch (Exception e)
-                        {
-    
-                            // Ignore.
-    
-                        }
-
-                    }
-
-                    if ((word != null) &&
-                        (word.length () > 0))
-                    {
-
-                        String mt = "No synonyms found for: " + word;
-
-                        try
-                        {
-
-                            // See if there are any synonyms.
-                            if (this.editor.getSynonymProvider ().hasSynonym (word))
-                            {
-    
-                                mi = new JMenuItem ("Find synonyms for: " + word);
-    
-                                mi.setIcon (Environment.getIcon ("find",
-                                                                 Constants.ICON_MENU));
-                                mi.addActionListener (new FindSynonymsActionHandler (word,
-                                                                                     c,
-                                                                                     this.getChapter (),
-                                                                                     _this));
-                                
-                            } else {
-                                
-                                mi = new JMenuItem ("(No synonyms for: " + word + ")");
-                                mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
-                                mi.setEnabled (false);        
-                                
-                            }
-    
-                            popup.add (mi);
-    
-                            popup.addSeparator ();
-
-                        } catch (Exception e) {
-                            
-                            Environment.logError ("Unable to determine whether word: " +
-                                                  word +
-                                                  " has synonyms.",
-                                                  e);
                             
                         }
-
+    
                     }
-
+    
                 }
-
+                
             }
 
         }
@@ -1912,7 +1478,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                                       compress);        
         
     }
-
+*/
     public QTextEditor getEditor ()
     {
 
@@ -2009,10 +1575,10 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
         final AbstractEditorPanel _this = this;
         
-        SwingUtilities.invokeLater (new Runnable ()
+        UIUtils.doLater (new ActionListener ()
         {
-        
-            public void run ()
+            
+            public void actionPerformed (ActionEvent ev)
             {
 
                 try
@@ -2029,16 +1595,16 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                     _this.editor.setSelectionStart (v);
                     _this.editor.setSelectionEnd (v);
                     _this.editor.getCaret ().setDot (v);
-
-                    _this.initScrollBar ();
-                        
-                    _this.setReadyForUse (true);
                         
                 } catch (Exception e)
                 {
         
                     // Ignore it.
         
+                } finally {
+                    
+                    _this.initScrollBar ();
+                                            
                 }
 
             }
@@ -2177,6 +1743,13 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
     }
 
+    public void setCaretPosition (int dot)
+    {
+        
+        this.editor.getCaret ().setDot (dot);
+        
+    }
+    
     public void setFontColor (Color c)
     {
 
@@ -2249,64 +1822,51 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
         final AbstractEditorPanel _this = this;
 
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
             {
-
-                public void run ()
+                
+                try
                 {
 
-                    try
+                    int c = _this.editor.getCaret ().getDot ();
+
+                    if (c > -1)
                     {
 
-                        int c = _this.editor.getCaret ().getDot ();
-
-                        if (c > -1)
-                        {
-
-                            _this.scrollToPosition (c);
-
-                        }
-
-                        _this.updateViewportPositionForTypewriterScrolling ();
-                        
-                        if (runAfterScroll != null)
-                        {
-                            
-                            SwingUtilities.invokeLater (runAfterScroll);
-                            
-                        }
-                        
-                    } catch (Exception e)
-                    {
-
-                        // Ignore it.
+                        _this.scrollToPosition (c);
 
                     }
 
+                    _this.updateViewportPositionForTypewriterScrolling ();
+                    
+                    if (runAfterScroll != null)
+                    {
+                        
+                        SwingUtilities.invokeLater (runAfterScroll);
+                        
+                    }
+                    
+                } catch (Exception e)
+                {
+
+                    // Ignore it.
+
                 }
 
-            });
+            }
+            
+        });
 
     }
 
     public TextProperties getTextProperties ()
     {
 
-        //Project proj = this.projectViewer.getProject ();
-    
         return new ProjectTextProperties (this.projectViewer);
-    /*
-        TextProperties props = new TextProperties (this,
-                                                   proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME),
-                                                   proj.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
-                                                   proj.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
-                                                   proj.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
-                                                   proj.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
-                                                   this.editor.getTextColor (),
-                                                   this.getBackgroundColor ());
-        
-        return props;
-      */  
+
     }
     
     public void setFontSize (int v)
@@ -2374,4 +1934,11 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
 
+    public Point getLastMousePosition ()
+    {
+        
+        return this.lastMousePosition;
+        
+    }
+    
 }

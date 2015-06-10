@@ -9,12 +9,11 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class BookDataHandler implements DataHandler
+public class BookDataHandler implements DataHandler<Book, Project>
 {
 
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, id, version FROM book_v ";
     private ObjectManager objectManager = null;
-    private List<Book>    allBooks = new ArrayList ();
-    private boolean       loaded = false;
 
     public BookDataHandler(ObjectManager om)
     {
@@ -24,6 +23,7 @@ public class BookDataHandler implements DataHandler
     }
 
     private Book getBook (ResultSet rs,
+                          Project   p,
                           boolean   loadChildObjects)
                    throws GeneralException
     {
@@ -44,27 +44,28 @@ public class BookDataHandler implements DataHandler
             b.setLastModified (rs.getTimestamp (ind++));
             b.setDateCreated (rs.getTimestamp (ind++));
             b.setPropertiesAsString (rs.getString (ind++));
+            b.setId (rs.getString (ind++));
+            b.setVersion (rs.getString (ind++));
 
-            /*
-                    if (loadChildObjects)
-                    {
+            if (p != null)
+            {
+            
+                p.addBook (b);
+                
+            }
 
-                        Connection conn = rs.getStatement ().getConnection ();
+            if (loadChildObjects)
+            {
+            
+                Connection conn = rs.getStatement ().getConnection ();
+    
+                this.objectManager.getObjects (Chapter.class,
+                                               b,
+                                               conn,
+                                               loadChildObjects);
 
-                        List chapters = this.objectManager.getObjects (Chapter.class,
-                                                                       b,
-                                                                       conn,
-                                                                       loadChildObjects);
-
-                        for (int i = 0; i < chapters.size (); i++)
-                        {
-
-                            b.addChapter ((Chapter) chapters.get (i));
-
-                        }
-
-                    }
-             */
+            }
+                                               
             return b;
 
         } catch (Exception e)
@@ -77,185 +78,82 @@ public class BookDataHandler implements DataHandler
 
     }
 
-    private void loadAllBooks (Connection conn,
-                               boolean    loadChildObjects)
-                        throws GeneralException
+    @Override
+    public List<Book> getObjects (Project     parent,
+                                  Connection  conn,
+                                  boolean     loadChildObjects)
+                           throws GeneralException
     {
 
-        if (!this.loaded)
-        {
-
-            this.loaded = true;
-
-            try
-            {
-
-                ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties FROM book_v",
-                                                                null,
-                                                                conn);
-
-                while (rs.next ())
-                {
-
-                    this.addBook (this.getBook (rs,
-                                                loadChildObjects));
-
-                }
-
-                try
-                {
-
-                    rs.close ();
-
-                } catch (Exception e)
-                {
-                }
-
-                // Doing it this way so that if the child needs to perform the lookup then
-                // we won't go into a loop.
-                if (loadChildObjects)
-                {
-
-                    for (Book b : this.allBooks)
-                    {
-
-                        List chapters = this.objectManager.getObjects (Chapter.class,
-                                                                       b,
-                                                                       conn,
-                                                                       loadChildObjects);
-
-                        for (int i = 0; i < chapters.size (); i++)
-                        {
-
-                            b.addChapter ((Chapter) chapters.get (i));
-
-                        }
-
-                    }
-
-                }
-
-            } catch (Exception e)
-            {
-
-                throw new GeneralException ("Unable to load all books",
-                                            e);
-
-            }
-
-        }
-
-    }
-
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
-    {
-
-        this.loadAllBooks (conn,
-                           loadChildObjects);
-
-        List<Book> ret = new ArrayList (this.allBooks);
-
-/*
+        List<Book> ret = new ArrayList ();
+    
         try
         {
-
-            List params = new ArrayList ();
-            params.add (parent.getKey ());
-
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties FROM book_v WHERE projectdbkey = ?",
-                                                            params,
+    
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE",
+                                                            null,
                                                             conn);
-
+        
             while (rs.next ())
             {
-
+                
                 ret.add (this.getBook (rs,
+                                       parent,
                                        loadChildObjects));
-
+        
             }
+    
+            rs.close ();
 
-            try
-            {
-
-                rs.close ();
-
-            } catch (Exception e) {}
-
+            return ret;
+        
         } catch (Exception e) {
-
-            throw new GeneralException ("Unable to load books for: " +
+            
+            throw new GeneralException ("Unable to get books for project: " +
                                         parent,
                                         e);
-
+            
         }
-*/
-        return ret;
-
+    
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public Book getObjectByKey (int        key,
+                                Project    proj,
+                                Connection conn,
+                                boolean    loadChildObjects)
+                         throws GeneralException
     {
-
-        this.loadAllBooks (conn,
-                           loadChildObjects);
-
-        for (Book b : this.allBooks)
-        {
-
-            if (b.getKey ().intValue () == key)
-            {
-
-                return b;
-
-            }
-
-        }
-
-        return null;
-/*
-        Book i = null;
-
+    
         try
         {
-
+    
             List params = new ArrayList ();
             params.add (key);
-
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties FROM book_v WHERE dbkey = ?",
+        
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE dbkey = ?",
                                                             params,
                                                             conn);
-
+        
             if (rs.next ())
             {
-
-                i = this.getBook (rs,
-                                  loadChildObjects);
-
+                
+                return this.getBook (rs,
+                                     proj,
+                                     loadChildObjects);
+        
             }
-
-            try
-            {
-
-                rs.close ();
-
-            } catch (Exception e) {}
-
+                
+            return null;
+        
         } catch (Exception e) {
-
-            throw new GeneralException ("Unable to load book for key: " +
+            
+            throw new GeneralException ("Unable to get book for key: " +
                                         key,
                                         e);
-
+            
         }
-
-        return i;
-*/
+    
     }
 
     public void updateChapterIndexes (Book       b,
@@ -284,12 +182,11 @@ public class BookDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (Book       b,
                               Connection conn)
                        throws GeneralException
     {
-
-        Book b = (Book) d;
 
         List params = new ArrayList ();
         params.add (b.getKey ());
@@ -308,24 +205,14 @@ public class BookDataHandler implements DataHandler
 
         }
 
-        this.addBook (b);
-
     }
 
-    private void addBook (Book b)
-    {
-
-        this.allBooks.add (b);
-
-    }
-
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (Book       b,
                               boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {
-
-        Book b = (Book) d;
 
         // Delete the notes.
         for (Chapter c : b.getChapters ())
@@ -344,16 +231,13 @@ public class BookDataHandler implements DataHandler
                                              params,
                                              conn);
 
-        this.allBooks.remove (b);
-
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (Book       b,
                               Connection conn)
                        throws GeneralException
     {
-
-        Book b = (Book) d;
 
         List params = new ArrayList ();
         params.add (b.getProject ().getBookIndex (b));

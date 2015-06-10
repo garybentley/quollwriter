@@ -56,6 +56,15 @@ public class ShowChapterItemActionHandler extends ActionAdapter
         
     }
     
+    public static void setFormatDetails (String objType,
+                                         ChapterItemFormatDetails details)
+    {
+        
+        formatDetails.put (objType,
+                           details);
+        
+    }
+    
     protected ChapterItem      item = null;
     private QPopup             popup = null;
     protected AbstractEditorPanel editorPanel = null;
@@ -74,7 +83,7 @@ public class ShowChapterItemActionHandler extends ActionAdapter
         this.projectViewer = this.editorPanel.getProjectViewer ();
         
         final ShowChapterItemActionHandler _this = this;
-
+/*
         JButton bt = UIUtils.createButton ("cancel",
                                                Constants.ICON_MENU,
                                                "Click to close.",
@@ -92,7 +101,7 @@ public class ShowChapterItemActionHandler extends ActionAdapter
         
         List<JButton> buts = new ArrayList ();
         buts.add (bt);
-
+*/
         ChapterItemFormatDetails formatter = ShowChapterItemActionHandler.formatDetails.get (this.item.getObjectType ());
 
         if (formatter == null)
@@ -473,7 +482,8 @@ public class ShowChapterItemActionHandler extends ActionAdapter
 
         this.editorPanel.showPopupAt (this.popup,
                                       new Point (this.iconColumn.getWidth () - 20,
-                                                 y));
+                                                 y),
+                                      true);
 
     }
         

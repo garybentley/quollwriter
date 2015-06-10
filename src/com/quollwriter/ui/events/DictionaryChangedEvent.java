@@ -7,7 +7,7 @@ public class DictionaryChangedEvent extends EventObject
 {
 
     public static final int WORD_ADDED = 1;
-    public static final int WORD_REMOVED = 1;
+    public static final int WORD_REMOVED = 2;
 
     private int    type = -1;
     private String word = null;

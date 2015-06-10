@@ -1,6 +1,6 @@
 <tips>
   <tip>
-    <item condition="chaptertab"><![CDATA[Did you know you can keep track of how much of a chapter you have edited?  Just right click at any point in the chapter and select <b>{Chapter} Edit</b> then {edit-point} <b>Set Edit Point</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[Did you know you can keep track of how much of a chapter you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.]]></item>
   </tip>
   <tip>
     <item><![CDATA[Don't like what things are called?  <a href="action:editobjectnames">Click here to change them.</a>]]></item>
@@ -21,39 +21,39 @@
     <item><![CDATA[Changing the setting of an option will take effect straight away, no need to save.]]></item>
   </tip>
   <tip>
-    <item><![CDATA[Want to work in full screen mode?  <a href="action:fullscreen">Click to enter full screen mode now.</a><br />You can also press F5 or use the {fullscreen,fullscreen} button on the toolbar to enter full screen mode.]]></item>
+    <item><![CDATA[Want to work in full screen mode?  <a href="action:fullscreen">Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen,fullscreen] button on the toolbar to enter full screen mode.]]></item>
   </tip>
   <tip>
     <item><![CDATA[Can't remember what the awesome was added in this release?  <a href="action:whatsnew">Click to see what's new.</a>]]></item>
   </tip>
   <tip>
-    <item><![CDATA[Got writer's block?  <a href="action:warmup">Why not try a warm-up exercise?</a> To do a warm-up at any time select {warmups}<b>Do a Warm-up Exercise</b> from the project menu.]]></item>
+    <item><![CDATA[Got writer's block?  <a href="action:warmup">Why not try a warm-up exercise?</a> To do a warm-up at any time select [warmups]<b>Do a Warm-up Exercise</b> from the project menu.]]></item>
   </tip>
   <tip>
-    <item condition="!ideaboard,projectviewer"><![CDATA[Want to record your ideas?  <a href="action:ideaboard">Click to open the Idea Board.</a><br />You can open the idea board at any time by selecting {idea}<b>Idea Board</b>.]]></item>
+    <item condition="!ideaboard,projectviewer"><![CDATA[Want to record your ideas?  <a href="action:ideaboard">Click to open the Idea Board.</a><br />You can open the idea board at any time by selecting [idea]<b>Idea Board</b>.]]></item>
   </tip>
   <tip>
-    <item><![CDATA[Have you seen the user guide?  <a href="help:index.html">Click to view the guide.</a> You can access the online help at any time from the project menu, then select {help}<b>Help</b> then {help}<b>View the User Guide</b>.]]></item>
+    <item><![CDATA[Have you seen the user guide?  <a href="help:index.html">Click to view the guide.</a> You can access the online help at any time from the project menu, then select [help]<b>Help</b> then [help]<b>View the User Guide</b>.]]></item>
   </tip>
   <tip>
-    <item condition="chaptertab"><![CDATA[Want to know how many words you've written?  <a href="action:wordcounts">Click to see the word counts now.</a><br />You can also use <b>Ctrl+W</b> or the {wordcount} button from the toolbar to see how many words you've written.]]></item>
-    <item condition="!chaptertab"><![CDATA[Want to know how many words you've written?  Press <b>Ctrl+W</b> when editing a chapter or use the {wordcount} button from the toolbar to see how many words you've written.]]></item>
-  </tip>
-
-  <tip>
-    <item condition="chaptertab"><![CDATA[Want to know see how many words you've written over time? <a href="action:wordcounthistory">Click to see the word count history now.</a><br />Press <b>Ctrl+W</b> or use the {wordcount} button from the toolbar then {wordcount}<b>View Detail</b> to view the history.]]></item>
-  </tip>
-  
-  <tip>
-    <item><![CDATA[Want to manage the words in your personal dictionary?  <a href="action:dictionarymanager">Click to manage your personal dictionary now.</a><br />The dictionary can be accessed from the project menu then select {edit-properties}<b>Project Options</b> and the <b>Chapter</b> tab.]]></item>
-  </tip>
-  
-  <tip>
-    <item condition="chaptertab,spellcheckon"><![CDATA[Sick of those little red lines?  <a href="action:spellcheckoff">Click to turn the spellchecker off.</a><br />Press <b>Ctrl+L</b> when editing a chapter or use the {spellchecker} button on the toolbar to turn the spellchecker on or off.]]></item>
+    <item condition="chaptertab"><![CDATA[Want to know how many words you've written?  <a href="action:wordcounts">Click to see the word counts now.</a><br />You can also use <b>Ctrl+W</b> or the [wordcount] button from the toolbar to see how many words you've written.]]></item>
+    <item condition="!chaptertab"><![CDATA[Want to know how many words you've written?  Press <b>Ctrl+W</b> when editing a chapter or use the [wordcount] button from the toolbar to see how many words you've written.]]></item>
   </tip>
 
   <tip>
-    <item><![CDATA[Want to keep track of your achievements?  <a href="action:achievements">Click to check your achievements now.</a><br />You can track your progress at any time by selecting {achievement}<b>Achievements</b> from the project menu.]]></item>
+    <item condition="chaptertab"><![CDATA[Want to know see how many words you've written over time? <a href="action:wordcounthistory">Click to see the word count history now.</a><br />Press <b>Ctrl+W</b> or use the [wordcount] button from the toolbar then [wordcount]<b>View Detail</b> to view the history.]]></item>
+  </tip>
+  
+  <tip>
+    <item><![CDATA[Want to manage the words in your personal dictionary?  <a href="action:dictionarymanager">Click to manage your personal dictionary now.</a><br />The dictionary can be accessed from the project menu then select [edit-properties]<b>Project Options</b> and the <b>Chapter</b> tab.]]></item>
+  </tip>
+  
+  <tip>
+    <item condition="chaptertab,spellcheckon"><![CDATA[Sick of those little red lines?  <a href="action:spellcheckoff">Click to turn the spellchecker off.</a><br />Press <b>Ctrl+L</b> when editing a chapter or use the [spellchecker] button on the toolbar to turn the spellchecker on or off.]]></item>
+  </tip>
+
+  <tip>
+    <item><![CDATA[Want to keep track of your achievements?  <a href="action:achievements">Click to check your achievements now.</a><br />You can track your progress at any time by selecting [achievement]<b>Achievements</b> from the project menu.]]></item>
   </tip>
 
   <tip>
@@ -61,27 +61,27 @@
   </tip>
   
   <tip>
-    <item><![CDATA[You can import Microsoft Word files into your project. <a href="action:import">Click to import a file.</a><br />You can also select {project-import}<b>Import File</b> from the project menu to import.]]></item>
+    <item><![CDATA[You can import Microsoft Word files into your project. <a href="action:import">Click to import a file.</a><br />You can also select [project-import]<b>Import File</b> from the project menu to import.]]></item>
   </tip>
 
   <tip>
-    <item><![CDATA[You can export your project to a number of different file formats?  <a href="action:export">Click to export your project.</a><br />You can also select {project-export}<b>Export Project</b> from the project menu to export.]]></item>
+    <item><![CDATA[You can export your project to a number of different file formats?  <a href="action:export">Click to export your project.</a><br />You can also select [project-export]<b>Export Project</b> from the project menu to export.]]></item>
   </tip>
   
   <tip>
-    <item condition="chaptertab"><![CDATA[Want to improve your writing and find problems with the text?   <a href="action:problemfinder">Click to view the problem finder.</a><br />The problem finder can be accessed from the {tools} tools menu on the toolbar then selecting {eye}<b>Problem Finder</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[Want to improve your writing and find problems with the text?   <a href="action:problemfinder">Click to view the problem finder.</a><br />The problem finder can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>Problem Finder</b>.]]></item>
   </tip>
 
   <tip>
-    <item condition="chaptertab"><![CDATA[You can use the problem finder in full screen mode.  <a href="action:fullscreen,problemfinder">Click to view the problem finder in full screen mode now.</a><br />Full screen mode can be accessed from the toolbar by selecting {fullscreen} or pressing <b>F5</b>. The problem finder can be accessed from the {tools} tools menu on the toolbar then selecting {eye}<b>Find Problems</b> or using the shortcut <b>Ctrl+Shift+P</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[You can use the problem finder in full screen mode.  <a href="action:fullscreen,problemfinder">Click to view the problem finder in full screen mode now.</a><br />Full screen mode can be accessed from the toolbar by selecting [fullscreen] or pressing <b>F5</b>. The problem finder can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>Find Problems</b> or using the shortcut <b>Ctrl+Shift+P</b>.]]></item>
   </tip>
 
   <tip>
-    <item condition="chaptertab"><![CDATA[Want to check how readable your prose is?  <a href="action:readability">Click to view the check the readability now.</a><br />You can also check the readability by opening the word counts via <b>Ctrl+W</b> or use the {wordcount} button on the toolbar then select {readability}<b>Readability</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[Want to check how readable your prose is?  <a href="action:readability">Click to view the check the readability now.</a><br />You can also check the readability by opening the word counts via <b>Ctrl+W</b> or use the [wordcount] button on the toolbar then select [readability]<b>Readability</b>.]]></item>
   </tip>
 
   <tip>
-    <item condition="chaptertab"><![CDATA[Don't like the font or font size?  <a href="action:textproperties">Click to change the text properties.</a><br />The text properties can be accessed from the {tools} menu on the toolbar then select {edit-properties}<b>Edit Text Properties</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[Don't like the font or font size?  <a href="action:textproperties">Click to change the text properties.</a><br />The text properties can be accessed from the [tools] menu on the toolbar then select [edit-properties]<b>Edit Text Properties</b>.]]></item>
   </tip>
   
   <tip>
@@ -94,7 +94,7 @@
   </tip>
   
   <tip>
-    <item><![CDATA[Warm-ups can be converted into projects.  <a href="action:warmup">Click to do a warm-up now.</a><br />You can do a warm-up at any time, just select {warmups}<b>Do a Warm-up Exercise</b> from the project menu.]]></item>
+    <item><![CDATA[Warm-ups can be converted into projects.  <a href="action:warmup">Click to do a warm-up now.</a><br />You can do a warm-up at any time, just select [warmups]<b>Do a Warm-up Exercise</b> from the project menu.]]></item>
   </tip>
   
   <tip>
@@ -110,6 +110,6 @@
   </tip>
   
   <tip>
-    <item><![CDATA[Looking to find where a word or term is mentioned?  <a href="action:find">Click to open the find.</a><br />You can open the find with <b>Ctrl+F</b> or select {find}<b>Find</b> from the project menu at any time.]]></item>
+    <item><![CDATA[Looking to find where a word or term is mentioned?  <a href="action:find">Click to open the find.</a><br />You can open the find with <b>Ctrl+F</b> or select [find]<b>Find</b> from the project menu at any time.]]></item>
   </tip>
 </tips>

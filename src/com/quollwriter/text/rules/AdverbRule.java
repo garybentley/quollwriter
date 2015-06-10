@@ -33,8 +33,7 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
-    private Map<String, String> speechVerbs = new HashMap ();
-    private Map<String, String> excludeAdverbs = new HashMap ();
+    private Set<String> speechVerbs = new HashSet ();
     private JTextField          newVerbs = null;
     private DefaultListModel    listModel = null;
 
@@ -74,14 +73,19 @@ public class AdverbRule extends AbstractSentenceRule
         while (t.hasMoreTokens ())
         {
 
-            this.speechVerbs.put (t.nextToken ().trim ().toLowerCase (),
-                                  "");
-
+            this.speechVerbs.add (t.nextToken ().trim ().toLowerCase ());
 
         }
 
     }
 
+    public void setSpeechVerbs (Set<String> verbs)
+    {
+        
+        this.speechVerbs = verbs;
+        
+    }
+    
     public boolean isSpeechVerb (String w)
     {
         
@@ -92,7 +96,7 @@ public class AdverbRule extends AbstractSentenceRule
             
         }
         
-        return this.speechVerbs.containsKey (w.toLowerCase ());
+        return this.speechVerbs.contains (w.toLowerCase ());
         
     }
     
@@ -103,19 +107,17 @@ public class AdverbRule extends AbstractSentenceRule
 
         StringBuilder b = new StringBuilder ();
 
-        Iterator<String> iter = this.speechVerbs.keySet ().iterator ();
-
-        while (iter.hasNext ())
+        for (String w : this.speechVerbs)
         {
 
-            b.append (iter.next ());
-
-            if (iter.hasNext ())
+            if (b.length () > 0)
             {
-
+                
                 b.append (",");
-
+                
             }
+        
+            b.append (w);
 
         }
 
@@ -125,94 +127,7 @@ public class AdverbRule extends AbstractSentenceRule
         return root;
 
     }
-/*
-    public List<Issue> getIssues (String  sentence,
-                                  boolean inDialogue)
-    {
 
-        // Check our list of words.
-        sentence = sentence.toLowerCase ();
-
-        List<String> swords = TextUtilities.getAsWords (sentence);
-        List<Issue>  issues = new ArrayList ();
-
-        int sws = swords.size ();
-
-        String adverbWT = String.valueOf (Synonyms.ADVERB);
-
-        for (int i = 0; i < sws; i++)
-        {
-
-            String w = swords.get (i);
-
-            inDialogue = TextUtilities.stillInDialogue (w,
-                                                        inDialogue);
-
-            if (inDialogue)
-            {
-
-                continue;
-
-            }
-
-            if (this.speechVerbs.containsKey (w))
-            {
-
-                // It does contain it, so now check the next word.
-                if (i < (sws - 1))
-                {
-
-                    String nw = swords.get (i + 1);
-
-                    try
-                    {
-
-                        String wt = Environment.getWordTypes (nw,
-                                                              // We assume english for now
-                                                              null);
-
-                        if (wt != null)
-                        {
-
-                            // We are only interested in those that are purely adverbs (no other word types)
-                            if (wt.equals (adverbWT))
-                            {
-
-                                // Maybe check to see if it's after a "
-
-                                // Add an issue.
-                                Issue iss = new Issue ("Use of adverb: <b>" + nw +
-                                                       "</b> to modify speech verb: <b>" + w + "</b>",
-                                                       i,
-                                                       w.length () + nw.length () + 1,
-                                                       this);
-                                issues.add (iss);
-
-                            }
-
-                        }
-
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to check for word: " +
-                                              nw +
-                                              " being an adverb.");
-
-                    }
-
-                }
-
-            }
-
-
-        }
-
-        return issues;
-
-    }
-*/
     public List<Issue> getIssues (Sentence sentence)
     {
 
@@ -260,6 +175,7 @@ public class AdverbRule extends AbstractSentenceRule
                                 Issue iss = new Issue ("Use of adverb: <b>" + nw.getText () +
                                                        "</b> to modify speech verb: <b>" + w.getText () + "</b>",
                                                        sentence,
+                                                       sentence.getAllTextStartOffset () + "-" + nw.getText () + "-" + w.getText (),
                                                        this);
                                 issues.add (iss);
 
@@ -312,7 +228,7 @@ public class AdverbRule extends AbstractSentenceRule
         items.add (new FormItem ("New Speech Verbs",
                                  b));
 
-        Vector v = new Vector (this.speechVerbs.keySet ());
+        Vector v = new Vector (this.speechVerbs);
 
         Collections.sort (v);
 
@@ -389,7 +305,7 @@ public class AdverbRule extends AbstractSentenceRule
     {
 
         // Reset the speech verbs.
-        Map<String, String> verbs = new HashMap ();
+        Set<String> verbs = new HashSet ();
 
         String n = this.newVerbs.getText ();
 
@@ -402,8 +318,7 @@ public class AdverbRule extends AbstractSentenceRule
             while (t.hasMoreTokens ())
             {
 
-                verbs.put (t.nextToken ().trim ().toLowerCase (),
-                           "");
+                verbs.add (t.nextToken ().trim ().toLowerCase ());
 
             }
 
@@ -414,8 +329,7 @@ public class AdverbRule extends AbstractSentenceRule
         while (en.hasMoreElements ())
         {
 
-            verbs.put ((String) en.nextElement (),
-                       "");
+            verbs.add ((String) en.nextElement ());
 
         }
 

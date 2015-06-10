@@ -9,8 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class IdeaDataHandler implements DataHandler
+public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
 {
+
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, description, rating, lastmodified, datecreated FROM idea_v ";
 
     private ObjectManager objectManager = null;
 
@@ -44,6 +46,13 @@ public class IdeaDataHandler implements DataHandler
             i.setLastModified (rs.getTimestamp (ind++));
             i.setDateCreated (rs.getTimestamp (ind++));
 
+            if (ideaType != null)
+            {
+            
+                ideaType.addIdea (i);
+                
+            }
+            
             return i;
 
         } catch (Exception e)
@@ -56,10 +65,11 @@ public class IdeaDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<Idea> getObjects (IdeaType parent,
+                                  Connection  conn,
+                                  boolean     loadChildObjects)
+                           throws GeneralException
     {
 
         List<Idea> ret = new ArrayList ();
@@ -70,7 +80,7 @@ public class IdeaDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (parent.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, description, rating, lastmodified, datecreated FROM idea_v WHERE ideatypedbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE ideatypedbkey = ?",
                                                             params,
                                                             conn);
 
@@ -104,16 +114,18 @@ public class IdeaDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public Idea getObjectByKey (int        key,
+                                IdeaType   it,
+                                Connection conn,
+                                boolean    loadChildObjects)
+                         throws GeneralException
     {
 
         List params = new ArrayList ();
         params.add (key);
 
-        ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, description, rating, lastmodified, datecreated FROM idea_v WHERE dbkey = ?",
+        ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
                                                         params,
                                                         conn);
 
@@ -124,7 +136,7 @@ public class IdeaDataHandler implements DataHandler
             {
 
                 return this.getIdea (rs,
-                                     null);
+                                     it);
 
             }
 
@@ -140,7 +152,8 @@ public class IdeaDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (Idea       d,
                               Connection conn)
                        throws GeneralException
     {
@@ -158,7 +171,8 @@ public class IdeaDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (Idea       d,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
@@ -173,7 +187,8 @@ public class IdeaDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (Idea       d,
                               Connection conn)
                        throws GeneralException
     {

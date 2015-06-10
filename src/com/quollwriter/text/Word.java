@@ -95,6 +95,13 @@ public class Word implements TextBlock<Sentence, Word, NoTextBlock>
     public int getAllTextStartOffset ()
     {
         
+        if (this.parent == null)
+        {
+            
+            return this.start;
+            
+        }
+        
         return this.parent.getAllTextStartOffset () + this.start;
         
     }
@@ -102,6 +109,13 @@ public class Word implements TextBlock<Sentence, Word, NoTextBlock>
     public int getAllTextEndOffset ()
     {
         
+        if (this.parent == null)
+        {
+            
+            return this.getEnd ();
+            
+        }
+
         return this.parent.getAllTextStartOffset () + this.getEnd ();
         
     }
@@ -207,7 +221,7 @@ public class Word implements TextBlock<Sentence, Word, NoTextBlock>
     public String toString ()
     {
         
-        return "[" + this.start + ", " + this.word + "]";
+        return "[" + this.start + ", " + this.word + ", indialogue: " + this.inDialogue + "]";
         
     }
     

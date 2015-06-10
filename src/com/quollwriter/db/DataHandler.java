@@ -8,31 +8,34 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
-public interface DataHandler
+// TODO: ? Make generic here with <T extends DataObject>, <T extends NamedObject> - the first being the type of object managed, the second being the parent passed to getObjects.
+// TODO: Have an annotation for implementations.
+public interface DataHandler<D extends DataObject, P extends DataObject>
 {
 
-    public void createObject (DataObject d,
+    public void createObject (D          d,
                               Connection conn)
                        throws GeneralException;
 
-    public void deleteObject (DataObject d,
+    public void deleteObject (D          d,
                               boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException;
 
-    public void updateObject (DataObject d,
+    public void updateObject (D          d,
                               Connection conn)
                        throws GeneralException;
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException;
+    // Changed from <? extends NamedObject>
+    public List<D> getObjects (P           parent,
+                               Connection  conn,
+                               boolean     loadChildObjects)
+                        throws GeneralException;
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException;
+    public D getObjectByKey (int        key,
+                             P          parent,
+                             Connection conn,
+                             boolean    loadChildObjects)
+                      throws GeneralException;
 
 }

@@ -8,7 +8,10 @@ SELECT r.dbkey dbkey,
        n.datecreated datecreated,
        n.properties  properties,
        r.projectdbkey projectdbkey,
-       r.url url
+       r.url url,
+       n.id           id,
+       n.version      version,
+       n.latest       latest       
 FROM   namedobject_v n,
        researchitem  r
 WHERE  r.dbkey = n.dbkey

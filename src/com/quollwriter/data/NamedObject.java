@@ -42,7 +42,28 @@ public abstract class NamedObject extends DataObject
         super (objType);
 
     }
+    
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
 
+        super.fillToStringProperties (props);
+
+        this.addToStringProperties (props,
+                                    "name",
+                                    this.name);
+        this.addToStringProperties (props,
+                                    "lastModified",
+                                    this.lastModified);
+        this.addToStringProperties (props,
+                                    "links",
+                                    this.links.size ());
+        this.addToStringProperties (props,
+                                    "notes",
+                                    this.notes.size ());
+                        
+    }
+    
     public synchronized void reindex ()
     {
         
@@ -265,13 +286,6 @@ public abstract class NamedObject extends DataObject
                                        oldAliases,
                                        this.aliases);
         
-    }
-
-    public String toString ()
-    {
-
-        return this.getObjectType () + "(name: " + this.name + ", id: " + this.getKey () + ")";
-
     }
 
     public void clearLinks ()

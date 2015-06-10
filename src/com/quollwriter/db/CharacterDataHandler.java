@@ -9,8 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class CharacterDataHandler implements DataHandler
+public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 {
+
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
 
     private ObjectManager objectManager = null;
 
@@ -22,6 +24,7 @@ public class CharacterDataHandler implements DataHandler
     }
 
     private QCharacter getCharacter (ResultSet rs,
+                                     Project   p,
                                      boolean   loadChildObjects)
                               throws GeneralException
     {
@@ -45,13 +48,23 @@ public class CharacterDataHandler implements DataHandler
 
             c.setAliases (rs.getString (ind++));
 
+            c.setId (rs.getString (ind++));
+            c.setVersion (rs.getString (ind++));            
+            
+            if (p != null)
+            {
+
+                p.addCharacter (c);
+                
+            }
+            
             // Get all the notes.
             if (loadChildObjects)
             {
-                /*
+                
                 this.objectManager.loadNotes (c,
                                               rs.getStatement ().getConnection ());
-                 */
+                 
             }
 
             return c;
@@ -66,10 +79,10 @@ public class CharacterDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    public List<QCharacter> getObjects (Project    parent,
+                                        Connection conn,
+                                        boolean    loadChildObjects)
+                                 throws GeneralException
     {
 
         List<QCharacter> ret = new ArrayList ();
@@ -80,7 +93,7 @@ public class CharacterDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (parent.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, aliases FROM character_v WHERE projectdbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -88,6 +101,7 @@ public class CharacterDataHandler implements DataHandler
             {
 
                 ret.add (this.getCharacter (rs,
+                                            parent,
                                             loadChildObjects));
 
             }
@@ -114,10 +128,11 @@ public class CharacterDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    public QCharacter getObjectByKey (int        key,
+                                      Project    proj,
+                                      Connection conn,
+                                      boolean    loadChildObjects)
+                               throws GeneralException
     {
 
         QCharacter c = null;
@@ -127,8 +142,9 @@ public class CharacterDataHandler implements DataHandler
 
             List params = new ArrayList ();
             params.add (key);
+            //params.add (proj.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, aliases FROM character_v WHERE dbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?",// AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -136,6 +152,7 @@ public class CharacterDataHandler implements DataHandler
             {
 
                 c = this.getCharacter (rs,
+                                       proj,
                                        loadChildObjects);
 
             }
@@ -162,7 +179,7 @@ public class CharacterDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    public void createObject (QCharacter d,
                               Connection conn)
                        throws GeneralException
     {
@@ -180,7 +197,7 @@ public class CharacterDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    public void deleteObject (QCharacter d,
                               boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
@@ -197,7 +214,7 @@ public class CharacterDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    public void updateObject (QCharacter d,
                               Connection conn)
                        throws GeneralException
     {

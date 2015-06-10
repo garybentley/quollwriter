@@ -35,15 +35,14 @@ import com.swabunga.spell.engine.*;
 import com.swabunga.spell.event.*;
 
 
-public class WarmupEditorPanel extends AbstractEditorPanel
+public class WarmupEditorPanel extends AbstractEditableEditorPanel
 {
 
      public static final String CONVERT_TO_PROJECT_ACTION_NAME = "convert-to-project";
-
+     public static final String DELETE_WARMUP_ACTION_NAME = "delete-warmup";
+     
     protected WarmupsViewer projectViewer = null;
     private Warmup          warmup = null;
-    private JTextPane       promptPreview = null;
-    private Box             header = null;
 
     public WarmupEditorPanel(WarmupsViewer pv,
                              Warmup        w)
@@ -56,59 +55,21 @@ public class WarmupEditorPanel extends AbstractEditorPanel
         this.projectViewer = pv;
         this.warmup = w;
 
+        this.actions.put (DELETE_WARMUP_ACTION_NAME,
+                          new DeleteWarmupActionHandler ((Chapter) this.obj,
+                                                         this.projectViewer));
+        
         this.actions.put (CONVERT_TO_PROJECT_ACTION_NAME,
                           this.projectViewer.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
                                                         this.warmup.getChapter ()));
-    }
-
-    public void setFontColor (Color c)
-    {
-
-        super.setFontColor (c);
-
-        this.promptPreview.setText (UIUtils.getWithHTMLStyleSheet (this.promptPreview,
-                                                                   UIUtils.formatPrompt (this.warmup.getPrompt ()),
-                                                                   UIUtils.colorToHex (c),
-                                                                   UIUtils.colorToHex (c)));
-
-    }
+        
+     }
 
     public Warmup getWarmup ()
     {
       
          return this.warmup;
       
-    }
-    
-    public void restoreFontColor ()
-    {
-
-        super.restoreFontColor ();
-
-        this.promptPreview.setText (UIUtils.getWithHTMLStyleSheet (this.promptPreview,
-                                                                   UIUtils.formatPrompt (this.warmup.getPrompt ())));
-
-    }
-
-    public void restoreBackgroundColor ()
-    {
-
-        super.restoreBackgroundColor ();
-
-        this.promptPreview.setBackground (Color.white);
-
-        this.header.setBackground (Color.white);
-
-    }
-
-    public void setBackgroundColor (Color c)
-    {
-
-        super.setBackgroundColor (c);
-
-        this.header.setBackground (c);
-        this.promptPreview.setBackground (c);
-
     }
 
     public JComponent getEditorWrapper (final QTextEditor q)
@@ -138,28 +99,107 @@ public class WarmupEditorPanel extends AbstractEditorPanel
 
     }
 
+    @Override
+    public void fillToolBar (JToolBar      acts,
+                             final boolean fullScreen)
+    {
+
+        final AbstractEditableEditorPanel _this = this;
+
+        acts.add (this.createToolbarButton (Constants.SAVE_ICON_NAME,
+                                            "Click to save the {Warmup} text",
+                                            SAVE_ACTION_NAME));
+
+        this.doFillToolBar (acts);
+
+        acts.add (this.createToolbarButton (Constants.WORDCOUNT_ICON_NAME,
+                                            "Click to view the word counts and readability indices",
+                                            TOGGLE_WORDCOUNTS_ACTION_NAME));
+
+        String type = (this.projectViewer.isSpellCheckingEnabled () ? "off" : "on");
+
+        acts.add (this.createToolbarButton ("spellchecker-turn-" + type,
+                                            "Click to turn the spell checker " + type,
+                                            TOGGLE_SPELLCHECK_ACTION_NAME));
+
+        acts.add (this.createToolbarButton (Constants.DELETE_ICON_NAME,
+                                            "Click to delete this {Warmup}",
+                                            DELETE_WARMUP_ACTION_NAME));
+
+        // Add a tools menu.
+        final JButton b = UIUtils.createToolBarButton ("tools",
+                                                       "Click to view the tools menu",
+                                                       "tools",
+                                                       null);
+
+        ActionAdapter ab = new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                JPopupMenu m = new JPopupMenu ();
+
+                _this.doFillToolsPopupMenu (ev,
+                                            m);
+
+                JMenuItem mi = null;
+
+                m.add (_this.createMenuItem ("Edit Text Properties",
+                                             Constants.EDIT_PROPERTIES_ICON_NAME,
+                                             EDIT_TEXT_PROPERTIES_ACTION_NAME,
+                                             KeyStroke.getKeyStroke (KeyEvent.VK_E,
+                                                                     ActionEvent.CTRL_MASK)));
+                        
+                m.add (_this.createMenuItem ("Find",
+                                             Constants.FIND_ICON_NAME,
+                                             Constants.SHOW_FIND_ACTION,
+                                             KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                                                     ActionEvent.CTRL_MASK)));
+
+                m.add (_this.createMenuItem ("Print {Warmup}",
+                                             Constants.PRINT_ICON_NAME,
+                                             QTextEditor.PRINT_ACTION_NAME,
+                                             KeyStroke.getKeyStroke (KeyEvent.VK_P,
+                                                                     ActionEvent.CTRL_MASK)));
+                                                                       
+                m.show (b,
+                        10,
+                        10);
+
+            }
+
+        };
+
+        b.addActionListener (ab);
+
+        acts.add (b);
+
+    }
+    
+    @Override
     public void doFillToolBar (JToolBar acts)
     {
 
         final WarmupEditorPanel _this = this;
     
-        acts.add (UIUtils.createToolBarButton (Constants.DOWN_ICON_NAME,
-                                               "Click to view the prompt",
-                                               "showprompt",
+        acts.add (UIUtils.createToolBarButton (Constants.NEW_ICON_NAME,
+                                               "Click to start a new {warmup}",
+                                               "addwarmup",
                                                new ActionAdapter ()
                                                {
                                                   
                                                    public void actionPerformed (ActionEvent ev)
                                                    {
                                                        
-                                                       _this.header.setVisible (true);
-                                                       
+                                                       _this.projectViewer.showWarmupPromptSelect ();
+                                                                                                              
                                                    }
                                                   
                                                }));
     
         acts.add (UIUtils.createToolBarButton (Constants.CONVERT_ICON_NAME,
-                                               "Click to convert this warm-up to a " + Environment.getObjectTypeName (Project.OBJECT_TYPE),
+                                               "Click to convert this {warmup} to a " + Environment.getObjectTypeName (Project.OBJECT_TYPE),
                                                "convert",
                                                this.projectViewer.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
                                                                              this.warmup.getChapter ())));
@@ -201,7 +241,7 @@ public class WarmupEditorPanel extends AbstractEditorPanel
 
           JMenuItem mi = null;
         
-          mi = this.createMenuItem ("Save {Chapter}",
+          mi = this.createMenuItem ("Save {Warmup}",
                                     Constants.SAVE_ICON_NAME,
                                     SAVE_ACTION_NAME,
                                     KeyStroke.getKeyStroke (KeyEvent.VK_S,
@@ -232,70 +272,24 @@ public class WarmupEditorPanel extends AbstractEditorPanel
     public void close ()
     {
 
-
     }
 
-    public void doInit ()
-                 throws GeneralException
-    {
+    @Override
+    public void init ()
+               throws GeneralException
+     {
 
-        final WarmupEditorPanel _this = this;
-
-        this.promptPreview = UIUtils.createHelpTextPane (UIUtils.formatPrompt (this.warmup.getPrompt ()),
-                                                         this.projectViewer);
-        this.promptPreview.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                          Short.MAX_VALUE));
-        this.promptPreview.setBorder (new EmptyBorder (0, 5, 0, 5));
+          super.init ();
         
-        this.header = new Box (BoxLayout.X_AXIS);
-        //this.header.add (Box.createHorizontalGlue ());
-        this.header.add (this.promptPreview);
-        this.header.add (Box.createHorizontalStrut (10));        
-        this.header.setOpaque (true);
-
-        final JButton upBut = UIUtils.createButton (Constants.CANCEL_ICON_NAME,
-                                              Constants.ICON_PANEL_ACTION,
-                                              "Click to hide the prompt",
-                                              null);
-        
-        upBut.addActionListener (new ActionAdapter ()
-                                 {
-                                                
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-                                      
-                                      _this.header.setVisible (false);
-                                                        
-                                    }
-                                  
-                                });
-
-        List<JButton> buts = new ArrayList ();
-
-        buts.add (upBut);
-
-         JComponent bar = UIUtils.createButtonBar (buts);
-         bar.setBorder (new EmptyBorder (0, 5, 0, 5));
-  
-        this.header.add (bar);
-
-        this.header.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.header.setOpaque (false);
-
-        this.header.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.header.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
-                                                   new EmptyBorder (5, 0, 5, 0)));
-        this.header.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                   this.header.getPreferredSize ().height));
-        this.add (this.header,
-                  0);
-
+        this.setReadyForUse (true);                  
+                  
     }
 
     public void startWarmup ()
     {
-
-        this.projectViewer.getWordCountTimer ().start ();
+    
+        this.projectViewer.getWordCountTimer ().start (this.warmup.getMins (),
+                                                       this.warmup.getWords ());
 
     }
 

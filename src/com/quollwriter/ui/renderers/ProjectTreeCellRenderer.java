@@ -59,8 +59,11 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
             DataObject d = (DataObject) value;
 
-            String ot = null;
+            DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
 
+            String ot = this.getIconType (d,
+                                          par);
+/*
             if (d instanceof Note)
             {
 
@@ -163,7 +166,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                 }
                     
             }
-            
+            */
             Icon ic = null;
             
             if (ot != null)
@@ -216,6 +219,119 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
         return this;
 
+    }
+    
+    public String getIconType (DataObject             d,
+                               DefaultMutableTreeNode par)
+    {
+        
+        String ot = null;
+        
+        if (d instanceof Note)
+        {
+
+            //DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
+            
+            if (par.getUserObject () instanceof TreeParentNode)
+            {
+                
+                Note n = (Note) d;
+                
+                if (n.isEditNeeded ())
+                {
+                    
+                    ot = Constants.EDIT_NEEDED_NOTE_ICON_NAME;
+                    
+                } else {
+                    
+                    ot = Constants.BULLET_BLACK_ICON_NAME;//n.getObjectType ();
+                    
+                }
+                
+            } else {
+        
+                ot = Constants.BULLET_BLACK_ICON_NAME;
+                
+            }
+
+        }
+        
+        if ((d instanceof OutlineItem)
+            ||
+            (d instanceof Scene)
+            ||
+            ((this.showObjectIcons)
+             &&
+             (!(d instanceof BlankNamedObject))
+            )
+           )
+        {
+            
+            ot = d.getObjectType ();
+            
+        }
+        
+        if (d instanceof Chapter)
+        {
+
+            Chapter c = (Chapter) d;
+                                            
+            if ((this.showEditPositionIcon ())
+                &&                                
+                (c.getEditPosition () > 0)
+               )
+            {
+                
+                ot = Constants.EDIT_IN_PROGRESS_ICON_NAME;
+                
+            }
+
+            if ((this.showEditCompleteIcon ())
+                &&
+                (c.isEditComplete ())
+               )
+            {
+              
+                ot = Constants.EDIT_COMPLETE_ICON_NAME;
+                
+            }
+                          
+        }
+        
+        if (d instanceof TreeParentNode)
+        {
+
+            TreeParentNode tpn = (TreeParentNode) d;
+
+            ot = tpn.getForObjectType ();
+
+            if (ot != null)
+            {
+            
+                if ((ot.equals (Note.OBJECT_TYPE)) &&
+                    (Note.EDIT_NEEDED_NOTE_TYPE.equals (tpn.getName ())))
+                {
+
+                    ot = "edit-needed-note";
+
+                } else
+                {
+
+                    if (ot.equals (QCharacter.OBJECT_TYPE))
+                    {
+
+                        ot = ot + "-multi";
+
+                    }
+                    
+                }
+
+            }
+                
+        }
+
+        return ot;
+        
     }
     
     protected boolean showEditPositionIcon ()

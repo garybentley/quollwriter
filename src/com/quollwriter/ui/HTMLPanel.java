@@ -14,6 +14,8 @@ import org.xhtmlrenderer.swing.*;
 import org.xhtmlrenderer.render.*;
 import org.xhtmlrenderer.simple.extend.*;
 
+import com.gentlyweb.utils.*;
+
 import com.quollwriter.*;
 
 public class HTMLPanel extends XHTMLPanel
@@ -107,12 +109,18 @@ public class HTMLPanel extends XHTMLPanel
 
         StringBuilder buf = new StringBuilder ();
 
-        int ind = text.indexOf ("{");
+        text = StringUtils.replaceString (text,
+                                          String.valueOf ('\n'),
+                                          "<br />");        
+        
+        text = UIUtils.markupLinks (text);
+        
+        int ind = text.indexOf ("[");
         
         while (ind > -1)
         {
             
-            int end = text.indexOf ("}",
+            int end = text.indexOf ("]",
                                     ind + 1);
 
             if (end > ind + 1)
@@ -120,7 +128,7 @@ public class HTMLPanel extends XHTMLPanel
                 
                 String v = text.substring (ind + 1,
                                            end);
-                
+               
                 StringTokenizer st = new StringTokenizer (v,
                                                           ",;");
                 
@@ -147,7 +155,7 @@ public class HTMLPanel extends XHTMLPanel
                 text = text.substring (0,
                                        ind) + v + text.substring (end + 1);
                 
-                ind = text.indexOf ("{",
+                ind = text.indexOf ("[",
                                     ind + v.length ());
                 
                 

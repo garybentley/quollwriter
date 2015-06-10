@@ -17,58 +17,26 @@ import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
 import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 
-public class ObjectTypeNameChanger extends PopupWindow
+public class ObjectTypeNameChanger extends Box 
 {
 
     private Map<String, JTextField> singular = new HashMap ();
     private Map<String, JTextField> plural = new HashMap ();
+    private AbstractProjectViewer projectViewer = null;
     
     public ObjectTypeNameChanger (AbstractProjectViewer pv)
     {
 
-        super (pv,
-               Component.CENTER_ALIGNMENT);
-                
-    }
-    
-    public String getWindowTitle ()
-    {
-
-        return "Edit Object Names";
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return this.getWindowTitle ();
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return "config";
-
-    }
-
-    public void init ()
-    {
+        super (BoxLayout.Y_AXIS);
         
-        super.init ();
-                
+        this.projectViewer = pv;
+
     }
     
-    public String getHelpText ()
-    {
-
-        return Environment.replaceObjectNames ("After saving any changes to names will appear when you next open the {project}.");
-
-    }
-
     private void save ()
     {
         
@@ -120,7 +88,7 @@ public class ObjectTypeNameChanger extends PopupWindow
             final ObjectTypeNameChanger _this = this;
             
             // Offer to reopen project.
-            UIUtils.createQuestionPopup (this,
+            UIUtils.createQuestionPopup (this.projectViewer,
                                          "Confirm name changes?",
                                          Constants.EDIT_ICON_NAME,
                                          "Warning!  To change the object names the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
@@ -150,7 +118,8 @@ public class ObjectTypeNameChanger extends PopupWindow
                                                                                         
                                                 }
                                 
-                                                _this.close ();
+                                                UIUtils.closePopupParent (_this.getParent ());
+                                                //_this.close ();
                                                 
                                                 _this.projectViewer.close (true,
                                                                           new ActionListener ()
@@ -185,13 +154,15 @@ public class ObjectTypeNameChanger extends PopupWindow
                                             
                                          },
                                          null,
+                                         null,
                                          null);
             
             return;
             
         }
         
-        this.close ();
+        UIUtils.closePopupParent (this.getParent ());
+        //this.close ();
                 
     }
 
@@ -202,7 +173,7 @@ public class ObjectTypeNameChanger extends PopupWindow
         final Project proj = this.projectViewer.getProject ();
 
         // Offer to reopen project.
-        UIUtils.createQuestionPopup (this,
+        UIUtils.createQuestionPopup (this.projectViewer,
                                      "Confirm name changes?",
                                      Constants.EDIT_ICON_NAME,
                                      "Warning!  To reset the object names back to the defaults the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
@@ -231,7 +202,8 @@ public class ObjectTypeNameChanger extends PopupWindow
                                                                                     
                                             }
                                 
-                                            _this.close ();
+                                            //_this.close ();
+                                            UIUtils.closePopupParent (_this.getParent ());
 
                                             _this.projectViewer.close (true,
                                                                        new ActionListener ()
@@ -264,6 +236,7 @@ public class ObjectTypeNameChanger extends PopupWindow
                                             
                                         }
                                      },
+                                     null,
                                      null,
                                      null);
                             
@@ -313,9 +286,20 @@ public class ObjectTypeNameChanger extends PopupWindow
         
     }
     
-    public JComponent getContentPanel ()
+    public void init ()
     {
 
+        final ObjectTypeNameChanger _this = this;
+    
+        JTextPane help = UIUtils.createHelpTextPane ("After saving any changes to names will appear when you next open the {project}.", 
+                                                     this.projectViewer);
+
+        help.setBorder (null);
+        help.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+        this.add (help);
+        this.add (Box.createVerticalStrut (10));
+    
         List<String> objTypes = new ArrayList ();
         objTypes.add (Chapter.OBJECT_TYPE);
         objTypes.add (QCharacter.OBJECT_TYPE);
@@ -327,6 +311,7 @@ public class ObjectTypeNameChanger extends PopupWindow
         objTypes.add (Note.OBJECT_TYPE);
         objTypes.add (Project.OBJECT_TYPE);
         objTypes.add (Warmup.OBJECT_TYPE);
+        objTypes.add (EditorEditor.OBJECT_TYPE);
         
         StringBuilder rows = new StringBuilder ("p, 5px");
         
@@ -373,28 +358,7 @@ public class ObjectTypeNameChanger extends PopupWindow
             row += 2;
             
         }
-/*
-        this.thisProjectOnly = new JCheckBox (Environment.replaceObjectNames ("Changes apply to this {project} only."));
-        this.thisProjectOnly.setOpaque (false);
         
-        builder.add (this.thisProjectOnly,
-                     cc.xywh (4,
-                              row,
-                              3,
-                              1));
-  */      
-        JPanel p = builder.getPanel ();
-        p.setBorder (null);
-            
-        return p;
-    
-    }
-
-    public JButton[] getButtons ()
-    {
-
-        final ObjectTypeNameChanger _this = this;
-
         JButton save = new JButton ("Save");
 
         save.addActionListener (new ActionAdapter ()
@@ -417,7 +381,7 @@ public class ObjectTypeNameChanger extends PopupWindow
             public void actionPerformed (ActionEvent ev)
             {
 
-                _this.close ();
+                UIUtils.closePopupParent (_this.getParent ());
 
             }
 
@@ -436,14 +400,22 @@ public class ObjectTypeNameChanger extends PopupWindow
             }
 
         });
-            
-        JButton[] buts = new JButton[3];
-        buts[0] = save;
-        buts[1] = reset;
-        buts[2] = cancel;
         
-        return buts;
+        JButton[] buts = { save, reset, cancel };
 
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        builder.add (bp,
+                     cc.xywh (1, row, 5, 1));        
+
+        JPanel p = builder.getPanel ();
+        p.setBorder (null);
+        p.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+        this.add (p);
+            
     }
-    
+
 }

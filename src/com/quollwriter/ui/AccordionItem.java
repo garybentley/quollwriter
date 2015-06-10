@@ -144,16 +144,27 @@ public class AccordionItem extends Box
         {
             
             this.init ();
-            
-            this.inited = true;            
-            
+                        
         }
         
+        boolean vis = true;
+        
+        if (this.content != null)
+        {
+            
+            vis = this.content.isVisible ();
+
+            this.remove (this.content);
+            
+        }
+                        
         this.content = c;
+        
+        this.content.setVisible (vis);
         
         this.add (c,
                   1);
-                
+
         this.validate ();
         this.repaint ();
         
@@ -163,7 +174,7 @@ public class AccordionItem extends Box
     {
         
         JComponent c = this.getContent ();
-        
+
         if (c != null)
         {
         
@@ -180,10 +191,9 @@ public class AccordionItem extends Box
     {
 
         final AccordionItem _this = this;
-    
+        
         this.header.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
         this.header.setToolTipText ("Click to open/close the items below.");
-
         this.header.addMouseListener (new MouseAdapter ()
         {
 
@@ -244,6 +254,8 @@ public class AccordionItem extends Box
             this.add (c);
         
         }
+        
+        this.inited = true;
         
     }
     

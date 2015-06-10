@@ -145,6 +145,18 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         
     }
     
+    @Override
+    public void onHide ()
+    {
+        
+    }
+    
+    @Override
+    public void onShow ()
+    {
+        
+    }
+    
     public void onClose ()
     {
         
@@ -158,6 +170,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
     }
     
     public void init ()
+               throws GeneralException
     {
         
         super.init ();
@@ -363,6 +376,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         l.addMouseListener (new MouseEventHandler ()
         {
 
+            @Override
             public void handlePress (MouseEvent ev)
             {
 

@@ -98,16 +98,39 @@ DROP VIEW IF EXISTS idea_v
   </item>
 
   <item>
+    <log>Drop view editorcomment_v</log>
+    <sql>
+DROP VIEW IF EXISTS editorcomment_v
+    </sql>
+  </item>
+
+  <!--
+    Overhang from v2.2.4
+  -->
+  <item>
+    <log>Drop view editor_v</log>
+    <sql>
+DROP VIEW IF EXISTS editor_v
+    </sql>
+  </item>
+
+  <!--
+    Overhang from v2.2.4
+  -->
+  <item>
     <log>Drop view editorproject_v</log>
     <sql>
 DROP VIEW IF EXISTS editorproject_v
     </sql>
   </item>
 
+  <!--
+    Overhang from v2.2.4
+  -->
   <item>
-    <log>Drop view editor_v</log>
+    <log>Drop view chatmessage_v</log>
     <sql>
-DROP VIEW IF EXISTS editor_v
+DROP VIEW IF EXISTS chatmessage_v
     </sql>
   </item>
 
@@ -195,13 +218,13 @@ DROP VIEW IF EXISTS namedobject_v
   </item>
 
   <item>
-    <log>Create editorproject_v view</log>
-    <sql file="views/editorproject.v" />
+    <log>Create editorcomment_v view</log>
+    <sql file="views/editorcomment.v" />
   </item>
 
   <item>
-    <log>Create editor_v view</log>
-    <sql file="views/editor.v" />
+    <log>Create editorcomment_v view</log>
+    <sql file="views/projectversion.v" />
   </item>
 
 </update-script>

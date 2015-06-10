@@ -438,7 +438,8 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
         this.editorPanel.showPopupAt (this.popup,
                                       r,
-                                      "above");
+                                      "above",
+                                      true);
 
     }
 

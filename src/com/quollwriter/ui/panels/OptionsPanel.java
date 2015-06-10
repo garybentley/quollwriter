@@ -9,9 +9,11 @@ import java.awt.event.*;
 
 import java.io.*;
 import java.net.*;
+import java.beans.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -43,6 +45,12 @@ import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.Accordion;
 import com.quollwriter.achievements.*;
+import com.quollwriter.editors.*;
+import com.quollwriter.data.editors.*;
+
+import com.quollwriter.editors.messages.*;
+import java.util.Date;
+import com.quollwriter.editors.ui.*;
 
 public class OptionsPanel extends QuollPanel
 {
@@ -51,6 +59,9 @@ public class OptionsPanel extends QuollPanel
     
     private Accordion accordion = null;
     private JScrollPane scrollPane = null;
+    private JCheckBox sendErrorsToSupport = null;
+    
+    private Map<String, Accordion.Item> sections = new HashMap ();
     
     public OptionsPanel (AbstractProjectViewer pv)
                   throws GeneralException
@@ -59,6 +70,75 @@ public class OptionsPanel extends QuollPanel
         super (pv,
                pv.getProject ());
 
+    }
+    
+    public void showSection (String name)
+    {
+        
+        final Accordion.Item item = this.sections.get (name);
+        
+        if (item != null)
+        {
+            
+            item.setOpenContentVisible (true);            
+            
+            this.validate ();
+            this.repaint ();
+            
+            final Border origBorder = item.getBorder ();
+            
+            final Color col = UIUtils.getBorderHighlightColor ();
+            
+            final int r = col.getRed ();
+            final int g = col.getGreen ();
+            final int b = col.getBlue ();
+            
+            PropertyChangeListener l = new PropertyChangeListener ()
+            {
+            
+                @Override
+                public void propertyChange (PropertyChangeEvent ev)
+                {
+                    
+                    Color c = new Color (r,
+                                         g,
+                                         b,
+                                        ((Number) ev.getNewValue ()).intValue ());
+                                            
+                    item.setBorder (new CompoundBorder (new MatteBorder (3, 3, 3, 3, c),
+                                                        UIUtils.createPadding (3, 3, 3, 3)));
+                    
+                }
+            
+            };            
+                                                          
+            Timer cycle = UIUtils.createCyclicAnimator (l,
+                                                        l,
+                                                        60,
+                                                        1500,
+                                                        0,
+                                                        255,
+                                                        2,            
+                                                        new ActionListener ()
+                                                        {
+                                                           
+                                                           @Override
+                                                           public void actionPerformed (ActionEvent ev)
+                                                           {
+                                                               
+                                                               item.setBorder (origBorder);
+                                                               
+                                                           }
+                                                           
+                                                        });
+            
+            // Scroll to it and open.
+            item.scrollRectToVisible (item.getBounds ());
+            
+            cycle.start ();
+            
+        }
+        
     }
     
     public void init ()
@@ -87,7 +167,7 @@ public class OptionsPanel extends QuollPanel
         this.scrollPane.setOpaque (false);
         this.scrollPane.getViewport ().setBorder (null);
         this.scrollPane.getViewport ().setOpaque (false);
-        this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
+        this.scrollPane.getVerticalScrollBar ().setUnitIncrement (50);
         this.scrollPane.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.scrollPane.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
@@ -124,6 +204,8 @@ public class OptionsPanel extends QuollPanel
                 
         this.addEditingChaptersSection ();
         
+        this.addEditorsSection ();
+        
         this.addItemsAndRulesSection ();
 
         this.addWarmupsSection ();
@@ -132,6 +214,8 @@ public class OptionsPanel extends QuollPanel
         
         this.addProblemsSection ();
                 
+        this.addBetasSection ();
+
         this.accordion.add (Box.createVerticalGlue ());
                
         this.accordion.setAllSectionsOpen (false);
@@ -210,7 +294,8 @@ public class OptionsPanel extends QuollPanel
         
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("{Warmups}")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("{Warmups}"),
+                                               Warmup.OBJECT_TYPE),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Want to flex your writing muscles everytime Quoll Writer starts?  You'd better click the title above and get things set up while you still have time.",
@@ -304,7 +389,8 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Achievements")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Achievements"),
+                                               Constants.ACHIEVEMENT_ICON_NAME),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
@@ -322,10 +408,10 @@ public class OptionsPanel extends QuollPanel
 
         Box box = new Box (BoxLayout.Y_AXIS);
         
-        final JCheckBox sendErrorsToSupport = UIUtils.createCheckBox ("Send errors to Quoll Writer support");
-        sendErrorsToSupport.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME));
+        this.sendErrorsToSupport = UIUtils.createCheckBox ("Send errors to Quoll Writer support");
+        this.sendErrorsToSupport.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME));
         
-        sendErrorsToSupport.addActionListener (new ActionAdapter ()
+        this.sendErrorsToSupport.addActionListener (new ActionAdapter ()
         {
            
             public void actionPerformed (ActionEvent ev)
@@ -338,7 +424,7 @@ public class OptionsPanel extends QuollPanel
             
         });
         
-        JComponent c = this.createWrapper (sendErrorsToSupport);
+        JComponent c = this.createWrapper (this.sendErrorsToSupport);
         
         this.setAsMainItem (c);
         
@@ -346,11 +432,327 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("When something goes wrong")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("When something goes wrong"),
+                                               Constants.BUG_ICON_NAME),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Quoll Writer isn't perfect and it would be good to know when things cluck up.  If you open this section you'll find a single setting that will let you send errors back to the magical worker elfs at Quoll Writer Headquarters located in deepest, darkest suburban Australia.  Did you know that every error sent will prevent a Drop Bear attack.  It's a serious and very real threat to our native elves.",
                                                         this.projectViewer));
+        
+    }
+
+    private void addBetasSection ()
+    {
+                
+        final OptionsPanel _this = this;
+                
+        //box.add (this.createHeader (UIUtils.formatForUser ("When something goes wrong")));
+        //box.add (Box.createVerticalStrut (5));
+
+        Box box = new Box (BoxLayout.Y_AXIS);
+        
+        final JCheckBox optinToBetas = UIUtils.createCheckBox ("Opt-in to beta versions (enables auto-send of errors to Quoll Writer support)");
+        optinToBetas.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME));
+        
+        optinToBetas.addActionListener (new ActionAdapter ()
+        {
+           
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (optinToBetas.isSelected ())
+                {
+                    
+                    UIUtils.showMessage ((PopupsSupported) _this.projectViewer,
+                                         "About Betas",
+                                         "Quoll Writer betas are opt-in and are designed to elicit feedback from users.  They will be functionally complete and as bug free as possible.  However they won't be without issues, so please beware and report any problems you find.<br /><br />You can opt out at any time although this will not revert back to a previous version (that is potentially dangerous).<br /><br />Note: opting into betas will enable the <b>Send errors to Quoll Writer support</b> option, you can switch this off if you like to prevent errors being sent.");
+                    
+                    _this.sendErrorsToSupport.setSelected (true);
+                    _this.updateUserProperty (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME,
+                                              true);
+                    
+                    
+                }
+                        
+                _this.updateUserProperty (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME,
+                                          optinToBetas.isSelected ());
+                
+            }
+            
+        });
+        
+        JComponent c = this.createWrapper (optinToBetas);
+        
+        this.setAsMainItem (c);
+        
+        box.add (c);
+
+        this.setContentBorder (box);
+        
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Beta versions"),
+                                               Constants.ABOUT_ICON_NAME),
+                            null,
+                            box,
+                            UIUtils.createHelpTextPane ("Want to get ahead of the crowd?  Or maybe help improve Quoll Writer?  This section lets you opt-in to beta versions.  But be warned, betas aren't perfect.",
+                                                        this.projectViewer));
+        
+    }
+
+    private void addEditorsSection ()
+    {
+        
+        final OptionsPanel _this = this;
+                
+        Box box = new Box (BoxLayout.Y_AXIS);
+        /*
+        Vector chapterA = new Vector ();
+        chapterA.add (Constants.MINS_5);
+        chapterA.add (Constants.MINS_10);
+        chapterA.add (Constants.MINS_20);
+        chapterA.add (Constants.MINS_30);
+        chapterA.add (Constants.HOUR_1);
+
+        final JComboBox autosaveAmount = new JComboBox (chapterA);
+
+        final JCheckBox enableAutosave = new JCheckBox (Environment.replaceObjectNames ("Enable {Chapter} Auto-save"));
+        enableAutosave.setOpaque (false);
+        enableAutosave.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        JComponent c = this.createWrapper (enableAutosave);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+          */      
+        final JCheckBox autoLogin = UIUtils.createCheckBox ("Automatically login/go online whenever Quoll Writer starts");                
+
+        autoLogin.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME));
+
+        autoLogin.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                try
+                {
+            
+                    EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME,
+                                                           autoLogin.isSelected ());
+
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to set to login at start",
+                                          e);                    
+                                                           
+                }
+                
+            }
+            
+        });
+                
+        JComponent c = this.createWrapper (autoLogin);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+               
+        box.add (Box.createVerticalStrut (15));        
+
+        c = this.createHelpText ("My default status when I go online is");
+        this.setAsMainItem (c);        
+        
+        box.add (c);
+        
+        Vector statuses = new Vector ();
+
+        statuses.add (EditorEditor.OnlineStatus.online);
+        statuses.add (EditorEditor.OnlineStatus.busy);
+        statuses.add (EditorEditor.OnlineStatus.away);
+        statuses.add (EditorEditor.OnlineStatus.snooze);
+
+        final JComboBox defStatus = new JComboBox (statuses);
+
+        String defOnlineStatus = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_SERVICE_DEFAULT_ONLINE_STATUS_PROPERTY_NAME);
+        
+        if (defOnlineStatus != null)
+        {
+        
+            defStatus.setSelectedItem (EditorEditor.OnlineStatus.valueOf (defOnlineStatus));
+            
+        }
+        
+        defStatus.addItemListener (new ItemAdapter ()
+        {
+           
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                if (ev.getStateChange () != ItemEvent.SELECTED)
+                {
+                    
+                    return;
+                    
+                }
+           
+                try
+                {
+           
+                    EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_DEFAULT_ONLINE_STATUS_PROPERTY_NAME,
+                                                           ((EditorEditor.OnlineStatus) defStatus.getSelectedItem ()).getType ());
+
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to set default online status",
+                                          e);
+                    
+                }
+                
+            }
+            
+        });
+               
+        defStatus.setRenderer (new DefaultListCellRenderer ()
+        {
+           
+            public Component getListCellRendererComponent (JList   list,
+                                                           Object  value,
+                                                           int     index,
+                                                           boolean isSelected,
+                                                           boolean cellHasFocus)
+            {
+                
+                JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                        value,
+                                                                        index,
+                                                                        isSelected,
+                                                                        cellHasFocus);
+                
+                EditorEditor.OnlineStatus status = (EditorEditor.OnlineStatus) value;
+                
+                String iconName = status.getType ();
+                
+                l.setText (status.getName ());
+                l.setBorder (UIUtils.createPadding (3, 3, 3, 3));
+                l.setIcon (Environment.getIcon (Constants.ONLINE_STATUS_ICON_NAME_PREFIX + iconName,
+                                                Constants.ICON_POPUP));
+                
+                return l;
+                
+            }
+            
+        });
+               
+        c = this.createWrapper (defStatus);
+        this.setAsSubItem (c);
+        
+        box.add (c);
+
+        box.add (Box.createVerticalStrut (15));
+                  
+        final JCheckBox fullScreen = UIUtils.createCheckBox ("Set my status to <b>Busy</b> when I enter full screen mode");                
+
+        fullScreen.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME));
+
+        fullScreen.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                try
+                {
+            
+                    EditorsEnvironment.setEditorsProperty (Constants.QW_EDITORS_SERVICE_SET_BUSY_ON_FULL_SCREEN_ENTERED_PROPERTY_NAME,
+                                                           fullScreen.isSelected ());
+
+                    if (fullScreen.isSelected ())
+                    {
+                                                
+                        if (Environment.isInFullScreen ())
+                        {
+                            
+                            EditorsEnvironment.fullScreenEntered ();
+                            
+                        }
+                                                           
+                    }
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to set to busy on full screen entered",
+                                          e);                    
+                                                           
+                }
+                
+            }
+            
+        });
+                        
+        c = this.createWrapper (fullScreen);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+
+        box.add (Box.createVerticalStrut (15));
+        
+        final JCheckBox showPopups = UIUtils.createCheckBox ("Display a popup when I receive a new message from {an editor} (popups are never shown in full screen mode)");                
+
+        showPopups.setSelected (EditorsEnvironment.isShowPopupWhenNewMessageReceived ());
+                
+        c = this.createWrapper (showPopups);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+
+        final JComponent label = UIUtils.createClickableLabel ("View an example",
+                                                               null);
+        
+        label.addMouseListener (new MouseAdapter ()
+        {
+            
+            public void mousePressed (MouseEvent ev)
+            {
+            
+                QPopup popup = _this.projectViewer.getPopupByName ("editors-popup-message-example-popup");
+                
+                if (popup == null)
+                {
+                                                                
+                    popup = UIUtils.createClosablePopup ("Example",
+                                                         null,
+                                                         null);
+    
+                    popup.setName ("editors-popup-message-example-popup");
+                    ImagePanel ip = new ImagePanel (Environment.getImage (Constants.QW_EDITORS_MESSAGE_POPUP_TEST_IMAGE),
+                                                    null);
+                                                                                                                                                                          
+                    popup.setContent (ip);                                                                      
+                         
+                }
+                                                                                                  
+                _this.projectViewer.showPopupAt (popup,
+                                                 label,
+                                                 true);
+
+            }
+            
+        });        
+
+        c = this.createWrapper (label);
+        this.setAsSubItem (c);
+        
+        box.add (c);
+         
+        this.setContentBorder (box);
+        
+        Accordion.Item item = this.accordion.add (this.createHeader (UIUtils.formatForUser ("{Editors}"),
+                                                  Constants.EDITORS_ICON_NAME),
+                                                  null,
+                                                  box,
+                                                  UIUtils.createHelpTextPane ("Options related to the Editors service and how you interact with your {editors}.",
+                                                                              this.projectViewer));
+        
+        this.sections.put ("editors",
+                           item);
         
     }
     
@@ -404,8 +806,20 @@ public class OptionsPanel extends QuollPanel
                 
                 _this.projectViewer.fireProjectEventLater (ProjectEvent.AUTO_SAVE,
                                                           (enableAutosave.isSelected () ? ProjectEvent.ON : ProjectEvent.OFF));
-                
-                _this.projectViewer.scheduleAutoSaveForAllEditors ();
+
+                // For all the ProjectViewers (where text is editable) update the auto save settings.
+                Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
+                                               new ProjectViewerAction<ProjectViewer> ()
+                                               {
+                                    
+                                                    public void doAction (ProjectViewer pv)
+                                                    {
+                                                        
+                                                        pv.scheduleAutoSaveForAllEditors ();
+                                                        
+                                                    }
+                                                
+                                               });
                 
                 _this.updateDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME,
                                                     enableAutosave.isSelected ());
@@ -413,19 +827,7 @@ public class OptionsPanel extends QuollPanel
             }
 
         });
-/*
-        autoSaveAmount.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                
-                
-            }
-            
-        });
-  */      
+
         autosaveAmount.addItemListener (new ItemAdapter ()
         {
            
@@ -434,16 +836,28 @@ public class OptionsPanel extends QuollPanel
 
                 if (ev.getStateChange () != ItemEvent.SELECTED)
                 {
-                    
+                  
                     return;
                     
                 }
 
                 _this.updateDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME,
                                                     (String) autosaveAmount.getSelectedItem ());
-                
-                _this.projectViewer.scheduleAutoSaveForAllEditors ();
-                
+
+                // For all the ProjectViewers (where text is editable) update the auto save settings.
+                Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
+                                               new ProjectViewerAction<ProjectViewer> ()
+                                               {
+                                    
+                                                    public void doAction (ProjectViewer pv)
+                                                    {
+                                                        
+                                                        pv.scheduleAutoSaveForAllEditors ();
+                                                        
+                                                    }
+                                                
+                                               });
+                                
             }
             
         });
@@ -621,7 +1035,8 @@ public class OptionsPanel extends QuollPanel
                 }
                 
                 _this.projectViewer.showPopupAt (popup,
-                                                 label);
+                                                 label,
+                                                 true);
                 
             }
             
@@ -759,7 +1174,8 @@ public class OptionsPanel extends QuollPanel
                 popup.setDraggable (_this.projectViewer);
                                                                    
                 _this.projectViewer.showPopupAt (popup,
-                                   cSwatch);
+                                                 cSwatch,
+                                                 true);
             
             }
             
@@ -799,7 +1215,8 @@ public class OptionsPanel extends QuollPanel
                 }
                                                                                                   
                 _this.projectViewer.showPopupAt (popup,
-                                                 label2);
+                                                 label2,
+                                                 true);
 
             }
             
@@ -826,31 +1243,40 @@ public class OptionsPanel extends QuollPanel
                 _this.updateUserProperty (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME,
                                           markEdited.isSelected ());
 
-                _this.projectViewer.doForPanels (QuollEditorPanel.class,
+                _this.projectViewer.doForPanels (AbstractEditorPanel.class,
                                                  new DefaultQuollPanelAction ()
                                                  {
               
                                                     public void doAction (QuollPanel qp)
                                                     {
                                                   
-                                                        QuollEditorPanel qep = (QuollEditorPanel) qp;
+                                                        AbstractEditorPanel p = (AbstractEditorPanel) qp;
+                                                  
+                                                        if (p == null)
+                                                        {
+                                                            
+                                                            return;
+                                                            
+                                                        }
                                                   
                                                         try
                                                         {
                                                   
-                                                            qep.reinitIconColumn ();
+                                                            Chapter c = p.getChapter ();
+                                                      
+                                                            if (c.getEditPosition () > 0)
+                                                            {
+                                                            
+                                                                _this.projectViewer.setChapterEditPosition (c,
+                                                                                                            c.getEditPosition ());
+                                                                
+                                                            }
                                                             
                                                         } catch (Exception e) {
                                                             
-                                                            Environment.logError ("Unable to reinit icon column for panel",
+                                                            Environment.logError ("Unable to set edit position for chapter: " +
+                                                                                  p.getChapter (),
                                                                                   e);
-                                                            
-                                                        }
-
-                                                        if (qep.getChapter ().getEditPosition () > 0)
-                                                        {
-                                                        
-                                                            qep.setEditPosition (qep.getChapter ().getEditPosition ());
                                                             
                                                         }
                                                         
@@ -935,7 +1361,8 @@ public class OptionsPanel extends QuollPanel
                 }
                                                                                               
                 _this.projectViewer.showPopupAt (popup,
-                                                 label3);
+                                                 label3,
+                                                 true);
         
             }
             
@@ -987,8 +1414,11 @@ public class OptionsPanel extends QuollPanel
                     
                 } catch (Exception e) {
                     
-                    // Something gone wrong, so just add us english.
-                    l = Constants.US_ENGLISH;
+                    // Something gone wrong, so just add english.
+                    l = Constants.ENGLISH;
+                    
+                    Environment.logError ("Unable to get language files url",
+                                          e);
                     
                 }
         
@@ -1102,9 +1532,10 @@ public class OptionsPanel extends QuollPanel
                                                                         public void run ()
                                                                         {
                                                                             
-                                                                            _this.projectViewer.addNotification (Notification.createMessageNotification (_this.projectViewer,
-                                                                                                                                                         "The language files for <b>" + lang + "</b> have been downloaded and the project language set.",
-                                                                                                                                                         30));
+                                                                            _this.projectViewer.addNotification (String.format ("The language files for <b>%s</b> have been downloaded and the project language set.",
+                                                                                                                                lang),
+                                                                                                                 Constants.BUG_ICON_NAME,
+                                                                                                                 30);
                                                                             
                                                                         }
                                                                         
@@ -1135,6 +1566,13 @@ public class OptionsPanel extends QuollPanel
 
                 String def = Environment.getUserProperties ().getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
                                 
+                if (Environment.isEnglish (def))
+                {
+                    
+                    def = Constants.ENGLISH;
+                                
+                }
+                
                 defLang.setSelected (def.equals (lang));
 
                 if ((!Environment.isEnglish (lang))
@@ -1179,6 +1617,7 @@ public class OptionsPanel extends QuollPanel
                                                         }
                                                         
                                                      },
+                                                     null,
                                                      null,
                                                      null);
 
@@ -1272,7 +1711,8 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Editing {Chapters}")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Editing {Chapters}"),
+                                               Chapter.OBJECT_TYPE),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Everything to do with editing {chapters}.  Manage your personal dictionary, the language for the project, set up auto save and how edit positions behave.  All this and more for the low, low price of a few clicks.",
@@ -1312,7 +1752,8 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("What things are called")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("What things are called"),
+                                               Constants.CONFIG_ICON_NAME),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Not happy with what things are called?  Want to change {chapter} to <i>sausage</i>?  What are you waiting for crack this section open and get changing.  Yes that's a phrase now.",
@@ -1356,7 +1797,7 @@ public class OptionsPanel extends QuollPanel
         
         box.add (Box.createVerticalStrut (15));
 
-        final JCheckBox showPrev = new JCheckBox ("Show a brief preview of the object when you mouse over its name in the sidebar");
+        final JCheckBox showPrev = new JCheckBox (Environment.replaceObjectNames ("Show a brief preview of the object when you mouse over its name in the {project} sidebar"));
         showPrev.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME));
         showPrev.setOpaque (false);
         
@@ -1412,6 +1853,204 @@ public class OptionsPanel extends QuollPanel
         
         box.add (Box.createVerticalStrut (15));
         
+        c = this.createHelpText ("How should the interface be laid out? (Click on the image below to change)");
+        this.setAsMainItem (c);
+        
+        box.add (c);
+                
+        String selLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+
+        final JLabel layoutSel = new JLabel (new ImageIcon (Environment.getImage (Constants.DATA_DIR + selLayout + ".png")));
+        
+        UIUtils.setAsButton (layoutSel);
+                                
+        layoutSel.addMouseListener (new MouseAdapter ()
+        {
+           
+            public void mousePressed (MouseEvent ev)
+            {
+                
+                String selLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+
+                final QPopup qp = UIUtils.createClosablePopup ("Select a layout",
+                                                               Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                                    Constants.ICON_POPUP),
+                                                               null);
+                
+                Box content = new Box (BoxLayout.Y_AXIS);                
+                
+                Vector<String> layoutTypes = new Vector ();
+                layoutTypes.add (Constants.LAYOUT_PS_CH);
+                layoutTypes.add (Constants.LAYOUT_CH_PS);
+                layoutTypes.add (Constants.LAYOUT_PS_CH_OS);
+                layoutTypes.add (Constants.LAYOUT_OS_CH_PS);
+                layoutTypes.add (Constants.LAYOUT_PS_OS_CH);
+                layoutTypes.add (Constants.LAYOUT_CH_OS_PS);
+                
+                final JList<String> layoutL = new JList (layoutTypes);
+
+                layoutL.setSelectedValue (selLayout,
+                                          false);
+                
+                layoutL.setToolTipText ("Click to select a layout");
+                layoutL.addListSelectionListener (new ListSelectionListener ()
+                {
+                   
+                    public void valueChanged (ListSelectionEvent ev)
+                    {
+                        
+                        String layout = layoutL.getSelectedValue ();
+                        
+                        layoutSel.setIcon (new ImageIcon (Environment.getImage (Constants.DATA_DIR + layout + ".png")));
+                        
+                        qp.removeFromParent ();
+                        
+                        _this.projectViewer.setUILayout (layout);
+
+                        try
+                        {
+                    
+                            Environment.setUserProperty (Constants.UI_LAYOUT_PROPERTY_NAME,
+                                                         layout);
+                
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to set layout to: " +
+                                                  layout,
+                                                  e);
+                            
+                        }        
+                        
+                    }
+                    
+                });
+                
+                layoutL.setCellRenderer (new DefaultListCellRenderer ()
+                {
+                   
+                    private Map<String, ImageIcon> images = new HashMap ();
+                   
+                    public Component getListCellRendererComponent (JList   list,
+                                                                   Object  value,
+                                                                   int     index,
+                                                                   boolean isSelected,
+                                                                   boolean cellHasFocus)
+                    {
+                        
+                        super.getListCellRendererComponent (list,
+                                                            value,
+                                                            index,
+                                                            isSelected,
+                                                            cellHasFocus);
+                        
+                        String imName = value.toString ();
+        
+                        ImageIcon icon = this.images.get (imName);
+                        
+                        if (icon == null)
+                        {
+                            
+                            icon = new ImageIcon (Environment.getImage (Constants.DATA_DIR + imName + ".png"));
+                            
+                            this.images.put (imName,
+                                             icon);
+                            
+                        }
+                        
+                        this.setIcon (icon);
+                        String text = "";
+                        
+                        if (imName.equals (Constants.LAYOUT_PS_CH))
+                        {
+                            
+                            text = "Only show one sidebar, always on the left. Other sidebars will display where the {project} sidebar is.  (Default)";
+                            
+                        }
+                        
+                        if (imName.equals (Constants.LAYOUT_CH_PS))
+                        {
+                            
+                            text = "Only show one sidebar, always on the right.  Other sidebars will display where the {project} sidebar is.";
+                            
+                        }
+                        
+                        if (imName.equals (Constants.LAYOUT_PS_CH_OS))
+                        {
+                            
+                            text = "The {project} sidebar is shown on the left.  Other sidebars, such as word counts, are shown on the right.";
+                            
+                        }
+
+                        if (imName.equals (Constants.LAYOUT_OS_CH_PS))
+                        {
+                            
+                            text = "The {project} sidebar is shown on the right.  Other sidebars, such as {chapter} information, are shown on the left.";
+                            
+                        }
+
+                        if (imName.equals (Constants.LAYOUT_PS_OS_CH))
+                        {
+                            
+                            text = "The {project} sidebar is shown on the left with other sidebars next to it.";
+                            
+                        }
+
+                        if (imName.equals (Constants.LAYOUT_CH_OS_PS))
+                        {
+                            
+                            text = "The {project} sidebar is shown on the far right with other sidebars next to it (to the left).";
+                            
+                        }
+
+                        this.setText (String.format ("<html>%s</html>",
+                                                     Environment.replaceObjectNames (text)));
+                        this.setBorder (UIUtils.createPadding (5, 3, 5, 3));
+                        this.setVerticalTextPosition (SwingConstants.TOP);
+                        
+                        if (isSelected)
+                        {
+                            
+                            this.setBorder (new CompoundBorder (UIUtils.createLineBorder (),
+                                                                this.getBorder ()));
+                                                
+                        }
+                        
+                        return this;
+                        
+                    }
+                    
+                });
+                
+                UIUtils.setAsButton (layoutL);
+                
+                content.add (layoutL);
+                content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+                qp.setContent (content);
+        
+                content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                                                         content.getPreferredSize ().height));
+        
+                _this.projectViewer.showPopupAt (qp,
+                                                 UIUtils.getCenterShowPosition (_this.projectViewer,
+                                                                                qp),
+                                                 false);
+                
+                qp.setDraggable (_this.projectViewer);
+                
+            }
+            
+        });
+        
+        c = this.createWrapper (layoutSel);
+        
+        box.add (Box.createVerticalStrut (5));
+
+        this.setAsSubItem (c);
+        
+        box.add (c);
+        
+        box.add (Box.createVerticalStrut (15));
+
         c = this.createHelpText ("Show the toolbar");
         this.setAsMainItem (c);
         
@@ -1480,14 +2119,14 @@ public class OptionsPanel extends QuollPanel
         
         box.add (c);
 
-        // Sidebar location
         box.add (Box.createVerticalStrut (15));
         
+        /*
         c = this.createHelpText ("Show the sidebar");
         this.setAsMainItem (c);
         
         box.add (c);
-        
+    
         v = new Vector ();
         v.add (Environment.replaceObjectNames ("On the left"));
         v.add (Environment.replaceObjectNames ("On the right"));
@@ -1537,7 +2176,7 @@ public class OptionsPanel extends QuollPanel
                     
                 }
                 
-                _this.projectViewer.setSidebarLocation (loc);
+                _this.projectViewer.setUILayout (loc);
                 
                 _this.updateUserProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME,
                                           loc);
@@ -1550,7 +2189,7 @@ public class OptionsPanel extends QuollPanel
         this.setAsSubItem (c);
         
         box.add (c);
-        
+        */
         box.add (Box.createVerticalStrut (15));
 
         // Sidebar location        
@@ -1703,6 +2342,7 @@ public class OptionsPanel extends QuollPanel
         final FileFinder f = new FileFinder ();
         
         f.setFile (new File (sfv));
+
         f.setApproveButtonText ("Select");
         f.setFinderSelectionMode (JFileChooser.FILES_ONLY);
         f.setFinderTitle ("Select a File");
@@ -1712,6 +2352,8 @@ public class OptionsPanel extends QuollPanel
         
         f.setFindButtonToolTip ("Click to find a wav file");
         f.setClearOnCancel (true);
+        f.setMaximumSize (new Dimension (400,
+                                         f.getPreferredSize ().height));
         
         f.setOnSelectHandler (new ActionAdapter ()
         {
@@ -1879,10 +2521,11 @@ public class OptionsPanel extends QuollPanel
         this.setAsSubItem (c);
         
         box.add (c);
-
+        
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("How things look and sound")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("How things look and sound"),
+                                               "eye"),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
@@ -2109,7 +2752,7 @@ public class OptionsPanel extends QuollPanel
         this.setAsSubItem (c);
         
         box.add (c);
-
+        
         final JButton b = new JButton ("Change");
                 
         final FileFinder f = UIUtils.createFileFind (this.projectViewer.getProject ().getProjectDirectory ().getParentFile ().getPath (),
@@ -2117,8 +2760,10 @@ public class OptionsPanel extends QuollPanel
                                                      JFileChooser.DIRECTORIES_ONLY,
                                                      "Select",
                                                      null);
-        f.setFindButtonToolTip ("Click to find a new project directory");
-        
+        f.setFindButtonToolTip (Environment.replaceObjectNames ("Click to find a new {project} directory"));
+        f.setMaximumSize (new Dimension (400,
+                                         f.getPreferredSize ().height));
+                
         f.setOnSelectHandler (new ActionAdapter ()
         {
                                                         
@@ -2166,7 +2811,8 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
                 
-        this.accordion.add (this.createHeader (Environment.replaceObjectNames ("{Project} & Snapshots")),
+        this.accordion.add (this.createHeader (Environment.replaceObjectNames ("{Project} & Snapshots"),
+                                               Constants.PROJECT_ICON_NAME),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Click the title above to open this section.  You can then change where your {project} is stored and how often snapshots are taken.",
@@ -2308,6 +2954,19 @@ public class OptionsPanel extends QuollPanel
                 }
                 
             };
+            
+            ActionListener onCancel = new ActionListener ()
+            {
+                           
+               public void actionPerformed (ActionEvent ev)
+               {
+                                                               
+                   // Reset the file.
+                   f.setFile (oldProjDir.getParentFile ());
+
+               }
+
+            };
                                                    
             UIUtils.createQuestionPopup (this.projectViewer,
                                          "Confirm change to {project} directory?",
@@ -2316,18 +2975,8 @@ public class OptionsPanel extends QuollPanel
                                          "Yes, change it",
                                          null,
                                          confirmAction,
-                                         new ActionListener ()
-                                         {
-                                                        
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                                                                            
-                                                // Reset the file.
-                                                f.setFile (oldProjDir.getParentFile ());
-
-                                            }
-
-                                         },
+                                         onCancel,
+                                         onCancel,
                                          p);
             
         }
@@ -2388,11 +3037,7 @@ public class OptionsPanel extends QuollPanel
             public void actionPerformed (ActionEvent ev)
             {
                 
-                ProblemFinderRuleConfig conf = new ProblemFinderRuleConfig (_this.projectViewer);
-
-                conf.init ();
-
-                conf.setVisible (true);
+                _this.projectViewer.showProblemFinderRuleConfig ();
                 
             }
             
@@ -2412,7 +3057,8 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Manage Items & Rules")),
+        this.accordion.add (this.createHeader (UIUtils.formatForUser ("Manage Items & Rules"),
+                                               Constants.EDIT_ICON_NAME),
                             null,
                             box,
                             UIUtils.createHelpTextPane ("Set up the problem finder rules and manage the note and item types.  A dull description but it does exactly what it says on the tin, well screen.",
@@ -2423,18 +3069,26 @@ public class OptionsPanel extends QuollPanel
     private Header createHeader (String title)
     {
         
+        return this.createHeader (title,
+                                  null);
+        
+    }
+    
+    private Header createHeader (String title,
+                                 String iconType)
+    {
+        
         Header h = UIUtils.createHeader (title,
                                          Constants.SUB_PANEL_TITLE,
-                                         null,
+                                         iconType,
                                          null);
         
-        h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
-                                                             new EmptyBorder (0, 0, 3, 0)));
+        h.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
         
         return h;
         
     }
-    
+
     private void setAsMainItem (JComponent c)
     {
 

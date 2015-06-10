@@ -205,26 +205,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
     {
 
         name = Utils.sanitizeForFilename (name);
-    /*
-        name = name.replace ('/',
-                             '_').replace ('\\',
-                                           '_').replace ('*',
-                                                         '_').replace ('"',
-                                                                       '_').replace (':',
-                                                                                     '_').replace ('<',
-                                                                                                   '_').replace ('>',
-                                                                                                                 '_').replace ('?',
-                                                                                                                               '_').replace (' ',
-                                                                                                                                             '_');
 
-        if (name.endsWith ("."))
-        {
-
-            name = name.substring (0,
-                                   name.length () - 1);
-
-        }
-*/
         return name;
 
     }
@@ -363,34 +344,16 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                 // Split the text on new line, for each one output a p tag if not empty.
 
                 // Get the text and split it.
-                ParagraphIterator it = new ParagraphIterator (ct.toString ());
-                it.init (0);
-
+                TextIterator ti = new TextIterator (ct.toString ());
+                
                 ct = new StringBuilder ();
-
-                boolean lastWasText = false;
                 
-                String tok = null;
-                
-                while ((tok = it.next ()) != null)
+                for (Paragraph para : ti.getParagraphs ())
                 {
-
-                    //String tok = it.next ();
-
-                    if ((tok.equals (String.valueOf ('\n')))
-                        ||
-                        (tok.trim ().length () == 0)
-                       )
-                    {
-                                            
-                        ct.append ("<p>&nbsp;</p>");
-                        
-                    } else {
-                                        
-                        ct.append ("<p>" + tok.trim () + "</p>");
-                        
-                    }
-
+                
+                    ct.append (String.format ("<p>%s</p>",
+                                              para.getText ()));
+                    
                 }
                 
                 chapterText = StringUtils.replaceString (chapterText,

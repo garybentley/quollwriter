@@ -44,6 +44,18 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    public SentenceComplexityRule (float   syllableWordRatio,
+                                   int     wordCount,
+                                   boolean user)
+    {
+
+        this (user);
+        
+        this.ratio = syllableWordRatio;
+        this.wordCount = wordCount;
+
+    }
+
     public String getDescription ()
     {
 
@@ -175,6 +187,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
             
             Issue iss = new Issue ("Sentence syllable/word ratio is: <b>" + Environment.formatNumber (r) + "</b>.  (Max is: " + Environment.formatNumber (this.ratio) + ")",
                                    sentence,
+                                   sentence.getAllTextStartOffset () + "-sentencetoocomplex-" + r,
                                    this);
 
             issues.add (iss);

@@ -35,6 +35,14 @@ public abstract class TextInputActionHandler extends ActionAdapter
     public abstract boolean onCancel () throws Exception;
     public abstract Point getShowAt ();
     
+    public String getCancelButtonLabel ()
+    {
+      
+        // Use the default.
+        return null;
+      
+    }
+    
     public void actionPerformed (ActionEvent ev)
     {
 
@@ -45,6 +53,7 @@ public abstract class TextInputActionHandler extends ActionAdapter
                                       this.getIcon (),
                                       this.getHelp (),
                                       this.getConfirmButtonLabel (),
+                                      this.getCancelButtonLabel (),
                                       this.getInitialValue (),
                                       new ValueValidator<String> ()
                                       {

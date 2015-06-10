@@ -6,8 +6,13 @@ import java.util.*;
 
 import com.quollwriter.ui.events.*;
 
-import com.swabunga.spell.engine.*;
-import com.swabunga.spell.event.*;
+import com.quollwriter.ui.components.*;
+
+import com.softcorporation.suggester.util.Constants;
+import com.softcorporation.suggester.util.SpellCheckConfiguration;
+import com.softcorporation.suggester.Suggestion;
+import com.softcorporation.suggester.dictionary.BasicDictionary;
+import com.softcorporation.suggester.BasicSuggester;
 
 public class DictionaryProvider
 {
@@ -18,14 +23,187 @@ public class DictionaryProvider
     private QWSpellDictionaryHashMap       projDict = null;
     private File                           userDictFile = null;
     private SpellChecker                   checker = null;
+    private com.swabunga.spell.event.SpellChecker jazzySpellChecker = null;
 
     public DictionaryProvider (String lang,
                                List<String> projWords,
                                File         userDict)
+                               throws       Exception
+    {
+        
+        this.jazzySpellChecker = new com.swabunga.spell.event.SpellChecker ();
+        
+        File dictFile = Environment.getDictionaryFile (lang);
+        
+        if (!dictFile.exists ())
+        {
+            
+            throw new GeneralException ("Unable to find dictionary file: " +
+                                        dictFile);
+            
+        }
+        
+        BasicDictionary dict = new BasicDictionary ("file://" + dictFile.getPath ());
+        
+        SpellCheckConfiguration config = new SpellCheckConfiguration ("/com/softcorporation/suggester/spellCheck.config");
+        
+        final BasicSuggester suggester = new BasicSuggester (config);
+        suggester.attach (dict);
+                
+        final DictionaryProvider _this = this;
+                
+        this.checker = new SpellChecker ()
+        {
+            
+            public synchronized boolean isCorrect (String word)
+            {
+                
+                try
+                {
+                
+                    if (_this.jazzySpellChecker.isCorrect (word))
+                    {
+                        
+                        return true;
+                        
+                    }
+                
+                    if (suggester.hasExactWord (word))
+                    {
+                        
+                        return true;
+                        
+                    }
+                    
+                    int result = suggester.hasWord (word);
+                    if (result == Constants.RESULT_ID_MATCH ||
+                        result == Constants.RESULT_ID_MATCH_EXACT)
+                    {
+                      return true;
+                    }                
+
+                }catch (Exception e) {
+                    
+                    e.printStackTrace ();
+                    
+                }
+                
+                return false;
+                
+            }
+            
+            public synchronized boolean isIgnored (String word)
+            {
+                
+                return false;
+                
+            }
+            
+            public synchronized List<String> getSuggestions (String word)
+            {
+                
+                List<String> ret = new ArrayList ();
+                
+                List suggestions = null;
+                
+                List jsuggestions = _this.jazzySpellChecker.getSuggestions (word,
+                                                                            1);
+                
+                if (jsuggestions != null)
+                {
+                    
+                    for (int i = 0; i < jsuggestions.size (); i++)
+                    {
+                                                
+                        ret.add (((com.swabunga.spell.engine.Word) jsuggestions.get (i)).getWord ());
+                        
+                    }
+                    
+                }
+                
+                try
+                {
+                    
+                    suggestions = suggester.getSuggestions (word, 20);
+                    
+                } catch (Exception e) {
+                    
+                    e.printStackTrace ();
+                    
+                }
+                
+                if (suggestions != null)
+                {
+                                                                    
+                    for (int i = 0; i < suggestions.size (); i++)
+                    {
+                        
+                        Suggestion s = (Suggestion) suggestions.get (i);
+                        
+                        ret.add (s.word);
+                        
+                    }
+
+                }
+                
+                if (Character.isUpperCase (word.charAt (0)))
+                {
+                
+                    for (int i = 0; i < ret.size (); i++)
+                    {
+                        
+                        String w = ret.get (i);
+                        
+                        ret.set (i,
+                                 Character.toUpperCase (w.charAt (0)) + w.substring (1));
+                        
+                    }
+                
+                }
+                    
+                return ret;
+                
+            }
+            
+        };
+
+        if (projWords != null)
+        {
+
+            StringBuilder b = new StringBuilder ();
+
+            for (String i : projWords)
+            {
+
+                b.append (i);
+                b.append ('\n');
+
+            }
+
+            this.projDict = new QWSpellDictionaryHashMap (new StringReader (b.toString ()));
+
+            this.jazzySpellChecker.addDictionary (this.projDict);
+            
+            //this.dicts.add (this.projDict);
+
+        }
+
+        this.userDict = new QWSpellDictionaryHashMap (userDict);
+
+        this.userDictFile = userDict;
+
+        this.jazzySpellChecker.setUserDictionary (this.userDict);
+        
+    }
+    
+    public DictionaryProvider (String lang,
+                               List<String> projWords,
+                               File         userDict,
+                               boolean      __________bogusDontUse)
                                throws       IOException
     {
 
-        this.checker = new SpellChecker ();    
+//        this.checker = new SpellChecker ();    
                         
         /*
          *OLD STYLE WHERE dictionary is in jar file
@@ -64,7 +242,9 @@ public class DictionaryProvider
 
         }
 */        
-                        
+            /*
+             *
+             XXX - NEW REMOVED
         File dir = Environment.getDictionaryDirectory (lang);
         
         if (dir.exists ())
@@ -119,9 +299,11 @@ public class DictionaryProvider
         this.userDictFile = userDict;
 
         this.checker.setUserDictionary (this.userDict);
-        
+        XXX - REMOVED TO HERE
+        */
     }
     
+    /*
     private void addDictionaryFiles (String lang)
                                      throws IOException
     {
@@ -145,17 +327,29 @@ public class DictionaryProvider
 
                 InputStreamReader r = new InputStreamReader (new FileInputStream (files[i]));
                 
-                this.checker.addDictionary (new QWSpellDictionaryHashMap (r));            
+                // XXX - NEW REMOVED this.checker.addDictionary (new QWSpellDictionaryHashMap (r));            
                 
             }
             
         }
         
     }
-        
+      */  
     public static boolean isLanguageInstalled (String lang)
     {
         
+        File f = Environment.getDictionaryFile (lang);
+        
+        if ((f != null)
+            &&
+            (f.exists ())
+           )
+        {
+            
+            return true;
+            
+        }
+        /*
         File d = Environment.getDictionaryDirectory (lang);
         
         if ((d != null)
@@ -167,11 +361,12 @@ public class DictionaryProvider
             return true;
                 
         }
-
+*/
         return false;
 
     }
-    
+    /*
+     *XXX - NEW REMOVED
     public DictionaryProvider(List<InputStream> files,
                               List<String>      projWords,
                               File              userDict)
@@ -231,7 +426,7 @@ public class DictionaryProvider
         this.checker.setUserDictionary (this.userDict);
         
     }
-
+*/
     /**
      * Checks to see if the directory is an indexed dictionary directory which means:
      *   - It contains a db directory

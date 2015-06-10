@@ -9,8 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class IdeaTypeDataHandler implements DataHandler
+public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
 {
+
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, sortby, icontype, lastmodified, datecreated, properties FROM ideatype_v ";
 
     private ObjectManager objectManager = null;
 
@@ -45,19 +47,19 @@ public class IdeaTypeDataHandler implements DataHandler
             it.setDateCreated (rs.getTimestamp (ind++));
             it.setPropertiesAsString (rs.getString (ind++));
 
+            if (p != null)
+            {
+                
+                p.addIdeaType (it);
+                
+            }
+            
             Connection conn = rs.getStatement ().getConnection ();
 
-            List ideas = this.objectManager.getObjects (Idea.class,
-                                                        it,
-                                                        conn,
-                                                        false);
-
-            for (int i = 0; i < ideas.size (); i++)
-            {
-
-                it.addIdea ((Idea) ideas.get (i));
-
-            }
+            this.objectManager.getObjects (Idea.class,
+                                           it,
+                                           conn,
+                                           false);
 
             return it;
 
@@ -71,10 +73,11 @@ public class IdeaTypeDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<IdeaType> getObjects (Project parent,
+                                      Connection  conn,
+                                      boolean     loadChildObjects)
+                               throws GeneralException
     {
 
         List<IdeaType> ret = new ArrayList ();
@@ -82,7 +85,7 @@ public class IdeaTypeDataHandler implements DataHandler
         try
         {
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, sortby, icontype, lastmodified, datecreated, properties FROM ideatype_v ORDER BY LOWER(name)",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " ORDER BY LOWER(name)",
                                                             null,
                                                             conn);
 
@@ -90,7 +93,7 @@ public class IdeaTypeDataHandler implements DataHandler
             {
 
                 ret.add (this.getIdeaType (rs,
-                                           (Project) parent));
+                                           parent));
 
             }
 
@@ -116,10 +119,12 @@ public class IdeaTypeDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public IdeaType getObjectByKey (int        key,
+                                    Project    proj,
+                                    Connection conn,
+                                    boolean    loadChildObjects)
+                             throws GeneralException
     {
 
         IdeaType it = null;
@@ -130,7 +135,7 @@ public class IdeaTypeDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (key);
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, sortby, icontype, lastmodified, datecreated, properties FROM ideatype_v WHERE dbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dbkey = ?",
                                                             params,
                                                             conn);
 
@@ -138,7 +143,7 @@ public class IdeaTypeDataHandler implements DataHandler
             {
 
                 it = this.getIdeaType (rs,
-                                       null);
+                                       proj);
 
             }
 
@@ -164,12 +169,11 @@ public class IdeaTypeDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (IdeaType   it,
                               Connection conn)
                        throws GeneralException
     {
-
-        IdeaType it = (IdeaType) d;
 
         List params = new ArrayList ();
         params.add (it.getKey ());
@@ -182,15 +186,14 @@ public class IdeaTypeDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (IdeaType   it,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
     {
 
         // Remove all the ideas.
-        IdeaType it = (IdeaType) d;
-
         List<Idea> ideas = it.getIdeas ();
 
         for (Idea i : ideas)
@@ -203,7 +206,7 @@ public class IdeaTypeDataHandler implements DataHandler
         }
 
         List params = new ArrayList ();
-        params.add (d.getKey ());
+        params.add (it.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM ideatype WHERE dbkey = ?",
                                              params,
@@ -211,12 +214,11 @@ public class IdeaTypeDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (IdeaType   it,
                               Connection conn)
                        throws GeneralException
     {
-
-        IdeaType it = (IdeaType) d;
 
         List params = new ArrayList ();
         params.add (it.getSortBy ());

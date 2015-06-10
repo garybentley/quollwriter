@@ -27,7 +27,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
-
+import com.quollwriter.events.*;
 
 public class IconColumn extends JPanel implements DocumentListener
 {
@@ -39,7 +39,7 @@ public class IconColumn extends JPanel implements DocumentListener
         
         public E item = null;
         public ImagePanel                   imagePanel = null;
-        public ShowChapterItemActionHandler handler = null;
+        public QPopup popup = null;
         
     }
     
@@ -50,63 +50,96 @@ public class IconColumn extends JPanel implements DocumentListener
     public static final int NOTE_INDENT = 8;
     public static final int OUTLINE_ITEM_INDENT = 28;
     public static final int SCENE_INDENT = 28;
+    public static final int EDIT_MARK_STROKE_WIDTH = 3;
     
     private AbstractEditorPanel                ep = null;
     private QTextEditor                        editor = null;
     private java.util.List<StructureItemWrapper> structureItems = new ArrayList ();
     private java.util.List<NoteWrapper>        notes = new ArrayList ();
-    private Image                              singleIcon = null;
-    private int   singleIconHeight = 0;
-    private Image                              singleNoteIcon = null;
-    private Image                              singleEditNeededNoteIcon = null;
-    private Image                              singleSceneIcon = null;
-    private BasicStroke editMarkStroke = new BasicStroke (3f);
-    private Color editMarkColor = UIUtils.getColor ("#86C440");
+    private BasicStroke editMarkStroke = new BasicStroke (0f + EDIT_MARK_STROKE_WIDTH);
     private Position editPosition = null;
     private ImagePanel dragIcon = null;
     private MouseListener showListener = null;
-    private ChapterItemTransferHandler itemTransferHandler = null;
+    private IconProvider iconProv = null;
+    private ChapterItemViewPopupProvider popupProvider = null;
+    private boolean itemMoveAllowed = true;
+    private PropertyChangedListener editPosChange = null;
         
-    public IconColumn (AbstractEditorPanel ep)
+    public IconColumn (AbstractEditorPanel          ep,
+                       IconProvider                 iconProv,
+                       ChapterItemViewPopupProvider popupProv)
     {
 
         this.setLayout (null);
 
         this.ep = ep;
                 
+        this.popupProvider = popupProv;
+        this.iconProv = iconProv;
+                
         this.editor = this.ep.getEditor ();
 
         this.editor.getDocument ().addDocumentListener (this);
 
         this.setBackground (IconColumn.defaultBGColor);
-
-        ImageIcon ic = null;
-    
-        ic = Environment.getIcon (OutlineItem.OBJECT_TYPE,
-                                  Constants.ICON_COLUMN);
-        
-        this.singleIconHeight = ic.getIconHeight ();
-        this.singleIcon = ic.getImage ();
-        
-        this.singleNoteIcon = Environment.getIcon (Note.OBJECT_TYPE,
-                                                   Constants.ICON_COLUMN).getImage ();
-        this.singleEditNeededNoteIcon = Environment.getIcon (Constants.EDIT_NEEDED_NOTE_ICON_NAME,
-                                                             Constants.ICON_COLUMN).getImage ();
-
-        this.singleSceneIcon = Environment.getIcon (Scene.OBJECT_TYPE,
-                                                    Constants.ICON_COLUMN).getImage ();
-                               
+                
         Image im = null;
                                        
         this.dragIcon = new ImagePanel (im,
                                         im);
         this.add (this.dragIcon);
         this.dragIcon.setVisible (false);
+        
+        final IconColumn _this = this;
+        
+        // We keep a reference here because weak listeners are now used on dataobject which means that this
+        // could stop being referenced.
+        this.editPosChange = new PropertyChangedListener ()
+        {
+            
+            public void propertyChanged (PropertyChangedEvent ev)
+            {
 
-        this.itemTransferHandler = new ChapterItemTransferHandler (this);
+                if (ev.getChangeType ().equals (Chapter.EDIT_POSITION))
+                {
+            
+                    try
+                    {
+    
+                        _this.setEditPosition (_this.ep.getChapter ().getEditPosition ());
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to set edit position for chapter: " +
+                                              _this.ep.getChapter (),
+                                              e);
+                        
+                    }
+
+                }
+                
+            }
+            
+        };
+                         
+        ep.getChapter ().addPropertyChangedListener (this.editPosChange);
                          
     }
 
+    public void setItemMoveAllowed (boolean v)
+    {
+        
+        this.itemMoveAllowed = v;
+        
+    }
+    
+    public IconProvider getIconProvider ()
+    {
+        
+        return this.iconProv;
+        
+    }
+    
     private ItemWrapper getWrapper (ChapterItem it)
     {
         
@@ -154,20 +187,153 @@ public class IconColumn extends JPanel implements DocumentListener
     public void showItem (ChapterItem it)
     {
 
+        if (this.ep.getProjectViewer ().isDistractionFreeModeEnabled ())
+        {
+            
+            this.ep.getProjectViewer ().showNotificationPopup ("Function unavailable",
+                                                               "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
+                                                               5);
+
+            return;            
+            
+        }    
+    
         ItemWrapper w = this.getWrapper (it);
         
-        if ((w != null)
-            &&
-            (w.handler != null)
-           )
+        if (w != null)
         {
-        
-            w.handler.showItem ();
+            
+            if (w.popup != null)
+            {
+                
+                w.popup.removeFromParent ();
+                
+            }
+            
+            Rectangle r = null;
+            
+            int pos = w.item.getPosition ();
+            
+            try
+            {
+    
+                r = this.editor.modelToView (pos);
+    
+            } catch (Exception e)
+            {
+    
+                // BadLocationException!
+                Environment.logError ("Unable to convert item: " +
+                                      w.item +
+                                      " at position: " +
+                                      pos,
+                                      e);
+    
+                UIUtils.showErrorMessage (this.ep,
+                                          "Unable to display item.");
+    
+                return;
+    
+            }
+            
+            int y = r.y;
+                        
+            QPopup popup = null;
+            
+            try
+            {
+            
+                popup = this.popupProvider.getViewPopup (w.item,
+                                                         this.ep);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get popup for item: " +
+                                      w.item,
+                                      e);
+    
+                UIUtils.showErrorMessage (this.ep,
+                                          "Unable to display item.");
+                
+                return;
+                
+            }
+
+            if (popup == null)
+            {
+                
+                Environment.logError ("Unable to get popup for item: " +
+                                      w.item +
+                                      ", got null popup.");
+    
+                UIUtils.showErrorMessage (this.ep,
+                                          "Unable to display item.");
+                
+                return;
+                
+            }
+            
+            JScrollPane scrollPane = this.ep.getScrollPane ();
+
+            w.popup = popup;
+    
+            if (w.item instanceof Note)
+            {
+               
+                Note n = (Note) w.item;
+                
+                if (n.isEditNeeded ())
+                {
+                    
+                    // Try and show the note above the selected text. (So it doesn't obscure it)
+                    y = y - popup.getPreferredSize ().height - 22;
+                    
+                    // Get where the selected text ends.
+                    pos = n.getEndPosition ();
+                                    
+                    try
+                    {
+                                
+                        if (y < scrollPane.getVerticalScrollBar ().getValue ())
+                        {
+                            
+                            // We are going to potentially obscure it, show it below the first line.        
+                            y = y + popup.getPreferredSize ().height + 22;
+                            
+                        }
+            
+                    } catch (Exception e)
+                    {
+            
+                        // Just ignore.
+            
+                    }
+                    
+                    
+                }
+                
+            }
+    
+            y = 22 + y - scrollPane.getVerticalScrollBar ().getValue ();
+    
+            // Adjust the bounds so that the form is fully visible.
+            if ((y + popup.getPreferredSize ().height) > (scrollPane.getViewport ().getViewRect ().height + scrollPane.getVerticalScrollBar ().getValue ()))
+            {
+    
+                y = y - 22 - popup.getPreferredSize ().height;
+    
+            }
+    
+            this.ep.showPopupAt (popup,
+                                 new Point (this.getWidth () - 20,
+                                            y),
+                                 true);
+            popup.setDraggable (this.ep);
             
         }
-        
+
     }
-    
+        
     public void hideItem (ChapterItem it)
     {
         
@@ -175,11 +341,11 @@ public class IconColumn extends JPanel implements DocumentListener
         
         if ((w != null)
             &&
-            (w.handler != null)
+            (w.popup != null)
            )
         {
             
-            w.handler.hideItem ();
+            w.popup.removeFromParent ();
             
         }
 
@@ -232,14 +398,7 @@ public class IconColumn extends JPanel implements DocumentListener
         return this.dragIcon;
         
     }
-    
-    public ChapterItemTransferHandler getChapterItemTransferHandler ()
-    {
         
-        return this.itemTransferHandler;
-        
-    }
-    
     public void setEditPosition (int    p)
                                  throws Exception
     {
@@ -401,6 +560,13 @@ public class IconColumn extends JPanel implements DocumentListener
             StructureItemWrapper w = (StructureItemWrapper) iter.next ();
 
             Set<ChapterItem> items = this.getStructureItemsForPosition (w.item.getPosition ());
+
+            if (items == null)
+            {
+                
+                continue;
+                
+            }
             
             ChapterItem c = items.iterator ().next ();
 
@@ -418,18 +584,17 @@ public class IconColumn extends JPanel implements DocumentListener
                 
             }
                                     
-            Image icon = this.singleIcon;
             int indent = OUTLINE_ITEM_INDENT;
             
             if (w.item instanceof Scene)
             {
                 
-                icon = this.singleSceneIcon;
                 indent = SCENE_INDENT;
                 
             }
 
-            w.imagePanel.setImage (icon);            
+            w.imagePanel.setImage (this.iconProv.getIcon (w.item,
+                                                          Constants.ICON_COLUMN).getImage ());            
             
             w.imagePanel.setVisible (true);
             
@@ -456,6 +621,13 @@ public class IconColumn extends JPanel implements DocumentListener
             NoteWrapper w = (NoteWrapper) iter.next ();
 
             Set<ChapterItem> items = this.getNotesForPosition (w.item.getPosition ());
+
+            if (items == null)
+            {
+                
+                continue;
+                
+            }
             
             ChapterItem c = items.iterator ().next ();
 
@@ -472,19 +644,10 @@ public class IconColumn extends JPanel implements DocumentListener
                 }
                 
             }
-            
-            if (w.item.isEditNeeded ())
-            {
 
-                w.imagePanel.setImage (this.singleEditNeededNoteIcon);
+            w.imagePanel.setImage (this.iconProv.getIcon (w.item,
+                                                          Constants.ICON_COLUMN).getImage ());
 
-            } else
-            {
-
-                w.imagePanel.setImage (this.singleNoteIcon);
-
-            }
-            
             w.imagePanel.setVisible (true);
 
             w.imagePanel.setBounds (NOTE_INDENT + insets.left,
@@ -581,7 +744,9 @@ public class IconColumn extends JPanel implements DocumentListener
             
             return;
             
-        }        
+        }
+        
+        int w = this.getSize ().width;
         
         Color c = UIUtils.getColor (Environment.getUserProperties ().getProperty (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME));
         
@@ -596,9 +761,9 @@ public class IconColumn extends JPanel implements DocumentListener
 
             g2.setColor (c);
             g2.setStroke (this.editMarkStroke);
-            g2.drawLine (47,
+            g2.drawLine (w - EDIT_MARK_STROKE_WIDTH,
                          this.editor.modelToView (0).y,
-                         47,
+                         w - EDIT_MARK_STROKE_WIDTH,
                          r.y + (int) (fm.getHeight ()));
                                                                                                              
         }catch (Exception e) {
@@ -817,8 +982,13 @@ public class IconColumn extends JPanel implements DocumentListener
     private void setMovable (ChapterItem item)
     {
         
-        new ChapterItemMoveMouseHandler (item,
-                                         this);                
+        if (this.itemMoveAllowed)
+        {
+        
+            new ChapterItemMoveMouseHandler (item,
+                                             this);                
+
+        }
         
     }
     
@@ -826,6 +996,8 @@ public class IconColumn extends JPanel implements DocumentListener
                                   throws GeneralException
     {
 
+        final IconColumn _this = this;
+    
         // Placeholder
         Image      img = null;
         ImagePanel p = new ImagePanel (img,
@@ -835,10 +1007,6 @@ public class IconColumn extends JPanel implements DocumentListener
         final StructureItemWrapper w = new StructureItemWrapper ();
         w.imagePanel = p;
         w.item = item;
-        w.handler = new ShowChapterItemActionHandler (item,
-                                                      this.ep,
-                                                      this);
-
         this.add (p);
 
         try
@@ -877,8 +1045,8 @@ public class IconColumn extends JPanel implements DocumentListener
                     
                 }
 
-                w.handler.showItem ();
-    
+                _this.showItem (w.item);
+                
             }
 
         });
@@ -909,6 +1077,8 @@ public class IconColumn extends JPanel implements DocumentListener
                         throws GeneralException
     {
 
+        final IconColumn _this = this;
+    
         // Placeholder
         Image      img = null;
         ImagePanel p = new ImagePanel (img,
@@ -918,10 +1088,7 @@ public class IconColumn extends JPanel implements DocumentListener
         w.imagePanel = p;
         
         w.item = n;
-        w.handler = new ShowChapterItemActionHandler (n,
-                                                      this.ep,
-                                                      this);
-        
+
         this.add (p);
 
         try
@@ -964,8 +1131,8 @@ public class IconColumn extends JPanel implements DocumentListener
                     
                 }
 
-                w.handler.showItem ();
-    
+                _this.showItem (w.item);
+                    
             }
 
         });

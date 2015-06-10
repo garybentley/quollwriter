@@ -3,11 +3,13 @@ package com.quollwriter.text;
 import java.util.*;
 import java.text.*;
 
+import com.quollwriter.*;
+
 public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 {
     
     private Paragraph parent = null;
-    private int start = -1;
+    private int start = 0;
     private String sentence = null;
     private List<Word> words = new ArrayList ();
     private Sentence next = null;
@@ -32,7 +34,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         
         for (int end = iter.next (); end != BreakIterator.DONE; st = end, end = iter.next ())
         {
-
+/*
             // Peek ahead to look for a single char.
             if (end < sl)
             {
@@ -77,7 +79,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 }                
                 
             }
-
+*/
             String word = sentence.substring (st,
                                               end);
 
@@ -221,13 +223,13 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         
         for (Word w : this.words)
         {
-            
-            if ((w.getEnd () >= i)
+
+            if ((w.getEnd () - 1 >= i)
                 &&
                 (w.getStart () <= i)
                )
             {
-                
+                            
                 return w;
                 
             }
@@ -466,12 +468,26 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     public int getAllTextStartOffset ()
     {
         
+        if (this.parent == null)
+        {
+            
+            return this.start;
+            
+        }
+        
         return this.parent.getAllTextStartOffset () + this.start;
         
     }
     
     public int getAllTextEndOffset ()
     {
+        
+        if (this.parent == null)
+        {
+            
+            return this.getEnd ();
+            
+        }
         
         return this.parent.getAllTextStartOffset () + this.getEnd ();
         
@@ -538,11 +554,31 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         
     }
     
+    @Override
     public String toString ()
     {
+                
+        Map<String, Object> data = new LinkedHashMap ();
         
-        return "[start: " + this.start + ", length: " + this.sentence.length () + ", words: " + this.getWordCount () + ", syllables: " + this.getSyllableCount () + ", text: " + this.sentence + "]";
+        data.put ("type",
+                  "sentence");
+        data.put ("wordCount",
+                  this.getWordCount ());
+        data.put ("text",
+                  this.sentence);
+        data.put ("textLength",
+                  this.sentence.length ());
+        data.put ("start",
+                  this.getStart ());
+        data.put ("end",
+                  this.getEnd ());
+        data.put ("syllableCount",
+                  this.getSyllableCount ());
+        data.put ("threeSyllableWordCount",
+                  this.getThreeSyllableWordCount ());
+                
+        return Environment.formatObjectToStringProperties (data);        
         
-    }
+    }    
     
 }

@@ -20,8 +20,10 @@ import com.quollwriter.ui.*;
 public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 {
 
-    private Map icons = new HashMap ();
+    private Map<String, Icon> icons = new HashMap ();
 
+    private Map<String, String> iconTypes = new HashMap ();
+    
     private boolean showIcons = true;
     
     public SelectableProjectTreeCellRenderer()
@@ -29,6 +31,15 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
     }
 
+    public void setIconType (String objType,
+                             String iconType)
+    {
+        
+        this.iconTypes.put (objType,
+                            iconType);
+        
+    }
+    
     public void setShowIcons (boolean v)
     {
         
@@ -101,7 +112,16 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
                 }
 
-                Icon ic = (Icon) this.icons.get (ot);
+                String iot = this.iconTypes.get (ot);
+                
+                if (iot != null)
+                {
+                    
+                    ot = iot;
+                    
+                }
+                
+                Icon ic = this.icons.get (ot);
 
                 if (ic == null)
                 {

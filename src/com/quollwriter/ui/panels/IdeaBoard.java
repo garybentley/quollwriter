@@ -272,6 +272,7 @@ public class IdeaBoard extends QuollPanel
                                                     
                                                  },
                                                  null,
+                                                 null,
                                                  p);
 
                 }
@@ -729,6 +730,7 @@ public class IdeaBoard extends QuollPanel
             add.addMouseListener (new MouseEventHandler ()
             {
 
+                @Override
                 public void mouseEntered (MouseEvent ev)
                 {
 
@@ -736,6 +738,7 @@ public class IdeaBoard extends QuollPanel
 
                 }
 
+                @Override
                 public void mouseExited (MouseEvent ev)
                 {
 
@@ -743,6 +746,7 @@ public class IdeaBoard extends QuollPanel
 
                 }
 
+                @Override
                 public void handlePress (MouseEvent ev)
                 {
 
@@ -1702,8 +1706,9 @@ public class IdeaBoard extends QuollPanel
         }
 
         this.projectViewer.showPopupAt (this.backgroundSelectorPopup,
-                          new Point (100,
-                                     100));
+                                        new Point (100,
+                                                   100),
+                                        true);
 
         ((BackgroundSelector) this.backgroundSelectorPopup.getContent ()).setSelected (this.backgroundObject);
 

@@ -18,14 +18,16 @@ import com.quollwriter.ui.renderers.*;
 
 public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer>
 {
-        
+                
     public AssetAccordionItem (String        objType,
                                ProjectViewer pv)
     {
         
-        super (objType,
+        super (Environment.getObjectTypeNamePlural (objType),
+               objType,
+               objType,
                pv);
-                        
+                                                
     }
         
     public void init (final JTree tree)
@@ -44,13 +46,13 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 try
                 {
 
-                    a = Asset.createSubType (_this.objType);
+                    a = Asset.createSubType (_this.forObjType);
 
                 } catch (Exception e)
                 {
 
                     Environment.logError ("Unable to create asset sub type for: " +
-                                          _this.objType,
+                                          _this.forObjType,
                                           e);
 
                     return;
@@ -70,11 +72,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         };
 
-        this.addHeaderPopupMenuItem ("Add New " + Environment.getObjectTypeName (objType),
+        this.addHeaderPopupMenuItem ("Add New " + Environment.getObjectTypeName (this.forObjType),
                                      Constants.ADD_ICON_NAME,
                                      addNewItem);
 
-        if (objType.equals (QObject.OBJECT_TYPE))
+        if (this.forObjType.equals (QObject.OBJECT_TYPE))
         {
                     
             // Add New Type
@@ -88,7 +90,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         }       
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.objType,
+        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
                                                                                 this.projectViewer.getProject ()));
         
     }
@@ -112,7 +114,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         }
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.objType,
+        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
                                                                                 this.projectViewer.getProject ()));
 
         DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
@@ -139,7 +141,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public int getItemCount ()
     {
         
-        int c = this.projectViewer.getProject ().getAllNamedChildObjects (Asset.getAssetClass (this.objType)).size ();
+        int c = this.projectViewer.getProject ().getAllNamedChildObjects (Asset.getAssetClass (this.forObjType)).size ();
         
         return c;
                 
@@ -153,15 +155,15 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         
     }
 
-    public void showTreePopupMenu (MouseEvent ev)
+    @Override
+    public void fillTreePopupMenu (JPopupMenu m,
+                                   MouseEvent ev)
     {
 
         final AssetAccordionItem _this = this;
 
         final TreePath tp = _this.tree.getPathForLocation (ev.getX (),
                                                            ev.getY ());
-
-        final JPopupMenu m = new JPopupMenu ();
 
         JMenuItem mi = null;
 
@@ -224,10 +226,6 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                                                        (Asset) d));
 
         }
-
-        m.show ((Component) ev.getSource (),
-                ev.getX (),
-                ev.getY ());
 
     }
 

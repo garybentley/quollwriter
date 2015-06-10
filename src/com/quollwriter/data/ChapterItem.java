@@ -56,6 +56,33 @@ public abstract class ChapterItem extends NamedObject
 
     }
 
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "position",
+                                    this.position);
+        this.addToStringProperties (props,
+                                    "endPosition",
+                                    this.endPosition);
+        this.addToStringProperties (props,
+                                    "textPosition",
+                                    (this.textPos != null ? this.textPos.getOffset () : null));
+        this.addToStringProperties (props,
+                                    "endTextPosition",
+                                    (this.endTextPos != null ? this.endTextPos.getOffset () : null));
+        this.addToStringProperties (props,
+                                    "scene",
+                                    this.scene);
+        this.addToStringProperties (props,
+                                    "chapter",
+                                    this.chapter);
+                        
+    }    
+    
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
@@ -129,6 +156,13 @@ public abstract class ChapterItem extends NamedObject
 
     }
 
+    public Position getTextPosition ()
+    {
+        
+        return this.textPos;
+        
+    }
+    
     public void setEndPosition (int p)
     {
 
@@ -223,13 +257,6 @@ public abstract class ChapterItem extends NamedObject
     {
 
         return this.getName ();
-
-    }
-
-    public String toString ()
-    {
-
-        return this.getObjectType () + "(summary: " + this.name + ", id: " + this.getKey () + ", pos: " + this.getPosition () + ", end: " + this.getEndPosition () + "), in: " + this.chapter;
 
     }
 

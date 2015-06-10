@@ -132,7 +132,7 @@ public class Form extends QPopup
 */
         }
 
-        String cols = "right:pref, 6px, 300px:grow";
+        String cols = "right:pref, 6px, fill:100px:grow";
 
         StringBuilder rows = new StringBuilder ();
 

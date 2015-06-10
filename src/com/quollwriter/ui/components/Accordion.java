@@ -292,7 +292,7 @@ public class Accordion extends ScrollableBox
                 this.closedContent.setVisible (!this.openContent.isVisible ());
                 
             }
-            
+            /*
             this.setPreferredSize (null);
             
             if (this.openContent.isVisible ())
@@ -305,12 +305,13 @@ public class Accordion extends ScrollableBox
 
                 if (this.closedContent != null)
                 {
-                    
-                    this.closedContent.setPreferredSize (this.closedContentOldSize);
+
+                    this.closedContent.setSize (this.closedContent.getPreferredSize ());
                     
                 }
 
             }
+            */
 /*
             this.setMaximumSize (new Dimension (this.getPreferredSize ().width,
                                                 this.getPreferredSize ().height));
@@ -485,7 +486,7 @@ public class Accordion extends ScrollableBox
 
                         }
 
-                        it.openContent.setPreferredSize (pref);
+                        //it.openContent.setPreferredSize (pref);
 
                         this.revalidate ();
                         this.repaint ();

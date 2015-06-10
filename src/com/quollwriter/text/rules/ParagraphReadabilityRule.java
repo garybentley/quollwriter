@@ -47,6 +47,20 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
     }
 
+    public ParagraphReadabilityRule (int     fleschKincaid,
+                                     int     fleschReading,
+                                     int     gunningFog,
+                                     boolean user)
+    {
+
+        this (user);
+
+        this.fleschKincaid = fleschKincaid;
+        this.fleschReading = fleschReading;
+        this.gunningFog = gunningFog;
+        
+    }
+
     public String getDescription ()
     {
 
@@ -211,6 +225,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                 
                 Issue iss = new Issue ("Paragraph has a Flesch Kincaid grade level of: <b>" + Environment.formatNumber (ri.getFleschKincaidGradeLevel ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschKincaid) + ")",
                                        paragraph,
+                                       paragraph.getAllTextStartOffset () + "-fkgl-" + ri.getFleschKincaidGradeLevel (),
                                        this);
                 
                 issues.add (iss);
@@ -225,6 +240,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                 
                 Issue iss = new Issue ("Paragraph has a Flesch Reading ease level of: <b>" + Environment.formatNumber (ri.getFleschReadingEase ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschReading) + ")",
                                        paragraph,
+                                       paragraph.getAllTextStartOffset () + "-fre-" + ri.getFleschReadingEase (),                                       
                                        this);
                 
                 issues.add (iss);
@@ -239,6 +255,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                 
                 Issue iss = new Issue ("Paragraph has a Gunning Fog index of: <b>" + Environment.formatNumber (ri.getGunningFogIndex ()) + "</b>.  (Max is: " + Environment.formatNumber (this.gunningFog) + ")",
                                        paragraph,
+                                       paragraph.getAllTextStartOffset () + "-gfi-" + ri.getGunningFogIndex (),                                       
                                        this);
                 
                 issues.add (iss);

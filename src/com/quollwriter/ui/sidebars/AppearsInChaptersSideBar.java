@@ -13,6 +13,7 @@ import javax.swing.border.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.components.ScrollableBox;
 
 public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
@@ -37,6 +38,12 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         return this.panel.getForObject ().getObjectType ();
         
     }
+        
+    public String getActiveTitle ()
+    {
+        
+        return this.panel.getForObject ().getName () + " appears in";
+    }
     
     public String getTitle ()
     {
@@ -59,12 +66,25 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         
     }
     
+    @Override
+    public void onShow ()
+    {
+        
+    }
+    
+    @Override
+    public void onHide ()
+    {
+        
+    }
+    
+    @Override
     public void onClose ()
     {
         
         this.panel.removeHighlight ();
 
-        this.projectViewer.removeSideBarListener (this.panel);
+        //this.projectViewer.removeSideBarListener (this.panel);
                                                             
     }
     
@@ -107,7 +127,8 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         
     }
     
-    public List<JButton> getHeaderControls ()
+    @Override
+    public List<JComponent> getHeaderControls ()
     {
         
         return null;
@@ -122,8 +143,13 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         JComponent help = UIUtils.createHelpTextPane ("appears in the following {chapters}.",
                                                       this.projectViewer);
         
-        help.setBorder (new EmptyBorder (0, 10, 5, 5));
+        help.setSize (new Dimension (250,
+                                     100));
+        help.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                            100));
         
+        help.setBorder (UIUtils.createPadding (0, 10, 5, 5));
+                
         b.add (help);
 
         this.tree = this.panel.createTree (1);
@@ -133,8 +159,9 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         JScrollPane treeScroll = new JScrollPane (this.tree);
         treeScroll.setOpaque (false);
         treeScroll.setAlignmentX (Component.LEFT_ALIGNMENT);
+        treeScroll.setAlignmentY (Component.TOP_ALIGNMENT);
         treeScroll.setBorder (null);
-        tree.setBorder (new EmptyBorder (0, 10, 5, 5));
+        tree.setBorder (UIUtils.createPadding (0, 10, 5, 5));
         
         b.add (treeScroll);        
 

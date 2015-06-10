@@ -267,11 +267,16 @@ This message will only be shown once during your current session using Quoll Wri
     <value>bottom</value>
   </property>
 
-  <property id="sidebarLocation" type="string">
-    <description>The location of the sidebar, can be either "left" or "right".</description>
-    <value>left</value>
-  </property>  
-
+  <property id="uiLayout" type="string">
+    <description>How the UI should be laid out.</description>
+    <value>layout-ch-ps</value>
+  </property>
+  
+  <property id="projectSideBarWidth" type="integer">
+    <description>How wide the project sidebar should be.</description>
+    <value>250</value>
+  </property>
+  
   <property id="tabsLocation" type="string">
     <description>The location of the tabs, can be either "top" or "bottom".</description>
     <value>bottom</value>
@@ -289,12 +294,17 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="supportUrlBase" type="string">
     <description>The base url used for support operations, such as sending messages and getting the latest version.</description>
-    <value>https://www.kattare.com/secure/quollwriter.com/</value>
+    <value>https://quollwriter.com/</value>
   </property>
 
   <property id="debugSupportUrlBase" type="string">
     <description>The base url used for debug support operations, such as sending messages and getting the latest version.</description>
     <value>http://localhost:8080/</value>
+  </property>
+
+  <property id="editorsServiceReportMessagePage" type="string">
+    <description>The page used for reporting an editors service message to support.</description>
+    <value>/editor-mode/report-message.html</value>
   </property>
   
   <property id="sendMessageToSupportPage" type="string">
@@ -304,7 +314,7 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="getLatestVersionPage" type="string">
     <description>The page for getting the latest version.</description>
-    <value>get-latest-version.html</value>
+    <value>get-news-and-version.html</value>
   </property>  
   
   <property id="getUpgradeFilePage" type="string">
@@ -324,7 +334,7 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="editorsWebserviceBaseURL" type="string">
     <description>The base url for the editors webserivce.</description>
-    <value>http://localhost:8080/qw-editor/api/rest/</value>    
+    <value>http://localhost:8080/editor/api/rest/</value>    
   </property>
   
   <property id="editorsAuthorsWebserviceBaseURL" type="string">
@@ -347,9 +357,29 @@ This message will only be shown once during your current session using Quoll Wri
     <value><property id="editorsWebserviceBaseURL" />editors</value>    
   </property>
 
-  <property id="editorsLoginWebserviceURL" type="string">
-    <description>The url for login to the editors webserivce.</description>
-    <value>http://localhost:8080/qw-editor/api/login</value>    
+  <property id="editorsInvitesWebserviceBaseURL" type="string">
+    <description>The url for the editors Invites webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />invites</value>    
+  </property>
+
+  <property id="editorsSessionsWebserviceBaseURL" type="string">
+    <description>The url for the editors Sessions webserivce.</description>
+    <value><property id="editorsWebserviceBaseURL" />sessions</value>    
+  </property>
+
+  <property id="editorsJIDSuffix" type="string">
+    <description>The jid suffix for the editors service.</description>
+    <value>@www.quollwriter.com</value>    
+  </property>
+
+  <property id="editorsServiceHost" type="string">
+    <description>The host for the editors service.</description>
+    <value>www.quollwriter.com</value>    
+  </property>
+
+  <property id="editorsServicePort" type="string">
+    <description>The port to use for the editors service.</description>
+    <value>5222</value>    
   </property>
 
   <property id="autoSendErrorsToSupport" type="boolean">
@@ -366,7 +396,5 @@ This message will only be shown once during your current session using Quoll Wri
     <description>Has the user been in distraction free mode before?</description>
     <value>false</value>
   </property>  
-  
-  
   
 </properties>

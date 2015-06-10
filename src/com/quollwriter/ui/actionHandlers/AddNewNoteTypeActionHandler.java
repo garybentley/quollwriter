@@ -44,7 +44,7 @@ public class AddNewNoteTypeActionHandler extends TextInputActionHandler
     public String getHelp ()
     {
         
-        return "Add the name of the new {note} type below.";
+        return "Enter the new {note} type below.";
         
     }
     
@@ -73,6 +73,13 @@ public class AddNewNoteTypeActionHandler extends TextInputActionHandler
             
             return "Please enter a name.";
             
+        }
+        
+        if (this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).hasType (v))
+        {
+
+            return "A type called: " + v + " already exists.";
+
         }
         
         return null;

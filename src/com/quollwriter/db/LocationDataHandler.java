@@ -9,8 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class LocationDataHandler implements DataHandler
+public class LocationDataHandler implements DataHandler<Location, Project>
 {
+
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, id, version FROM location_v ";
 
     private ObjectManager objectManager = null;
 
@@ -22,6 +24,7 @@ public class LocationDataHandler implements DataHandler
     }
 
     private Location getLocation (ResultSet rs,
+                                  Project   proj,
                                   boolean   loadChildObjects)
                            throws GeneralException
     {
@@ -41,14 +44,23 @@ public class LocationDataHandler implements DataHandler
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
+            l.setId (rs.getString (ind++));
+            l.setVersion (rs.getString (ind++));            
 
+            if (proj != null)
+            {
+                
+                proj.addLocation (l);
+                
+            }
+            
             // Get all the notes.
             if (loadChildObjects)
             {
-                /*
+                
                 this.objectManager.loadNotes (l,
                                               rs.getStatement ().getConnection ());
-                 */
+                 
             }
 
             return l;
@@ -63,10 +75,10 @@ public class LocationDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    public List<Location> getObjects (Project     parent,
+                                      Connection  conn,
+                                      boolean     loadChildObjects)
+                               throws GeneralException
     {
 
         List<Location> ret = new ArrayList ();
@@ -77,7 +89,7 @@ public class LocationDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (parent.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties FROM location_v WHERE projectdbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -85,6 +97,7 @@ public class LocationDataHandler implements DataHandler
             {
 
                 ret.add (this.getLocation (rs,
+                                           parent,
                                            loadChildObjects));
 
             }
@@ -111,10 +124,11 @@ public class LocationDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    public Location getObjectByKey (int        key,
+                                    Project    proj,
+                                    Connection conn,
+                                    boolean    loadChildObjects)
+                             throws GeneralException
     {
 
         Location i = null;
@@ -124,8 +138,9 @@ public class LocationDataHandler implements DataHandler
 
             List params = new ArrayList ();
             params.add (key);
+            //params.add (proj.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties FROM location_v  WHERE dbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?",// AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -133,6 +148,7 @@ public class LocationDataHandler implements DataHandler
             {
 
                 i = this.getLocation (rs,
+                                      proj,
                                       loadChildObjects);
 
             }
@@ -159,7 +175,7 @@ public class LocationDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    public void createObject (Location   d,
                               Connection conn)
                        throws GeneralException
     {
@@ -176,7 +192,7 @@ public class LocationDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    public void deleteObject (Location   d,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
@@ -193,7 +209,7 @@ public class LocationDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    public void updateObject (Location   d,
                               Connection conn)
                        throws GeneralException
     {

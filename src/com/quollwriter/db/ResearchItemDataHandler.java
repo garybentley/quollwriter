@@ -9,8 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class ResearchItemDataHandler implements DataHandler
+public class ResearchItemDataHandler implements DataHandler<ResearchItem, Project>
 {
+
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, url, id, version FROM researchitem_v ";
 
     private ObjectManager objectManager = null;
 
@@ -22,6 +24,7 @@ public class ResearchItemDataHandler implements DataHandler
     }
 
     private ResearchItem getResearchItem (ResultSet rs,
+                                          Project   proj,
                                           boolean   loadChildObjects)
                                    throws GeneralException
     {
@@ -42,14 +45,23 @@ public class ResearchItemDataHandler implements DataHandler
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
             l.setUrl (rs.getString (ind++));
+            l.setId (rs.getString (ind++));
+            l.setVersion (rs.getString (ind++));            
 
+            if (proj != null)
+            {
+                
+                proj.addResearchItem (l);
+                
+            }
+            
             // Get all the notes.
             if (loadChildObjects)
             {
-/*
+
                 this.objectManager.loadNotes (l,
                                               rs.getStatement ().getConnection ());
-*/
+
             }
 
             return l;
@@ -64,10 +76,12 @@ public class ResearchItemDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public ResearchItem getObjectByKey (int        key,
+                                        Project    proj,
+                                        Connection conn,
+                                        boolean    loadChildObjects)
+                                 throws GeneralException
     {
 
         ResearchItem r = null;
@@ -77,8 +91,9 @@ public class ResearchItemDataHandler implements DataHandler
 
             List params = new ArrayList ();
             params.add (key);
+            //params.add (proj.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, url FROM researchitem_v WHERE dbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?", // AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -86,6 +101,7 @@ public class ResearchItemDataHandler implements DataHandler
             {
 
                 r = this.getResearchItem (rs,
+                                          proj,
                                           loadChildObjects);
 
             }
@@ -112,10 +128,11 @@ public class ResearchItemDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<ResearchItem> getObjects (Project     parent,
+                                          Connection  conn,
+                                          boolean     loadChildObjects)
+                                   throws GeneralException
     {
 
         List<ResearchItem> ret = new ArrayList ();
@@ -126,7 +143,7 @@ public class ResearchItemDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (parent.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, url FROM researchitem_v WHERE projectdbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -134,6 +151,7 @@ public class ResearchItemDataHandler implements DataHandler
             {
 
                 ret.add (this.getResearchItem (rs,
+                                               parent,
                                                loadChildObjects));
 
             }
@@ -160,12 +178,11 @@ public class ResearchItemDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
-                              Connection conn)
+    @Override
+    public void createObject (ResearchItem r,
+                              Connection   conn)
                        throws GeneralException
     {
-
-        ResearchItem r = (ResearchItem) d;
 
         List params = new ArrayList ();
         params.add (r.getKey ());
@@ -178,13 +195,12 @@ public class ResearchItemDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
-                              boolean    deleteChildObjects,                              
-                              Connection conn)
+    @Override
+    public void deleteObject (ResearchItem r,
+                              boolean      deleteChildObjects,                              
+                              Connection   conn)
                        throws GeneralException
     {
-
-        ResearchItem r = (ResearchItem) d;
 
         List params = new ArrayList ();
         params.add (r.getKey ());
@@ -195,12 +211,11 @@ public class ResearchItemDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
-                              Connection conn)
+    @Override
+    public void updateObject (ResearchItem r,
+                              Connection   conn)
                        throws GeneralException
     {
-
-        ResearchItem r = (ResearchItem) d;
 
         List params = new ArrayList ();
         params.add (r.getUrl ());

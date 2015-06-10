@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.border.*;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
@@ -51,6 +52,18 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
                 
     }
     
+    @Override
+    public void onHide ()
+    {
+        
+    }
+    
+    @Override
+    public void onShow ()
+    {
+        
+    }    
+    
     public void onClose ()
     {
         
@@ -64,10 +77,24 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
     
+    public String getActiveTitle ()
+    {
+        
+        return "{Project}";
+        
+    }
+    
     public String getTitle ()
     {
         
         return null;
+        
+    }
+    
+    public String getActiveIconType ()
+    {
+        
+        return Project.OBJECT_TYPE;
         
     }
     
@@ -78,7 +105,16 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
     
-    public List<JButton> getHeaderControls ()
+    public Dimension getMinimumSize ()
+    {
+        
+        return new Dimension (250,
+                              200);
+        
+    }
+    
+    @Override
+    public List<JComponent> getHeaderControls ()
     {
         
         return null;
@@ -216,19 +252,28 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
  
+    public JComponent getContentBox ()
+    {
+        
+        return this.contentBox;
+        
+    }
+  
     public void addAccordionItem (ProjectObjectsAccordionItem item)
     {
         
         this.contentBox.add (item);
 
-        this.projItemBoxes.put (item.getObjectType (),
+        this.projItemBoxes.put (item.getForObjectType (),
                                 item);
         
         item.init ();
         
     }
  
+    @Override
     public void init ()
+               throws GeneralException
     {
         
         super.init ();
@@ -249,7 +294,9 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
                 if (objType.equals (Chapter.OBJECT_TYPE))
                 {
                     
-                    this.addAccordionItem (new ChaptersAccordionItem (this.projectViewer));
+                    ChaptersAccordionItem it = new ChaptersAccordionItem (this.projectViewer);
+                                        
+                    this.addAccordionItem (it);
                 
                 }
                 
@@ -294,6 +341,22 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
         */
     }
  
+    public void setObjectsOpen (String objType)
+    {
+        
+        ProjectObjectsAccordionItem t = this.projItemBoxes.get (objType);        
+
+        if (t == null)
+        {
+            
+            return;
+            
+        }
+        
+        t.setContentVisible (true);        
+        
+    }
+ 
     public void initOpenObjectTypes (final Set<String> types)
     {
         
@@ -302,7 +365,7 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
 
             ProjectObjectsAccordionItem t = this.projItemBoxes.get (objType);        
 
-            t.setContentVisible (types.contains (objType));
+            t.setContentVisible (types.contains (objType));        
             
         }
         

@@ -1,20 +1,202 @@
 package com.quollwriter;
 
 import java.io.*;
+import java.awt.event.*;
 
 import java.text.*;
-
+import java.net.*;
 import java.util.*;
 import java.util.zip.*;
 
 import javax.swing.*;
 
 import com.gentlyweb.utils.*;
+import com.quollwriter.ui.*;
 
 import com.quollwriter.data.*;
 
 public class Utils
 {
+
+    public static void postToURL (final URL                 url,
+                                  final Map<String, String> headers,
+                                  final String              content,
+                                  final ActionListener      onSuccess,
+                                  final ActionListener      onError,
+                                  final ActionListener      onFailure)
+    {
+        
+        new Thread (new Runnable ()
+        {
+            
+            public void run ()
+            {
+        
+                try
+                {
+                            
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection ();
+                                        
+                    if (headers != null)
+                    {
+                    
+                        Iterator<String> iter = headers.keySet ().iterator ();
+                        
+                        while (iter.hasNext ())
+                        {
+                            
+                            String n = iter.next ();
+                            
+                            conn.setRequestProperty (n,
+                                                     headers.get (n));
+                            
+                        }
+                        
+                    }
+                    
+                    byte[] cb = content.getBytes ();
+                    conn.setRequestProperty ("content-length",
+                                             cb.length + "");
+
+                    conn.setRequestMethod ("POST");
+                                        
+                    conn.setDoInput (true);
+                    conn.setDoOutput (true);
+                    conn.connect ();
+                    
+                    OutputStream out = conn.getOutputStream ();
+                    out.write (cb);
+                    
+                    out.flush ();
+                    out.close ();
+                                
+                    // Try and get input stream, not all responses allow it.
+                    InputStream in = null;
+                            
+                    final int resCode = conn.getResponseCode ();
+
+                    if (resCode != HttpURLConnection.HTTP_OK)
+                    {
+                
+                        in = conn.getErrorStream ();
+                                
+                    } else {
+                        
+                        in = conn.getInputStream ();
+                        
+                    }
+                                
+                    String r = null;
+                    
+                    if (in != null)
+                    {
+                    
+                        StringBuilder b = new StringBuilder ();
+                    
+                        BufferedReader bin = new BufferedReader (new InputStreamReader (in));
+                    
+                        // Read everything.
+                        char chars[] = new char[8192];
+                        
+                        int count = 0;
+                        
+                        while ((count = bin.read (chars,
+                                                  0,
+                                                  8192)) != -1)
+                        {
+                            
+                            b.append (chars,
+                                      0,
+                                      count);
+                            
+                        }
+                        
+                        String s = b.toString ();
+                        
+                        String pref = "for(;;);";
+                        
+                        if (s.startsWith (pref))
+                        {
+                            
+                            s = s.substring (pref.length ());
+                            
+                        }
+            
+                        r = s;
+            
+                    }
+                        
+                    final String ret = r;
+                        
+                    conn.disconnect ();                        
+
+                    if (resCode != HttpURLConnection.HTTP_OK)
+                    {
+                        
+                        if (onError != null)
+                        {
+                            
+                            UIUtils.doLater (new ActionListener ()
+                                             {
+                                             
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    onError.actionPerformed (new ActionEvent (ret, resCode, "error"));
+                                                    
+                                                }
+                                             
+                                             });
+                            
+                        }
+                        
+                    } else {
+                        
+                        if (onSuccess != null)
+                        {
+                            
+                            UIUtils.doLater (new ActionListener ()
+                                             {
+                                             
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    onSuccess.actionPerformed (new ActionEvent (ret, resCode, "success"));
+                                                    
+                                                }
+                                             
+                                             });
+                            
+                        }                        
+                        
+                    }
+                    
+                } catch (final Exception e) {
+                    
+                    if (onFailure != null)
+                    {
+                        
+                        UIUtils.doLater (new ActionListener ()
+                                         {
+                                         
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                
+                                                onFailure.actionPerformed (new ActionEvent (e, 0, "exception"));
+                                                
+                                            }
+                                         
+                                         });
+                        
+                    }                    
+                    
+                }
+                
+            }
+            
+        }).start ();        
+        
+    }
 
     public static void extractZipFile (File   f,
                                        File   toDir)
@@ -620,7 +802,7 @@ public class Utils
 
     public static void deleteDir (File d)
     {
-
+        
         if (d.isFile ())
         {
 
@@ -649,7 +831,12 @@ public class Utils
             if (f.isFile ())
             {
 
-                f.delete ();
+                if (!f.delete ())
+                {
+                    
+                    Environment.logError ("Unable to delete file: " + f);
+                    
+                }
 
             } else
             {
@@ -664,4 +851,24 @@ public class Utils
 
     }
 
+    public static Date zeroTimeFields (Date d)
+    {
+        
+        GregorianCalendar gc = new GregorianCalendar ();
+        gc.setTime (d);
+        
+        gc.set (Calendar.HOUR_OF_DAY,
+                0);
+        gc.set (Calendar.MINUTE,
+                0);
+        gc.set (Calendar.SECOND,
+                0);
+        gc.set (Calendar.MILLISECOND,
+                0);        
+        
+        return gc.getTime ();
+        
+    }
+
+    
 }

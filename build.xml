@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.2.3" />
+  <property name="currVersion" value="2.3" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -19,9 +19,15 @@
   <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries.jar" />
   <property name="upgradeQuollWriterJar" value="${binDir}/${projectName}-upgrade.jar" />
   <property name="docsDir" value="./docs" />
-  <property name="year" value="2014"/>
+  <property name="year" value="2015"/>
   <property name="packages" value="com.quollwriter.*"/>
 
+  <property name="testDir" value="./test" />
+  <property name="testSrcDir" value="${testDir}/src" />
+  <property name="testBuildDir" value="${testDir}/build" />
+  <property name="testBinDir" value="${testDir}/bin" />
+  <property name="testJarName" value="${testBinDir}/${projectName}-tests.jar" />
+  
   <target name="init">
 
     <mkdir dir="${buildDir}" />
@@ -32,6 +38,18 @@
     </tstamp>
 
     <concat destfile="./data/version.txt">${currVersion}</concat>
+
+  </target>
+
+  <target name="cleanTestBuild">
+    <delete dir="${testBuildDir}" />
+  </target>
+  
+  <target name="testInit">
+
+    <mkdir dir="${testBuildDir}" />
+    <mkdir dir="${testSrcDir}" />
+    <mkdir dir="${testBinDir}" />    
 
   </target>
 
@@ -49,7 +67,10 @@
         <arg value="_debugMode" />        
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xnoagent" />
+        <!--
+        Uncomment if you want to access the jvm via jdb -attach jdbconn
         <jvmarg value="-Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jdbconn" />
+        -->
         <!--
         <arg value="-Dlog4j.configuration=log4j.xml" />
         -->
@@ -62,7 +83,7 @@
       </classpath>
     </java>
   </target>
-
+  
   <target name="runOnly" depends="init">
     <java classname="com.quollwriter.Startup" 
           maxmemory="512m"
@@ -143,7 +164,18 @@
         <include name="data/edit-position-example.png" />
         <include name="data/compressed-chapter-context-menu.png" />
         <include name="data/none-compressed-chapter-context-menu.png" />
-        <include name="data/default-find-image.png" />        
+        <include name="data/default-find-image.png" />
+        <include name="data/qw-editors-message-popup.png" />
+        <include name="data/layout-ps-ch.png" />
+        <include name="data/layout-ch-ps.png" />
+        <include name="data/layout-ch-os-ps.png" />
+        <include name="data/layout-os-ch-ps.png" />
+        <include name="data/layout-ps-ch-os.png" />
+        <include name="data/layout-ps-os-ch.png" />
+        <include name="data/editor-no-avatar.png" />
+        <include name="data/editors-schema-version.txt" />
+        <include name="data/editor-schema/**" />
+        <include name="data/editors-first-use-help.txt" />
       </fileset>
       <manifest>
         <attribute name="Built-By" value="${projectName}" />
@@ -182,63 +214,90 @@
 
   <target name="createLanguageFiles">
     
-    <delete file="./language-files/US English.zip" />
-    <delete file="./language-files/British English.zip" />
-    <delete file="./language-files/US English-only.zip" />
-    <delete file="./language-files/British English-only.zip" />
+    <delete file="./language-files/output/English.zip" />
+    <delete file="./language-files/output/English-dictionary-only.zip" />
+    <delete file="./language-files/output/Czech.zip" />
+    <delete file="./language-files/output/Dutch.zip" />
+    <delete file="./language-files/output/French.zip" />
+    <delete file="./language-files/output/German.zip" />
+    <delete file="./language-files/output/Italian.zip" />
+    <delete file="./language-files/output/Polish.zip" />
+    <delete file="./language-files/output/Russian.zip" />
+    <delete file="./language-files/output/Spanish.zip" />
     
-    <zip destfile="./language-files/US English.zip"
+    <zip destfile="./language-files/output/English.zip"
          update="yes">
       <fileset dir="./language-files">
-        <include name="dictionaries/English/english.0" />
-        <include name="dictionaries/English/english.1" />
-        <include name="dictionaries/English/english.2" />
-        <include name="dictionaries/English/english.3" />
-        <include name="dictionaries/US English/american.0" />
-        <include name="dictionaries/US English/american.1" />
-        <include name="dictionaries/US English/american.2" />
+        <include name="dictionaries/English.zip" />
         <include name="thesaurus/English/index.txt" />
         <include name="thesaurus/English/words.txt" />
         <include name="thesaurus/English/version.txt" />
       </fileset>
     </zip>
 
-    <zip destfile="./language-files/British English.zip">
+    <zip destfile="./language-files/output/English-dictionary-only.zip"
+         update="yes">
       <fileset dir="./language-files">
-        <include name="dictionaries/English/english.0" />
-        <include name="dictionaries/English/english.1" />
-        <include name="dictionaries/English/english.2" />
-        <include name="dictionaries/English/english.3" />
-        <include name="dictionaries/British English/british.0" />
-        <include name="dictionaries/British English/british.1" />
-        <include name="dictionaries/British English/british.2" />
-        <include name="thesaurus/English/index.txt" />
-        <include name="thesaurus/English/words.txt" />
-        <include name="thesaurus/English/version.txt" />
+        <include name="dictionaries/English.zip" />
       </fileset>
     </zip>
 
-    <zip destfile="./language-files/British English-only.zip">
+    <zip destfile="./language-files/output/Czech.zip"
+         update="yes">
       <fileset dir="./language-files">
-        <include name="dictionaries/British English/british.0" />
-        <include name="dictionaries/British English/british.1" />
-        <include name="dictionaries/British English/british.2" />
+        <include name="dictionaries/Czech.zip" />
       </fileset>
     </zip>
 
-    <zip destfile="./language-files/US English-only.zip">
+    <zip destfile="./language-files/output/Dutch.zip"
+         update="yes">
       <fileset dir="./language-files">
-        <include name="dictionaries/US English/american.0" />
-        <include name="dictionaries/US English/american.1" />
-        <include name="dictionaries/US English/american.2" />
+        <include name="dictionaries/Dutch.zip" />
       </fileset>
     </zip>
 
-    <zip destfile="./language-files/Polish.zip">
+    <zip destfile="./language-files/output/French.zip"
+         update="yes">
       <fileset dir="./language-files">
-        <include name="dictionaries/Polish/pl_huge.dic" />
+        <include name="dictionaries/French.zip" />
       </fileset>
     </zip>
+
+    <zip destfile="./language-files/output/German.zip"
+         update="yes">
+      <fileset dir="./language-files">
+        <include name="dictionaries/German.zip" />
+      </fileset>
+    </zip>
+
+    <zip destfile="./language-files/output/Italian.zip"
+         update="yes">
+      <fileset dir="./language-files">
+        <include name="dictionaries/Italian.zip" />
+      </fileset>
+    </zip>
+
+    <zip destfile="./language-files/output/Polish.zip"
+         update="yes">
+      <fileset dir="./language-files">
+        <include name="dictionaries/Polish.zip" />
+      </fileset>
+    </zip>
+
+    <zip destfile="./language-files/output/Russian.zip"
+         update="yes">
+      <fileset dir="./language-files">
+        <include name="dictionaries/Russian.zip" />
+      </fileset>
+    </zip>
+
+    <zip destfile="./language-files/output/Spanish.zip"
+         update="yes">
+      <fileset dir="./language-files">
+        <include name="dictionaries/Spanish.zip" />
+      </fileset>
+    </zip>
+    
   </target>
   
   <target name="createJar" depends="fullCompile">
@@ -355,6 +414,21 @@
     </java>
   </target>
 
+  <target name="createDictionaryFiles" depends="init">
+    <java classname="com.quollwriter.tools.CreateDictionaryFiles" 
+          maxmemory="512m"
+          fork="yes">
+        <arg value="./dictionaries" />
+      <classpath path="${jarName};${toolsJarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </java>
+  </target>
+
   <target name="getPromptAuthors" depends="init">
     <java classname="com.quollwriter.tools.GetPromptAuthors" 
           maxmemory="512m"
@@ -368,6 +442,102 @@
                  includes="*.jar" />    
       </classpath>
     </java>
+  </target>
+
+  <target name="dictTest" depends="init">
+    <javac srcdir="."
+           destdir="."
+           debug="on"
+           deprecation="on"
+           nowarn="on"
+           includes="DictionaryTest.java">
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </javac>
+           
+    <java classname="DictionaryTest" 
+          maxmemory="512m"
+          fork="yes">
+      <classpath path=".;${jarName};${toolsJarName}" />
+      <classpath>
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </java>
+
+  </target>
+
+  <target name="runTests" depends="createTestsJar">
+    <junit fork="yes"
+           printsummary="yes">
+      <classpath>
+        <fileset dir="${binDir}"
+                 includes="*.jar" />    
+        <fileset dir="${testBinDir}"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />            
+      </classpath>
+      <formatter type="plain" />
+      <test name="com.quollwriter.test.problemFinder.ProblemFinderTestSuite"
+            outfile="./test/results/problem-finder-results" />
+      <test name="com.quollwriter.test.text.TextTestSuite"
+            outfile="./test/results/text-results" />
+      <test name="com.quollwriter.test.db.DatabaseTestSuite"
+            outfile="./test/results/db-results" />
+      <test name="com.quollwriter.test.editors.messages.MessagesTestSuite"
+            outfile="./test/results/editors-messages-results" />
+    </junit>
+           
+  </target>
+  
+  <target name="compileTests" depends="cleanTestBuild,testInit">
+    <javac srcdir="${testSrcDir}"
+           destdir="${testBuildDir}"
+           debug="on"
+           deprecation="on"
+           nowarn="on"           
+           excludes="**/svn/**">
+      <classpath>
+        <fileset dir="${binDir}"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/"
+                 includes="*.jar" />    
+        <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+      </classpath>
+    </javac>
+           
+  </target>
+
+  <target name="createTestsJar" depends="compileTests">
+    <property name="title" value="QuollWriter-tests" />
+    <property name="package" value="com/quollwriter/test" />
+    
+    <jar destfile="${testJarName}" >
+      <fileset dir="${testBuildDir}"
+               includes="**/*.class" />
+      <fileset dir="test/data"
+               includes="*.xml" />
+      <manifest>
+        <attribute name="Built-By" value="${projectName}" />
+
+        <section name="${package}">
+          <attribute name="Implementation-Title" value="${title}" />
+          <attribute name="Implementation-Vendor" value="${projectName}" />
+          <attribute name="Implementation-Version" value="${currVersion} (${TODAY})" />
+        </section>
+      </manifest>
+    </jar>
+
   </target>
   
 </project>

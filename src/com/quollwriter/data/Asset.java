@@ -103,6 +103,8 @@ public abstract class Asset extends NamedObject
     {
 
         this.proj = p;
+        
+        this.setParent (this.proj);
 
     }
 

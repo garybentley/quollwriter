@@ -43,20 +43,14 @@ public class IgnoreCheckbox extends JCheckBox
 
             JEditorPane desc = UIUtils.createHelpTextPane (d + "Check the box to ignore this problem.",
                                                            null);
-            desc.setBorder (new EmptyBorder (0,
-                                             10,
-                                             0,
-                                             10));
+            desc.setBorder (UIUtils.createPadding (0, 10, 0, 10));
             desc.setSize (new Dimension (380,
                                          Short.MAX_VALUE));
 
             desc.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             b.add (desc);
-            b.setBorder (new EmptyBorder (5,
-                                          5,
-                                          5,
-                                          5));
+            b.setBorder (UIUtils.createPadding (5, 5, 5, 5));
 
             this.setBorder (new CompoundBorder (com.quollwriter.ui.components.UIUtils.internalPanelDropShadow,
                                                 UIUtils.createLineBorder ()));
@@ -82,6 +76,8 @@ public class IgnoreCheckbox extends JCheckBox
 
         this.issue = i;
 
+        this.setText (s);
+        
         this.qp = qp;
 
         final IgnoreCheckbox _this = this;
@@ -105,7 +101,8 @@ public class IgnoreCheckbox extends JCheckBox
                                                                                       qp.getProjectViewer ());
 
                                               qp.getProjectViewer ().showPopupAt (t,
-                                                                                  po);
+                                                                                  po,
+                                                                                  true);
 
                                           }
 
@@ -164,86 +161,88 @@ public class IgnoreCheckbox extends JCheckBox
             });
 
         this.addMouseListener (new MouseEventHandler ()
+        {
+
+            @Override
+            public void fillPopup (JPopupMenu m,
+                                   MouseEvent ev)
             {
 
-                public void handlePress (MouseEvent ev)
-                {
-
-                    if (ev.isPopupTrigger ())
-                    {
-
-                        final JPopupMenu m = new JPopupMenu ();
-
-                        m.add (UIUtils.createMenuItem ("Ignore this type of problem",
-                                                       null,
-                                                       new ActionAdapter ()
-                                                       {
-                            
+                m.add (UIUtils.createMenuItem ("Ignore this type of problem",
+                                               null,
+                                               new ActionAdapter ()
+                                               {
+                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                    
+                                                        ProblemFinderRuleConfig.confirmRuleRemoval (qp.getProjectViewer (),
+                                                                                                    _this.issue.getRule (),
+                                                                                                    _this.qp.getProjectViewer ().getProject ().getProperties (),
+                                                                                                    new ActionListener ()
+                                                        {
+                    
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                            
-                                                                ProblemFinderRuleConfig.confirmRuleRemoval (qp,
-                                                                                                            _this.issue.getRule (),
-                                                                                                            _this.qp.getProjectViewer ().getProject ().getProperties (),
-                                                                                                            new ActionListener ()
-                                                                {
-                            
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
-                            
-                                                                        _this.qp.removeIgnoreCheckboxesForRule (_this.issue.getRule ());
-                                                                        
-                                                                    }
-                            
-                                                                });
-                            
+                    
+                                                                _this.qp.removeIgnoreCheckboxesForRule (_this.issue.getRule ());
+                                                                
                                                             }
-                            
-                                                       }));
+                    
+                                                        });
+                    
+                                                    }
+                    
+                                               }));
 
-                        m.add (UIUtils.createMenuItem ("Edit this rule",
-                                                       null,
-                                                       new ActionAdapter ()
-                                                       {
-                            
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
-                            
-                                                                _this.qp.showProblemFinderRuleConfig ();
-                            
-                                                                _this.qp.getProblemFinderRuleConfig ().editRule (_this.issue.getRule (),
-                                                                                                                 false);
-                            
-                                                            }
-                            
-                                                       }));
+                m.add (UIUtils.createMenuItem ("Edit this rule",
+                                               null,
+                                               new ActionAdapter ()
+                                               {
+                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                    
+                                                        _this.qp.showProblemFinderRuleConfig ();
+                    
+                                                        _this.qp.getProjectViewer ().getProblemFinderRuleConfig ().editRule (_this.issue.getRule (),
+                                                                                                                             false);
+                    
+                                                    }
+                    
+                                               }));
+                
+            }
+        
+            @Override
+            public void mouseExited (MouseEvent ev)
+            {
 
-                        m.show ((Component) ev.getSource (),
-                                ev.getX (),
-                                ev.getY ());
+                show.stop ();
+                hide.start ();
 
-                    }
+            }
 
-                }
+            @Override
+            public void mouseEntered (MouseEvent ev)
+            {
 
-                public void mouseExited (MouseEvent ev)
-                {
+                show.start ();
+                hide.stop ();
 
-                    show.stop ();
-                    hide.start ();
+            }
 
-                }
+        });
 
-                public void mouseEntered (MouseEvent ev)
-                {
-
-                    show.start ();
-                    hide.stop ();
-
-                }
-
-            });
-
+    }
+    
+    @Override
+    public void setText (String t)
+    {
+        
+        super.setText (String.format ("<html>%s</html>",
+                                      Environment.replaceObjectNames (t)));
+        
     }
 
 }

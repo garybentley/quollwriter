@@ -53,7 +53,10 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.renderers.*;
-
+import com.quollwriter.editors.*;
+import com.quollwriter.editors.ui.*;
+import com.quollwriter.editors.ui.panels.*;
+import com.quollwriter.editors.ui.sidebars.*;
 
 public class ProjectViewer extends AbstractProjectViewer
 {
@@ -86,6 +89,8 @@ public class ProjectViewer extends AbstractProjectViewer
     private EditNoteTypes   noteTypesEdit = null;
     private EditItemTypes   itemTypesEdit = null;
     private ProjectSideBar  sideBar = null;
+    private ChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
+    private IconProvider iconProvider = null;
         
     public ProjectViewer()
     {
@@ -128,6 +133,9 @@ public class ProjectViewer extends AbstractProjectViewer
             }
             
         };
+        
+        this.iconProvider = new DefaultIconProvider ();
+        this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
         
         this.noteTypeHandler = new NoteTypeHandler (this,
                                                     noteProvider);
@@ -188,6 +196,20 @@ public class ProjectViewer extends AbstractProjectViewer
                         
         this.sideBar = new ProjectSideBar (this,
                                            objTypes);
+        
+    }
+    
+    public IconProvider getIconProvider ()
+    {
+        
+        return this.iconProvider;
+        
+    }
+    
+    public ChapterItemViewPopupProvider getChapterItemViewPopupProvider ()
+    {
+        
+        return this.chapterItemViewPopupProvider;
         
     }
     
@@ -352,37 +374,6 @@ public class ProjectViewer extends AbstractProjectViewer
     {
         
         final ProjectViewer _this = this;
-
-        if (Environment.editorServiceAvailable)
-        {
-        
-            toolbar.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
-                                               Constants.ICON_TITLE_ACTION,
-                                               "Click to find editors for your {project}",
-                                               new ActionAdapter ()
-                                               {
-                                                    
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        EditorProject proj = _this.getProject ().getEditorProject ();
-                
-                                                        if (proj != null)
-                                                        {
-                                                            
-                                                            _this.viewEditors ();
-                                                            
-                                                            return;
-                                                            
-                                                        }
-                                                        
-                                                        _this.showAdvertiseProjectPanel ();
-                                                        
-                                                    }
-                                                    
-                                               }));
-
-        }
         
         toolbar.add (UIUtils.createButton (Constants.IDEA_ICON_NAME,
                                            Constants.ICON_TITLE_ACTION,
@@ -500,59 +491,137 @@ public class ProjectViewer extends AbstractProjectViewer
     public void showExportProject ()
     {
         
-        ExportProject ep = new ExportProject (this);
+        QPopup popup = UIUtils.createWizardPopup ("Export {Project}",
+                                                  Constants.PROJECT_EXPORT_ICON_NAME,
+                                                  null,
+                                                  new ExportProject (this));
 
-        ep.init ();        
-        
+        popup.setDraggable (this);
+                          
+        popup.resize ();
+        this.showPopupAt (popup,
+                          UIUtils.getCenterShowPosition (this,
+                                                         popup),
+                          false);
+
     }
 
     public void showImportProject ()
     {
         
-        ImportProject ip = new ImportProject (this);
+        QPopup popup = UIUtils.createWizardPopup ("Import a File",
+                                                  Constants.PROJECT_IMPORT_ICON_NAME,
+                                                  null,
+                                                  new ImportProject (this));
 
-        ip.init ();        
+        popup.setDraggable (this);
+                          
+        popup.resize ();
+        this.showPopupAt (popup,
+                          UIUtils.getCenterShowPosition (this,
+                                                         popup),
+                          false);
         
     }
 
     public void showEditNoteTypes ()
     {
         
-        if (this.noteTypesEdit == null)
+        String popupName = "editnotetypes";
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
         {
         
+            popup = UIUtils.createClosablePopup ("Manage the {Note} Types",
+                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+        
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+        
+            EditNoteTypes content = new EditNoteTypes (this);
+            content.init ();
+        
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+            popup.setContent (content);
+            
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+        /*
             this.noteTypesEdit = new EditNoteTypes (this);
     
             this.noteTypesEdit.init ();        
 
             this.noteTypeHandler.setTypesEditor (this.noteTypesEdit);
-
+*/
         } else {
             
-            this.noteTypesEdit.setVisible (true);
+            popup.setVisible (true);
+            //this.noteTypesEdit.setVisible (true);
             
         }
+
+        this.fireProjectEvent (ProjectEvent.NOTE_TYPES,
+                               ProjectEvent.SHOW);
         
     }
 
     public void showEditItemTypes ()
     {
         
-        if (this.itemTypesEdit == null)
+        String popupName = "edititemtypes";
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
         {
         
-            this.itemTypesEdit = new EditItemTypes (this);
-    
-            this.itemTypesEdit.init ();        
-
-            this.itemTypeHandler.setTypesEditor (this.itemTypesEdit);
+            popup = UIUtils.createClosablePopup ("Manage the {Object} Types",
+                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+        
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+        
+            EditItemTypes content = new EditItemTypes (this);
+            content.init ();
+        
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+            
+            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+        
+            popup.setContent (content);
+            
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
 
         } else {
             
-            this.itemTypesEdit.setVisible (true);
+            popup.setVisible (true);
+
             
         }
-        
+
         this.fireProjectEvent (ProjectEvent.ITEM_TYPES,
                                ProjectEvent.SHOW);
         
@@ -601,7 +670,21 @@ public class ProjectViewer extends AbstractProjectViewer
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    pv.viewChapterInformation ((Chapter) other);
+                    try
+                    {
+                
+                        pv.viewChapterInformation ((Chapter) other);
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to view chapter information for chapter: " +
+                                              other,
+                                              e);
+                        
+                        UIUtils.showErrorMessage (pv,
+                                                  "Unable to view chapter information.");
+                        
+                    }
 
                 }
 
@@ -1072,6 +1155,7 @@ public class ProjectViewer extends AbstractProjectViewer
     }
 
     public void handleNewProject ()
+                           throws Exception
     {
 
         Book b = this.proj.getBooks ().get (0);
@@ -1089,6 +1173,9 @@ public class ProjectViewer extends AbstractProjectViewer
             
         }
 
+        this.saveObject (c,
+                         true);
+        
         // Refresh the chapter tree.
         this.reloadTreeForObjectType (c.getObjectType ());
                 
@@ -1097,21 +1184,6 @@ public class ProjectViewer extends AbstractProjectViewer
         this.editChapter (c);
         
     }
-    /*
-    public void newProject (File    dir,
-                    String  name,
-                    String  filePassword)
-                    throws  Exception
-    {
-
-    Project p = new Project (name);
-
-    this.newProject (dir,
-                 p,
-                 filePassword);
-
-    }
-     */
 
     public String getViewerIcon ()
     {
@@ -1199,40 +1271,8 @@ public class ProjectViewer extends AbstractProjectViewer
     public void handleOpenProject ()
     {
 
-        final ProjectViewer _this = this;
-
-        // See if we should be doing a warmup exercise.
-        Properties userProps = Environment.getUserProperties ();
-
-        if ((userProps.getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME)) &&
-            (Environment.getOpenProjects ().size () == 0))
-        {
-
-            javax.swing.Timer t = new javax.swing.Timer (2000,
-                                                         new ActionAdapter ()
-                                                         {
-
-                                                             public void actionPerformed (ActionEvent ev)
-                                                             {
-
-                                                                 WarmupPromptSelect w = new WarmupPromptSelect (_this);
-
-                                                                 w.init ();
-
-                                                                 _this.fireProjectEvent (Warmup.OBJECT_TYPE,
-                                                                                         ProjectEvent.WARMUP_ON_STARTUP);
-
-                                                             }
-
-                                                         });
-
-            t.setRepeats (false);
-            t.start ();
-
-        }
-
         this.initProjectItemBoxes ();
-        
+                        
     }
 
     private void initProjectItemBoxes ()
@@ -1697,7 +1737,21 @@ public class ProjectViewer extends AbstractProjectViewer
             if (d.getObjectType ().equals (Chapter.INFORMATION_OBJECT_TYPE))
             {
 
-                return this.viewChapterInformation (c);
+                try
+                {
+            
+                    return this.viewChapterInformation (c);
+                
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to view chapter information for chapter: " +
+                                          c,
+                                          e);
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to show chapter information.");
+                    
+                }
 
             } else
             {
@@ -2026,27 +2080,28 @@ public class ProjectViewer extends AbstractProjectViewer
     {
         
         final ProjectViewer _this = this;
-        
-        Map events = new HashMap ();
-        events.put (NamedObject.NAME,
-                    "");
-                    
-        n.addPropertyChangedListener (new PropertyChangedAdapter ()
+                            
+        qp.addObjectPropertyChangedListener (new PropertyChangedListener ()
         {
 
+            @Override
             public void propertyChanged (PropertyChangedEvent ev)
             {
 
-                _this.setTabHeaderTitle (qp,
-                                         qp.getTitle ());
+                if (ev.getChangeType ().equals (NamedObject.NAME))
+                {
             
-                _this.informTreeOfNodeChange (n,
-                                              _this.getTreeForObjectType (n.getObjectType ()));
+                    _this.setTabHeaderTitle (qp,
+                                             qp.getTitle ());
+                
+                    _this.informTreeOfNodeChange (n,
+                                                  _this.getTreeForObjectType (n.getObjectType ()));
 
+                }
+                                                  
             }
 
-        },
-        events);        
+        });
         
     }    
         
@@ -2090,26 +2145,13 @@ public class ProjectViewer extends AbstractProjectViewer
         this.viewWordCloud ();        
         
     }
-    
-    public boolean viewEditors ()
-    {
         
-        EditorsSideBar sb = new EditorsSideBar (this);
-        
-        this.addSideBar ("editors",
-                         sb);
-        
-        this.showSideBar ("editors");
-        
-        return true;
-        
-    }
-    
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter information is viewed.
      */
     public boolean viewChapterInformation (final Chapter c)
+                                    throws GeneralException
     {
 
         ChapterInformationSideBar cb = new ChapterInformationSideBar (this,
@@ -2129,6 +2171,13 @@ public class ProjectViewer extends AbstractProjectViewer
         
         return this.sideBar.getTreeForObjectType (objType);
                 
+    }
+    
+    public void openObjectSection (String objType)
+    {
+        
+        this.sideBar.setObjectsOpen (objType);
+        
     }
     
     public void addChapterToTreeAfter (Chapter newChapter,
@@ -2335,7 +2384,9 @@ public class ProjectViewer extends AbstractProjectViewer
         this.removeAllPanelsForObject (c);
 
         // Notify the note tree about the change.
-        for (Note n : c.getNotes ())
+        // We get a copy of the notes here to allow iteration.
+        Set<Note> _notes = new LinkedHashSet (c.getNotes ());
+        for (Note n : _notes)
         {
 
             try
@@ -2790,7 +2841,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                    throws GeneralException
     {
 
-        ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.OBJECT_TYPE);
+        ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.class);
 
         dh.saveProblemFinderIgnores (c,
                                      issues);
@@ -2802,7 +2853,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                                throws GeneralException
     {
 
-        ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.OBJECT_TYPE);
+        ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.class);
 
         return dh.getProblemFinderIgnores (c,
                                            doc);
@@ -2816,4 +2867,116 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    public void scheduleAutoSaveForAllEditors ()
+    {
+
+        this.doForPanels (AbstractEditableEditorPanel.class,
+                          new DefaultQuollPanelAction ()
+                          {
+                            
+                              public void doAction (QuollPanel p)
+                              {
+
+                                  ((AbstractEditableEditorPanel) p).scheduleAutoSave ();
+                                
+                              }
+                            
+                          });
+
+    }
+
+    public Set<FindResultsBox> findText (String t)
+    {
+        
+        Set<FindResultsBox> res = new LinkedHashSet ();
+        
+        // Get the snippets.
+        Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getTextSnippets (t,
+                                                                                  this);
+
+        if (snippets.size () > 0)
+        {
+
+            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+                                                Chapter.OBJECT_TYPE,
+                                                Chapter.OBJECT_TYPE,
+                                                this,
+                                                snippets));
+            
+        }
+
+        Set<String> assetTypes = new LinkedHashSet ();
+        assetTypes.add (QCharacter.OBJECT_TYPE);
+        assetTypes.add (Location.OBJECT_TYPE);
+        assetTypes.add (QObject.OBJECT_TYPE);
+        assetTypes.add (ResearchItem.OBJECT_TYPE);
+                
+        for (String type : assetTypes)
+        {
+                    
+            Class c = Asset.getAssetClass (type);
+                    
+            Set<Asset> objs = UIUtils.getAssetsContaining (t,
+                                                           c,
+                                                           this.proj);
+
+            if (objs.size () > 0)
+            {                                                           
+            
+                res.add (new NamedObjectFindResultsBox<Asset> (Environment.getObjectTypeNamePlural (type),
+                                                    type,
+                                                    type,
+                                                    this,
+                                                    objs));
+            
+            }
+
+        }
+                                                           
+        Set<Note> notes = UIUtils.getNotesContaining (t,
+                                                      this.proj);
+
+        if (notes.size () > 0)
+        {                                                      
+        
+            res.add (new NamedObjectFindResultsBox<Note> (Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE),
+                                                Note.OBJECT_TYPE,
+                                                Note.OBJECT_TYPE,
+                                                this,
+                                                notes));
+            
+        }
+        
+        Set<OutlineItem> oitems = UIUtils.getOutlineItemsContaining (t,
+                                                                     this.proj);
+
+        if (oitems.size () > 0)
+        {                                                                     
+        
+            res.add (new NamedObjectFindResultsBox<OutlineItem> (Environment.getObjectTypeNamePlural (OutlineItem.OBJECT_TYPE),
+                                                OutlineItem.OBJECT_TYPE,
+                                                OutlineItem.OBJECT_TYPE,
+                                                this,
+                                                oitems));
+            
+        }
+
+        Set<Scene> scenes = UIUtils.getScenesContaining (t,
+                                                         this.proj);
+
+        if (scenes.size () > 0)
+        {                                                         
+        
+            res.add (new NamedObjectFindResultsBox<Scene> (Environment.getObjectTypeNamePlural (Scene.OBJECT_TYPE),
+                                                Scene.OBJECT_TYPE,
+                                                Scene.OBJECT_TYPE,
+                                                this,
+                                                scenes));
+            
+        }
+        
+        return res;
+        
+    }
+        
 }

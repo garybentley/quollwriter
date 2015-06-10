@@ -43,6 +43,46 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     }
 
+    public ParagraphLengthRule (int     sentenceCount,
+                                int     wordCount,
+                                boolean user)
+    {
+
+        this (user);
+
+        this.sentenceCount = sentenceCount;
+        this.wordCount = wordCount;
+        
+    }
+
+    public int getSentenceCount ()
+    {
+        
+        return this.sentenceCount;
+        
+    }
+    
+    public void setSentenceCount (int c)
+    {
+        
+        this.sentenceCount = c;
+        
+    }
+    
+    public int getWordCount ()
+    {
+        
+        return this.wordCount;
+        
+    }
+    
+    public void setWordCount (int c)
+    {
+        
+        this.wordCount = c;
+        
+    }
+
     public String getDescription ()
     {
 
@@ -154,11 +194,15 @@ public class ParagraphLengthRule extends AbstractParagraphRule
             
         int wc = paragraph.getWordCount ();
             
-        if (wc > this.wordCount)
+        if ((this.wordCount > 0)
+            &&
+            (wc > this.wordCount)
+           )
         {
             
             Issue iss = new Issue ("Paragraph word count is: <b>" + Environment.formatNumber (wc) + "</b>.  (Max is: " + Environment.formatNumber (this.wordCount) + ")",
                                    paragraph,
+                                   paragraph.getAllTextStartOffset () + "-wordcount-" + wc,
                                    this);
 
             issues.add (iss);
@@ -167,11 +211,15 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         int sc = paragraph.getSentenceCount ();
         
-        if (sc > this.sentenceCount)
+        if ((this.sentenceCount > 0)
+            &&
+            (sc > this.sentenceCount)
+           )
         {
             
             Issue iss = new Issue ("Paragraph sentence count is: <b>" + Environment.formatNumber (sc) + "</b>.  (Max is: " + Environment.formatNumber (this.sentenceCount) + ")",
                                    paragraph,
+                                   paragraph.getAllTextStartOffset () + "-sentencecount-" + sc,
                                    this);
 
             issues.add (iss);

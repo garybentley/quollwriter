@@ -18,6 +18,7 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.events.*;
+import com.quollwriter.events.*;
 import com.quollwriter.ui.panels.*;
 
 public class WordCountTimerBox extends Box implements WordCountTimerListener
@@ -99,7 +100,8 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
                                                         }
                                     
                                                         _this.parent.showPopupAt (_this.popup,
-                                                                                  _this.showButton);
+                                                                                  _this.showButton,
+                                                                                  false);
 
                                                     }
                                                 });
@@ -117,6 +119,34 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
         
         this.add (this.progressWrapper);
 
+        this.progress.addMouseListener (new MouseEventHandler ()
+        {
+           
+            @Override
+            public void fillPopup (JPopupMenu menu,
+                                   MouseEvent ev)
+            {
+                
+                menu.add (UIUtils.createMenuItem ("Stop",
+                                                  Constants.CLOSE_ICON_NAME,
+                                                  new ActionListener ()
+                                                  {
+                                                       
+                                                      public void actionPerformed (ActionEvent ev)
+                                                      {
+                                                           
+                                                           _this.timer.stop ();
+                                                           
+                                                           _this.timerFinished (null);
+                                                           
+                                                      }
+                                                       
+                                                  }));
+                                
+            }
+            
+        });
+        
     }
 
     public void setBarHeight (int h)
@@ -175,10 +205,26 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                int mins = WarmupPromptSelect.getMinsCount (_this.mins);
+                int words = WarmupPromptSelect.getWordCount (_this.words);
+            
+                if ((mins == 0)
+                    &&
+                    (words == 0)
+                   )
+                {
+                    
+                    UIUtils.showErrorMessage (_this.parent,
+                                              "o_O  The timer can't be unlimited for both time and words.");
+                    
+                    return;
+                    
+                }
+            
                 _this.timer.addTimerListener (_this);
 
-                _this.timer.start (WarmupPromptSelect.getMinsCount (_this.mins),
-                                   WarmupPromptSelect.getWordCount (_this.words));
+                _this.timer.start (mins,
+                                   words);
                       
                 _this.popup.setVisible (false);
                 
@@ -225,7 +271,7 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
     public void timerFinished (WordCountTimerEvent ev)
     {
 
-        this.timer.removeTimerListener (this);
+        //this.timer.removeTimerListener (this);
         
         final WordCountTimerBox _this = this;
         
@@ -236,39 +282,45 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
         String t = null;
         String title = null;
     
-        if (ev.getMinutePercentage () > ev.getWordPercentage ())
+        if (ev != null)
         {
-
-            t = "You have completed " + ev.getMinuteCount () + " minutes of writing.  Congratulations!";
-
-            title = "Word count reached";
+    
+            if (ev.getMinutePercentage () > ev.getWordPercentage ())
+            {
+    
+                t = "You have completed " + ev.getMinuteCount () + " minutes of writing.  Congratulations!";
+    
+                title = "Word count reached";
+                
+            } else {
+    
+                t = "You have written " + ev.getWordCount () + " words.  Well done!";
+    
+                title = "Time is up";
+                
+            }
+    
+            JLabel l = new JLabel (t);
+            l.setBorder (new EmptyBorder (10,
+                                          10,
+                                          10,
+                                          10));
+            l.setToolTipText ("Click to close this popup");
             
-        } else {
-
-            t = "You have written " + ev.getWordCount () + " words.  Well done!";
-
-            title = "Time is up";
+            QPopup p = UIUtils.createPopup (title,
+                                            null,
+                                            l,
+                                            true,
+                                            null);
             
+            p.hideIn (10, true);
+            
+            this.parent.showPopupAt (p,
+                                     new Point (10,
+                                                10),
+                                     true);
+
         }
-
-        JLabel l = new JLabel (t);
-        l.setBorder (new EmptyBorder (10,
-                                      10,
-                                      10,
-                                      10));
-        l.setToolTipText ("Click to close this popup");
-        
-        QPopup p = UIUtils.createPopup (title,
-                                        null,
-                                        l,
-                                        true,
-                                        null);
-        
-        p.hideIn (10, true);
-        
-        this.parent.showPopupAt (p,
-                                 new Point (10,
-                                            10));
         
         this.validate ();
         

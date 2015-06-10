@@ -1,0 +1,27 @@
+Basic Suggester / Suggester Spell Check Software.
+Copyright and License Information.
+
+The Software owned and licensed exclusively by SoftCorporation LLC.
+Copyright (C) 2006 SoftCorporation LLC. All rights reserved.
+
+SoftCorporation LLC. grants to you ("Licensee") a non-exclusive,
+non-transferable license to use the binary code without fee.
+Licensee may distribute the software to third parties provided that
+the copyright notice appear on all copies.
+
+The Software may contain source code that, is provided solely for reference 
+purposes. Source code may not be redistributed unless expressly provided 
+for in this Agreement. You may not modify, decompile, or reverse engineer 
+the Software. Ownership of the Software shall remain solely to the
+SoftCorporation LLC.
+
+SOFTCORPORATION LLC. MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE
+SUITABILITY OF THE BINARY SOFTWARE, EITHER EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+SOFTCORPORATION LLC. SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY
+LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING THE SOFTWARE.
+
+By downloading, using or copying this Software, Licensee agrees
+to abide by the intellectual property laws, and all other applicable
+laws of the U.S., and the terms of this License.

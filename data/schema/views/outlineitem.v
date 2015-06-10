@@ -9,7 +9,10 @@ SELECT o.dbkey dbkey,
        n.lastmodified lastmodified,
        n.objecttype objecttype,
        n.datecreated datecreated,
-       n.properties  properties
+       n.properties  properties,
+       n.id           id,
+       n.version      version,
+       n.latest       latest       
 FROM   namedobject_v n,
        outlineitem   o
 WHERE  o.dbkey = n.dbkey

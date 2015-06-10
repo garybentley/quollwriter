@@ -1,5 +1,21 @@
 <whatsnew>
 
+  <version id="2.3b">        
+    <item>
+      <title>Editor Mode</title>
+      <description><![CDATA[Editor Mode is here, but in beta form to start.]]></description>
+    </item>
+
+  </version>
+
+  <version id="2.2.5">        
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fix</title>
+      <description><![CDATA[This update fixes an issue with the .docx export so that styled text will export correctly.]]></description>
+    </item>
+
+  </version>
+
   <version id="2.2.4">        
     <item onlyIfCurrentVersion="true">
       <title>Bug fixes</title>

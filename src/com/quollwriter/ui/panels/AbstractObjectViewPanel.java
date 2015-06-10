@@ -125,24 +125,22 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
                                            
         final Header tTitle = this.title;
 
-        Map events = new HashMap ();
-        events.put (NamedObject.NAME,
-                    "");
-
         this.addObjectPropertyChangedListener (new PropertyChangedAdapter ()
+        {
+
+            public void propertyChanged (PropertyChangedEvent ev)
             {
 
-                public void propertyChanged (PropertyChangedEvent ev)
+                if (ev.getChangeType ().equals (NamedObject.NAME))
                 {
-
-                    //tTitle.setTitle (((NamedObject) ev.getSource ()).getName ());
-
+            
                     _this.refresh (_this.obj);
                     
                 }
+                
+            }
 
-            },
-            events);
+        });
 
         this.topLevelComps.add (this.title);
 
@@ -450,10 +448,28 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
             public IconProvider getIconProvider ()
             {
 
-                DefaultIconProvider iconProv = new DefaultIconProvider ();
-                iconProv.putIcon ("header",
-                                  Link.OBJECT_TYPE);
-
+                DefaultIconProvider iconProv = new DefaultIconProvider ()
+                {
+                  
+                    @Override
+                    public ImageIcon getIcon (String name,
+                                              int    type)
+                    {
+                        
+                        if (name.equals ("header"))
+                        {
+                            
+                            name = Link.OBJECT_TYPE;
+                            
+                        }
+                        
+                        return super.getIcon (name,
+                                              type);
+                        
+                    }
+                    
+                };
+                
                 return iconProv;
 
             }

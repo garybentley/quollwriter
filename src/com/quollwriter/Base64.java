@@ -1327,6 +1327,14 @@ public class Base64
      */
     public static byte[] decode (String s)
     {
+        
+        if (s == null)
+        {
+            
+            return null;
+            
+        }
+        
         byte[] bytes;
 
         try

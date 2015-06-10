@@ -14,10 +14,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
+import javax.swing.text.*;
 
 import com.gentlyweb.properties.*;
 
@@ -41,6 +44,7 @@ import com.quollwriter.ui.components.DocumentAdapter;
 import com.quollwriter.ui.components.TabHeader;
 import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.sidebars.*;
@@ -52,6 +56,7 @@ public class WarmupsViewer extends AbstractProjectViewer
     public static final int NEW_WARMUP_ACTION = 202;
     public static final int DELETE_WARMUP_ACTION = 203;
     public static final int CONVERT_TO_PROJECT_ACTION = 204;
+    public static final int RENAME_WARMUP_ACTION = 205;
 
     private ChapterCounts          startWordCounts = new ChapterCounts ();
     private java.util.List<Warmup> warmups = null;
@@ -143,6 +148,14 @@ public class WarmupsViewer extends AbstractProjectViewer
 
         final WarmupsViewer _this = this;
 
+        if (name == RENAME_WARMUP_ACTION)
+        {
+
+            return new RenameWarmupActionHandler ((Chapter) other,
+                                                  this);
+
+        }        
+        
         if (name == CONVERT_TO_PROJECT_ACTION)
         {
 
@@ -158,10 +171,9 @@ public class WarmupsViewer extends AbstractProjectViewer
 
                     Warmup w = _this.getWarmupForChapter (c);
 
-                    new ConvertWarmupToProject (_this,
-                                                w,
-                                                aep).init ();
-
+                    _this.showConvertWarmupToProject (w,
+                                                      aep);
+                                                
                     _this.fireProjectEvent (Warmup.OBJECT_TYPE,
                                             ProjectEvent.CONVERT_TO_PROJECT,
                                             w);
@@ -199,9 +211,9 @@ public class WarmupsViewer extends AbstractProjectViewer
         if (name == DELETE_WARMUP_ACTION)
         {
 
-            return this.getAction (AbstractProjectViewer.DELETE_CHAPTER_ACTION,
-                                   other);
-
+            return new DeleteWarmupActionHandler ((Chapter) other,
+                                                  this);
+        
         }
 
         throw new IllegalArgumentException ("Action: " +
@@ -210,6 +222,146 @@ public class WarmupsViewer extends AbstractProjectViewer
 
     }
 
+    private void showConvertWarmupToProject (final Warmup              warmup,
+                                             final AbstractEditorPanel panel)
+    {
+        
+        final WarmupsViewer _this = this;
+        
+        final QPopup popup = UIUtils.createClosablePopup ("Convert {warmup} to {a project}",
+                                             Environment.getIcon (Project.OBJECT_TYPE,
+                                                                  Constants.ICON_POPUP),
+                                             null);        
+        
+        NewProjectPanel npanel = new NewProjectPanel ()
+        {
+          
+            @Override
+            public boolean createProject (Container parent)
+            {
+                
+                if (!this.checkForm (_this))
+                {
+
+                    popup.resize ();
+                
+                    return false;
+
+                }
+
+                ProjectViewer pj = new ProjectViewer ();
+
+                Project p = new Project (this.getName ());
+
+                Book b = new Book (p,
+                                   p.getName ());
+
+                // Create a new chapter for the book.
+                Chapter c = new Chapter (b,
+                                         Environment.getProperty (Constants.DEFAULT_CHAPTER_NAME_PROPERTY_NAME));
+
+                b.addChapter (c);
+
+                c.setName (warmup.getChapter ().getName ());
+                c.setText (panel.getEditor ().getText ());
+                c.setMarkup (panel.getEditor ().getMarkup ().toString ());
+
+                p.addBook (b);
+
+                String pwd = this.getPassword ();
+
+                try
+                {
+
+                    pj.newProject (this.getSaveDirectory (),
+                                   p,
+                                   pwd);
+
+                    pj.createActionLogEntry (p,
+                                             "Project created from warmup, prompt id: " +
+                                             warmup.getPrompt ().getId () +
+                                             " and chapter: " +
+                                             warmup.getChapter ().getName () +
+                                             " (" +
+                                             warmup.getChapter ().getKey () +
+                                             ")");
+
+                } catch (Exception e)
+                {
+
+                    Environment.logError ("Unable to create new project: " +
+                                          p,
+                                          e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to create new project: " + p.getName ());
+
+                    return false;
+
+                }
+                
+                return true;
+                
+            }
+            
+        };        
+        
+        JComponent newpanel = npanel.createPanel (this,
+                                                  new ActionListener ()
+                                                  {
+                                                    
+                                                      public void actionPerformed (ActionEvent ev)
+                                                      {
+                                                        
+                                                          popup.removeFromParent ();
+                                                        
+                                                      }
+                                                    
+                                                  },
+                                                  true,
+                                                  new ActionListener ()
+                                                  {
+                                                    
+                                                      public void actionPerformed (ActionEvent ev)
+                                                      {
+                                                        
+                                                          popup.removeFromParent ();
+                                                        
+                                                      }
+                                                    
+                                                  },
+                                                  true);
+                    
+        Box content = new Box (BoxLayout.Y_AXIS);
+        
+        JTextPane help = UIUtils.createHelpTextPane ("To create the new {Project} enter the name below, select the directory it should be saved to and press the Create button.  Your warm-up text will be added as a {chapter} to the {Project}.",
+                                                     this);        
+               
+        help.setBorder (null);
+        help.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                         500));        
+        content.add (help);
+        
+        content.add (Box.createVerticalStrut (5));
+        
+        content.add (newpanel);
+                                                  
+        popup.setContent (content);
+        
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                         content.getPreferredSize ().height));        
+
+        popup.setDraggable (this);
+                          
+        popup.resize ();
+        this.showPopupAt (popup,
+                          UIUtils.getCenterShowPosition (this,
+                                                         popup),
+                          false);
+        
+    }
+    
     public void doSaveState ()
     {
 
@@ -390,36 +542,6 @@ public class WarmupsViewer extends AbstractProjectViewer
 
         });
 
-        // See if we should be doing a warmup exercise.
-        Properties userProps = Environment.getUserProperties ();
-
-        if ((userProps.getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME)) &&
-            (Environment.getOpenProjects ().size () == 0))
-        {
-
-            javax.swing.Timer t = new javax.swing.Timer (2000,
-                                                         new ActionAdapter ()
-                                                         {
-
-                                                             public void actionPerformed (ActionEvent ev)
-                                                             {
-
-                                                                 WarmupPromptSelect w = new WarmupPromptSelect (_this);
-
-                                                                 w.init ();
-
-                                                                 _this.fireProjectEvent (Warmup.OBJECT_TYPE,
-                                                                                         ProjectEvent.WARMUP_ON_STARTUP);
-
-                                                             }
-
-                                                         });
-
-            t.setRepeats (false);
-            t.start ();
-
-        }            
-            
     }
 
     public void handleItemChangedEvent (ItemChangedEvent ev)
@@ -572,7 +694,7 @@ public class WarmupsViewer extends AbstractProjectViewer
     public boolean editWarmup (Warmup w)
     {
 
-        Chapter c = w.getChapter ();
+        final Chapter c = w.getChapter ();
 
         // Check our tabs to see if we are already editing this warmup, if so then just switch to it instead.
         QuollPanel qp = this.getQuollPanel (c.getObjectReference ().asString ());
@@ -641,25 +763,47 @@ public class WarmupsViewer extends AbstractProjectViewer
         });
             
         final QuollPanel qpp = wep;
-            
-        Map events = new HashMap ();
-        events.put (NamedObject.NAME,
-                    "");
 
-        c.addPropertyChangedListener (new PropertyChangedAdapter ()
+        qpp.addObjectPropertyChangedListener (new PropertyChangedListener ()
+        {
+
+            @Override
+            public void propertyChanged (PropertyChangedEvent ev)
+            {
+
+                if (ev.getChangeType ().equals (NamedObject.NAME))
+                {
+            
+                    _this.setTabHeaderTitle (qpp,
+                                             qpp.getTitle ());
+                
+                    _this.informTreeOfNodeChange (c,
+                                                  _this.getWarmupsTree ());//c.getObjectType ()));
+
+                }
+                                                  
+            }
+
+        });
+            /*
+        c.addPropertyChangedListener (new PropertyChangedListener ()
         {
 
             public void propertyChanged (PropertyChangedEvent ev)
             {
 
-                th.setTitle (qpp.getTitle ());
-                _this.getWarmupsTree ().repaint ();
+                if (ev.getChangeType ().equals (NamedObject.NAME))
+                {
+                    
+                    th.setTitle (qpp.getTitle ());
+                    _this.getWarmupsTree ().repaint ();
 
+                }
+                    
             }
 
-        },
-        events);
-
+        });
+*/
         // Open the tab :)
         return this.editWarmup (w);
 
@@ -680,6 +824,7 @@ public class WarmupsViewer extends AbstractProjectViewer
         
     }
     
+    @Override
     public void deleteChapter (Chapter c)
     {
 
@@ -723,20 +868,33 @@ public class WarmupsViewer extends AbstractProjectViewer
             // Get the warmup and delete it.
             Warmup w = this.getWarmupForChapter (c);
 
-            this.warmups.remove (w);
+            if (w == null)
+            {
+                
+                Environment.logError ("Unable to find warmup for chapter: " +
+                                      c);
+                
+                UIUtils.showErrorMessage (this,
+                                          "Unable to delete {warmup}.");
+                
+                return;
+                
+            }
+                        
+            Set<DataObject> toDelete = new LinkedHashSet ();
+            
+            toDelete.add (w);
+            toDelete.add (c);
+            
+            this.dBMan.deleteObjects (toDelete,
+                                      null);
 
-            this.dBMan.deleteObject (w,
-                                     false,
-                                     null);
+            this.warmups.remove (w);
 
             // Remove the chapter from the book.
             Book b = c.getBook ();
 
             b.removeChapter (c);
-
-            this.dBMan.deleteObject (c,
-                                     false,
-                                     null);
             
             this.fireProjectEvent (w.getObjectType (),
                                    ProjectEvent.DELETE,
@@ -899,7 +1057,7 @@ public class WarmupsViewer extends AbstractProjectViewer
         return "warmups";
 
     }
-
+    
     public String getChapterObjectName ()
     {
 
@@ -910,7 +1068,8 @@ public class WarmupsViewer extends AbstractProjectViewer
     public String getViewerTitle ()
     {
 
-        return "{Warmups}";
+        return this.proj.getName ();
+        //return "{Warmups}";
 
     }
     
@@ -963,6 +1122,30 @@ public class WarmupsViewer extends AbstractProjectViewer
                                                 
                                            }));    
   */  
+    }
+
+    public Set<FindResultsBox> findText (String t)
+    {
+        
+        Set<FindResultsBox> res = new LinkedHashSet ();
+        
+        // Get the snippets.
+        Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getTextSnippets (t,
+                                                                                  this);
+
+        if (snippets.size () > 0)
+        {
+
+            res.add (new ChapterFindResultsBox (Environment.getObjectTypeNamePlural (Warmup.OBJECT_TYPE),
+                                                Warmup.OBJECT_TYPE,
+                                                Warmup.OBJECT_TYPE,
+                                                this,
+                                                snippets));
+            
+        }
+
+        return res;
+        
     }
     
 }

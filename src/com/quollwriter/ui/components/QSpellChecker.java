@@ -13,16 +13,13 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import com.quollwriter.text.*;
 import com.quollwriter.BlankTimerTask;
 import com.quollwriter.DictionaryProvider;
 import com.quollwriter.synonyms.SynonymProvider;
 
 import com.quollwriter.ui.events.DictionaryChangedEvent;
 import com.quollwriter.ui.events.DictionaryChangedListener;
-
-import com.swabunga.spell.engine.*;
-import com.swabunga.spell.event.*;
-
 
 public class QSpellChecker implements DocumentListener,
                                       CaretListener,
@@ -207,31 +204,32 @@ public class QSpellChecker implements DocumentListener,
     public List getSuggestions (Point p)
     {
 
-        DocumentWordTokenizer docTok = null;
-
-        try
-        {
-
-            docTok = new DocumentWordTokenizer (this.text.getDocument ());
-
-        } catch (Exception e)
-        {
-
-            // Grr... can't do anything about this.
-            return null;
-
-        }
-
+        TextIterator ti = new TextIterator (this.text.getText ());
+        
         int start = this.text.viewToModel (p);
 
+        String word = null;
+        
         if (start > 0)
         {
 
-            docTok.posStartFullWordFrom (start);
-
+            Word w = ti.getWordAt (start);
+            
+            if (w != null)
+            {
+                
+                word = w.getText ();
+                
+            }
+            
         }
 
-        String word = docTok.nextWord ();
+        return this.getSuggestions (word);
+        
+    }
+
+    public List getSuggestions (String word)
+    {
 
         if ((word == null) ||
             (word.trim ().equals ("")))
@@ -247,8 +245,7 @@ public class QSpellChecker implements DocumentListener,
             (!this.checker.isIgnored (word)))
         {
 
-            l = this.checker.getSuggestions (word,
-                                             Configuration.getConfiguration ().getInteger (Configuration.SPELL_THRESHOLD));
+            l = this.checker.getSuggestions (word);
 
         }
 
@@ -400,38 +397,52 @@ public class QSpellChecker implements DocumentListener,
 
         }
 
-        DocumentWordTokenizer docTok = null;
-
-        try
-        {
-
-            docTok = new DocumentWordTokenizer (this.text.getDocument ());
-
-        } catch (Exception e)
-        {
-
-            // God I hate this crap...
-            return;
-
-        }
-
         int start = el.getStartOffset ();
-
-        if (start > 0)
-        {
-
-            docTok.posStartFullWordFrom (start);
-
-        } /*else {
-          
-            return;
-          
-          }*/
 
         int docLength = this.text.getDocument ().getLength ();
 
         int end = el.getEndOffset ();
 
+        TextIterator ti = new TextIterator (this.text.getText ().substring (start,
+                                                                            end - 1));
+        
+        List<Word> words = ti.getWords ();
+        
+        for (Word w : words)
+        {
+            
+            if (w.isPunctuation ())
+            {
+                
+                continue;
+                
+            }
+            
+            String word = w.getText ();
+            
+            int wordStart = w.getAllTextStartOffset () + start;
+            int wordEnd = w.getAllTextEndOffset () + start;
+            
+            if (!this.isWordCorrect (word))
+            {
+
+                try
+                {
+
+                    this.text.addHighlight (wordStart,
+                                            wordEnd,
+                                            this.painter,
+                                            false);
+
+                } catch (Exception e)
+                {
+
+                }
+
+            }            
+            
+        }
+        /*
         int wordStart = -1;
         int wordEnd = -1;
 
@@ -478,6 +489,7 @@ public class QSpellChecker implements DocumentListener,
             }
 
         }
+        */
 
     }
 
@@ -524,20 +536,6 @@ public class QSpellChecker implements DocumentListener,
 
             this.lastCharacterOver = QSpellChecker.NULL_CHAR;
 
-            DocumentWordTokenizer docTok = new DocumentWordTokenizer (this.text.getDocument ());
-
-            docTok.posStartFullWordFrom (ev.getOffset ());
-
-            String word = docTok.nextWord ();
-
-            if ((!word.trim ().equals ("")) &&
-                (!this.isWordCorrect (word)))
-            {
-
-                return;
-
-            }
-
         }
 
         this.checkElements (ev.getOffset (),
@@ -571,20 +569,6 @@ public class QSpellChecker implements DocumentListener,
         {
 
             this.lastCharacterOver = QSpellChecker.NULL_CHAR;
-
-            DocumentWordTokenizer docTok = new DocumentWordTokenizer (this.text.getDocument ());
-
-            // This will probably bite later!
-            docTok.posStartFullWordFrom (ev.getOffset () - 1);
-
-            String word = docTok.nextWord ();
-
-            if (!this.isWordCorrect (word))
-            {
-
-                return;
-
-            }
 
         }
 

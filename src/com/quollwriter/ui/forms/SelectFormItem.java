@@ -3,6 +3,7 @@ package com.quollwriter.ui.forms;
 import java.util.Vector;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import java.awt.Dimension;
 
@@ -12,7 +13,7 @@ import javax.swing.event.*;
 public class SelectFormItem extends FormItem<Set<String>>
 {
     
-    private JList list = null;
+    private JList<String> list = null;
     private int maxCount = 0;
     private boolean required = false;
     
@@ -98,17 +99,8 @@ public class SelectFormItem extends FormItem<Set<String>>
     public Set<String> getValue ()
     {
                     
-        Set<String> ret = new LinkedHashSet ();
-        
-        Object[] sel = this.list.getSelectedValues ();
-        
-        for (int i = 0; i < sel.length; i++)
-        {
-            
-            ret.add (sel[i].toString ());
-            
-        }
-        
+        Set<String> ret = new LinkedHashSet (this.list.getSelectedValuesList ());
+
         return ret;
         
     }
@@ -123,13 +115,13 @@ public class SelectFormItem extends FormItem<Set<String>>
             
         }
         
-        Object[] sel = this.list.getSelectedValues ();
+        List<String> sel = this.list.getSelectedValuesList ();
         
         int c = 0;
         
         if ((sel != null)
             &&
-            (sel.length > this.maxCount)
+            (sel.size () > this.maxCount)
            )
         {
 
@@ -152,14 +144,14 @@ public class SelectFormItem extends FormItem<Set<String>>
             
         }
     
-        Object[] sel = this.list.getSelectedValues ();
+        List<String> sel = this.list.getSelectedValuesList ();
         
         int c = 0;
         
         if (sel != null)
         {
             
-            c = sel.length;
+            c = sel.size ();
             
         }
     

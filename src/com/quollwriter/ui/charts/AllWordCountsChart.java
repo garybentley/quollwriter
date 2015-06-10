@@ -147,7 +147,7 @@ public class AllWordCountsChart implements QuollChart
 
             TimeSeries ts = new TimeSeries ("Date");
 
-            ProjectDataHandler pdh = (ProjectDataHandler) this.projectViewer.getDataHandler (Project.OBJECT_TYPE);
+            ProjectDataHandler pdh = (ProjectDataHandler) this.projectViewer.getDataHandler (Project.class);
 
             // Get all the word counts for the project.
             List<WordCount> wordCounts = pdh.getWordCounts (this.projectViewer.getProject (),

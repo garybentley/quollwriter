@@ -56,6 +56,7 @@ public class FullScreenOverlay extends Box
         this.addMouseListener (new MouseEventHandler ()
         {
             
+            @Override
             public void handlePress (MouseEvent ev)
             {
                 

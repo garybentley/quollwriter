@@ -2,6 +2,9 @@ package com.quollwriter.ui;
 
 import java.util.*;
 
+import java.awt.event.*;
+import javax.swing.event.*;
+
 import com.gentlyweb.properties.StringProperty;
 
 import com.quollwriter.*;
@@ -15,8 +18,10 @@ public class NoteTypeHandler implements TypesHandler<Note>
 
     private AbstractProjectViewer projectViewer = null;
     private Set<String>  types = new TreeSet ();
-    private EditNoteTypes typesEditor = null;
     private ObjectProvider<Note> objectProvider = null;
+    private Map<ChangeListener, Object> changeListeners = null;    
+    // Just used in the maps above as a placeholder for the listeners.
+    private final Object listenerFillObj = new Object ();
     
     public NoteTypeHandler (AbstractProjectViewer pv,
                             ObjectProvider<Note>  objProv)
@@ -24,6 +29,8 @@ public class NoteTypeHandler implements TypesHandler<Note>
 
         this.projectViewer = pv;
         this.objectProvider = objProv;
+
+        this.changeListeners = Collections.synchronizedMap (new WeakHashMap ());
         
         String nt = Environment.getProperty (Constants.NOTE_TYPES_PROPERTY_NAME);
 
@@ -48,20 +55,102 @@ public class NoteTypeHandler implements TypesHandler<Note>
 
     }
 
+    public boolean hasType (String t)
+    {
+        
+        for (String type : this.types)
+        {
+            
+            if (t.equalsIgnoreCase (type))
+            {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public void fireChangeEvent ()
+    {
+                
+        final ChangeEvent ce = new ChangeEvent (this);
+                
+        final NoteTypeHandler _this = this;
+                
+        UIUtils.doActionLater (new ActionListener ()
+        {
+        
+            public void actionPerformed (ActionEvent aev)
+            {
+                
+                Set<ChangeListener> ls = null;
+                                
+                // Get a copy of the current valid listeners.
+                synchronized (_this.changeListeners)
+                {
+                                    
+                    ls = new LinkedHashSet (_this.changeListeners.keySet ());
+                    
+                }
+                    
+                for (ChangeListener l : ls)
+                {
+                    
+                    try
+                    {
+                    
+                        l.stateChanged (ce);
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to update listener: " +
+                                              l +
+                                              " with change to note types",
+                                              e);
+                        
+                    }
+
+                }
+
+            }
+            
+        });
+                        
+    }
+    
+    public void removeChangeListener (ChangeListener l)
+    {
+        
+        this.changeListeners.remove (l);
+        
+    }
+    
+    public void addChangeListener (ChangeListener l)
+    {
+        
+        this.changeListeners.put (l,
+                                  this.listenerFillObj);
+        
+    }        
+    
     public boolean typesEditable ()
     {
         
         return true;
         
     }
-    
+    /*
     public void setTypesEditor (EditNoteTypes ed)
     {
         
         this.typesEditor = ed;
         
     }
-
+*/
     public int getUsedInCount (String type)
     {
         
@@ -146,12 +235,7 @@ public class NoteTypeHandler implements TypesHandler<Note>
 
         }
 
-        if (this.typesEditor != null)
-        {
-            
-            this.typesEditor.reloadTypes ();
-            
-        }
+        this.fireChangeEvent ();
 
         return true;
 
@@ -186,13 +270,8 @@ public class NoteTypeHandler implements TypesHandler<Note>
 
         }
 
-        if (this.typesEditor != null)
-        {
-            
-            this.typesEditor.reloadTypes ();
-            
-        }
-
+        this.fireChangeEvent ();
+        
     }
 /*
     public Set<Note> getNotesForType (String t)

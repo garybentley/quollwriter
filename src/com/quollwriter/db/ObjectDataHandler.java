@@ -9,9 +9,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 
-public class ObjectDataHandler implements DataHandler
+public class ObjectDataHandler implements DataHandler<QObject, Project>
 {
 
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, type, id, version FROM qobject_v ";
     private ObjectManager objectManager = null;
 
     public ObjectDataHandler(ObjectManager om)
@@ -22,6 +23,7 @@ public class ObjectDataHandler implements DataHandler
     }
 
     private QObject getQObject (ResultSet rs,
+                                Project   proj,
                                 boolean   loadChildObjects)
                          throws GeneralException
     {
@@ -42,14 +44,23 @@ public class ObjectDataHandler implements DataHandler
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
             l.setType (rs.getString (ind++));
+            l.setId (rs.getString (ind++));
+            l.setVersion (rs.getString (ind++));            
 
+            if (proj != null)
+            {
+                
+                proj.addQObject (l);
+                
+            }
+            
             // Get all the notes.
             if (loadChildObjects)
             {
-                /*
+                
                 this.objectManager.loadNotes (l,
                                               rs.getStatement ().getConnection ());
-                 */
+                 
             }
 
             return l;
@@ -64,10 +75,11 @@ public class ObjectDataHandler implements DataHandler
 
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<QObject> getObjects (Project     parent,
+                                     Connection  conn,
+                                     boolean     loadChildObjects)
+                              throws GeneralException
     {
 
         List<QObject> ret = new ArrayList ();
@@ -78,7 +90,7 @@ public class ObjectDataHandler implements DataHandler
             List params = new ArrayList ();
             params.add (parent.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, type FROM qobject_v WHERE projectdbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -86,6 +98,7 @@ public class ObjectDataHandler implements DataHandler
             {
 
                 ret.add (this.getQObject (rs,
+                                          parent,
                                           loadChildObjects));
 
             }
@@ -112,10 +125,12 @@ public class ObjectDataHandler implements DataHandler
 
     }
 
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public QObject getObjectByKey (int        key,
+                                   Project    proj,
+                                   Connection conn,
+                                   boolean    loadChildObjects)
+                            throws GeneralException
     {
 
         QObject i = null;
@@ -125,8 +140,9 @@ public class ObjectDataHandler implements DataHandler
 
             List params = new ArrayList ();
             params.add (key);
+            //params.add (proj.getKey ());
 
-            ResultSet rs = this.objectManager.executeQuery ("SELECT dbkey, name, description, lastmodified, datecreated, properties, type FROM qobject_v WHERE dbkey = ?",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE latest = TRUE AND dbkey = ?", // AND projectdbkey = ?",
                                                             params,
                                                             conn);
 
@@ -134,6 +150,7 @@ public class ObjectDataHandler implements DataHandler
             {
 
                 i = this.getQObject (rs,
+                                     proj,
                                      loadChildObjects);
 
             }
@@ -160,12 +177,11 @@ public class ObjectDataHandler implements DataHandler
 
     }
 
-    public void createObject (DataObject d,
+    @Override
+    public void createObject (QObject    o,
                               Connection conn)
                        throws GeneralException
     {
-
-        QObject o = (QObject) d;
 
         List params = new ArrayList ();
         params.add (o.getKey ());
@@ -178,13 +194,12 @@ public class ObjectDataHandler implements DataHandler
 
     }
 
-    public void deleteObject (DataObject d,
+    @Override
+    public void deleteObject (QObject    o,
                               boolean    deleteChildObjects,                              
                               Connection conn)
                        throws GeneralException
     {
-
-        QObject o = (QObject) d;
 
         List params = new ArrayList ();
         params.add (o.getKey ());
@@ -195,12 +210,11 @@ public class ObjectDataHandler implements DataHandler
 
     }
 
-    public void updateObject (DataObject d,
+    @Override
+    public void updateObject (QObject    o,
                               Connection conn)
                        throws GeneralException
     {
-
-        QObject o = (QObject) d;
 
         List params = new ArrayList ();
         params.add (o.getType ());

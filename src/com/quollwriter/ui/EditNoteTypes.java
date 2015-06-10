@@ -82,7 +82,7 @@ public class EditNoteTypes extends TypesEditor
     public String getNewTypeHelp ()
     {
         
-        return "Note: removing a type will only remove it from the list of types to select when adding/editing a note.  You can also change the type name by editing the values, double click on a type to begin.";
+        return "Note: removing a type will only remove it from the list of types to select when adding/editing a note.  You can also change the type name by editing the values, double click on a type to edit it.";
         
     }
 

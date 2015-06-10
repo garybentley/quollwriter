@@ -54,7 +54,16 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
     }    
     
+    public Dimension getPreferredSize ()
+    {
+        
+        return new Dimension (300,
+                              500);
+        
+    }
+    
     public void init ()
+               throws GeneralException
     {
         
         super.init ();

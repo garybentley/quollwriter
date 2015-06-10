@@ -237,6 +237,18 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
                 }
 
+                // See if we are adding at the end of the chapter.
+                if (editor.isPositionAtTextEnd (it.getPosition ()))
+                {
+                    
+                    // Add a newline to the end of the chapter.
+                    editor.insertText (it.getPosition (),
+                                       "\n");
+
+                    it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () - 1));
+                    
+                }
+                
                 if (it.getObjectType ().equals (Scene.OBJECT_TYPE))
                 {
 
@@ -256,7 +268,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
                 // Add the item to the chapter.
                 this.chapter.addChapterItem (it);
-                
+
                 // Force a save of the chapter.
                 this.projectViewer.saveObject (this.chapter,
                                                true);

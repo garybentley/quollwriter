@@ -200,13 +200,14 @@ public class TabHeader extends Box
                                        0,
                                        0));
         this.setOpaque (false);
-
+        
         this.label = new JLabel (this.title);
         this.label.setBorder (null);
         this.label.setBackground (new Color (0,
                                              0,
                                              0,
                                              0));
+        
         this.label.setOpaque (false);
         
         if (this.label.getPreferredSize ().width > 250)
@@ -216,7 +217,14 @@ public class TabHeader extends Box
                                                   this.label.getPreferredSize ().height));
 
         }
+
+        if (this.title == null)
+        {
+            
+            this.label.setVisible (false);            
                                                   
+        }
+        
         this.add (this.label);
         this.add (Box.createHorizontalStrut (10));
 
@@ -227,6 +235,13 @@ public class TabHeader extends Box
         this.closeB.addMouseListener (this.closeMouseListener);
         this.closeB.showImage (false);
 
+        if (!this.canClose ())
+        {
+            
+            this.closeB.setVisible (false);
+            
+        }
+        
         this.add (this.closeB);
 
         this.setBorder (new EmptyBorder (1,
@@ -238,7 +253,14 @@ public class TabHeader extends Box
         this.addMouseMotionListener (this.headerMouseListener);
 
     }
-
+    
+    public boolean canClose ()
+    {
+        
+        return true;
+        
+    }
+    
     public void setFont (Font f)
     {
 
@@ -258,6 +280,7 @@ public class TabHeader extends Box
 
         this.closeB.setImage (i);
         this.closeB.showImage (false);
+        this.closeB.setVisible (true);
 
         // Get a "faded" version.
 
@@ -302,6 +325,8 @@ public class TabHeader extends Box
         this.label.setText (t);
 
         this.title = t;
+        
+        this.label.setVisible (true);
 
     }
 

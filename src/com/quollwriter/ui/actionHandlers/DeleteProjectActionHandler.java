@@ -69,39 +69,8 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
         
                 }
         
-                // Delete the directory.
-                Utils.deleteDir (pr.getProjectDirectory ());
-        
-                // Remove the project from the list.
-                try
-                {
-        
-                    Environment.removeProject (pr);
-        
-                } catch (Exception e)
-                {
-        
-                    Environment.logError ("Unable to remove project: " +
-                                          pr +
-                                          " from list of projects.",
-                                          e);
-        
-                }
-        
-                // Show the welcome screen if there are no projects open.
-                if (Environment.getOpenProjects ().size () == 0)
-                {
-        
-                    FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
-        
-                    f.pack ();
-        
-                    UIUtils.setCenterOfScreenLocation (f);
-        
-                    f.setVisible (true);
-        
-                }
-                
+                Environment.deleteProject (pr);
+                        
             }
             
         });

@@ -34,7 +34,7 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
         if (item.getScene () != null)
         {
             
-            desc = "Scene: " + UIUtils.getObjectALink (item.getScene ()) + "<br />" + desc;
+            desc = "{Scene}: " + UIUtils.getObjectALink (item.getScene ()) + "<br />" + desc;
           
         }
 

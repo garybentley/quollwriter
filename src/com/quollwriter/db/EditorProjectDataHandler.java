@@ -9,7 +9,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 
-public class EditorProjectDataHandler implements DataHandler
+public class EditorProjectDataHandler implements DataHandler<EditorProject, NamedObject>
 {
 
     private ObjectManager objectManager = null;
@@ -54,29 +54,29 @@ public class EditorProjectDataHandler implements DataHandler
         
     }
     
-    public void createObject (DataObject d,
-                              Connection conn)
+    @Override
+    public void createObject (EditorProject p,
+                              Connection    conn)
                        throws GeneralException
     {
         
-        EditorProject p = (EditorProject) d;
-
         List params = new ArrayList ();
         params.add (p.getKey ());
         params.add (p.getId ());
         params.add (this.getAsString (p.getGenres ()));
         params.add (p.getExpectations ());
         params.add (p.getWordCountLength ().getType ());
-        System.out.println ("INSERTING PROJECT ID: " + p.getId ());
+        
         this.objectManager.executeStatement ("INSERT INTO editorproject (dbkey, id, genres, expectations, wordcounttypelength) VALUES (?, ?, ?, ?, ?)",
                                              params,
                                              conn);        
         
     }
 
-    public void deleteObject (DataObject d,
-                              boolean    deleteChildObjects,
-                              Connection conn)
+    @Override
+    public void deleteObject (EditorProject d,
+                              boolean       deleteChildObjects,
+                              Connection    conn)
                        throws GeneralException
     {
     
@@ -89,13 +89,12 @@ public class EditorProjectDataHandler implements DataHandler
         
     }
 
-    public void updateObject (DataObject d,
-                              Connection conn)
+    @Override
+    public void updateObject (EditorProject p,
+                              Connection    conn)
                        throws GeneralException
     {
         
-        EditorProject p = (EditorProject) d;
-
         List params = new ArrayList ();
         params.add (p.getId ());
         params.add (this.getAsString (p.getGenres ()));
@@ -109,13 +108,14 @@ public class EditorProjectDataHandler implements DataHandler
         
     }
 
-    public List<? extends NamedObject> getObjects (NamedObject parent,
-                                                   Connection  conn,
-                                                   boolean     loadChildObjects)
-                                            throws GeneralException
+    @Override
+    public List<EditorProject> getObjects (NamedObject parent,
+                                           Connection  conn,
+                                           boolean     loadChildObjects)
+                                    throws GeneralException
     {
         
-        throw new GeneralException ("Not supported");        
+        throw new UnsupportedOperationException ("Not supported");        
         
     }
 
@@ -186,10 +186,12 @@ public class EditorProjectDataHandler implements DataHandler
             
     }
     
-    public NamedObject getObjectByKey (int        key,
-                                       Connection conn,
-                                       boolean    loadChildObjects)
-                                throws GeneralException
+    @Override
+    public EditorProject getObjectByKey (int        key,
+                                         NamedObject parent,
+                                         Connection conn,
+                                         boolean    loadChildObjects)
+                                  throws GeneralException
     {
         
         ResultSet rs = null;

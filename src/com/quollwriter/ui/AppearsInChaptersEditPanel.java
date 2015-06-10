@@ -167,9 +167,27 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     public IconProvider getIconProvider ()
     {
 
-        DefaultIconProvider iconProv = new DefaultIconProvider ();
-        iconProv.putIcon ("header",
-                          "book");
+        DefaultIconProvider iconProv = new DefaultIconProvider ()
+        {
+          
+            @Override
+            public ImageIcon getIcon (String name,
+                                      int    type)
+            {
+                
+                if (name.equals ("header"))
+                {
+                    
+                    name = Book.OBJECT_TYPE;
+                    
+                }
+                
+                return super.getIcon (name,
+                                      type);
+                
+            }
+            
+        };
 
         return iconProv;
 
@@ -196,6 +214,13 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
 
     }
 
+    public void sideBarHidden (SideBarEvent ev)
+    {
+        
+        this.removeHighlight ();
+        
+    }
+    
     public void sideBarShown (SideBarEvent ev)
     {
 
@@ -204,6 +229,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     }
     
     private void showInProjectViewerSideBar ()
+                                      throws GeneralException
     {
 
         if (this.sideBar != null)
@@ -396,7 +422,20 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                         
-                                                        _this.showInProjectViewerSideBar ();
+                                                        try
+                                                        {
+                                                        
+                                                            _this.showInProjectViewerSideBar ();
+                                                            
+                                                        } catch (Exception e) {
+                                                            
+                                                            Environment.logError ("Unable to show appears in chapters in sidebar",
+                                                                                  e);
+                                                            
+                                                            UIUtils.showErrorMessage (_this,
+                                                                                      "Unable to show.");
+                                                            
+                                                        }
                                                         
                                                     }
                                                 

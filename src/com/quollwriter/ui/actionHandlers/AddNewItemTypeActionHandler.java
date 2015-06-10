@@ -48,7 +48,7 @@ public class AddNewItemTypeActionHandler extends TextInputActionHandler
     public String getHelp ()
     {
         
-        return "Add the name of the new {object} type below.";
+        return "Enter the new {object} type below.";
         
     }
     
@@ -77,6 +77,13 @@ public class AddNewItemTypeActionHandler extends TextInputActionHandler
             
             return "Please enter a name.";
             
+        }
+        
+        if (this.projectViewer.getObjectTypesHandler (QObject.OBJECT_TYPE).hasType (v))
+        {
+
+            return "A type called: " + v + " already exists.";
+
         }
         
         return null;

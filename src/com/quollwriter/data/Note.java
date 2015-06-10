@@ -1,9 +1,9 @@
 package com.quollwriter.data;
 
-import java.util.Date;
+import java.util.*;
+import java.text.*;
 
 import org.jdom.*;
-
 
 public class Note extends ChapterItem
 {
@@ -14,6 +14,7 @@ public class Note extends ChapterItem
     private Date        due = null;
     private String      type = null;
     private NamedObject object = null;
+    private Date        dealtWith = null;
 
     public Note()
     {
@@ -44,6 +45,48 @@ public class Note extends ChapterItem
 
     }
 
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "due",
+                                    this.due);
+        this.addToStringProperties (props,
+                                    "type",
+                                    this.type);
+        this.addToStringProperties (props,
+                                    "object",
+                                    this.object);
+        this.addToStringProperties (props,
+                                    "dealtWith",
+                                    this.dealtWith);
+                        
+    }    
+    
+    public boolean isDealtWith ()
+    {
+        
+        return this.dealtWith != null;
+        
+    }
+    
+    public Date getDealtWith ()
+    {
+        
+        return this.dealtWith;
+        
+    }
+    
+    public void setDealtWith (Date d)
+    {
+        
+        this.dealtWith = d;
+        
+    }
+    
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -62,6 +105,30 @@ public class Note extends ChapterItem
 
     }
 
+    public void setSummaryFromDescription ()
+    {
+
+        String text = this.getDescription ();
+        
+        if (text == null)
+        {
+            
+            return;
+            
+        }
+        
+        // Use the first line of the description as the summary.
+        BreakIterator bi = BreakIterator.getSentenceInstance ();
+        bi.setText (text);
+
+        int s = bi.first ();
+        int e = bi.next ();
+
+        this.setSummary (text.substring (s,
+                                         e));
+        
+    }
+    
     public void setObject (NamedObject o)
     {
 
@@ -71,7 +138,7 @@ public class Note extends ChapterItem
 
     public void setChapter (Chapter c)
     {
-        
+                
         this.setObject (c);
         
         super.setChapter (c);
@@ -131,13 +198,6 @@ public class Note extends ChapterItem
     {
 
         this.due = d;
-
-    }
-
-    public String toString ()
-    {
-
-        return Note.OBJECT_TYPE + "(summary: " + this.name + ", id: " + this.getKey () + ", due: " + this.due + ", position: " + this.getPosition () + ", end: " + this.getEndPosition () + ", hash: " + this.hashCode () + ")";
 
     }
 

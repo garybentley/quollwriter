@@ -20,7 +20,7 @@ public abstract class AbstractEditorObject extends NamedObject
         
     }
     
-    private String id = null;
+    //private String id = null;
 
     public AbstractEditorObject (String objType)
     {
@@ -36,9 +36,6 @@ public abstract class AbstractEditorObject extends NamedObject
         
         super (objType);
         
-        this.id = JDOMUtils.getChildElementContent (root,
-                                                    XMLConstants.id,
-                                                    true);
         this.setName (JDOMUtils.getChildElementContent (root,
                                                         XMLConstants.name,
                                                         true));
@@ -55,6 +52,18 @@ public abstract class AbstractEditorObject extends NamedObject
         
     }
 
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+/*
+        this.addToStringProperties (props,
+                                    "id",
+                                    this.id);
+  */                      
+    }    
+    
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -81,7 +90,7 @@ public abstract class AbstractEditorObject extends NamedObject
         Element name = new Element (XMLConstants.name);
         name.addContent (this.getName ());
         Element id = new Element (XMLConstants.id);
-        id.addContent (this.id);
+        id.addContent (this.getId ());
         
         root.addContent (id);
         root.addContent (name);
@@ -90,19 +99,5 @@ public abstract class AbstractEditorObject extends NamedObject
                            "" + this.lastModified.getTime ());
         
     }
-        
-    public void setId (String id)
-    {
-        
-        this.id = id;
-        
-    }
-    
-    public String getId ()
-    {
-        
-        return this.id;
-        
-    }
-    
+            
 }

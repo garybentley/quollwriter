@@ -43,6 +43,16 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     }
 
+    public TooManyClausesRule (int     clauseCount,
+                               boolean user)
+    {
+        
+        this (user);
+        
+        this.clauseCount = clauseCount;
+        
+    }
+    
     public String getDescription ()
     {
 
@@ -173,6 +183,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
             Issue iss = new Issue ("Sentence contains: <b>" + c + "</b> clauses.",
                                    sentence,
+                                   sentence.getAllTextStartOffset () + "-toomanyclauses-" + c,
                                    this);
 
             issues.add (iss);

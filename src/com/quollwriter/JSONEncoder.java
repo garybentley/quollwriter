@@ -6,6 +6,8 @@ import java.text.*;
 
 import java.util.*;
 
+import com.quollwriter.data.*;
+
 public class JSONEncoder
 {
 
@@ -38,14 +40,92 @@ public class JSONEncoder
 
     }
 
-    public static String encode (String s)
+    public static String encode (String  s)
+    {
+
+        return JSONEncoder.encode (s,
+                                   false,
+                                   "");
+    
+    }
+    
+    public static String encodeNull (boolean prettyPrint,
+                                     String  indent)
+    {
+        
+        StringBuilder sb = new StringBuilder ();
+        
+        if (prettyPrint)
+        {
+            
+            sb.append (indent);
+            
+        }
+
+        sb.append ("null");
+        
+        return sb.toString ();
+        
+    }
+        
+    public static String encodeBoolean (Boolean  value,
+                                        boolean  prettyPrint,
+                                        String   indent)
+    {
+        
+        StringBuilder sb = new StringBuilder ();
+        
+        if (prettyPrint)
+        {
+            
+            sb.append (indent);
+            
+        }
+
+        sb.append (value.toString ());
+        
+        return sb.toString ();
+        
+    }
+
+    public static String encodeNumber (Number  value,
+                                       boolean prettyPrint,
+                                       String  indent)
+    {
+        
+        StringBuilder sb = new StringBuilder ();
+        
+        if (prettyPrint)
+        {
+            
+            sb.append (indent);
+            
+        }
+
+        sb.append (String.valueOf (value.doubleValue ()));
+        
+        return sb.toString ();
+        
+    }
+
+    public static String encode (String  s,
+                                 boolean prettyPrint,
+                                 String  indent)
     {
 
         char[] chars = s.toCharArray ();
 
         int l = chars.length;
 
-        StringBuilder sb = new StringBuilder (l + 4);
+        StringBuilder sb = new StringBuilder ();
+        
+        if (prettyPrint)
+        {
+            
+            sb.append (indent);
+            
+        }
+        
         sb.append ('"');
 
         char   b = 0;
@@ -184,59 +264,99 @@ public class JSONEncoder
 
     }
 
-    public static String encode (Object             o)
+    public static String encode (Object  o)
+                          throws GeneralException
+    {
+
+        return JSONEncoder.encode (o,
+                                   false,
+                                   "");
+        
+    }
+    
+    public static String encode (Object  o,
+                                 boolean prettyPrint,
+                                 String  indent)
                           throws GeneralException
     {
 
         if (o == null)
         {
-
-            return o + "";
+        
+            return JSONEncoder.encodeNull (prettyPrint,
+                                           indent);
 
         }
 
+        if (o instanceof DataObject)
+        {
+            
+            Map props = new LinkedHashMap ();
+            
+            DataObject d = (DataObject) o;
+            
+            d.fillToStringProperties (props);
+            
+            return JSONEncoder.encode (props,
+                                       prettyPrint,
+                                       indent);
+            
+        }
+        
         if (o instanceof Date)
         {
 
             // Format as dd MMM yyyy hh:mm.
             SimpleDateFormat sdf = new SimpleDateFormat (JSONEncoder.DATE_FORMAT);
 
-            return JSONEncoder.encode (sdf.format ((Date) o));
+            return JSONEncoder.encode (sdf.format ((Date) o),
+                                       prettyPrint,
+                                       indent);
 
         }
 
         if (o instanceof Boolean)
         {
 
-            return ((Boolean) o).toString ();
+            return JSONEncoder.encodeBoolean ((Boolean) o,
+                                              prettyPrint,
+                                              indent);
 
         }
 
         if (o instanceof Number)
         {
 
-            return String.valueOf (((Number) o).doubleValue ());
+            return JSONEncoder.encodeNumber ((Number) o,
+                                             prettyPrint,
+                                             indent);
 
         }
 
         if (o instanceof String)
         {
 
-            return JSONEncoder.encode (o.toString ());
+            return JSONEncoder.encode (o.toString (),
+                                       prettyPrint,
+                                       indent);
 
         }
 
         if (o instanceof Collection)
         {
 
-            return JSONEncoder.encodeCollection ((Collection) o);
+            return JSONEncoder.encodeCollection ((Collection) o,
+                                                 prettyPrint,
+                                                 indent);
 
         }
 
         if (o instanceof Map)
         {
 
-            return JSONEncoder.encodeMap ((Map) o);
+            return JSONEncoder.encodeMap ((Map) o,
+                                          prettyPrint,
+                                          indent);
 
         }
 /*
@@ -264,8 +384,16 @@ public class JSONEncoder
             }
             
         }
-  */      
-        throw new GeneralException ("Object: " + o.getClass ().getName () + " is not supported.");
+  */
+
+        Environment.logMessage ("JSON string encoding unsupported object type: " +
+                                o.getClass ().getName ());
+  
+        return JSONEncoder.encode (o.toString (),
+                                   prettyPrint,
+                                   indent);
+          
+        //throw new GeneralException ("Object: " + o.getClass ().getName () + " is not supported.");
 
     }
 
@@ -321,6 +449,7 @@ public class JSONEncoder
 
     }
 
+    /*
     public static String createMapWrapper (Map m)
     {
 
@@ -352,13 +481,53 @@ public class JSONEncoder
         return b.toString ();
 
     }
-
-    public static String encodeMap (Map                m)
+*/
+    public static String encodeMap (Map m)
+                             throws GeneralException
+    {
+        
+        return JSONEncoder.encodeMap (m,
+                                      false,
+                                      "");
+        
+    }
+    
+    public static String encodeMap (Map     m,
+                                    boolean prettyPrint,
+                                    String  indent)
                              throws GeneralException
     {
 
-        StringBuilder b = new StringBuilder ("{");
-
+        StringBuilder b = new StringBuilder ();
+        
+        if (m.size () == 0)
+        {
+            
+            b.append ("{}");
+            
+            return b.toString ();
+            
+        } else {
+                    
+            if (prettyPrint)
+            {
+                
+                b.append ("\n");
+                b.append (indent);
+                
+            }
+            
+            b.append ("{");
+            
+            if (prettyPrint)
+            {
+                
+                b.append ("\n");
+                
+            }
+            
+        }
+        
         Iterator iter = m.keySet ().iterator ();
 
         while (iter.hasNext ())
@@ -366,13 +535,51 @@ public class JSONEncoder
 
             Object k = iter.next ();
 
-            b.append (JSONEncoder.encode (k.toString ()));
+            b.append (JSONEncoder.encode (k.toString (),
+                                          prettyPrint,
+                                          indent + "  "));
 
-            b.append (':');
+            if (prettyPrint)
+            {
+                
+                b.append (" : ");
+                
+            } else {
+            
+                b.append (':');
+                
+            }
 
             String v = null;
 
-            v = JSONEncoder.encode (m.get (k));
+            Object val = m.get (k);
+            
+            String nindent = indent;
+            
+            if (prettyPrint)
+            {
+            
+                if ((val instanceof Map)
+                    ||
+                    (val instanceof Collection)
+                    ||
+                    (val instanceof DataObject)
+                   )
+                {
+                    
+                    nindent = indent + "  ";
+                    
+                } else {
+                    
+                    nindent = "";
+                    
+                }
+            
+            }
+            
+            v = JSONEncoder.encode (val,
+                                    prettyPrint,
+                                    nindent);
 
             b.append (v);
 
@@ -380,13 +587,29 @@ public class JSONEncoder
             {
 
                 b.append (",");
+                
+                if (prettyPrint)
+                {
+                    
+                    b.append ("\n");
+                    
+                }
 
             }
 
         }
 
-        b.append ("}");
+        if (prettyPrint)
+        {
+            
+            b.append (indent);
+            b.append ("\n");
+            b.append (indent);
+            
+        }
 
+        b.append ("}");
+        
         return b.toString ();
 
     }
@@ -394,9 +617,23 @@ public class JSONEncoder
     public static String encodeCollection (Collection         o)
                                     throws GeneralException
     {
+        
+        return JSONEncoder.encodeCollection (o,
+                                             false,
+                                             "");
+        
+    }
+    
+    public static String encodeCollection (Collection o,
+                                           boolean    prettyPrint,
+                                           String     indent)
+                                    throws GeneralException
+    {
 
-        StringBuilder b = new StringBuilder ("[");
-
+        StringBuilder b = new StringBuilder ();
+        
+        b.append ("[");
+             /*   
         if (o instanceof List)
         {
 
@@ -404,12 +641,30 @@ public class JSONEncoder
 
             int s = l.size ();
 
+            if (s == 0)
+            {
+                
+                b.append ("]");
+                
+                return b.toString ();
+                
+            }
+            
+            if (prettyPrint)
+            {
+                
+                b.append ("\n");
+                
+            }        
+            
             for (int i = 0; i < s; i++)
             {
 
                 String v = null;
-
-                v = JSONEncoder.encode (l.get (i));
+                
+                v = JSONEncoder.encode (l.get (i),
+                                        prettyPrint,
+                                        indent + "  ");
 
                 b.append (v);
 
@@ -419,8 +674,13 @@ public class JSONEncoder
                     b.append (",");
 
                 }
-
-                ;
+                
+                if (prettyPrint)
+                {
+                    
+                    b.append ("\n");
+                    
+                }
 
             }
 
@@ -429,17 +689,52 @@ public class JSONEncoder
 
             if (o instanceof Collection)
             {
+*/
+                //Collection l = (Collection) o;
 
-                Collection l = (Collection) o;
-
-                Iterator iter = l.iterator ();
+                if (o.size () == 0)
+                {
+                    
+                    b.append ("]");
+                    
+                    return b.toString ();
+                    
+                }
+                
+                if (prettyPrint)
+                {
+                    
+                    b.append ("\n");
+                    
+                }        
+                                
+                Iterator iter = o.iterator ();
 
                 while (iter.hasNext ())
                 {
 
                     String v = null;
 
-                    v = JSONEncoder.encode (iter.next ());
+                    Object val = iter.next ();
+                    
+                    if (prettyPrint)
+                    {
+                                        
+                        if ((val instanceof Map)
+                            ||
+                            (val instanceof Collection)
+                           )
+                        {
+                            
+                            indent += "  ";
+                            
+                        }
+                    
+                    }
+                    
+                    v = JSONEncoder.encode (val,
+                                            prettyPrint,
+                                            indent);
 
                     b.append (v);
 
@@ -450,14 +745,35 @@ public class JSONEncoder
 
                     }
 
+                    if (prettyPrint)
+                    {
+                        
+                        b.append ("\n");
+                        
+                    }
+                    
                 }
 
-            }
+            //}
 
+        //}
+
+        if (prettyPrint)
+        {
+            
+            b.append (indent);
+            
         }
-
+        
         b.append ("]");
-
+        
+        if (prettyPrint)
+        {
+            
+            b.append ("\n");
+            
+        }
+        
         return b.toString ();
 
     }

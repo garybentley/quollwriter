@@ -40,6 +40,16 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
     }
 
+    public SentenceLengthRule (int     wordCount,
+                               boolean user)
+    {
+
+        this (user);
+        
+        this.wordCount = wordCount;
+
+    }
+
     public String getDescription ()
     {
 
@@ -133,6 +143,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
             Issue iss = new Issue ("Sentence contains: <b>" + wc + "</b> words.",
                                    sentence,
+                                   sentence.getAllTextStartOffset () + "-toomanywords-" + wc,
                                    this);
 
             issues.add (iss);

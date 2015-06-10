@@ -661,7 +661,7 @@ public class AchievementsManager implements ProjectEventListener
                                     AchievementRule       ar)
     {
 
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
             
             Environment.logMessage ("Achievement reached: " + ar + ", enabled: " + this.isAchievementsEnabled ());
@@ -730,7 +730,7 @@ public class AchievementsManager implements ProjectEventListener
     public void userAchievementReached (AchievementRule ar)
     {
 
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
             
             Environment.logMessage ("User achievement reached: " + ar + ", enabled: " + this.isAchievementsEnabled ());
@@ -973,7 +973,7 @@ public class AchievementsManager implements ProjectEventListener
                 
         // Get our matching user rules for the event.
         
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
             
             Environment.logMessage ("Event occurred: " + ev);

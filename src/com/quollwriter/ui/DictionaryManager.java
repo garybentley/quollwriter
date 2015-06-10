@@ -38,8 +38,7 @@ import com.quollwriter.exporter.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
-
-public class DictionaryManager extends PopupWindow
+public class DictionaryManager extends Box 
 {
 
     private JComboBox   exportOthersType = null;
@@ -51,41 +50,15 @@ public class DictionaryManager extends PopupWindow
     private Project     proj = null;
     private JTable      wordTable = null;
     private FileWatcher watcher = null;
+    private AbstractProjectViewer projectViewer = null;
 
     public DictionaryManager(AbstractProjectViewer pv)
     {
 
-        super (pv);
+        super (BoxLayout.Y_AXIS);
 
+        this.projectViewer = pv;
         this.proj = pv.getProject ();
-
-    }
-
-    public String getWindowTitle ()
-    {
-
-        return "Manage your personal Dictionary";
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return "Manage your personal Dictionary";
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return "dictionary";
-
-    }
-
-    public String getHelpText ()
-    {
-
-        return null;
 
     }
 
@@ -167,7 +140,7 @@ public class DictionaryManager extends PopupWindow
         
     }
     
-    public JComponent getContentPanel ()
+    public void init () //JComponent getContentPanel ()
     {
 
         final DictionaryManager _this = this;
@@ -190,15 +163,9 @@ public class DictionaryManager extends PopupWindow
                                   FileChangeEvent.MODIFIED | FileChangeEvent.EXISTS);
 
         this.watcher.start ();    
-    
-        Box b = new Box (BoxLayout.Y_AXIS);
 
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.setOpaque (true);
-        b.setBackground (null);
-
-        b.add (UIUtils.createBoldSubHeader ("New Words",
-                                            null));
+        this.add (UIUtils.createBoldSubHeader ("New Words",
+                                               null));
 
         JTextPane tp = UIUtils.createHelpTextPane ("Enter the new words to add below, separate the words with commas or semi-colons.",
                                                    this.projectViewer);
@@ -208,13 +175,14 @@ public class DictionaryManager extends PopupWindow
                                        0,
                                        5));
 
-        b.add (tp);
+        this.add (tp);
 
         final JTextField newWords = UIUtils.createTextField ();
         newWords.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        this.wordTable = new JTable ();
-
+        this.wordTable = UIUtils.createTable ();
+        this.wordTable.setTableHeader (null);
+        
         this.update ();
         
         Box fb = new Box (BoxLayout.Y_AXIS);
@@ -276,12 +244,12 @@ public class DictionaryManager extends PopupWindow
 
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
         
-        b.add (Box.createVerticalStrut (5));
+        this.add (Box.createVerticalStrut (5));
 
-        b.add (fb);
+        this.add (fb);
         
-        b.add (UIUtils.createBoldSubHeader ("Words in Dictionary",
-                                            null));
+        this.add (UIUtils.createBoldSubHeader ("Words in Dictionary",
+                                               null));
 
         fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -291,35 +259,14 @@ public class DictionaryManager extends PopupWindow
                                        0,
                                        5));
         
-        wordTable.setAlignmentX (Component.LEFT_ALIGNMENT);
-        wordTable.setOpaque (false);
-        wordTable.setFillsViewportHeight (true);
-        wordTable.setBorder (null);
-        wordTable.setTableHeader (null);
+        final JScrollPane ppsp = UIUtils.createScrollPane (wordTable);
 
-        final JScrollPane ppsp = new JScrollPane (wordTable);
-
-        // ppsp.setBorder (null);
-        ppsp.setOpaque (false);
-        ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        ppsp.setPreferredSize (new Dimension (500,
-                                              200));
-        ppsp.getViewport ().setOpaque (false);
-
+        wordTable.setPreferredScrollableViewportSize (new Dimension (-1,
+                                                                     (wordTable.getRowHeight () + 3) * 5));
+        
         fb.add (ppsp);
         fb.add (Box.createVerticalStrut (5));
         
-/*
-        ppsp.setMinimumSize (new Dimension (500,
-                                            t.getRowHeight () * 10));
- */
-/*
-        t.setPreferredScrollableViewportSize (new Dimension (-1,
-                                                             t.getRowHeight () * 10));
- */
-
-
         final JButton remove = new JButton ("Remove Selected");
 
         buts = new JButton[] { remove };
@@ -355,36 +302,32 @@ public class DictionaryManager extends PopupWindow
 
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
                                          
-        b.add (fb);
+        this.add (fb);
 
-        return b;
+        this.add (Box.createVerticalStrut (10));
+        
+        JButton finish = new JButton ("Finish");
 
-    }
+        finish.addActionListener (new ActionAdapter ()
+        {
 
-    public JButton[] getButtons ()
-    {
-
-        final DictionaryManager _this = this;
-
-        JButton b = new JButton ("Finish");
-
-        b.addActionListener (new ActionAdapter ()
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void actionPerformed (ActionEvent ev)
-                {
+                UIUtils.closePopupParent (_this.getParent ());
 
-                    _this.close ();
+            }
 
-                }
+        });
 
-            });
+        buts = new JButton[] { finish };
 
-        JButton[] buts = new JButton[1];
-        buts[0] = b;
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
 
-        return buts;
-
+        this.add (bp);        
+        
     }
 
 }

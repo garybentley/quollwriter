@@ -3,6 +3,8 @@ package com.quollwriter.text;
 import java.text.*;
 import java.util.*;
 
+import com.quollwriter.*;
+
 public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
 {
     
@@ -82,6 +84,35 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         }
                 
     }
+    
+    @Override
+    public String toString ()
+    {
+                
+        Map<String, Object> data = new LinkedHashMap ();
+        
+        data.put ("type",
+                  "paragraph");
+        data.put ("wordCount",
+                  this.getWordCount ());
+        data.put ("text",
+                  this.paragraph);
+        data.put ("textLength",
+                  this.paragraph.length ());
+        data.put ("start",
+                  this.getStart ());
+        data.put ("end",
+                  this.getEnd ());
+        data.put ("sentenceCount",
+                  this.getSentenceCount ());
+        data.put ("syllableCount",
+                  this.getSyllableCount ());
+        data.put ("threeSyllableWordCount",
+                  this.getThreeSyllableWordCount ());
+                
+        return Environment.formatObjectToStringProperties (data);        
+        
+    }    
     
     public List<Word> getWords ()
     {
@@ -285,7 +316,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
     public int getEnd ()
     {
         
-        return this.start + this.paragraph.length () - 1;
+        return this.start + this.paragraph.length ();
         
     }
     
@@ -409,13 +440,6 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         
     }
     
-    public String toString ()
-    {
-        
-        return "[start: " + this.start + ", length: " + this.paragraph.length () + ", sentences: " + this.sentences.size () + ", text: " + this.paragraph + "]";
-        
-    }
-
     /**
      * Look for the collection of words in each sentence.
      *

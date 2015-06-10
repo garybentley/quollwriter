@@ -2,6 +2,7 @@ package com.quollwriter.ui;
 
 import java.util.*;
 
+import java.awt.Container;
 import java.awt.Component;
 import java.awt.event.*;
 
@@ -17,26 +18,29 @@ import com.quollwriter.ui.components.ImagePanel;
 public class Notification extends Box implements ActionListener
 {
 
-    private AbstractProjectViewer viewer = null;
     private javax.swing.Timer timer = null;
     private int duration = 0;
     private JButton cancel = null;
+    private JComponent content = null;
+    private ActionListener onRemove = null;
 
-    public Notification (AbstractProjectViewer   viewer,
-                         JComponent              comp,
+    public Notification (JComponent              comp,
                          String                  iconType,
                          int                     duration,
-                         java.util.List<JButton> buttons)
+                         java.util.List<JButton> buttons,
+                         ActionListener          onRemove)
     {
 
         super (BoxLayout.X_AXIS);
 
-        this.viewer = viewer;
-
+        this.content = comp;
+        
         this.duration = duration;
 
         final Notification _this = this;
 
+        this.onRemove = onRemove;
+        
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.setBorder (new EmptyBorder (5,
@@ -96,23 +100,86 @@ public class Notification extends Box implements ActionListener
         
     }
         
+    public void setOnRemove (ActionListener onRemove)
+    {
+        
+        this.onRemove = onRemove;        
+        
+    }
+    
+    public JComponent getContent ()
+    {
+        
+        return this.content;
+        
+    }
+        
+    public static Notification createHelpNotification (AbstractProjectViewer viewer,
+                                                       String                message,
+                                                       int                   duration,
+                                                       HyperlinkListener     clickListener,
+                                                       ActionListener        onRemove)
+    {
+        
+        JTextPane htmlP = UIUtils.createHelpTextPane (message,
+                                                      viewer);
+
+        htmlP.setBorder (null);
+
+        if (clickListener != null)
+        {
+            
+            htmlP.addHyperlinkListener (clickListener);
+            
+        }
+        
+        return new Notification (htmlP,
+                                 Constants.HELP_ICON_NAME,
+                                 duration,
+                                 null,
+                                 onRemove);
+
+    }
+
     public static Notification createMessageNotification (AbstractProjectViewer viewer,
                                                           String                message,
-                                                          int                   duration)
+                                                          int                   duration,
+                                                          HyperlinkListener     clickListener,
+                                                          ActionListener        onRemove)
     {
     
-        final HTMLPanel htmlP = new HTMLPanel (message,
-                                               null);
+        JTextPane htmlP = UIUtils.createHelpTextPane (message,
+                                                      viewer);
 
-        htmlP.setBackground (null);
-        htmlP.setOpaque (false);
-        htmlP.setAlignmentX (Component.LEFT_ALIGNMENT);
+        htmlP.setBorder (null);
 
-        return new Notification (viewer,
-                                 htmlP,
+        if (clickListener != null)
+        {
+            
+            htmlP.addHyperlinkListener (clickListener);
+            
+        }
+        
+        return new Notification (htmlP,
                                  Constants.INFO_ICON_NAME,
                                  duration,
-                                 null);
+                                 null,
+                                 onRemove);
+        
+    }
+
+    
+    public static Notification createMessageNotification (AbstractProjectViewer viewer,
+                                                          String                message,
+                                                          int                   duration,
+                                                          ActionListener        onRemove)
+    {
+    
+        return Notification.createMessageNotification (viewer,
+                                                       message,
+                                                       duration,
+                                                       null,
+                                                       onRemove);
         
     }
     
@@ -185,8 +252,25 @@ public class Notification extends Box implements ActionListener
             
         }
         
-        this.viewer.removeNotification (this);
+        Container p = this.getParent ();
+        
+        if (p != null)
+        {
 
+            p.remove (this);
+
+            p.revalidate ();
+            p.repaint ();
+            
+        }
+        
+        if (this.onRemove != null)
+        {
+            
+            this.onRemove.actionPerformed (new ActionEvent (this, 1, "removed"));
+            
+        }
+        
     }
  
     public void actionPerformed (ActionEvent ev)

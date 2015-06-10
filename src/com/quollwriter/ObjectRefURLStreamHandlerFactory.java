@@ -97,6 +97,46 @@ public class ObjectRefURLStreamHandlerFactory implements URLStreamHandlerFactory
 
         }
 
+        if (protocol.equals (Constants.OPENEDITORMESSAGE_PROTOCOL))
+        {
+            
+            return new URLStreamHandler ()
+            {
+
+                public URLConnection openConnection (URL url)
+                                              throws IOException
+                {
+
+                    throw new IOException ("Not supported for the: " +
+                                           Constants.OPENEDITORMESSAGE_PROTOCOL +
+                                           " protocol.");
+
+                }
+
+            };
+
+        }
+        
+        if (protocol.equals (Constants.OPENPROJECT_PROTOCOL))
+        {
+
+            return new URLStreamHandler ()
+            {
+
+                public URLConnection openConnection (URL url)
+                                              throws IOException
+                {
+
+                    throw new IOException ("Not supported for the: " +
+                                           Constants.OPENPROJECT_PROTOCOL +
+                                           " protocol.");
+
+                }
+
+            };
+
+        }
+
         if (protocol.equals (Constants.HELP_PROTOCOL))
         {
 

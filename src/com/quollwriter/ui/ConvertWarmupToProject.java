@@ -12,6 +12,9 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.panels.*;
 
+/**
+ * TODO: Remove, no longer used.
+ */
 public class ConvertWarmupToProject extends PopupWindow
 {
 

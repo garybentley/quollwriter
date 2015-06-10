@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.WeakHashMap;
 import java.util.Collections;
+import java.util.Stack;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,6 +34,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
+import javax.swing.text.*;
 
 import com.gentlyweb.properties.*;
 
@@ -57,6 +59,11 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.renderers.*;
 
+import com.quollwriter.data.editors.*;
+import com.quollwriter.editors.*;
+import com.quollwriter.editors.ui.*;
+import com.quollwriter.editors.ui.sidebars.*;
+
 import com.quollwriter.achievements.rules.*;
 
 public abstract class AbstractProjectViewer extends JFrame implements PropertyChangedListener,
@@ -67,6 +74,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     public static final String TAB_OBJECT_TYPE = "tab";
 
+    public static int INTERNAL_SPLIT_PANE_DIVIDER_WIDTH = 2;
+    
     // public static final int CLOSE_WARMUPS_ACTION = 12; //"closeWarmups";
     public static final int CREATE_PROJECT_SNAPSHOT_ACTION = 0;
     public static final int NEW_PROJECT_ACTION = 1;
@@ -91,6 +100,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private DictionaryProvider    dictProv = null;
     private SynonymProvider       synProv = null;
     private JSplitPane            splitPane = null;
+    private JSplitPane            splitPane2 = null;
     protected ObjectManager       dBMan = null;
     private Header                title = null;
     private Map<String, JToolBar> toolbars = new HashMap ();
@@ -110,15 +120,18 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private Box                   sideBar = null;
     private Box                   sideBarWrapper = null;
     private Map<String, AbstractSideBar> sideBars = new HashMap ();
-    private AbstractSideBar       currentSideBar = null;
+    private Stack<AbstractSideBar>  activeSideBars = new Stack ();
+    private AbstractSideBar       currentOtherSideBar = null;
+    private AbstractSideBar       mainSideBar = null;
     private Finder                finder = null;
     private WordCountsSideBar      wordCounts = null;
     private Map<String, QuollPanel> panels = new HashMap ();
     private int                   lastDividerLocation = -1;
     private Map<String, Integer>  sideBarWidths = new HashMap ();
-    //private String                currentSideBar = null;
     private java.util.List<SideBarListener> sideBarListeners = new ArrayList ();
     private java.util.List<MainPanelListener> mainPanelListeners = new ArrayList ();
+    private Map<String, QPopup> popups = new HashMap ();
+    private ProblemFinderRuleConfig problemFinderRuleConfig = null;
 
     private Timer achievementsHideTimer = null;
 
@@ -129,7 +142,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     private String toolbarLocation = Constants.BOTTOM;
 
-    private String sidebarLocation = Constants.LEFT;    
+    private String layout = Constants.LAYOUT_PS_CH;
     
     private Map tempOptions = new HashMap ();
 
@@ -141,7 +154,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private DictionaryManager dictMan = null;
     
     private WordCountTimer wordCountTimer = null;
-
+                
     public AbstractProjectViewer()
     {
 
@@ -160,7 +173,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 }
 
             });
-
+            
         this.wordCountTimer = new WordCountTimer (this,
                                                   -1,
                                                   -1);            
@@ -172,14 +185,24 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         // Create a split pane.
         this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                          false);
-        this.splitPane.setDividerSize (2);//UIUtils.getSplitPaneDividerSize ());
+        this.splitPane.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
         this.splitPane.setBorder (null);
-
+        
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
         div.setBorder (new MatteBorder (0, 0, 0, 1, Environment.getBorderColor ()));
         this.splitPane.setOpaque (false);
         this.splitPane.setBackground (UIUtils.getComponentColor ());
         
+        this.splitPane2 = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
+                                         false);
+        this.splitPane2.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
+        this.splitPane2.setBorder (null);
+        
+        div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane2.getUI ()).getDivider ();
+        div.setBorder (new MatteBorder (0, 0, 0, 1, Environment.getBorderColor ()));
+        this.splitPane2.setOpaque (false);
+        this.splitPane2.setBackground (UIUtils.getComponentColor ());
+
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F12,
@@ -198,46 +221,40 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.initKeyMappings (im);
         
         this.initActionMappings (am);
-                
-                /*
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
-                                        0),
-                Constants.SHOW_FIND_ACTION);
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F3,
-                                        0),
-                "show-options");
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F4,
-                                        0),
-                "close-current-tab");
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F5,
-                                        0),
-                "fullscreen");                
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F10,
-                                        0),
-                "do-warmup");
-                
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
-                                        0),
-                "show-main-sidebar");
-                                
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F,
-                                        Event.CTRL_MASK),
-                Constants.SHOW_FIND_ACTION);
-                */
-                                        
+                                                        
         this.tabs = this.createTabbedPane ();
         
+        this.tabs.addChangeListener (new ChangeListener ()
+        {
+           
+            public void stateChanged (ChangeEvent ev)
+            {
+                
+                if (_this.tabs.getTabCount () == 0)
+                {
+                    
+                    _this.tabs.setVisible (false);
+                    
+                } else {
+                    
+                    _this.tabs.setVisible (true);
+                                
+                }
+            }
+            
+        });
+        
+        this.tabs.setMinimumSize (new Dimension (300, 200));
         this.tabs.putClientProperty(com.jgoodies.looks.Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
         //this.tabs.putClientProperty(com.jgoodies.looks.Options.EMBEDDED_TABS_KEY, Boolean.TRUE);
+        this.tabs.setBorder (null);
         
         this.setTabsLocation (null);
 
-        this.splitPane.setRightComponent (this.tabs);
-
+        this.splitPane2.setLeftComponent (this.tabs);
+        
+        this.splitPane.setRightComponent (this.splitPane2);
+        
         this.sideBar = new Box (BoxLayout.PAGE_AXIS);        
         this.sideBar.setOpaque (false);
         this.sideBar.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -280,6 +297,41 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.fillTitleToolbar (titleC);                                        
 
+        if (EditorsEnvironment.isEditorsServiceAvailable ())
+        {
+        
+            String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show the {editors}" : "Click to register for the Editors Service.");
+        
+            titleC.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
+                                               Constants.ICON_TITLE_ACTION,
+                                               toolTip,
+                                               new ActionAdapter ()
+                                               {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        try
+                                                        {
+                                                        
+                                                            _this.viewEditors ();
+                                                            
+                                                        } catch (Exception e) {
+                                                            
+                                                            Environment.logError ("Unable to view editors",
+                                                                                  e);
+                                                            
+                                                            UIUtils.showErrorMessage (_this,
+                                                                                      "Unable to show the {editors}.");
+                                                            
+                                                        }
+
+                                                    }
+                                                    
+                                               }));
+
+        }
+        
         titleC.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
                                           Constants.ICON_TITLE_ACTION,
                                           "Click to open the find",
@@ -413,7 +465,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                                                     {
                                                         
                                                                                         UIUtils.openURL (_this,
-                                                                                                         "help:index.html");
+                                                                                                         "help:index");
                                                         
                                                                                     }
                                                         
@@ -428,7 +480,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                                                     {
                                                         
                                                                                         UIUtils.openURL (_this,
-                                                                                                         "help:main-window/keyboard-shortcuts.html");
+                                                                                                         "help:main-window/keyboard-shortcuts");
                                                         
                                                                                     }
                                                         
@@ -439,7 +491,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                                                           Constants.ABOUT_ICON_NAME,
                                                                                           AbstractProjectViewer.ABOUT_ACTION));
                                     
-                                                    if (Environment.debugMode)
+                                                    if (Environment.isDebugModeEnabled ())
                                                     {
                                     
                                                         // Debug Console
@@ -530,38 +582,466 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             }
             
         });
-                
+                                
         this.getContentPane ().add (b);
+
+        this.problemFinderRuleConfig  = new ProblemFinderRuleConfig (this);
 
     }
 
+    public void showContactSupport ()
+    {
+        
+        final AbstractProjectViewer _this = this;
+        
+        String popupName = "contactsupport";
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
+        
+            popup = UIUtils.createClosablePopup ("Contact Support",
+                                                 Environment.getIcon (Constants.EMAIL_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+        
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+        
+            Box content = new Box (BoxLayout.Y_AXIS);
+        
+            JTextPane help = UIUtils.createHelpTextPane ("Use the form below to contact Quoll Writer support.  If you wish to receive a response then please provide an email address.", 
+                                                         this);
+    
+            help.setBorder (null);
+                
+            content.add (help);
+            content.add (Box.createVerticalStrut (10));
+                  
+            final JLabel error = UIUtils.createErrorLabel ("Please enter a message.");
+            error.setVisible (false);
+            error.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+            
+            content.add (error);
+                  
+            final TextArea desc = new TextArea ("Enter your message here.",
+                                                5,
+                                                10000);
+            
+            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
+                                            "top:p, 6px, p, 6px, p");
+                                            
+            PanelBuilder builder = new PanelBuilder (fl);
+    
+            CellConstraints cc = new CellConstraints ();
+            
+            builder.addLabel ("Message",
+                              cc.xy (2,
+                                     1));
+                    
+            builder.add (desc, 
+                         cc.xy (4,
+                                1));
+                            
+            builder.addLabel ("Your Email",
+                              cc.xy (2,
+                                     3));
+    
+            final QPopup qp = popup;
+    
+            final JTextField email = new JTextField ();
+            
+            builder.add (email,
+                         cc.xy (4, 3));
+                                                                       
+            ActionListener sendAction = new ActionListener ()
+            {
+    
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    error.setVisible (false);
+                
+                    if (desc.getText ().trim ().equals (""))
+                    {
+    
+                        error.setText ("Please enter a message.");
+                        error.setVisible (true);
+                        
+                        qp.resize ();
+                    
+                        return;
+    
+                    }
+    
+                    qp.resize ();
+                    
+                    // Send the message.
+                    Map details = new HashMap ();
+                    details.put ("details",
+                                 "Email: " + email.getText () + "\nDetails: " + desc.getText ());
+                    details.put ("email",
+                                 email.getText ());
+    
+                    try
+                    {
+    
+                        Environment.sendMessageToSupport ("contact",
+                                                          details,
+                                                          new ActionAdapter ()
+                        {
+    
+                            public void actionPerformed (ActionEvent ev)
+                            {
+                        
+                                UIUtils.showMessage ((PopupsSupported) _this,
+                                                     "Message sent",
+                                                     "Your request has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+    
+                                _this.fireProjectEvent (ProjectEvent.CONTACT,
+                                                        ProjectEvent.SUBMIT);
+    
+                            }
+                            
+                        });                        
+                                                                                          
+                    } catch (Exception e)
+                    {
+    
+                        Environment.logError ("Unable to send message to support",
+                                              e);
+    
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to send message.");
+    
+                    }
+    
+                    qp.removeFromParent ();
+    
+                }
+    
+            };
+    
+            UIUtils.addDoActionOnReturnPressed (desc.getTextArea (),
+                                                sendAction);        
+            
+            JButton send = new JButton ("Send");
+            JButton cancel = new JButton ("Cancel");
+    
+            send.addActionListener (sendAction);
+    
+            cancel.addActionListener (new ActionAdapter ()
+            {
+    
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    qp.removeFromParent ();
+    
+                }
+    
+            });
+    
+            JButton[] buts = { send, cancel };
+    
+            JPanel bp = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); 
+            bp.setOpaque (false);
+    
+            builder.add (bp,
+                         cc.xy (4, 5));        
+            
+            JPanel p = builder.getPanel ();
+            p.setOpaque (false);
+            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+    
+            content.add (p);
+            
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+            popup.setContent (content);
+            
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+        } else {
+            
+            popup.setVisible (true);
+            
+                
+        }
+    }
+    
     public void showReportProblem ()
     {
         
-        ReportAProblem rp = new ReportAProblem (this);
-
-        rp.init ();        
+        final AbstractProjectViewer _this = this;
+        
+        String popupName = "bugreport";
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
+                
+            popup = UIUtils.createClosablePopup ("Report a Bug/Problem",
+                                                 Environment.getIcon (Constants.BUG_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+              
+            Box content = new Box (BoxLayout.Y_AXIS);
+            
+            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.", 
+                                                         this);
+    
+            help.setBorder (null);
+                
+            content.add (help);
+            content.add (Box.createVerticalStrut (10));
+                  
+            final JLabel error = UIUtils.createErrorLabel ("Please enter a description.");
+            error.setVisible (false);
+            error.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+            
+            content.add (error);
+                  
+            final TextArea desc = new TextArea ("Enter the bug/problem description here.  More information is usually better.",
+                                                5,
+                                                10000);
+            
+            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
+                                            "top:p, 6px, p, 6px, p, 6px, p");
+                                            
+            PanelBuilder builder = new PanelBuilder (fl);
+    
+            CellConstraints cc = new CellConstraints ();
+            
+            builder.addLabel ("Description",
+                              cc.xy (2,
+                                     1));
+                    
+            builder.add (desc, 
+                         cc.xy (4,
+                                1));
+                            
+            builder.addLabel ("Your Email",
+                              cc.xy (2,
+                                     3));
+    
+            final JTextField email = new JTextField ();
+            
+            builder.add (email,
+                         cc.xy (4, 3));
+                                                               
+            final JCheckBox sendLogFiles = new JCheckBox ("Send the log files");
+    
+            sendLogFiles.setSelected (true);
+            sendLogFiles.setOpaque (false);
+            sendLogFiles.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
+    
+            builder.add (sendLogFiles,
+                         cc.xy (4,
+                                5));        
+            
+            final QPopup qp = popup;
+            
+            ActionListener sendAction = new ActionListener ()
+            {
+    
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    error.setVisible (false);
+                
+                    if (desc.getText ().trim ().equals (""))
+                    {
+    
+                        error.setText ("Please enter a description of the problem/bug.");
+                        error.setVisible (true);
+                        
+                        qp.resize ();
+                    
+                        return;
+    
+                    }
+    
+                    qp.resize ();
+                    
+                    // Send the message.
+                    Map details = new HashMap ();
+                    details.put ("details",
+                                 "Email: " + email.getText () + "\nDetails: " + desc.getText ());
+                    details.put ("email",
+                                 email.getText ());
+    
+                    try
+                    {
+    
+                        // Get the log files?
+                        if (sendLogFiles.isSelected ())
+                        {
+    
+                            details.put ("errorLog",
+                                         IOUtils.getFile (Environment.getErrorLogFile ()));
+                            details.put ("generalLog",
+                                         IOUtils.getFile (Environment.getGeneralLogFile ()));
+    
+                        }
+    
+                        Environment.sendMessageToSupport ("bug",
+                                                          details,
+                                                          new ActionAdapter ()
+                        {
+    
+                            public void actionPerformed (ActionEvent ev)
+                            {
+                        
+                                UIUtils.showMessage ((PopupsSupported) _this,
+                                                     "Problem/Bug reported",
+                                                     "Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+        
+                                _this.fireProjectEvent (ProjectEvent.BUG_REPORT,
+                                                        ProjectEvent.SUBMIT);
+    
+                            }
+                            
+                        });
+                                                                      
+                    } catch (Exception e)
+                    {
+    
+                        Environment.logError ("Unable to send message to support",
+                                              e);
+    
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to send message.");
+    
+                    }
+    
+                    qp.removeFromParent ();
+    
+                }
+    
+            };
+    
+            UIUtils.addDoActionOnReturnPressed (desc.getTextArea (),
+                                                sendAction);        
+            
+            JButton send = new JButton ("Send");
+            JButton cancel = new JButton ("Cancel");
+    
+            send.addActionListener (sendAction);
+    
+            cancel.addActionListener (new ActionAdapter ()
+            {
+    
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    qp.removeFromParent ();
+    
+                }
+    
+            });
+    
+            JButton[] buts = { send, cancel };
+    
+            JPanel bp = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); 
+            bp.setOpaque (false);
+    
+            builder.add (bp,
+                         cc.xy (4, 7));        
+            
+            JPanel p = builder.getPanel ();
+            p.setOpaque (false);
+            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+    
+            content.add (p);
+            
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+            
+            popup.setContent (content);
+            
+            popup.setDraggable (this);
+                              
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+            
+        } else {
+            
+            popup.setVisible (true);
+            
+        }
         
     }
     
     public void showObjectTypeNameChanger ()
     {
         
-        ObjectTypeNameChanger c = new ObjectTypeNameChanger (this);
+        String popupName = "editobjectnames";
+        QPopup popup = this.getNamedPopup (popupName);
         
-        c.init ();        
-        
-    }
+        if (popup == null)
+        {
+                
+            popup = UIUtils.createClosablePopup ("Edit Object Names",
+                                                 Environment.getIcon (Constants.CONFIG_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+            
+            popup.setPopupName (popupName);
+            
+            ObjectTypeNameChanger c = new ObjectTypeNameChanger (this);
+            
+            c.init ();        
     
-    public void showContactSupport ()
-    {
-        
-        ContactSupport sp = new ContactSupport (this);
+            popup.setContent (c);
+    
+            c.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                       c.getPreferredSize ().height));
+            c.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+            
+            popup.setContent (c);
+            
+            popup.setDraggable (this);
+                              
+            popup.resize ();
 
-        sp.init ();        
-        
+            this.addNamedPopup (popupName,
+                                popup);            
+            
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+            
+        } else {
+            
+            popup.setVisible (true);            
+            
+        }
+                
     }
-    
+        
     public void initActionMappings (ActionMap am)
     {
         
@@ -646,13 +1126,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        Environment.debugMode = !Environment.debugMode;
-                        
-                        // Add a notification.
-                        _this.addNotification (Notification.createMessageNotification (_this,
-                                                                                       "Debug mode is now <b>" + (Environment.debugMode ? "ENabled" : "DISabled") + "</b>",
-                                                                                       5));
-
+                        Environment.setDebugModeEnabled (!Environment.isDebugModeEnabled ());                    
+                    
+                        _this.updateForDebugMode ();
+                                            
                     }
 
                 });
@@ -736,6 +1213,55 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                 });                        
         
+        am.put ("vieweditors",
+                new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        try
+                        {
+                    
+                            _this.viewEditors ();
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to show editors",
+                                                  e);
+                            
+                            UIUtils.showErrorMessage (_this,
+                                                      "Unable to show editors.");
+                            
+                        }
+                    
+                    }
+
+                });                        
+
+    }
+    
+    private void updateForDebugMode ()
+    {
+                
+        // Add a notification.
+        this.addNotification (String.format ("Debug mode is now <b>%s</b>",
+                                             (Environment.isDebugModeEnabled () ? "ENabled" : "DISabled")),
+                              Constants.BUG_ICON_NAME,
+                              10);
+
+        String iconName = this.getViewerIcon ();
+                                                                      
+        if (Environment.isDebugModeEnabled ())
+        {                                                                                       
+        
+            iconName = Constants.BUG_ICON_NAME;
+
+        }
+        
+        this.title.setIcon (Environment.getIcon (iconName,
+                                                 Constants.ICON_TITLE));
+        
     }
     
     public void initKeyMappings (InputMap im)
@@ -757,6 +1283,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                         0),
                 "fullscreen");                
 
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F7,
+                                        0),
+                "vieweditors");                
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F10,
                                         0),
                 "do-warmup");
@@ -800,7 +1329,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
-    private void initSideBars ()
+    protected void initSideBars ()
+                          throws GeneralException
     {
         
         this.finder = new Finder (this);
@@ -813,25 +1343,36 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.addSideBar ("wordcounts",
                          this.wordCounts);        
 
-        this.addSideBar ("project",
-                         this.getMainSideBar ());        
-
-        this.showMainSideBar ();
+        this.mainSideBar = this.getMainSideBar ();
+                         
+        this.addSideBar (this.getMainSideBarName (),
+                         this.mainSideBar);        
         
     }
     
-    public JComponent getSideBarPanel ()
+    public JComponent getSideBarForFullScreen ()
     {
-        
-        if (this.splitPane.getLeftComponent ().equals (this.sideBar))
+
+        if (this.currentOtherSideBar != null)
         {
             
-            return this.sideBar;
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.currentOtherSideBar);                            
+            
+        } else {
+            
+            if (this.mainSideBar != null)
+            {
+            
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (this.mainSideBar);                                            
+
+            }
             
         }
-        
-        return (JComponent) this.splitPane.getRightComponent ();
-        
+
+        return this.sideBar;
+
     }
 
     private void fireMainPanelShownEvent (QuollPanel p)
@@ -863,11 +1404,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
-    private void fireSideBarShownEvent (String name)
+    protected void fireSideBarShownEvent (AbstractSideBar sb)
     {
         
         SideBarEvent ev = new SideBarEvent (this,
-                                            name);
+                                            sb);
         
         for (SideBarListener l : this.sideBarListeners)
         {
@@ -878,6 +1419,21 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
+    protected void fireSideBarHiddenEvent (AbstractSideBar sb)
+    {
+        
+        SideBarEvent ev = new SideBarEvent (this,
+                                            sb);
+        
+        for (SideBarListener l : this.sideBarListeners)
+        {
+            
+            l.sideBarHidden (ev);
+            
+        }
+        
+    }
+
     public void removeSideBarListener (SideBarListener l)
     {
         
@@ -892,24 +1448,105 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
-    public void removeSideBar (AbstractSideBar panel)
+    private JComponent createLayoutFiller ()
     {
         
-        this.sideBars.remove (panel.getName ());
+        Box l = new Box (BoxLayout.X_AXIS);
+        l.setMinimumSize (new Dimension (0, 0));
+        l.setPreferredSize (new Dimension (0, 0));
+        l.setVisible (false);
         
-        if (panel == this.currentSideBar)
+        return l;
+    
+    }
+        
+    public void closeSideBar ()
+    {
+        /*
+        if (this.activeSideBars.size () > 0)
         {
             
-            this.sideBarWrapper.removeAll ();
+            AbstractSideBar curr = this.activeSideBars.pop ();
+            
+            curr.onClose ();
+        
+            if (curr.removeOnClose ())
+            {
+            
+                this.removeSideBar (curr);
+            
+                this.removeMainPanelListener (curr);
+                
+            }
+            
             
         }
+        */
+        /*
+        if (this.currentOtherSideBar != null)
+        {
+            
+            this.currentOtherSideBar.onClose ();
+        
+            if (this.currentOtherSideBar.removeOnClose ())
+            {
+            
+                this.removeSideBar (this.currentOtherSideBar);
+            
+                this.removeMainPanelListener (this.currentOtherSideBar);
                 
+            }
+            
+        }
+        
+        */
+        /*
+        if (this.activeSideBars.size () > 0)
+        {
+            
+            this.showSideBar (this.activeSideBars.pop ().getName ());
+            
+            return;
+            
+        }
+        */
+        this.currentOtherSideBar = null;
+
         this.showMainSideBar ();
+        
+    }
+    
+    public AbstractSideBar getSideBar (String name)
+    {
+        
+        return this.sideBars.get (name);
+        
+    }
+    
+    public void removeSideBar (AbstractSideBar sb)
+    {
+
+        this.sideBars.remove (sb.getName ());
+
+        this.activeSideBars.remove (sb);
+        
+        if (this.currentOtherSideBar == sb)
+        {
+            
+            this.currentOtherSideBar = null;
+            
+        }
+        
+        this.removeSideBarListener (sb);
+
+        this.showSideBar (this.getMainSideBarName ());
+
         
     }
     
     public void addSideBar (String          name,
                             AbstractSideBar panel)
+                     throws GeneralException
     {
         
         if (panel == null)
@@ -956,6 +1593,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
+        this.setUILayout (this.layout);
+        
     }
     
     public void closeFind ()
@@ -997,51 +1636,166 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
-        this.finder.onShow (text);
+        this.finder.setFindText (text);
                 
     }
     
     public boolean isMainSideBarName (String n)
     {
         
-        return (n.equals ("project"));
+        return (n.equals (this.getMainSideBarName ()));
         
+    }
+    
+    protected void setMainSideBar (AbstractSideBar sb)
+    {
+        
+        this.mainSideBar = sb;
+                
+        this.sideBars.put (this.getMainSideBarName (),
+                           sb);
+                
+        this.showMainSideBar ();
+                
     }
     
     public void showMainSideBar ()
     {
         
-        this.showSideBar ("project");
+        this.showSideBar (this.getMainSideBarName ());
         
     }
     
+    public String getMainSideBarName ()
+    {
+        
+        return "project";
+        
+    }
+    /*
     public Component getCurrentSideBarCard ()
     {
         
         return this.currentSideBar;
                 
     }
-        
-    public void showSideBar (String name)
+      */
+    
+    public int getActiveSideBarCount ()
     {
-
-        if ((this.currentSideBar != null)
-            &&
-            (this.currentSideBar.getName ().equals (name))
+        
+        int c = this.activeSideBars.size ();
+        
+        if ((this.layout.equals (Constants.LEFT))
+            ||
+            (this.layout.equals (Constants.RIGHT))
+            ||
+            (this.layout.equals (Constants.LAYOUT_PS_CH))
+            ||
+            (this.layout.equals (Constants.LAYOUT_CH_PS))
            )
         {
 
-            if (this.fsf != null)
+            c++;
+        
+        }
+        
+        return c;
+        
+    }
+    
+    public JPopupMenu getShowOtherSideBarsPopupSelector ()
+    {
+        
+        final AbstractProjectViewer _this = this;
+        
+        JPopupMenu m = new JPopupMenu ();
+        
+        if (this.currentOtherSideBar != null)
+        {
+        
+            if ((this.layout.equals (Constants.LEFT))
+                ||
+                (this.layout.equals (Constants.RIGHT))
+                ||
+                (this.layout.equals (Constants.LAYOUT_PS_CH))
+                ||
+                (this.layout.equals (Constants.LAYOUT_CH_PS))
+               )
             {
+                                
+                JMenuItem mi = UIUtils.createMenuItem (this.mainSideBar.getActiveTitle (),
+                                                       this.mainSideBar.getActiveIconType (),
+                                                       new ActionListener ()
+                                                       {
+                                                        
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+                                                                
+                                                                _this.showMainSideBar ();
+                                                                
+                                                            }
+                                                        
+                                                       });
                 
-                this.fsf.showSideBar ();
+                m.add (mi);
                 
             }
+
+        }
+ 
+        // Means we are showing the main sidebar and the other sidebar.
+        // Exclude those from the list.
+        for (AbstractSideBar sb : this.activeSideBars)
+        {
             
+            if ((this.currentOtherSideBar != null)
+                &&
+                (this.currentOtherSideBar == sb)
+               )
+            {
+            
+                continue;
+                
+            }
+                            
+            final AbstractSideBar _sb = sb;
+            
+            JMenuItem mi = UIUtils.createMenuItem (sb.getActiveTitle (),
+                                                   sb.getActiveIconType (),
+                                                   new ActionListener ()
+                                                   {
+                                                    
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                            
+                                                            _this.showSideBar (_sb.getName ());
+                                                            
+                                                        }
+                                                    
+                                                   });
+                
+            m.add (mi);
+            
+        }
+                    
+        return m;
+        
+    }
+    
+    public void showSideBar (String name)
+    {
+        
+        if ((this.currentOtherSideBar != null)
+            &&
+            (this.currentOtherSideBar.getName ().equals (name))
+           )
+        {
+        
             return;
             
         }
-    
+                
         AbstractSideBar b = this.sideBars.get (name);
         
         if (b == null)
@@ -1051,61 +1805,74 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                 name +
                                                 ", no sidebar found with that name.");
             
+        }        
+        
+        if (this.currentOtherSideBar != null)
+        {
+        
+            // Will be hiding this one.
+            this.currentOtherSideBar.onHide ();
+            
+            this.fireSideBarHiddenEvent (this.currentOtherSideBar);
+            
         }
 
-        int lastDivLoc = this.splitPane.getLastDividerLocation ();
-        
-        int csw = 0;
-        
-        if (this.currentSideBar != null)
+        if (name.equals (this.getMainSideBarName ()))
         {
             
-            csw = this.currentSideBar.getSize ().width;
+            this.currentOtherSideBar = null;
             
-        }
+        } else {
+            
+            this.currentOtherSideBar = b;            
+            
+            this.activeSideBars.remove (b);
         
-        boolean sideBarLeft = (this.splitPane.getLeftComponent () == this.sideBar);
+            this.activeSideBars.push (b);
+
+        }
+                         
+        if (this.fsf != null)
+        {
+            
+            if (this.currentOtherSideBar != null)
+            {
                 
-        int w = b.getPreferredSize ().width;
-        
-        w = Math.max (w, csw);
-
-        int tbw = this.toolbarPanel.getPreferredSize ().width;
-
-        w = Math.max (w, tbw);
-
-        this.finder.clearHighlight ();
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (this.currentOtherSideBar);                                            
                 
-        // Get the current sidebar.
-        if (this.currentSideBar != null)
-        {
-        
-            this.sideBarWidths.put (this.currentSideBar.getName (),
-                                    this.currentSideBar.getSize ().width);
-
+            } else {
+                
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (this.mainSideBar);                                                            
+                
+            }
+            
+            this.fsf.showSideBar ();
+                        
+            return;
+                    
         }
-                                    
-        this.sideBarWrapper.removeAll ();
-        this.sideBarWrapper.add (b);
-                           
-        this.sideBar.validate ();
-        this.sideBar.repaint ();
+                
+        this.setUILayout (this.layout);
 
-        int divLoc = w;
-  
-        if (!sideBarLeft)
+        try
         {
             
-            divLoc = this.splitPane.getSize ().width - w;
+            b.onShow ();
             
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to call onShow for sidebar: " +
+                                  name +
+                                  ", instance: " +
+                                  b,
+                                  e);
+                              
         }
-  
-        this.splitPane.setDividerLocation (divLoc);            
         
-        this.currentSideBar = b;
-                      
-        this.fireSideBarShownEvent (name);
-
+        this.fireSideBarShownEvent (b);
+        
         if (this.fsf != null)
         {
             
@@ -1314,6 +2081,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     
     public abstract void handleItemChangedEvent (ItemChangedEvent ev);
 
+    public abstract Set<FindResultsBox> findText (String t);
+        
     public ActionMap getActionMap ()
     {
 
@@ -1356,11 +2125,25 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                          java.util.List<JButton> buttons)
     {
 
-        Notification n = new Notification (this,
-                                           comp,
+        final AbstractProjectViewer _this = this;
+    
+        Notification n = new Notification (comp,
                                            iconType,
                                            duration,
-                                           buttons);
+                                           buttons,
+                                           new ActionListener ()
+                                           {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    Notification n = (Notification) ev.getSource ();
+                                                    
+                                                    _this.removeNotification (n);
+                                                    
+                                                }
+                                            
+                                           });
 
         this.addNotification (n);
 
@@ -1391,12 +2174,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         if (this.notifications.getComponentCount () > 0)
         {
-            
-            n.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                              0,
-                                                              1,
-                                                              0,
-                                                              UIUtils.getBorderColor ()),
+                        
+            n.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 1, 0),
                                              n.getBorder ()));
             
         }
@@ -1412,10 +2191,23 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.repaint ();        
         
     }
-
+    
     public Notification addNotification (String text,
                                          String type,
                                          int    duration)
+    {
+
+        return this.addNotification (text,
+                                     type,
+                                     duration,
+                                     null);
+    
+    }
+    
+    public Notification addNotification (String            text,
+                                         String            type,
+                                         int               duration,
+                                         HyperlinkListener clickListener)
     {
 
         JTextPane p = UIUtils.createHelpTextPane (text,
@@ -1425,6 +2217,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                          Short.MAX_VALUE));
         p.setBorder (null);
 
+        if (clickListener != null)
+        {
+            
+            p.addHyperlinkListener (clickListener);
+            
+        }
+                
         return this.addNotification (p,
                                      type,
                                      duration);
@@ -1598,8 +2397,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                 
                                                             File f = pv.dBMan.createBackup ();
                                 
-                                                            UIUtils.showMessage (pv,
-                                                                                 "A snapshot has been created and written to:\n\n" + f.getPath ());
+                                                            UIUtils.showMessage ((PopupsSupported) pv,
+                                                                                 "Snapshot created",
+                                                                                 String.format ("A snapshot has been created and written to:\n\n  <a href='%s'>%s</a>",
+                                                                                                f.getParentFile ().toURI ().toString (),
+                                                                                                f));
                                 
                                                         } catch (Exception e)
                                                         {
@@ -1616,6 +2418,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                     }
                                                     
                                                 },
+                                                null,
                                                 null,
                                                 null);
 
@@ -1763,10 +2566,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    new About (pv).init ();
-
-                    pv.fireProjectEvent (ProjectEvent.ABOUT,
-                                         ProjectEvent.SHOW);
+                    pv.showAbout ();
 
                 }
 
@@ -1881,10 +2681,36 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public void showWarmupPromptSelect ()
     {
         
+        final QPopup qp = UIUtils.createClosablePopup ("Do a {Warmup} Exercise",
+                                                       Environment.getIcon (Warmup.OBJECT_TYPE,
+                                                                            Constants.ICON_POPUP),
+                                                       null);
+    
         WarmupPromptSelect w = new WarmupPromptSelect (this);
 
         w.init ();
-              
+
+        w.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                  qp.getPreferredSize ().height));
+        w.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+        qp.setContent (w);
+        
+        qp.setDraggable (this);
+
+        qp.resize ();
+
+        this.showPopupAt (qp,
+                          UIUtils.getCenterShowPosition (this,
+                                                         qp),
+                           false);
+        
+        // TODO: Investigate why this is needed, without it the qp has a strange preferred size.
+        this.showPopupAt (qp,
+                          UIUtils.getCenterShowPosition (this,
+                                                         qp),
+                           false);
+                      
     }
 
     public void doForPanels (Class            type,
@@ -1904,25 +2730,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
         
     }
-    
-    public void scheduleAutoSaveForAllEditors ()
-    {
-
-        this.doForPanels (AbstractEditorPanel.class,
-                          new DefaultQuollPanelAction ()
-                          {
-                            
-                              public void doAction (QuollPanel p)
-                              {
-
-                                  ((AbstractEditorPanel) p).scheduleAutoSave ();
-                                
-                              }
-                            
-                          });
-
-    }
-    
+        
     public boolean isHighlightWritingLine ()
     {
         
@@ -2160,8 +2968,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     */
     public void setSpellCheckLanguage (String  lang,
                                        boolean updateEditors)
-                                throws GeneralException,
-                                       IOException
+                                throws Exception
     {
 
     
@@ -2390,6 +3197,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
+        if (Environment.isEnglish (c))
+        {
+            
+            c = Constants.ENGLISH;
+            
+        }
+        
         return c;        
         
     }
@@ -2596,65 +3410,338 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
-    public void setSidebarLocation (String loc)
+    public AbstractSideBar getActiveOtherSideBar ()
+    {
+        
+        if (this.activeSideBars.size () > 0)
+        {
+            
+            return this.activeSideBars.peek ();        
+        
+        }
+        
+        return null;
+        
+    }
+    
+    /**
+     * The layout is done in terms of preferred sizes and resize weights.
+     * We then call resetToPreferredSizes on the split panes to resize.
+     * The resize weights ensure that the tabs get all the extra space (without it one of the sidebars
+     * could get the space).  Weights of 0.98f and 0.02f are used to ensure that the sidebars aren't shrunk below
+     * their current size (can't work out why it does that...)
+     *
+     * @{link splitpane2} is nested within the right half of {@link splitpane}.
+     *
+     * A zero sized filler is used to when a "half" isn't used to ensure that the relevant splitpane
+     * doesn't freak out. See {@link createLayoutFiller()}.
+     */
+    public void setUILayout (String layout)
     {
 
-        if (loc == null)
+        // Legacy, pre-2.5
+        if (layout.equals (Constants.LEFT))
+        {
+            
+            layout = Constants.LAYOUT_PS_CH;
+            
+        }
+    
+        if (layout.equals (Constants.RIGHT))
+        {
+            
+            layout = Constants.LAYOUT_CH_PS;
+            
+        }
+        
+        AbstractSideBar other = this.currentOtherSideBar;
+                
+        if (layout.equals (Constants.LAYOUT_PS_CH_OS))
+        {
+            
+            this.splitPane.setLeftComponent (this.sideBar);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+            this.splitPane.setResizeWeight (0f);
+
+            this.splitPane2.setLeftComponent (this.tabs);            
+            this.splitPane2.setRightComponent (this.createLayoutFiller ());
+            this.splitPane2.setDividerSize (0);
+                        
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);                                            
+            
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+             
+                this.splitPane2.setRightComponent (other);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+                this.splitPane2.setResizeWeight (1f);
+                this.splitPane.setResizeWeight (0f);
+                
+            } 
+            
+        }
+        
+        if (layout.equals (Constants.LAYOUT_OS_CH_PS))
         {
 
-            loc = Constants.LEFT;
+            this.splitPane.setLeftComponent (this.tabs);
+            this.splitPane.setResizeWeight (0.98f);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
 
+            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (this.sideBar);
+            this.splitPane2.setDividerSize (0);
+            //this.splitPane2.setResizeWeight (0f);            
+            
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);
+            
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+            
+                this.splitPane.setLeftComponent (other);
+                this.splitPane.setResizeWeight (0.02f);
+
+                this.splitPane2.setLeftComponent (this.tabs);
+                this.splitPane2.setResizeWeight (0.98f);            
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+
+            }            
+                                    
+        }
+        
+        if (layout.equals (Constants.LAYOUT_PS_OS_CH))
+        {
+            
+            this.splitPane.setLeftComponent (this.sideBar);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+            this.splitPane.setResizeWeight (0f);
+
+            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (this.tabs);            
+            //this.splitPane2.setResizeWeight (0.02f);
+            this.splitPane2.setDividerSize (0);
+            
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);                                            
+
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+
+                //this.splitPane.setResizeWeight (0.75f);
+             
+                this.splitPane2.setLeftComponent (other);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+                //this.splitPane2.setResizeWeight (0.75f);
+                
+            } 
+            
         }
 
-        boolean swap = false;
-        
-        if (loc.equals (Constants.LEFT))
+        if (layout.equals (Constants.LAYOUT_CH_OS_PS))
         {
+                        
+            this.splitPane.setLeftComponent (this.tabs);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+            
+            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (this.sideBar);            
+            this.splitPane2.setDividerSize (0);
 
-            if (!this.splitPane.getLeftComponent ().equals (this.sideBar))
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);                                            
+                        
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+             
+                this.splitPane.setResizeWeight (1f);
+
+                this.splitPane2.setLeftComponent (other);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+                //this.splitPane2.setResizeWeight (0.75f);
+        
+            }
+            
+        }
+
+        if (layout.equals (Constants.LAYOUT_PS_CH))
+        {
+            
+            this.splitPane.setLeftComponent (this.sideBar);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);            
+            this.splitPane.setResizeWeight (0f);
+            
+            this.splitPane2.setLeftComponent (this.tabs);
+            this.splitPane2.setRightComponent (null);
+            this.splitPane2.setDividerSize (0);            
+
+            if (other != null)
             {
                 
-                swap = true;
-                                
-            }
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (other);                            
+                
+            } else {
+                
+                if (this.mainSideBar != null)
+                {
+                
+                    this.sideBarWrapper.removeAll ();
+                    this.sideBarWrapper.add (this.mainSideBar);                                            
 
-        } else
+                }
+                
+            }
+                        
+        }
+        
+        if (layout.equals (Constants.LAYOUT_CH_PS))
         {
 
-            if (!this.splitPane.getRightComponent ().equals (this.sideBar))
+            this.splitPane.setLeftComponent (this.tabs);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);                        
+            this.splitPane.setResizeWeight (1f);        
+
+            this.splitPane2.setLeftComponent (this.sideBar);//this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (null);
+            //this.splitPane2.setRightComponent (this.sideBar);
+            this.splitPane2.setDividerSize (0);            
+
+            if (other != null)
             {
                 
-                swap = true;
-                                
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (other);                            
+                
+            } else {
+                
+                if (this.mainSideBar != null)
+                {
+                
+                    this.sideBarWrapper.removeAll ();
+                    this.sideBarWrapper.add (this.mainSideBar);                                            
+
+                }
+                
             }
-        
+                        
         }
+        
+        this.layout = layout;        
+        
+        final Dimension min = this.sideBar.getMinimumSize ();
 
-        if (swap)
+        int ww = this.splitPane.getSize ().width;
+
+        if (ww == 0)
         {
+            
+            ww = this.proj.getPropertyAsInt (Constants.WINDOW_WIDTH_PROPERTY_NAME);
 
-            // Swap them.
-            int dloc = this.splitPane.getDividerLocation ();
+        }
             
-            Component left = this.splitPane.getLeftComponent ();
+        int sbw = this.sideBar.getSize ().width;
+        
+        if (sbw == 0)
+        {
             
-            Component right = this.splitPane.getRightComponent ();
+            sbw = this.proj.getPropertyAsInt (Constants.PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME);
 
-            this.splitPane.setLeftComponent (null);
-            this.splitPane.setRightComponent (null);
+            if (sbw <= 0)
+            {
             
-            this.splitPane.setLeftComponent (right);
-            this.splitPane.setRightComponent (left);
+                // Legacy, pre-v2.5
+                int spd = this.proj.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME);
+
+                if (spd > 0)
+                {
+
+                    sbw = spd;
+                    
+                    this.proj.removeProperty (Constants.PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME);
+                
+                } else {
+
+                    sbw = this.proj.getPropertyAsInt (Constants.PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME);
+                    
+                }
             
-            this.splitPane.setDividerLocation (this.splitPane.getSize ().width - dloc);            
+            }
+            
+            if (sbw == 0)
+            {
+                
+                sbw = min.width;
+                
+            }
+
+        } 
+                                
+        int h = this.splitPane.getSize ().height;
+        
+        if (h == 0)
+        {
+            
+            h = 200;
             
         }
         
-        this.sidebarLocation = loc;
+        int w = ww - sbw - 2;
+                        
+        if (other != null)
+        {
+            
+            int ow = other.getMinimumSize ().width - 2;
+            
+            w -= ow;
+            
+            other.setPreferredSize (new Dimension (ow,
+                                                   h));
 
+            //this.sideBar.setMinimumSize (new Dimension (sbw, h));                                                                          
+                                                                      
+        }            
+                    
+        this.tabs.setPreferredSize (new Dimension (w, 100));
+
+        this.sideBar.setPreferredSize (new Dimension (sbw, 200));                                                                          
+        
+        this.splitPane2.validate ();
+        this.splitPane.validate ();
+        this.splitPane2.resetToPreferredSizes ();
+        this.splitPane.resetToPreferredSizes ();
+                
+        final AbstractProjectViewer _this = this;
+        
+        /*
+         *Is causing the size to be too big when moving from a wider sidebar to a narrower one.
+        if (this.splitPane.getSize ().width > 0)
+        {
+        
+            this.sideBar.setMinimumSize (new Dimension (sbw, 200));                                                                          
+
+            UIUtils.doLater (new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    _this.sideBar.setMinimumSize (min);
+                    
+                }
+                
+            });
+
+        }
+        */
     }    
     
-    private void initWindow ()
+    protected void initWindow ()
     {
     
         this.setSpellCheckingEnabled (this.proj.getPropertyAsBoolean (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME));
@@ -2688,24 +3775,58 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         this.setToolbarLocation (this.proj.getProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME));
 
-        this.setSidebarLocation (Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME));        
+        String sidebarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+        
+        String uiLayout = Constants.LAYOUT_CH_PS;
+        
+        // Legacy, pre-v2.5
+        if (sidebarLoc != null)
+        {
+            
+            if (sidebarLoc.equals (Constants.RIGHT))
+            {
+                
+                uiLayout = Constants.LAYOUT_CH_PS;
+                
+            }
+            
+            Environment.getUserProperties ().removeProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+            
+            try
+            {
+            
+                Environment.saveUserProperties (Environment.getUserProperties ());
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to save user properties",
+                                      e);
+                
+            }
+            
+        } else {
+            
+            uiLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+            
+        }
+        
+        this.setUILayout (uiLayout);        
 
         this.setTabsLocation (this.proj.getProperty (Constants.TABS_LOCATION_PROPERTY_NAME));        
-
-        this.splitPane.setDividerLocation (this.proj.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
         
-        UIUtils.setFrameTitle (this,
-                               Environment.replaceObjectNames (this.getViewerTitle ()));
-
+        this.initTitle ();
+        
         this.setIconImage (Environment.getWindowIcon ().getImage ());
 
+        this.updateForDebugMode ();        
+        
         this.pack ();
 
         UIUtils.setCenterOfScreenLocation (this);
 
         this.setVisible (true);
 
-        Environment.doVersionCheck (this);
+        Environment.doNewsAndVersionCheck (this);
 
         if (this.isSpellCheckingEnabled ())
         {
@@ -2731,8 +3852,38 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.initKeyStrokeSound ();
 
+        // TODO: Remove when 2.3 is released.
+        if ((Environment.getJavaVersion () < 7)
+            &&
+            (!Environment.isNewVersionGreater ("2.3",
+                                               Environment.getQuollWriterVersion ()))
+           )
+        {
+
+            Environment.logError ("A user is using version: " + Environment.getJavaVersion ());
+        
+            this.addNotification (String.format ("You are currently using version %s of Java.  The next version of Quoll Writer will require at least Java 7.  It is recommended that you upgrade Java now to prevent potential problems.  <a href='%s'>Click here to upgrade Java now</a>",
+                                                 Environment.getJavaVersion (),
+                                                 "https://java.com/en/download"),
+                                  "information",
+                                  90);
+            
+        }
+        
     }
 
+    protected void initTitle ()
+    {
+        
+        String title = Environment.replaceObjectNames (this.getViewerTitle ());
+        
+        this.title.setTitle (title);        
+        
+        UIUtils.setFrameTitle (this,
+                               title);        
+        
+    }
+    
     private void initKeyStrokeSound ()
     {
         
@@ -2788,11 +3939,26 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
 
-    public void newProject (File    dir,
+    public void newProject (File    saveDir,
                             Project p,
                             String  filePassword)
                      throws Exception
     {
+
+        this.newProject (saveDir,
+                         p,
+                         filePassword,
+                         null);
+    
+    }    
+    
+    public void newProject (File           saveDir,
+                            Project        p,
+                            String         filePassword,
+                            ActionListener onOpen)
+                     throws Exception
+    {
+                     
 
         if (p == null)
         {
@@ -2809,32 +3975,16 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
 
         this.setIgnoreProjectEvents (true);
-
-        File projDir = new File (dir.getPath () + "/" + Utils.sanitizeForFilename (p.getName ()));
-
-        // Get the username and password.
-        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
-        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
-
-        this.dBMan = new ObjectManager ();
-        this.dBMan.init (new File (projDir.getPath () + "/projectdb"),
-                         username,
-                         password,
-                         filePassword);
-
-        this.dBMan.setProject (p);
-
-        // Create a file that indicates that the directory can be deleted.
-        Utils.createQuollWriterDirFile (projDir);
-
-        // Create one in the "projectdb.lobs.db" dir as well (if present).
-        Utils.createQuollWriterDirFile (new File (projDir.getPath () + "/projectdb.lobs.db"));
-
-        p.setProjectDirectory (projDir);
-        p.setEncrypted (filePassword != null);
-
+                
+        Environment.createProject (saveDir,
+                                   p,
+                                   filePassword);                
+          
         this.proj = p;
-
+                
+        this.dBMan = Environment.getProjectObjectManager (this.proj,
+                                                          filePassword);
+                
         if ((this.proj.getBooks () == null) ||
             (this.proj.getBooks ().size () == 0) ||
             (this.proj.getBooks ().get (0).getChapters ().size () == 0))
@@ -2857,6 +4007,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 
                 this.proj.addBook (b);
 
+                this.saveObject (b,
+                                 true);
+                
             }
 
         }        
@@ -2867,31 +4020,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.handleNewProject ();
         
-        this.title.setTitle (Environment.replaceObjectNames (this.getViewerTitle ()));
-        /* old
-        this.title.setIcon (Environment.getIcon (this.getViewerIcon (),
-                                                 true));
-        */
-        try
-        {
-
-            this.saveObject (p,
-                             true);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to create new project: " +
-                                  p,
-                                  e);
-
-            UIUtils.showErrorMessage (this,
-                                      "Unable to create new project: " + p.getName ());
-
-            return;
-
-        }
-
         // Register ourselves with the environment.
         try
         {
@@ -2902,7 +4030,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         {
 
             Environment.logError ("Unable to add opened project (probably an error with the projects file): " +
-                                  p,
+                                  this.proj,
                                   e);
 
             UIUtils.showErrorMessage (this,
@@ -2912,10 +4040,12 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.setSpellCheckingEnabled (this.proj.getPropertyAsBoolean (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME));
 
-        this.initWindow ();
-
         this.setSplitPaneColor ();
         
+        this.initWindow ();
+
+        this.showMainSideBar ();        
+                
         this.handleWhatsNew ();
         
         this.handleShowTips ();
@@ -2927,6 +4057,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.fireProjectEvent (this.proj.getObjectType (),
                                ProjectEvent.NEW);
 
+        if (onOpen != null)
+        {
+            
+            onOpen.actionPerformed (new ActionEvent (this, 1, "opened"));
+                               
+        }
+        
     }
 
     public void setToolbarVisible (boolean v)
@@ -2935,21 +4072,19 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.toolbarPanel.setVisible (v);
 
     }
-
+/*
     public void newProject (File   dir,
                             String name,
                             String filePassword)
                      throws Exception
     {
 
-        Project p = new Project (name);
-
         this.newProject (dir,
-                         p,
+                         name,
                          filePassword);
 
     }
-
+*/
 
     public void openProject (Project p,
                              String  filePassword)
@@ -2980,27 +4115,27 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.dBMan = new ObjectManager ();
 
-        this.dBMan.init (new File (p.getProjectDirectory ().getPath () + "/projectdb"),
+        this.dBMan.init (new File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
                          username,
                          password,
-                         filePassword);
+                         filePassword,
+                         Environment.getSchemaVersion ());
 
-        Startup.ss.incr (5);
-
+        Environment.incrStartupProgress ();
+                         
         // Get the project.
         this.proj = this.dBMan.getProject ();
 
-        Startup.ss.incr (5);
+        Environment.incrStartupProgress ();
 
         this.proj.setProjectDirectory (p.getProjectDirectory ());
         this.proj.setFilePassword (filePassword);
         this.proj.setEncrypted (p.isEncrypted ());
         this.proj.setNoCredentials (p.isNoCredentials ());
 
-        this.proj.addPropertyChangedListener (this,
-                                              null);
+        this.proj.addPropertyChangedListener (this);
 
-        Startup.ss.incr (5);
+        Environment.incrStartupProgress ();
 
         Environment.addToAchievementsManager (this);
 
@@ -3008,139 +4143,32 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 
         this.handleOpenProject ();
 
-        Startup.ss.incr (5);
-
-        // this.title.setTitle (this.proj.getName ());
-        this.title.setTitle (Environment.replaceObjectNames (this.getViewerTitle ()));
-        
+        Environment.incrStartupProgress ();
+/*
         
         this.title.setIcon (Environment.getIcon (this.getViewerIcon (),
                                                  Constants.ICON_TITLE));
-
-                                                 
+  */                                               
         final java.util.List<Runner> inits = new ArrayList ();
 
-        // Setup the tabs.
-        String openTabs = this.proj.getProperty (Constants.OPEN_TABS_PROPERTY_NAME);
+        this.restoreTabs ();
 
-        if (openTabs != null)
-        {
-
-            java.util.List<String> objIds = new ArrayList ();
+        Environment.incrStartupProgress ();        
         
-            // Split on :
-            StringTokenizer t = new StringTokenizer (openTabs,
-                                                     ",");
-
-            while (t.hasMoreTokens ())
-            {
-
-                String tok = t.nextToken ().trim ();
-
-                objIds.add (tok);
-                
-            }
-                
-            Collections.reverse (objIds);
-                
-            for (String panelId : objIds)
-            {
-                
-                ObjectReference r = null;
-
-                try
-                {
-
-                    r = ObjectReference.parseObjectReference (panelId);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to parse: " +
-                                          panelId,
-                                          e);
-
-                    continue;
-
-                }
-
-                // Pass it to the project.
-                final DataObject d = this.proj.getObjectForReference (r);
-
-                if (d == null)
-                {
-
-                    if (!this.openPanelInt (panelId))
-                    {
-                        
-                        Environment.logError ("Unable to open panel for id: " +
-                                              panelId);
-
-                        continue;
-                                                
-                    }
-
-                } else
-                {
-
-                    if (!this.viewObject (d))
-                    {
-
-                        continue;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        Startup.ss.incr (5);
-
         this.initWindow ();
         
-        String lastOpen = this.proj.getProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME);
-
-        if (lastOpen != null)
-        {
-
-            final QuollPanel qp = this.getQuollPanel (lastOpen);
-
-            if (qp != null)
-            {
-            
-                //final String state = this.proj.getProperty (lastOpen + "-state");
-
-                final AbstractProjectViewer _this = this;
-
-                inits.add (new Runner ()
-                {
-
-                    public void run ()
-                    {
-
-                        _this.setPanelVisible (qp);
-                        
-                        //qp.validate ();
-                        //qp.repaint ();
-
-                    }
-
-                });
-                
-            }
-            
-            this.setSplitPaneColor ();
-
-        }
-
+        this.setSplitPaneColor ();
+        
         // Init all the panels.
         for (QuollPanel qp : this.panels.values ())
         {
-            
+                        
             Runner r = this.getInitPanelStateRunner (qp,
-                                                     lastOpen.equals (qp.getPanelId ()));
+                                                     (qp == this.getCurrentlyVisibleTab ()));
+                                                     //lastOpen.equals (qp.getPanelId ()));
+            
+            // The init for the panel should have set it as ready for use so switch that off.
+            qp.setReadyForUse (false);
             
             if (r != null)
             {
@@ -3151,24 +4179,24 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
+        {
+           
+            public void actionPerformed (ActionEvent ev)
             {
-
-                public void run ()
+                
+                for (Runner r : inits)
                 {
-
-                    for (Runner r : inits)
-                    {
-
-                        r.run ();
-
-                    }
-
+                    
+                    r.run ();
+                    
                 }
-
-            });
-
-        Startup.ss.incr (5);
+                
+            }
+            
+        });
+        
+        Environment.incrStartupProgress ();
 
         // See if the properties say that we should produce a snapshot.
         if ((this.proj.getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME)) &&
@@ -3214,7 +4242,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
-        Startup.ss.incr (5);
+        Environment.incrStartupProgress ();
 
         this.dBMan.createActionLogEntry (this.proj,
                                          "Opened project",
@@ -3223,18 +4251,18 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         final AbstractProjectViewer _this = this;
 
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void run ()
-                {
+                // Get the word counts, don't calc the a4 pages count.
+                _this.startWordCounts = _this.getAllChapterCounts (false);
 
-                    // Get the word counts, don't calc the a4 pages count.
-                    _this.startWordCounts = _this.getAllChapterCounts (false);
+            }
 
-                }
-
-            });
+        });
 
         // Check the font used for the project and inform the user if we don't have it.
         // We do it here so it's done once.
@@ -3271,6 +4299,165 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.fireProjectEvent (this.proj.getObjectType (),
                                ProjectEvent.OPEN);
                                
+    }
+    
+    /**
+     * Given a list of comma separated object ids, open the panels for the objects (if available).
+     * So an example <b>ids</b> might be: chapter-1,character-2,chapter-3.
+     * This will be parsed into 3 values and then the relevant objects searched for in the project.
+     * If there is an associated object then it will be opened for viewing.
+     *
+     * @param ids The object ids, comma separated.
+     */
+    public void openPanelsFromObjectIdList (String ids)
+    {
+
+        if ((ids == null)
+            ||
+            (ids.trim ().equals (""))
+           )
+        {
+            
+            return;
+            
+        }
+     
+        java.util.List<String> objIds = new ArrayList ();
+    
+        // Split on :
+        StringTokenizer t = new StringTokenizer (ids,
+                                                 ",");
+
+        while (t.hasMoreTokens ())
+        {
+
+            String tok = t.nextToken ().trim ();
+
+            objIds.add (tok);
+            
+        }
+            
+        Collections.reverse (objIds);
+            
+        for (String panelId : objIds)
+        {
+            
+            ObjectReference r = null;
+
+            try
+            {
+
+                r = ObjectReference.parseObjectReference (panelId);
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to parse: " +
+                                      panelId,
+                                      e);
+
+                continue;
+
+            }
+
+            // Pass it to the project.
+            final DataObject d = this.proj.getObjectForReference (r);
+
+            if (d == null)
+            {
+
+                if (!this.openPanelInt (panelId))
+                {
+                    
+                    Environment.logError ("Unable to open panel for id: " +
+                                          panelId);
+
+                    continue;
+                                            
+                }
+
+            } else
+            {
+
+                if (!this.viewObject (d))
+                {
+
+                    continue;
+
+                }
+
+            }
+
+        }
+     
+        
+    }
+    
+    public String getOpenTabsProperty ()
+    {
+        
+        ProjectVersion pv = this.proj.getProjectVersion ();
+        
+        String suffix = "";
+        
+        // See if we have a project version.
+        if (pv != null)
+        {
+            
+            suffix = ":" + pv.getKey ();
+            
+        }
+        
+        // Setup the tabs.
+        String openTabs = this.proj.getProperty (Constants.OPEN_TABS_PROPERTY_NAME + suffix);
+
+        return openTabs;
+        
+    }
+    
+    /**
+     * Responsible for setting up the panels that should be open when the project is opened.
+     * If you override this method ensure that you do:
+     *   * Open the necessary panels.
+     *   * Call this.initWindow to restore the window state.
+     *   * Set the last opened tab (after opening it).
+     */
+    protected void restoreTabs ()
+    {
+        
+        ProjectVersion pv = this.proj.getProjectVersion ();
+        
+        String suffix = "";
+        
+        // See if we have a project version.
+        if (pv != null)
+        {
+            
+            suffix = ":" + pv.getKey ();
+            
+        }
+        
+        // Setup the tabs.
+        String openTabs = this.getOpenTabsProperty ();
+
+        this.openPanelsFromObjectIdList (openTabs);
+                
+        String lastOpen = this.proj.getProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix);
+
+        if (lastOpen != null)
+        {
+
+            final QuollPanel qp = this.getQuollPanel (lastOpen);
+
+            if (qp != null)
+            {
+            
+                this.setPanelVisible (qp);
+
+            }
+
+        }        
+                
     }
     
     private void checkForDictionaryFiles ()
@@ -3349,8 +4536,32 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
 */
+
+        if (Environment.isEnglish (lang))
+        {
+            
+            lang = Constants.ENGLISH;
+            
+        }
+
         final String langOrig = lang;
         final String language = lang;
+        
+        String fileLang = lang;
+        
+        // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
+        // download the English-dictionary-only.zip.
+        if ((Environment.isEnglish (lang))
+            &&
+            (!Environment.getDictionaryFile (lang).exists ())
+            &&
+            (Environment.hasSynonymsDirectory (lang))
+           )
+        {
+            
+            fileLang = "English-dictionary-only";
+            
+        }
         
         URL url = null;
         
@@ -3359,7 +4570,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
             url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (Environment.getProperty (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
                                                                                                    "[[LANG]]",
-                                                                                                   StringUtils.replaceString (language,
+                                                                                                   StringUtils.replaceString (fileLang,
                                                                                                                               " ",
                                                                                                                               "%20")));
             
@@ -3374,14 +4585,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             return;            
             
         }
+    Environment.logMessage ("DOWNLOADING: " + url);
+        File _file = null;
     
         // Create a temp file for it.
-        File _file = null;
-        
         try
         {
 
-            _file = File.createTempFile ("quollwriter-language-" + language,
+            _file = File.createTempFile ("quollwriter-language-" + fileLang,
                                          null);
             
         } catch (Exception e) {
@@ -3397,9 +4608,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
 
         _file.deleteOnExit ();
-                
-        final File file = _file;
         
+        final File file = _file;
+                
         Box b = new Box (BoxLayout.Y_AXIS);
 
         final JTextPane htmlP = UIUtils.createHelpTextPane ("The language files for <b>" + language + "</b> are now being downloaded.",
@@ -3420,8 +4631,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         b.add (prog);
                 
-        file.deleteOnExit ();
-
         final Notification n = this.addNotification (b,
                                                      Constants.DOWNLOAD_ICON_NAME,
                                                      -1,
@@ -3489,7 +4698,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                                     
                                                                         public void run ()
                                                                         {
-                                                                    
+
                                                                             // Now extract the file into the relevant directory.
                                                                             try
                                                                             {
@@ -3599,6 +4808,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     qp.setState (UIUtils.parseState (state),
                                                      visible);
                     
+                    qp.setReadyForUse (true);
+                    
                 }
 
             };
@@ -3642,26 +4853,269 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
+    public void addNamedPopup (String name,
+                               QPopup popup)
+    {
+        
+        QPopup qp = this.popups.get (name);
+        
+        if (qp != null)
+        {
+            
+            qp.removeFromParent ();
+            
+        }
+        
+        this.popups.put (name,
+                         popup);
+        
+    }
+    
+    public void removeNamedPopup (String name)
+    {
+        
+        QPopup qp = this.popups.remove (name);
+        
+        if (qp != null)
+        {
+            
+            qp.removeFromParent ();
+            
+        }
+        
+    }
+    
+    public QPopup getNamedPopup (String name)
+    {
+        
+        return this.popups.get (name);
+        
+    }
+    
+    public void showAbout ()
+    {
+        
+        final AbstractProjectViewer _this = this;
+        
+        String popupName = "about";
+        
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
+                    
+            final QPopup qp = UIUtils.createClosablePopup ("About",
+                                                           Environment.getIcon (Constants.ABOUT_ICON_NAME,
+                                                                                Constants.ICON_POPUP),
+                                                           null);
+                
+            qp.addPopupListener (new PopupAdapter ()
+            {
+               
+                @Override
+                public void popupHidden (PopupEvent ev)
+                {
+                    
+                    _this.removeNamedPopup ("about");
+                    
+                }
+                
+            });
+                  
+            Box content = new Box (BoxLayout.Y_AXIS);
+    
+            FormLayout pfl = new FormLayout ("5px, right:p, 6px, fill:p:grow",
+                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
+    
+            PanelBuilder pbuilder = new PanelBuilder (pfl);
+    
+            CellConstraints cc = new CellConstraints ();
+    
+            int y = 1;
+    
+            pbuilder.addLabel ("Version",
+                               cc.xy (2,
+                                      y));
+    
+            pbuilder.addLabel (Environment.getQuollWriterVersion ().trim (),
+                               cc.xy (4,
+                                      y));
+    
+            y += 2;
+    
+            pbuilder.addLabel ("Copyright",
+                               cc.xy (2,
+                                      y));
+    
+            Date d = new Date ();
+    
+            SimpleDateFormat sdf = new SimpleDateFormat ("yyyy");
+    
+            String year = sdf.format (d);
+    
+            pbuilder.addLabel (String.format ("\u00A9 2009-%s Gary Bentley",
+                                              year),
+                               cc.xy (4,
+                                      y));
+    
+            y += 2;
+    
+            pbuilder.addLabel ("Website",
+                               cc.xy (2,
+                                      y));
+    
+            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getQuollWriterWebsite (),
+                                                      null,
+                                                      false),
+                          cc.xy (4,
+                                 y));
+    
+            y += 2;
+    
+            pbuilder.addLabel ("Source Code",
+                               cc.xy (2,
+                                      y));
+    
+            pbuilder.add (UIUtils.createWebsiteLabel ("https://github.com/garybentley/quollwriter",
+                                                      null,
+                                                      false),
+                          cc.xy (4,
+                                 y));
+    
+            y += 2;
+    
+            String relNotesUrl = Environment.getProperty (Constants.QUOLL_WRITER_RELEASE_NOTES_URL_PROPERTY_NAME);
+    
+            relNotesUrl = StringUtils.replaceString (relNotesUrl,
+                                                     "[[VERSION]]",
+                                                     Environment.getQuollWriterVersion ().trim ().replace ('.',
+                                                                                                           '_'));
+    
+            pbuilder.add (UIUtils.createWebsiteLabel (relNotesUrl,
+                                                      "Release Notes",
+                                                      false),
+                          cc.xy (4,
+                                 y));
+    
+            y += 2;
+    
+            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME),
+                                                      "Acknowledgments",
+                                                      false),
+                          cc.xy (4,
+                                 y));
+    
+            y += 2;
+            
+            JButton closeBut = new JButton ();
+            closeBut.setText ("Close");
+    
+            closeBut.addActionListener (new ActionListener ()
+            {
+    
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    qp.removeFromParent ();
+                        
+                }
+    
+            });
+            
+            JButton[] buts = { closeBut };
+    
+            JPanel bp = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); 
+            bp.setOpaque (false);
+            
+            JPanel p = pbuilder.getPanel ();
+            p.setOpaque (false);
+            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+    
+            content.add (p);
+            
+            content.add (Box.createVerticalStrut (10));
+            content.add (bp);
+            
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+            
+            qp.setContent (content);
+            
+            qp.setDraggable (this);
+                              
+            qp.resize ();
+
+            popup = qp;
+            
+            this.addNamedPopup (popupName,
+                                popup);
+
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+            
+        } else {
+
+            popup.setVisible (true);
+            
+        }
+            
+        this.fireProjectEvent (ProjectEvent.ABOUT,
+                               ProjectEvent.SHOW);
+        
+    }
+    
     public void showWhatsNew (boolean onlyShowCurrentVersion)
     {
 
-        try
-        {
+        String popupName = "whatsnew";
         
-            WhatsNew wn = new WhatsNew (this,
-                                        onlyShowCurrentVersion);
-            
-            wn.init ();
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
 
-            wn.toFront ();
+            try
+            {
             
-        } catch (Exception e) {
+                popup = UIUtils.createWizardPopup ("What's new in version " + Environment.getQuollWriterVersion (),
+                                                   Constants.WHATS_NEW_ICON_NAME,
+                                                   null,
+                                                   new WhatsNew (this,
+                                                                 onlyShowCurrentVersion));
+        
+                popup.setPopupName (popupName);
+        
+            } catch (Exception e) {
+                
+                // Not good but not the end of the world but shouldn't stop things from going on.
+                Environment.logError ("Unable to init whats new",
+                                      e);
+                
+            }
+                
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
             
-            // Not good but not the end of the world but shouldn't stop things from going on.
-            Environment.logError ("Unable to init whats new",
-                                  e);
+            this.addNamedPopup (popupName,
+                                popup);
+                
+        } else {
+
+            popup.setVisible (true);
             
         }
+            
+        this.fireProjectEvent (ProjectEvent.WHATS_NEW,
+                               ProjectEvent.SHOW);
    
     }
     
@@ -3787,6 +5241,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                                                      },
                                                      null,
+                                                     null,
                                                      p);
                         
                     }
@@ -3821,18 +5276,52 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         if (this.dictMan == null)
         {
-
+            
             this.dictMan = new DictionaryManager (this);
-
+            
             this.dictMan.init ();
-
-            this.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
-                                   ProjectEvent.SHOW);
-
+            
         }
-
-        this.dictMan.setVisible (true);
         
+        String popupName = "dictman";
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
+        
+            popup = UIUtils.createClosablePopup ("Manage your personal Dictionary",
+                                                 Environment.getIcon (Constants.DICTIONARY_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+        
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+        
+            this.dictMan.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                  this.dictMan.getPreferredSize ().height));
+            this.dictMan.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+            popup.setContent (this.dictMan);
+            
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+        } else {
+            
+            popup.setVisible (true);
+            
+        }
+            
+        this.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
+                               ProjectEvent.SHOW);
+
     }
         
     public void handleHTMLPanelAction (String v)
@@ -3874,6 +5363,17 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 
             }
 
+            if (v.equals ("showundealtwitheditormessages"))
+            {
+                
+                this.viewEditors ();
+                
+                EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.NAME);
+                
+                sb.showUndealtWithMessages ();
+                
+            }
+            
             if (v.equals ("whatsnew"))
             {
                 
@@ -3970,6 +5470,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 this.showDictionaryManager ();
     
                 return;
+                
+            }
+            
+            if (v.equals ("showinviteeditor"))
+            {
+                
+                EditorsUIUtils.showInviteEditor (this);
+                
+                return;                
                 
             }
             
@@ -4144,6 +5653,42 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         return UIUtils.createTree ();
 
     }
+    
+    protected void closeAllTabs (boolean saveState)
+    {
+        
+        if (saveState)
+        {
+        
+            try
+            {
+            
+                this.saveState ();
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to save state",
+                                      e);
+                
+            }
+
+        }
+        
+        // Regardless of whether it should be saved call the close method
+        // for the panel to allow it to close itself nicely.
+        // Close after state so we can keep track of what is open.
+        
+        // Duplicate the values so we don't get a modification error for this.panels.
+        Set<QuollPanel> qpps = new LinkedHashSet (this.panels.values ());
+        
+        for (QuollPanel qp : qpps)
+        {
+            
+            this.closePanel (qp);
+                        
+        }        
+        
+    }
 
     private boolean closeInternal (boolean        saveUnsavedChanges,
                                    ActionListener afterClose)
@@ -4196,35 +5741,23 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
-        try
+        // Close all sidebars.
+        // TODO: Fix this up
+        for (AbstractSideBar sb : new ArrayList<AbstractSideBar> (this.activeSideBars))
         {
-
-            this.saveState ();
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save viewer state",
-                                  e);
-
-            return false;
-                                  
-        }        
-        
-        // Regardless of whether it should be saved call the close method
-        // for the panel to allow it to close itself nicely.
-        // Close after state so we can keep track of what is open.
-        
-        // Duplicate the values so we don't get a modification error for this.panels.
-        Set<QuollPanel> qpps = new LinkedHashSet (this.panels.values ());
-        
-        for (QuollPanel qp : qpps)
-        {
-            
-            this.closePanel (qp);
                         
+            sb.onClose ();
+        
+            this.removeSideBar (sb);
+        
+            this.removeMainPanelListener (sb);
+                            
         }
         
+        this.notifications.setVisible (false);        
+        
+        this.closeAllTabs (true);
+                        
         this.proj.setLastEdited (new Date ());
 
         try
@@ -4280,10 +5813,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.proj = null;
 
         this.dBMan = null;
-        
+
         if (afterClose != null)
         {
-            
+
             afterClose.actionPerformed (new ActionEvent (this,
                                                          0,
                                                          "closed"));
@@ -4422,11 +5955,19 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public boolean isCurrentSideBarTextProperties ()
     {
         
-        return this.currentSideBar.getName ().equals ("textproperties");
+        if (this.currentOtherSideBar != null)
+        {
+                    
+            return this.currentOtherSideBar.getName ().equals ("textproperties");
+        
+        }
+        
+        return false;
         
     }
     
     public void showTextProperties ()
+                             throws GeneralException
     {
 
         if (!(this.getCurrentlyVisibleTab () instanceof AbstractEditorPanel))
@@ -4480,6 +6021,31 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
+    /**
+     * Return the name of the property that is used to save the open tabs, this is needed because is the project
+     * has a project version object then the name of the property will change.
+     *
+     * @return The open tabs property name in the form {@link Constants.OPENS_TAB_PROPERTY_NAME} + [":" + project version key].
+     */
+    public String getOpenTabsPropertyName ()
+    {
+       
+        // See if we have a project version.
+        ProjectVersion pv = this.proj.getProjectVersion ();
+        
+        String suffix = "";
+        
+        if (pv != null)
+        {
+            
+            suffix = ":" + pv.getKey ();
+            
+        }
+        
+        return Constants.OPEN_TABS_PROPERTY_NAME + suffix;
+        
+    }
+    
     private void saveState ()
                      throws GeneralException
     {
@@ -4504,11 +6070,23 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
+        // See if we have a project version.
+        ProjectVersion pv = this.proj.getProjectVersion ();
+        
+        String suffix = "";
+        
+        if (pv != null)
+        {
+            
+            suffix = ":" + pv.getKey ();
+            
+        }
+        
         // Save it.
         try
         {
 
-            this.proj.setProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME,
+            this.proj.setProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix,
                                    panelId);
             
         } catch (Exception e)
@@ -4550,7 +6128,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         try
         {
 
-            this.proj.setProperty (Constants.OPEN_TABS_PROPERTY_NAME,
+            this.proj.setProperty (this.getOpenTabsPropertyName (),
                                    openTabs.toString ());
 
         } catch (Exception e)
@@ -4572,9 +6150,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             this.proj.setProperty (Constants.WINDOW_WIDTH_PROPERTY_NAME,
                                    this.splitPane.getSize ().width);
 
+            this.proj.setProperty (Constants.PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME,
+                                   this.sideBar.getSize ().width);
+                                   /*
+                                   
             this.proj.setProperty (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
                                    this.splitPane.getDividerLocation ());
-
+*/
             this.proj.setProperty (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME,
                                    this.spellCheckingEnabled);
 
@@ -4720,6 +6302,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
         
+        this.setUILayout (this.layout);
+/*        
         if (this.splitPane.getLeftComponent () == this.tabs)
         {
             
@@ -4732,7 +6316,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
 
         this.splitPane.setDividerLocation (this.lastDividerLocation);
-
+*/
         this.setVisible (true);                                                  
         
         this.validate ();
@@ -4934,7 +6518,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             }
 
             //this.fsf.toFront ();
-
+            
             this.tabs.revalidate ();
             this.tabs.repaint ();
             this.validate ();
@@ -5105,7 +6689,17 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                    String     title)
     {
         
-        TabHeader th = (TabHeader) this.tabs.getTabComponentAt (getTabIndexForPanelId (qp.getPanelId ()));
+        int ind = this.getTabIndexForPanelId (qp.getPanelId ());
+        
+        if (ind < 0)
+        {
+            
+            // No current tab for this panel.
+            return;
+            
+        }
+        
+        TabHeader th = (TabHeader) this.tabs.getTabComponentAt (ind);
         
         if (th != null)
         {
@@ -5134,35 +6728,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.panels.put (panelId,
                          qp);
-        
-        th.addMouseListener (new MouseAdapter ()
-        {
-           
-            public void mousePressed (MouseEvent ev)
-            {
                 
-                if (SwingUtilities.isMiddleMouseButton (ev))
-                {
-                    /*
-                    if (!_this.removePanel (panelId))
-                    {
-
-                        return;
-
-                    }
-*/
-                    if (!_this.closePanel (qp))
-                    {
-                        
-
-                    }
-                    
-                }
-                
-            }
-            
-        });
-        
         th.addActionListener (new ActionAdapter ()
         {
 
@@ -5452,7 +7018,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
 
         this.showPopupAt (popup,
-                          new Point (10, 10));
+                          new Point (10, 10),
+                          true);
         
         if (showFor > 0)
         {
@@ -5607,7 +7174,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         } else {
 
             this.showPopupAt (this.achievementsPopup,
-                              new Point (10, 10));
+                              new Point (10, 10),
+                              true);
 
         }
        
@@ -5693,15 +7261,18 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
+    @Override
     public void showPopupAt (Component popup,
-                             Component showAt)
+                             Component showAt,
+                             boolean   hideOnParentClick)
     {
 
         if (this.fsf != null)
         {
             
             this.fsf.showPopupAt (popup,
-                                  showAt);
+                                  showAt,
+                                  hideOnParentClick);
             
             return;
             
@@ -5713,20 +7284,24 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                 this.getContentPane ());
 
         this.showPopupAt (popup,
-                          po);
+                          po,
+                          hideOnParentClick);
 
 
     }
 
+    @Override
     public void showPopupAt (Component c,
-                             Point     p)
+                             Point     p,
+                             boolean   hideOnParentClick)
     {
 
         if (this.fsf != null)
         {
             
             this.fsf.showPopupAt (c,
-                                  p);
+                                  p,
+                                  hideOnParentClick);
             
             return;
             
@@ -5741,7 +7316,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         {
 
             this.addPopup (c,
-                           true,
+                           hideOnParentClick,
                            false);
 
         }
@@ -5809,7 +7384,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    public void showPopup (Component c)
+    public void showPopup (Component c,
+                           boolean   hideOnParentClick)
     {
 
         Point p = this.getMousePosition ();
@@ -5829,7 +7405,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
 
         this.showPopupAt (c,
-                          p);
+                          p,
+                          hideOnParentClick);
 
     }
 
@@ -6001,6 +7578,17 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                             }
                                             
                                          },
+                                         new ActionListener ()
+                                         {
+                                            
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                
+                                                remove.actionPerformed (ev);
+                                                
+                                            }
+                                            
+                                         },
                                          null);
             
             return false;
@@ -6015,10 +7603,25 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    public DataHandler getDataHandler (String objType)
+    public ObjectManager getObjectManager ()
+    {
+        
+        return this.dBMan;
+        
+    }
+    
+    public DataHandler getDataHandler (Class clazz)
+                                throws GeneralException
     {
 
-        return this.dBMan.getHandler (objType);
+        if (this.dBMan == null)
+        {
+            
+            return null;
+            
+        }
+    
+        return this.dBMan.getHandler (clazz);
 
     }
 
@@ -6073,7 +7676,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
 
     }
-
+    
     public void deleteLinks (NamedObject o,
                              boolean     doInTransaction)
                       throws GeneralException
@@ -6474,8 +8077,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         return null;
 
     }
-
+    
     public boolean showOptions ()
+    {
+        
+        return this.showOptions (null);
+        
+    }
+
+    public boolean showOptions (final String section)
     {
 
         OptionsPanel p = (OptionsPanel) this.getQuollPanel (OptionsPanel.PANEL_ID);
@@ -6509,6 +8119,28 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.setPanelVisible (p);
 
+        final OptionsPanel pp = p;
+                
+        if (section != null)
+        {
+            
+            UIUtils.doActionWhenPanelIsReady (p,
+                                              new ActionListener ()
+            {
+               
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    pp.showSection (section);
+                    
+                }
+                
+            },
+            null,
+            null);
+            
+        }
+        
         return true;
 
     }    
@@ -6600,10 +8232,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         final AbstractProjectViewer _this = this;
         
-        SwingUtilities.invokeLater (new Runnable ()
+        UIUtils.doLater (new ActionListener ()
         {
             
-            public void run ()
+            public void actionPerformed (ActionEvent ev)
             {
                 
                 _this.fireProjectEvent (type,
@@ -6663,4 +8295,380 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
 
+    public Set<Chapter> snapshotChapters (Set<Chapter>   chapters,
+                                          ProjectVersion pv)
+                                   throws Exception
+    {
+                
+        ChapterDataHandler ch = (ChapterDataHandler) this.dBMan.getHandler (Chapter.class);
+        
+        return ch.snapshot (chapters,
+                            pv);
+        
+    }
+    
+    public void sendMessageToEditor (final EditorEditor ed)
+                              throws GeneralException
+    {
+        
+        this.viewEditors ();
+        
+        final AbstractProjectViewer _this = this;
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+             
+                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.NAME);
+
+                if (sb == null)
+                {
+                    
+                    Environment.logError ("Cant get editors sidebar?");
+                    
+                    return;
+                    
+                }
+                
+                try
+                {
+
+                    sb.showChatBox (ed);
+                    
+                } catch (Exception e) {
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to show Editor");
+                    
+                    Environment.logError ("Unable to show editor: " +
+                                          ed,
+                                          e);
+                    
+                }
+                                
+            }
+            
+        });
+        
+    }
+    
+    public void viewEditor (final EditorEditor ed)
+                     throws GeneralException    
+    {
+        
+        this.viewEditors ();
+        
+        final AbstractProjectViewer _this = this;
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+             
+                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.NAME);
+
+                if (sb == null)
+                {
+                    
+                    Environment.logError ("Cant get editors sidebar?");
+                    
+                    return;
+                    
+                }
+                
+                try
+                {
+                
+                    sb.showEditor (ed);
+                    
+                } catch (Exception e) {
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              "Unable to show Editor");
+                    
+                    Environment.logError ("Unable to show editor: " +
+                                          ed,
+                                          e);
+                    
+                }
+                
+            }
+            
+        });        
+        
+    }
+    
+    public boolean viewEditors ()
+                         throws GeneralException
+    {
+        
+        // See if the user has an account or has already registered, if so show the sidebar
+        // otherwise show the register.
+        if (!EditorsEnvironment.hasRegistered ())
+        {
+                        
+            try
+            {                        
+            
+                EditorsUIUtils.showRegister (this);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to show editor register",
+                                      e);
+                
+                UIUtils.showErrorMessage (this,
+                                          "Unable to show the editors register panel, please contact Quoll Writer support for assistance.");
+
+                return false;
+                
+            }
+            
+            return true;
+            
+        } 
+        
+        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.NAME);
+        
+        if (sb == null)
+        {
+            
+            sb = new EditorsSideBar (this);
+        
+            this.addSideBar (EditorsSideBar.NAME,
+                             sb);
+
+        }
+
+        this.showSideBar (EditorsSideBar.NAME);
+        
+        return true;
+        
+    }
+
+    /**
+     * Set a chapter as edit complete.
+     *
+     * Note: this is NOT the right place for this method however there isn't currently a better
+     * place.  It is here because the editor panel may need to use the function and the chapter
+     * tree might, however the editor panel may not actually exist and putting it in the chapter
+     * tree means that the chapter tree needs knowledge of panels which isn't correct either (but is worse).
+     *
+     * @param chapter The chapter to mark as edit complete.
+     * @param editComplete Whether the chapter is edit complete or not.
+     * @throws Exception If something goes wrong like not being able to save the chapter.
+     */
+    public void setChapterEditComplete (Chapter chapter,
+                                        boolean editComplete)
+                                 throws Exception
+    {
+
+        chapter.setEditComplete (editComplete);
+        
+        AbstractEditorPanel p = (AbstractEditorPanel) this.getEditorForChapter (chapter);
+        
+        int pos = 0;
+        
+        if (p != null)
+        {
+
+            pos = Utils.stripEnd (p.getEditor ().getText ()).length ();
+        
+        } else {
+            
+            pos = Utils.stripEnd (chapter.getText ()).length ();
+            
+        }
+        
+        chapter.setEditPosition (pos);
+        
+        this.saveObject (chapter,
+                         false);
+
+        this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+
+    }
+
+    public void setChapterEditPosition (Chapter chapter,
+                                        int     textPos)
+                                 throws Exception
+    {
+
+        AbstractEditorPanel p = (AbstractEditorPanel) this.getEditorForChapter (chapter);
+        
+        int l = 0;
+        
+        if (p != null)
+        {
+
+            l = Utils.stripEnd (p.getEditor ().getText ()).length ();
+        
+            textPos = Math.min (textPos, l);
+        
+            // See if we are on the last line (it may be that the user is in the icon
+            // column).
+            Rectangle pp = p.getEditor ().modelToView (textPos);
+            
+            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+            {
+            
+                if (textPos < l)
+                {
+                    
+                    Rectangle ep = p.getEditor ().modelToView (l);
+                        
+                    chapter.setEditComplete ((ep.y == pp.y));
+                                                                
+                }
+
+            }
+                
+        } else {
+            
+            l = Utils.stripEnd (chapter.getText ()).length ();
+            
+        }
+            
+        textPos = Math.min (textPos, l);
+                
+        chapter.setEditPosition (textPos);
+        
+        this.saveObject (chapter,
+                         false);
+
+        this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+                                                                        
+    }
+        
+    public void removeChapterEditPosition (Chapter chapter)
+                                    throws Exception
+    {
+        
+        chapter.setEditComplete (false);    
+        chapter.setEditPosition (-1);
+        
+        this.saveObject (chapter,
+                         false);
+
+        this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+                    
+    }
+
+    public ProblemFinderRuleConfig getProblemFinderRuleConfig ()
+    {
+        
+        return this.problemFinderRuleConfig;
+        
+    }
+    
+    public void showProblemFinderRuleConfig ()
+    {
+        
+        String popupName = "problemfinderruleconfig";
+        QPopup popup = this.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
+        
+            popup = UIUtils.createClosablePopup ("Configure the Problem Finder rules",
+                                                 Environment.getIcon (Constants.CONFIG_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+        
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+                    
+            this.problemFinderRuleConfig.init ();
+        
+            this.problemFinderRuleConfig.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                                  this.problemFinderRuleConfig.getPreferredSize ().height));
+            this.problemFinderRuleConfig.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+            popup.setContent (this.problemFinderRuleConfig);
+            
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+        } else {
+            
+            popup.setVisible (true);
+            
+        }
+
+        this.fireProjectEvent (ProjectEvent.PROBLEM_FINDER_RULE_CONFIG,
+                               ProjectEvent.SHOW);
+        
+    }
+
+    public void setViewerControls (JComponent c)
+    {
+        
+        this.title.setControls (c);
+        
+    }
+
+    public boolean isEditorsSideBarVisible ()
+    {
+        
+        EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.NAME);
+        
+        if (sb != null)
+        {
+            
+            return sb.isShowing ();
+            
+        }
+        
+        return false;
+        
+    }
+
+    public ProjectVersion getProjectVersion (String name)
+                                      throws GeneralException
+    {
+        
+        java.util.List<ProjectVersion> pvs = (java.util.List<ProjectVersion>) this.dBMan.getObjects (ProjectVersion.class,
+                                                                                 null,
+                                                                                 null,
+                                                                                 false);        
+
+        for (ProjectVersion pv : pvs)
+        {
+            
+            if (pv.getName ().equalsIgnoreCase (name))
+            {
+                
+                return pv;
+                
+            }
+                                                                                                      
+        }
+        
+        return null;
+        
+    }
+
+    public Set<Note> getDealtWithNotes (ProjectVersion pv,
+                                        boolean        isDealtWith)
+                                 throws GeneralException
+    {
+        
+        NoteDataHandler ndh = (NoteDataHandler) this.dBMan.getHandler (Note.class);
+        
+        return ndh.getDealtWith (pv,
+                                 isDealtWith,
+                                 null);
+    
+    }
+    
 }

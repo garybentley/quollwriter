@@ -33,8 +33,8 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
     }
 
-    private Map<String, String> beWords = new HashMap ();
-    private Map<String, String> irregularForms = new HashMap ();
+    private Set<String> beWords = new HashSet ();
+    private Set<String> irregularForms = new HashSet ();
     private boolean ignoreInDialogue = false;
     
     private JCheckBox ignoreDialogueF = null;
@@ -46,6 +46,34 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
     }
 
+    public void setIrregularForms (Set<String> forms)
+    {
+        
+        this.irregularForms = new HashSet (forms);
+        
+    }
+    
+    public void setBeWords (Set<String> words)
+    {
+        
+        this.beWords = new HashSet (words);
+        
+    }
+    
+    public boolean isIgnoreInDialogue ()
+    {
+        
+        return this.ignoreInDialogue;
+        
+    }
+    
+    public void setIgnoreInDialogue (boolean v)
+    {
+    
+        this.ignoreInDialogue = v;
+        
+    }
+    
     public String getDescription ()
     {
 
@@ -84,9 +112,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         while (t.hasMoreTokens ())
         {
 
-            this.beWords.put (t.nextToken ().trim ().toLowerCase (),
-                              "");
-
+            this.beWords.add (t.nextToken ().trim ().toLowerCase ());
 
         }
 
@@ -99,9 +125,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         while (t.hasMoreTokens ())
         {
 
-            this.irregularForms.put (t.nextToken ().trim ().toLowerCase (),
-                                     "");
-
+            this.irregularForms.add (t.nextToken ().trim ().toLowerCase ());
 
         }
 
@@ -126,7 +150,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         StringBuilder b = new StringBuilder ();
         
-        for (String s : this.beWords.keySet ())
+        for (String s : this.beWords)
         {
             
             if (b.length () > 0)
@@ -145,7 +169,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         
         b = new StringBuilder ();
         
-        for (String s : this.irregularForms.keySet ())
+        for (String s : this.irregularForms)
         {
             
             if (b.length () > 0)
@@ -269,6 +293,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
                         Issue iss = new Issue ("Passive voice, contains: <b>" + w.getText () + " " + nw.getText () + "</b>",
                                                s,
                                                nw.getAllTextEndOffset () - s,
+                                               s + "-passivevoice-" + w.getText () + "-" + nw.getText (),
                                                this);
 
                         issues.add (iss);
@@ -296,7 +321,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
             
         }
         
-        return this.beWords.containsKey (w.toLowerCase ());
+        return this.beWords.contains (w.toLowerCase ());
         
     }
     
@@ -316,7 +341,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
         // 1. A verb
         // 2. Ends with "ed" OR:
         // 3. Is an irregular form.
-        if (this.irregularForms.containsKey (w))
+        if (this.irregularForms.contains (w))
         {
 
             return true;

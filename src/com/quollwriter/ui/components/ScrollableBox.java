@@ -14,6 +14,7 @@ public class ScrollableBox extends Box implements Scrollable
     }
     
     public Dimension getPreferredScrollableViewportSize() {
+        
         return super.getPreferredSize(); //tell the JScrollPane that we want to be our 'preferredSize' - but later, we'll say that vertically, it should scroll.
     }
 

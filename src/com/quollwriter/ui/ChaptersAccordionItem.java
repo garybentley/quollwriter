@@ -24,7 +24,9 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     public ChaptersAccordionItem (AbstractProjectViewer pv)
     {
         
-        super (Chapter.OBJECT_TYPE,
+        super (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+               Chapter.OBJECT_TYPE,
+               Chapter.OBJECT_TYPE,
                pv);
             
     }
@@ -97,9 +99,13 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                 
     }
 
+    @Override
     public void fillTreePopupMenu (final JPopupMenu m,
-                                   final TreePath   tp)
+                                   final MouseEvent ev)
     {
+
+        final TreePath tp = this.tree.getPathForLocation (ev.getX (),
+                                                          ev.getY ());
         
         final ChaptersAccordionItem _this = this;
 
@@ -173,10 +179,36 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                         public void actionPerformed (ActionEvent ev)
                         {
                             
+                            try
+                            {
+
+                                pv.setChapterEditComplete (c,
+                                                           true);
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to set chapter edit complete: " +
+                                                      c,
+                                                      e);
+                                
+                                UIUtils.showErrorMessage (pv,
+                                                          "Unable to set {chapter} as edit complete.");
+                                
+                            }
+                            /*
+                             *
                             QuollEditorPanel qp = (QuollEditorPanel) pv.getEditorForChapter (c);
                             
-                            qp.setEditComplete (true);
+                            if (qp == null)
+                            {
+                                
+                                // No panel.
+                                return;
+                                
+                            }
                             
+                            qp.setEditComplete (true);
+                            */
                         }
                         
                     }));
@@ -191,10 +223,23 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                         public void actionPerformed (ActionEvent ev)
                         {
                             
-                            QuollEditorPanel qp = (QuollEditorPanel) pv.getEditorForChapter (c);
-                            
-                            qp.setEditComplete (false);
-                            
+                            try
+                            {
+
+                                pv.setChapterEditComplete (c,
+                                                           false);
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to set chapter as not edit complete: " +
+                                                      c,
+                                                      e);
+                                
+                                UIUtils.showErrorMessage (pv,
+                                                          "Unable to set {chapter} as not edit complete.");
+                                
+                            }
+
                         }
                         
                     }));
@@ -212,10 +257,22 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                         public void actionPerformed (ActionEvent ev)
                         {
                             
-                            QuollEditorPanel qp = (QuollEditorPanel) pv.getEditorForChapter (c);
-                            
-                            qp.removeEditPosition ();
-                            
+                            try
+                            {
+
+                                pv.removeChapterEditPosition (c);
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to remove editor position for chapter: " +
+                                                      c,
+                                                      e);
+                                
+                                UIUtils.showErrorMessage (pv,
+                                                          "Unable to remove {chapter} edit position.");
+                                
+                            }
+                                                        
                         }
                         
                     }));
@@ -356,24 +413,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
         }
 
     }
-    
-    public void showTreePopupMenu (MouseEvent ev)
-    {
-
-        final TreePath tp = this.tree.getPathForLocation (ev.getX (),
-                                                          ev.getY ());
-    
-        final JPopupMenu m = new JPopupMenu ();
-
-        this.fillTreePopupMenu (m,
-                                tp);
-
-        m.show ((Component) ev.getSource (),
-                ev.getX (),
-                ev.getY ());
         
-    }
-    
     public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv,
                                              JTree                 tree)
     {
@@ -468,7 +508,6 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     
             b.moveChapter (c,
                            b.getChapterIndex (insertC) - 1);
-    
     
             try
             {

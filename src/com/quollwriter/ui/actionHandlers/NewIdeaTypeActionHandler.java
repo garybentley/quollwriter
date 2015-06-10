@@ -51,7 +51,7 @@ public class NewIdeaTypeActionHandler extends TextInputActionHandler
     public String getHelp ()
     {
         
-        return "Add the name of the new Idea type below.";
+        return "Enter the new Idea type below.";
         
     }
     

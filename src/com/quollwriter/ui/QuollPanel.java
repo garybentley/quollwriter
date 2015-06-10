@@ -113,6 +113,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     public abstract <T extends NamedObject> void refresh (T n);
 
+    @Override
     public void remove (Component c)
     {
 
@@ -120,6 +121,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     }
 
+    @Override
     public Component add (Component c)
     {
 
@@ -145,6 +147,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     }
 
+    @Override
     public Component add (Component c,
                           int       index)
     {
@@ -202,14 +205,12 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     }
 
-    public void addObjectPropertyChangedListener (PropertyChangedListener l,
-                                                  Map                     events)
+    public void addObjectPropertyChangedListener (PropertyChangedListener l)
     {
 
         this.propertyChangedListeners.add (l);
 
-        this.obj.addPropertyChangedListener (l,
-                                             events);
+        this.obj.addPropertyChangedListener (l);
 
     }
 
@@ -414,9 +415,12 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     }
 
+    @Override
     public void removePopup (Component c)
     {
 
+        c.setVisible (false);
+    
         this.getLayeredPane ().remove (c);
 
         this.getLayeredPane ().validate ();
@@ -430,17 +434,19 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
     }
 
     public void addPopup (Component c,
-                          boolean   hideOnClick)
+                          boolean   hideOnParentClick)
     {
 
         this.addPopup (c,
-                       hideOnClick,
+                       hideOnParentClick,
                        false);
 
     }
 
+    @Override
     public void showPopupAt (Component popup,
-                             Component showAt)
+                             Component showAt,
+                             boolean   hideOnParentClick)
     {
 
         Point po = SwingUtilities.convertPoint (showAt,
@@ -449,13 +455,16 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
                                                 this.getContentPane ());
 
         this.showPopupAt (popup,
-                          po);
+                          po,
+                          hideOnParentClick);
 
 
     }
 
+    @Override
     public void showPopupAt (Component c,
-                             Point     p)
+                             Point     p,
+                             boolean   hideOnParentClick)
     {
 
         Insets ins = this.getInsets ();
@@ -467,7 +476,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
         {
 
             this.addPopup (c,
-                           true,
+                           hideOnParentClick,
                            false);
 
         }
@@ -527,19 +536,22 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     public void showPopupAt (Component c,
                              Point     p,
-                             String    where)
+                             String    where,
+                             boolean   hideOnParentClick)
     {
 
         this.showPopupAt (c,
                           new Rectangle (p,
                                          c.getPreferredSize ()),
-                          where);
+                          where,
+                          hideOnParentClick);
 
     }
 
     public void showPopupAt (Component c,
                              Rectangle r,
-                             String    where)
+                             String    where,
+                             boolean   hideOnParentClick)
     {
 
         Dimension s = c.getPreferredSize ();
@@ -591,7 +603,8 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
         this.showPopupAt (c,
                           new Point (x,
-                                     y));
+                                     y),
+                          hideOnParentClick);
 
 /*
         c.setBounds (x,
@@ -606,6 +619,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 */
     }
 
+    @Override
     public void addPopup (final Component c,
                           boolean         hideOnClick,
                           boolean         hideViaVisibility)
@@ -629,6 +643,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
         this.content.getLayeredPane ().moveToFront (c);
 */
+
         if (hideOnClick)
         {
 
@@ -638,7 +653,6 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
             // Need to do it this way because mouse events aren't being forwarded/delivered.
             MouseAdapter m = new MouseAdapter ()
             {
-
                 public void mouseReleased (MouseEvent ev)
                 {
 

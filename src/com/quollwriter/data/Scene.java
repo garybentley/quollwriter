@@ -32,6 +32,18 @@ public class Scene extends ChapterItem
 
     }
 
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "outlineItems",
+                                    this.outlineItems.size ());
+                        
+    }    
+    
     public synchronized void reindex ()
     {
         
@@ -168,6 +180,8 @@ public class Scene extends ChapterItem
     
         super.setChapter (c);
         
+        this.setParent (c);
+        
     }    
     
     public void removeOutlineItem (OutlineItem i)
@@ -179,7 +193,7 @@ public class Scene extends ChapterItem
 
     public void addOutlineItem (OutlineItem i)
     {
-
+    
         Scene s = i.getScene ();
 
         if (s != null)

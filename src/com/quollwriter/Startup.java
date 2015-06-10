@@ -14,8 +14,6 @@ import com.quollwriter.ui.*;
 public class Startup
 {
 
-    public static SplashScreen ss = null;
-
     public static void main (String[] argv)
     {
 
@@ -26,27 +24,29 @@ public class Startup
             if (argv[0].equals ("_debugMode"))
             {
 
-                Environment.debugMode = true;
+                Environment.setDebugModeEnabled (true);
 
             }
 
         }
 
+        SplashScreen ss = null;
+        
         try
         {
 
-            Startup.ss = new SplashScreen (Environment.getLogo ().getImage (),
-                                           "Starting...",
-                                           com.quollwriter.ui.UIUtils.getColor ("#f9f9f9"));
+            ss = new SplashScreen (Environment.getLogo ().getImage (),
+                                   "Starting...",
+                                   com.quollwriter.ui.UIUtils.getColor ("#f9f9f9"));
 
-            Startup.ss.setProgress (5);
+            ss.setProgress (5);
 
             Environment.init ();
 
             if (!Environment.hasProjectsFile ())
             {
 
-                Startup.ss.finish ();
+                ss.finish ();
 
                 new FirstProject ().init ();
 
@@ -66,7 +66,7 @@ public class Startup
                     if (Environment.openLastEditedProject ())
                     {
 
-                        Startup.ss.finish ();
+                        ss.finish ();
 
                         return;
 
@@ -84,7 +84,7 @@ public class Startup
 
                 }
 
-                Startup.ss.finish ();
+                ss.finish ();
 
             }
 
@@ -95,7 +95,7 @@ public class Startup
             if (showError)
             {
 
-                Startup.ss.finish ();
+                ss.finish ();
 
                 UIUtils.showErrorMessage (f,
                                           "Unable to open last edited project, please select another project or create one.");
@@ -114,10 +114,10 @@ public class Startup
         } finally
         {
 
-            if (Startup.ss != null)
+            if (ss != null)
             {
 
-                Startup.ss.finish ();
+                ss.finish ();
 
             }
 

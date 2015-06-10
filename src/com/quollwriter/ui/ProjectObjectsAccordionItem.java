@@ -20,17 +20,22 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 {
     
     protected JTree tree = null;
-    protected String objType = null;
+    protected String forObjType = null;
     protected E projectViewer = null;
     
-    public ProjectObjectsAccordionItem (String                objType,
-                                        E pv)
+    public ProjectObjectsAccordionItem (String title,
+                                        String iconType,
+                                        String forObjType,
+                                        E      pv)
     {
         
-        super (Environment.getObjectTypeNamePlural (objType),
+        super (title,
+               iconType);
+        /*
+        Environment.getObjectTypeNamePlural (objType),
                objType);
-        
-        this.objType = objType;
+        */
+        this.forObjType = forObjType;
         this.projectViewer = pv;
 
         this.tree = this.createTree ();
@@ -44,10 +49,10 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         
     }
     
-    public String getObjectType ()
+    public String getForObjectType ()
     {
         
-        return this.objType;        
+        return this.forObjType;        
         
     }
     
@@ -119,7 +124,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     
     public abstract void init (JTree tree);
     
-    public abstract void showTreePopupMenu (MouseEvent ev);
+    public abstract void fillTreePopupMenu (JPopupMenu menu,
+                                            MouseEvent ev);
     
     public abstract TreeCellEditor getTreeCellEditor (E     pv,
                                                       JTree tree);
@@ -228,6 +234,17 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         this.tree.addMouseListener (new MouseEventHandler ()
         {
         
+            @Override
+            public void fillPopup (JPopupMenu menu,
+                                   MouseEvent ev)
+            {
+                
+                _this.fillTreePopupMenu (menu,
+                                         ev);
+                
+            }
+        
+            @Override
             public void handlePress (MouseEvent ev)
             {
                 
@@ -270,14 +287,14 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                             d);
                 
                 }
-                
+                /*
                 if (ev.isPopupTrigger ())
                 {
                     
                     _this.showTreePopupMenu (ev);
                     
                 }
-                
+                */
             }
                 
         });

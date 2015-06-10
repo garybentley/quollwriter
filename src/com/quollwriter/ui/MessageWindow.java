@@ -26,6 +26,8 @@ public class MessageWindow extends PopupWindow
 
     private String message = null;
     private String title = null;
+    private String confirmButtonLabel = null;
+    private ActionListener onConfirm = null;
 
     public MessageWindow (AbstractProjectViewer v,
                           String                title,
@@ -37,6 +39,23 @@ public class MessageWindow extends PopupWindow
         
         this.message = message;
         this.title = (title != null ? title : "Just so you know...");
+
+    }
+
+    public MessageWindow (AbstractProjectViewer v,
+                          String                title,
+                          String                message,
+                          String                confirmButtonLabel,
+                          ActionListener        onConfirm)
+    {
+
+        super (v,
+               Component.LEFT_ALIGNMENT);
+        
+        this.message = message;
+        this.title = (title != null ? title : "Just so you know...");
+        this.confirmButtonLabel = confirmButtonLabel;
+        this.onConfirm = onConfirm;
 
     }
 
@@ -103,8 +122,8 @@ public class MessageWindow extends PopupWindow
 
         final MessageWindow _this = this;
 
-        JButton closeBut = new JButton ();
-        closeBut.setText ("Close");
+        JButton closeBut = UIUtils.createButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
+                                                 null);
 
         closeBut.addActionListener (new ActionAdapter ()
         {
@@ -112,6 +131,13 @@ public class MessageWindow extends PopupWindow
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (_this.onConfirm != null)
+                {
+                    
+                    _this.onConfirm.actionPerformed (ev);
+                    
+                }
+                    
                 _this.close ();
 
             }

@@ -21,6 +21,7 @@ public class Chapter extends NamedObject
 
     public static final String OBJECT_TYPE = "chapter";
     public static final String INFORMATION_OBJECT_TYPE = "chapterinformation";
+    public static final String EDIT_POSITION = "editposition";
 
     private Book              book = null;
     private String            text = null;
@@ -32,6 +33,8 @@ public class Chapter extends NamedObject
     private int editPosition = -1;
     private Position textEditPos = null;
     private boolean editComplete = false;
+    
+    private ProjectVersion projVersion = null;
 
     public Chapter()
     {
@@ -66,6 +69,27 @@ public class Chapter extends NamedObject
 
     }
 
+    public void setProjectVersion (ProjectVersion v)
+    {
+        
+        this.projVersion = v;
+        
+    }
+    
+    public ProjectVersion getProjectVersion ()
+    {
+        
+        if (this.projVersion == null)
+        {
+            
+            return this.getBook ().getProject ().getProjectVersion ();
+            
+        }
+        
+        return this.projVersion;
+        
+    }
+   
     /**
      * If a chapter item has it's position changed (say via a drag/drop operation to move it)
      * then the sets need to be "reindexed" since the ordering is dependent on the position and
@@ -623,7 +647,7 @@ public class Chapter extends NamedObject
             this.addScene ((Scene) item);
 
         }
-
+        
     }
 
     public Set<? extends ChapterItem> getAllStructureItemsWithinRange (int min,
@@ -736,7 +760,8 @@ public class Chapter extends NamedObject
         if (this.scenes.contains (s))
         {
             
-            return;
+            throw new IllegalStateException ("Already have scene: " +
+                                             s);
             
         }
     
@@ -841,14 +866,7 @@ public class Chapter extends NamedObject
             return;
             
         }
-    
-        if (this.outlineItems.contains (i))
-        {
-            
-            return;
-            
-        }
-    
+        
         if ((i.getChapter () != null)
             &&
             (i.getChapter () != this)
@@ -938,12 +956,40 @@ public class Chapter extends NamedObject
         this.plan = t;
 
     }
-    
+        /*
+    @Override
     public String toString ()
     {
+                
+        return Environment.formatObjectToStringProperties (this);        
+        
+    }
+    */
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
 
-        return Chapter.OBJECT_TYPE + "(name: " + this.name + ", id: " + this.getKey () + ", length: " + ((this.text != null) ? this.text.length () : "0") + "), in: " + this.book;
-
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "editPosition",
+                                    this.editPosition);
+        this.addToStringProperties (props,
+                                    "editComplete",
+                                    this.editComplete);
+        this.addToStringProperties (props,
+                                    "textLength",
+                                    ((this.text != null) ? this.text.length () : "0"));
+        this.addToStringProperties (props,
+                                    "book",
+                                    this.book);
+        this.addToStringProperties (props,
+                                    "scenes",
+                                    this.scenes.size ());
+        this.addToStringProperties (props,
+                                    "outlineItems",
+                                    this.outlineItems.size ());
+            
     }
 
     public void setBook (Book b)
@@ -1035,9 +1081,17 @@ public class Chapter extends NamedObject
     
     public void setEditPosition (int p)
     {
-        
+
+        int oldPos = this.editPosition;
+    
         this.editPosition = p;
+
+        this.textEditPos = null;
         
+        this.firePropertyChangedEvent (EDIT_POSITION,
+                                       oldPos,
+                                       this.editPosition);        
+                
     }
     
     public int getEditPosition ()
@@ -1054,4 +1108,34 @@ public class Chapter extends NamedObject
         
     }
 
+    public int getChapterLength ()
+    {
+        
+        if (this.text == null)
+        {
+            
+            return 0;
+            
+        }
+        
+        return this.text.length ();
+        
+    }
+    
+    public boolean isPositionAtChapterEnd (int p)
+    {
+        
+        int cl = this.getChapterLength ();
+        
+        if (cl == 0)
+        {
+                        
+            return p == cl;
+            
+        }
+
+        return p >= cl - 1;
+        
+    }
+    
 }

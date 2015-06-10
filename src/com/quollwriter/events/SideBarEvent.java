@@ -2,26 +2,27 @@ package com.quollwriter.events;
 
 import java.util.EventObject;
 
+import com.quollwriter.ui.sidebars.AbstractSideBar;
 
 public class SideBarEvent extends EventObject
 {
 
-    private String name = null;
+    private AbstractSideBar sb = null;
 
-    public SideBarEvent (Object source,
-                         String name)
+    public SideBarEvent (Object          source,
+                         AbstractSideBar sb)
     {
         
         super (source);
         
-        this.name = name;
+        this.sb = sb;
         
     }
 
-    public String getName ()
+    public AbstractSideBar getSideBar ()
     {
         
-        return this.name;
+        return this.sb;
         
     }
     
