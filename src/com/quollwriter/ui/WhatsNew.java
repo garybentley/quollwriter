@@ -35,6 +35,7 @@ public class WhatsNew extends Wizard //PopupWizard
         public static final String id = "id";
         public static final String version = "version";
         public static final String clazz = "class";
+        public static final String beta = "beta";
         
     }
     
@@ -56,6 +57,8 @@ public class WhatsNew extends Wizard //PopupWizard
 
         int currVer = Environment.getVersionAsInt (Environment.getQuollWriterVersion ());
         
+        boolean betasAllowed = Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME);
+        
         try
         {
         
@@ -76,6 +79,21 @@ public class WhatsNew extends Wizard //PopupWizard
                 String id = JDOMUtils.getAttributeValue (vEl,
                                                          XMLConstants.id,
                                                          true);
+                
+                if (JDOMUtils.getAttributeValueAsBoolean (vEl,
+                                                          XMLConstants.beta,
+                                                          false))
+                {
+                    Environment.logMessage ("HERE1");
+                    if (!betasAllowed)
+                    {
+                    Environment.logMessage ("HERE2");    
+                        // Ignore, the user isn't interested in betas.
+                        continue;
+                        
+                    }
+                    
+                }
                 
                 id = Environment.expandVersion (id);
                 
@@ -319,7 +337,7 @@ public class WhatsNew extends Wizard //PopupWizard
 */
     public String getStartStage ()
     {
-
+Environment.logMessage ("ITEMS: " + this.items);
         try
         {
     
