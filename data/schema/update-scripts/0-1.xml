@@ -138,23 +138,6 @@ CREATE TABLE note
 )        
     </sql>
   </item>
-
-  <item>
-    <log>Create the editorcomment table.</log>
-    <sql>
-CREATE TABLE editorcomment
-(
-    dbkey BIGINT NOT NULL,
-    editor VARCHAR(500) NOT NULL,
-    forobjectdbkey BIGINT NOT NULL,
-    forobjectversion UUID NOT NULL,
-    position INTEGER NOT NULL,
-    end_position INTEGER,
-    dealtwith TIMESTAMP,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
   
   <item>
     <log>Create outlineitem table.</log>
@@ -533,13 +516,6 @@ ALTER TABLE dataobject ADD CONSTRAINT dataobject_idversion_uk UNIQUE(id, version
 ALTER TABLE note ADD CONSTRAINT note_objectdbkeyversion_dataobject_dbkeyversion_fk FOREIGN KEY(objectdbkey, objectversion) REFERENCES dataobject(dbkey, version)
     </sql>
   </item>
-  
-  <item>
-    <log>Create foreign key constraint for editorcomment.objectdbkey/objectversion - dataobject.dbkey/version.</log>
-    <sql>
-ALTER TABLE editorcomment ADD CONSTRAINT editorcomment_forobject_dataobject_dbkeyversion_fk FOREIGN KEY(forobjectdbkey, forobjectversion) REFERENCES dataobject(dbkey, version)
-    </sql>
-  </item>
-  
+    
 </update-script>
 

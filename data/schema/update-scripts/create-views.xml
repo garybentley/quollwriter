@@ -97,13 +97,6 @@ DROP VIEW IF EXISTS idea_v
     </sql>
   </item>
 
-  <item>
-    <log>Drop view editorcomment_v</log>
-    <sql>
-DROP VIEW IF EXISTS editorcomment_v
-    </sql>
-  </item>
-
   <!--
     Overhang from v2.2.4
   -->
@@ -218,12 +211,7 @@ DROP VIEW IF EXISTS namedobject_v
   </item>
 
   <item>
-    <log>Create editorcomment_v view</log>
-    <sql file="views/editorcomment.v" />
-  </item>
-
-  <item>
-    <log>Create editorcomment_v view</log>
+    <log>Create projectversion_v view</log>
     <sql file="views/projectversion.v" />
   </item>
 
