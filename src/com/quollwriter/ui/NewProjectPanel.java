@@ -232,9 +232,11 @@ public class NewProjectPanel
             {
 
                 ppanel.setVisible (_this.encryptField.isSelected ());
-
-                parent.repaint ();
                 
+                parent.validate ();
+             
+                parent.repaint ();
+             
                 if (parent instanceof PopupWindow)
                 {
                     

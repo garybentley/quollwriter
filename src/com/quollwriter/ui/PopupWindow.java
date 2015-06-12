@@ -26,7 +26,8 @@ public abstract class PopupWindow extends JFrame
     private float                   buttonAlignment = Component.LEFT_ALIGNMENT;
     private Box                     content = null;
     private Point                   showAt = null;
-    private HTMLPanel helpP = null;
+    private JTextPane               helpP = null;
+    
     public PopupWindow()
     {
 
@@ -152,10 +153,7 @@ public abstract class PopupWindow extends JFrame
 
         this.content.setOpaque (true);
         this.content.setBackground (UIUtils.getComponentColor ());
-        this.content.setBorder (new EmptyBorder (10,
-                                                 10,
-                                                 10,
-                                                 10));
+        this.content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
                                                  
         String headerTitle = (this.getHeaderTitle () != null) ? this.getHeaderTitle () : this.getWindowTitle ();
         
@@ -173,10 +171,13 @@ public abstract class PopupWindow extends JFrame
 
         Box helpWrapper = new Box (BoxLayout.Y_AXIS);
         helpWrapper.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        helpWrapper.setBorder (new EmptyBorder (0, 5, 0, 0));
+        helpWrapper.setBorder (UIUtils.createPadding (5, 5, 0, 0));
         
-        this.helpP = UIUtils.createHelpTextPane2 (null,
-                                                  this.projectViewer);
+        this.helpP = UIUtils.createHelpTextPane (null,
+                                                 this.projectViewer);
+        this.helpP.setBorder (null);
+        this.helpP.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                           500));
         
         helpWrapper.add (this.helpP);
         
@@ -219,14 +220,14 @@ public abstract class PopupWindow extends JFrame
 
         }
 
-        this.content.add (Box.createVerticalStrut (5));
+        //this.content.add (Box.createVerticalStrut (5));
 
         this.getContentPane ().add (this.content);
 
         this.setResizable (false);
-
-        this.resize ();
         
+        this.resize ();
+               
         if (this.showAt == null)
         {
         
@@ -240,35 +241,21 @@ public abstract class PopupWindow extends JFrame
         }
         
         this.inited = true;
-        
+                
         this.setVisible (true);
-        
-        this.resize ();
-        
+                
         this.toFront ();
-        
+     
     }
 
     public void resize ()
     {
-        
-        // Setting the size here will force the layout size.
-        // See: https://code.google.com/p/flying-saucer/wiki/FAQSwing
-        if (this.getHelpText () != null)
-        {
-            
-            this.helpP.setSize (UIUtils.getPopupWidth () - 20, 10000);
-            
-            this.helpP.doDocumentLayout (this.helpP.getGraphics ());
-
-        } 
-        
 
         this.getContentPane ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                                 this.content.getPreferredSize ().height));
+                                                                this.content.getPreferredSize ().height));
 
         this.pack ();
-
+                                                 
     }
     
     public void setButtonAlignment (float v)
@@ -341,7 +328,7 @@ public abstract class PopupWindow extends JFrame
 
         }
 
-        this.resize ();
+        //this.resize ();
         
     }
 

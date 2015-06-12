@@ -50,8 +50,15 @@ public class FirstProject extends PopupWindow
                                                      null);
         help.setBorder (null);
         help.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                     help.getPreferredSize ().height));
-        b.add (help);
+                                     500));
+
+        Box helpWrapper = new Box (BoxLayout.Y_AXIS);
+        helpWrapper.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        helpWrapper.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+
+        helpWrapper.add (help);
+        
+        b.add (helpWrapper);
         
         this.newProjPanel = new NewProjectPanel ();
         
