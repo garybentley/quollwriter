@@ -269,7 +269,7 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="uiLayout" type="string">
     <description>How the UI should be laid out.</description>
-    <value>layout-ch-ps</value>
+    <value>layout-ps-ch</value>
   </property>
   
   <property id="projectSideBarWidth" type="integer">
