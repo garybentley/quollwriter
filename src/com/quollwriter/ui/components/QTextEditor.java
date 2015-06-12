@@ -90,14 +90,9 @@ public class QTextEditor extends JTextPane implements TextStylable
         this.undoManager.discardAllEdits ();
 
         // Get the files.
-        if (prov != null)
-        {
-
-            this.spellChecker = new QSpellChecker (this,
-                                                   prov);
-            this.spellChecker.enable (spellCheckerEnabled);
-
-        }
+        this.spellChecker = new QSpellChecker (this,
+                                               prov);
+        this.spellChecker.enable (spellCheckerEnabled);
 
         ActionMap am = this.getActionMap ();
 

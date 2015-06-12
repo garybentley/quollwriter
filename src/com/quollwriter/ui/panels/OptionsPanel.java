@@ -501,6 +501,13 @@ public class OptionsPanel extends QuollPanel
     private void addEditorsSection ()
     {
         
+        if (EditorsEnvironment.getUserAccount () == null)
+        {
+            
+            return;
+            
+        }
+        
         final OptionsPanel _this = this;
                 
         Box box = new Box (BoxLayout.Y_AXIS);
@@ -1565,6 +1572,8 @@ public class OptionsPanel extends QuollPanel
                 final String lang = spellcheckLang.getSelectedItem ().toString ();
 
                 String def = Environment.getUserProperties ().getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+
+                final String currLang = def;
                                 
                 if (Environment.isEnglish (def))
                 {
@@ -1574,7 +1583,7 @@ public class OptionsPanel extends QuollPanel
                 }
                 
                 defLang.setSelected (def.equals (lang));
-
+                
                 if ((!Environment.isEnglish (lang))
                     &&
                     (!_this.projectViewer.getSpellCheckLanguage ().equals (lang))
@@ -1599,7 +1608,7 @@ public class OptionsPanel extends QuollPanel
     
                         UIUtils.createQuestionPopup (_this.projectViewer,
                                                      "Download dictionary files?",
-                                                     null,
+                                                     Constants.DOWNLOAD_ICON_NAME,
                                                      "The dictionary files for <b>" +
                                                      lang +
                                                      "</b> need to be downloaded from the Quoll Writer server.<br /><br />Would you like to download them now?",
@@ -1617,7 +1626,17 @@ public class OptionsPanel extends QuollPanel
                                                         }
                                                         
                                                      },
-                                                     null,
+                                                     new ActionListener ()
+                                                     {
+                                                        
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                            
+                                                            spellcheckLang.setSelectedItem (currLang);
+                                                            
+                                                        }
+                                                        
+                                                     },
                                                      null,
                                                      null);
 

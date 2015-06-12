@@ -2685,7 +2685,7 @@ public class EditorsEnvironment
     public static void removeEditorsProperty (String name)
                                        throws Exception
     {
-
+    
         EditorsEnvironment.editorsProps.removeProperty (name);
         
         EditorsEnvironment.saveEditorsProperties (null);

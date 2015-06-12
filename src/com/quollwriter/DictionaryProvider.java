@@ -24,12 +24,15 @@ public class DictionaryProvider
     private File                           userDictFile = null;
     private SpellChecker                   checker = null;
     private com.swabunga.spell.event.SpellChecker jazzySpellChecker = null;
+    private String language = null;
 
     public DictionaryProvider (String lang,
                                List<String> projWords,
                                File         userDict)
                                throws       Exception
     {
+        
+        this.language = lang;
         
         this.jazzySpellChecker = new com.swabunga.spell.event.SpellChecker ();
         
@@ -195,146 +198,14 @@ public class DictionaryProvider
         this.jazzySpellChecker.setUserDictionary (this.userDict);
         
     }
-    
-    public DictionaryProvider (String lang,
-                               List<String> projWords,
-                               File         userDict,
-                               boolean      __________bogusDontUse)
-                               throws       IOException
-    {
 
-//        this.checker = new SpellChecker ();    
-                        
-        /*
-         *OLD STYLE WHERE dictionary is in jar file
-        java.util.List<InputStream> dictFiles = new ArrayList<InputStream> ();
-
-        if (lang == null)
-        {
-            
-            return null;
-            
-        }
-        
-        String dFiles = this.proj.getProperty (lang + "DictionaryFiles");
-
-        if (dFiles != null)
-        {
-
-            StringTokenizer t = new StringTokenizer (dFiles,
-                                                     ",");
-
-            while (t.hasMoreTokens ())
-            {
-
-                String tok = t.nextToken ().trim ();
-
-                InputStream in = Environment.class.getResourceAsStream (Constants.DICTIONARIES_DIR + tok);
-                
-                if (in != null)
-                {
-                    
-                    dictFiles.add (in);
-                    
-                }
-
-            }
-
-        }
-*/        
-            /*
-             *
-             XXX - NEW REMOVED
-        File dir = Environment.getDictionaryDirectory (lang);
-        
-        if (dir.exists ())
-        {
-            
-            if (this.isIndexedDictionaryDirectory (dir))
-            {
-                
-                this.checker.addDictionary (new SpellDictionaryDisk (dir,
-                                                                     null,
-                                                                     false));
-                
-                
-            } else {
-            
-                if (Environment.isEnglish (lang))
-                {
-
-                    this.addDictionaryFiles (Constants.ENGLISH);
-                                    
-                }
-                    
-                this.addDictionaryFiles (lang);
-                            
-            }
-            
-        }        
-
-        if (projWords != null)
-        {
-
-            StringBuilder b = new StringBuilder ();
-
-            for (String i : projWords)
-            {
-
-                b.append (i);
-                b.append ('\n');
-
-            }
-
-            this.projDict = new QWSpellDictionaryHashMap (new StringReader (b.toString ()));
-
-            this.checker.addDictionary (this.projDict);
-            
-            //this.dicts.add (this.projDict);
-
-        }
-
-        this.userDict = new QWSpellDictionaryHashMap (userDict);
-
-        this.userDictFile = userDict;
-
-        this.checker.setUserDictionary (this.userDict);
-        XXX - REMOVED TO HERE
-        */
-    }
-    
-    /*
-    private void addDictionaryFiles (String lang)
-                                     throws IOException
+    public String getLanguage ()
     {
         
-        File dir = Environment.getDictionaryDirectory (lang);        
-        
-        if (!dir.exists ())
-        {
-            
-            return;
-            
-        }
-        
-        File[] files = dir.listFiles ();
-        
-        for (int i = 0; i < files.length; i++)
-        {
-            
-            if (files[i].isFile ())
-            {
-
-                InputStreamReader r = new InputStreamReader (new FileInputStream (files[i]));
-                
-                // XXX - NEW REMOVED this.checker.addDictionary (new QWSpellDictionaryHashMap (r));            
-                
-            }
-            
-        }
+        return this.language;
         
     }
-      */  
+    
     public static boolean isLanguageInstalled (String lang)
     {
         
@@ -349,84 +220,11 @@ public class DictionaryProvider
             return true;
             
         }
-        /*
-        File d = Environment.getDictionaryDirectory (lang);
-        
-        if ((d != null)
-            &&
-            (d.exists ())
-           )
-        {
-            
-            return true;
-                
-        }
-*/
+
         return false;
 
     }
-    /*
-     *XXX - NEW REMOVED
-    public DictionaryProvider(List<InputStream> files,
-                              List<String>      projWords,
-                              File              userDict)
-                       throws IOException
-    {
 
-        this.checker = new SpellChecker ();    
-    
-        if (files != null)
-        {
-    
-            for (InputStream in : files)
-            {
-                
-                if (in == null)
-                {
-                    
-                    continue;
-                    
-                }
-            
-                InputStreamReader r = new InputStreamReader (in);
-    
-                //this.checker.addDictionary (new SpellDictionaryDichoDisk ())
-    
-                this.checker.addDictionary (new QWSpellDictionaryHashMap (r));            
-                    
-            }
-
-        }
-            
-        if (projWords != null)
-        {
-
-            StringBuilder b = new StringBuilder ();
-
-            for (String i : projWords)
-            {
-
-                b.append (i);
-                b.append ('\n');
-
-            }
-
-            this.projDict = new QWSpellDictionaryHashMap (new StringReader (b.toString ()));
-
-            this.checker.addDictionary (this.projDict);
-            
-            //this.dicts.add (this.projDict);
-
-        }
-
-        this.userDict = new QWSpellDictionaryHashMap (userDict);
-
-        this.userDictFile = userDict;
-
-        this.checker.setUserDictionary (this.userDict);
-        
-    }
-*/
     /**
      * Checks to see if the directory is an indexed dictionary directory which means:
      *   - It contains a db directory
@@ -620,19 +418,5 @@ public class DictionaryProvider
         }
 
     }
-/*
-    public QWSpellDictionaryHashMap getUserDictionary ()
-    {
 
-        return this.userDict;
-
-    }
-
-    public List<QWSpellDictionaryHashMap> getDictionaries ()
-    {
-
-        return this.dicts;
-
-    }
-*/
 }

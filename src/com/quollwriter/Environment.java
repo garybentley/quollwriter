@@ -4803,6 +4803,13 @@ public class Environment
                                                String newVersion)
     {
 
+        if (oldVersion == null)
+        {
+            
+            return true;
+            
+        }
+    
         if (oldVersion.endsWith ("b"))
         {
             

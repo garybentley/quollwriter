@@ -107,7 +107,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private Box                   toolbarPanel = null;
     private Accordion             acc = null;
     private boolean               spellCheckingEnabled = false;
-    private String                spellCheckLanguage = null;
     private Date                  sessionStart = new Date ();
     private Box                   notifications = null;
     private boolean               playSoundOnKeyStroke = false;
@@ -2850,130 +2849,23 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
     }
 
-    private String getProjectDictionary ()
-    {
-
-        return null;
-
-    }
-/*
-    public boolean hasDictionaryFiles (String lang)
-                                       throws IOException
-    {
-        
-        return this.getDictionaryFiles (lang) != null;
-        
-    }
-    
-    public java.util.List<InputStream> getDictionaryFiles (String lang)
-                                                                     throws IOException
-    {
-        
-        java.util.List<InputStream> dictFiles = new ArrayList<InputStream> ();
-
-        if (lang == null)
-        {
-            
-            return null;
-            
-        }
-        
-        String dFiles = this.proj.getProperty (lang + "DictionaryFiles");
-
-        if (dFiles != null)
-        {
-
-            StringTokenizer t = new StringTokenizer (dFiles,
-                                                     ",");
-
-            while (t.hasMoreTokens ())
-            {
-
-                String tok = t.nextToken ().trim ();
-
-                InputStream in = Environment.class.getResourceAsStream (Constants.DICTIONARIES_DIR + tok);
-                
-                if (in != null)
-                {
-                    
-                    dictFiles.add (in);
-                    
-                }
-
-            }
-
-        }
-                
-        // Add all files from the dictionary directory (if it exists)
-        File dir = Environment.getDictionaryDirectory (lang);
-        
-        if (dir.exists ())
-        {
-            
-            // Check to see if this is an indexed language, if so it will have
-            // sub-dirs "words" and "db".
-            if (Environment.isIndexedDictionaryDirectory (dir))
-            {
-                
-                // Just add the dir.
-                
-            }
-            
-            // Load all files.
-            File[] files = dir.listFiles ();
-            
-            for (int i = 0; i < files.length; i++)
-            {
-                
-                if (files[i].isFile ())
-                {
-                    
-                    dictFiles.add (new FileInputStream (files[i]));
-                    
-                }
-                
-            }
-            
-        }
-        
-        if (dictFiles.size () == 0)
-        {
-            
-            return null;
-            
-        }
-
-        if (Environment.isEnglish (lang))
-        {
-            
-            if (!lang.equals (Constants.ENGLISH))
-            {
-            
-                java.util.List<InputStream> enDictFiles = this.getDictionaryFiles (Constants.ENGLISH);
-            
-                if (enDictFiles != null)
-                {
-            
-                    dictFiles.addAll (enDictFiles);
-                    
-                }
-                
-            }
-            
-        }
-        
-        return dictFiles;
-        
-    }
-    */
+    /**
+     * Set the spell check language for the project.  Note: this DOES NOT affect the project property:
+     * {@link Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME}.  Also this does not affect the spell check enabled
+     * flag.
+     *
+     * @param lang The language to use, set to <b>null</b> to switch off spell checking.
+     * @param updateEditors Set to <b>true</b> to tell all the editor panels about the change.
+     * @throws Exception If something goes wrong.
+     */
     public void setSpellCheckLanguage (String  lang,
                                        boolean updateEditors)
                                 throws Exception
     {
 
-    
-        if ((this.spellCheckLanguage != null) &&
-            (this.spellCheckLanguage.equals (lang)))
+        if ((this.dictProv != null) &&
+            (this.dictProv.getLanguage ().equals (lang))
+           )
         {
 
             // Not changing.
@@ -3008,8 +2900,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
-        //java.util.List<InputStream> dictFiles = this.getDictionaryFiles (lang);
-
         File userDict = Environment.getUserDictionaryFile ();
 
         if (!userDict.exists ())
@@ -3212,108 +3102,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                               throws Exception
     {
 
-        if (this.dictProv != null)
-        {
-
-            return this.dictProv;
-
-        }
-
-        this.setSpellCheckLanguage (this.getSpellCheckLanguage (),
-                                    false);
-
         return this.dictProv;
 
     }
 
-    /*
-    public void setDictionaryProvider (DictionaryProvider prov)
-    {
-
-    this.dictProv = prov;
-
-    }
-     */
-/*
-    public void createProject (String name)
-                               throws Exception
-    {
-
-        Project p = new Project (name);
-
-        File projDir = new File (dir.getPath () + "/" + Utils.sanitizeForFilename (p.getName ()));
-
-        // Get the username and password.
-        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
-        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
-
-        this.dBMan = new ObjectManager ();
-        this.dBMan.init (new File (projDir.getPath () + "/projectdb"),
-                         username,
-                         password,
-                         filePassword);
-
-        // Create a file that indicates that the directory can be deleted.
-        Utils.createQuollWriterDirFile (projDir);
-
-        // Create one in the "projectdb.lobs.db" dir as well (if present).
-        Utils.createQuollWriterDirFile (new File (projDir.getPath () + "/projectdb.lobs.db"));
-
-        Book b = new Book (p,
-                           p.getName ());
-
-        p.addBook (b);
-
-        p.setProjectDirectory (projDir);
-        p.setEncrypted (false);
-
-        try
-        {
-
-            this.saveObject (p,
-                             true);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to create new project: " +
-                                  p,
-                                  e);
-
-            UIUtils.showErrorMessage (this,
-                                      "Unable to create " + name + " project");
-
-            return;
-
-        }
-
-        this.proj = p;
-
-    }
-*/
-/*
-    public void setTabsLocation (String loc)
-    {
-
-        if (loc == null)
-        {
-
-            loc = Constants.BOTTOM;
-
-        }
-
-        if (loc.equals (Constants.TOP))
-        {
-        
-            this.tabs.setTabPlacement(SwingConstants.TOP);
-            
-        } else {
-            
-            this.tabs.setTabPlacement(SwingConstants.BOTTOM);
-            
-        }
-        
-    }
-*/
     public void setToolbarLocation (String loc)
     {
 
@@ -4018,6 +3810,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.initSideBars ();
 
+        this.initDictionaryProvider ();
+        
         this.handleNewProject ();
         
         // Register ourselves with the environment.
@@ -4045,12 +3839,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.initWindow ();
 
         this.showMainSideBar ();        
-                
+
         this.handleWhatsNew ();
         
         this.handleShowTips ();
-
-        this.checkForDictionaryFiles ();        
         
         this.setIgnoreProjectEvents (false);
 
@@ -4140,15 +3932,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         Environment.addToAchievementsManager (this);
 
         this.initSideBars ();
+
+        this.initDictionaryProvider ();
                 
         this.handleOpenProject ();
 
         Environment.incrStartupProgress ();
-/*
-        
-        this.title.setIcon (Environment.getIcon (this.getViewerIcon (),
-                                                 Constants.ICON_TITLE));
-  */                                               
+
         final java.util.List<Runner> inits = new ArrayList ();
 
         this.restoreTabs ();
@@ -4289,10 +4079,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.handleWhatsNew ();
         
         this.handleShowTips ();
-
-        // Check to see if we have the dictionary files, if not (this may be a project shared for a dropbox user)
-        // download them automatically.
-        this.checkForDictionaryFiles ();
                 
         this.setIgnoreProjectEvents (false);
 
@@ -4459,19 +4245,23 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }        
                 
     }
-    
-    private void checkForDictionaryFiles ()
+       
+    private void initDictionaryProvider ()
     {
+        
+        final String lang = this.getSpellCheckLanguage ();
         
         try
         {
         
-            if (!DictionaryProvider.isLanguageInstalled (this.getSpellCheckLanguage ()))
+            if (!DictionaryProvider.isLanguageInstalled (lang))
             {
                 
                 final AbstractProjectViewer _this = this;
-                
-                final String lang = this.getSpellCheckLanguage ();
+                                
+                // Turn off spell checking until the download is complete.
+                this.setSpellCheckLanguage (null,
+                                            true);
                 
                 // Download them.
                 this.downloadDictionaryFiles (this.getSpellCheckLanguage (),
@@ -4507,7 +4297,12 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                 
                                               });
                 
-            }        
+            } else {
+             
+                this.setSpellCheckLanguage (lang,
+                                            true);             
+                
+            }                
 
         } catch (Exception e) {
             
@@ -4521,21 +4316,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public void downloadDictionaryFiles (String         lang,
                                          final ActionListener onComplete)
     {
-/*
-        if (Environment.isEnglish (lang))
-        {
-            
-            // See if we already have a set of english language files.
-            if (DictionaryProvider.isBasicEnglishInstalled ())
-            {
-                
-                // So we only need the country specific files.
-                lang += "-only";
-                
-            }
-            
-        }
-*/
 
         if (Environment.isEnglish (lang))
         {
@@ -4585,7 +4365,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             return;            
             
         }
-    Environment.logMessage ("DOWNLOADING: " + url);
+        
+        Environment.logDebugMessage ("Downloading language file(s) from: " + url + ", for language: " + lang);
+        
         File _file = null;
     
         // Create a temp file for it.

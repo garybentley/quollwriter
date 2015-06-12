@@ -48,8 +48,9 @@ public class FirstProject extends PopupWindow
         
         JTextPane help = UIUtils.createHelpTextPane ("Let's get started.  To create your first {project} just enter a name in the box below or use the boring one provided.  Don't worry you can change it later.",
                                                      null);
+        help.setBorder (null);
         help.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                     help.getPreferredSize ().height + 10));
+                                     help.getPreferredSize ().height));
         b.add (help);
         
         this.newProjPanel = new NewProjectPanel ();
@@ -62,7 +63,7 @@ public class FirstProject extends PopupWindow
                                                        null,
                                                        true);
         
-        cp.setBorder (new EmptyBorder (10, 10, 5, 10));
+        cp.setBorder (UIUtils.createPadding (10, 10, 5, 10));
         
         b.add (cp);
         
