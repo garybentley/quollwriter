@@ -84,10 +84,10 @@ public class WhatsNew extends Wizard //PopupWizard
                                                           XMLConstants.beta,
                                                           false))
                 {
-                    Environment.logMessage ("HERE1");
+
                     if (!betasAllowed)
                     {
-                    Environment.logMessage ("HERE2");    
+
                         // Ignore, the user isn't interested in betas.
                         continue;
                         
@@ -337,7 +337,7 @@ public class WhatsNew extends Wizard //PopupWizard
 */
     public String getStartStage ()
     {
-Environment.logMessage ("ITEMS: " + this.items);
+
         try
         {
     
