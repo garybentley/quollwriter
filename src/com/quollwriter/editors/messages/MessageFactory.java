@@ -52,6 +52,8 @@ public class MessageFactory
                UpdateProjectMessage.class);
         m.put (EditorRemovedMessage.MESSAGE_TYPE,
                EditorRemovedMessage.class);
+        m.put (InteractionMessage.MESSAGE_TYPE,
+               InteractionMessage.class);
         
     }
          

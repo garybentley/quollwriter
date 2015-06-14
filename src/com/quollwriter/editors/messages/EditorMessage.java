@@ -91,7 +91,7 @@ public abstract class EditorMessage extends DataObject
                                     this.when);
         this.addToStringProperties (props,
                                     "editor",
-                                    this.editor.getEmail ());
+                                    (this.editor != null ? this.editor.getEmail () : null));
         
     }    
     
