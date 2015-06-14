@@ -1126,8 +1126,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     {
 
                         Environment.setDebugModeEnabled (!Environment.isDebugModeEnabled ());                    
-                    
+                                        
                         _this.updateForDebugMode ();
+
+                        // Add a notification.
+                        _this.addNotification (String.format ("Debug mode is now <b>%s</b>",
+                                                              (Environment.isDebugModeEnabled () ? "ENabled" : "DISabled")),
+                                               Constants.BUG_ICON_NAME,
+                                               10);
                                             
                     }
 
@@ -1243,12 +1249,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private void updateForDebugMode ()
     {
                 
-        // Add a notification.
-        this.addNotification (String.format ("Debug mode is now <b>%s</b>",
-                                             (Environment.isDebugModeEnabled () ? "ENabled" : "DISabled")),
-                              Constants.BUG_ICON_NAME,
-                              10);
-
         String iconName = this.getViewerIcon ();
                                                                       
         if (Environment.isDebugModeEnabled ())
@@ -3628,8 +3628,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.initTitle ();
         
         this.setIconImage (Environment.getWindowIcon ().getImage ());
-
-        this.updateForDebugMode ();        
+        
+        this.updateForDebugMode ();
         
         this.pack ();
 
@@ -5898,6 +5898,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
             if (p instanceof QuollPanel)
             {
+                
+                // TODO: Change to add a flag in the QuollPanel of whether it should be persisted.
+                if (p instanceof HelpTextPanel)
+                {
+                    
+                    continue;
+                    
+                }
                 
                 QuollPanel qp = (QuollPanel) p;
                 
