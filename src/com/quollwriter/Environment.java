@@ -2432,13 +2432,6 @@ public class Environment
         return Environment.getUserFile (Constants.OBJECT_TYPE_NAMES_FILE_NAME);
 
     }
-
-    public static File getUserEditorsPropertiesFile ()
-    {
-
-        return Environment.getUserFile (Constants.EDITORS_PROPERTIES_FILE_NAME);
-
-    }
     
     public static File getUserPropertiesFile ()
     {
@@ -2907,20 +2900,7 @@ public class Environment
         try
         {
         
-            // Get the user editor properties.
-            File edPropsFile = Environment.getUserEditorsPropertiesFile ();
-        
-            if (edPropsFile.exists ())
-            {
-        
-                com.gentlyweb.properties.Properties eprops = new com.gentlyweb.properties.Properties (edPropsFile,
-                                                                                                      Environment.GZIP_EXTENSION);
-            
-                eprops.setParentProperties (userProperties);
-
-                EditorsEnvironment.init (eprops);
-            
-            }
+            EditorsEnvironment.init ();
             
         } catch (Exception e) {
             

@@ -36,7 +36,7 @@ public class EditorsEnvironment
     public static boolean serviceAvailable = true;
     private static List<EditorEditor> editors = new ArrayList ();
     private static int    schemaVersion = 0;
-    private static com.gentlyweb.properties.Properties editorsProps = null;
+    private static com.gentlyweb.properties.Properties editorsProps = new com.gentlyweb.properties.Properties ();
     private static EditorEditor.OnlineStatus currentOnlineStatus = EditorEditor.OnlineStatus.offline;
     private static EditorEditor.OnlineStatus lastOnlineStatus = null;
     
@@ -73,8 +73,15 @@ public class EditorsEnvironment
 
     }
         
-    public static void init (com.gentlyweb.properties.Properties props)
-                             throws Exception
+    public static File getUserEditorsPropertiesFile ()
+    {
+
+        return Environment.getUserFile (Constants.EDITORS_PROPERTIES_FILE_NAME);
+
+    }        
+        
+    public static void init ()
+                      throws Exception
     {
         
         if (!EditorsEnvironment.serviceAvailable)
@@ -84,7 +91,20 @@ public class EditorsEnvironment
             
         }
             
-        EditorsEnvironment.editorsProps = props;
+        // Get the user editor properties.
+        File edPropsFile = EditorsEnvironment.getUserEditorsPropertiesFile ();
+
+        if (edPropsFile.exists ())
+        {
+
+            com.gentlyweb.properties.Properties eprops = new com.gentlyweb.properties.Properties (edPropsFile,
+                                                                                                  Environment.GZIP_EXTENSION);
+                    
+            EditorsEnvironment.editorsProps = eprops;
+            
+        }
+            
+        EditorsEnvironment.editorsProps.setParentProperties (Environment.getUserProperties ());
             
         try
         {
@@ -518,6 +538,13 @@ public class EditorsEnvironment
                                               throws Exception
     {
         
+        if (EditorsEnvironment.editorsManager == null)
+        {
+            
+            return false;
+            
+        }
+        
         return EditorsEnvironment.editorsManager.hasUserSentAProjectBefore ();
         
     }
@@ -569,7 +596,7 @@ public class EditorsEnvironment
     public static boolean hasMyPublicKeyBeenSentToEditor (EditorEditor ed)
                                                    throws Exception
     {
-                
+                                
         return EditorsEnvironment.editorsManager.hasMyPublicKeyBeenSentToEditor (ed);
 
     }
@@ -762,6 +789,13 @@ public class EditorsEnvironment
                                                          throws Exception
     {
         
+        if (EditorsEnvironment.editorsManager == null)
+        {
+            
+            return null;
+            
+        }
+        
         return EditorsEnvironment.editorsManager.getAllUndealtWithMessages ();
         
     }
@@ -784,6 +818,13 @@ public class EditorsEnvironment
     public static int getUndealtWithMessageCount ()
                                            throws Exception
     {
+       
+        if (EditorsEnvironment.editorsManager == null)
+        {
+            
+            return 0;
+            
+        }
        
         return EditorsEnvironment.editorsManager.getUndealtWithMessageCount (); 
         
@@ -2242,6 +2283,13 @@ public class EditorsEnvironment
                                                  throws Exception
     {
         
+        if (EditorsEnvironment.editorsManager == null)
+        {
+            
+            return null;
+            
+        }
+        
         return EditorsEnvironment.editorsManager.getProjectsSentToEditor (ed);
         
     }
@@ -2630,7 +2678,7 @@ public class EditorsEnvironment
                                           String       messageType)
                                    throws Exception
     {
-        
+                
         return EditorsEnvironment.editorsManager.getNewMessageId (ed,
                                                                   messageType);
                 
@@ -2704,7 +2752,7 @@ public class EditorsEnvironment
         }
 
         // Load the per user properties.
-        File pf = Environment.getUserEditorsPropertiesFile ();
+        File pf = EditorsEnvironment.getUserEditorsPropertiesFile ();
 
         JDOMUtils.writeElementToFile (props.getAsJDOMElement (),
                                       pf,

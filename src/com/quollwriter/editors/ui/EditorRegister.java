@@ -815,7 +815,7 @@ public class EditorRegister extends Wizard
             finderError.setVisible (false);
             finderError.setBorder (new EmptyBorder (0, 0, 5, 0));
                         
-            this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
+            this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath () + "/editors",
                                                   "Select a Directory",
                                                   JFileChooser.DIRECTORIES_ONLY,
                                                   "Select",

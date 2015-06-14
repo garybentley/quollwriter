@@ -2161,6 +2161,25 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
             this.notifications.setVisible (false);
 
+        } else {
+            
+            int c = this.notifications.getComponentCount ();
+
+            JComponent jc = (JComponent) this.notifications.getComponent (c - 1);
+            
+            Border b = jc.getBorder ();
+            
+            // Eek, not good but ok for now.
+            // TODO: Fix this nasty.
+            if (b instanceof CompoundBorder)
+            {
+                
+                CompoundBorder cb = (CompoundBorder) b;
+                
+                jc.setBorder (cb.getInsideBorder ());
+                
+            }
+
         }
 
         this.notifications.getParent ().validate ();
@@ -4917,12 +4936,13 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                 String tipText = this.tips.getNextTip ();
         
-                final HTMLPanel htmlP = new HTMLPanel (tipText,
-                                                       this);
+                final JTextPane htmlP = UIUtils.createHelpTextPane (tipText,
+                                                                    this);
+                
+                htmlP.setBorder (null);
+                htmlP.setSize (new Dimension (500,
+                                              500));
 
-                htmlP.setBackground (null);
-                htmlP.setOpaque (false);
-        
                 JButton nextBut = UIUtils.createButton ("next",
                                                         Constants.ICON_MENU,
                                                         "Click to view the next tip",
@@ -4957,8 +4977,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                             htmlP.setText (t);
                             
-                            htmlP.getParent ().validate ();
-                            htmlP.getParent ().repaint ();
+                            htmlP.validate ();
+                            //htmlP.getParent ().validate ();
+                            //htmlP.getParent ().repaint ();
 
                             n.setMinimumSize (n.getPreferredSize ());
                             
@@ -5029,19 +5050,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     }
                     
                 });
-/*
-                htmlP.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                     htmlP.getPreferredSize ().height));
-                                                     */
-                htmlP.setMinimumSize (htmlP.getPreferredSize ());
                 
-                htmlP.getParent ().validate ();
-                htmlP.getParent ().repaint ();
-/*
-                n.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                 n.getPreferredSize ().height));                
-  */              
-                n.setMinimumSize (n.getPreferredSize ());
             } catch (Exception e) {
                 
                 Environment.logError ("Unable to show tips",
@@ -8451,6 +8460,26 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                  isDealtWith,
                                  null);
     
+    }
+
+    public void addHelpTextTab (String title,
+                                String text,
+                                String iconType,
+                                String panelId)
+    {
+        
+        HelpTextPanel p = new HelpTextPanel (this,
+                                             title,
+                                             text,
+                                             iconType,
+                                             panelId);
+        
+        p.init ();
+        
+        this.addPanel (p);
+        
+        this.setPanelVisible (p);
+        
     }
     
 }

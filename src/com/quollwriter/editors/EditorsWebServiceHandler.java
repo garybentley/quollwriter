@@ -82,7 +82,9 @@ public class EditorsWebServiceHandler
         public String getURL ()
         {
             
-            return this.url;
+            return Environment.getQuollWriterWebsite () + this.url;
+            
+            //return this.url;
             
         }
         

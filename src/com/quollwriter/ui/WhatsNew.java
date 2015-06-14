@@ -387,8 +387,13 @@ public class WhatsNew extends Wizard //PopupWizard
                                                            this.projectViewer);
                 
                 hp.setBorder (null);
-    
-                b.add (hp);
+                hp.setSize (new Dimension (UIUtils.getPopupWidth () - 25, 500));
+                
+                Box hpb = new Box (BoxLayout.Y_AXIS);
+                hpb.add (hp);
+                hpb.setMaximumSize (hpb.getPreferredSize ());
+                hpb.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+                b.add (hpb);
 
             }
                 
@@ -401,6 +406,9 @@ public class WhatsNew extends Wizard //PopupWizard
                     b.add (Box.createVerticalStrut (5));
                     
                 }
+                
+                item.component.setAlignmentY (Component.TOP_ALIGNMENT);
+                item.component.setBorder (UIUtils.createPadding (5, 10, 0, 0));
                 
                 b.add (item.component);                
                 

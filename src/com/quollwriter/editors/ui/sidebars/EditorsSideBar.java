@@ -743,23 +743,16 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     private void createWelcomeTab ()
     {
         
-        Box edBox = new ScrollableBox (BoxLayout.Y_AXIS);
-
-        edBox.setOpaque (true);
-        edBox.setBackground (UIUtils.getComponentColor ());
-
-        edBox.setBorder (UIUtils.createPadding (5, 5, 0, 5));
-        
-        JTextPane help = null;
-        
         try
         {
-            
-            help = UIUtils.createHelpTextPane (StringUtils.replaceString (Environment.getResourceFileAsString (Constants.EDITORS_SIDEBAR_FIRST_USE_HELP_FILE),
+        
+            this.projectViewer.addHelpTextTab ("Welcome to the Editors Service",
+                                               StringUtils.replaceString (Environment.getResourceFileAsString (Constants.EDITORS_SIDEBAR_FIRST_USE_HELP_FILE),
                                                                           "\n",
                                                                           ""),
-                                               this.projectViewer);
-            
+                                               Constants.EDITORS_ICON_NAME,
+                                               "editors-service-first-help");
+                    
         } catch (Exception e) {
             
             Environment.logError ("Unable to get editors sidebar first use help file",
@@ -768,43 +761,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             return;
             
         }
-        
-        help.setBorder (null);
-        
-        edBox.add (help);
-        
-        final JScrollPane sp = UIUtils.createScrollPane (edBox);
-        sp.setBorder (null);
                 
-        this.tabs.add (sp,
-                       1);
-
-        final JLabel th = new JLabel ();
-
-        th.setIcon (Environment.getIcon (Constants.INFO_ICON_NAME,
-                                         Constants.ICON_EDITORS_LIST_TAB_HEADER));
-        this.tabs.setTabComponentAt (1,
-                                     th);
-                             
-        this.addTabHeaderMouseHandler (th,
-                                       sp);
-                                                           
-        this.tabs.setSelectedComponent (sp);
-        
-        this.updateView ();
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                sp.getVerticalScrollBar ().setValue (0);
-                
-            }
-            
-        });
-        
     }
     
     private void createEditorList ()
@@ -1197,6 +1154,9 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             this.createWelcomeTab ();
             
         }
+           
+    this.createWelcomeTab ();
+           
                 
         return box;
                     

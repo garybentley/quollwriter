@@ -261,20 +261,20 @@ public class EditorsWebServiceCall
             public void run ()
             {
         
+                String url = _this.service.getURL ();
+                
+                if (id != null)
+                {
+                    
+                    url += "/" + id;
+                    
+                }
+                
                 try
                 {
         
                     String enc = JSONEncoder.encode (_this.data);
-                
-                    String url = _this.service.getURL ();
-                    
-                    if (id != null)
-                    {
-                        
-                        url += "/" + id;
-                        
-                    }
-                    
+                                    
                     boolean isGet = _this.method.equalsIgnoreCase ("get");
                     
                     boolean supportsOutput = (!_this.method.equalsIgnoreCase ("get") && !_this.method.equalsIgnoreCase ("delete"));
@@ -515,7 +515,7 @@ public class EditorsWebServiceCall
                                         
                 } catch (Exception e) {
                     
-                    Environment.logError ("Unable to call server",
+                    Environment.logError ("Unable to call server with url: " + url,
                                           e);
                                                
                     try

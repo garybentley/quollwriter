@@ -1,17 +1,16 @@
-<h1 class="help">Welcome</h1>
-<p class="help">Hello and welcome to the Editors service.  This is the {editors} sidebar, you'll use it for managing your {editors} and sending messages them.</p>
-<p class="help">To close this tab either right click on the header and select [close] <b>Close</b> or middle click your mouse.</p> 
-<p class="help">Remember, when in doubt right click and see what shows up!</p>
-<p class="help"><a href='qw:user-guide/editors/getting-started.html'>Click here for more information about getting started.</a></p>
+<p class="help">Welcome to the Editors service.  The {editors} sidebar should currently be visible, you'll use it for managing your {editors} and sending messages to them.</p>
+<p class="help"><a href='qw:user-guide/editors/getting-started.html'>Click here for more detailed information about getting started.</a></p>
 <h1 class="help">The {Editors} list</h1>
-<p class="help">So here's a quick rundown.  The tab next to this one shows a list of all the {editors} you have invited to edit a {project} or have invited you to edit.  This tab is always displayed.  You don't have any {editors} at the moment but that's ok!</p>
+<p class="help">The currently visible tab shows your {editors}.  It will show all the {editors} you have invited and/or currently editing your {project}.  This tab is always displayed.  You don't have any {editors} at the moment but that's ok!</p>
 <h1 class="help">Going online</h1>
-<p class="help">To go online (login to the Editors service) just click on the [status-offline] button at the top of this sidebar.</p>
-<p class="help">Once you're online you can click the button again to change your status, for example when you are writing you might want to set your status as [status-busy]<b>Busy</b> so your {editors} know not to bug you.</p>
+<p class="help">To go online (i.e. to login to the Editors service) just click on the&nbsp;&nbsp;[status-offline]&nbsp;&nbsp;button at the top of the sidebar.</p>
+<p class="help">Once you're online you can click the button again to change your status, for example when you are writing you might want to set your status as&nbsp;&nbsp;[status-busy]<b>Busy</b>&nbsp;&nbsp;so your {editors} know not to bug you.</p>
 <h1 class="help">Inviting {an editor}</h1>
-<p class="help">To invite {an editor} all you need is their email address.  To send an invite click on the [add] button at the top of the sidebar.</p>
+<p class="help">To invite {an editor} all you need is their email address.  To send an invite click on the&nbsp;&nbsp;[add]&nbsp;&nbsp;button at the top of the sidebar.</p>
 <h1 class="help">Sending {an project}/{chapters}</h1>
 <p class="help">Once you have sent the invite you can send your current {project} to the {editor}.  You can select which {chapters} are sent.  You can send {an project} at any time.  Just right click on the {editor} information and select <b>Send {project}/{chapters}</b>.</p>
 <h1 class="help">Viewing {an editor}</h1>
 <p class="help">To view {an editor} just click on their name/email address, the {editors} sidebar will be displayed and a tab shown for the {editor}.  The tab will contain a list of all the messages you have exchanged with the {editor}.  There will also be a text box at the bottom of the tab that allows you to send a message to them.</p>
 <p class="help">Right clicking on {an editor} name/email address will show you the menu for that {editor}.</p>
+<h1 class="help">Feedback</h1>
+<p class="help">Please feel free to offer any feedback, the more the better.  <a href='qw:request-a-new-feature.html'>Click here to request a new feature/provide feedback</a>.</p>
