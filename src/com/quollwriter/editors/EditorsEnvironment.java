@@ -3025,16 +3025,16 @@ public class EditorsEnvironment
                             public void processResult (EditorsWebServiceResult res)
                             {
                                 
+                                Environment.logError ("Unable to delete all editors" + 
+                                                      res);
+
                                 if (onError != null)
                                 {
                                     
                                     onError.actionPerformed (new ActionEvent (res, 1, "error"));
                                     
                                 } else {
-                                    
-                                    Environment.logError ("Unable to delete all editors" + 
-                                                          res);
-                                    
+                                                                        
                                     UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
                                                               "Unable to delete your account, please contact Quoll Writer support for assistance.");
                                     

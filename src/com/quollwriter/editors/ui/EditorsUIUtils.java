@@ -171,7 +171,7 @@ public class EditorsUIUtils
             UIUtils.createQuestionPopup (viewer,
                                          "Remove pending {editor}",
                                          Constants.DELETE_ICON_NAME,
-                                         String.format ("To confirm removal of <b>%</b> as {an editor} please enter the word <b>Yes</b> in the box below.",
+                                         String.format ("To confirm removal of <b>%s</b> as {an editor} please enter the word <b>Yes</b> in the box below.",
                                                         ed.getShortName ()),
                                          "Yes, remove them",
                                          "No, keep them",
