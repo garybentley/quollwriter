@@ -192,7 +192,7 @@
 
   <property id="quollWriterWebsite" type="string">
     <description>The website for quoll writer.</description>
-    <value>http://quollwriter.com</value>
+    <value>https://quollwriter.com</value>
   </property>
 
   <property id="quollWriterLanguageFilesUrl" type="string">
@@ -333,37 +333,37 @@ This message will only be shown once during your current session using Quoll Wri
   </property>
 
   <property id="editorsWebserviceBaseURL" type="string">
-    <description>The base url for the editors webserivce.</description>
-    <value>http://localhost:8080/editor/api/rest/</value>    
+    <description>The base url suffix for the editors webserivce.  This is prefixed with the quoll writer website property (debug or normal) to get the full url.</description>
+    <value>/editor/api/rest/</value>    
   </property>
   
   <property id="editorsAuthorsWebserviceBaseURL" type="string">
-    <description>The url for the editors Authors webserivce.</description>
+    <description>The url suffix for the editors Authors webserivce.</description>
     <value><property id="editorsWebserviceBaseURL" />authors</value>    
   </property>
   
   <property id="editorsAccountsWebserviceBaseURL" type="string">
-    <description>The url for the editors Accounts webserivce.</description>
+    <description>The url suffix for the editors Accounts webserivce.</description>
     <value><property id="editorsWebserviceBaseURL" />accounts</value>    
   </property>
   
   <property id="editorsProjectsWebserviceBaseURL" type="string">
-    <description>The url for the editors Projects webserivce.</description>
+    <description>The url suffix for the editors Projects webserivce.</description>
     <value><property id="editorsWebserviceBaseURL" />projects</value>    
   </property>
 
   <property id="editorsEditorsWebserviceBaseURL" type="string">
-    <description>The url for the editors Editors webserivce.</description>
+    <description>The url suffix for the editors Editors webserivce.</description>
     <value><property id="editorsWebserviceBaseURL" />editors</value>    
   </property>
 
   <property id="editorsInvitesWebserviceBaseURL" type="string">
-    <description>The url for the editors Invites webserivce.</description>
+    <description>The url suffix for the editors Invites webserivce.</description>
     <value><property id="editorsWebserviceBaseURL" />invites</value>    
   </property>
 
   <property id="editorsSessionsWebserviceBaseURL" type="string">
-    <description>The url for the editors Sessions webserivce.</description>
+    <description>The url suffix for the editors Sessions webserivce.</description>
     <value><property id="editorsWebserviceBaseURL" />sessions</value>    
   </property>
 
