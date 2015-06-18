@@ -367,6 +367,13 @@ public class EditorChatBox extends Box implements EditorInteractionListener
             
         }
         
+        if (ev.getAction () == InteractionMessage.Action.normal)
+        {
+            
+            this.hideNotification ();
+            
+        }
+
     }
     
     public void grabFocus ()
