@@ -244,7 +244,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         }
         
     }
-    
+        
     public void init ()
                throws GeneralException
     {
@@ -259,8 +259,9 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
             
             this.setToolTipText ("This message needs your attention!");
             
-            this.setBorder (new MatteBorder (0, 3, 0, 0, UIUtils.getColor ("#ff0000")));//f1d956")));
-            
+            this.setBorder (new CompoundBorder (new MatteBorder (0, 3, 0, 0, UIUtils.getColor ("#ff0000")),
+                                                new EmptyBorder (0, 5, 0, 0)));
+                        
         }
         
         // Add ourselves as a message listener in case our message gets updated in a different context.
@@ -302,8 +303,8 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         
         ip.setAlignmentY (Component.TOP_ALIGNMENT);
         
-        b.add (ip);
-        b.add (Box.createHorizontalStrut (5));
+        //b.add (ip);
+        //b.add (Box.createHorizontalStrut (5));
         
         JComponent t = UIUtils.createHelpTextPane (message,
                                                    this.projectViewer);
@@ -311,7 +312,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
 
         t.setBorder (null);
         t.setOpaque (false);
-        
+                
         b.add (t);
 
         b.setAlignmentX (Component.LEFT_ALIGNMENT);

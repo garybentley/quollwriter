@@ -56,16 +56,19 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                 
                 p.setProjectVersion (pv);
                 
-            } else {
-                
-                ProjectVersionDataHandler pvh = (ProjectVersionDataHandler) this.objectManager.getHandler (ProjectVersion.class);
-                
-                p.setProjectVersion (pvh.getLatest (conn));
-                
-            }
+            } 
             
             if (p.isEditorProject ())
             {
+                
+                if (pv == null)
+                {
+                    
+                    ProjectVersionDataHandler pvh = (ProjectVersionDataHandler) this.objectManager.getHandler (ProjectVersion.class);
+                    
+                    p.setProjectVersion (pvh.getLatest (conn));
+
+                }
                 
                 // Get the editor email.
                 String edEmail = p.getProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME);

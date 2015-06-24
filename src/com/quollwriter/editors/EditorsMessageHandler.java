@@ -1297,6 +1297,9 @@ public class EditorsMessageHandler implements ChatMessageListener
                         
                     });
                     
+                    // Enable automatic reconnection.
+                    ReconnectionManager.getInstanceFor (_this.conn).enableAutomaticReconnection ();
+                    
                     try
                     {
 
@@ -1320,15 +1323,6 @@ public class EditorsMessageHandler implements ChatMessageListener
                                                                    
                         return;
                                            
-                    }
-                    
-                    _this.loggedIn = true;
-                     
-                    if (onLogin != null)
-                    {
-                        
-                        UIUtils.doLater (onLogin);
-                        
                     }
                     
                     for (EditorEditor ed : EditorsEnvironment.getEditors ())
@@ -1386,6 +1380,15 @@ public class EditorsMessageHandler implements ChatMessageListener
                         }
                        
                     });
+                    
+                    _this.loggedIn = true;
+                     
+                    if (onLogin != null)
+                    {
+                        
+                        UIUtils.doLater (onLogin);
+                        
+                    }                    
                     
                 } catch (Exception e) {
                     
@@ -1633,7 +1636,6 @@ public class EditorsMessageHandler implements ChatMessageListener
                         public void actionPerformed (ActionEvent ev)
                         {
                                                         
-
                             // TODO: Next release change this to be more in context.
                             EditorsEnvironment.showMessageSendWarningIfEditorOfflineMessage (to);
                                                         

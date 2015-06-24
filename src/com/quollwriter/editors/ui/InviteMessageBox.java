@@ -38,6 +38,15 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
         
     }
     
+    @Override
+    public boolean isShowAttentionBorder ()
+    {
+        
+        return false;
+        
+    }
+    
+    @Override
     public boolean isAutoDealtWith ()
     {
         
@@ -56,29 +65,17 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
     {
         
         final InviteMessageBox _this = this;
-                                
-        String text = "Invitation to become an Editor";
-                                
-        JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    Constants.PROJECT_ICON_NAME);
-        
-        this.add (h);
-                
-        this.responseBox = new Box (BoxLayout.Y_AXIS);
-        
-        this.responseBox.setVisible (false);
-        //this.responseBox.setBorder (border);
-        
-        this.add (this.responseBox);
-        
+                                        
         if ((!this.message.isDealtWith ())
             &&
             (!this.message.isSentByMe ())
            )
         {
             
-            this.responseBox.setVisible (true);
+            this.responseBox = new Box (BoxLayout.Y_AXIS);
             
+            this.add (this.responseBox);
+                        
             JComponent l = UIUtils.createBoldSubHeader ("Select your response below",
                                                         null);
             
@@ -166,7 +163,7 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
             }
             
         };
-        
+                
         if (accepted)
         {
         

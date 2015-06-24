@@ -1703,6 +1703,41 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         this.panel.projectViewer.fillFullScreenTitleToolbar (titleC);
 
+        if (EditorsEnvironment.isEditorsServiceAvailable ())
+        {
+        
+            String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show the {editors}" : "Click to register for the Editors Service.");
+        
+            titleC.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
+                                               Constants.ICON_TITLE_ACTION,
+                                               toolTip,
+                                               new ActionAdapter ()
+                                               {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        try
+                                                        {
+                                                        
+                                                            _this.panel.getProjectViewer ().viewEditors ();
+                                                            
+                                                        } catch (Exception e) {
+                                                            
+                                                            Environment.logError ("Unable to view editors",
+                                                                                  e);
+                                                            
+                                                            UIUtils.showErrorMessage (_this,
+                                                                                      "Unable to show the {editors}.");
+                                                            
+                                                        }
+
+                                                    }
+                                                    
+                                               }));
+
+        }
+        
         titleC.add (UIUtils.createButton ("find",
                                            Constants.ICON_FULL_SCREEN_ACTION,
                                            "Click to find some text",

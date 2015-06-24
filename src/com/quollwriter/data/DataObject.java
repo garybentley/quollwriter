@@ -116,6 +116,9 @@ public abstract class DataObject
                                     "key",
                                     this.key);
         this.addToStringProperties (props,
+                                    "hashCode",
+                                    this.hashCode ());
+        this.addToStringProperties (props,
                                     "id",
                                     this.id);
         this.addToStringProperties (props,

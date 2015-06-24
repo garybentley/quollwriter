@@ -419,7 +419,10 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
         this.editor = this.viewer.getProject ().getForEditor ();
                 
         this.editorInfoBox = new EditorInfoBox (this.editor,
-                                                this.viewer).init ();
+                                                this.viewer,
+                                                false);
+                
+        this.editorInfoBox.init ();
         
         this.editorInfoBox.addBasicPopupListener ();        
         

@@ -76,27 +76,28 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         
         final Project fproj = proj;
         
-        String text = "Sent {project} update";
+        String text = "Update sent";//Sent {project} update";
         
         if (!this.message.isSentByMe ())
         {
             
-            text = "Received {project} update";
+            text = "Update received"; //Received {project} update";
                             
         }
         
         JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    Constants.PROJECT_ICON_NAME);
+                                                    null);
+                                                    //Constants.PROJECT_ICON_NAME);
         
         this.add (h);
                 
-        String m = text + UIUtils.getOpenProjectHTML (this.message.getForProjectId ());
-
-        JComponent c = this.getMessageComponent (m,
-                                                 Constants.PROJECT_ICON_NAME);
-            
-        //this.add (c);
+        JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
+                                                                       this.projectViewer);
+        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
         
+        this.add (bp);                             
+                        
+/*
         String plural = "";
         
         if (this.message.getChapters ().size () > 1)
@@ -106,7 +107,14 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             
         }
 
-        String rows = "top:p, 6px, p";
+        // Show:
+        //   * Sent
+        //   * Version (optional)
+        //   * Word/chapter count
+        //   * Due by (optional)
+        //   * Notes
+        
+        String rows = "p"; 
         
         ProjectVersion projVer = this.message.getProjectVersion ();
         String verName = projVer.getName ();
@@ -118,7 +126,14 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             
         }
         
-        rows += ", 6px, p, 6px, p";
+        rows += ", 6px, p";
+        
+        if (projVer.getDueDate () != null)
+        {
+            
+            rows += ", 6px, p";
+            
+        }
         
         String notes = projVer.getDescription ();
         
@@ -138,7 +153,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         CellConstraints cc = new CellConstraints ();
 
         int row = 1;
-                
+               
         builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
                           cc.xy (1,
                                  row));
@@ -181,7 +196,11 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         
         row += 2;
         
-        builder.addLabel (Environment.replaceObjectNames (Environment.formatNumber (this.message.getWordCount ()) + " words, " + this.message.getChapters ().size () + " {chapter" + plural + "}"),
+        builder.addLabel (Environment.replaceObjectNames ("<html><i>Sent</i></html>"),
+                          cc.xy (1,
+                                 row));
+        
+        builder.addLabel (Environment.formatDateTime (this.message.getWhen ()),
                           cc.xy (3,
                                  row));
         
@@ -202,18 +221,29 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             
         }
         
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>Due by</i></html>"),
-                          cc.xy (1,
-                                 row));
-
-        builder.addLabel ((projVer.getDueDate () != null ? Environment.formatDate (projVer.getDueDate ()) : "<i>Not specified.</i>"),
+        builder.addLabel (Environment.replaceObjectNames (Environment.formatNumber (this.message.getWordCount ()) + " words, " + this.message.getChapters ().size () + " {chapter" + plural + "}"),
                           cc.xy (3,
                                  row));
-
-        if (notes != null)
+        
+        row += 2;
+        
+        if (projVer.getDueDate () != null)
         {
+        
+            builder.addLabel (Environment.replaceObjectNames ("<html><i>Due by</i></html>"),
+                              cc.xy (1,
+                                     row));
+    
+            builder.addLabel ((projVer.getDueDate () != null ? Environment.formatDate (projVer.getDueDate ()) : "<i>Not specified.</i>"),
+                              cc.xy (3,
+                                     row));
 
             row += 2;
+                                     
+        }
+                                     
+        if (notes != null)
+        {
     
             builder.addLabel (Environment.replaceObjectNames ("<html><i>Notes</i></html>"),
                               cc.xy (1,
@@ -235,10 +265,11 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
         
         this.add (bp);             
-                            
-        if (this.message.isSentByMe ())
+        */
+
+        if (!this.message.isSentByMe ())
         {
-            
+            /*
             JLabel viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
@@ -292,12 +323,12 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
                 
             }});
                             
-            viewProj.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+            viewProj.setBorder (UIUtils.createPadding (5, 10, 5, 5));
             
             this.add (viewProj);            
                                                  
         } else {
-            
+           */ 
             
             JLabel viewUpd = UIUtils.createClickableLabel ("Click to view the update",
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
@@ -315,11 +346,12 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
                             
             }});
                             
-            viewUpd.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+            viewUpd.setBorder (UIUtils.createPadding (6, 10, 0, 0));
             
             this.add (viewUpd);            
                      
         }
+        
     }
         
 }

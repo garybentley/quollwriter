@@ -40,6 +40,7 @@ public class HelpTextPanel extends QuollPanel
         
     }
 
+    @Override
     public String getPanelId ()
     {
 

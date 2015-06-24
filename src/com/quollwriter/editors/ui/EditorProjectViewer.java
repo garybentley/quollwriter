@@ -314,42 +314,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
     
     public void fillTitleToolbar (JToolBar toolbar)
     {
-                      
-        final EditorProjectViewer _this = this;
-
-        if (EditorsEnvironment.isEditorsServiceAvailable ())
-        {
-                        
-            toolbar.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
-                                               Constants.ICON_TITLE_ACTION,
-                                               "Click to show the {editors}",
-                                               new ActionAdapter ()
-                                               {
-                                                    
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        try
-                                                        {
-                                                        
-                                                            _this.viewEditors ();
-                                                            
-                                                        } catch (Exception e) {
-                                                            
-                                                            Environment.logError ("Unable to view editors",
-                                                                                  e);
-                                                            
-                                                            UIUtils.showErrorMessage (_this,
-                                                                                      "Unable to show {editors}.");
-                                                            
-                                                        }
-
-                                                    }
-                                                    
-                                               }));
-
-        }                      
-                        
+                                              
     }
         
     public void fillSettingsPopup (JPopupMenu titlePopup)
@@ -1021,7 +986,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         
         // See if we have any state, if not then this is probably the first time we've opened the project
         // then open the first chapter.
-        Environment.logMessage ("TABS: " + this.getOpenTabsProperty ());
+
         if (this.getOpenTabsProperty () == null)
         {
             

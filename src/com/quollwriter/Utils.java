@@ -547,6 +547,56 @@ public class Utils
         
     }
 
+    public static boolean isToday (Date d)
+    {
+        
+        if (d == null)
+        {
+            
+            return false;
+            
+        }
+        
+        Calendar now = new GregorianCalendar ();
+        
+        Calendar dCal = new GregorianCalendar ();
+        dCal.setTime (d);
+        
+        return (now.get (Calendar.DAY_OF_MONTH) == dCal.get (Calendar.DAY_OF_MONTH))
+               &&
+               (now.get (Calendar.MONTH) == dCal.get (Calendar.MONTH))
+               &&
+               (now.get (Calendar.YEAR) == dCal.get (Calendar.YEAR));
+
+    }
+    
+    public static boolean isYesterday (Date d)
+    {
+        
+        if (d == null)
+        {
+            
+            return false;
+            
+        }
+        
+        Calendar now = new GregorianCalendar ();
+        
+        // Take off one day.
+        now.add (Calendar.DAY_OF_MONTH,
+                 -1);
+        
+        Calendar dCal = new GregorianCalendar ();
+        dCal.setTime (d);
+        
+        return (now.get (Calendar.DAY_OF_MONTH) == dCal.get (Calendar.DAY_OF_MONTH))
+               &&
+               (now.get (Calendar.MONTH) == dCal.get (Calendar.MONTH))
+               &&
+               (now.get (Calendar.YEAR) == dCal.get (Calendar.YEAR));        
+        
+    }
+    
     public static String formatDate (Date d)
     {
 

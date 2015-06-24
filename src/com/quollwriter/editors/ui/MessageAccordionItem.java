@@ -37,11 +37,10 @@ import com.quollwriter.ui.renderers.*;
 public class MessageAccordionItem extends AccordionItem
 {
         
-    private AbstractProjectViewer projectViewer = null;
-    private Box content = null;
-    private Set<MessageBox> messageBoxes = new LinkedHashSet ();
-    private Date date = null;
-    private EditorMessage lastMessage = null;
+    protected AbstractProjectViewer projectViewer = null;
+    protected Box content = null;
+    protected Set<MessageBox> messageBoxes = new LinkedHashSet ();
+    protected Date date = null;
         
     public MessageAccordionItem (AbstractProjectViewer pv,
                                  Date                  d,
@@ -61,8 +60,34 @@ public class MessageAccordionItem extends AccordionItem
         }
                 
         int c = messages.size ();
-                
-        this.setTitle (Environment.formatDate (d) + " (" + c + ")");
+              /*  
+        String dateName = null;
+        
+        if (Utils.isToday (d))
+        {
+            
+            dateName = "Today";
+            
+        }
+        
+        if (Utils.isYesterday (d))
+        {
+            
+            dateName = "Yesterday";
+            
+        }
+        
+        if (dateName == null)
+        {
+            
+            dateName = Environment.formatDate (d);
+            
+        }
+        
+        this.setTitle (String.format ("%s (%s)",
+                                      dateName,
+                                      c));
+                                      */
         this.setIconType (null);
 
         this.projectViewer = pv;
@@ -72,21 +97,23 @@ public class MessageAccordionItem extends AccordionItem
         this.content = new Box (BoxLayout.Y_AXIS);
                 
         Header h = this.getHeader ();
-                      
+        
+        // TODO: Make a configurable value.              
         h.setTitleColor (UIUtils.getColor ("#aaaaaa"));
         h.setFontSize (14);
                                         
+        // TODO: Tidy this up.
+        
         h.setBorder (new CompoundBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getColor ("#dddddd")),
                                                              new EmptyBorder (0, 0, 3, 0)),
                                          h.getBorder ()));
 
-        //this.content.add ();
         this.content.setBorder (UIUtils.createPadding (5, 0, 10, 0));
         
         for (EditorMessage m : messages)
         {
                         
-            JComponent mb = this.buildMessageBox (m);
+            JComponent mb = this.getMessageBox (m);
             
             if (mb == null)
             {
@@ -97,18 +124,53 @@ public class MessageAccordionItem extends AccordionItem
 
             this.content.add (mb);
             
-            this.lastMessage = m;
-            
         }
             
         this.content.add (Box.createVerticalGlue ());
 
+        this.updateHeaderTitle ();
+        
+    }
+    
+    public void updateHeaderTitle ()
+    {
+                        
+        String dateName = null;
+        
+        if (Utils.isToday (this.date))
+        {
+            
+            dateName = "Today";
+            
+        }
+        
+        if (Utils.isYesterday (this.date))
+        {
+            
+            dateName = "Yesterday";
+            
+        }
+        
+        if (dateName == null)
+        {
+            
+            dateName = Environment.formatDate (this.date);
+            
+        }
+        
+        int c = this.getContent ().getComponentCount () - 1;
+        
+        this.setTitle (String.format ("%s (%s)",
+                                      dateName,
+                                      c));        
+        
     }
     
     private JLabel createLabel (String m)
     {
         
-        JLabel l = new JLabel (m);
+        JLabel l = UIUtils.createInformationLabel (m);
+        
         l.setForeground (UIUtils.getColor ("#aaaaaa"));
         
         return l;
@@ -118,7 +180,7 @@ public class MessageAccordionItem extends AccordionItem
     public void addMessage (EditorMessage m)
     {
         
-        JComponent mb = this.buildMessageBox (m);
+        JComponent mb = this.getMessageBox (m);
         
         if (mb == null)
         {
@@ -138,7 +200,7 @@ public class MessageAccordionItem extends AccordionItem
         
     }
         
-    public MessageBox getMessageBoxForMessage (EditorMessage m)
+    public MessageBox getMessageBoxForMessageX (EditorMessage m)
     {
         
         for (MessageBox mb : this.messageBoxes)
@@ -157,7 +219,7 @@ public class MessageAccordionItem extends AccordionItem
         
     }
     
-    private JComponent buildMessageBox (EditorMessage m)
+    public JComponent getMessageBox (EditorMessage m)
     {
         
         MessageBox mb = null;
@@ -216,28 +278,26 @@ public class MessageAccordionItem extends AccordionItem
         {
             
             name = "Me";
-            
+
         }
         
         details.add (this.createLabel (name));
         details.add (Box.createHorizontalGlue ());
         details.add (this.createLabel (Environment.formatTime (m.getWhen ())));
+
         b.add (details);
         
         b.add (Box.createVerticalStrut (5));
         
         mb.setAlignmentX (Component.LEFT_ALIGNMENT);
-        //p.setMaximumSize (null);
-        mb.setBorder (new CompoundBorder (mb.getBorder (),
-                                          new EmptyBorder (0, 5, 0, 0)));
-    
+
         b.add (mb);
                 
-        b.setBorder (new EmptyBorder (0, 5, 3, 0));
-
+        b.setBorder (new EmptyBorder (0, 0, 3, 0));
+        
         details.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getColor ("#dddddd")),
                                                              new EmptyBorder (5, 0, 5, 0)));
-        
+       
         
         return b;
         

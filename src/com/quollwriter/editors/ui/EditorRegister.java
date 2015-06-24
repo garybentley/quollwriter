@@ -170,7 +170,7 @@ public class EditorRegister extends Wizard
             {
     
                 EditorsEnvironment.initUserCredentials (this.emailField.getText ().trim ().toLowerCase (),
-                                                        new String (this.passwordField.getPassword ()),
+                                                        null, //new String (this.passwordField.getPassword ()),
                                                         this.serviceName,
                                                         this.messagingUsername,                                                    
                                                         this.keyPair.getPublicKey (),

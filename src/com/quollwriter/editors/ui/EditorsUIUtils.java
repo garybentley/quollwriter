@@ -39,13 +39,35 @@ public class EditorsUIUtils
 {
     
     private static EditorLogin editorLogin = null;
+    private static EditorMessageFilter defaultViewableMessageFilter = null;
     
     static
     {
         
         EditorsUIUtils.editorLogin = new EditorLogin ();
+
+        // Defines the messages that can be "viewed" by the user.
+        Project np = null;
+        
+        EditorsUIUtils.defaultViewableMessageFilter = new DefaultEditorMessageFilter (np,
+                                                      EditorChatMessage.MESSAGE_TYPE,
+                                                      EditorInfoMessage.MESSAGE_TYPE,
+                                                      NewProjectMessage.MESSAGE_TYPE,
+                                                      NewProjectResponseMessage.MESSAGE_TYPE,
+                                                      ProjectCommentsMessage.MESSAGE_TYPE,
+                                                      InviteResponseMessage.MESSAGE_TYPE,
+                                                      ProjectEditStopMessage.MESSAGE_TYPE,
+                                                      UpdateProjectMessage.MESSAGE_TYPE,
+                                                      EditorRemovedMessage.MESSAGE_TYPE);
         
     };
+    
+    public static EditorMessageFilter getDefaultViewableMessageFilter ()
+    {
+        
+        return EditorsUIUtils.defaultViewableMessageFilter;
+        
+    }
     
     public static void showDeleteAccount (final AbstractProjectViewer viewer)
     {
@@ -209,7 +231,7 @@ public class EditorsUIUtils
                                   e);
             
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} for {editor}, please contact Quoll Writer support for assitance.");
+                                      "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
             
             return;
             
@@ -229,7 +251,7 @@ public class EditorsUIUtils
                                   e);
             
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} sent to {editor}, please contact Quoll Writer support for assitance.");
+                                      "Unable to get {projects} sent to {editor}, please contact Quoll Writer support for assistance.");
             
             return;
         
@@ -1193,7 +1215,7 @@ public class EditorsUIUtils
         final JButton send = UIUtils.createButton ("Send",
                                                    null);
 
-        send.addActionListener (new ActionListener ()
+        ActionListener sendAction = new ActionListener ()
         {
            
             public void actionPerformed (ActionEvent ev)
@@ -1345,7 +1367,7 @@ public class EditorsUIUtils
                                                   ed.getEditorStatus () == EditorEditor.EditorStatus.pending ? EditorsEnvironment.getUserAccount () : null);
 
                 }
-                                                  
+                                                                  
                 // Since we are sending the message we have dealt with it.
                 mess.setDealtWith (true);
                                                                 
@@ -1465,8 +1487,15 @@ public class EditorsUIUtils
                 
             }
             
-        });
+        };
 
+        send.addActionListener (sendAction);
+        
+        UIUtils.addDoActionOnReturnPressed (version,
+                                            sendAction);
+        UIUtils.addDoActionOnReturnPressed (notes,
+                                            sendAction);
+                
         JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                null);
         
@@ -1590,7 +1619,7 @@ public class EditorsUIUtils
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
                          
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                     content.getPreferredSize ().height));
+                                     content.getPreferredSize ().height + 20));
 
         popup.setContent (content);
                                                                
@@ -1625,7 +1654,7 @@ public class EditorsUIUtils
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
                          
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                     content.getPreferredSize ().height));
+                                     content.getPreferredSize ().height + 20));
 
         popup.setContent (content);
                                                                
@@ -3432,17 +3461,7 @@ public class EditorsUIUtils
                 
                 content.add (desc);
                 content.add (Box.createVerticalStrut (10));
-                                /*
-                for (EditorEditor ed : rejections)
-                {
-                    
-                    EditorInfoBox edb = new EditorInfoBox (ed,
-                                                           viewer);
-                    edb.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-                    content.add (edb);
-                    
-                }
-*/
+
                 UIUtils.showMessage (viewer,
                                      title,
                                      content,
@@ -3454,258 +3473,7 @@ public class EditorsUIUtils
         });
 
     }
-    
-    public static void showInviteRejections (final AbstractProjectViewer viewer,
-                                             final List<EditorEditor>    rejections,
-                                             final ActionListener        onConfirm)
-    {
-        
-        if ((rejections == null)
-            ||
-            (rejections.size () == 0)
-           )
-        {
             
-            return;
-            
-        }
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-        
-            public void actionPerformed (ActionEvent ev)
-            {
-                               
-                Box content = new Box (BoxLayout.Y_AXIS);
-
-                String title = "Invitation rejected";
-                String message = "Your invitations to the following people have been rejected:";
-                
-                if (rejections.size () > 1)
-                {
-                    
-                    title = "Invitations rejected";
-                                        
-                } 
-                
-                JTextPane desc = UIUtils.createHelpTextPane (message,
-                                                             viewer);        
-                desc.setBorder (null);
-                desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                             desc.getPreferredSize ().height));
-                
-                content.add (desc);
-                content.add (Box.createVerticalStrut (10));
-                                
-                for (EditorEditor ed : rejections)
-                {
-                    
-                    EditorInfoBox edb = new EditorInfoBox (ed,
-                                                           viewer);
-                    edb.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-                    content.add (edb);
-                    
-                }
-
-                UIUtils.showMessage (viewer,
-                                     title,
-                                     content,
-                                     Environment.getButtonLabel (Constants.CONFIRM_BUTTON_LABEL_ID),
-                                     onConfirm);
-                
-            }
-                                    
-        });
-
-    }
-    
-    public static void showInviteAcceptances (final AbstractProjectViewer viewer,
-                                              final List<EditorEditor>    acceptances,
-                                              final ActionListener        onConfirm)
-    {
-        
-        if ((acceptances == null)
-            ||
-            (acceptances.size () == 0)
-           )
-        {
-            
-            return;
-            
-        }
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-        
-            public void actionPerformed (ActionEvent ev)
-            {
-                               
-                Box content = new Box (BoxLayout.Y_AXIS);
-
-                String title = "Invitation accepted";                
-                String message = "The following people have accepted your invitation.  You can now send messages and/or your {project}(s) to them.";
-                
-                if (acceptances.size () > 1)
-                {
-                    
-                    title = "Invitations accepted";
-                                        
-                } 
-                
-                JTextPane desc = UIUtils.createHelpTextPane (message,
-                                                             viewer);        
-                desc.setBorder (null);
-                desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                             desc.getPreferredSize ().height));
-                
-                content.add (desc);
-                content.add (Box.createVerticalStrut (10));
-                                
-                for (EditorEditor ed : acceptances)
-                {
-                    
-                    EditorInfoBox edb = new EditorInfoBox (ed,
-                                                           viewer);
-                    edb.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-                    content.add (edb);
-                    
-                }
-
-                UIUtils.showMessage (viewer,
-                                     title,
-                                     content,
-                                     Environment.getButtonLabel (Constants.CONFIRM_BUTTON_LABEL_ID),
-                                     onConfirm);
-                
-            }
-                                    
-        });
-
-    }
-
-    public static void showAcceptancesXXX (final AbstractProjectViewer viewer,
-                                        final List<EditorEditor>    myInvites,
-                                        final List<EditorEditor>    myAcceptances)
-    {
-                
-        SwingUtilities.invokeLater (new Runnable ()
-        {
-        
-            public void run ()
-            {
-                                
-                if ((myInvites != null)
-                    &&
-                    (myInvites.size () > 0)
-                   )
-                {
-                                                
-                    Box content = new Box (BoxLayout.Y_AXIS);
-                    
-                    JTextPane desc = UIUtils.createHelpTextPane ("The following people have accepted your invitation.  You can now send messages and/or your project(s) to them.",
-                                                                 viewer);        
-                                        
-                    content.add (desc);
-                    desc.setBorder (null);
-                    desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                                 desc.getPreferredSize ().height));                
-                        
-                    content.add (Box.createVerticalStrut (10));
-                                    
-                    for (EditorEditor ed : myInvites)
-                    {
-                        
-                        EditorInfoBox edb = new EditorInfoBox (ed,
-                                                               viewer);
-                        edb.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-                        content.add (edb);
-                        
-                    }
-    
-                    UIUtils.showMessage (viewer,
-                                         "Your invites",
-                                         content,
-                                         Environment.getButtonLabel (Constants.CONFIRM_BUTTON_LABEL_ID),
-                                         new ActionListener ()
-                                         {
-                                            
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                                
-                                                // Fire an update message for each editor.
-                                                for (EditorEditor ed : myInvites)
-                                                {
-                                                    
-                                                    EditorsEnvironment.fireEditorChangedEvent (ed,
-                                                                                               EditorChangedEvent.EDITOR_CHANGED);
-                                                    
-                                                }
-                                                
-                                            }
-                                            
-                                         });
-                    
-                }
-                    
-                if ((myAcceptances != null)
-                    &&
-                    (myAcceptances.size () > 0)
-                   )
-                {
-                                                                    
-                    Box content = new Box (BoxLayout.Y_AXIS);
-                    
-                    JTextPane desc = UIUtils.createHelpTextPane ("Your acceptance of an invite from the following people has been acknowledged.  You can now send messages and/or your project(s) to them.",
-                                                                 viewer);        
-                                        
-                    content.add (desc);
-                    desc.setBorder (null);
-                    desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                                 desc.getPreferredSize ().height));                
-                        
-                    content.add (Box.createVerticalStrut (10));
-                                    
-                    for (EditorEditor ed : myAcceptances)
-                    {
-                        
-                        EditorInfoBox edb = new EditorInfoBox (ed,
-                                                               viewer);
-                        edb.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-                        content.add (edb);
-                        
-                    }
-    
-                    UIUtils.showMessage (viewer,
-                                         "Your acceptances",
-                                         content,
-                                         Environment.getButtonLabel (Constants.CONFIRM_BUTTON_LABEL_ID),
-                                         new ActionListener ()
-                                         {
-                                            
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                                
-                                                // Fire an update message for each editor.
-                                                for (EditorEditor ed : myAcceptances)
-                                                {
-                                                    
-                                                    EditorsEnvironment.fireEditorChangedEvent (ed,
-                                                                                               EditorChangedEvent.EDITOR_CHANGED);
-                                                    
-                                                }
-                                                
-                                            }
-                                            
-                                         });
-
-                }
-
-            }
-                                    
-        });
-        
-    }
-    
     public static void showAcceptance (final EditorEditor ed)
     {
                 
@@ -3775,7 +3543,7 @@ public class EditorsUIUtils
                                   e);
             
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to show report message popup, please contact Quoll Writer support for assitance.");
+                                      "Unable to show report message popup, please contact Quoll Writer support for assistance.");
             
             return;
             
@@ -3824,7 +3592,7 @@ public class EditorsUIUtils
                                   e);
             
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to show report message popup, please contact Quoll Writer support for assitance.");
+                                      "Unable to show report message popup, please contact Quoll Writer support for assistance.");
             
             return;
             
@@ -3844,8 +3612,28 @@ public class EditorsUIUtils
         content.add (UIUtils.createBoldSubHeader ("From {Editor}",
                                                   null));
 
-        EditorInfoBox edB = new EditorInfoBox (mess.getMessage ().getEditor (),
-                                               viewer);
+        EditorInfoBox edB = null;
+        
+        try
+        {
+            
+            edB = new EditorInfoBox (mess.getMessage ().getEditor (),
+                                     viewer,
+                                     false);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to create editor box for: " +
+                                  mess.getMessage ().getEditor (),
+                                  e);
+            
+            UIUtils.showErrorMessage (viewer,
+                                      "Unable to show report message popup, please contact Quoll Writer support for assistance.");
+            
+            return;
+            
+        }
+        
         edB.init ();
         
         edB.setBorder (UIUtils.createPadding (0, 5, 0, 5));
@@ -3995,7 +3783,7 @@ public class EditorsUIUtils
                                                                               e);
                                                         
                                                         UIUtils.showErrorMessage (viewer,
-                                                                                  "Unable to report the message, please contact Quoll Writer support for assitance.");
+                                                                                  "Unable to report the message, please contact Quoll Writer support for assistance.");
 
                                                     }
                                                     
@@ -5090,32 +4878,9 @@ public class EditorsUIUtils
             
         };
 
-        AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
-        
-        if ((pv == null)
-            &&
-            (proj.isEncrypted ())
-           )
-        {
-
-            UIUtils.createTextInputPopup (parentViewer,
-                                          "Password required",
-                                          Constants.PROJECT_ICON_NAME,
-                                          String.format ("{Project} %s is encrypted, please enter the password to unlock it below.",
-                                                         proj.getName ()),
-                                          "Open",
-                                          Constants.CANCEL_BUTTON_LABEL_ID,
-                                          null,
-                                          null,
-                                          open,
-                                          null,
-                                          null);
-            
-        } else {
-            
-            open.actionPerformed (new ActionEvent ("", 1, ""));
-            
-        }                    
+        UIUtils.openProjectAndDoAction (proj,
+                                        open,
+                                        parentViewer);
         
     }
  
@@ -5163,7 +4928,7 @@ public class EditorsUIUtils
                     pwd = null;
                     
                 }
-                
+                                
                 if (_proj.isEncrypted ())
                 {
                 
@@ -5189,7 +4954,7 @@ public class EditorsUIUtils
                     }
 
                 }
-                                
+
                 try
                 {
 
@@ -5219,33 +4984,10 @@ public class EditorsUIUtils
             
         };
 
-        AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
-        
-        if ((pv == null)
-            &&
-            (proj.isEncrypted ())
-           )
-        {
-
-            UIUtils.createTextInputPopup (parentViewer,
-                                          "Password required",
-                                          Constants.PROJECT_ICON_NAME,
-                                          String.format ("{Project} %s is encrypted, please enter the password to unlock it below.",
-                                                         proj.getName ()),
-                                          "Open",
-                                          Constants.CANCEL_BUTTON_LABEL_ID,
-                                          null,
-                                          null,
-                                          open,
-                                          null,
-                                          null);
-            
-        } else {
-            
-            open.actionPerformed (new ActionEvent ("", 1, ""));
-            
-        }                    
-        
+        UIUtils.openProjectAndDoAction (proj,
+                                        open,
+                                        parentViewer);
+                
     }
 
     public static String createFormLabel (String l)

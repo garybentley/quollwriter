@@ -779,7 +779,7 @@ public class EditorEditor extends AbstractEditorObject
         
     }
     */
-
+    
     public BufferedImage getDisplayAvatar ()
     {
         

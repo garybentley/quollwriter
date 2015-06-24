@@ -247,11 +247,11 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         // Get the project, get the project editor, set the status.
         EditorsEnvironment.setProjectEditorStatus (mess.getForProjectId (),
                                                    ed,
-                                                   String.format ("Received %s comment%s: %s",
-                                                                  Environment.formatNumber (c),
-                                                                  (c > 1 ? "s" : ""),
-                                                                  Environment.formatDate (mess.getWhen ())));
-    
+                                                   Environment.replaceObjectNames (String.format ("Received %s {comment%s}: %s",
+                                                                                                  Environment.formatNumber (c),
+                                                                                                  (c > 1 ? "s" : ""),
+                                                                                                  Environment.formatDate (mess.getWhen ()))));
+    System.out.println ("RECEIVED: " + mess);
         if (showPopup)
         {
                             

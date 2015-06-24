@@ -1127,24 +1127,12 @@ public class EditorsEnvironment
                 
                 // Send an invite response message.
                 EditorsEnvironment.getMessageHandler ().subscribeToEditor (editor);
-/*                                   
-                InviteResponseMessage rm = new InviteResponseMessage (true,
-                                                                      EditorsEnvironment.getUserAccount ());
-                rm.setEditor (editor);
-  */
 
                 EditorsEnvironment.sendMessageToEditor (message,
                                                         onComplete,
                                                         null,
                                                         null);
-                /*
-                if (onComplete != null)
-                {
-                    
-                    onComplete.actionPerformed (new ActionEvent ("update", 1, "update"));
-                    
-                }
-                */
+
             }
         },
         null);
@@ -1188,23 +1176,12 @@ public class EditorsEnvironment
                     return;
                     
                 }
-                             /*                      
-                InviteResponseMessage rm = new InviteResponseMessage (false,
-                                                                      EditorsEnvironment.editorAccount);
-                rm.setEditor (editor);
-                */
+
                 EditorsEnvironment.sendMessageToEditor (message,
                                                         onComplete,
                                                         null,
                                                         null);
-                /*
-                if (onComplete != null)
-                {
-                    
-                    onComplete.actionPerformed (new ActionEvent ("update", 1, "update"));
-                    
-                }
-                */
+
             }
         },
         null);
@@ -2878,8 +2855,8 @@ public class EditorsEnvironment
         
             // TODO: Next release change this to be more in context.
             // Has the user seen this before?
-            if (!EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME))
-            {
+            //if (!EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME))
+            //{
                 
                 AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
 
@@ -2901,7 +2878,7 @@ public class EditorsEnvironment
                     
                 }
                 
-            }
+            //}
             
         }
         

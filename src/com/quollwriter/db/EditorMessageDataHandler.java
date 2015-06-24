@@ -343,7 +343,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
             
             if (am != null)
             {
-                
+            
                 return am;
                 
             }
@@ -359,6 +359,9 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
             am.setMessageId (rs.getString (ind++));            
             am.setMessage (rs.getString (ind++));
             am.setDealtWith (rs.getBoolean (ind++));
+            
+            this.messageCache.put (key,
+                                   am);
             
             return am;
 
@@ -594,7 +597,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
             conn = this.objectManager.getConnection ();
 
             // We only include messages from non-pending editors.        
-            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dealtwith = FALSE AND editordbkey IN (SELECT dbkey FROM editor WHERE status <> 'pending') ORDER BY when DESC",
+            ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE dealtwith = FALSE AND editordbkey IN (SELECT dbkey FROM editor WHERE status <> 'pending') ORDER BY when",
                                                             null,
                                                             conn);
 

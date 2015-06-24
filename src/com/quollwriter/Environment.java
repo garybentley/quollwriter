@@ -1488,6 +1488,20 @@ public class Environment
         
         ChapterDataHandler cdh = (ChapterDataHandler) om.getHandler (Chapter.class);
         
+        // Check to see if we already have a version with the specified id.
+        ProjectVersionDataHandler pvdh = (ProjectVersionDataHandler) om.getHandler (ProjectVersion.class);
+        
+        if (pvdh.getById (projVer.getId ()) != null)
+        {
+            
+            // Already have this version.
+            return cdh.getChaptersForVersion (projVer,
+                                              om.getProject ().getBook (0),
+                                              null,
+                                              true);
+            
+        }
+                
         return cdh.updateToNewVersions (projVer,
                                         chaps);
         

@@ -52,7 +52,10 @@ public class Header extends Box
 
         this.label.setAlignmentY (Component.TOP_ALIGNMENT);
         this.label.setOpaque (false);
-        this.label.setVerticalAlignment (SwingConstants.TOP);
+        //this.label.setVerticalAlignment (SwingConstants.TOP);
+        
+        //this.label.setVerticalTextPosition (SwingConstants.TOP);        
+        
         this.add (this.label);
         this.add (Box.createHorizontalGlue ());
 
@@ -159,20 +162,6 @@ public class Header extends Box
 
     }
 
-    public int getIconTextGap ()
-    {
-
-        return this.label.getIconTextGap ();
-
-    }
-
-    public void setIconTextGap (int g)
-    {
-
-        this.label.setIconTextGap (g);
-
-    }
-
     public void setPadding (Insets i)
     {
 
@@ -198,7 +187,6 @@ public class Header extends Box
                                icon,
                                controls);
 
-        n.setIconTextGap (this.getIconTextGap ());
         n.setTitleColor (this.label.getForeground ());
         n.setPaintProvider (this.getPaintProvider ().getClone ());
         n.setFont (this.label.getFont ());

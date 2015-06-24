@@ -3111,28 +3111,12 @@ public class UIUtils
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
 
-        // h.setBackground (new Color (0, 0, 0, 0));
         h.setPaintProvider (null);
 
         h.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        h.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                          0,
-                                                          0,
-                                                          0,
-                                                          Environment.getBorderColor ()),
-                                         new EmptyBorder (0,
-                                                          0,
-                                                          2,
-                                                          0)));
-
-        // b.add (l);
-/*
-        b.add (Box.createHorizontalGlue ());
-
-        b.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         Short.MAX_VALUE));
-*/
+        h.setBorder (UIUtils.createPadding (0, 0, 2, 0));
+        
         return h;
 
     }
@@ -8409,6 +8393,40 @@ public class UIUtils
         t.setCoalesce (true);
         
         return t;
+        
+    }
+
+    public static void openProjectAndDoAction (Project               proj,
+                                               ActionListener        onOpen,
+                                               AbstractProjectViewer parentViewer)
+    {
+        
+        AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
+        
+        if ((pv == null)
+            &&
+            (proj.isEncrypted ())
+           )
+        {
+
+            UIUtils.createTextInputPopup (parentViewer,
+                                          "Password required",
+                                          Constants.PROJECT_ICON_NAME,
+                                          String.format ("{Project} %s is encrypted, please enter the password to unlock it below.",
+                                                         proj.getName ()),
+                                          "Open",
+                                          Constants.CANCEL_BUTTON_LABEL_ID,
+                                          null,
+                                          null,
+                                          onOpen,
+                                          null,
+                                          null);
+            
+        } else {
+            
+            onOpen.actionPerformed (new ActionEvent ("", 1, ""));
+            
+        }                            
         
     }
     

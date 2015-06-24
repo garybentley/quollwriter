@@ -79,71 +79,37 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
         
         final Project fproj = proj;
                 
-        final String text = String.format ("%s {Comment%s} %s",
+        final String text = String.format ("%s {Comment%s}", // %s
                                            this.message.getComments ().size (),
-                                           (this.message.getComments ().size () > 1 ? "s" : ""),
-                                           (this.message.isSentByMe () ? "sent" : "received"));
+                                           (this.message.getComments ().size () > 1 ? "s" : ""));
+                                           //(this.message.isSentByMe () ? "sent" : "received"));
                 
         JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    Constants.COMMENT_ICON_NAME);
+                                                    null);
+                                                    //Constants.COMMENT_ICON_NAME);
         
         this.add (h);
+        
+        // Show
+        //   * Sent/Received
+        //   * Version (optional)
+        //   * Notes (optional)
+        //   * View comments
+        
+        ProjectVersion pv = this.message.getProjectVersion ();
+        String genComm = this.message.getGeneralComment ();
+
+        String verName = pv.getName ();        
                                     
-        String rows = "top:p";
+        String rows = "p";
         
-        EditorEditor ed = this.message.getEditor ();
-        
-        // We are wimping out here
-        String projVerName = null;
-        
-        String projVerId = this.message.getProjectVersion ().getId ();
-        
-        try
-        {
-        
-            EditorsEnvironment.loadMessagesForEditor (ed);
-            
-        } catch (Exception e) {
-            
-            throw new GeneralException ("Unable to load messages for editor: " +
-                                        ed,
-                                        e);
-            
-        }        
-        
-        Set<EditorMessage> messages = ed.getMessages (this.message.getForProjectId (),
-                                                      NewProjectMessage.MESSAGE_TYPE);
-
-        if (messages != null)
-        {
-                                                                             
-            for (EditorMessage m : messages)
-            {
-                
-                AbstractProjectMessage apm = (AbstractProjectMessage) m;
-                
-                if (apm.getProjectVersion ().getId ().equals (projVerId))
-                {
-                    
-                    projVerName = apm.getProjectVersion ().getName ();
-                    
-                    break;
-                    
-                }
-                
-            }
-
-        }
-            
-        if (projVerName != null)
+        if (verName != null)
         {
             
             rows += ", 6px, p";
             
         }
-        
-        String genComm = this.message.getGeneralComment ();
-        
+                
         if (genComm != null)
         {
             
@@ -151,6 +117,15 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
             
         }
         
+        rows += ", 6px, p";
+        
+        EditorEditor ed = this.message.getEditor ();
+        
+        // We are wimping out here
+        String projVerName = null;
+                
+        String projVerId = this.message.getProjectVersion ().getId ();
+                        
         FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
                                         rows);
 
@@ -160,50 +135,19 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
         CellConstraints cc = new CellConstraints ();
 
         int row = 1;
-                
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+             
+        builder.addLabel (String.format ("<html><i>%s</i></html>",
+                                         (this.message.isSentByMe () ? "Sent" : "Received")),
                           cc.xy (1,
                                  row));
         
-        JLabel openProj = UIUtils.createClickableLabel (this.message.getForProjectName (),
-                                                        null,
-                                                        new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-            
-                if (fproj != null)
-                {
-            
-                    try
-                    {
-            
-                        Environment.openProject (fproj);
-                        
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to open project: " +
-                                              fproj,
-                                              e);
-                        
-                    }
-                    
-                }
-                
-            }
-            
-        });        
-        
-        openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
-        
-        builder.add (openProj,
-                     cc.xy (3,
-                            row));
+        builder.addLabel (Environment.formatDateTime (this.message.getWhen ()),
+                          cc.xy (3,
+                                 row));
         
         row += 2;
-        
-        if (projVerName != null)
+                                        
+        if (verName != null)
         {
             
             builder.addLabel (Environment.replaceObjectNames ("<html><i>Version</i></html>"),
@@ -247,13 +191,6 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
             
         }
         
-        JPanel bp = builder.getPanel ();
-        bp.setOpaque (false);
-        bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
-        
-        this.add (bp);             
-
         JLabel viewComments = UIUtils.createClickableLabel ("Click to view the {comments}",
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
@@ -377,10 +314,22 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
             
         });        
         
-        viewComments.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+        viewComments.setBorder (UIUtils.createPadding (0, 10, 0, 0));
         
-        this.add (viewComments);
-                                                                    
+        builder.add (viewComments,
+                     cc.xywh (1,
+                              row,
+                              3,
+                              1));
+        
+        JPanel bp = builder.getPanel ();
+        bp.setOpaque (false);
+        bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        
+        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));               
+        
+        this.add (bp);             
+
     }
     
 }

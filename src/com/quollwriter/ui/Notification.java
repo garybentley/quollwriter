@@ -94,9 +94,9 @@ public class Notification extends Box implements ActionListener
 
         b.add (butBar);
 
-        b.setBackground (UIUtils.getColor ("FFFFFF"));
+        //b.setBackground (UIUtils.getComponentColor ());
 
-        b.setOpaque (true);
+        b.setOpaque (false);
         
     }
         
@@ -199,7 +199,7 @@ public class Notification extends Box implements ActionListener
     
     public void init ()
     {
-        
+
         final Notification _this = this;
         
         if (this.timer != null)
@@ -221,7 +221,7 @@ public class Notification extends Box implements ActionListener
                                                     
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
+                                                   
                                                         _this.removeNotification ();
                                                         
                                                     }

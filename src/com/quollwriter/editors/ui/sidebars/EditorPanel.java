@@ -3,6 +3,7 @@ package com.quollwriter.editors.ui.sidebars;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Color;
+import java.awt.CardLayout;
 import java.awt.image.*;
 
 import java.awt.event.*;
@@ -33,6 +34,7 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.ScrollableBox;
+import com.quollwriter.ui.components.Header;
 
 public class EditorPanel extends Box
 {
@@ -42,20 +44,30 @@ public class EditorPanel extends Box
     //private JTextArea message = null;
     private boolean typed = false;    
     private EditorEditor editor = null;
-    private Map<Date, MessageAccordionItem> history = new TreeMap ();
-    private Box historyBox = null;
+    private Map<Date, ChatMessageAccordionItem> chatHistory = new TreeMap ();
+    private Box chatHistoryBox = null;
     private JTextField find = null;
     private Box findBox = null;
     private Box findResults = null;
-    private JScrollPane scrollPane = null;
-    private EditorMessageFilter filter = null;
+    private JScrollPane chatHistoryScrollPane = null;
+
+    private Map<Date, MessageAccordionItem> importantHistory = new TreeMap ();
+    private Box importantHistoryBox = null;
+    
     private Set<EditorMessage> messages = null;
+    private Timer dateLabelsUpdate = null;
+    private JPanel cards = null;
+    private Project project = null;
+    private ProjectEditor projectEditor = null;
     
     private boolean showChatBox = true;
 
+    
+    
     public EditorPanel (EditorsSideBar     sb,
                         EditorEditor       ed,
                         Set<EditorMessage> messages)
+                 throws GeneralException
     {
 
         super (BoxLayout.Y_AXIS);
@@ -63,22 +75,28 @@ public class EditorPanel extends Box
         this.sideBar = sb;
         this.editor = ed;
         this.messages = messages;
+        this.project = this.sideBar.getProjectViewer ().getProject ();
+        this.projectEditor = this.project.getProjectEditor (this.editor);
+        
+        Project np = null;
+        
+        this.createAboutBox ();
 
-        this.filter = new DefaultEditorMessageFilter (null,
-                                                      EditorChatMessage.MESSAGE_TYPE,
-                                                      EditorInfoMessage.MESSAGE_TYPE,
-                                                      NewProjectMessage.MESSAGE_TYPE,
-                                                      NewProjectResponseMessage.MESSAGE_TYPE,
-                                                      ProjectCommentsMessage.MESSAGE_TYPE,
-                                                      InviteResponseMessage.MESSAGE_TYPE,
-                                                      ProjectEditStopMessage.MESSAGE_TYPE,
-                                                      UpdateProjectMessage.MESSAGE_TYPE,
-                                                      EditorRemovedMessage.MESSAGE_TYPE);        
-            
+        this.cards = new JPanel ();
+        this.cards.setLayout (new CardLayout ());
+        this.cards.setOpaque (false);
+        this.cards.setAlignmentX (Component.LEFT_ALIGNMENT);        
+                
+        this.add (this.cards);
+        
+        this.cards.add (this.createChatHistoryCard (),
+                        "chathistory");
+
     }
     
     public EditorPanel (EditorsSideBar sb,
                         EditorEditor   ed)
+                 throws GeneralException
     {
                 
         this (sb,
@@ -89,8 +107,8 @@ public class EditorPanel extends Box
  
     public void handleEditorMessageEvent (EditorMessageEvent ev)
     {
-
-        if (!this.filter.accept (ev.getMessage ()))
+    
+        if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (ev.getMessage ()))
         {
             
             return;
@@ -105,83 +123,95 @@ public class EditorPanel extends Box
             return;
             
         }
-
-        if (ev.getType () == EditorMessageEvent.MESSAGE_CHANGED)
-        {
-
-            // Get the message box.
-            for (MessageAccordionItem acc : this.history.values ())
-            {
-
-                MessageBox mb = acc.getMessageBoxForMessage (ev.getMessage ());
-
-                if (mb != null)
-                {
-
-                    mb.update ();
-                    
-                    this.validate ();
-                    this.repaint ();
-                    
-                    return;
-                    
-                }
-                
-            }            
-            
-            return;
-            
-        }
         
     }
  
     public void addMessage (EditorMessage mess)
     {
         
-        Date w = this.zeroTimeFields (mess.getWhen ());
-                
-        // See if we have a "today" history box.
-        MessageAccordionItem it = this.history.get (w);
-        
-        Set<EditorMessage> messages = null;
-        
-        if (it == null)
+        if (mess instanceof EditorChatMessage)
         {
-            
-            messages = new LinkedHashSet ();
-            messages.add (mess);
-                        
-            // Add one.
-            it = this.createMessages (w,
-                                      messages);
-            it.init ();
-            it.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
-                                      
-            this.historyBox.add (it);
-            
-            history.put (w,
-                         it);
-                                      
-        } else {
-            
-            it.addMessage (mess);
-            
-        }
         
-        final EditorPanel _this = this;
-        
-        UIUtils.doLater (new ActionListener ()
-        {
+            Date w = Utils.zeroTimeFields (mess.getWhen ());
+                    
+            // See if we have a "today" history box.
+            ChatMessageAccordionItem it = this.chatHistory.get (w);
             
-            public void actionPerformed (ActionEvent ev)
+            Set<EditorMessage> messages = null;
+            
+            if (it == null)
             {
-
-                JScrollBar vertical = _this.scrollPane.getVerticalScrollBar ();
-                vertical.setValue (vertical.getMaximum ());        
-
+                
+                messages = new LinkedHashSet ();
+                messages.add (mess);
+                
+                it = new ChatMessageAccordionItem (this.sideBar.getProjectViewer (),
+                                                   w,
+                                                   messages);
+                                            
+                it.init ();
+                it.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
+                                          
+                this.chatHistoryBox.add (it);
+                                
+                this.chatHistory.put (w,
+                                      it);
+                                          
+            } else {
+                
+                it.addMessage (mess);
+                
             }
             
-        });
+            final EditorPanel _this = this;
+            
+            UIUtils.doLater (new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    JScrollBar vertical = _this.chatHistoryScrollPane.getVerticalScrollBar ();
+                    vertical.setValue (vertical.getMaximum ());        
+    
+                }
+                
+            });
+            
+        } else {
+            
+            Date w = Utils.zeroTimeFields (mess.getWhen ());
+                    
+            // See if we have a "today" history box.
+            MessageAccordionItem it = this.importantHistory.get (w);
+            
+            Set<EditorMessage> messages = null;
+            
+            if (it == null)
+            {
+                
+                messages = new LinkedHashSet ();
+                messages.add (mess);
+                
+                it = new MessageAccordionItem (this.sideBar.getProjectViewer (),
+                                               w,
+                                               messages);
+                                            
+                it.init ();
+                it.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
+                                          
+                this.importantHistoryBox.add (it);
+                                
+                this.importantHistory.put (w,
+                                           it);
+                                          
+            } else {
+                
+                it.addMessage (mess);
+                
+            }
+
+        }
         
     }
  
@@ -207,7 +237,7 @@ public class EditorPanel extends Box
         for (EditorMessage m : messages)
         {
             
-            Date w = this.zeroTimeFields (m.getWhen ());
+            Date w = Utils.zeroTimeFields (m.getWhen ());
             
             Set<EditorMessage> mess = ret.get (w);
             
@@ -227,131 +257,17 @@ public class EditorPanel extends Box
         return ret;
         
     }
-
-    private Date zeroTimeFields (Date d)
-    {
-        
-        GregorianCalendar gc = new GregorianCalendar ();
-        gc.setTime (d);
-        
-        gc.set (Calendar.HOUR_OF_DAY,
-                0);
-        gc.set (Calendar.MINUTE,
-                0);
-        gc.set (Calendar.SECOND,
-                0);
-        gc.set (Calendar.MILLISECOND,
-                0);        
-        
-        return gc.getTime ();
-        
-    }
     
-/*        
-        // Our buckets.
-        //   * Today
-        //   * Yesterday
-        //   * This week (minus today/yesterday)
-        //   * This month
-        //   * Previously
-        GregorianCalendar gc = new GregorianCalendar ();
-
-        gc.set (Calendar.HOUR_OF_DAY,
-                0);
-        gc.set (Calendar.MINUTE,
-                0);
-        gc.set (Calendar.SECOND,
-                0);
-        gc.set (Calendar.MILLISECOND,
-                0);        
-        
-        Date date = gc.getTime ();
-        
-        DateRange today = new DateRange (date,
-                                         date);
-
-        // Go back to yesterday.
-        gc.add (Calendar.DAY_OF_MONTH,
-                -1);
-        
-        date = gc.getTime ();
-        
-        DateRange yesterday = new DateRange (date,
-                                             date);
-        
-        // Check to see if there are any more days left in the week.
-        // If not then do a "last week".
-        if ((gc.get (Calendar.DAY_OF_WEEK) == 1)
-            &&
-            (gc.get (Calendar.DAY_OF_MONTH) > 1)
-           )
-        {
-            
-            gc.add (Calendar.DAY_OF_WEEK);
-            
-            Date pDate = gc.getTime ();
-            
-            lastWeek = new DateRange (date,
-                                      pDate);
-            
-            date = pDate;
-            
-        }
-        
-        DateRange thisWeek = this.getDate (-7, -3);
-        
-        GregorianCalendar gc = new GregorianCalendar ();
-        
-        int md = gc.get (Calendar.DAY_OF_MONTH);
-
-        // Need to work out how many days there have been.
-        DateRange thisMonth = this.getDate ();
-        
-        DateRange lastMonth = null;
-        
-        if ((md - 7) < 0)
-        {
-            
-            gc.add (Calendar.MONTH);
-            
-            // Less than a week since start of this month, so show a last month
-            lastMonth = this.getDateRange (-1 * md,
-                                           -1 * md - gc.getActualMaximum (Calendar.DAY_OF_MONTH));
-            
-        }
-                
-        DateRange previously = this.getDate ();
-        
-        List<ChatMessage> todayM = new ArrayList ();
-        
-        for (ChatMessage m : messages)
-        {
-            
-            Date when = m.getWhen ();
-            
-            if (today.contains (when))
-            {
-                
-                todayM.add (m);
-                
-            }
-            
-        }
-        
-        return ret;
-        
-    }
- */
-    private MessageAccordionItem createMessages (Date                d,
-                                                 Set<EditorMessage> messages)
+    private ChatMessageAccordionItem createChatMessages (Date                d,
+                                                         Set<EditorMessage> messages)
     {
 
-        MessageAccordionItem it = new MessageAccordionItem (this.sideBar.getProjectViewer (),
-                                                            d,
-                                                            messages);
+        ChatMessageAccordionItem it = new ChatMessageAccordionItem (this.sideBar.getProjectViewer (),
+                                                                    d,
+                                                                    messages);
 
-        this.history.put (d,
-                          it);
+        this.chatHistory.put (d,
+                              it);
         
         return it;
         
@@ -398,11 +314,15 @@ public class EditorPanel extends Box
         
     }
  
-    private void createHistoryBox ()
+    private JComponent createChatHistoryCard ()
     {
         
         final EditorPanel _this = this;
 
+        Box card = new Box (BoxLayout.Y_AXIS);
+        card.setAlignmentX (Component.LEFT_ALIGNMENT);
+        card.setOpaque (false);
+        
         this.find = UIUtils.createSearchBox (750,
                                             new ActionListener ()
                                             {
@@ -428,12 +348,12 @@ public class EditorPanel extends Box
         
         this.findBox.setVisible (false);
         
-        this.add (this.findBox);
+        //card.add (this.findBox);
         
-        this.historyBox = new ScrollableBox (BoxLayout.Y_AXIS);
-        this.historyBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.chatHistoryBox = new ScrollableBox (BoxLayout.Y_AXIS);
+        this.chatHistoryBox.setAlignmentX (Component.LEFT_ALIGNMENT);
        
-        MessageAccordionItem hist = null;
+        ChatMessageAccordionItem hist = null;
                         
         // Waaaay too much type information here...
         // Sort the messages, if present, into date buckets.
@@ -444,52 +364,22 @@ public class EditorPanel extends Box
         
         int undealtWithCount = 0;
 
+        Project np = null;
+        
+        EditorMessageFilter filter = new DefaultEditorMessageFilter (np,
+                                                                     EditorChatMessage.MESSAGE_TYPE);
+        
         for (EditorMessage m : edMessages)
         {
 
-            if (this.filter.accept (m))
+            if (filter.accept (m))
             {
 
                 fmessages.add (m);
-                /*
-                if (!m.isDealtWith ())
-                {
-                    
-                    undealtWithCount++;
-                    
-                }
-*/
+
             }
             
         }        
-             /*   
-        String s = "";
-        
-        if (undealtWithCount > 1)
-        {
-            
-            s = "s";
-            
-        }
-        
-        if (undealtWithCount > 0)
-        {
-            
-            this.add (UIUtils.createClickableLabel (Environment.formatNumber (undealtWithCount) + " message" + s + " require your attention.  Click to view them.",
-                                                    Environment.getIcon (Constants.ERROR_ICON_NAME,
-                                                                         Constants.ICON_TAB_HEADER),
-                                                    new ActionListener ()
-                                                    {
-                                                        
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                            
-                                                        }
-                                                        
-                                                    }));
-            
-        }
-        */
                      
         Map<Date, Set<EditorMessage>> messages = this.sortMessages (fmessages);
         
@@ -500,13 +390,13 @@ public class EditorPanel extends Box
         for (Map.Entry<Date, Set<EditorMessage>> en : entries)
         {
             
-            hist = this.createMessages (en.getKey (),
-                                        en.getValue ());
+            hist = this.createChatMessages (en.getKey (),
+                                            en.getValue ());
 
             hist.setAlignmentX (Component.LEFT_ALIGNMENT);
             hist.init ();
             hist.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
-            this.historyBox.add (hist);
+            this.chatHistoryBox.add (hist);
             
             if (en.getKey ().getTime () < (dontShowBefore))
             {
@@ -525,26 +415,39 @@ public class EditorPanel extends Box
             
         }
                 
-        this.scrollPane = UIUtils.createScrollPane (this.historyBox);
+        this.chatHistoryScrollPane = UIUtils.createScrollPane (this.chatHistoryBox);
         
-        this.scrollPane.setBorder (null);
+        this.chatHistoryScrollPane.setBorder (null);
              
-        this.add (this.scrollPane);
+        card.add (this.chatHistoryScrollPane);
 
-        this.add (Box.createVerticalStrut (5));
+        if (this.showChatBox)
+        {
+                    
+            card.add (Box.createVerticalStrut (5));
+
+            card.add (this.createChatBox ());
+            
+        }
+        
+        return card;
         
     }
- 
+  
     private void createAboutBox ()
+                          throws GeneralException
     {
         
         final EditorPanel _this = this;
 
         final EditorInfoBox infBox = new EditorInfoBox (this.editor,
-                                                        this.sideBar.getProjectViewer ());
+                                                        this.sideBar.getProjectViewer (),
+                                                        true);
         
         infBox.setToolTipText ("Right click to see the menu");
         
+        infBox.addFullPopupListener ();
+        /*
         infBox.addMouseListener (new MouseEventHandler ()
         {
             
@@ -560,10 +463,6 @@ public class EditorPanel extends Box
                 infBox.addSendOrUpdateProjectMenuItem (m);
                                         
                 infBox.addShowCommentsMenuItem (m);
-/*
-                infBox.addSearchMessagesMenuItem (m,
-                                                  _this);
-  */              
                     
                 infBox.addUpdateEditorInfoMenuItem (m);
                 
@@ -572,7 +471,7 @@ public class EditorPanel extends Box
             }
             
         });        
-        
+*/        
         infBox.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 5));
@@ -581,11 +480,14 @@ public class EditorPanel extends Box
                                               infBox.getPreferredSize ().height));
         infBox.setBorder (new CompoundBorder (UIUtils.createPadding (0, 0, 0, 2),
                                               infBox.getBorder ()));
+        
+        infBox.init ();
+        
         this.add (infBox);        
         
     }
  
-    private void createChatBox ()
+    private EditorChatBox createChatBox ()
     {
         
         final EditorPanel _this = this;
@@ -597,8 +499,6 @@ public class EditorPanel extends Box
         this.chatBox.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                     this.chatBox.getPreferredSize ().height + 7));
         
-        this.add (this.chatBox);
-
         if (this.editor.isPrevious ())
         {
             
@@ -606,10 +506,208 @@ public class EditorPanel extends Box
             
         }
         
+        return this.chatBox;
+        
     }
 
+    public void showAllComments ()
+    {
+        
+        Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (this.project,
+                                                                                               ProjectCommentsMessage.MESSAGE_TYPE));
+                
+        String suffix = (this.projectEditor != null ? "received" : "sent");
+                        
+        this.showMessagesInCard ("commentsmessages",
+                                 String.format ("{Comments} %s",
+                                                suffix),
+                                 Constants.COMMENT_ICON_NAME,
+                                 comments);
+        
+    }
+
+    public void showProjectMessages ()
+    {
+        
+        Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.project,
+                                                                                               NewProjectMessage.MESSAGE_TYPE,
+                                                                                               UpdateProjectMessage.MESSAGE_TYPE));
+        
+        String suffix = (this.projectEditor != null ? "sent" : "received");
+                
+        this.showMessagesInCard ("projectmessages",
+                                 String.format ("{Project} updates %s",
+                                                suffix),
+                                 Project.OBJECT_TYPE,
+                                 messages);
+
+    }
+
+    private void showMessagesInCard (String             cardId,
+                                     String             title,
+                                     String             iconType,
+                                     Set<EditorMessage> messages)
+    {
+        
+        final EditorPanel _this = this;
+        
+        Box b = new ScrollableBox (BoxLayout.Y_AXIS);
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        for (EditorMessage m : messages)
+        {
+            
+            MessageBox mb = null;
+            
+            try
+            {
+            
+                mb = MessageBoxFactory.getMessageBoxInstance (m,
+                                                              this.sideBar.getProjectViewer ());
+    
+                mb.init ();
+    
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get message box for message: " +
+                                      m,
+                                      e);
+                                
+            }
+            
+            mb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            mb.setBorder (UIUtils.createPadding (0, 0, 10, 0));
+            
+            b.add (mb);
+            
+        }
+        /*
+        Map<Date, Set<EditorMessage>> ms = this.sortMessages (messages);
+        
+        Set<Map.Entry<Date, Set<EditorMessage>>> entries = ms.entrySet ();
+                
+        MessageAccordionItem acc = null;
+                
+        for (Map.Entry<Date, Set<EditorMessage>> en : entries)
+        {
+            
+            acc = new MessageAccordionItem (this.sideBar.getProjectViewer (),
+                                            en.getKey (),
+                                            en.getValue ());
+            
+            acc.init ();
+            acc.setAlignmentX (Component.LEFT_ALIGNMENT);
+            acc.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
+                                      
+            b.add (acc);
+                                                    
+        }
+          */              
+        JScrollPane sp = UIUtils.createScrollPane (b);
+        
+        sp.setBorder (null);
+        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        Box wrapper = new Box (BoxLayout.Y_AXIS);
+        wrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
+                        
+        Header h = new Header (title,
+                               Environment.getIcon (iconType,
+                                                    Constants.ICON_SIDEBAR),
+                               null); // Add a close button that reverts back to the chat.
+
+        JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
+                                              Constants.ICON_MENU,
+                                              "Click to close",
+                                              new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.showChatHistory ();
+                
+            }
+            
+        });
+        
+        List<JButton> buts = new ArrayList ();
+        buts.add (close);
+        
+        h.setControls (UIUtils.createButtonBar (buts));
+        
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (java.awt.Font.PLAIN));
+        h.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        wrapper.add (h);
+        wrapper.add (sp);
+        
+        this.cards.add (wrapper,
+                        cardId);
+        
+        ((CardLayout) this.cards.getLayout ()).show (this.cards,
+                                                     cardId);        
+        
+    }
+    
+    public void showImportantMessages ()
+    {
+                
+        // Get undealt with messages that are not chat.
+        // If there is just one then show it, otherwise show a link that will display a popup of them.
+        Set<EditorMessage> undealtWith = this.editor.getMessages (new EditorMessageFilter ()
+                                                                  {
+                                                                    
+                                                                      @Override
+                                                                      public boolean accept (EditorMessage m)
+                                                                      {
+                                                                     
+                                                                          if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
+                                                                          {
+                                                                            
+                                                                              return false;
+                                                                            
+                                                                          }
+                                                                        
+                                                                          if (m.isDealtWith ())
+                                                                          {
+                                                                            
+                                                                              return false;
+                                                                            
+                                                                          }
+                                                                        
+                                                                          if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                                                                          {
+                                                                            
+                                                                              return false;
+                                                                            
+                                                                          }
+                                                                          
+                                                                          return true;
+                                                                        
+                                                                      }
+                                                                    
+                                                                  });
+        
+        this.showMessagesInCard ("importantmessages",
+                                 "New/undealt with messages",
+                                 Constants.ERROR_ICON_NAME,
+                                 undealtWith);
+        
+    }
+
+    public void showChatHistory ()
+    {
+        
+        ((CardLayout) this.cards.getLayout ()).show (this.cards,
+                                                     "chathistory");
+        
+    }
+    
     public void showChatBox ()
     {
+        
+        this.showChatHistory ();
         
         this.chatBox.grabFocus ();
         
@@ -630,19 +728,9 @@ public class EditorPanel extends Box
     }
     
     public void init ()
+               throws GeneralException
     {
-                       
-        this.createAboutBox ();
-        
-        this.createHistoryBox ();        
-        
-        if (this.showChatBox)
-        {
-                    
-            this.createChatBox ();
-            
-        }
-        
+                               
         final EditorPanel _this = this;
         
         UIUtils.doLater (new ActionListener ()
@@ -651,12 +739,41 @@ public class EditorPanel extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                JScrollBar vertical = _this.scrollPane.getVerticalScrollBar ();
+                JScrollBar vertical = _this.chatHistoryScrollPane.getVerticalScrollBar ();
                 vertical.setValue (vertical.getMaximum ());        
 
             }
             
         });
+        
+        // Fire a timer once a minute that updates the history boxes date labels.
+        // TODO: Schedule so that it only fires just after midnight.
+        this.dateLabelsUpdate = new Timer (60 * 1000,
+                                           new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                for (Date d : _this.chatHistory.keySet ())
+                {
+                    
+                    _this.chatHistory.get (d).updateHeaderTitle ();
+                    
+                }
+                
+                for (Date d : _this.importantHistory.keySet ())
+                {
+                    
+                    _this.importantHistory.get (d).updateHeaderTitle ();
+                    
+                }
+
+            }
+            
+        });
+        
+        this.dateLabelsUpdate.start ();
         
     }
     

@@ -114,7 +114,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
     public void userOnlineStatusChanged (UserOnlineStatusEvent ev)
     {
         
-        if (ev.getStatus () != EditorEditor.OnlineStatus.online)
+        if (ev.getStatus () == EditorEditor.OnlineStatus.offline)
         {
             
             return;

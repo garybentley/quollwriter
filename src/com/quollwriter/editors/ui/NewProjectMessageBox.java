@@ -48,23 +48,54 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         return false;
         
     }    
-        
-    public static JComponent getNewProjectMessageDetails (final NewProjectMessage     mess,
-                                                          final AbstractProjectViewer viewer)
+
+    public static JComponent getProjectMessageDetails (final AbstractProjectMessage message,
+                                                       final AbstractProjectViewer  viewer)
     {
         
-        String rows = "top:p, 6px, p, 6px, p";
+        String plural = "";
         
-        ProjectVersion projVer = mess.getProjectVersion ();
+        if (message.getChapters ().size () > 1)
+        {
+            
+            plural = "s";
+            
+        }
         
-        String notes = projVer.getDescription ();
+        ProjectVersion projVer = message.getProjectVersion ();
+        Date dueDate = projVer.getDueDate ();
         
+        String notes = projVer.getDescription ();        
+        String verName = projVer.getName ();
+        
+        // Show:
+        //   * Sent
+        //   * Version (optional)
+        //   * Word/chapter count
+        //   * Due by 
+        //   * Notes (optional)
+        //   * View link 
+        
+        String rows = "p";
+        
+        if (verName != null)
+        {
+            
+            rows += ", 6px, p";
+            
+        }
+        
+        // Word count, due by
+        rows += ", 6px, p, 6px, p";
+                        
         if (notes != null)
         {
             
             rows += ", 6px, top:p";
             
         }
+
+        rows += ", 6px, p";
         
         FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
                                         rows);
@@ -75,95 +106,55 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         CellConstraints cc = new CellConstraints ();
 
         int row = 1;
-                
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+
+        builder.addLabel (Environment.replaceObjectNames (String.format ("<html><i>%s</i></html>",
+                                                                         message.isSentByMe () ? "Sent" : "Received")),
                           cc.xy (1,
                                  row));
         
-        JLabel openProj = UIUtils.createClickableLabel (mess.getForProjectName (),
-                                                        null,
-                                                        new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-            
-                Project proj = null;
-                
-                try
-                {
-                                
-                    proj = Environment.getProjectById (mess.getForProjectId (),
-                                                       Project.EDITOR_PROJECT_TYPE);
-                                            
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to get project for id: " +
-                                          mess.getForProjectId (),
-                                          e);
-                 
-                    return;
-                                
-                }
-            
-                if (proj != null)
-                {
-            
-                    try
-                    {
-            
-                        Environment.openProject (proj);
-                        
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to open project: " +
-                                              proj,
-                                              e);
-                        
-                    }
-                    
-                }
-                
-            }
-            
-        });        
-        
-        openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
-        
-        builder.add (openProj,
-                     cc.xy (3,
-                            row));
-        
-        row += 2;
-        
-        String plural = "";
-        
-        if (mess.getChapters ().size () > 1)
-        {
-            
-            plural = "s";
-            
-        }        
-        
-        builder.addLabel (Environment.replaceObjectNames (Environment.formatNumber (mess.getWordCount ()) + " words, " + mess.getChapters ().size () + " {chapter" + plural + "}"),
+        builder.addLabel (Environment.formatDateTime (message.getWhen ()),
                           cc.xy (3,
                                  row));
         
         row += 2;
 
+        if (verName != null)
+        {
+            
+            builder.addLabel (Environment.replaceObjectNames ("<html><i>Version</i></html>"),
+                              cc.xy (1,
+                                     row));
+            
+            builder.addLabel (verName,
+                              cc.xy (3,
+                                     row));
+            
+            row += 2;
+            
+        }
+        
+        builder.addLabel (Environment.replaceObjectNames (String.format ("%s words, %s {chapter%s}",
+                                                                         Environment.formatNumber (message.getWordCount ()),
+                                                                         message.getChapters ().size (),
+                                                                         plural)),
+                          cc.xy (3,
+                                 row));
+        
+        row += 2;
+        
         builder.addLabel (Environment.replaceObjectNames ("<html><i>Due by</i></html>"),
                           cc.xy (1,
                                  row));
 
-        builder.addLabel ((projVer.getDueDate () != null ? Environment.formatDate (projVer.getDueDate ()) : "<i>Not specified.</i>"),
+        builder.addLabel ((dueDate != null ? Environment.formatDate (dueDate) : "<i>Not specified.</i>"),
                           cc.xy (3,
                                  row));
 
+        row += 2;
+                                 
         if (notes != null)
         {
-
-            row += 2;
-    
+        
             builder.addLabel (Environment.replaceObjectNames ("<html><i>Notes</i></html>"),
                               cc.xy (1,
                                      row));
@@ -176,13 +167,388 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                          cc.xy (3,
                                 row));
 
+            row += 2;
+                                
         }
+       
+        if (message.isSentByMe ())
+        {
+                        
+            JLabel viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
+                                                            Environment.getIcon (Constants.VIEW_ICON_NAME,
+                                                                                 Constants.ICON_CLICKABLE_LABEL),
+                                                            new ActionListener ()
+                                                            {
+                                                                
+            public void actionPerformed (ActionEvent ev)
+            {
+/*
+                if (_this.sentViewer != null)
+                {
+                    
+                    _this.sentViewer.setExtendedState (JFrame.NORMAL);
+                    _this.sentViewer.toFront ();
+                    
+                    return;
+                    
+                }
+  */              
+                // Load up the project with the specific text.
+                // See if we have a project viewer for the project.
+                Project proj = null;
+                
+                try
+                {
+                    
+                    proj = Environment.getProjectById (message.getForProjectId (),
+                                                       Project.NORMAL_PROJECT_TYPE);
+                
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get project for: " +
+                                          message.getForProjectId (),
+                                          e);
+                    
+                    UIUtils.showErrorMessage (viewer,
+                                              "Unable to show the {project}, please contact Quoll Writer support for assistance.");
+
+                    return;                        
+                    
+                }
+
+                final Project _proj = proj;
+                
+                ActionListener open = new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        String pwd = ev.getActionCommand ();
+                        
+                        if (pwd.equals (""))
+                        {
+                            
+                            pwd = null;
+                            
+                        }
+                        
+                        Set<Chapter> chaps = null;
+                        
+                        try
+                        {
+                            
+                            chaps = Environment.getVersionedChapters (_proj,
+                                                                      message.getChapters (),
+                                                                      pwd);
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to get versioned chapters for project: " +
+                                                  _proj,
+                                                  e);
+                            
+                            UIUtils.showErrorMessage (viewer,
+                                                      "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+                            
+                            return;
+                            
+                        }
+                        
+                        try
+                        {
+                        
+                            // Need to "fill up" the project with the chapters and comments.
+                            // Create a new project object just to be safe (in case the getProjectById call changes in the future).
+                            Project np = new Project ();
+                            np.setName (_proj.getName ());
+                            
+                            np.setType (Project.EDITOR_PROJECT_TYPE);
+                            np.setId (message.getForProjectId ());
+                            np.setName (message.getForProjectName ());
+                                                          
+                            Book b = new Book (np,
+                                               np.getName ());
+                            
+                            np.addBook (b);
+                                                                                  
+                            for (Chapter c : chaps)
+                            {
+                                
+                                b.addChapter (c);
+                                                                
+                            }
+                            
+                            final int chapterCount = chaps.size ();
+                                                    
+                            ProjectSentReceivedViewer pcv = new ProjectSentReceivedViewer<AbstractProjectMessage> (np,
+                                                                                                                   message)
+                            {
+                              
+                                public ProjectSentReceivedSideBar getSideBar ()
+                                {
+
+                                    return new ProjectSentReceivedSideBar<AbstractProjectMessage, ProjectSentReceivedViewer> (this,
+                                                                                                                              this.message)
+                                    {
+                                  
+                                        @Override
+                                        public void onShow ()
+                                        {
+                                            
+                                        }
+                                  
+                                        @Override
+                                        public void onHide ()
+                                        {
+                                            
+                                        }
+                                  
+                                        @Override
+                                        public String getTitle ()
+                                        {
+                                            
+                                            return "Sent to";
+                                            
+                                        }
+                                  
+                                        @Override
+                                        public String getItemsIconType ()
+                                        {
+                                            
+                                            return Chapter.OBJECT_TYPE;
+                                            
+                                        }
+                                        
+                                        @Override
+                                        public String getItemsTitle ()
+                                        {
+                                            
+                                            return "{Chapters}";
+                                            
+                                        }
+                                  
+                                        @Override
+                                        public int getItemCount ()
+                                        {
+                                            
+                                            return chapterCount;
+                                            
+                                        }
+                                  
+                                        @Override
+                                        public JComponent getMessageDetails (AbstractProjectMessage message)
+                                        {
+
+                                            final ProjectSentReceivedSideBar _this = this;
+                                    
+                                            String rows = "p";
+                                    
+                                            ProjectVersion projVer = message.getProjectVersion ();
+                                    
+                                            String verName = projVer.getName ();
+                                            
+                                            if (verName != null)
+                                            {
+                                                
+                                                rows += ", 6px, p";
+                                                
+                                            }
+                                    
+                                            final String notes = projVer.getDescription ();
+                                            
+                                            if (notes != null)
+                                            {
+                                                
+                                                rows += ", 6px, top:p";
+                                                    
+                                            }
+                                            
+                                            FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
+                                                                            rows);
+                                    
+                                            fl.setHonorsVisibility (true);
+                                            PanelBuilder builder = new PanelBuilder (fl);
+                                    
+                                            CellConstraints cc = new CellConstraints ();
+                                    
+                                            int row = 1;
+                                                    
+                                            builder.addLabel (Environment.replaceObjectNames ("<html><i>{Sent}</i></html>"),
+                                                              cc.xy (1,
+                                                                     row));
+                                            
+                                            builder.addLabel ("<html>" + Environment.formatDateTime (message.getWhen ()) + "</html>",
+                                                              cc.xy (3,
+                                                                     row));        
+                                            
+                                            row += 2;
+                                            
+                                            if (verName != null)
+                                            {
+                                                
+                                                builder.addLabel (Environment.replaceObjectNames ("<html><i>{Version}</i></html>"),
+                                                                  cc.xy (1,
+                                                                         row));
+                                                builder.addLabel (String.format ("<html>%s</html>",
+                                                                                 verName),
+                                                                  cc.xy (3,
+                                                                         row));                                                        
+                                                
+                                                row += 2;
+                                                
+                                            }
+                                            
+                                            if (notes != null)
+                                            {
+                                            
+                                                builder.addLabel (Environment.replaceObjectNames ("<html><i>{Notes}</i></html>"),
+                                                                  cc.xy (1,
+                                                                         row));
+                                        
+                                                String commText = notes;
+                                                                         
+                                                TextIterator ti = new TextIterator (commText);
+                                                
+                                                if (ti.getSentenceCount () > 1)
+                                                {
+                                                    
+                                                    commText = ti.getNextClosestSentenceTo (-1).getText ();
+                                                
+                                                    commText += "<br /><a href='#'>More, click to view all.</a>";
+                                                                         
+                                                }
+                                                
+                                                JComponent mess = UIUtils.createHelpTextPane (commText,
+                                                                                              this.projectViewer);
+                                                
+                                                mess.addMouseListener (new MouseEventHandler ()
+                                                {
+                                                   
+                                                    @Override
+                                                    public void handlePress (MouseEvent ev)
+                                                    {
+                                        
+                                                        UIUtils.showMessage ((PopupsSupported) _this.getProjectViewer (),
+                                                                             "Notes",
+                                                                             notes);
+                                                        
+                                                    }
+                                                    
+                                                });
+                                                
+                                                mess.setBorder (null);
+                                                
+                                                builder.add (mess,
+                                                             cc.xy (3,
+                                                                    row));
+
+                                            }
+                                                                     
+                                            JPanel bp = builder.getPanel ();
+                                            bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+                                            bp.setOpaque (false);
+                                    
+                                            return bp;
+                                            
+                                        }
+                                        
+                                    };
+                                    
+                                }
+
+                                @Override
+                                public void init ()
+                                           throws Exception
+                                {
+                            
+                                    super.init ();
+                                        
+                                    this.viewObject (this.proj.getBook (0).getChapters ().get (0));
+                                            
+                                }
+                                
+                                @Override
+                                public String getViewerIcon ()
+                                {
+                            
+                                    return Constants.PROJECT_ICON_NAME;
+                            
+                                }
+                            
+                                @Override
+                                public String getViewerTitle ()
+                                {
+                            
+                                    return "{Project} sent: " + this.proj.getName ();
+                            
+                                }                                
+                                
+                            };
+                            
+                            pcv.init ();
+                            
+                            //_this.sentViewer = pcv;
+                            
+                            pcv.addWindowListener (new WindowAdapter ()
+                            {
+                                
+                                public void windowClosed (WindowEvent ev)
+                                {
+                                    
+                                    //_this.sentViewer = null;
+                                    
+                                }
+                                
+                            });
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to view project: " +
+                                                  _proj,
+                                                  e);
+                            
+                            UIUtils.showErrorMessage (viewer,
+                                                      "Unable to show {project}, please contact Quoll Writer support for assistance.");
+                            
+                            return;
+                            
+                        }
+                        
+                    }
+                    
+                };
+                          
+                UIUtils.openProjectAndDoAction (proj,
+                                                open,
+                                                viewer);
+                
+            }});
+            
+            viewProj.setBorder (UIUtils.createPadding (0, 10, 0, 0));
+            
+            builder.add (viewProj,
+                         cc.xywh (1,
+                                  row,
+                                  3,
+                                  1));
+                                                 
+        } 
         
         JPanel bp = builder.getPanel ();
         bp.setOpaque (false);
         bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         
-        return bp;
+        return bp;        
+        
+    }
+    
+    public static JComponent getNewProjectMessageDetails (final NewProjectMessage     mess,
+                                                          final AbstractProjectViewer viewer)
+    {
+        
+        return NewProjectMessageBox.getProjectMessageDetails (mess,
+                                                              viewer);
         
     }
     
@@ -226,16 +592,13 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         }
         
         JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    Constants.PROJECT_ICON_NAME);
+                                                    null);
+                                                    //Constants.PROJECT_ICON_NAME);
         
         this.add (h);
-                
+        /*        
         String m = text + UIUtils.getOpenProjectHTML (this.message.getForProjectId ());
 
-        JComponent c = this.getMessageComponent (m,
-                                                 Constants.PROJECT_ICON_NAME);
-            
-        //this.add (c);
         
         String plural = "";
         
@@ -374,9 +737,14 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         bp.setOpaque (false);
         bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
+        */
+        JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
+                                                                       this.projectViewer);
+        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
         
         this.add (bp);             
-                            
+        
+        /*                    
         if (this.message.isSentByMe ())
         {
             
@@ -754,12 +1122,12 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                 
             }});
             
-            viewProj.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+            viewProj.setBorder (UIUtils.createPadding (5, 10, 5, 5));
             
             this.add (viewProj);            
                                                  
         }
-
+*/
         this.responseBox = new Box (BoxLayout.Y_AXIS);
         
         this.responseBox.setVisible (false);
