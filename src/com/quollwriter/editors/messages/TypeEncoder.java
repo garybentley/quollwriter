@@ -45,8 +45,14 @@ public class TypeEncoder
                    n.getDescription ());
         cdata.put (MessageFieldNames.start,
                    n.getStartPosition ());
-        cdata.put (MessageFieldNames.date,
-                   n.getDealtWith ());
+
+        if (n.getDealtWith () != null)
+        {
+            
+            cdata.put (MessageFieldNames.date,
+                       n.getDealtWith ().getTime ());
+
+        }
                    
         if ((n.getEndPosition () > 0)
             &&

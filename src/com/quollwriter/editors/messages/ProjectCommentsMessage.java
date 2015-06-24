@@ -198,10 +198,14 @@ public class ProjectCommentsMessage extends EditorMessage
                                 
         String projVerId = this.getString (MessageFieldNames.versionid,
                                            data);
+        String projVerName = this.getString (MessageFieldNames.versionname,
+                                             data,
+                                             false);
         
         // Get the project version.
         ProjectVersion pv = new ProjectVersion ();
         pv.setId (projVerId);
+        pv.setName (projVerName);
         
         this.projVer = pv;
                                 

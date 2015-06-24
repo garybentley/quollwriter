@@ -50,9 +50,6 @@ public class EditorPanel extends Box
     private Box findBox = null;
     private Box findResults = null;
     private JScrollPane chatHistoryScrollPane = null;
-
-    private Map<Date, MessageAccordionItem> importantHistory = new TreeMap ();
-    private Box importantHistoryBox = null;
     
     private Set<EditorMessage> messages = null;
     private Timer dateLabelsUpdate = null;
@@ -179,7 +176,7 @@ public class EditorPanel extends Box
             });
             
         } else {
-            
+            /*
             Date w = Utils.zeroTimeFields (mess.getWhen ());
                     
             // See if we have a "today" history box.
@@ -210,7 +207,7 @@ public class EditorPanel extends Box
                 it.addMessage (mess);
                 
             }
-
+*/
         }
         
     }
@@ -762,13 +759,6 @@ public class EditorPanel extends Box
                     
                 }
                 
-                for (Date d : _this.importantHistory.keySet ())
-                {
-                    
-                    _this.importantHistory.get (d).updateHeaderTitle ();
-                    
-                }
-
             }
             
         });

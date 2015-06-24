@@ -2655,7 +2655,7 @@ public class EditorsUIUtils
                 final JButton send = UIUtils.createButton ("Send",
                                                            null);
         
-                send.addActionListener (new ActionListener ()
+                ActionListener sendAction = new ActionListener ()
                 {
                 
                     public void actionPerformed (ActionEvent ev)
@@ -2794,7 +2794,11 @@ public class EditorsUIUtils
                                     
                     }
                     
-                 });
+                 };
+                
+                send.addActionListener (sendAction);
+                UIUtils.addDoActionOnReturnPressed (genComments,
+                                                    sendAction);
                 
                 final JButton cancel = UIUtils.createButton ("Cancel",
                                                              null);
