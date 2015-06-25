@@ -37,7 +37,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     private JLabel other = null;
     private Box details = null;
     private Box editorInfo = null;
-    private JLabel importantMessages = null;
+    private JButton importantMessages = null;
+    private JButton comments = null;
+    private JButton chat = null;
     private boolean showImportantMessages = false;
     
     public EditorInfoBox (EditorEditor          ed,
@@ -172,16 +174,130 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         l.setVerticalAlignment (SwingConstants.TOP);
         this.details.add (l);
         this.mainName = l;
-                
+                        
         l = UIUtils.createInformationLabel (null);
-        l.setVisible (false);
-        l.setAlignmentY (Component.TOP_ALIGNMENT);
-        l.setVerticalAlignment (SwingConstants.TOP);
-        UIUtils.setPadding (l, 5, 3, 0, 5);
-        this.details.add (l);
-        
         this.onlineStatus = l;
-                
+
+        l.setVisible (false);
+        //l.setAlignmentY (Component.TOP_ALIGNMENT);
+        //l.setVerticalAlignment (SwingConstants.TOP);
+        UIUtils.setPadding (l, 0, 3, 0, 5);
+        
+        // Create a horizontal box to hold:
+        //  Online status | Important messages button | Chat messages button
+        Box statusBox = new Box (BoxLayout.X_AXIS);
+
+        statusBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.details.add (statusBox);
+
+        this.importantMessages = UIUtils.createButton (Constants.ERROR_ICON_NAME,
+                                                             Constants.ICON_MENU,
+                                                             "",
+                                                             new ActionListener ()
+                                                             {
+                                            
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+                                                                 
+                                                                     try
+                                                                     {
+                                                                 
+                                                                         _this.projectViewer.showImportantMessagesForEditor (_this.editor);
+                                                                         
+                                                                     } catch (Exception e) {
+                                                                         
+                                                                         UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                                   "Unable to show {editor}.");
+                                                                         
+                                                                         Environment.logError ("Unable to show editor: " +
+                                                                                               _this.editor,
+                                                                                               e);
+                                                                         
+                                                                     }                                                        
+                                                                     
+                                                                }
+                                            
+                                                             });
+        
+        this.importantMessages.setIconTextGap (2);
+        this.importantMessages.setFont (this.importantMessages.getFont ().deriveFont (Font.BOLD,
+                                                                                      14));
+        this.importantMessages.setForeground (java.awt.Color.red);
+
+        this.comments = UIUtils.createButton (Constants.COMMENT_ICON_NAME,
+                                              Constants.ICON_MENU,
+                                              "",
+                                              new ActionListener ()
+                                              {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                                 
+                                                    try
+                                                    {
+                                                                 
+                                                        _this.projectViewer.showAllCommentsForEditor (_this.editor);
+                                                                         
+                                                    } catch (Exception e) {
+                                                        
+                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                  "Unable to show {editor}.");
+                                                        
+                                                        Environment.logError ("Unable to show editor: " +
+                                                                              _this.editor,
+                                                                              e);
+                                                        
+                                                    }                                                        
+                                                                     
+                                                }
+                                            
+                                             });
+        
+        this.comments.setIconTextGap (2);
+        this.comments.setFont (this.importantMessages.getFont ().deriveFont (Font.BOLD,
+                                                                             14));
+
+        this.chat = UIUtils.createButton (Constants.COMMENT_ICON_NAME,
+                                          Constants.ICON_MENU,
+                                          "",
+                                          new ActionListener ()
+                                          {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                                 
+                                                    try
+                                                    {
+                                                                 
+                                                        //_this.projectViewer.showChatHistory (_this.editor);
+                                                                         
+                                                    } catch (Exception e) {
+                                                        
+                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                  "Unable to show {editor}.");
+                                                        
+                                                        Environment.logError ("Unable to show editor: " +
+                                                                              _this.editor,
+                                                                              e);
+                                                        
+                                                    }                                                        
+                                                                     
+                                                }
+                                            
+                                             });
+        
+        this.chat.setIconTextGap (2);
+        this.chat.setFont (this.importantMessages.getFont ().deriveFont (Font.BOLD,
+                                                                         14));
+
+        java.util.List<JComponent> buts = new java.util.ArrayList ();
+        buts.add (this.onlineStatus);
+        buts.add (this.importantMessages);
+        buts.add (this.comments);
+        
+        statusBox.add (UIUtils.createButtonBar (buts));
+        statusBox.add (Box.createHorizontalGlue ());
+/*                
         l = UIUtils.createClickableLabel ("",
                                           Environment.getIcon (Constants.ERROR_ICON_NAME,
                                                                Constants.ICON_MENU),
@@ -215,7 +331,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         this.details.add (l);
                       
         this.importantMessages = l;
-                      
+  */                    
         l = UIUtils.createInformationLabel (null);
         l.setVisible (false);
         l.setFont (l.getFont ().deriveFont (java.awt.Font.ITALIC));
@@ -315,6 +431,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.onlineStatus.setToolTipText (this.editor.getOnlineStatus ().getName ());
             this.onlineStatus.setText (this.editor.getOnlineStatus ().getName ());
             this.onlineStatus.setVisible (true);
+            this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
 
         }        
         
@@ -545,9 +662,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         if (this.showImportantMessages)
         {
-        
-            this.importantMessages.removeAll ();
-        
+                
             // Get undealt with messages that are not chat.
             // If there is just one then show it, otherwise show a link that will display a popup of them.
             Set<EditorMessage> undealtWith = this.editor.getMessages (new EditorMessageFilter ()
@@ -580,14 +695,66 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (undealtWith.size () > 0)
             {
             
-                    // Show a notification that leads to a popup.        
-                this.importantMessages.setText (String.format ("%s important messages",
+                this.importantMessages.setToolTipText (String.format ("%s important message%s require%s your attention",
+                                                                      Environment.formatNumber (undealtWith.size ()),
+                                                                      (undealtWith.size () == 1 ? "" : "s"),
+                                                                      (undealtWith.size () == 1 ? "s" : "")));
+                this.importantMessages.setText (String.format ("%s",
                                                                Environment.formatNumber (undealtWith.size ())));
         
                 this.importantMessages.setVisible (true);
                 
             }
 
+        }
+
+        this.comments.setVisible (true);
+        this.comments.setForeground (java.awt.Color.black);
+        
+        // Get undealt with messages that are not chat.
+        // If there is just one then show it, otherwise show a link that will display a popup of them.
+        Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+                                                                                               ProjectCommentsMessage.MESSAGE_TYPE));
+        
+        if (comments.size () > 0)
+        {
+            
+            int sets = comments.size ();
+            int commCount = 0;
+            int undealtWithCount = 0;
+            
+            for (EditorMessage m : comments)
+            {
+                
+                if (!m.isDealtWith ())
+                {
+                    
+                    undealtWithCount++;
+                    
+                        
+                }
+                
+                ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
+                
+                commCount += pcm.getComments ().size ();
+                
+            }
+            
+            if (undealtWithCount > 0)
+            {
+                
+                this.comments.setForeground (java.awt.Color.red);
+                
+            }
+                        
+            this.comments.setToolTipText (Environment.replaceObjectNames (String.format ("%s {comment%s} from this {editor}",
+                                                                          Environment.formatNumber (commCount),
+                                                                          (commCount == 1 ? "" : "s"))));
+            this.comments.setText (String.format ("%s",
+                                   Environment.formatNumber (commCount)));
+    
+            this.comments.setVisible (true);
+            
         }
         
     }
@@ -798,9 +965,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
                 menu.addSeparator ();                
                                 
-                menu.add (UIUtils.createMenuItem (String.format ("View new/undealt with messages (%s)",
+                menu.add (UIUtils.createMenuItem (String.format ("View new/important messages (%s)",
                                                                  Environment.formatNumber (messages.size ())),
-                                                  Constants.FIND_ICON_NAME,
+                                                  Constants.ERROR_ICON_NAME,
                                                   new ActionListener ()
                                                   {
                                                                                                 
@@ -1238,10 +1405,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 _this.addDeleteAllMessagesMenuItem (m);
                         
                 _this.addSendMessageMenuItem (m);
-                    
-                _this.addShowImportantMessagesMenuItem (m);
 
                 _this.addSendOrUpdateProjectMenuItem (m);
+                    
+                _this.addShowImportantMessagesMenuItem (m);
                                         
                 _this.addShowCommentsMenuItem (m);
 

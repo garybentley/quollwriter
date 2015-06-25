@@ -1,5 +1,6 @@
 package com.quollwriter.editors;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -21,6 +22,8 @@ import org.jivesoftware.smack.tcp.*;
 import org.jivesoftware.smackx.iqregister.*;
 import org.jivesoftware.smackx.offline.*;
 
+import com.gentlyweb.logging.Logger;
+
 //import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
@@ -40,6 +43,8 @@ public class EditorsMessageHandler implements ChatMessageListener
     private String userJID = null;
     private boolean loggedIn = false;
     private EditorMessageProcessor messageProcessor = null;
+    private boolean logMessages = false;
+    private Logger messageLog = null;
     
     // We use an atomic integer here (rather than volatile which has problems with value increment/decrement)
     // to keep track of how many messages we are in the process of sending.  This is most useful when sending a
@@ -57,6 +62,7 @@ public class EditorsMessageHandler implements ChatMessageListener
     }
     
     public void init ()
+               throws Exception
     {
         
         if (EditorsMessageHandler.SERVER_SUFFIX == null)
@@ -73,8 +79,54 @@ public class EditorsMessageHandler implements ChatMessageListener
             
         }
         
+        this.messageLog = new Logger ();
+        this.messageLog.initLogFile (new File (Environment.getLogDir (),
+                                               Constants.EDITOR_MESSAGES_LOG_NAME));        
+        
     }
         
+    private void logMessage (String text)
+    {
+        
+        this.logMessage (text,
+                         null);
+        
+    }
+
+    private void logMessage (String        text,
+                             EditorMessage mess)
+    {
+        
+        if ((this.logMessages)
+            ||
+            (Environment.isDebugModeEnabled ())
+           )
+        {
+            
+            String t = text + (mess != null ? ": " + mess : "");
+            
+            if (this.messageLog != null)
+            {
+            
+                this.messageLog.logInformationMessage (t);
+                
+            } else {
+                
+                Environment.logMessage (t);
+                        
+            }
+            
+        }
+        
+    }
+
+    public void logMessages (boolean v)
+    {
+        
+        this.logMessages = v;        
+        
+    }
+    
     public boolean isMessageSendInProgress ()
     {
         
@@ -247,7 +299,7 @@ public class EditorsMessageHandler implements ChatMessageListener
         
         final EditorsMessageHandler _this = this;
         
-        Environment.logDebugMessage ("Processing message for unknown editor: " + fromUsername);
+        this.logMessage ("Processing message for unknown editor: " + fromUsername);
         
         EditorsEnvironment.getInvite (fromUsername,
                                       new EditorsWebServiceAction ()
@@ -262,7 +314,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                                             if (m == null)
                                             {
                                                 
-                                                Environment.logDebugMessage ("No invite from unknown editor: " + fromUsername);
+                                                _this.logMessage ("No invite from unknown editor: " + fromUsername);
                                                 
                                                 // No invite.
                                                 return;
@@ -365,7 +417,8 @@ public class EditorsMessageHandler implements ChatMessageListener
             
         }
 
-        Environment.logDebugMessage ("<<< Received " + mess);
+        this.logMessage ("<<< Received",
+                         mess);
         
         boolean saveMessage = false;
         
@@ -429,7 +482,7 @@ public class EditorsMessageHandler implements ChatMessageListener
         // Check to make sure we know who this is.
         final String username = this.getUsernameFromJID (message.getFrom ());
         
-        Environment.logDebugMessage ("Received message from user: " + username);
+        this.logMessage ("Received message from user: " + username);
         
         final EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
                
@@ -1107,6 +1160,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                     _this.conn = new XMPPTCPConnection (config);
                     
                     _this.conn.setUseStreamManagement (true);
+                    _this.conn.setPacketReplyTimeout (30 * 3000);                    
                     
                     try
                     {
@@ -1657,7 +1711,8 @@ public class EditorsMessageHandler implements ChatMessageListener
                                     try
                                     {
                                     
-                                        Environment.logDebugMessage (">>> Sending " + mess);
+                                        _this.logMessage (">>> Sending",
+                                                          mess);
                                     
                                         mess.setEditor (to);
                                         mess.setSentByMe (true);

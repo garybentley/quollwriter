@@ -68,7 +68,26 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         String notes = projVer.getDescription ();        
         String verName = projVer.getName ();
         
+        Project proj = null;
+        
+        try
+        {
+                        
+            proj = Environment.getProjectById (message.getForProjectId (),
+                                               (message.isSentByMe () ? Project.NORMAL_PROJECT_TYPE : Project.EDITOR_PROJECT_TYPE));
+                                    
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get project for id: " +
+                                  message.getForProjectId (),
+                                  e);
+                        
+        }
+        
+        final Project fproj = proj;        
+        
         // Show:
+        //   * Project (if different to project from viewer)
         //   * Sent
         //   * Version (optional)
         //   * Word/chapter count
@@ -76,7 +95,16 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         //   * Notes (optional)
         //   * View link 
         
-        String rows = "p";
+        String rows = "";
+        
+        if (!viewer.getProject ().getId ().equals (message.getForProjectId ()))
+        {
+            
+            rows = "p, 6px, ";
+            
+        }
+        
+        rows += "p";
         
         if (verName != null)
         {
@@ -107,6 +135,65 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
 
         int row = 1;
 
+        if (!viewer.getProject ().getId ().equals (message.getForProjectId ()))
+        {
+
+            builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+                              cc.xy (1,
+                                     row));
+            
+            if (proj != null)
+            {
+            
+                JLabel openProj = UIUtils.createClickableLabel (message.getForProjectName (),
+                                                                null,
+                                                                new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                    
+                        if (fproj != null)
+                        {
+                    
+                            try
+                            {
+                    
+                                Environment.openProject (fproj);
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to open project: " +
+                                                      fproj,
+                                                      e);
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                });        
+                
+                openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
+                
+                builder.add (openProj,
+                             cc.xy (3,
+                                    row));
+                
+            } else {
+                
+                builder.addLabel (String.format ("<html>%s</html>",
+                                                 message.getForProjectName ()),
+                                  cc.xy (3,
+                                         row));
+                
+            }
+            
+            row += 2;            
+        
+        }        
+        
         builder.addLabel (Environment.replaceObjectNames (String.format ("<html><i>%s</i></html>",
                                                                          message.isSentByMe () ? "Sent" : "Received")),
                           cc.xy (1,
@@ -146,7 +233,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
                           cc.xy (1,
                                  row));
 
-        builder.addLabel ((dueDate != null ? Environment.formatDate (dueDate) : "<i>Not specified.</i>"),
+        builder.addLabel ("<html>" + (dueDate != null ? Environment.formatDate (dueDate) : "<i>Not specified.</i>") + "</html>",
                           cc.xy (3,
                                  row));
 
@@ -740,7 +827,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         */
         JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
                                                                        this.projectViewer);
-        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
+        bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));        
         
         this.add (bp);             
         

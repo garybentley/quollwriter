@@ -391,7 +391,8 @@ public class Constants
     public static final String SQL_LOG_NAME = "sql.log";
     public static final String ERROR_LOG_NAME = "error.log";
     public static final String GENERAL_LOG_NAME = "general.log";
-
+    public static final String EDITOR_MESSAGES_LOG_NAME = "editor-messages.log";
+    
     public static final String USER_PROMPTS_DIR = "prompts/";
 
     public static final String USER_PROBLEM_FINDER_RULES_DIR = "problem-finder-rules/";

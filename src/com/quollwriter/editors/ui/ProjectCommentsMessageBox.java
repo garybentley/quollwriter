@@ -122,7 +122,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
         EditorEditor ed = this.message.getEditor ();
         
         // We are wimping out here
-        String projVerName = null;
+        String projVerName = this.message.getProjectVersion ().getName ();
                 
         String projVerId = this.message.getProjectVersion ().getId ();
                         

@@ -251,7 +251,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                                                                                   Environment.formatNumber (c),
                                                                                                   (c > 1 ? "s" : ""),
                                                                                                   Environment.formatDate (mess.getWhen ()))));
-    System.out.println ("RECEIVED: " + mess);
+    
         if (showPopup)
         {
                             

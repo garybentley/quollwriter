@@ -310,6 +310,26 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                         
+                                                        AbstractSideBar sb = _this.sideBars.get (EditorsSideBar.NAME);
+                                                        
+                                                        if ((sb != null)
+                                                            &&
+                                                            (sb.isShowing ())
+                                                            &&
+                                                            (!EditorsEnvironment.isUserLoggedIn ())
+                                                           )
+                                                        {
+                                                            
+                                                            // Show the login.
+                                                            EditorsUIUtils.showLogin (_this,
+                                                                                      null,
+                                                                                      null,
+                                                                                      null);
+                                                            
+                                                            return;
+                                                            
+                                                        }
+                                                        
                                                         try
                                                         {
                                                         
@@ -8385,7 +8405,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                              sb);
 
         }
-
+        
         this.showSideBar (EditorsSideBar.NAME);
         
         return true;

@@ -73,6 +73,13 @@ public class EditorsEnvironment
 
     }
         
+    public static void logEditorMessages (boolean v)
+    {
+        
+        EditorsEnvironment.messageHandler.logMessages (v);        
+        
+    }
+    
     public static File getUserEditorsPropertiesFile ()
     {
 

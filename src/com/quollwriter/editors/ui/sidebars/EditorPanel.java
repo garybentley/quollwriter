@@ -23,6 +23,8 @@ import java.util.Calendar;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import org.josql.*;
+
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
@@ -51,6 +53,7 @@ public class EditorPanel extends Box
     private Box findResults = null;
     private JScrollPane chatHistoryScrollPane = null;
     
+    private EditorMessageFilter importantMessageFilter = null;
     private Set<EditorMessage> messages = null;
     private Timer dateLabelsUpdate = null;
     private JPanel cards = null;
@@ -76,6 +79,40 @@ public class EditorPanel extends Box
         this.projectEditor = this.project.getProjectEditor (this.editor);
         
         Project np = null;
+        
+        this.importantMessageFilter = new EditorMessageFilter ()
+        {
+          
+            @Override
+            public boolean accept (EditorMessage m)
+            {
+           
+                if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
+                {
+                  
+                    return false;
+                  
+                }
+              
+                if (m.isDealtWith ())
+                {
+                  
+                    return false;
+                  
+                }
+              
+                if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                {
+                  
+                    return false;
+                  
+                }
+                
+                return true;
+              
+            }
+          
+        };     
         
         this.createAboutBox ();
 
@@ -507,6 +544,23 @@ public class EditorPanel extends Box
         
     }
 
+    public void showChatHistory ()
+    {
+        
+        ((CardLayout) this.cards.getLayout ()).show (this.cards,
+                                                     "chathistory");
+        
+    }
+    
+    public void showChatBox ()
+    {
+        
+        this.showChatHistory ();
+        
+        this.chatBox.grabFocus ();
+        
+    }
+    
     public void showAllComments ()
     {
         
@@ -519,7 +573,11 @@ public class EditorPanel extends Box
                                  String.format ("{Comments} %s",
                                                 suffix),
                                  Constants.COMMENT_ICON_NAME,
-                                 comments);
+                                 String.format ("All {comments} you have %s <b>%s</b>.",
+                                                (this.projectEditor != null ? "received from" : "sent to"),
+                                                this.editor.getShortName ()),                                 
+                                 comments,
+                                 true);
         
     }
 
@@ -536,17 +594,59 @@ public class EditorPanel extends Box
                                  String.format ("{Project} updates %s",
                                                 suffix),
                                  Project.OBJECT_TYPE,
-                                 messages);
+                                 String.format ("All {project} updates you have %s <b>%s</b>.",
+                                                (this.projectEditor != null ? "sent to" : "received from"),
+                                                this.editor.getShortName ()),
+                                 messages,
+                                 true);
 
     }
 
+    public void showImportantMessages ()
+    {
+                
+        // Get undealt with messages that are not chat.
+        // If there is just one then show it, otherwise show a link that will display a popup of them.
+        Set<EditorMessage> undealtWith = this.editor.getMessages (this.importantMessageFilter);
+        
+        this.showMessagesInCard ("importantmessages",
+                                 "Important messages",
+                                 Constants.ERROR_ICON_NAME,
+                                 String.format ("New and important messages from <b>%s</b> that require your attention.",
+                                                this.editor.getShortName ()),
+                                 undealtWith,
+                                 false);
+        
+    }
+    
     private void showMessagesInCard (String             cardId,
                                      String             title,
                                      String             iconType,
-                                     Set<EditorMessage> messages)
+                                     String             help,
+                                     Set<EditorMessage> messages,
+                                     boolean            showAttentionBorder)
     {
         
         final EditorPanel _this = this;
+        
+        try
+        {
+        
+            // Sort the messages in descending when order or newest first.
+            Query q = new Query ();
+            q.parse (String.format ("SELECT * FROM %s ORDER BY when DESC",
+                                    EditorMessage.class.getName ()));
+            
+            QueryResults qr = q.execute (messages);
+            
+            messages = new LinkedHashSet (qr.getResults ());
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to sort messages",
+                                  e);
+            
+        }
         
         Box b = new ScrollableBox (BoxLayout.Y_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -561,6 +661,7 @@ public class EditorPanel extends Box
             
                 mb = MessageBoxFactory.getMessageBoxInstance (m,
                                                               this.sideBar.getProjectViewer ());
+                mb.setShowAttentionBorder (showAttentionBorder);
     
                 mb.init ();
     
@@ -573,37 +674,21 @@ public class EditorPanel extends Box
             }
             
             mb.setAlignmentX (Component.LEFT_ALIGNMENT);
-            mb.setBorder (UIUtils.createPadding (0, 0, 10, 0));
             
-            b.add (mb);
+            Box wb = new Box (BoxLayout.Y_AXIS);
+            wb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            wb.setBorder (UIUtils.createPadding (0, 0, 10, 0));
+            wb.add (mb);
+            
+            b.add (wb);
             
         }
-        /*
-        Map<Date, Set<EditorMessage>> ms = this.sortMessages (messages);
-        
-        Set<Map.Entry<Date, Set<EditorMessage>>> entries = ms.entrySet ();
-                
-        MessageAccordionItem acc = null;
-                
-        for (Map.Entry<Date, Set<EditorMessage>> en : entries)
-        {
-            
-            acc = new MessageAccordionItem (this.sideBar.getProjectViewer (),
-                                            en.getKey (),
-                                            en.getValue ());
-            
-            acc.init ();
-            acc.setAlignmentX (Component.LEFT_ALIGNMENT);
-            acc.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
-                                      
-            b.add (acc);
-                                                    
-        }
-          */              
-        JScrollPane sp = UIUtils.createScrollPane (b);
+
+        final JScrollPane sp = UIUtils.createScrollPane (b);
         
         sp.setBorder (null);
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        sp.setBorder (new EmptyBorder (1, 0, 0, 0));
 
         Box wrapper = new Box (BoxLayout.Y_AXIS);
         wrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -611,7 +696,7 @@ public class EditorPanel extends Box
         Header h = new Header (title,
                                Environment.getIcon (iconType,
                                                     Constants.ICON_SIDEBAR),
-                               null); // Add a close button that reverts back to the chat.
+                               null); 
 
         JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
                                               Constants.ICON_MENU,
@@ -637,79 +722,61 @@ public class EditorPanel extends Box
         h.setAlignmentX (Component.LEFT_ALIGNMENT);
         
         wrapper.add (h);
+        
+        if (help != null)
+        {
+        
+            JLabel info = UIUtils.createInformationLabel (help);
+            info.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+            
+            wrapper.add (info);
+
+        }
+        
         wrapper.add (sp);
         
+        sp.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
+        {
+           
+            public void adjustmentValueChanged (AdjustmentEvent ev)
+            {
+                
+                if (sp.getVerticalScrollBar ().getValue () > 0)
+                {
+                
+                    sp.setBorder (new MatteBorder (1, 0, 0, 0,
+                                                   UIUtils.getInnerBorderColor ()));
+
+                } else {
+                    
+                    sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+                    
+                }
+                    
+            }
+            
+        });        
+                
         this.cards.add (wrapper,
                         cardId);
         
         ((CardLayout) this.cards.getLayout ()).show (this.cards,
                                                      cardId);        
         
-    }
-    
-    public void showImportantMessages ()
-    {
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
                 
-        // Get undealt with messages that are not chat.
-        // If there is just one then show it, otherwise show a link that will display a popup of them.
-        Set<EditorMessage> undealtWith = this.editor.getMessages (new EditorMessageFilter ()
-                                                                  {
-                                                                    
-                                                                      @Override
-                                                                      public boolean accept (EditorMessage m)
-                                                                      {
-                                                                     
-                                                                          if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
-                                                                          {
-                                                                            
-                                                                              return false;
-                                                                            
-                                                                          }
-                                                                        
-                                                                          if (m.isDealtWith ())
-                                                                          {
-                                                                            
-                                                                              return false;
-                                                                            
-                                                                          }
-                                                                        
-                                                                          if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                                                                          {
-                                                                            
-                                                                              return false;
-                                                                            
-                                                                          }
-                                                                          
-                                                                          return true;
-                                                                        
-                                                                      }
-                                                                    
-                                                                  });
-        
-        this.showMessagesInCard ("importantmessages",
-                                 "New/undealt with messages",
-                                 Constants.ERROR_ICON_NAME,
-                                 undealtWith);
+                sp.getVerticalScrollBar ().setValue (0);        
+                
+            }
+            
+        });
         
     }
-
-    public void showChatHistory ()
-    {
         
-        ((CardLayout) this.cards.getLayout ()).show (this.cards,
-                                                     "chathistory");
-        
-    }
-    
-    public void showChatBox ()
-    {
-        
-        this.showChatHistory ();
-        
-        this.chatBox.grabFocus ();
-        
-    }
-    
     public boolean isShowChatBox ()
     {
         
@@ -729,6 +796,16 @@ public class EditorPanel extends Box
     {
                                
         final EditorPanel _this = this;
+        
+        // See if we have any important messages to show, if so then show them first.
+        Set<EditorMessage> undealtWith = this.editor.getMessages (this.importantMessageFilter);
+
+        if (undealtWith.size () > 0)
+        {
+            
+            this.showImportantMessages ();
+            
+        }
         
         UIUtils.doLater (new ActionListener ()
         {

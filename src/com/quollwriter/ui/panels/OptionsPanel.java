@@ -511,25 +511,7 @@ public class OptionsPanel extends QuollPanel
         final OptionsPanel _this = this;
                 
         Box box = new Box (BoxLayout.Y_AXIS);
-        /*
-        Vector chapterA = new Vector ();
-        chapterA.add (Constants.MINS_5);
-        chapterA.add (Constants.MINS_10);
-        chapterA.add (Constants.MINS_20);
-        chapterA.add (Constants.MINS_30);
-        chapterA.add (Constants.HOUR_1);
 
-        final JComboBox autosaveAmount = new JComboBox (chapterA);
-
-        final JCheckBox enableAutosave = new JCheckBox (Environment.replaceObjectNames ("Enable {Chapter} Auto-save"));
-        enableAutosave.setOpaque (false);
-        enableAutosave.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
-        JComponent c = this.createWrapper (enableAutosave);
-        this.setAsMainItem (c);
-        
-        box.add (c);
-          */      
         final JCheckBox autoLogin = UIUtils.createCheckBox ("Automatically login/go online whenever Quoll Writer starts");                
 
         autoLogin.setSelected (EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.QW_EDITORS_SERVICE_LOGIN_AT_QW_START_PROPERTY_NAME));
@@ -700,7 +682,7 @@ public class OptionsPanel extends QuollPanel
         box.add (c);
 
         box.add (Box.createVerticalStrut (15));
-        
+        /*
         final JCheckBox showPopups = UIUtils.createCheckBox ("Display a popup when I receive a new message from {an editor} (popups are never shown in full screen mode)");                
 
         showPopups.setSelected (EditorsEnvironment.isShowPopupWhenNewMessageReceived ());
@@ -749,6 +731,32 @@ public class OptionsPanel extends QuollPanel
         
         box.add (c);
          
+        box.add (Box.createVerticalStrut (15));
+        */
+        final JCheckBox logMessages = UIUtils.createCheckBox ("Log messages I send/receive (debug only)");                
+        
+        logMessages.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                EditorsEnvironment.logEditorMessages (logMessages.isSelected ());
+                
+            }
+            
+        });
+                
+        c = this.createWrapper (logMessages);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+
+        c = this.createHelpText ("Save messages sent/received to a log file.  You should only check this box if Quoll Writer support asks you to.  Note: this value is not saved and must be activated everytime you run Quoll Writer.");
+        this.setAsSubItem (c);
+        
+        box.add (c);
+
         this.setContentBorder (box);
         
         Accordion.Item item = this.accordion.add (this.createHeader (UIUtils.formatForUser ("{Editors}"),
