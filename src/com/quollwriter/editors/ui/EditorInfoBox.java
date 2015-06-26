@@ -41,6 +41,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     private JButton comments = null;
     private JButton chat = null;
     private boolean showImportantMessages = false;
+    private ProjectEditor projEditor = null;
     
     public EditorInfoBox (EditorEditor          ed,
                           AbstractProjectViewer viewer,
@@ -68,6 +69,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.projectViewer = viewer;
+        
+        this.projEditor = viewer.getProject ().getProjectEditor (this.editor);
                 
         this.editorInfo = new Box (BoxLayout.X_AXIS);                
         this.editorInfo.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -93,7 +96,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             public void processMouseEvent (MouseEvent                   ev,
                                            JLayer<? extends JComponent> l)
             {
-                
+
                 // TODO: Check for multi-platform compatibility.
                 if (ev.getID () != MouseEvent.MOUSE_RELEASED)
                 {
@@ -101,7 +104,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     return;
                     
                 }
-                
+
+                if (ev.getSource () instanceof JButton)
+                {
+                    
+                    return;
+                    
+                }
+        
                 if (_this.editor.getEditorStatus () == EditorEditor.EditorStatus.pending)
                 {
                     
@@ -202,14 +212,15 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                      try
                                                                      {
                                                                  
-                                                                         _this.projectViewer.showImportantMessagesForEditor (_this.editor);
+                                                                        EditorsUIUtils.showImportantMessagesForEditor (_this.editor,
+                                                                                                                       _this.projectViewer);
                                                                          
                                                                      } catch (Exception e) {
                                                                          
                                                                          UIUtils.showErrorMessage (_this.projectViewer,
-                                                                                                   "Unable to show {editor}.");
+                                                                                                   "Unable to show new/important messages for {editor}.");
                                                                          
-                                                                         Environment.logError ("Unable to show editor: " +
+                                                                         Environment.logError ("Unable to show important messages for editor: " +
                                                                                                _this.editor,
                                                                                                e);
                                                                          
@@ -236,14 +247,15 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     try
                                                     {
                                                                  
-                                                        _this.projectViewer.showAllCommentsForEditor (_this.editor);
+                                                        EditorsUIUtils.showAllCommentsForEditor (_this.editor,
+                                                                                                 _this.projectViewer);
                                                                          
                                                     } catch (Exception e) {
                                                         
                                                         UIUtils.showErrorMessage (_this.projectViewer,
-                                                                                  "Unable to show {editor}.");
+                                                                                  "Unable to show {comments} for {editor}.");
                                                         
-                                                        Environment.logError ("Unable to show editor: " +
+                                                        Environment.logError ("Unable to show comments for editor: " +
                                                                               _this.editor,
                                                                               e);
                                                         
@@ -257,7 +269,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         this.comments.setFont (this.importantMessages.getFont ().deriveFont (Font.BOLD,
                                                                              14));
 
-        this.chat = UIUtils.createButton (Constants.COMMENT_ICON_NAME,
+        this.chat = UIUtils.createButton (Constants.MESSAGE_ICON_NAME,
                                           Constants.ICON_MENU,
                                           "",
                                           new ActionListener ()
@@ -269,7 +281,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     try
                                                     {
                                                                  
-                                                        //_this.projectViewer.showChatHistory (_this.editor);
+                                                        _this.projectViewer.sendMessageToEditor (_this.editor);
                                                                          
                                                     } catch (Exception e) {
                                                         
@@ -294,44 +306,11 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         buts.add (this.onlineStatus);
         buts.add (this.importantMessages);
         buts.add (this.comments);
+        buts.add (this.chat);
         
         statusBox.add (UIUtils.createButtonBar (buts));
         statusBox.add (Box.createHorizontalGlue ());
-/*                
-        l = UIUtils.createClickableLabel ("",
-                                          Environment.getIcon (Constants.ERROR_ICON_NAME,
-                                                               Constants.ICON_MENU),
-                                          new ActionListener ()
-                                          {
-                                            
-                                               public void actionPerformed (ActionEvent ev)
-                                               {
-                                                
-                                                    try
-                                                    {
-                                                
-                                                        _this.projectViewer.showImportantMessagesForEditor (_this.editor);
-                                                        
-                                                    } catch (Exception e) {
-                                                        
-                                                        UIUtils.showErrorMessage (_this.projectViewer,
-                                                                                  "Unable to show {editor}.");
-                                                        
-                                                        Environment.logError ("Unable to show editor: " +
-                                                                              _this.editor,
-                                                                              e);
-                                                        
-                                                    }                                                        
-                                                    
-                                               }
-                                            
-                                          });
-        l.setVisible (false);
-        l.setBorder (UIUtils.createPadding (5, 3, 0, 5));
-        this.details.add (l);
-                      
-        this.importantMessages = l;
-  */                    
+
         l = UIUtils.createInformationLabel (null);
         l.setVisible (false);
         l.setFont (l.getFont ().deriveFont (java.awt.Font.ITALIC));
@@ -366,20 +345,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         if (ev.getEditor () == this.editor)
         {
             
-            EditorMessage m = ev.getMessage ();
-            
-            if (!m.isSentByMe ())
-            {
-                
-                // See if this is the type of message that the user needs to see, i.e. not chat.
-                if (!m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                {
-                    
-                    this.update ();
-                    
-                }
-                
-            }
+            this.update ();
             
         }
         
@@ -660,103 +626,151 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         this.importantMessages.setVisible (false);
         
-        if (this.showImportantMessages)
-        {
-                
-            // Get undealt with messages that are not chat.
-            // If there is just one then show it, otherwise show a link that will display a popup of them.
-            Set<EditorMessage> undealtWith = this.editor.getMessages (new EditorMessageFilter ()
+        // Get undealt with messages that are not chat.
+        // If there is just one then show it, otherwise show a link that will display a popup of them.
+        Set<EditorMessage> undealtWith = this.editor.getMessages (new EditorMessageFilter ()
+                                                                  {
+                                                                    
+                                                                      @Override
+                                                                      public boolean accept (EditorMessage m)
                                                                       {
                                                                         
-                                                                          @Override
-                                                                          public boolean accept (EditorMessage m)
+                                                                          if (m.isDealtWith ())
                                                                           {
                                                                             
-                                                                              if (m.isDealtWith ())
-                                                                              {
-                                                                                
-                                                                                  return false;
-                                                                                
-                                                                              }
-                                                                            
-                                                                              if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                                                                              {
-                                                                                
-                                                                                  return false;
-                                                                                
-                                                                              }
-                                                                              
-                                                                              return true;
+                                                                              return false;
                                                                             
                                                                           }
                                                                         
-                                                                      });
-            
-            if (undealtWith.size () > 0)
-            {
-            
-                this.importantMessages.setToolTipText (String.format ("%s important message%s require%s your attention",
-                                                                      Environment.formatNumber (undealtWith.size ()),
-                                                                      (undealtWith.size () == 1 ? "" : "s"),
-                                                                      (undealtWith.size () == 1 ? "s" : "")));
-                this.importantMessages.setText (String.format ("%s",
-                                                               Environment.formatNumber (undealtWith.size ())));
+                                                                          if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                                                                          {
+                                                                            
+                                                                              return false;
+                                                                            
+                                                                          }
+                                                                          
+                                                                          return true;
+                                                                        
+                                                                      }
+                                                                    
+                                                                  });
         
-                this.importantMessages.setVisible (true);
-                
-            }
-
+        if (undealtWith.size () > 0)
+        {
+        
+            this.importantMessages.setToolTipText (String.format ("%s important message%s require%s your attention",
+                                                                  Environment.formatNumber (undealtWith.size ()),
+                                                                  (undealtWith.size () == 1 ? "" : "s"),
+                                                                  (undealtWith.size () == 1 ? "s" : "")));
+            this.importantMessages.setText (String.format ("%s",
+                                                           Environment.formatNumber (undealtWith.size ())));
+    
+            this.importantMessages.setVisible (true);
+            
         }
 
-        this.comments.setVisible (true);
-        this.comments.setForeground (java.awt.Color.black);
+        this.comments.setVisible (false);
         
-        // Get undealt with messages that are not chat.
-        // If there is just one then show it, otherwise show a link that will display a popup of them.
-        Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
-                                                                                               ProjectCommentsMessage.MESSAGE_TYPE));
-        
-        if (comments.size () > 0)
+        int commCount = 0;
+    
+        if (this.projEditor != null)
         {
             
-            int sets = comments.size ();
-            int commCount = 0;
-            int undealtWithCount = 0;
+            this.comments.setVisible (true);
+            this.comments.setForeground (java.awt.Color.black);
             
-            for (EditorMessage m : comments)
+            // Get undealt with messages that are not chat.
+            // If there is just one then show it, otherwise show a link that will display a popup of them.
+            Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+                                                                                                   ProjectCommentsMessage.MESSAGE_TYPE));
+            
+            if (comments.size () > 0)
             {
                 
-                if (!m.isDealtWith ())
+                int sets = comments.size ();
+                int undealtWithCount = 0;
+                
+                for (EditorMessage m : comments)
                 {
                     
-                    undealtWithCount++;
-                    
+                    if (!m.isDealtWith ())
+                    {
                         
+                        undealtWithCount++;
+                        
+                            
+                    }
+                    
+                    ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
+                    
+                    commCount += pcm.getComments ().size ();
+                    
                 }
                 
-                ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
+                if (undealtWithCount > 0)
+                {
+                    
+                    this.comments.setForeground (java.awt.Color.red);
+                    
+                }
                 
-                commCount += pcm.getComments ().size ();
+                this.comments.setToolTipText (Environment.replaceObjectNames (String.format ("%s {comment%s} %s {editor}",
+                                                                              (this.projEditor != null ? "from this" : "sent to"),
+                                                                              Environment.formatNumber (commCount),
+                                                                              (commCount == 1 ? "" : "s"))));
+        
+                this.comments.setVisible (true);
                 
             }
+        
+            this.comments.setText (Environment.formatNumber (commCount));
             
-            if (undealtWithCount > 0)
-            {
-                
-                this.comments.setForeground (java.awt.Color.red);
-                
-            }
-                        
-            this.comments.setToolTipText (Environment.replaceObjectNames (String.format ("%s {comment%s} from this {editor}",
-                                                                          Environment.formatNumber (commCount),
-                                                                          (commCount == 1 ? "" : "s"))));
-            this.comments.setText (String.format ("%s",
-                                   Environment.formatNumber (commCount)));
-    
-            this.comments.setVisible (true);
+            this.comments.setEnabled (commCount > 0);
             
         }
         
+        this.chat.setVisible (false);
+
+        Set<EditorMessage> chatMessages = this.editor.getMessages (new EditorMessageFilter ()
+                                                                   {
+                                                                    
+                                                                        public boolean accept (EditorMessage m)
+                                                                        {
+                                                                            
+                                                                            if (m.isDealtWith ())
+                                                                            {
+                                                                                
+                                                                                return false;
+                                                                                
+                                                                            }
+                                                                            
+                                                                            if (!m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                                                                            {
+                                                                                
+                                                                                return false;
+                                                                                
+                                                                            }
+                                                                            
+                                                                            return true;
+                                                                            
+                                                                        }
+                                                                    
+                                                                   });
+        
+        if (chatMessages.size () > 0)
+        {
+                        
+            this.chat.setForeground (java.awt.Color.red);
+                
+            this.chat.setToolTipText (Environment.replaceObjectNames (String.format ("%s unread chat message%s",
+                                                                                     Environment.formatNumber (chatMessages.size ()),
+                                                                                     (chatMessages.size () == 1 ? "" : "s"))));
+            this.chat.setText (Environment.formatNumber (chatMessages.size ()));
+    
+            this.chat.setVisible (true);
+            
+        }
+            
     }
         
     public EditorInfoBox init ()
@@ -977,7 +991,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             try
                                                             {                                                            
                                                             
-                                                              _this.projectViewer.showImportantMessagesForEditor (_this.editor);
+                                                              EditorsUIUtils.showImportantMessagesForEditor (_this.editor,
+                                                                                                             _this.projectViewer);
     
                                                             } catch (Exception e) {
                                                                 
@@ -1011,7 +1026,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
         
-        if (!pending)
+        if ((!pending)
+            &&
+            (!isEditorProject)
+           )
         {
 
             final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
@@ -1051,8 +1069,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             try
                                                             {                                                            
                                                             
-                                                              _this.projectViewer.showProjectMessagesForEditor (_this.editor);
-    
+                                                                EditorsUIUtils.showProjectMessagesForEditor (_this.editor,
+                                                                                                             _this.projectViewer);
+
                                                             } catch (Exception e) {
                                                                 
                                                                 Environment.logError ("Unable to show project messages for editor: " +
@@ -1151,8 +1170,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                         try
                                                         {                                                            
                                                         
-                                                          _this.projectViewer.showAllCommentsForEditor (_this.editor);
-
+                                                            EditorsUIUtils.showAllCommentsForEditor (_this.editor,
+                                                                                                     _this.projectViewer);
+                                                            
                                                         } catch (Exception e) {
                                                             
                                                             Environment.logError ("Unable to show comments from editor: " +

@@ -999,6 +999,9 @@ public class Environment
         if (Environment.openProjects.size () == 0)
         {
 
+            // Go offline from the editors service (if logged in).
+            EditorsEnvironment.goOffline ();                            
+        
             if (Environment.isWindows)
             {
 

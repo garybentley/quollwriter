@@ -79,9 +79,13 @@ public class EditorsMessageHandler implements ChatMessageListener
             
         }
         
+        File lf = new File (Environment.getLogDir (),
+                            Constants.EDITOR_MESSAGES_LOG_NAME);
+        
+        lf.delete ();
+        
         this.messageLog = new Logger ();
-        this.messageLog.initLogFile (new File (Environment.getLogDir (),
-                                               Constants.EDITOR_MESSAGES_LOG_NAME));        
+        this.messageLog.initLogFile (lf);        
         
     }
         
@@ -1691,7 +1695,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                         {
                                                         
                             // TODO: Next release change this to be more in context.
-                            EditorsEnvironment.showMessageSendWarningIfEditorOfflineMessage (to);
+                            //EditorsEnvironment.showMessageSendWarningIfEditorOfflineMessage (to);
                                                         
                             if (_this.messageSendInProgressCount.intValue () < 0)
                             {

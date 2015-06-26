@@ -166,18 +166,40 @@ public class EditorPanel extends Box
         if (mess instanceof EditorChatMessage)
         {
         
-            Date w = Utils.zeroTimeFields (mess.getWhen ());
+            EditorChatMessage cmess = (EditorChatMessage) mess;
+
+            if (this.isShowing ())
+            {
+                
+                cmess.setDealtWith (true);
+                
+                try
+                {
+                
+                    EditorsEnvironment.updateMessage (cmess);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to update message: " +
+                                          cmess,
+                                          e);
+                    
+                }
+                
+            }
+        
+            Date w = Utils.zeroTimeFields (cmess.getWhen ());
                     
             // See if we have a "today" history box.
             ChatMessageAccordionItem it = this.chatHistory.get (w);
             
-            Set<EditorMessage> messages = null;
+            Set<EditorChatMessage> messages = null;
             
             if (it == null)
             {
                 
                 messages = new LinkedHashSet ();
-                messages.add (mess);
+                messages.add (cmess);
                 
                 it = new ChatMessageAccordionItem (this.sideBar.getProjectViewer (),
                                                    w,
@@ -193,7 +215,7 @@ public class EditorPanel extends Box
                                           
             } else {
                 
-                it.addMessage (mess);
+                it.addMessage (cmess);
                 
             }
             
@@ -212,39 +234,6 @@ public class EditorPanel extends Box
                 
             });
             
-        } else {
-            /*
-            Date w = Utils.zeroTimeFields (mess.getWhen ());
-                    
-            // See if we have a "today" history box.
-            MessageAccordionItem it = this.importantHistory.get (w);
-            
-            Set<EditorMessage> messages = null;
-            
-            if (it == null)
-            {
-                
-                messages = new LinkedHashSet ();
-                messages.add (mess);
-                
-                it = new MessageAccordionItem (this.sideBar.getProjectViewer (),
-                                               w,
-                                               messages);
-                                            
-                it.init ();
-                it.setBorder (UIUtils.createPadding (0, 0, 0, 5));            
-                                          
-                this.importantHistoryBox.add (it);
-                                
-                this.importantHistory.put (w,
-                                           it);
-                                          
-            } else {
-                
-                it.addMessage (mess);
-                
-            }
-*/
         }
         
     }
@@ -256,10 +245,10 @@ public class EditorPanel extends Box
         
     }
  
-    private Map<Date, Set<EditorMessage>> sortMessages (Set<EditorMessage> messages)
+    private Map<Date, Set<EditorChatMessage>> sortChatMessages (Set<EditorChatMessage> messages)
     {
         
-        Map<Date, Set<EditorMessage>> ret = new TreeMap ();
+        Map<Date, Set<EditorChatMessage>> ret = new TreeMap ();
         
         if (messages == null)
         {
@@ -268,12 +257,12 @@ public class EditorPanel extends Box
             
         }
         
-        for (EditorMessage m : messages)
+        for (EditorChatMessage m : messages)
         {
             
             Date w = Utils.zeroTimeFields (m.getWhen ());
             
-            Set<EditorMessage> mess = ret.get (w);
+            Set<EditorChatMessage> mess = ret.get (w);
             
             if (mess == null)
             {
@@ -292,8 +281,8 @@ public class EditorPanel extends Box
         
     }
     
-    private ChatMessageAccordionItem createChatMessages (Date                d,
-                                                         Set<EditorMessage> messages)
+    private ChatMessageAccordionItem createChatMessages (Date                   d,
+                                                         Set<EditorChatMessage> messages)
     {
 
         ChatMessageAccordionItem it = new ChatMessageAccordionItem (this.sideBar.getProjectViewer (),
@@ -391,10 +380,8 @@ public class EditorPanel extends Box
                         
         // Waaaay too much type information here...
         // Sort the messages, if present, into date buckets.
-        
-        Set<EditorMessage> edMessages = this.messages;
-        
-        Set<EditorMessage> fmessages = new LinkedHashSet ();
+                
+        Set<EditorChatMessage> fmessages = new LinkedHashSet ();
         
         int undealtWithCount = 0;
 
@@ -403,25 +390,25 @@ public class EditorPanel extends Box
         EditorMessageFilter filter = new DefaultEditorMessageFilter (np,
                                                                      EditorChatMessage.MESSAGE_TYPE);
         
-        for (EditorMessage m : edMessages)
+        for (EditorMessage m : this.messages)
         {
 
             if (filter.accept (m))
             {
 
-                fmessages.add (m);
+                fmessages.add ((EditorChatMessage) m);
 
             }
             
         }        
                      
-        Map<Date, Set<EditorMessage>> messages = this.sortMessages (fmessages);
+        Map<Date, Set<EditorChatMessage>> messages = this.sortChatMessages (fmessages);
         
-        Set<Map.Entry<Date, Set<EditorMessage>>> entries = messages.entrySet ();
+        Set<Map.Entry<Date, Set<EditorChatMessage>>> entries = messages.entrySet ();
         
         long dontShowBefore = System.currentTimeMillis () - (7 * 24 * 60 * 60 *1000);
         
-        for (Map.Entry<Date, Set<EditorMessage>> en : entries)
+        for (Map.Entry<Date, Set<EditorChatMessage>> en : entries)
         {
             
             hist = this.createChatMessages (en.getKey (),
@@ -481,31 +468,7 @@ public class EditorPanel extends Box
         infBox.setToolTipText ("Right click to see the menu");
         
         infBox.addFullPopupListener ();
-        /*
-        infBox.addMouseListener (new MouseEventHandler ()
-        {
-            
-            @Override
-            public void fillPopup (JPopupMenu m,
-                                   MouseEvent ev)
-            {
-                
-                infBox.addDeleteAllMessagesMenuItem (m);
-                        
-                infBox.addSendMessageMenuItem (m);
-                    
-                infBox.addSendOrUpdateProjectMenuItem (m);
-                                        
-                infBox.addShowCommentsMenuItem (m);
-                    
-                infBox.addUpdateEditorInfoMenuItem (m);
-                
-                infBox.addRemoveEditorMenuItem (m);                
-                
-            }
-            
-        });        
-*/        
+
         infBox.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 5));
@@ -560,65 +523,7 @@ public class EditorPanel extends Box
         this.chatBox.grabFocus ();
         
     }
-    
-    public void showAllComments ()
-    {
         
-        Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (this.project,
-                                                                                               ProjectCommentsMessage.MESSAGE_TYPE));
-                
-        String suffix = (this.projectEditor != null ? "received" : "sent");
-                        
-        this.showMessagesInCard ("commentsmessages",
-                                 String.format ("{Comments} %s",
-                                                suffix),
-                                 Constants.COMMENT_ICON_NAME,
-                                 String.format ("All {comments} you have %s <b>%s</b>.",
-                                                (this.projectEditor != null ? "received from" : "sent to"),
-                                                this.editor.getShortName ()),                                 
-                                 comments,
-                                 true);
-        
-    }
-
-    public void showProjectMessages ()
-    {
-        
-        Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.project,
-                                                                                               NewProjectMessage.MESSAGE_TYPE,
-                                                                                               UpdateProjectMessage.MESSAGE_TYPE));
-        
-        String suffix = (this.projectEditor != null ? "sent" : "received");
-                
-        this.showMessagesInCard ("projectmessages",
-                                 String.format ("{Project} updates %s",
-                                                suffix),
-                                 Project.OBJECT_TYPE,
-                                 String.format ("All {project} updates you have %s <b>%s</b>.",
-                                                (this.projectEditor != null ? "sent to" : "received from"),
-                                                this.editor.getShortName ()),
-                                 messages,
-                                 true);
-
-    }
-
-    public void showImportantMessages ()
-    {
-                
-        // Get undealt with messages that are not chat.
-        // If there is just one then show it, otherwise show a link that will display a popup of them.
-        Set<EditorMessage> undealtWith = this.editor.getMessages (this.importantMessageFilter);
-        
-        this.showMessagesInCard ("importantmessages",
-                                 "Important messages",
-                                 Constants.ERROR_ICON_NAME,
-                                 String.format ("New and important messages from <b>%s</b> that require your attention.",
-                                                this.editor.getShortName ()),
-                                 undealtWith,
-                                 false);
-        
-    }
-    
     private void showMessagesInCard (String             cardId,
                                      String             title,
                                      String             iconType,
@@ -661,7 +566,7 @@ public class EditorPanel extends Box
             
                 mb = MessageBoxFactory.getMessageBoxInstance (m,
                                                               this.sideBar.getProjectViewer ());
-                mb.setShowAttentionBorder (showAttentionBorder);
+                //mb.setShowAttentionBorder (showAttentionBorder);
     
                 mb.init ();
     
@@ -796,17 +701,7 @@ public class EditorPanel extends Box
     {
                                
         final EditorPanel _this = this;
-        
-        // See if we have any important messages to show, if so then show them first.
-        Set<EditorMessage> undealtWith = this.editor.getMessages (this.importantMessageFilter);
-
-        if (undealtWith.size () > 0)
-        {
-            
-            this.showImportantMessages ();
-            
-        }
-        
+                
         UIUtils.doLater (new ActionListener ()
         {
             

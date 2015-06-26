@@ -19,6 +19,8 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 import javax.swing.border.*;
 
+import org.josql.*;
+
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.sidebars.*;
@@ -156,6 +158,26 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
         
         int c = 0;
         
+        // Order in descending order.
+        try
+        {
+        
+            Query q = new Query ();
+            q.parse (String.format ("SELECT * FROM %s ORDER BY dateCreated DESC",
+                                    ProjectVersion.class.getName ()));
+            
+            QueryResults qr = q.execute (pvs);
+                    
+            pvs = new ArrayList (qr.getResults ());
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to sort project versions: " +
+                                  pvs,
+                                  e);
+            
+        }
+        
         ProjectVersion currPv = this.viewer.getProject ().getProjectVersion ();        
         
         Set<ProjectVersion> others = new LinkedHashSet ();
@@ -178,7 +200,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
             c++;
 
         }
-        
+Environment.logMessage ("OTHERS: " + others);        
         if (c == 0)
         {
             
@@ -242,7 +264,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                     }
                     
                     ProjectVersion pv = (ProjectVersion) value;
-                    
+
                     Header h = UIUtils.createBoldSubHeader (pv.getName (),
                                                             null);
 
@@ -256,7 +278,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                     if (pv.getDueDate () != null)
                     {
                         
-                        s.append (String.format ("Due by: %s",
+                        s.append (String.format ("Due by: %s.  ",
                                                  Environment.formatDate (pv.getDueDate ())));
                         
                     }
@@ -272,18 +294,18 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                             if (c == 1)
                             {
                                 
-                                s.append (", 1 unsent comment");
+                                s.append ("<b>1</b> unsent comment");
                                 
                             } else {
                             
-                                s.append (String.format (", %s unsent comments",
+                                s.append (String.format ("<b>%s</b> unsent comments",
                                                          Environment.formatNumber (c)));
                                 
                             }
                                         
                         } else {
                             
-                            s.append (", all comments sent");
+                            s.append ("All comments sent");
                             
                         }
                         

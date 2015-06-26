@@ -799,6 +799,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                          throws Exception
     {
         
+        /*
         Project pr = Environment.getProjectById (mess.getForProjectId (),
                                                  Project.EDITOR_PROJECT_TYPE);
                                                                                     
@@ -841,6 +842,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             }
             
         }                
+        */
                 
         if (showPopup)
         {

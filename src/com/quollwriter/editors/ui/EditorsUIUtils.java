@@ -19,6 +19,8 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import org.josql.*;
+
 import com.toedter.calendar.*;
 
 import com.quollwriter.*;
@@ -31,6 +33,8 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ImagePanel;
+import com.quollwriter.ui.components.ScrollableBox;
+import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.text.*;
@@ -40,6 +44,7 @@ public class EditorsUIUtils
     
     private static EditorLogin editorLogin = null;
     private static EditorMessageFilter defaultViewableMessageFilter = null;
+    private static EditorMessageFilter importantMessageFilter = null;
     
     static
     {
@@ -59,6 +64,40 @@ public class EditorsUIUtils
                                                       ProjectEditStopMessage.MESSAGE_TYPE,
                                                       UpdateProjectMessage.MESSAGE_TYPE,
                                                       EditorRemovedMessage.MESSAGE_TYPE);
+        
+        EditorsUIUtils.importantMessageFilter = new EditorMessageFilter ()
+        {
+          
+            @Override
+            public boolean accept (EditorMessage m)
+            {
+           
+                if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
+                {
+                  
+                    return false;
+                  
+                }
+              
+                if (m.isDealtWith ())
+                {
+                  
+                    return false;
+                  
+                }
+              
+                if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                {
+                  
+                    return false;
+                  
+                }
+                
+                return true;
+              
+            }
+          
+        };     
         
     };
     
@@ -501,6 +540,7 @@ public class EditorsUIUtils
         
         qp.setDraggable (viewer);
         qp.resize ();
+
     }
     
     /*
@@ -4933,36 +4973,56 @@ public class EditorsUIUtils
                     
                 }
                                 
-                if (_proj.isEncrypted ())
+                try
                 {
-                
-                    try
-                    {
-                        
-                        Environment.updateToNewVersions (_proj,
-                                                         message.getProjectVersion (),
-                                                         message.getChapters (),
-                                                         pwd);
-                        
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to update project to new versions of chapters: " +
-                                              _proj,
-                                              e);
-                        
-                        UIUtils.showErrorMessage (parentViewer,
-                                                  "Unable to show {comments}, please contact Quoll Writer support for assistance.");
-                        
-                        return;
-                        
-                    }
+                    
+                    Environment.updateToNewVersions (_proj,
+                                                     message.getProjectVersion (),
+                                                     message.getChapters (),
+                                                     pwd);
 
+                    message.setDealtWith (true);
+
+                    EditorsEnvironment.updateMessage (message);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to update project to new versions of chapters: " +
+                                          _proj,
+                                          e);
+                    
+                    UIUtils.showErrorMessage (parentViewer,
+                                              "Unable to update {project}, please contact Quoll Writer support for assistance.");
+                    
+                    return;
+                    
                 }
-
+                
                 try
                 {
 
                     Environment.openProject (_proj);
+                    
+                    AbstractProjectViewer pv = Environment.getProjectViewer (_proj);
+                    
+                    if (!(pv instanceof EditorProjectViewer))
+                    {
+                        
+                        Environment.logError ("Unable to open project at version: " +
+                                              _proj.getProjectVersion () +
+                                              ", project: " +
+                                              _proj);
+                        
+                        UIUtils.showErrorMessage (parentViewer,
+                                                  "Unable to view updated {project}, please contact Quoll Writer support for assistance.");
+                        
+                        return;                        
+                        
+                    }
+                    
+                    EditorProjectViewer epv = (EditorProjectViewer) pv;
+                    
+                    epv.switchToProjectVersion (message.getProjectVersion ());
                                         
                     if (onShow != null)
                     {
@@ -5159,5 +5219,259 @@ public class EditorsUIUtils
         return bp;        
         
     }
+ 
+    public static void showMessagesInPopup (String             title,
+                                            String             iconType,
+                                            String             help,
+                                            Set<EditorMessage> messages,
+                                            boolean            showAttentionBorder,
+                                            AbstractProjectViewer viewer)
+    {
+
+        final QPopup qp = UIUtils.createClosablePopup (title,
+                                                       Environment.getIcon (iconType,
+                                                                            Constants.ICON_POPUP),
+                                                       null);
+    
+        Box content = new Box (BoxLayout.Y_AXIS);
+        
+        JTextPane desc = UIUtils.createHelpTextPane (help,
+                                                     viewer);        
+                            
+        content.add (desc);
+        desc.setBorder (null);
+        desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                     desc.getPreferredSize ().height));                
+    
+        content.add (Box.createVerticalStrut (5));
+    
+        try
+        {
+        
+            // Sort the messages in descending when order or newest first.
+            Query q = new Query ();
+            q.parse (String.format ("SELECT * FROM %s ORDER BY when DESC",
+                                    EditorMessage.class.getName ()));
+            
+            QueryResults qr = q.execute (messages);
+            
+            messages = new LinkedHashSet (qr.getResults ());
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to sort messages",
+                                  e);
+            
+        }
+        
+        Box b = new ScrollableBox (BoxLayout.Y_AXIS);
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        Box lastB = null;
+        
+        for (EditorMessage m : messages)
+        {
+            
+            MessageBox mb = null;
+            
+            try
+            {
+            
+                mb = MessageBoxFactory.getMessageBoxInstance (m,
+                                                              viewer);
+                //mb.setShowAttentionBorder (showAttentionBorder);
+    
+                mb.init ();
+    
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get message box for message: " +
+                                      m,
+                                      e);
+                                
+            }
+            
+            mb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            Box wb = new Box (BoxLayout.Y_AXIS);
+            wb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            wb.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 10, 0));
+            wb.add (mb);
+            
+            b.add (wb);
+            
+            lastB = wb;
+            
+        }
+
+        if (lastB != null)
+        {
+        
+            lastB.setBorder (UIUtils.createPadding (0, 0, 0, 0));
+            
+        }
+                
+        final JScrollPane sp = UIUtils.createScrollPane (b);
+        
+        if (b.getPreferredSize ().height < 350)
+        {
+            
+            sp.setPreferredSize (new Dimension (500, b.getPreferredSize ().height + 1));
+            
+        } else {
+            
+            sp.setPreferredSize (new Dimension (500, 350));            
+            
+        }
+        
+        sp.setBorder (null);
+        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+        
+        sp.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
+        {
+           
+            public void adjustmentValueChanged (AdjustmentEvent ev)
+            {
+                
+                if (sp.getVerticalScrollBar ().getValue () > 0)
+                {
+                
+                    sp.setBorder (new MatteBorder (1, 0, 0, 0,
+                                                   UIUtils.getInnerBorderColor ()));
+
+                } else {
+                    
+                    sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+                    
+                }
+                    
+            }
+            
+        });        
+
+        content.add (sp);
+                                                       
+        content.setBorder (new EmptyBorder (10, 10, 10, 10));
+
+        JButton finish = new JButton ("Close");
+
+        finish.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                qp.removeFromParent ();
+
+            }
+
+        });
+
+        JButton[] buts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        bp.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+        
+        content.add (bp);                                                 
+                                                 
+        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                                                 content.getPreferredSize ().height));
+
+        qp.setContent (content);
+        
+        viewer.showPopupAt (qp,
+                            UIUtils.getCenterShowPosition (viewer,
+                                                           qp),
+                            false);
+        
+        qp.setDraggable (viewer);
+        qp.resize ();
+                        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                sp.getVerticalScrollBar ().setValue (0);        
+                
+            }
+            
+        });
+        
+    }
+    
+    public static void showImportantMessagesForEditor (EditorEditor          ed,
+                                                       AbstractProjectViewer viewer)
+    {
+                
+        // Get undealt with messages that are not chat.
+        // If there is just one then show it, otherwise show a link that will display a popup of them.
+        Set<EditorMessage> undealtWith = ed.getMessages (EditorsUIUtils.importantMessageFilter);
+        
+        EditorsUIUtils.showMessagesInPopup ("Important messages",
+                                            Constants.ERROR_ICON_NAME,
+                                            String.format ("New and important messages from <b>%s</b> that require your attention.",
+                                                           ed.getShortName ()),
+                                            undealtWith,
+                                            false,
+                                            viewer);
+        
+    }    
+    
+    public static void showProjectMessagesForEditor (EditorEditor          ed,
+                                                     AbstractProjectViewer viewer)
+    {
+        
+        Set<EditorMessage> messages = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
+                                                                                      NewProjectMessage.MESSAGE_TYPE,
+                                                                                      UpdateProjectMessage.MESSAGE_TYPE));
+        
+        ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
+
+        String suffix = (pe != null ? "sent" : "received");
+                
+        EditorsUIUtils.showMessagesInPopup (String.format ("{Project} updates %s",
+                                                suffix),
+                                 Project.OBJECT_TYPE,
+                                 String.format ("All {project} updates you have %s <b>%s</b> for {project} <b>%s</b>.  The latest update is shown first.",
+                                                (pe != null ? "sent to" : "received from"),
+                                                ed.getShortName (),
+                                                viewer.getProject ().getName ()),
+                                 messages,
+                                 true,
+                                 viewer);
+
+    }
+    
+    public static void showAllCommentsForEditor (EditorEditor          ed,
+                                                 AbstractProjectViewer viewer)
+    {
+        
+        Set<EditorMessage> comments = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
+                                                                                      ProjectCommentsMessage.MESSAGE_TYPE));
+                
+        ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
+                
+        String suffix = (pe != null ? "received" : "sent");
+                        
+        EditorsUIUtils.showMessagesInPopup (String.format ("{Comments} %s",
+                                                suffix),
+                                 Constants.COMMENT_ICON_NAME,
+                                 String.format ("All {comments} you have %s <b>%s</b> for {project} <b>%s</b>.  The latest {comments} are shown first.",
+                                                (pe != null ? "received from" : "sent to"),
+                                                ed.getShortName (),
+                                                viewer.getProject ().getName ()),                                 
+                                 comments,
+                                 true,
+                                 viewer);
+        
+    }    
     
 }

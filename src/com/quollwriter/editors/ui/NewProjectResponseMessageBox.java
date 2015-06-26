@@ -252,7 +252,13 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
             this.add (viewProj);
 
         }
+        
+        if (!this.message.isSentByMe ())
+        {
             
+            
+            
+        }
     }
     
 }

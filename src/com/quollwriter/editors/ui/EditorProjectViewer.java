@@ -221,13 +221,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                       int    type)
             {
                 
-                if (name.equals (Note.OBJECT_TYPE))
-                {
-                    
-                    name = Constants.COMMENT_ICON_NAME;
-                    
-                }
-                
+                name = Constants.COMMENT_ICON_NAME;
+
                 return super.getIcon (name,
                                       type);
                 

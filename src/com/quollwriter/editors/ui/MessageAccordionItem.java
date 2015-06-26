@@ -34,7 +34,7 @@ import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.renderers.*;
 
-public class MessageAccordionItem extends AccordionItem
+public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
 {
         
     protected AbstractProjectViewer projectViewer = null;
@@ -44,7 +44,7 @@ public class MessageAccordionItem extends AccordionItem
         
     public MessageAccordionItem (AbstractProjectViewer pv,
                                  Date                  d,
-                                 Set<EditorMessage>    messages)
+                                 Set<E>                messages)
     {
         
         super ("",
@@ -110,7 +110,7 @@ public class MessageAccordionItem extends AccordionItem
 
         this.content.setBorder (UIUtils.createPadding (5, 0, 10, 0));
         
-        for (EditorMessage m : messages)
+        for (E m : messages)
         {
                         
             JComponent mb = this.getMessageBox (m);
@@ -177,7 +177,7 @@ public class MessageAccordionItem extends AccordionItem
         
     }
     
-    public void addMessage (EditorMessage m)
+    public void addMessage (E m)
     {
         
         JComponent mb = this.getMessageBox (m);
@@ -219,7 +219,7 @@ public class MessageAccordionItem extends AccordionItem
         
     }
     
-    public JComponent getMessageBox (EditorMessage m)
+    public JComponent getMessageBox (E m)
     {
         
         MessageBox mb = null;

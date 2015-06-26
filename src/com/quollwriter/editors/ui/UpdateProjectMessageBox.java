@@ -44,7 +44,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
     public boolean isAutoDealtWith ()
     {
         
-        return true;
+        return false;
         
     }    
             
@@ -330,7 +330,16 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         } else {
            */ 
             
-            JLabel viewUpd = UIUtils.createClickableLabel ("Click to view the update",
+            String l = "Click to view the update";
+            
+            if (!this.message.isDealtWith ())
+            {
+                
+                l = "Click to update/view the {project}";
+                
+            }
+            
+            JLabel viewUpd = UIUtils.createClickableLabel (l,
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
                                                             new ActionListener ()

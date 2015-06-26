@@ -37,12 +37,12 @@ import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.renderers.*;
 
-public class ChatMessageAccordionItem extends MessageAccordionItem
+public class ChatMessageAccordionItem extends MessageAccordionItem<EditorChatMessage>
 {
                 
-    public ChatMessageAccordionItem (AbstractProjectViewer pv,
-                                     Date                  d,
-                                     Set<EditorMessage>    messages)
+    public ChatMessageAccordionItem (AbstractProjectViewer  pv,
+                                     Date                   d,
+                                     Set<EditorChatMessage> messages)
     {
         
         super (pv,
@@ -50,126 +50,37 @@ public class ChatMessageAccordionItem extends MessageAccordionItem
                messages);
         
     }
-        
-    private JComponent createAvatar (Image  im,
-                                     String message)
-    {
-        
-        Box b = new Box (BoxLayout.Y_AXIS);
-        
-        JLabel ic = new JLabel (new ImageIcon (im));
-        ic.setAlignmentX (Component.RIGHT_ALIGNMENT);
-        ic.setBorder (UIUtils.createLineBorder ());
-        
-        b.add (ic);
-        
-        b.add (Box.createVerticalStrut (0));
-        
-        JLabel l = UIUtils.createInformationLabel (message);
-        l.setHorizontalTextPosition (JLabel.RIGHT);
-        l.setAlignmentX (Component.RIGHT_ALIGNMENT);        
-        l.setForeground (UIUtils.getColor ("#aaaaaa"));
-        
-        l.setFont (l.getFont ().deriveFont ((float) 10));
-        b.add (l);
-        
-        b.setMaximumSize (b.getPreferredSize ());
-        b.setAlignmentY (Component.TOP_ALIGNMENT);
-        
-        return b;
-        
-    }
-           
+
     @Override 
-    public JComponent getMessageBox (EditorMessage m)
+    public JComponent getMessageBox (EditorChatMessage m)
     {
+
+        ChatMessageBox cmb = new ChatMessageBox (m,
+                                                 this.projectViewer);
+
+        try
+        {                                                 
         
-        EditorChatMessage cm = (EditorChatMessage) m;
-        EditorEditor ed = cm.getEditor ();
+            cmb.init ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to init chat message box for message: " +
+                                  m,
+                                  e);            
+                                                 
+        }
         
         Box b = new Box (BoxLayout.X_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        JComponent message = UIUtils.createHelpTextPane (cm.getMessage (),
-                                                         this.projectViewer);
-        message.setAlignmentY (Component.TOP_ALIGNMENT);
-        message.setSize (new Dimension (300,
-                                        500));
-        
-        message.setBorder (null);
-        message.setOpaque (false);
-        message.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                               Short.MAX_VALUE));
-        
-        String name = m.getEditor ().getMainName ();
-                
-        if (cm.isSentByMe ())
-        {
-            
-            BufferedImage av = EditorsEnvironment.getUserAccount ().getAvatar ();
-
-            if (av != null)
-            {
-                
-                av = UIUtils.getScaledImage (av,
-                                             28);
-                
-                if (av.getHeight () > 28)
-                {
-                    
-                    av = UIUtils.getScaledImage (av,
-                                                 28,
-                                                 28);
-                    
-                }
-                
-            }
-
-            message.setAlignmentX (Component.RIGHT_ALIGNMENT);
-            b.add (message);
-
-            JComponent avl = this.createAvatar (av,
-                                                (av == null ? "Me,<br />" : "") + Environment.formatTime (cm.getWhen ()));
-            avl.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-            b.add (avl);
-                        
-        } else {
-        
-            message.setAlignmentX (Component.LEFT_ALIGNMENT);
-            BufferedImage av = ed.getDisplayAvatar ();
-            
-            if (av == null)
-            {
-                
-                av = Environment.getNoEditorAvatarImage ();
-                
-            }
-            
-            av = UIUtils.getScaledImage (av,
-                                         28);
-            
-            if (av.getHeight () > 28)
-            {
-                
-                av = UIUtils.getScaledImage (av,
-                                             28,
-                                             28);
-                
-            }
-                
-            JComponent avl = this.createAvatar (av,
-                                                Environment.formatTime (cm.getWhen ()));
-            avl.setBorder (UIUtils.createPadding (0, 0, 0, 5));
-            b.add (avl);
-            b.add (message);
-            
-        }        
+        b.add (cmb);
         
         b.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getColor ("#eeeeee")),
                                          UIUtils.createPadding (7, 5, 3, 5)));
         b.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          b.getPreferredSize ().height));
-                                
+                
         return b;
         
     }

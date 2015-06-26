@@ -78,7 +78,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     private AccordionItem invitesForMe = null;
     private JComponent invitesForMeWrapper = null;
     private JComponent notification = null;
-    private JLabel undealtWithMessages = null;
     
     private JLabel projectCommentsMessage = null;
     
@@ -242,8 +241,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         EditorsEnvironment.removeEditorChangedListener (this);
         EditorsEnvironment.removeEditorMessageListener (this);
         EditorsEnvironment.removeUserOnlineStatusListener (this);
-
-        EditorsEnvironment.goOffline ();                            
         
     }
     
@@ -1030,35 +1027,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 
             }
             
-/*            
-            if (!this.projectViewer.getProject ().isProjectEditor (ed))
-            {
-                
-                if ((!ed.isInvitedByMe ())
-                    &&
-                    (ed.isPending ())
-                   )
-                {
-                    
-                    invitesCount++;
-                    
-                } else {
-                
-                    if (ed.isRejected ())
-                    {
-                
-                        edsSize--;
-                        
-                    } else {
-                        
-                        otherEdsCount++;
-                        
-                    }
-                    
-                }
-                
-            }
-  */          
         }
         
         int currProjEdsCount = 0;
@@ -1182,29 +1150,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         this.notification.setBorder (UIUtils.createPadding (5, 5, 5, 5));
         
         box.add (this.notification);
-        
-        // Get a count of how many undealt with messages there are.
-        this.undealtWithMessages = UIUtils.createClickableLabel ("",
-                                                                 Environment.getIcon (Constants.ERROR_ICON_NAME,
-                                                                                      Constants.ICON_TAB_HEADER),
-                                                                 new ActionListener ()
-                                                                 {
-                                                        
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
-                                                            
-                                                                        _this.showUndealtWithMessages ();
-                                                            
-                                                                    }
-                                                        
-                                                                 });
-                
-        this.undealtWithMessages.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-
-        //this.updateUndealtWithMessageCount ();
-                
-        //box.add (this.undealtWithMessages);
-                        
+                                
         this.projectCommentsMessage = UIUtils.createClickableLabel ("",
                                                              Environment.getIcon (Constants.COMMENT_ICON_NAME,
                                                                                   Constants.ICON_TAB_HEADER),
@@ -1694,121 +1640,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                               sp);
         
     }
-  
-    public void showUndealtWithMessages ()
-    {
-                
-        JComponent c = this.specialTabs.get ("undealt");
-
-        if (c != null)
-        {
-            
-            this.tabs.remove (c);
-                
-        }
-        
-        Set<EditorMessage> messages = null;
-        
-        try
-        {
-            
-            messages = EditorsEnvironment.getAllUndealtWithMessages ();
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to display undealt with messages",
-                                  e);
-            
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to display undealt with messages.");
-            
-            return;
-            
-        }
-
-        if (messages.size () == 0)
-        {
-            
-            return;
-            
-        }
-        
-        this.undealtWithMessages.setVisible (false);
-        
-        try
-        {
-            
-            this.showMessagesInSpecialTab (messages,
-                                           Constants.ERROR_ICON_NAME,
-                                           "All messages requiring your attention",
-                                           "undealt",
-                                           "Messages that require your attention in some way.",
-                                           null);
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to show messages",
-                                  e);
-            
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to the messages requiring your attention, please contact Quoll Writer support for assistance.");
-            
-            return;            
-                
-        }
-    
-    }
-  
-    private void updateUndealtWithMessageCount ()
-    {
-        
-        int undealtWithCount = 0;
-        
-        try
-        {
-            
-            undealtWithCount = EditorsEnvironment.getUndealtWithMessageCount ();
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get undealt with message count",
-                                  e);
-            
-            this.undealtWithMessages.setVisible (false);
-            
-            return;
-            
-        }
-
-        if (undealtWithCount == 0)
-        {
-            
-            this.undealtWithMessages.setVisible (false);
-            
-            return;
-            
-        }
-        
-        String l = "";
-        
-        if (undealtWithCount == 1)
-        {
-            
-            l = "<b>1</b> message requires your attention.  Click to view it.";
-                        
-        } else {
-            
-            l = String.format ("<b>%s</b> messages require your attention.  Click to view them.",
-                               Environment.formatNumber (undealtWithCount));
-            
-        }
-        
-        this.undealtWithMessages.setText (l);
-
-        this.undealtWithMessages.setVisible (true);
-        
-    }
-  
+      
     public void toggleFindEditorsTab ()
     {
         
@@ -1951,96 +1783,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
     }
     
-    public void showImportantMessages (final EditorEditor ed)
-                                throws GeneralException
-    {
-        
-        this.showEditor (ed);
-        
-        final EditorsSideBar _this = this;
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-        
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                EditorPanel edPanel = _this.getEditorPanel (ed);
-            
-                if (edPanel != null)
-                {
-                    
-                    edPanel.showImportantMessages ();
-                    
-                }
-
-            }
-                
-        });
-        
-    }
-
-    public void showProjectMessages (final EditorEditor ed)
-                              throws GeneralException
-    {
-        
-        this.showEditor (ed);
-        
-        final EditorsSideBar _this = this;
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-        
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                EditorPanel edPanel = _this.getEditorPanel (ed);
-            
-                if (edPanel != null)
-                {
-                    
-                    edPanel.showProjectMessages ();
-                    
-                }
-
-            }
-                
-        });
-        
-    }
-
-    public void showAllComments (final EditorEditor ed)
-                          throws GeneralException
-    {
-        
-        this.showEditor (ed);
-        
-        final EditorsSideBar _this = this;
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-        
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                EditorPanel edPanel = _this.getEditorPanel (ed);
-            
-                if (edPanel != null)
-                {
-                    
-                    edPanel.showAllComments ();
-                    
-                }
-
-            }
-                
-        });
-        
-    }
-
     public void showEditor (EditorEditor ed)
                      throws GeneralException
     {
