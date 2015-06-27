@@ -56,7 +56,6 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.events.*;
 
 public class EditorsSideBar extends AbstractSideBar implements EditorChangedListener,
-                                                               EditorMessageListener,
                                                                UserOnlineStatusListener
 {
     
@@ -79,9 +78,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     private EditorsSection otherEditors = null;
     private EditorsSection invitesForMe = null;
     private EditorsSection invitesIveSent = null;
-    
-    private JLabel projectCommentsMessage = null;
-    
+        
     private Map<String, JComponent> specialTabs = new HashMap ();
 
     public EditorsSideBar (AbstractProjectViewer v)
@@ -90,64 +87,10 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         super (v);
                 
         EditorsEnvironment.addEditorChangedListener (this);
-        EditorsEnvironment.addEditorMessageListener (this);
         EditorsEnvironment.addUserOnlineStatusListener (this);
         
     }
-    
-    private void rebuildEditorList (EditorEditor.EditorStatus status)
-    {
-        
-/*
-        List<EditorEditor> eds = this.editors.get (status);
-
-        AccordionItem ai = this.editorSections.get (status);
-
-        // Just rebuild the list
-        ai.setContent (this.createEditorsList (eds));
-
-        ai.setVisible (eds.size () > 0);
-
-        this.updateView ();
-        this.validate ();
-        this.repaint ();
-*/
-    }
-    
-    public void handleMessage (EditorMessageEvent ev)
-    {
-        
-        EditorEditor ed = ev.getEditor ();
-        
-        if (ed.getEditorStatus () == EditorEditor.EditorStatus.pending)
-        {
-            
-            // Don't need to do anything.
-            return;
-            
-        }
-        
-        //this.updateUndealtWithMessageCount ();        
-        
-        // If the editor is not visible then do nothing (may change).
-        
-        // If the editor is in a tab then add the message.
-        
-        // If the editor is not the current tab then flash the header.
-        
-        EditorPanel panel = this.getEditorPanel (ed);
-        
-        if (panel != null)
-        {
-            
-            panel.handleEditorMessageEvent (ev);
-            
-            //panel.addMessage (ev.getMessage ());
-            
-        }           
-
-    }
-        
+                
     public void editorChanged (EditorChangedEvent ev)
     {
 
@@ -240,7 +183,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     {
         
         EditorsEnvironment.removeEditorChangedListener (this);
-        EditorsEnvironment.removeEditorMessageListener (this);
         EditorsEnvironment.removeUserOnlineStatusListener (this);
         
     }
@@ -456,7 +398,12 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                         
-                                                        fnp.removeFromParent ();
+                                                        if (fnp != null)
+                                                        {
+                                                            
+                                                            fnp.removeFromParent ();
+                                                            
+                                                        }
                                                         
                                                         _this.updateView ();
 
@@ -500,8 +447,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             }
           
         });
-
-        //this.updateUserOnlineStatus (EditorsEnvironment.getUserOnlineStatus ());
         
         buts.add (this.statusButton);
 /*
@@ -531,7 +476,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                                 
-                                                  _this.showInvitePopup ();
+                                                  EditorsUIUtils.showInviteEditor (_this.projectViewer);
                                                 
                                               }
                                             
@@ -961,10 +906,8 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         Set<EditorEditor> others = new LinkedHashSet ();
         Set<EditorEditor> invitesIveSent = new LinkedHashSet ();
                 
-        int edsSize = EditorsEnvironment.getEditors ().size ();
-        
-        int otherEdsCount = 0;
-        
+        int edsSize = 0;
+                
         for (EditorEditor ed : EditorsEnvironment.getEditors ())
         {
             
@@ -981,7 +924,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 continue;
                 
             }
-            
+                        
             if (ed.isPending ())
             {
                 
@@ -997,6 +940,8 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 }
                 
             } else {
+            
+                edsSize++;    
             
                 ProjectEditor pe = this.projectViewer.getProject ().getProjectEditor (ed);
                 
@@ -1063,13 +1008,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                       "Unable to display others {editors} section, please contact Quoll Writer support for assistance.");            
             
         }
-        
-        /*
-        this.otherEditors.setTitle (String.format ("Other {Editors} (%s)",
-                                                   others.size ()));
-*/
-        this.noEditors.setVisible (edsSize == 0);        
-        
+                
         this.invitesForMe.setVisible (invitesForMe.size () > 0);
         
         try
@@ -1109,6 +1048,8 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                       "Unable to display invites I've sent {editors} section, please contact Quoll Writer support for assistance.");            
             
         }
+        
+        this.noEditors.setVisible (edsSize == 0);        
         
         this.firstLogin.setVisible (false);
 
@@ -1202,27 +1143,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
         box.add (this.notification);
                                 
-        this.projectCommentsMessage = UIUtils.createClickableLabel ("",
-                                                             Environment.getIcon (Constants.COMMENT_ICON_NAME,
-                                                                                  Constants.ICON_TAB_HEADER),
-                                                             new ActionListener ()
-                                                             {
-                                                                
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-                                                                    
-                                                                    _this.showProjectCommentsMessages ();
-                                                                    
-                                                                }
-                                                                
-                                                             });
-                        
-        this.projectCommentsMessage.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-
-        this.updateProjectCommentsMessage ();
-                
-        //box.add (this.projectCommentsMessage);
-
         this.tabs = new DnDTabbedPane ();
         
         this.tabs.putClientProperty(com.jgoodies.looks.Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
@@ -1268,15 +1188,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         return box;
                     
     }
-/*
-    public Dimension getPreferredSize ()
-    {
-        
-        return new Dimension (300,
-                              500);
-        
-    }
-  */
 
     private void addTabCloseListener (final JComponent header,
                                       final JComponent content)
@@ -1459,124 +1370,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                               prev);
         
     }
-  
-    public void showProjectCommentsMessages ()
-    {
-
-        JComponent c = this.specialTabs.get ("project-comments");
-
-        if (c != null)
-        {
-            
-            this.tabs.remove (c);
-                
-        }
-        
-        final EditorsSideBar _this = this;
-        
-        Set<EditorMessage> messages = null;
-        
-        try
-        {
-            
-            messages = EditorsEnvironment.getProjectMessages (this.projectViewer.getProject ().getId (),
-                                                              ProjectCommentsMessage.MESSAGE_TYPE);
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get all project comments messages.",
-                                  e);
-                        
-            return;
-            
-        }
-                
-        if ((messages == null)
-            ||
-            (messages.size () == 0)
-           )
-        {
-            
-            return;
-                
-        }
-
-        try
-        {
-            
-            this.showMessagesInSpecialTab (messages,
-                                           Constants.COMMENT_ICON_NAME,
-                                           "All {comments} for this {project}",
-                                           "project-comments",
-                                           "{Comments} you have received for this {project} from <b>all</b> of your {editors}.",
-                                           null);
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to show all comments for the project",
-                                  e);
-            
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to show all {comments}, please contact Quoll Writer support for assistance.");
-            
-            return;            
-                
-        }
-        
-    }
-  
-    private void updateProjectCommentsMessage ()
-    {
-        
-        int count = 0;
-        
-        try
-        {
-            
-            Set<EditorMessage> messages = EditorsEnvironment.getProjectMessages (this.projectViewer.getProject ().getId (),
-                                                                                 ProjectCommentsMessage.MESSAGE_TYPE);
-
-            for (EditorMessage m : messages)
-            {
-                
-                ProjectCommentsMessage pcm = (ProjectCommentsMessage) m;
-                
-                count += pcm.getComments ().size ();
-                
-            }
-                        
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get project comments for project: " +
-                                  this.projectViewer.getProject ().getId (),
-                                  e);
-            
-            this.projectCommentsMessage.setVisible (false);
-            
-            return;
-            
-        }
-                
-        String l = "";
-        
-        if (count == 1)
-        {
-            
-            l = "You have <b>1</b> {comment} for this {project}.  Click to view it.";
-                        
-        } else {
-            
-            l = String.format ("You have <b>%s</b> {comments} for this {project}.  Click to view them.",
-                               Environment.formatNumber (count));
-            
-        }
-        
-        this.projectCommentsMessage.setText (l);
-
-        this.projectCommentsMessage.setVisible (count > 0);
-        
-    }
-  
+      
     private void showMessagesInSpecialTab (Set<EditorMessage> messages,
                                            String             iconName,
                                            String             toolTipText,
@@ -1640,21 +1434,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             content.add (nc);
             
-/*            
-            final Notification n = Notification.createHelpNotification (this.projectViewer,
-                                                                        desc,
-                                                                        30,
-                                                                        null,
-                                                                        onDescClose);
-
-            n.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                             100));
-                                                                              
-            
-            content.add (n);            
-
-            n.init ();
-  */          
         }
         
         for (EditorEditor ed : edmessages.keySet ())
@@ -1768,16 +1547,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         this.showFindEditorsTab ();        
         
     }
-        
-    private void showInvitePopup ()
-    {
-                
-        final EditorsSideBar _this = this;
-                
-        EditorsUIUtils.showInviteEditor (this.projectViewer);
-                                
-    }
-    
+            
     public EditorPanel getEditorPanel (EditorEditor ed)
     {
         

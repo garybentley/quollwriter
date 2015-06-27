@@ -345,7 +345,8 @@ public class EditorsUIUtils
                                                                                     
                                                                                     AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
                                                                                     
-                                                                                    UIUtils.showMessage (viewer,
+                                                                                    UIUtils.showMessage ((PopupsSupported) viewer,
+                                                                                                         "{Editor} removed",
                                                                                                          String.format ("<b>%s</b> has been removed as an {editor}.",
                                                                                                                         ed.getMainName ()));
                                                                                     

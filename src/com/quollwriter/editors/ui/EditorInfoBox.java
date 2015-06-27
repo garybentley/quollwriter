@@ -683,33 +683,23 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
             UIUtils.setAsButton (this.editorInfo);
         
-            this.editorInfo.setToolTipText (String.format ("Click to send a message to %s, right click to see the menu",
-                                                           this.editor.getMainName ()));        
-        
-            // Not convinced about this, may be better to store a reference?
-            ProjectEditor pe = null;
-            
-            try
+            if (!this.editor.isPrevious ())
             {
-            
-                pe = EditorsEnvironment.getProjectEditor (this.projectViewer.getProject (),
-                                                          this.editor);
-    
-            } catch (Exception e) {
-            
-                Environment.logError ("Unable to get project editor for editor: " +
-                                      this.editor +
-                                      " and project: " +
-                                      this.projectViewer.getProject (),
-                                      e);
+        
+                this.editorInfo.setToolTipText (String.format ("Click to send a message to %s, right click to see the menu",
+                                                               this.editor.getMainName ()));
+                
+            } else {
+                
+                this.editorInfo.setToolTipText ("Right click to see the menu");
                 
             }
-            
-            if (pe != null)
+                    
+            if (this.projEditor != null)
             {
                 
                 this.other.setVisible (true);
-                this.other.setText (Environment.replaceObjectNames (pe.getStatusMessage ()));
+                this.other.setText (Environment.replaceObjectNames (this.projEditor.getStatusMessage ()));
                         
             }
             
@@ -864,7 +854,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.chat.setVisible (true);
             
         }
-            
+                
     }
         
     public EditorInfoBox init ()

@@ -38,7 +38,7 @@ import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.Header;
 
-public class EditorPanel extends Box
+public class EditorPanel extends Box implements EditorMessageListener
 {
     
     private EditorsSideBar sideBar = null;
@@ -53,7 +53,6 @@ public class EditorPanel extends Box
     private Box findResults = null;
     private JScrollPane chatHistoryScrollPane = null;
     
-    private EditorMessageFilter importantMessageFilter = null;
     private Set<EditorMessage> messages = null;
     private Timer dateLabelsUpdate = null;
     private JPanel cards = null;
@@ -77,43 +76,10 @@ public class EditorPanel extends Box
         this.messages = messages;
         this.project = this.sideBar.getProjectViewer ().getProject ();
         this.projectEditor = this.project.getProjectEditor (this.editor);
+        EditorsEnvironment.addEditorMessageListener (this);
         
         Project np = null;
-        
-        this.importantMessageFilter = new EditorMessageFilter ()
-        {
-          
-            @Override
-            public boolean accept (EditorMessage m)
-            {
-           
-                if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (m))
-                {
-                  
-                    return false;
-                  
-                }
-              
-                if (m.isDealtWith ())
-                {
-                  
-                    return false;
-                  
-                }
-              
-                if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                {
-                  
-                    return false;
-                  
-                }
                 
-                return true;
-              
-            }
-          
-        };     
-        
         this.createAboutBox ();
 
         this.cards = new JPanel ();
@@ -139,9 +105,9 @@ public class EditorPanel extends Box
                 
     }
  
-    public void handleEditorMessageEvent (EditorMessageEvent ev)
+    public void handleMessage (EditorMessageEvent ev)
     {
-    
+ 
         if (!EditorsUIUtils.getDefaultViewableMessageFilter ().accept (ev.getMessage ()))
         {
             

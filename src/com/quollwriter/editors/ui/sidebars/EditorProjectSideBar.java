@@ -200,7 +200,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
             c++;
 
         }
-Environment.logMessage ("OTHERS: " + others);        
+        
         if (c == 0)
         {
             

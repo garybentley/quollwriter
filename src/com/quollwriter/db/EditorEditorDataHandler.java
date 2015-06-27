@@ -64,6 +64,20 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
         params.add (ed.getEditorStatus ().getType ());
         params.add (ed.isInvitedByMe ());
         
+        try
+        {
+        
+            params.add (UIUtils.getImageBytes (ed.getAvatar ()));
+            
+        } catch (Exception e) {
+        
+            params.add (null);
+            
+            Environment.logError ("Unable to get image bytes for avatar for editor: " +
+                                  ed);
+            
+        }                
+        
         if (ed.getTheirPublicKey () != null)
         {
             
@@ -88,7 +102,7 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
         params.add (ed.getMessagingUsername ());
         params.add (ed.getServiceName ());
         
-        this.objectManager.executeStatement ("INSERT INTO editor (dbkey, email, status, invitedbyme, theirpublickey, messagingusername, servicename) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        this.objectManager.executeStatement ("INSERT INTO editor (dbkey, email, status, invitedbyme, avatarimage, theirpublickey, messagingusername, servicename) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);        
         
