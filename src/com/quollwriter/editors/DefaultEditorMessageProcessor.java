@@ -661,6 +661,13 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         if (ed.isPending ())
         {
             
+            if (accepted)
+            {
+                
+                EditorsEnvironment.getMessageHandler ().subscribeToEditor (ed);
+                
+            }            
+            
             ed.setEditorStatus ((accepted ? EditorEditor.EditorStatus.current : EditorEditor.EditorStatus.rejected));
             
             try
@@ -705,7 +712,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                     pe.setStatus (ProjectEditor.Status.accepted);
                     
                     EditorsEnvironment.updateProjectEditor (pe);
-
+                    
                 } catch (Exception e) {
                     
                     Environment.logError ("Unable to accept project editor: " +

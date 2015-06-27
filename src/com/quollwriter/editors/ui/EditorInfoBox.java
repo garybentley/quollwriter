@@ -553,7 +553,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         int commCount = 0;
     
-        if (this.projEditor != null)
+        if ((this.projEditor != null)
+            &&
+            (!this.editor.isPending ())
+           )
         {
             
             this.comments.setVisible (true);
