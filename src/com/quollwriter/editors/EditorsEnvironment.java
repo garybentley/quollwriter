@@ -1939,7 +1939,7 @@ public class EditorsEnvironment
         }
         
     }
-    
+    /*
     public static void sendNewProjectResponse (final NewProjectMessage mess,
                                                final boolean           accepted,
                                                final String            responseMessage)
@@ -1989,7 +1989,7 @@ public class EditorsEnvironment
                                                 null);                                                                            
         
     }
-    
+    */
     public static void sendError (EditorMessage          mess,
                                   ErrorMessage.ErrorType errorType,
                                   String                 reason)

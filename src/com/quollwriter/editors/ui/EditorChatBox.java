@@ -352,24 +352,24 @@ public class EditorChatBox extends Box implements EditorInteractionListener
     @Override
     public void handleInteraction (EditorInteractionEvent ev)
     {
-        
+        System.out.println ("HERE");
         if (this.editor != ev.getEditor ())
         {
-            
+        System.out.println ("HERE2");    
             return;
             
         }
         
         if (ev.getAction () == InteractionMessage.Action.typing)
         {
-            
+            System.out.println ("HERE3");
             this.showTyping ();
             
         }
         
         if (ev.getAction () == InteractionMessage.Action.normal)
         {
-            
+            System.out.println ("HERE4");
             this.hideNotification ();
             
         }

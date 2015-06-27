@@ -93,6 +93,13 @@ public class EditorsUIUtils
                   
                 }
                 
+                if (m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
+                {
+                  
+                    return false;
+                  
+                }
+
                 return true;
               
             }
@@ -2337,11 +2344,12 @@ public class EditorsUIUtils
                        }
                        
                     };
-                    
+                                        
                     NewProjectResponseMessage res = new NewProjectResponseMessage (mess.getForProjectId (),
                                                                                    true,
                                                                                    responseMessage,
-                                                                                   mess.getEditor ());
+                                                                                   mess.getEditor (),
+                                                                                   EditorsEnvironment.getUserAccount ());
 
                     if (mess.getEditor ().isPending ())
                     {
@@ -2450,7 +2458,8 @@ public class EditorsUIUtils
             NewProjectResponseMessage res = new NewProjectResponseMessage (mess.getForProjectId (),
                                                                            false,
                                                                            responseMessage,
-                                                                           mess.getEditor ());
+                                                                           mess.getEditor (),
+                                                                           EditorsEnvironment.getUserAccount ());
 
             if (mess.getEditor ().isPending ())
             {
@@ -2468,50 +2477,6 @@ public class EditorsUIUtils
                 
             }
             
-            /*
-            ActionListener sendRejectedRes = new ActionListener ()
-            {
-                
-                public void actionPerformed (ActionEvent ev)
-                {
-                    
-                    try
-                    {
-                        
-                        mess.setDealtWith (true);
-                        
-                        EditorsEnvironment.sendNewProjectResponse (mess,
-                                                                   accepted,
-                                                                   null);
-    
-                    } catch (Exception e) {
-                        
-                        UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
-                                                  "Unable to send response to {editor}, please contact Quoll Writer support for assistance.");
-                        
-                        Environment.logError ("Unable to send response",
-                                              e);
-                        
-                    }
-                    
-                }
-                
-            };
-            
-            sendRejectedRes.actionPerformed (new ActionEvent ("run", 1, "run"));
-
-            if (mess.getEditor ().isPending ())
-            {                                        
-            
-                EditorsEnvironment.rejectInvite (mess.getEditor (),
-                                                 sendRejectedRes);
-
-            } else {
-                
-                sendRejectedRes.actionPerformed (new ActionEvent ("run", 1, "run"));
-                
-            }
-  */                      
         }
         
     }
@@ -5432,7 +5397,8 @@ public class EditorsUIUtils
         
         Set<EditorMessage> messages = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
                                                                                       NewProjectMessage.MESSAGE_TYPE,
-                                                                                      UpdateProjectMessage.MESSAGE_TYPE));
+                                                                                      UpdateProjectMessage.MESSAGE_TYPE,
+                                                                                      NewProjectResponseMessage.MESSAGE_TYPE));
         
         ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
 

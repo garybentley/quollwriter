@@ -56,14 +56,7 @@ public class InviteResponseMessage extends EditorMessage
                                     this.accepted);
 
     }
-        
-    public String toString ()
-    {
-        
-        return MESSAGE_TYPE + "(accepted:" + this.accepted + ")";
-        
-    }
-        
+                
     protected void fillMap (Map data)
                      throws Exception
     {
