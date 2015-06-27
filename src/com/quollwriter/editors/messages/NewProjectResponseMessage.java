@@ -75,6 +75,20 @@ public class NewProjectResponseMessage extends EditorMessage
         
     }
     
+    public BufferedImage getEditorAvatar ()
+    {
+        
+        return this.editorAvatar;
+        
+    }
+    
+    public String getEditorName ()
+    {
+        
+        return this.editorName;
+        
+    }
+    
     public String getResponseMessage ()
     {
         

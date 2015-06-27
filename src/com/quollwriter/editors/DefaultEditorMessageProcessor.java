@@ -665,6 +665,21 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             {
                 
                 EditorsEnvironment.getMessageHandler ().subscribeToEditor (ed);
+            
+                if (res.getEditorName () != null)
+                {
+                
+                    ed.setName (res.getEditorName ());
+                    
+                }
+                
+                if (res.getEditorAvatar () != null)
+                {
+                    
+                    ed.setAvatar (res.getEditorAvatar ());
+                    
+                }
+            
                 
             }            
             
