@@ -924,6 +924,8 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 continue;
                 
             }
+            
+            edsSize++;
                         
             if (ed.isPending ())
             {
@@ -940,9 +942,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 }
                 
             } else {
-            
-                edsSize++;    
-            
+                        
                 ProjectEditor pe = this.projectViewer.getProject ().getProjectEditor (ed);
                 
                 if (pe != null)

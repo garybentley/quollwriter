@@ -96,7 +96,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         //   * View link 
         
         String rows = "";
-        
+
         if (!viewer.getProject ().getId ().equals (message.getForProjectId ()))
         {
             
@@ -825,6 +825,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage>
         bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
         */
+
         JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
                                                                        this.projectViewer);
         bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));        

@@ -402,9 +402,15 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         }        
         
+        if (this.pendingMessageBox != null)
+        {
+    
+            this.pendingMessageBox.setVisible (false);
+            this.remove (this.pendingMessageBox);
+            
+        }        
+        
         if ((this.editor.isPending ())
-            &&
-            (this.pendingMessageBox == null)
             &&
             (!this.editor.isInvitedByMe ())
            )
@@ -469,218 +475,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
             this.other.setVisible (true);
 
-            /*
-            final EditorInfoBox _this = this;
-            
-                // Show an accept/reject.
-                EditorMessage m = null;
-                
-                if ((this.editor.getMessages () != null)
-                    &&
-                    (this.editor.getMessages ().size () > 0)
-                   )
-                {
-                    
-                    m = this.editor.getMessages ().iterator ().next ();
-                    
-                }
-                
-                MessageBox mb = null;
-                
-                try
-                {
-                
-                    mb = MessageBoxFactory.getMessageBoxInstance (m,
-                                                                  this.projectViewer);
-                    mb.setShowAttentionBorder (false);
-        
-                    mb.init ();
-        
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to get message box for message: " +
-                                          m,
-                                          e);
-                                    
-                    UIUtils.showErrorMessage 
-                                    
-                }
-                
-                mb.setAlignmentX (Component.LEFT_ALIGNMENT);
-                
-                
-                if ((m == null)
-                    ||
-                    (m instanceof InviteMessage)
-                   )
-                {                                
-                
-                    final InviteMessage im = (InviteMessage) m;
-                
-                    
-                    JButton accept = UIUtils.createButton (Environment.getIcon (Constants.ACCEPTED_ICON_NAME,
-                                                                                Constants.ICON_EDITOR_MESSAGE),
-                                                           "Click to accept the invitation",
-                                                           new ActionListener ()
-                                                           {
-                                                                
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-
-                                                                    InviteResponseMessage rm = new InviteResponseMessage (true,
-                                                                                                                          EditorsEnvironment.getUserAccount ());
-                                                                    rm.setEditor (editor);
-                                                                    rm.setDealtWith (true);
-
-                                                                    EditorsEnvironment.acceptInvite (_this.editor,
-                                                                                                     rm,
-                                                                                                     null);
-
-                                                                    im.setDealtWith (true);
-                                                                    
-                                                                    try
-                                                                    {
-                                                                        
-                                                                        EditorsEnvironment.updateMessage (im);
-                                                                        
-                                                                    } catch (Exception e) {
-                                                                        
-                                                                        Environment.logError ("Unable to update invite message to be dealt with: " +
-                                                                                              im,
-                                                                                              e);
-                                                                        
-                                                                    }
-                                                                                                                                                                                                            
-                                                                }
-                                                                
-                                                           });
-                    
-                    JButton reject = UIUtils.createButton (Environment.getIcon (Constants.REJECTED_ICON_NAME,
-                                                                                Constants.ICON_EDITOR_MESSAGE),
-                                                           "Click to reject the invitation",
-                                                           new ActionListener ()
-                                                           {
-                                                                
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-                                                                           
-                                                                    InviteResponseMessage rm = new InviteResponseMessage (false,
-                                                                                                                          EditorsEnvironment.getUserAccount ());
-                                                                    rm.setEditor (editor);
-                                                                    rm.setDealtWith (true);
-                                                                    
-                                                                    EditorsEnvironment.rejectInvite (_this.editor,
-                                                                                                     rm,
-                                                                                                     null);
-
-                                                                    im.setDealtWith (true);
-                                                                    
-                                                                    try
-                                                                    {
-                                                                        
-                                                                        EditorsEnvironment.updateMessage (im);
-                                                                        
-                                                                    } catch (Exception e) {
-                                                                        
-                                                                        Environment.logError ("Unable to update invite message to be dealt with: " +
-                                                                                              im,
-                                                                                              e);
-                                                                        
-                                                                    }
-                                                                    
-                                                                }
-                                                                
-                                                           });
-        
-                    java.util.List<JButton> buts = new java.util.ArrayList ();
-                    buts.add (accept);
-                    buts.add (reject);
-                                    
-                    JComponent bb = UIUtils.createButtonBar (buts);
-                                
-                    bb.setAlignmentX (Component.LEFT_ALIGNMENT);
-                    bb.setAlignmentY (Component.CENTER_ALIGNMENT);
-
-                    this.add (bb);
-                    
-                }
-                
-                if ((m != null)
-                    &&
-                    (m instanceof NewProjectMessage)
-                   )
-                {
-                
-                    // Show the project details.
-                    final NewProjectMessage mess = (NewProjectMessage) m;
-                    
-                    JComponent p = NewProjectMessageBox.getNewProjectMessageDetails (mess,
-                                                                                     null);
-
-                    p.setBorder (UIUtils.createPadding (5, 10, 5, 5));
-                    
-                    this.add (p);
-                                                                                     
-                    JButton accept = UIUtils.createButton (Environment.getIcon (Constants.ACCEPTED_ICON_NAME,
-                                                                                Constants.ICON_EDITOR_MESSAGE),
-                                                           "Click to accept the invitation",
-                                                           new ActionListener ()
-                                                           {
-                                                                
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-
-                                                                    EditorsUIUtils.handleNewProjectResponse (null,
-                                                                                                             mess,
-                                                                                                             true);
-                                                                    
-                                                                }
-                                                                
-                                                           });
-                    
-                    JButton reject = UIUtils.createButton (Environment.getIcon (Constants.REJECTED_ICON_NAME,
-                                                                                Constants.ICON_EDITOR_MESSAGE),
-                                                           "Click to reject the invitation",
-                                                           new ActionListener ()
-                                                           {
-                                                                
-                                                                public void actionPerformed (ActionEvent ev)
-                                                                {
-                                                                                                                                                      
-                                                                    EditorsUIUtils.handleNewProjectResponse (null,
-                                                                                                             mess,
-                                                                                                             false);
-                                                                    
-                                                                }
-                                                                
-                                                           });
-        
-                    java.util.List<JButton> buts = new java.util.ArrayList ();
-                    buts.add (accept);
-                    buts.add (reject);
-                                    
-                    JComponent bb = UIUtils.createButtonBar (buts);
-                                
-                    bb.setAlignmentX (Component.LEFT_ALIGNMENT);
-                    bb.setAlignmentY (Component.CENTER_ALIGNMENT);
-
-                    this.add (bb);
-                                
-                }
-                
-            }
-            */
         } else {
-        
-            if (this.pendingMessageBox != null)
-            {
-        
-                this.pendingMessageBox.setVisible (false);
-                this.remove (this.pendingMessageBox);
-                this.pendingMessageBox = null;
                 
-            }
-        
             UIUtils.setAsButton (this.editorInfo);
         
             if (!this.editor.isPrevious ())
@@ -854,6 +650,9 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.chat.setVisible (true);
             
         }
+                
+        this.validate ();
+        this.repaint ();
                 
     }
         
