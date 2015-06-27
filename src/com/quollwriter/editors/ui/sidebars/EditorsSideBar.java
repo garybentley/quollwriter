@@ -67,17 +67,18 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     private JComponent noEditors = null;
     private JComponent firstLogin = null;
     private JButton statusButton = null;
-    private AccordionItem currentEditors = null;
-    private JLabel noCurrentEditors = null;
-    private JComponent currentEditorsWrapper = null;
-    private JLabel currentEditorsHelp = null;
-
-    private AccordionItem otherEditors = null;
-    private JComponent otherEditorsWrapper = null;
     
-    private AccordionItem invitesForMe = null;
-    private JComponent invitesForMeWrapper = null;
+    //private AccordionItem currentEditors = null;
+    //private JLabel noCurrentEditors = null;
+    //private JComponent currentEditorsWrapper = null;
+    //private JLabel currentEditorsHelp = null;
+    
     private JComponent notification = null;
+    
+    private EditorsSection currentEditors = null;
+    private EditorsSection otherEditors = null;
+    private EditorsSection invitesForMe = null;
+    private EditorsSection invitesIveSent = null;
     
     private JLabel projectCommentsMessage = null;
     
@@ -911,57 +912,33 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
 
         edBox.add (this.noEditors);
                                 
-        Box b = new Box (BoxLayout.Y_AXIS);
+        this.currentEditors = new EditorsSection ("Current {Editors}",
+                                                  "{Editors} you have sent this {project} to.",
+                                                  "You have no current {editors} for this {project}.  Right click on one of the {editors} in the <b>Other Editors</b> section below and select <b>Send {project}/{chapters}</b> to send them this {project}.",
+                                                  this.projectViewer);
     
-        this.currentEditorsHelp = UIUtils.createInformationLabel ("{Editors} you have sent this {project} to.");        
-        this.currentEditorsHelp.setBorder (UIUtils.createPadding (0, 10, 5, 5));
-        b.add (this.currentEditorsHelp);    
-    
-        this.noCurrentEditors = UIUtils.createInformationLabel ("You have no current {editors} for this {project}.  Right click on one of the {editors} in the <b>Other Editors</b> section below and select <b>Send {project}/{chapters}</b> to send them your {project}.");        
-        this.noCurrentEditors.setBorder (UIUtils.createPadding (0, 10, 5, 5));        
-        b.add (this.noCurrentEditors);                
-
-        this.currentEditorsWrapper = new Box (BoxLayout.Y_AXIS);
-        this.currentEditorsWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.currentEditorsWrapper.setBorder (UIUtils.createPadding (0, 10, 0, 5));
-        
-        b.add (this.currentEditorsWrapper);
-        
-        this.currentEditors = new AccordionItem ("",
-                                                 null,
-                                                 b);        
-                
-        this.currentEditors.init ();
-  
         edBox.add (this.currentEditors);
 
-        this.otherEditorsWrapper = new Box (BoxLayout.Y_AXIS);
-        this.otherEditorsWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.otherEditorsWrapper.setBorder (UIUtils.createPadding (0, 10, 0, 5));
-        
-        AccordionItem otherEdsAi = new AccordionItem ("",
-                                                      null,
-                                                      this.otherEditorsWrapper);
+        this.invitesForMe = new EditorsSection ("Invites from others",
+                                                "Invites I've received from other people.",
+                                                null,
+                                                this.projectViewer);
                 
-        this.otherEditors = otherEdsAi;
-                
-        otherEdsAi.init ();        
+        edBox.add (this.invitesForMe);
         
-        edBox.add (otherEdsAi);
+        this.invitesIveSent = new EditorsSection ("Pending invites",
+                                                  "Invites I've sent to other people.",
+                                                  null,
+                                                  this.projectViewer);
+    
+        edBox.add (this.invitesIveSent);
 
-        this.invitesForMeWrapper = new Box (BoxLayout.Y_AXIS);
-        this.invitesForMeWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.invitesForMeWrapper.setBorder (UIUtils.createPadding (0, 10, 0, 5));
-
-        AccordionItem invitesAi = new AccordionItem ("",
-                                                     null,
-                                                     this.invitesForMeWrapper);
+        this.otherEditors = new EditorsSection ("Other {Editors}",
+                                                null,
+                                                null,
+                                                this.projectViewer);
                 
-        this.invitesForMe = invitesAi;
-                
-        invitesAi.init ();        
-        
-        edBox.add (invitesAi);
+        edBox.add (this.otherEditors);
 
         JScrollPane sp = UIUtils.createScrollPane (edBox);
         sp.setBorder (null);
@@ -979,12 +956,12 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     private void updateView ()
     {
                 
-        Set<EditorEditor> invites = new LinkedHashSet ();
+        Set<EditorEditor> invitesForMe = new LinkedHashSet ();
         Set<ProjectEditor> projEds = new LinkedHashSet ();
         Set<EditorEditor> others = new LinkedHashSet ();
+        Set<EditorEditor> invitesIveSent = new LinkedHashSet ();
                 
         int edsSize = EditorsEnvironment.getEditors ().size ();
-        int invitesCount = 0;
         
         int otherEdsCount = 0;
         
@@ -1008,22 +985,31 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             if (ed.isPending ())
             {
                 
-                invites.add (ed);
+                if (!ed.isInvitedByMe ())
+                {
                 
-                //invitesCount++;
+                    invitesForMe.add (ed);
                 
-            }
-            
-            ProjectEditor pe = this.projectViewer.getProject ().getProjectEditor (ed);
-            
-            if (pe != null)
-            {
-                
-                projEds.add (pe);
+                } else {
+                    
+                    invitesIveSent.add (ed);
+                                
+                }
                 
             } else {
+            
+                ProjectEditor pe = this.projectViewer.getProject ().getProjectEditor (ed);
                 
-                others.add (ed);
+                if (pe != null)
+                {
+                    
+                    projEds.add (pe);
+                    
+                } else {
+                    
+                    others.add (ed);
+                    
+                }
                 
             }
             
@@ -1038,26 +1024,91 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
         }
         
-        this.currentEditors.setTitle (String.format ("Current {Editors} (%s)",
-                                                     currProjEdsCount));
-        this.currentEditors.setVisible (currProjEdsCount > 0);
-        this.currentEditorsWrapper.setVisible (currProjEdsCount > 0);
-        this.noCurrentEditors.setVisible (currProjEdsCount == 0);
-        this.currentEditorsHelp.setVisible (currProjEdsCount > 0);
+        this.currentEditors.setVisible ((others.size () > 0 || currProjEdsCount > 0));
         
+        try
+        {
+            
+            this.currentEditors.updateForProjectEditors (projEds);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to update current editors section with editors: " +
+                                  projEds,
+                                  e);
+            
+            this.currentEditors.setVisible (false);
+            
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to display current {editors} section, please contact Quoll Writer support for assistance.");            
+            
+        }
+
         this.otherEditors.setVisible (others.size () > 0);
+
+        try
+        {
+            
+            this.otherEditors.update (others);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to update other editors section with editors: " +
+                                  others,
+                                  e);
+            
+            this.otherEditors.setVisible (false);
+            
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to display others {editors} section, please contact Quoll Writer support for assistance.");            
+            
+        }
+        
+        /*
         this.otherEditors.setTitle (String.format ("Other {Editors} (%s)",
                                                    others.size ()));
-
+*/
         this.noEditors.setVisible (edsSize == 0);        
         
-        this.invitesForMe.setVisible (invitesCount > 0);
-        this.invitesForMe.setTitle (String.format ("Invites from others (%s)",
-                                                   invitesCount));
+        this.invitesForMe.setVisible (invitesForMe.size () > 0);
         
-        this.fillOtherEditorsList (others);
-        this.fillCurrentEditorsList (projEds);
-        this.fillInvitesEditorsList (invites);
+        try
+        {
+            
+            this.invitesForMe.update (invitesForMe);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to update invites for me editors section with editors: " +
+                                  invitesForMe,
+                                  e);
+            
+            this.invitesForMe.setVisible (false);
+            
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to display invites from others {editors} section, please contact Quoll Writer support for assistance.");            
+            
+        }
+
+        this.invitesIveSent.setVisible (invitesIveSent.size () > 0);
+        
+        try
+        {
+            
+            this.invitesIveSent.update (invitesIveSent);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to update invites ive sent editors section with editors: " +
+                                  invitesIveSent,
+                                  e);
+            
+            this.invitesIveSent.setVisible (false);
+            
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to display invites I've sent {editors} section, please contact Quoll Writer support for assistance.");            
+            
+        }
         
         this.firstLogin.setVisible (false);
 
@@ -1925,192 +1976,12 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         return Constants.ONLINE_STATUS_ICON_NAME_PREFIX + type;
         
     }
- 
-    public void fillInvitesEditorsList (Set<EditorEditor> eds)
-    {
-        
-        this.invitesForMeWrapper.removeAll ();
 
-        int c = 0;
-                  
-        try
-        {
-            
-            for (EditorEditor ed : eds)
-            {
-                
-                EditorInfoBox infBox = this.getEditorBox (ed);
-                                        
-                if (c < eds.size () - 1)
-                {
-                
-                    infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
-    
-                } else {
-                    
-                    infBox.setBorder (UIUtils.createPadding (5, 0, 5, 0));
-                                                 
-                }
-        
-                this.invitesForMeWrapper.add (infBox);
-                
-                c++;
-                
-            }
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to show invites: " +
-                                  eds,
-                                  e);
-            
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to build list of invites, please contact Quoll Writer support for assistance.");
-            
-            return;
-            
-        }            
-        
-    }
- 
     private boolean isPendingInviteForMe (EditorEditor ed)
     {
         
         return ed.isPending () && !ed.isInvitedByMe ();
         
-    }
- 
-    public void fillOtherEditorsList (Set<EditorEditor> eds)
-    {
-/*
-        List<EditorEditor> eds = new ArrayList ();
-    
-        // Maybe use a filter here?
-        for (EditorEditor ed : EditorsEnvironment.getEditors ())
-        {
-            
-            if (ed.getEditorStatus () == EditorEditor.EditorStatus.rejected)
-            {
-                
-                continue;
-                
-            }            
-            
-            if ((!this.projectViewer.getProject ().isProjectEditor (ed))
-                &&
-                (!this.isPendingInviteForMe (ed))
-               )
-            {
-                
-                eds.add (ed);
-                
-            }
-            
-            if (ed.isPrevious ())
-            {
-                
-                System.out.println ("ED: " + ed);
-                
-            }
-            
-        }
-        */
-        this.otherEditorsWrapper.removeAll ();
-        
-        int c = 0;
-        
-        try
-        {
-        
-            for (EditorEditor ed : eds)
-            {
-                        
-                EditorInfoBox infBox = this.getEditorBox (ed);
-                    
-                if (c < eds.size () - 1)
-                {
-                
-                    infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
-    
-                } else {
-                    
-                    infBox.setBorder (UIUtils.createPadding (5, 0, 5, 0));
-                                                 
-                }
-        
-                this.otherEditorsWrapper.add (infBox);
-                
-                c++;
-                
-            }
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to show other editors: " +
-                                  eds,
-                                  e);
-            
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to build list of other {editors} (not for this {project}), please contact Quoll Writer support for assistance.");
-            
-            return;
-            
-        }
-                        
-    }
-        
-    public void fillCurrentEditorsList (Set<ProjectEditor> currEds)
-    {
-                        
-        this.currentEditorsWrapper.removeAll ();
-        
-        if (currEds != null)
-        {
-        
-            List<ProjectEditor> eds = new ArrayList (currEds);
-        
-            int c = 0;
-            
-            try
-            {
-            
-                for (ProjectEditor pe : currEds)
-                {
-            
-                    EditorInfoBox infBox = this.getEditorBox (pe.getEditor ());
-                    
-                    if (c < eds.size () - 1)
-                    {
-                    
-                        infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
-        
-                    } else {
-                        
-                        infBox.setBorder (UIUtils.createPadding (5, 0, 5, 0));
-                                                     
-                    }
-        
-                    this.currentEditorsWrapper.add (infBox);
-        
-                    c++;
-        
-                }
-
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to show current editors: " +
-                                      currEds,
-                                      e);
-                
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "Unable to build list of current {editors} (for this {project}), please contact Quoll Writer support for assistance.");
-                
-                return;
-                
-            }
-            
-        }
-                        
     }
 
     /**
@@ -2227,6 +2098,144 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
         return b;
         
+    }
+ 
+    private class EditorsSection extends AccordionItem
+    {
+
+        private Box editorsListWrapper = null;
+        private AbstractProjectViewer viewer = null;
+        private String title = null;
+        private JLabel help = null;
+        private JLabel noEditorsHelp = null;
+    
+        public EditorsSection (String title,
+                               String help,
+                               String noEditorsHelp,
+                               AbstractProjectViewer viewer)
+        {
+            
+            super ("",
+                   null);
+            
+            this.title = title;
+            this.viewer = viewer;
+            
+            Box content = new Box (BoxLayout.Y_AXIS);
+            content.setAlignmentX (Component.LEFT_ALIGNMENT);
+            content.setBorder (UIUtils.createPadding (0, 10, 0, 5));
+        
+            if (help != null)
+            {
+                
+                this.help = UIUtils.createInformationLabel (help);        
+                this.help.setBorder (UIUtils.createPadding (0, 0, 5, 5));
+                
+                content.add (this.help);
+                
+            }
+        
+            if (noEditorsHelp != null)
+            {
+                
+                this.noEditorsHelp = UIUtils.createInformationLabel (noEditorsHelp);        
+                this.noEditorsHelp.setBorder (UIUtils.createPadding (0, 0, 5, 5));
+                
+                content.add (this.noEditorsHelp);                
+                
+            }
+        
+            this.editorsListWrapper = new Box (BoxLayout.Y_AXIS);
+            
+            content.add (this.editorsListWrapper);
+        
+            this.setContent (content);
+            
+        }
+
+        private EditorInfoBox getEditorBox (EditorEditor ed)
+                                     throws GeneralException
+        {
+            
+            EditorInfoBox b = new EditorInfoBox (ed,
+                                                 this.viewer,
+                                                 true);
+                                                 
+            b.setAlignmentX (Component.LEFT_ALIGNMENT);
+                    
+            b.addFullPopupListener ();
+            
+            b.init ();
+            
+            return b;
+            
+        }
+        
+        public void update (Set<EditorEditor> eds)
+                     throws GeneralException
+        {
+            
+            this.setTitle (String.format ("%s (%s)",
+                                          this.title,
+                                          Environment.formatNumber (eds.size ())));
+
+            if (this.help != null)
+            {
+
+                this.help.setVisible (eds.size () > 0);
+                
+            }
+            
+            if (this.noEditorsHelp != null)
+            {
+
+                this.noEditorsHelp.setVisible (eds.size () == 0);
+                
+            }                
+            
+            this.editorsListWrapper.removeAll ();
+                        
+            EditorInfoBox last = null;
+            
+            for (EditorEditor ed : eds)
+            {
+                                             
+                EditorInfoBox infBox = this.getEditorBox (ed);
+                    
+                last = infBox;
+                    
+                infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
+        
+                this.editorsListWrapper.add (infBox);
+                
+            }            
+            
+            if (last != null)
+            {
+            
+                last.setBorder (UIUtils.createPadding (5, 0, 5, 0));
+                
+            }
+            
+        }
+        
+        public void updateForProjectEditors (Set<ProjectEditor> pes)
+                     throws GeneralException
+        {
+            
+            Set<EditorEditor> eds = new LinkedHashSet ();
+            
+            for (ProjectEditor pe : pes)
+            {
+                
+                eds.add (pe.getEditor ());
+                
+            }
+            
+            this.update (eds);
+            
+        }
+
     }
     
 }

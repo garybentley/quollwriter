@@ -190,6 +190,13 @@ public class AccordionItem extends Box
     public void init ()
     {
 
+        if (this.inited)
+        {
+            
+            return;
+            
+        }
+    
         final AccordionItem _this = this;
         
         this.header.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));

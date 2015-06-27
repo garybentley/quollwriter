@@ -42,6 +42,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     private JButton chat = null;
     private boolean showImportantMessages = false;
     private ProjectEditor projEditor = null;
+    private MessageBox pendingMessageBox = null;
     
     public EditorInfoBox (EditorEditor          ed,
                           AbstractProjectViewer viewer,
@@ -401,20 +402,17 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         }        
         
-        if (this.editor.isPending ())
+        if ((this.editor.isPending ())
+            &&
+            (this.pendingMessageBox == null)
+            &&
+            (!this.editor.isInvitedByMe ())
+           )
         {
-/*
-            this.editorInfo.setToolTipText ("Right click to see the menu");
-        
-            this.other.setText ((this.editor.isInvitedByMe () ? "Invited: " : "Received: ") + Environment.formatDate (this.editor.getDateCreated ()));
 
-            this.other.setVisible (true);
-            
-            final EditorInfoBox _this = this;
-            
             if (!this.editor.isInvitedByMe ())
             {
-                                
+        
                 // Show an accept/reject.
                 EditorMessage m = null;
                 
@@ -428,6 +426,89 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     
                 }
                 
+                MessageBox mb = null;
+                
+                try
+                {
+                
+                    mb = MessageBoxFactory.getMessageBoxInstance (m,
+                                                                  this.projectViewer);
+                    mb.setShowAttentionBorder (false);
+        
+                    mb.init ();
+        
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get message box for message: " +
+                                          m,
+                                          e);
+                                    
+                    UIUtils.showErrorMessage (this.projectViewer,
+                                              "Unable to show invite from {editor}, please contact Quoll Writer support for assistance.");
+    
+                    return;
+                    
+                }
+                
+                mb.setAlignmentX (Component.LEFT_ALIGNMENT);
+    
+                this.pendingMessageBox = mb;
+                this.add (mb);
+                
+                this.other.setText (String.format ("Received: %s",
+                                                   Environment.formatDate (this.editor.getDateCreated ())));
+                    
+            } else {
+                
+                this.other.setText (String.format ("Invited: %s",
+                                                   Environment.formatDate (this.editor.getDateCreated ())));
+    
+                this.other.setVisible (true);
+                
+            }
+
+            this.other.setVisible (true);
+
+            /*
+            final EditorInfoBox _this = this;
+            
+                // Show an accept/reject.
+                EditorMessage m = null;
+                
+                if ((this.editor.getMessages () != null)
+                    &&
+                    (this.editor.getMessages ().size () > 0)
+                   )
+                {
+                    
+                    m = this.editor.getMessages ().iterator ().next ();
+                    
+                }
+                
+                MessageBox mb = null;
+                
+                try
+                {
+                
+                    mb = MessageBoxFactory.getMessageBoxInstance (m,
+                                                                  this.projectViewer);
+                    mb.setShowAttentionBorder (false);
+        
+                    mb.init ();
+        
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get message box for message: " +
+                                          m,
+                                          e);
+                                    
+                    UIUtils.showErrorMessage 
+                                    
+                }
+                
+                mb.setAlignmentX (Component.LEFT_ALIGNMENT);
+                
+                
                 if ((m == null)
                     ||
                     (m instanceof InviteMessage)
@@ -436,6 +517,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
                     final InviteMessage im = (InviteMessage) m;
                 
+                    
                     JButton accept = UIUtils.createButton (Environment.getIcon (Constants.ACCEPTED_ICON_NAME,
                                                                                 Constants.ICON_EDITOR_MESSAGE),
                                                            "Click to accept the invitation",
@@ -468,7 +550,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                               e);
                                                                         
                                                                     }
-                                                                    
+                                                                                                                                                                                                            
                                                                 }
                                                                 
                                                            });
@@ -590,6 +672,15 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             */
         } else {
         
+            if (this.pendingMessageBox != null)
+            {
+        
+                this.pendingMessageBox.setVisible (false);
+                this.remove (this.pendingMessageBox);
+                this.pendingMessageBox = null;
+                
+            }
+        
             UIUtils.setAsButton (this.editorInfo);
         
             this.editorInfo.setToolTipText (String.format ("Click to send a message to %s, right click to see the menu",
@@ -655,7 +746,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                     
                                                                   });
         
-        if (undealtWith.size () > 0)
+        if ((undealtWith.size () > 0)
+            &&
+            (!this.editor.isPending ())
+           )
         {
         
             this.importantMessages.setToolTipText (String.format ("%s important message%s require%s your attention",
@@ -1349,6 +1443,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         final EditorInfoBox _this = this;        
         
         if (this.editor.isPrevious ())
+        {
+            
+            return;
+            
+        }
+        
+        if (this.editor.isPending ())
         {
             
             return;
