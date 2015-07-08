@@ -37,13 +37,9 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
     }
     
+    @Override
     public void init (JTree tree)
     {
-
-        this.addHeaderPopupMenuItem ("Add New " + Environment.getObjectTypeName (Warmup.OBJECT_TYPE),
-                                     "add",
-                                     this.projectViewer.getAction (WarmupsViewer.NEW_WARMUP_ACTION,
-                                                                   this.projectViewer.getProject ().getBooks ().get (0)));
 
         ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
                                                                                    null,
@@ -51,6 +47,18 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                                                                                    false));        
     }
 
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+
+        m.add (UIUtils.createMenuItem ("Add New " + Environment.getObjectTypeName (Warmup.OBJECT_TYPE),
+                                       "add",
+                                       this.projectViewer.getAction (WarmupsViewer.NEW_WARMUP_ACTION,
+                                                                     this.projectViewer.getProject ().getBooks ().get (0))));
+    
+    }    
+    
     public boolean showItemCountOnHeader ()
     {
         

@@ -66,12 +66,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     private JComponent noEditors = null;
     private JComponent firstLogin = null;
     private JButton statusButton = null;
-    
-    //private AccordionItem currentEditors = null;
-    //private JLabel noCurrentEditors = null;
-    //private JComponent currentEditorsWrapper = null;
-    //private JLabel currentEditorsHelp = null;
-    
+        
     private JComponent notification = null;
     
     private EditorsSection currentEditors = null;
@@ -89,7 +84,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         EditorsEnvironment.addEditorChangedListener (this);
         EditorsEnvironment.addUserOnlineStatusListener (this);
         
-    }
+    }                
                 
     public void editorChanged (EditorChangedEvent ev)
     {
@@ -204,7 +199,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     public String getTitle ()
     {
         
-        return "{Editors}";
+        return "{Contacts}";  // {Editors}
         
     }
     
@@ -469,7 +464,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
   */                                        
         JButton b = UIUtils.createButton (Constants.NEW_ICON_NAME,
                                           Constants.ICON_SIDEBAR,
-                                          "Click to invite a new {editor}",
+                                          "Click to send an invite",
                                           new ActionAdapter ()
                                           {
                                             
@@ -515,7 +510,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                             if (prevCount > 0)
                                             {
 
-                                                popup.add (UIUtils.createMenuItem (String.format ("View the previous {editors} (%s)",
+                                                popup.add (UIUtils.createMenuItem (String.format ("View the previous {contacts} (%s)",
                                                                                                   Environment.formatNumber (prevCount)),
                                                                                    Constants.STOP_ICON_NAME,
                                                                                    new ActionListener ()
@@ -862,7 +857,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                   "You have no current {editors} for this {project}.  Right click on one of the {editors} in the <b>Other Editors</b> section below and select <b>Send {project}/{chapters}</b> to send them this {project}.",
                                                   this.projectViewer);
     
-        edBox.add (this.currentEditors);
+        //edBox.add (this.currentEditors);
 
         this.invitesForMe = new EditorsSection ("Invites from others",
                                                 "Invites I've received from other people.",
@@ -878,7 +873,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     
         edBox.add (this.invitesIveSent);
 
-        this.otherEditors = new EditorsSection ("Other {Editors}",
+        this.otherEditors = new EditorsSection ("All {Contacts}", //Editors
                                                 null,
                                                 null,
                                                 this.projectViewer);
@@ -943,6 +938,8 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 
             } else {
                         
+                    others.add (ed);
+/*
                 ProjectEditor pe = this.projectViewer.getProject ().getProjectEditor (ed);
                 
                 if (pe != null)
@@ -955,7 +952,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                     others.add (ed);
                     
                 }
-                
+  */              
             }
             
         }
@@ -969,7 +966,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
         }
         
-        this.currentEditors.setVisible ((others.size () > 0 || currProjEdsCount > 0));
+        this.currentEditors.setVisible (((others.size () > 0 || currProjEdsCount > 0)) && (this.projectViewer.getProject ().isNormalProject ()));
         
         try
         {
@@ -1005,7 +1002,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             this.otherEditors.setVisible (false);
             
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to display others {editors} section, please contact Quoll Writer support for assistance.");            
+                                      "Unable to display others section, please contact Quoll Writer support for assistance.");            
             
         }
                 
@@ -1025,7 +1022,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             this.invitesForMe.setVisible (false);
             
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to display invites from others {editors} section, please contact Quoll Writer support for assistance.");            
+                                      "Unable to display invites from others section, please contact Quoll Writer support for assistance.");            
             
         }
 
@@ -1038,14 +1035,14 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
         } catch (Exception e) {
             
-            Environment.logError ("Unable to update invites ive sent editors section with editors: " +
+            Environment.logError ("Unable to update invites ive sent section with editors: " +
                                   invitesIveSent,
                                   e);
             
             this.invitesIveSent.setVisible (false);
             
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to display invites I've sent {editors} section, please contact Quoll Writer support for assistance.");            
+                                      "Unable to display invites I've sent section, please contact Quoll Writer support for assistance.");            
             
         }
         
@@ -1259,7 +1256,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         edBox.setBackground (UIUtils.getComponentColor ());
 
         final Notification n = Notification.createHelpNotification (this.projectViewer,
-                                                                    "{Editors} you have removed or have removed you in the past.",
+                                                                    "{Contacts} you have removed or have removed you in the past.",
                                                                     30,
                                                                     null,
                                                                     null);
@@ -1318,7 +1315,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                   e);
             
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to build list of previous {editors}, please contact Quoll Writer support for assistance.");
+                                      "Unable to build list of previous {contacts}, please contact Quoll Writer support for assistance.");
             
             return;
             
@@ -1333,7 +1330,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
         edBox.add (Box.createVerticalGlue ());
         
-        AccordionItem prev = new AccordionItem (String.format ("Previous {editors} (%s)",
+        AccordionItem prev = new AccordionItem (String.format ("Previous {contacts} (%s)",
                                                                Environment.formatNumber (prevCount)),
                                                 null,
                                                 edBox);        
@@ -1354,7 +1351,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         JLabel l = new JLabel (Environment.getIcon (Constants.STOP_ICON_NAME,
                                                     Constants.ICON_EDITORS_LIST_TAB_HEADER));
         
-        l.setToolTipText (Environment.replaceObjectNames ("Previous {editors}"));
+        l.setToolTipText (Environment.replaceObjectNames ("Previous {contacts}"));
         
         this.tabs.setTabComponentAt (1,
                                      l);
@@ -1816,7 +1813,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
         EditorInfoBox b = new EditorInfoBox (ed,
                                              this.projectViewer,
-                                             true);
+                                             false);
                                              
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
                 
@@ -1878,6 +1875,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         private String title = null;
         private JLabel help = null;
         private JLabel noEditorsHelp = null;
+        private ComponentListener listener = null;
     
         public EditorsSection (String title,
                                String help,
@@ -1890,6 +1888,36 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             this.title = title;
             this.viewer = viewer;
+            
+            final EditorsSection _this = this;
+            
+            this.listener = new ComponentAdapter ()
+            {
+                
+                @Override
+                public void componentResized (ComponentEvent ev)
+                {
+                    
+                    int count = _this.editorsListWrapper.getComponentCount ();
+                    
+                    for (int i = 0; i < count; i++)
+                    {
+                        
+                        EditorInfoBox infBox = (EditorInfoBox) _this.editorsListWrapper.getComponent (i);
+                        
+                        if (infBox == ev.getSource ())
+                        {
+                        
+                            _this.setBorder (infBox,
+                                             i == (count - 1));
+                            
+                        }
+                        
+                    }                    
+                    
+                }
+                
+            };
             
             Box content = new Box (BoxLayout.Y_AXIS);
             content.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1929,7 +1957,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             EditorInfoBox b = new EditorInfoBox (ed,
                                                  this.viewer,
-                                                 true);
+                                                 false);
                                                  
             b.setAlignmentX (Component.LEFT_ALIGNMENT);
                     
@@ -1937,10 +1965,34 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             b.init ();
             
+            b.addComponentListener (this.listener);
+            
             return b;
             
         }
-        
+        /*
+        public void updateForEditor (EditorEditor ed)
+        {
+            
+            int count = this.editorsListWrapper.getComponentCount ();
+            
+            for (int i = 0; i < count; i++)
+            {
+                
+                EditorInfoBox infBox = (EditorInfoBox) this.editorsListWrapper.getComponent (i);
+                
+                if (infBox.getEditor () == ed)
+                {
+                   
+                    this.setBorder (infBox,
+                                    i == (count - 1));
+                    
+                }
+                
+            }
+            
+        }
+        */
         public void update (Set<EditorEditor> eds)
                      throws GeneralException
         {
@@ -1973,17 +2025,38 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 EditorInfoBox infBox = this.getEditorBox (ed);
                     
                 last = infBox;
-                    
-                infBox.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
-        
+                                                
                 this.editorsListWrapper.add (infBox);
+
+                this.setBorder (infBox,
+                                false);
                 
             }            
             
             if (last != null)
             {
             
-                last.setBorder (UIUtils.createPadding (5, 0, 5, 0));
+                this.setBorder (last,
+                                true);
+                
+            }
+            
+        }
+        
+        private void setBorder (EditorInfoBox b,
+                                boolean       isLast)
+        {
+
+            if (b.isShowAttentionBorder ())
+            {
+        
+                b.setBorder (new CompoundBorder (new CompoundBorder (new MatteBorder (0, 2, 0, 0, UIUtils.getColor ("#ff0000")),
+                                                                     UIUtils.createPadding (0, 5, 0, 0)),
+                                                 isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0)));
+                
+            } else {
+                
+                b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
                 
             }
             

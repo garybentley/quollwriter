@@ -759,11 +759,11 @@ public class OptionsPanel extends QuollPanel
 
         this.setContentBorder (box);
         
-        Accordion.Item item = this.accordion.add (this.createHeader (UIUtils.formatForUser ("{Editors}"),
+        Accordion.Item item = this.accordion.add (this.createHeader (UIUtils.formatForUser ("{Editors} Service"),
                                                   Constants.EDITORS_ICON_NAME),
                                                   null,
                                                   box,
-                                                  UIUtils.createHelpTextPane ("Options related to the Editors service and how you interact with your {editors}.",
+                                                  UIUtils.createHelpTextPane ("Options related to the Editors service and how you interact with your {contacts}.",
                                                                               this.projectViewer));
         
         this.sections.put ("editors",

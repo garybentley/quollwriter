@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.*;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.ui.components.GradientPainter;
 import com.quollwriter.ui.components.Header;
 
@@ -19,7 +20,7 @@ public class AccordionItem extends Box
 {
     
     protected Header header = null;
-    private List<JMenuItem> headerMenuItems = new ArrayList ();
+    //private List<JMenuItem> headerMenuItems = new ArrayList ();
     private String title = null;
     private JComponent content = null;
     private boolean inited = false;
@@ -187,6 +188,12 @@ public class AccordionItem extends Box
         
     }
     
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+        
+    }
+    
     public void init ()
     {
 
@@ -201,9 +208,44 @@ public class AccordionItem extends Box
         
         this.header.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
         this.header.setToolTipText ("Click to open/close the items below.");
+        
+        this.header.addMouseListener (new MouseEventHandler ()
+        {
+           
+            @Override
+            public void fillPopup (JPopupMenu m,
+                                   MouseEvent ev)
+            {
+                
+                _this.fillHeaderPopupMenu (m,
+                                           ev);
+                
+            }
+            
+            @Override
+            public void handlePress (MouseEvent ev)
+            {
+                
+                JComponent c = _this.getContent ();
+                
+                if (c != null)
+                {
+                
+                    _this.setContentVisible (!c.isVisible ());
+        
+                    _this.revalidate ();
+                    _this.repaint ();                    
+
+                }                
+                
+            }
+            
+        });
+        
+        /*
         this.header.addMouseListener (new MouseAdapter ()
         {
-
+        
             public void mouseReleased (MouseEvent ev)
             {
 
@@ -243,7 +285,7 @@ public class AccordionItem extends Box
             }
             
         });
-        
+        */
         JComponent c = this.getContent ();
 
         if (c != null)
@@ -272,7 +314,7 @@ public class AccordionItem extends Box
         this.header.setControls (c);
         
     }
-    
+    /*
     public void addHeaderPopupMenuItem (String         title,
                                         String         icon,
                                         ActionListener action)
@@ -283,7 +325,8 @@ public class AccordionItem extends Box
                                                           action));
                                                                    
     }
-    
+    */
+    /*
     private void createHeaderPopupMenu (MouseEvent ev)
     {
         
@@ -309,5 +352,5 @@ public class AccordionItem extends Box
 
         
     }
-    
+    */
 }

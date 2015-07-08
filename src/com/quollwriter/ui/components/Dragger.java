@@ -19,7 +19,8 @@ public class Dragger extends MouseAdapter
     private boolean   constrainToX = false;
     private boolean   constrainToY = false;
     private Set<DragListener> listeners = new LinkedHashSet ();
-
+    private int dragItemLayer = -1;
+    
     public Dragger(Component dragHandle,
                    Component dragItem,
                    Component within)
@@ -54,6 +55,8 @@ public class Dragger extends MouseAdapter
                                   Point end)
     {
         
+        final Dragger _this = this;
+        
         DragEvent ev = new DragEvent (dragItem,
                                       start,
                                       end);
@@ -64,12 +67,34 @@ public class Dragger extends MouseAdapter
             if (type == DragEvent.FINISHED)
             {
                 
+                if (_this.within instanceof JLayeredPane)
+                {
+                    
+                    JLayeredPane p = (JLayeredPane) _this.within;
+                    
+                    p.setLayer (_this.dragItem,
+                                _this.dragItemLayer);
+                    
+                }
+
                 d.dragFinished (ev);
                 
             }
             
             if (type == DragEvent.STARTED)
             {
+                
+                if (_this.within instanceof JLayeredPane)
+                {
+                    
+                    JLayeredPane p = (JLayeredPane) _this.within;
+                    
+                    _this.dragItemLayer = p.getLayer (_this.dragItem);
+                    
+                    p.setLayer (_this.dragItem,
+                                JLayeredPane.DRAG_LAYER);
+                    
+                }
                 
                 d.dragStarted (ev);
                 

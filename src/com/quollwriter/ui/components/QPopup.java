@@ -47,6 +47,8 @@ public class QPopup extends Box
 
         super (BoxLayout.Y_AXIS);
 
+        final QPopup _this = this;
+        
         this.header = h;
 
         this.setBorder (QPopup.defaultBorder);
@@ -64,9 +66,27 @@ public class QPopup extends Box
 
         this.header.setPadding (new Insets (3, 5, 0, 3));
 
+        this.header.addMouseListener (new MouseAdapter ()
+        {
+           
+            public void mouseReleased (MouseEvent ev)
+            {
+                
+                if (_this.getParent () instanceof JLayeredPane)
+                {
+                    
+                    JLayeredPane p = (JLayeredPane) _this.getParent ();
+                    
+                    p.setPosition (_this,
+                                   0);
+                    
+                }
+                
+            }
+            
+        });
+        
         ActionMap am = this.getActionMap ();
-
-        final QPopup _this = this;
         
         am.put ("hide",
                 new ActionAdapter ()

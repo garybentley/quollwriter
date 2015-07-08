@@ -587,7 +587,7 @@ public class EditorsEnvironment
         });
                 
     }
-    
+        
     public static NewProjectMessage getNewProjectMessage (EditorEditor ed,
                                                           String       projectId,
                                                           boolean      sentByMe)
@@ -2244,6 +2244,32 @@ public class EditorsEnvironment
         EditorsEnvironment.editorsManager.deleteObject (pe,
                                                         false,
                                                         null);
+        
+        // Remove from any project tied to a project viewer.
+        Project proj = null;
+        
+        try
+        {
+            
+            proj = Environment.getProjectById (pe.getForProjectId (),
+                                               Project.NORMAL_PROJECT_TYPE);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get project for id: " +
+                                  pe.getForProjectId (),
+                                  e);
+            
+        }                        
+
+        if (proj != null)
+        {
+            
+            AbstractProjectViewer pv = Environment.getProjectViewer (proj);
+            
+            pv.getProject ().removeProjectEditor (pe);
+            
+        }
 /*
         if (pe.isAccepted ())
         {                                                        
@@ -2335,7 +2361,7 @@ public class EditorsEnvironment
         pe.setStatusMessage (newStatus);
         
         EditorsEnvironment.updateProjectEditor (pe);
-
+        
     }
     
     public static void removeEditor (final EditorEditor   ed,

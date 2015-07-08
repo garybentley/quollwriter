@@ -81,41 +81,41 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
             
             this.responseBox.add (l);           
             
-            JButton accept = UIUtils.createButton (Environment.getIcon (Constants.ACCEPTED_ICON_NAME,
-                                                                        Constants.ICON_EDITOR_MESSAGE),
-                                                   "Click to accept the invitation",
-                                                   new ActionListener ()
-                                                   {
-                                                        
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                            
-                                                            _this.handleResponse (true);
-                                                            
-                                                        }
-                                                        
-                                                   });
+            JButton accept = UIUtils.createButton ("Accept",
+                                                   null);            
             
-            JButton reject = UIUtils.createButton (Environment.getIcon (Constants.REJECTED_ICON_NAME,
-                                                                        Constants.ICON_EDITOR_MESSAGE),
-                                                   "Click to reject the invitation",
-                                                   new ActionListener ()
-                                                   {
-                                                        
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                                  
-                                                            _this.handleResponse (false);
-                                                            
-                                                        }
-                                                        
-                                                   });
+            accept.setToolTipText ("Click to accept the invitation");
+            accept.addActionListener (new ActionListener ()
+            {
+                 
+                 public void actionPerformed (ActionEvent ev)
+                 {
+                     
+                     _this.handleResponse (true);
+                     
+                 }
+                 
+            });
+            
+            JButton reject = UIUtils.createButton ("Reject",
+                                                   null);
+            reject.setToolTipText ("Click to reject the invitation");
+            reject.addActionListener (new ActionListener ()
+            {
+                 
+                 public void actionPerformed (ActionEvent ev)
+                 {
+                           
+                     _this.handleResponse (false);
+                     
+                 }
+                 
+            });
 
-            List<JButton> buts = new ArrayList ();
-            buts.add (accept);
-            buts.add (reject);
+            JButton[] buts = new JButton[] { accept, reject };
                             
-            JComponent bb = UIUtils.createButtonBar (buts);
+            JComponent bb = UIUtils.createButtonBar2 (buts,
+                                                      Component.LEFT_ALIGNMENT);
                         
             bb.setAlignmentX (Component.LEFT_ALIGNMENT);
             

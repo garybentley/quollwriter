@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
 
 import java.awt.event.*;
 import java.awt.Component;
@@ -21,6 +22,7 @@ import com.jgoodies.forms.layout.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
+import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
@@ -30,6 +32,7 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
 {
         
     private AbstractProjectViewer commentsViewer = null;
+    private Box responseBox = null;
         
     public ProjectEditStopMessageBox (ProjectEditStopMessage     mess,
                                       AbstractProjectViewer viewer)
@@ -43,12 +46,24 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
     public boolean isAutoDealtWith ()
     {
         
-        return true;
+        return false;
         
     }    
         
     public void doUpdate ()
     {
+
+        if (this.message.isDealtWith ())
+        {
+            
+            if (this.responseBox != null)
+            {
+                
+                this.responseBox.setVisible (false);
+                
+            }
+            
+        }
                 
     }
     
@@ -164,10 +179,96 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
         JPanel bp = builder.getPanel ();
         bp.setOpaque (false);
         bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
+        bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));
         
-        this.add (bp);             
-                                                                    
+        this.add (bp);                     
+        
+        if (!this.message.isDealtWith ())
+        {
+            
+            // Show the response.
+            this.responseBox = new Box (BoxLayout.Y_AXIS);
+            
+            this.add (this.responseBox);
+            
+            JTextPane rdesc = UIUtils.createHelpTextPane (String.format ("<b>%s</b> has stopped editing {project} <b>%s</b>.",
+                                                                         this.message.getEditor ().getShortName (),
+                                                                         this.message.getForProjectName ()),
+                                                         this.projectViewer);        
+            
+            this.responseBox.add (Box.createVerticalStrut (5));
+                                
+            Box rdescb = new Box (BoxLayout.Y_AXIS);
+            rdescb.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+            rdescb.add (rdesc);
+            rdescb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            this.responseBox.add (rdescb);
+            
+            rdesc.setBorder (null);
+            rdesc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                          rdesc.getPreferredSize ().height));                
+
+            final EditorEditor ed = this.message.getEditor ();    
+                                 
+            this.responseBox.setBorder (UIUtils.createPadding (5, 0, 0, 0));
+            
+            JButton ok = new JButton ("Ok, got it");
+    
+            ok.addActionListener (new ActionListener ()
+            {
+    
+                public void actionPerformed (ActionEvent ev)
+                {
+    
+                    try
+                    {
+    
+                        Project p = Environment.getProjectById (_this.message.getForProjectId (),
+                                                                Project.NORMAL_PROJECT_TYPE);
+                                    
+                        ProjectEditor pe = EditorsEnvironment.getProjectEditor (p,
+                                                                                ed);
+                        
+                        pe.setCurrent (false);
+                        pe.setEditorTo (new Date ());
+                        pe.setStatusMessage (String.format ("Stopped editing: %s",
+                                                            Environment.formatDate (pe.getEditorTo ())));
+                        
+                        EditorsEnvironment.updateProjectEditor (pe);
+                                              
+                        _this.message.setDealtWith (true);
+                        
+                        EditorsEnvironment.updateMessage (_this.message);
+                                                    
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to update editor: " +
+                                              ed,
+                                              e);
+                        
+                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                  "Unable to update {contact}, please contact Quoll Writer support for assitance.");
+                        
+                        return;
+                        
+                    }
+    
+                }
+    
+            });
+                        
+            JButton[] buts = new JButton[] { ok };
+                                                    
+            JPanel bb = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); 
+            bb.setOpaque (false);                            
+            bb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            bb.setBorder (UIUtils.createPadding (5, 0, 0, 0));
+            
+            this.responseBox.add (bb);                         
+            
+        }
+                                                                            
     }
     
 }

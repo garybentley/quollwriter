@@ -34,6 +34,7 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.text.*;
 import com.quollwriter.db.*;
+import com.quollwriter.editors.*;
 
 import org.jdom.*;
 
@@ -373,7 +374,19 @@ Won't animate due to rubber stamping in table renderer.
                         if (ed != null)
                         {
                         
-                            tip = "You are editing this {project} for <b>" + ed.getMainName () + "</b>.";
+                            String name = ed.getMainName ();                        
+                        
+                            ed = EditorsEnvironment.getEditorByEmail (ed.getEmail ());
+                                                
+                            if (ed != null)
+                            {
+                                
+                                name = ed.getShortName ();
+                                
+                            }
+                        
+                            tip = String.format ("You are editing this {project} for <b>%s</b>.",
+                                                 name);
                             
                         }
                         

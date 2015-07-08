@@ -101,7 +101,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
 
         String verName = pv.getName ();        
                                     
-        String rows = "p";
+        String rows = "p, 6px, p";
         
         if (verName != null)
         {
@@ -135,6 +135,60 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
         CellConstraints cc = new CellConstraints ();
 
         int row = 1;
+             
+        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
+                          cc.xy (1,
+                                 row));
+        
+        if (proj != null)
+        {
+        
+            JLabel openProj = UIUtils.createClickableLabel (message.getForProjectName (),
+                                                            null,
+                                                            new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                
+                    if (fproj != null)
+                    {
+                
+                        try
+                        {
+                
+                            Environment.openProject (fproj);
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to open project: " +
+                                                  fproj,
+                                                  e);
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+            });        
+            
+            openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
+            
+            builder.add (openProj,
+                         cc.xy (3,
+                                row));
+            
+        } else {
+            
+            builder.addLabel (String.format ("<html>%s</html>",
+                                             message.getForProjectName ()),
+                              cc.xy (3,
+                                     row));
+            
+        }
+
+        row += 2;             
              
         builder.addLabel (String.format ("<html><i>%s</i></html>",
                                          (this.message.isSentByMe () ? "Sent" : "Received")),

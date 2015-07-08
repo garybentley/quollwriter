@@ -264,6 +264,7 @@ public class LinkedToAccordionItem extends AccordionItem
         
     }
     
+    @Override
     public void init ()
     {
         
@@ -282,11 +283,7 @@ public class LinkedToAccordionItem extends AccordionItem
             }
             
         };        
-        
-        this.addHeaderPopupMenuItem ("Edit",
-                                     Constants.EDIT_ICON_NAME,
-                                     action);
-        
+                
         List<JButton> conts = new ArrayList ();
         
         conts.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
@@ -304,5 +301,31 @@ public class LinkedToAccordionItem extends AccordionItem
         //this.setMaximumSize (this.getPreferredSize ());        
         
     }
+    
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+
+        final LinkedToAccordionItem _this = this;
+        
+        ActionListener action = new ActionAdapter ()
+        {
+          
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.edit ();
+                
+            }
+            
+        };        
+        
+        m.add (UIUtils.createMenuItem ("Edit",
+                                       Constants.EDIT_ICON_NAME,
+                                       action));
+    
+    }
+    
     
 }

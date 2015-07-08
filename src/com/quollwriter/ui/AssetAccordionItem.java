@@ -32,7 +32,17 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         
     public void init (final JTree tree)
     {
+
+        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
+                                                                                this.projectViewer.getProject ()));
         
+    }
+
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+    
         final AssetAccordionItem _this = this;
 
         ActionListener addNewItem = new ActionAdapter ()
@@ -71,30 +81,27 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
             }
 
         };
-
-        this.addHeaderPopupMenuItem ("Add New " + Environment.getObjectTypeName (this.forObjType),
-                                     Constants.ADD_ICON_NAME,
-                                     addNewItem);
+    
+        m.add (UIUtils.createMenuItem ("Add New " + Environment.getObjectTypeName (this.forObjType),
+                                       Constants.ADD_ICON_NAME,
+                                       addNewItem));
 
         if (this.forObjType.equals (QObject.OBJECT_TYPE))
         {
                     
             // Add New Type
-            this.addHeaderPopupMenuItem (Environment.replaceObjectNames ("New {Object} Type"),
-                                         Constants.ADD_ICON_NAME,
-                                         this.projectViewer.getAction (ProjectViewer.NEW_ITEM_TYPE_ACTION));
+            m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("New {Object} Type"),
+                                           Constants.ADD_ICON_NAME,
+                                           this.projectViewer.getAction (ProjectViewer.NEW_ITEM_TYPE_ACTION)));
     
-            this.addHeaderPopupMenuItem (Environment.replaceObjectNames ("Manage {Object} Types"),
-                                         Constants.EDIT_ICON_NAME,
-                                         this.projectViewer.getAction (ProjectViewer.MANAGE_ITEM_TYPES_ACTION));
+            m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("Manage {Object} Types"),
+                                           Constants.EDIT_ICON_NAME,
+                                           this.projectViewer.getAction (ProjectViewer.MANAGE_ITEM_TYPES_ACTION)));
 
         }       
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
-                                                                                this.projectViewer.getProject ()));
-        
     }
-
+    
     public void reloadTree (JTree tree)
     {
         

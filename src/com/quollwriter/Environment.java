@@ -1712,6 +1712,25 @@ public class Environment
   
     }
     
+    public static void openProjectWithId (String id,
+                                          String projType)
+                                   throws Exception
+    {
+        
+        Project p = Environment.getProjectById (id,
+                                                projType);
+
+        if (p == null)
+        {
+            
+            return;            
+                                                
+        }
+        
+        Environment.openProject (p);
+        
+    }
+    
     public static void  openProject (final Project p)
                               throws Exception
     {

@@ -31,13 +31,20 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
             
     }
     
-    public void init (JTree tree)
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
     {
 
-        this.addHeaderPopupMenuItem ("Add New {Chapter}",
-                                     Constants.ADD_ICON_NAME,
-                                     this.projectViewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
-                                                                   this.projectViewer.getProject ().getBooks ().get (0)));
+        m.add (UIUtils.createMenuItem ("Add New {Chapter}",
+                                       Constants.ADD_ICON_NAME,
+                                       this.projectViewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
+                                                                     this.projectViewer.getProject ().getBooks ().get (0))));
+    
+    }
+    
+    public void init (JTree tree)
+    {
 
         ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
                                                                                    null,

@@ -109,23 +109,75 @@ public class InviteResponseMessage extends EditorMessage
     }
     
     public String getMessage ()
+                       throws GeneralException    
     {
         
-        return Boolean.toString (this.accepted);
+        Map data = new HashMap ();
+        
+        data.put (MessageFieldNames.accepted,
+                  this.accepted);
+
+        Map edInf = new HashMap ();
+                  
+        data.put (MessageFieldNames.editorinformation,
+                  edInf);
+        
+        if (this.editorName != null)
+        {
+        
+            edInf.put (MessageFieldNames.name,
+                       this.editorName);
+
+        }
+        
+        if (this.editorAvatar != null)
+        {
+            
+            try
+            {
+            
+                edInf.put (MessageFieldNames.avatar,
+                           EditorsUtils.getImageAsBase64EncodedString (this.editorAvatar));
+
+            } catch (Exception e) {
+                
+                throw new GeneralException ("Unable to base64 encode editor avatar.",
+                                            e);
+                               
+            }
+            
+        }
+        
+        try
+        {
+        
+            return JSONEncoder.encode (data);
+        
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to json encode data: " +
+                                        data,
+                                        e);
+            
+        }
         
     }
     
     public void setMessage (String s)
+                     throws GeneralException
     {
         
-        // Nothing to do.  No need to construct.
-        this.accepted = Boolean.valueOf (s);
+        // This is a summary of what was sent/received.
+        Map data = (Map) JSONDecoder.decode (s);
+        
+        this.doInit (data,
+                     this.getEditor ());
         
     }
     
     protected void doInit (Map          data,
                            EditorEditor from)
-                    throws Exception
+                    throws GeneralException
     {
         
         this.accepted = this.getBoolean (MessageFieldNames.accepted,
@@ -154,7 +206,17 @@ public class InviteResponseMessage extends EditorMessage
             if (avatar != null)
             {
                 
-                this.editorAvatar = EditorsUtils.getImageFromBase64EncodedString (avatar);
+                try
+                {
+                
+                    this.editorAvatar = EditorsUtils.getImageFromBase64EncodedString (avatar);
+                    
+                } catch (Exception e) {
+                    
+                    throw new GeneralException ("Unable to get avatar image from base64 encoded string.",
+                                                e);
+                    
+                }
                 
             }
             

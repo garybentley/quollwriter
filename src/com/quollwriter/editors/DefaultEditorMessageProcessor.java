@@ -161,25 +161,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         
         // Unsubscribe.
         EditorsEnvironment.getMessageHandler ().unsubscribeFromEditor (ed);                
-        
-        try
-        {
-            
-            // Uupdate the editor to be previous.
-            ed.setEditorStatus (EditorEditor.EditorStatus.previous);
-        
-            EditorsEnvironment.updateEditor (ed);
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to update editor: " +
-                                  ed,
-                                  e);
-                                            
-            return true;
-            
-        }
-        
+          
         if (showPopup)
         {                
                         
@@ -203,7 +185,20 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                                   boolean                showPopup)
                                            throws Exception    
     {
-        
+
+        if (ed.isPending ())
+        {
+            
+            // TODO: Make this nicer, maybe set new project response message to dealt with?
+            
+            // This is the rare case where someone has been invited, they accepted the project then deleted it
+            // before the user could find out.
+            
+            // Get the NewProjectResponseMessage and set it as dealt with so the user doesn't have to bother with it.
+                        
+        }
+    
+/*        
         Project p = Environment.getProjectById (mess.getForProjectId (),
                                                 Project.NORMAL_PROJECT_TYPE);
                     
@@ -216,7 +211,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                             Environment.formatDate (pe.getEditorTo ())));
         
         EditorsEnvironment.updateProjectEditor (pe);
-
+*/
         if (showPopup)
         {
                         
@@ -400,6 +395,14 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             
         }
         
+        if (rm.isAccepted ())
+        {
+            
+            EditorsEnvironment.getMessageHandler ().subscribeToEditor (ed);
+            
+        }
+        
+        /*
         // Show the response.
         rm.setDealtWith (true);
         
@@ -461,7 +464,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             }
             
         }
-        
+        */
         return true;
         
     }
@@ -586,6 +589,18 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                               throws Exception    
     {
         
+        if (ed.isPending ())
+        {
+            
+            if (res.isAccepted ())
+            {
+                
+                EditorsEnvironment.getMessageHandler ().subscribeToEditor (ed);
+
+            }
+            
+        }
+                
         // Set the response in the new project message we have stored.
         // Get the message.
         NewProjectMessage npmess = EditorsEnvironment.getNewProjectMessage (ed,
@@ -603,7 +618,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             return false;
             
         }
-        
+                
         boolean accepted = res.isAccepted ();
         
         npmess.setAccepted (accepted);
@@ -657,7 +672,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             return false;
             
         }
-                   
+     /*              
         if (ed.isPending ())
         {
             
@@ -699,7 +714,8 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             }
             
         }
-                    
+        */
+  /*                  
         if (pe != null)
         {
         
@@ -739,7 +755,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             }
             
         }
-                        
+*/                        
         return true;
         
         

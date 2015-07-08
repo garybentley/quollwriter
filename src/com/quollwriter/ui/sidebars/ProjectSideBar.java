@@ -2,6 +2,8 @@ package com.quollwriter.ui.sidebars;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.image.*;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -18,17 +20,26 @@ import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
+import com.quollwriter.data.editors.*;
+import com.quollwriter.editors.ui.*;
+import com.quollwriter.ui.components.Dragger;
+import com.quollwriter.ui.components.DragListener;
+import com.quollwriter.ui.components.DragEvent;
+import com.quollwriter.ui.components.LayeredPaneLayout;
 
-public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
+public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 {
 
+    private ProjectEditorsAccordionItem editors = null;
     private Map<String, ProjectObjectsAccordionItem> projItemBoxes = new HashMap ();
     private JComponent content = null;
     private JComponent contentBox = null;
     private Set<String> objTypes = null;
+    private Dragger projEdsDragger = null;
+    private JLayeredPane contentWrapper = null;
     
-    public ProjectSideBar (AbstractProjectViewer v,
-                           Set<String>           objTypes)
+    public ProjectSideBar (ProjectViewer v,
+                           Set<String>   objTypes)
     {
         
         super (v);
@@ -39,13 +50,16 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
         this.contentBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.contentBox.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                        Short.MAX_VALUE));
-/*
-        b.setBorder (new EmptyBorder (0,
-                                      5,
-                                      0,
-                                      0));
-  */
-
+        
+        this.contentWrapper = new JLayeredPane ();
+        this.contentWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.contentWrapper.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                       Short.MAX_VALUE));
+        this.contentWrapper.setLayout (new LayeredPaneLayout (this.contentWrapper));
+        
+        this.contentWrapper.add (this.contentBox);
+                                 //JLayeredPane.DEFAULT_LAYER);
+        
         this.objTypes = objTypes;
                                           
         this.content = this.wrapInScrollPane (this.contentBox);
@@ -248,6 +262,26 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
 
         }
 
+        // TODO: When do drag/drop, can't assume editors is at the bottom.
+        if (this.editors != null)
+        {
+            
+            if (this.editors.isContentVisible ())
+            {
+                
+                if (ats.length () > 0)
+                {
+                    
+                    ats.append ("|");
+                    
+                }
+                
+                ats.append (ProjectEditor.OBJECT_TYPE);
+                
+            }
+            
+        }
+        
         return ats.toString ();        
         
     }
@@ -300,6 +334,19 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
                 
                 }
                 
+                if (objType.equals (ProjectEditor.OBJECT_TYPE))
+                {
+                    
+                    final ProjectSideBar _this = this;
+                    
+                    this.editors = new ProjectEditorsAccordionItem (this.projectViewer);
+
+                    this.contentBox.add (this.editors);
+                                
+                    this.editors.init ();        
+                    
+                }
+                
                 if (assetObjTypes.contains (objType))
                 {
                     
@@ -313,7 +360,7 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
                                             
                     }
         
-                    // Sheer laziness here, fix up later.        
+                    // TODO: Sheer laziness here, fix up later.        
                     this.addAccordionItem (new AssetAccordionItem (objType,
                                                                    (ProjectViewer) this.projectViewer));
                             
@@ -329,16 +376,7 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
             }
 
         }
-        /*
-        for (String objType : this.projItemBoxes.keySet ())
-        {
-            
-            ProjectObjectsAccordionItem it = this.projItemBoxes.get (objType);
 
-            it.init ();
-            
-        }        
-        */
     }
  
     public void setObjectsOpen (String objType)
@@ -366,6 +404,14 @@ public class ProjectSideBar extends AbstractSideBar<AbstractProjectViewer>
             ProjectObjectsAccordionItem t = this.projItemBoxes.get (objType);        
 
             t.setContentVisible (types.contains (objType));        
+            
+        }
+        
+        // TODO: When adding drag-drop for sections sort this out.
+        if (this.editors != null)
+        {
+            
+            this.editors.setContentVisible (types.contains (ProjectEditor.OBJECT_TYPE));
             
         }
         

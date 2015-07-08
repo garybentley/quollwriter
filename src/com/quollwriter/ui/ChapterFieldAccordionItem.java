@@ -208,7 +208,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                                         Chapter c);
     
     public abstract String getFieldIconType ();
-    
+        
     private boolean hasField ()
     {
  
@@ -560,12 +560,15 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         
     }
     
+    @Override
     public void init ()
     {
         
         super.init ();
 
         this.setValue (this.getFieldValue (this.chapter));
+                
+        List<JButton> conts = new ArrayList ();
         
         final ChapterFieldAccordionItem _this = this;
         
@@ -581,12 +584,6 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             
         };
         
-        this.addHeaderPopupMenuItem ("Edit the " + this.getFieldNamePlural (),
-                                     Constants.EDIT_ICON_NAME,
-                                     action);
-        
-        List<JButton> conts = new ArrayList ();
-        
         conts.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                          Constants.ICON_SIDEBAR,
                                          "Click to edit the " + this.getFieldNamePlural (),
@@ -595,5 +592,30 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         this.setHeaderControls (UIUtils.createButtonBar (conts));        
         
     }
+    
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+
+        final ChapterFieldAccordionItem _this = this;
+        
+        ActionListener action = new ActionAdapter ()
+        {
+          
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.edit ();
+                
+            }
+            
+        };
+        
+        m.add (UIUtils.createMenuItem ("Edit the " + this.getFieldNamePlural (),
+                                       Constants.EDIT_ICON_NAME,
+                                       action));
+    
+    }    
     
 }

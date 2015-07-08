@@ -429,7 +429,7 @@ public class EditorPanel extends Box implements EditorMessageListener
 
         final EditorInfoBox infBox = new EditorInfoBox (this.editor,
                                                         this.sideBar.getProjectViewer (),
-                                                        true);
+                                                        false);
         
         infBox.setToolTipText ("Right click to see the menu");
         

@@ -65,7 +65,7 @@ public class EditorChatBox extends Box implements EditorInteractionListener
             {
 
                 String text = _this.message.getText ().trim ();
-                
+                System.out.println ("GOT: " + text);
                 if (text.length () == 0)
                 {
                     
@@ -187,7 +187,7 @@ public class EditorChatBox extends Box implements EditorInteractionListener
                 
                 _this.message.setForeground (UIUtils.getHintTextColor ());
                 
-                String help = "Enter message here...\n\nTo save press Ctrl+Enter or use the buttons below.";
+                String help = "Enter your message here...\n\nTo send press Ctrl+Enter or use the button below.";
                             
                 _this.message.setText (help);
         

@@ -71,17 +71,23 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
         
     }
     
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+                
+        m.add (UIUtils.createMenuItem ("Add New Type",
+                                       Constants.ADD_ICON_NAME,
+                                       this.projectViewer.getAction (ProjectViewer.NEW_NOTE_TYPE_ACTION)));
+
+        m.add (UIUtils.createMenuItem ("Manage Types",
+                                       Constants.EDIT_ICON_NAME,
+                                       this.projectViewer.getAction (ProjectViewer.MANAGE_NOTE_TYPES_ACTION)));
+
+    }    
+    
     public void init (JTree tree)
     {
-
-        // Add New Type
-        this.addHeaderPopupMenuItem ("Add New Type",
-                                     Constants.ADD_ICON_NAME,
-                                     this.projectViewer.getAction (ProjectViewer.NEW_NOTE_TYPE_ACTION));
-
-        this.addHeaderPopupMenuItem ("Manage Types",
-                                     Constants.EDIT_ICON_NAME,
-                                     this.projectViewer.getAction (ProjectViewer.MANAGE_NOTE_TYPES_ACTION));
 
         ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
 

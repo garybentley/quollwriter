@@ -299,7 +299,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (EditorsEnvironment.isEditorsServiceAvailable ())
         {
         
-            String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show the {editors}" : "Click to register for the Editors Service.");
+            String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
         
             titleC.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
                                                Constants.ICON_TITLE_ACTION,
@@ -319,13 +319,12 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                             (!EditorsEnvironment.isUserLoggedIn ())
                                                            )
                                                         {
-                                                            
-                                                            // Show the login.
-                                                            EditorsUIUtils.showLogin (_this,
-                                                                                      null,
-                                                                                      null,
-                                                                                      null);
-                                                            
+                        
+                                                            EditorsEnvironment.goOnline (null,
+                                                                                         null,
+                                                                                         null,
+                                                                                         null);
+                                                                                                                        
                                                             return;
                                                             
                                                         }

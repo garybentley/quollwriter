@@ -193,6 +193,7 @@ public class ProjectViewer extends AbstractProjectViewer
         objTypes.add (QObject.OBJECT_TYPE);
         objTypes.add (ResearchItem.OBJECT_TYPE);
         objTypes.add (Note.OBJECT_TYPE);
+        objTypes.add (ProjectEditor.OBJECT_TYPE);                        
                         
         this.sideBar = new ProjectSideBar (this,
                                            objTypes);

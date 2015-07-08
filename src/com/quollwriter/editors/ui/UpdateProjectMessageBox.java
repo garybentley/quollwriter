@@ -86,8 +86,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         }
         
         JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    null);
-                                                    //Constants.PROJECT_ICON_NAME);
+                                                    Constants.EDIT_ICON_NAME);
         
         this.add (h);
                 

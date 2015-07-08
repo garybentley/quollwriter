@@ -92,14 +92,14 @@ public class EditorsUIUtils
                     return false;
                   
                 }
-                
+                /*
                 if (m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
                 {
                   
                     return false;
                   
                 }
-
+*/
                 return true;
               
             }
@@ -107,6 +107,13 @@ public class EditorsUIUtils
         };     
         
     };
+    
+    public static EditorMessageFilter getImportantMessageFilter ()
+    {
+        
+        return EditorsUIUtils.importantMessageFilter;
+        
+    }
     
     public static EditorMessageFilter getDefaultViewableMessageFilter ()
     {
@@ -237,9 +244,9 @@ public class EditorsUIUtils
         {
             
             UIUtils.createQuestionPopup (viewer,
-                                         "Remove pending {editor}",
+                                         "Remove pending {contact}",
                                          Constants.DELETE_ICON_NAME,
-                                         String.format ("To confirm removal of <b>%s</b> as {an editor} please enter the word <b>Yes</b> in the box below.",
+                                         String.format ("To confirm removal of <b>%s</b> as {a contact} please enter the word <b>Yes</b> in the box below.",
                                                         ed.getShortName ()),
                                          "Yes, remove them",
                                          "No, keep them",
@@ -277,7 +284,7 @@ public class EditorsUIUtils
                                   e);
             
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
+                                      "Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
             
             return;
             
@@ -297,19 +304,19 @@ public class EditorsUIUtils
                                   e);
             
             UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} sent to {editor}, please contact Quoll Writer support for assistance.");
+                                      "Unable to get {projects} sent to {contact}, please contact Quoll Writer support for assistance.");
             
             return;
         
         } 
         
-        StringBuilder sb = new StringBuilder (String.format ("Please confirm you wish to remove <b>%s</b> as {an editor}.<br /><br />A message will be sent to <b>%s</b> informing them of your decision.<br /><br /><p class='error'>Warning: you will no longer be able to receive messages from <b>%s</b> or send messages to them and any {projects} you are editing for them will be deleted from your system.</p>",
+        StringBuilder sb = new StringBuilder (String.format ("Please confirm you wish to remove <b>%s</b> as {a contact}.<br /><br />A message will be sent to <b>%s</b> informing them of your decision.<br /><br /><p class='error'>Warning: you will no longer be able to receive messages from <b>%s</b> or send messages to them and any {projects} you are editing for them will be deleted from your system.</p>",
                                                              ed.getMainName (),
                                                              ed.getMainName (),
                                                              ed.getMainName ()));
                                 
         UIUtils.createTextInputPopup (viewer,
-                                     "Remove {editor}",
+                                     "Remove {contact}",
                                      Constants.DELETE_ICON_NAME,
                                      sb.toString (),
                                      "Yes, remove them",
@@ -353,8 +360,8 @@ public class EditorsUIUtils
                                                                                     AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
                                                                                     
                                                                                     UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                                         "{Editor} removed",
-                                                                                                         String.format ("<b>%s</b> has been removed as an {editor}.",
+                                                                                                         "{Contact} removed",
+                                                                                                         String.format ("<b>%s</b> has been removed as a {contact}.",
                                                                                                                         ed.getMainName ()));
                                                                                     
                                                                                 }
@@ -558,7 +565,7 @@ public class EditorsUIUtils
                                          final EditorEditor          ed)
     {
 
-        final QPopup qp = UIUtils.createClosablePopup ("Update the {editor} information",
+        final QPopup qp = UIUtils.createClosablePopup ("Update the {contact} information",
                                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        null);
@@ -1136,7 +1143,8 @@ public class EditorsUIUtils
                           cc.xy (2,
                                  row));
         
-        final TextArea notes = new TextArea (Environment.replaceObjectNames ("Tell your {editor} about your {project}/book/story here.  Also add instructions/hints on what you are wanting them to do, what to look at specifically and so on."),
+        final TextArea notes = new TextArea (Environment.replaceObjectNames (String.format ("Tell %s about your {project}/book/story here.  Also add instructions/hints on what you are wanting them to do, what to look at specifically and so on.",
+                                                                                            ed.getMainName ())),
                                              4,
                                              5000);
         notes.setAutoGrabFocus (false);
@@ -1647,7 +1655,7 @@ public class EditorsUIUtils
                                         final ActionListener        onSend)
     {
         
-        final QPopup popup = UIUtils.createClosablePopup ("Send {project} to {editor}",
+        final QPopup popup = UIUtils.createClosablePopup ("Send {project}",
                                                           Environment.getIcon (Constants.SEND_ICON_NAME,
                                                                                Constants.ICON_POPUP),
                                                           null);
@@ -4127,9 +4135,9 @@ public class EditorsUIUtils
             {
         
                 UIUtils.createTextInputPopup (viewer,
-                                              "Invite {an editor}",
+                                              "Send an invite", //Invite {an editor}",
                                               Constants.NEW_ICON_NAME,
-                                              "Enter the email address of the {editor} to invite.",
+                                              "Enter the email address of the person to invite.",
                                               "Invite",
                                               null,
                                               null,
@@ -5186,12 +5194,13 @@ public class EditorsUIUtils
         
     }
  
-    public static void showMessagesInPopup (String             title,
-                                            String             iconType,
-                                            String             help,
-                                            Set<EditorMessage> messages,
-                                            boolean            showAttentionBorder,
-                                            AbstractProjectViewer viewer)
+    public static void showMessagesInPopup (String                title,
+                                            String                iconType,
+                                            String                help,
+                                            Set<EditorMessage>    messages,
+                                            boolean               showAttentionBorder,
+                                            AbstractProjectViewer viewer,
+                                            Component             showAt)
     {
 
         final QPopup qp = UIUtils.createClosablePopup (title,
@@ -5201,7 +5210,7 @@ public class EditorsUIUtils
     
         Box content = new Box (BoxLayout.Y_AXIS);
         
-        JTextPane desc = UIUtils.createHelpTextPane (help,
+        JTextPane desc = UIUtils.createHelpTextPane (help + "<br /><br />Messages with a red border require an acknowledgement or action from you.",
                                                      viewer);        
                             
         content.add (desc);
@@ -5245,7 +5254,7 @@ public class EditorsUIUtils
             
                 mb = MessageBoxFactory.getMessageBoxInstance (m,
                                                               viewer);
-                //mb.setShowAttentionBorder (showAttentionBorder);
+                mb.setShowAttentionBorder (true);//showAttentionBorder);
     
                 mb.init ();
     
@@ -5262,13 +5271,321 @@ public class EditorsUIUtils
             Box wb = new Box (BoxLayout.Y_AXIS);
             wb.setAlignmentX (Component.LEFT_ALIGNMENT);
             
-            wb.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 10, 0));
+            wb.setBorder (UIUtils.createBottomLineWithPadding (5, 0, 10, 0));
             wb.add (mb);
             
             b.add (wb);
             
             lastB = wb;
             
+        }
+
+        if (lastB != null)
+        {
+        
+            //lastB.setBorder (UIUtils.createPadding (5, 0, 0, 0));
+            
+        }
+                
+        final JScrollPane sp = UIUtils.createScrollPane (b);
+        
+        if (b.getPreferredSize ().height < 350)
+        {
+            
+            sp.setPreferredSize (new Dimension (500, b.getPreferredSize ().height + 1));
+            
+        } else {
+            
+            sp.setPreferredSize (new Dimension (500, 350));            
+            
+        }
+        
+        sp.setBorder (null);
+        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+        
+        sp.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
+        {
+           
+            public void adjustmentValueChanged (AdjustmentEvent ev)
+            {
+                
+                if (sp.getVerticalScrollBar ().getValue () > 0)
+                {
+                
+                    sp.setBorder (new MatteBorder (1, 0, 0, 0,
+                                                   UIUtils.getInnerBorderColor ()));
+
+                } else {
+                    
+                    sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+                    
+                }
+                    
+            }
+            
+        });        
+
+        content.add (sp);
+                                                       
+        content.setBorder (new EmptyBorder (10, 10, 10, 10));
+
+        JButton finish = new JButton ("Close");
+
+        finish.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                qp.removeFromParent ();
+
+            }
+
+        });
+
+        JButton[] buts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        bp.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+        
+        content.add (bp);                                                 
+                                                 
+        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                                                 content.getPreferredSize ().height));
+
+        qp.setContent (content);
+        
+        if (showAt != null)
+        {
+        
+            viewer.showPopupAt (qp,
+                                showAt,
+                                false);
+
+        } else {
+            
+            viewer.showPopupAt (qp,
+                                UIUtils.getCenterShowPosition (viewer,
+                                                               qp),
+                                false);            
+            
+        }
+        
+        qp.setDraggable (viewer);
+        qp.resize ();
+                        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                sp.getVerticalScrollBar ().setValue (0);        
+                
+            }
+            
+        });
+        
+    }
+    
+    public static void showAllMessagesForEditor (EditorEditor          ed,
+                                                 AbstractProjectViewer viewer,
+                                                 Component             showAt)
+    {
+                
+        Project np = null;
+                
+        Set<EditorMessage> messages = ed.getMessages (new DefaultEditorMessageFilter (np,
+                                                      EditorInfoMessage.MESSAGE_TYPE,
+                                                      NewProjectMessage.MESSAGE_TYPE,
+                                                      NewProjectResponseMessage.MESSAGE_TYPE,
+                                                      ProjectCommentsMessage.MESSAGE_TYPE,
+                                                      InviteResponseMessage.MESSAGE_TYPE,
+                                                      ProjectEditStopMessage.MESSAGE_TYPE,
+                                                      UpdateProjectMessage.MESSAGE_TYPE,
+                                                      EditorRemovedMessage.MESSAGE_TYPE));
+        
+        EditorsUIUtils.showMessagesInPopup ("All messages",
+                                            Constants.ERROR_ICON_NAME,
+                                            String.format ("All messages you've sent to and/or received from <b>%s</b>.",
+                                                           ed.getShortName ()),
+                                            messages,
+                                            false,
+                                            viewer,
+                                            showAt);
+        
+    }    
+
+    public static void showImportantMessagesForEditor (EditorEditor          ed,
+                                                       AbstractProjectViewer viewer,
+                                                       Component             showAt)
+    {
+                
+        // Get undealt with messages that are not chat.
+        // If there is just one then show it, otherwise show a link that will display a popup of them.
+        Set<EditorMessage> undealtWith = ed.getMessages (EditorsUIUtils.importantMessageFilter);
+        
+        EditorsUIUtils.showMessagesInPopup ("Important messages",
+                                            Constants.ERROR_ICON_NAME,
+                                            String.format ("New and important messages from <b>%s</b> that require your attention.",
+                                                           ed.getShortName ()),
+                                            undealtWith,
+                                            false,
+                                            viewer,
+                                            showAt);
+        
+    }    
+    
+    public static void showProjectMessagesForEditor (EditorEditor          ed,
+                                                     AbstractProjectViewer viewer,
+                                                     Component             showAt)
+    {
+        
+        Set<EditorMessage> messages = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
+                                                                                      NewProjectMessage.MESSAGE_TYPE,
+                                                                                      UpdateProjectMessage.MESSAGE_TYPE,
+                                                                                      NewProjectResponseMessage.MESSAGE_TYPE,
+                                                                                      ProjectEditStopMessage.MESSAGE_TYPE));
+        
+        ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
+                
+        EditorsUIUtils.showMessagesInPopup ("{Project} updates sent/received",
+                                            Project.OBJECT_TYPE,
+                                            String.format ("All {project} updates you have sent to or received from <b>%s</b> for {project} <b>%s</b>.  The latest update is shown first.",
+                                                           ed.getShortName (),
+                                                           viewer.getProject ().getName ()),
+                                            messages,
+                                            true,
+                                            viewer,
+                                            showAt);
+
+    }
+    
+    public static void showAllCommentsForEditor (EditorEditor          ed,
+                                                 AbstractProjectViewer viewer,
+                                                 Component             showAt)
+    {
+        
+        Set<EditorMessage> comments = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
+                                                                                      ProjectCommentsMessage.MESSAGE_TYPE));
+            
+        if (comments.size () == 0)
+        {
+            
+            UIUtils.showMessage ((PopupsSupported) viewer,
+                                 "No comments sent/received",
+                                 "No comments have been sent or received yet.");
+
+            return;
+                
+        }
+        
+        boolean sentByMe = comments.iterator ().next ().isSentByMe ();
+        
+        String suffix = (sentByMe ? "sent" : "received");
+        String suffix2 = (sentByMe ? "sent to" : "received from");
+                                                
+        EditorsUIUtils.showMessagesInPopup (String.format ("{Comments} %s",
+                                                suffix),
+                                 Constants.COMMENT_ICON_NAME,
+                                 String.format ("All {comments} you have %s <b>%s</b> for {project} <b>%s</b>.  The latest {comments} are shown first.",
+                                                suffix2,
+                                                ed.getShortName (),
+                                                viewer.getProject ().getName ()),                                 
+                                 comments,
+                                 true,
+                                 viewer,
+                                 showAt);
+        
+    }    
+ 
+    public static void showProjectsUserIsEditingForEditor (EditorEditor          editor,
+                                                           AbstractProjectViewer viewer)
+    {
+        
+        Set<Project> projs = new LinkedHashSet ();
+        
+        try
+        {
+        
+            Set<Project> allProjs = Environment.getAllProjects ();
+            
+            for (Project p : allProjs)
+            {
+                
+                if (p.isEditorProject ())
+                {
+                
+                    EditorEditor ed = EditorsEnvironment.getEditorByEmail (p.getForEditor ().getEmail ());
+                    
+                    if (ed == editor)
+                    {
+                        
+                        projs.add (p);
+                        
+                    }
+                    
+                }
+                
+            }
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get all projects",
+                                  e);
+            
+            UIUtils.showErrorMessage (viewer,
+                                      String.format ("Unable to show {projects} you are editing for %s.",
+                                                     editor.getShortName ()));            
+            
+            return;
+            
+        }
+        
+        final QPopup qp = UIUtils.createClosablePopup ("{Projects} you are editing",
+                                                       Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                            Constants.ICON_POPUP),
+                                                       null);
+    
+        Box content = new Box (BoxLayout.Y_AXIS);
+        
+        JTextPane desc = UIUtils.createHelpTextPane (String.format ("All {projects} you are editing for <b>%s</b>.",
+                                                                    editor.getShortName ()),
+                                                     viewer);        
+                            
+        content.add (desc);
+        desc.setBorder (null);
+        desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                     desc.getPreferredSize ().height));                
+    
+        content.add (Box.createVerticalStrut (5));
+            
+        Box b = new ScrollableBox (BoxLayout.Y_AXIS);
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        Box lastB = null;
+        
+        for (Project p : projs)
+        {
+            
+            Box pb = new Box (BoxLayout.Y_AXIS);
+            pb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            JComponent h = UIUtils.createBoldSubHeader (p.getName (),
+                                                        null);
+            pb.add (h);
+            
+            // TODO: Finish this.
+            
+            b.add (pb);
+            
+            lastB = pb;
+                        
         }
 
         if (lastB != null)
@@ -5373,72 +5690,189 @@ public class EditorsUIUtils
         
     }
     
-    public static void showImportantMessagesForEditor (EditorEditor          ed,
-                                                       AbstractProjectViewer viewer)
+    public static void showProjectsEditorIsEditingForUser (EditorEditor          editor,
+                                                           AbstractProjectViewer viewer)
     {
+        
+        final Set<Project> projs = new LinkedHashSet ();
+        
+        Set<EditorMessage> messages = editor.getMessages (new EditorMessageFilter ()
+        {
+            
+            public boolean accept (EditorMessage m)
+            {
                 
-        // Get undealt with messages that are not chat.
-        // If there is just one then show it, otherwise show a link that will display a popup of them.
-        Set<EditorMessage> undealtWith = ed.getMessages (EditorsUIUtils.importantMessageFilter);
-        
-        EditorsUIUtils.showMessagesInPopup ("Important messages",
-                                            Constants.ERROR_ICON_NAME,
-                                            String.format ("New and important messages from <b>%s</b> that require your attention.",
-                                                           ed.getShortName ()),
-                                            undealtWith,
-                                            false,
-                                            viewer);
-        
-    }    
-    
-    public static void showProjectMessagesForEditor (EditorEditor          ed,
-                                                     AbstractProjectViewer viewer)
-    {
-        
-        Set<EditorMessage> messages = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
-                                                                                      NewProjectMessage.MESSAGE_TYPE,
-                                                                                      UpdateProjectMessage.MESSAGE_TYPE,
-                                                                                      NewProjectResponseMessage.MESSAGE_TYPE));
-        
-        ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
+                if (m.isSentByMe ())
+                {
+                    
+                    return false;
+                    
+                }
+                
+                if (!m.getMessageType ().equals (NewProjectResponseMessage.MESSAGE_TYPE))
+                {
+                    
+                    return false;
+                    
+                }
+                
+                NewProjectResponseMessage nprm = (NewProjectResponseMessage) m;
+                
+                if (!nprm.isAccepted ())
+                {
+                    
+                    return false;
+                    
+                }
+                
+                try
+                {
+                
+                    projs.add (Environment.getProjectById (nprm.getForProjectId (),
+                                                           Project.NORMAL_PROJECT_TYPE));
 
-        String suffix = (pe != null ? "sent" : "received");
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get normal project with id: " +
+                                          nprm.getForProjectId (),
+                                          e);
+                    
+                }
                 
-        EditorsUIUtils.showMessagesInPopup (String.format ("{Project} updates %s",
-                                                suffix),
-                                 Project.OBJECT_TYPE,
-                                 String.format ("All {project} updates you have %s <b>%s</b> for {project} <b>%s</b>.  The latest update is shown first.",
-                                                (pe != null ? "sent to" : "received from"),
-                                                ed.getShortName (),
-                                                viewer.getProject ().getName ()),
-                                 messages,
-                                 true,
-                                 viewer);
-
-    }
+                return true;
+            
+            }
+            
+        });
+                
+        final QPopup qp = UIUtils.createClosablePopup ("{Projects} being edited",
+                                                       Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                            Constants.ICON_POPUP),
+                                                       null);
     
-    public static void showAllCommentsForEditor (EditorEditor          ed,
-                                                 AbstractProjectViewer viewer)
-    {
+        Box content = new Box (BoxLayout.Y_AXIS);
         
-        Set<EditorMessage> comments = ed.getMessages (new DefaultEditorMessageFilter (viewer.getProject (),
-                                                                                      ProjectCommentsMessage.MESSAGE_TYPE));
-                
-        ProjectEditor pe = viewer.getProject ().getProjectEditor (ed);
-                
-        String suffix = (pe != null ? "received" : "sent");
+        JTextPane desc = UIUtils.createHelpTextPane (String.format ("All {projects} <b>%s</b> is editing for you.",
+                                                                    editor.getShortName ()),
+                                                     viewer);        
+                            
+        content.add (desc);
+        desc.setBorder (null);
+        desc.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                     desc.getPreferredSize ().height));                
+    
+        content.add (Box.createVerticalStrut (5));
+            
+        Box b = new ScrollableBox (BoxLayout.Y_AXIS);
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        Box lastB = null;
+        
+        for (Project p : projs)
+        {
                         
-        EditorsUIUtils.showMessagesInPopup (String.format ("{Comments} %s",
-                                                suffix),
-                                 Constants.COMMENT_ICON_NAME,
-                                 String.format ("All {comments} you have %s <b>%s</b> for {project} <b>%s</b>.  The latest {comments} are shown first.",
-                                                (pe != null ? "received from" : "sent to"),
-                                                ed.getShortName (),
-                                                viewer.getProject ().getName ()),                                 
-                                 comments,
-                                 true,
-                                 viewer);
+        }
+
+        if (lastB != null)
+        {
         
-    }    
-    
+            lastB.setBorder (UIUtils.createPadding (0, 0, 0, 0));
+            
+        }
+                
+        final JScrollPane sp = UIUtils.createScrollPane (b);
+        
+        if (b.getPreferredSize ().height < 350)
+        {
+            
+            sp.setPreferredSize (new Dimension (500, b.getPreferredSize ().height + 1));
+            
+        } else {
+            
+            sp.setPreferredSize (new Dimension (500, 350));            
+            
+        }
+        
+        sp.setBorder (null);
+        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+        
+        sp.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
+        {
+           
+            public void adjustmentValueChanged (AdjustmentEvent ev)
+            {
+                
+                if (sp.getVerticalScrollBar ().getValue () > 0)
+                {
+                
+                    sp.setBorder (new MatteBorder (1, 0, 0, 0,
+                                                   UIUtils.getInnerBorderColor ()));
+
+                } else {
+                    
+                    sp.setBorder (new EmptyBorder (1, 0, 0, 0));
+                    
+                }
+                    
+            }
+            
+        });        
+
+        content.add (sp);
+                                                       
+        content.setBorder (new EmptyBorder (10, 10, 10, 10));
+
+        JButton finish = new JButton ("Close");
+
+        finish.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                qp.removeFromParent ();
+
+            }
+
+        });
+
+        JButton[] buts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.CENTER_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        bp.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+        
+        content.add (bp);                                                 
+                                                 
+        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                                                 content.getPreferredSize ().height));
+
+        qp.setContent (content);
+        
+        viewer.showPopupAt (qp,
+                            UIUtils.getCenterShowPosition (viewer,
+                                                           qp),
+                            false);
+        
+        qp.setDraggable (viewer);
+        qp.resize ();
+                        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                sp.getVerticalScrollBar ().setValue (0);        
+                
+            }
+            
+        });
+        
+    }
+
 }

@@ -28,6 +28,12 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
 
     private ObjectManager objectManager = null;
 
+    /**
+     * A cache, since the same projEditor can be viewed in multiple places and updated in multiple places
+     * we need a single object for the editor so that we have one object -> multiple viewers.
+     */
+    private Map<Long, ProjectEditor> cache = new HashMap ();
+    
     public ProjectEditorDataHandler (ObjectManager om)
     {
 
@@ -80,6 +86,9 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
                                              params,
                                              conn);        
         
+        this.cache.put (pe.getKey (),
+                        pe);        
+        
     }
 
     @Override
@@ -95,6 +104,8 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
         this.objectManager.executeStatement ("DELETE FROM projecteditor WHERE dbkey = ?",
                                              params,
                                              conn);
+
+        this.cache.remove (d.getKey ());
         
     }
 
@@ -186,12 +197,21 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
         try
         {
 
-            ProjectEditor pe = new ProjectEditor ();
-        
             int ind = 1;
 
             long key = rs.getLong (ind++);
 
+            ProjectEditor pe = this.cache.get (key);
+            
+            if (pe != null)
+            {
+                
+                return pe;
+                
+            }
+            
+            pe = new ProjectEditor ();
+            
             long edKey = rs.getLong (ind++);
             
             EditorEditor ed = EditorsEnvironment.getEditorByKey (edKey);
@@ -205,6 +225,9 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
             pe.setCurrent (rs.getBoolean (ind++));
             pe.setEditorFrom (rs.getTimestamp (ind++));
             pe.setEditorTo (rs.getTimestamp (ind++));
+            
+            this.cache.put (key,
+                            pe);
             
             return pe;
 

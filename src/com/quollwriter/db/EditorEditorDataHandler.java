@@ -28,6 +28,12 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
 
     private ObjectManager objectManager = null;
 
+    /**
+     * A cache, since the same editor can be viewed in multiple places and updated in multiple places
+     * we need a single object for the editor so that we have one object -> multiple viewers.
+     */
+    private Map<Long, EditorEditor> cache = new HashMap ();    
+    
     public EditorEditorDataHandler (ObjectManager om)
     {
 
@@ -106,6 +112,9 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
                                              params,
                                              conn);        
         
+        this.cache.put (ed.getKey (),
+                        ed);
+        
     }
 
     @Override
@@ -121,6 +130,8 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
         this.objectManager.executeStatement ("DELETE FROM editor WHERE dbkey = ?",
                                              params,
                                              conn);
+        
+        this.cache.remove (d.getKey ());
         
     }
 
@@ -295,6 +306,9 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
             ed.setId (rs.getString (ind++));
             ed.setMessagingUsername (rs.getString (ind++));
             ed.setServiceName (rs.getString (ind++));
+            
+            this.cache.put (ed.getKey (),
+                            ed);
             
             return ed;
 

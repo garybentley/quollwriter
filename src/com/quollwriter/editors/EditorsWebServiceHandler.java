@@ -637,7 +637,12 @@ public class EditorsWebServiceHandler
     public void logout ()
     {
         
-        EditorsEnvironment.getUserAccount ().setWebServiceSessionId (null);
+        if (EditorsEnvironment.getUserAccount () != null)
+        {
+        
+            EditorsEnvironment.getUserAccount ().setWebServiceSessionId (null);
+            
+        }
         
     }
     

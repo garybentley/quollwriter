@@ -259,8 +259,8 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
             
             this.setToolTipText ("This message needs your attention!");
             
-            this.setBorder (new CompoundBorder (new MatteBorder (0, 3, 0, 0, UIUtils.getColor ("#ff0000")),
-                                                new EmptyBorder (0, 5, 0, 0)));
+            this.setBorder (new CompoundBorder (new MatteBorder (0, 2, 0, 0, UIUtils.getColor ("#ff0000")),
+                                                UIUtils.createPadding (0, 5, 0, 0)));
                         
         }
         

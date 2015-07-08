@@ -88,7 +88,7 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
                                                 
         this.editorInfoBox = new EditorInfoBox (this.editor,
                                                 this.projectViewer,
-                                                false).init ();
+                                                true).init ();
         this.editorInfoBox.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                           this.editorInfoBox.getPreferredSize ().height));
         this.editorInfoBox.setBorder (UIUtils.createPadding (5, 5, 5, 0));

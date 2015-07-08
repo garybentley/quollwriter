@@ -6105,12 +6105,22 @@ public class UIUtils
                                         ActionListener action)
     {
 
-        JButton b = new JButton (icon);
-        b.setToolTipText (Environment.replaceObjectNames (toolTipText));
+        JButton b = new JButton (icon)
+        {
+            
+            @Override
+            public void setToolTipText (String t)
+            {
+                
+                super.setToolTipText (Environment.replaceObjectNames (t));
+                
+            }
+            
+        };
+
+        b.setToolTipText (toolTipText);
         b.setOpaque (false);
         UIUtils.setAsButton (b);
-        //b.setFocusable (false);
-        //b.setFocusPainted (false);
         
         if (action != null)
         {
@@ -7954,7 +7964,7 @@ public class UIUtils
                                                               int right)
     {
        
-        return new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
+        return new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getInnerBorderColor ()),
                                    UIUtils.createPadding (top, left, bottom, right));
         
     }

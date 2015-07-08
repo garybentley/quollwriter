@@ -276,6 +276,20 @@ public class Project extends NamedObject
         
     }
     
+    public void removeProjectEditor (ProjectEditor pe)
+    {
+        
+        if (this.projectEditors == null)
+        {
+            
+            return;
+            
+        }
+        
+        this.projectEditors.remove (pe);
+        
+    }
+    
     public boolean isProjectEditor (EditorEditor ed)
     {
         
@@ -431,6 +445,13 @@ public class Project extends NamedObject
     {
         
         return this.type.equals (Project.WARMUPS_PROJECT_TYPE);
+        
+    }
+
+    public boolean isNormalProject ()
+    {
+        
+        return this.type.equals (Project.NORMAL_PROJECT_TYPE);
         
     }
 
