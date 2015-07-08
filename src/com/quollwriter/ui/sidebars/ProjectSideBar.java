@@ -25,7 +25,6 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.components.Dragger;
 import com.quollwriter.ui.components.DragListener;
 import com.quollwriter.ui.components.DragEvent;
-//import com.quollwriter.ui.components.LayeredPaneLayout;
 
 public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 {
@@ -50,16 +49,6 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         this.contentBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.contentBox.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                        Short.MAX_VALUE));
-        /*
-        this.contentWrapper = new JLayeredPane ();
-        this.contentWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.contentWrapper.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                       Short.MAX_VALUE));
-        this.contentWrapper.setLayout (new LayeredPaneLayout (this.contentWrapper));
-        
-        this.contentWrapper.add (this.contentBox);
-                                 //JLayeredPane.DEFAULT_LAYER);
-        */
         this.objTypes = objTypes;
                                           
         this.content = this.wrapInScrollPane (this.contentBox);

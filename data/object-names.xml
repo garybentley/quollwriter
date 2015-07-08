@@ -54,6 +54,11 @@
     <plural>Scenes</plural>
   </object>
   
+  <object type="contact">
+    <singular>Contact</singular>
+    <plural>Contacts</plural>
+  </object>
+
   <object type="editor">
     <singular>Editor</singular>
     <plural>Editors</plural>

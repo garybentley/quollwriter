@@ -69,7 +69,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
     private JComponent notification = null;
     
-    private EditorsSection currentEditors = null;
     private EditorsSection otherEditors = null;
     private EditorsSection invitesForMe = null;
     private EditorsSection invitesIveSent = null;
@@ -803,10 +802,10 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                         
         this.noEditors = new Box (BoxLayout.Y_AXIS);        
         
-        this.noEditors.add (UIUtils.createBoldSubHeader ("<i>No current {editors}</i>",
+        this.noEditors.add (UIUtils.createBoldSubHeader ("<i>No current {contacts}</i>",
                                                          null));
         
-        JComponent noedsHelp = UIUtils.createHelpTextPane ("You currently have no {editors}.  Click on the button below to invite someone to be {an editor} for your {project}.",
+        JComponent noedsHelp = UIUtils.createHelpTextPane ("You currently have no {contacts}.  Click on the button below to invite someone to be {an editor} for your {project}.",
                                                            this.projectViewer);
         noedsHelp.setBorder (null);
         this.noEditors.setBorder (new EmptyBorder (5, 5, 5, 5));
@@ -837,7 +836,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
 
         but.setFont (but.getFont ().deriveFont ((float) 16));
 
-        but.setText ("Invite {an Editor}");
+        but.setText ("Send an invite");
         buts = new ArrayList ();
         buts.add (but);
         
@@ -852,13 +851,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
 
         edBox.add (this.noEditors);
                                 
-        this.currentEditors = new EditorsSection ("Current {Editors}",
-                                                  "{Editors} you have sent this {project} to.",
-                                                  "You have no current {editors} for this {project}.  Right click on one of the {editors} in the <b>Other Editors</b> section below and select <b>Send {project}/{chapters}</b> to send them this {project}.",
-                                                  this.projectViewer);
-    
-        //edBox.add (this.currentEditors);
-
         this.invitesForMe = new EditorsSection ("Invites from others",
                                                 "Invites I've received from other people.",
                                                 null,
@@ -957,35 +949,6 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
         }
         
-        int currProjEdsCount = 0;
-        
-        if (this.projectViewer.getProject ().getProjectEditors () != null)
-        {
-            
-            currProjEdsCount = this.projectViewer.getProject ().getProjectEditors ().size ();
-        
-        }
-        
-        this.currentEditors.setVisible (((others.size () > 0 || currProjEdsCount > 0)) && (this.projectViewer.getProject ().isNormalProject ()));
-        
-        try
-        {
-            
-            this.currentEditors.updateForProjectEditors (projEds);
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to update current editors section with editors: " +
-                                  projEds,
-                                  e);
-            
-            this.currentEditors.setVisible (false);
-            
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to display current {editors} section, please contact Quoll Writer support for assistance.");            
-            
-        }
-
         this.otherEditors.setVisible (others.size () > 0);
 
         try

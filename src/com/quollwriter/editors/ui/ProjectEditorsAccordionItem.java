@@ -444,7 +444,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
                                         
                                         }));
 
-        m.add (UIUtils.createMenuItem ("Show all {editors}",
+        m.add (UIUtils.createMenuItem ("Show all {contacts}",
                                        Constants.EDITORS_ICON_NAME,
                                        new ActionListener ()
                                        {
@@ -463,7 +463,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
                                                                           e);
                                                 
                                                     UIUtils.showErrorMessage (_this.viewer,
-                                                                              "Unable to view all {editors}");
+                                                                              "Unable to view all {contacts}");
                                                 
                                                 }
                                             
