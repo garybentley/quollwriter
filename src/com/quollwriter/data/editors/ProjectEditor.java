@@ -64,19 +64,49 @@ public class ProjectEditor extends DataObject implements Comparable<ProjectEdito
         
     }
     
-    public String toString ()
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
     {
-        
-        return this.editor + "(current: " + this.current + ", statusMessage: " + this.statusMessage + ", status: " + this.status + ")";
-        
+
+        super.fillToStringProperties (props);
+
+        this.addToStringProperties (props,
+                                    "forProjectId",
+                                    this.forProjectId);
+        this.addToStringProperties (props,
+                                    "forProjectName",
+                                    this.forProjectName);
+        this.addToStringProperties (props,
+                                    "editor",
+                                    this.editor);
+        this.addToStringProperties (props,
+                                    "current",
+                                    this.current);
+        this.addToStringProperties (props,
+                                    "statusMessage",
+                                    this.statusMessage);
+        this.addToStringProperties (props,
+                                    "from",
+                                    this.from);
+        this.addToStringProperties (props,
+                                    "to",
+                                    this.to);
+
     }
-    
+        
     public int compareTo (ProjectEditor pe)
     {
 
         return this.editor.getMainName ().compareTo (pe.editor.getMainName ());
     
     }    
+    
+    public boolean isPrevious ()
+    {
+        
+        return this.to != null;
+        
+    }
     
     public boolean isInvited ()
     {

@@ -344,35 +344,29 @@ public class EditorsMessageHandler implements ChatMessageListener
                                                 
                                             }                                                                
 
-                                            if ((invite.getStatus () == Invite.Status.rejected)
-                                                ||
-                                                (invite.getStatus () == Invite.Status.accepted)
-                                               )
+                                            // Did I send the invite or receive it?
+                                            if (invite.getFromEmail ().equals (EditorsEnvironment.getUserAccount ().getEmail ()))
                                             {
                                                 
-                                                Environment.logError ("Illegal state, received invite from: " +
-                                                                      fromUsername +
-                                                                      " but invite status is: " +
-                                                                      invite.getStatus ().getType ());
+                                                // Send by me.
+                                                // Get the editor by their email.
+                                                EditorEditor ed = EditorsEnvironment.getEditorByEmail (invite.getToEmail ());
                                                 
-                                                // Already accepted/rejected the invite.
-                                                // Need to report.
-                                                return;
+                                                if (ed == null)
+                                                {
+                                                    
+                                                    Environment.logError ("Unable to find editor with email: " +
+                                                                          invite.getToEmail ());
+                                                    
+                                                    return;
+                                                    
+                                                }
                                                 
-                                            }
-
-                                            final Invite finvite = invite;
-                                            
-                                            if (invite.getStatus () == Invite.Status.pending)
-                                            {
-                                            
-                                                // Create a new holding editor.
-                                                EditorEditor ed = new EditorEditor ();
-                                                ed.setEmail (invite.getFromEmail ());
-                                                ed.setTheirPublicKey (invite.getFromPublicKey ());
+                                                // Update the editor.
+                                                ed.setTheirPublicKey (invite.getToPublicKey ());
                                                 
-                                                ed.setMessagingUsername (invite.getFromMessagingUsername ());
-                                                ed.setServiceName (invite.getFromServiceName ());
+                                                ed.setMessagingUsername (invite.getToMessagingUsername ());
+                                                ed.setServiceName (invite.getToServiceName ());
                                                                                                                                                                                                 
                                                 try
                                                 {
@@ -387,7 +381,56 @@ public class EditorsMessageHandler implements ChatMessageListener
                                                                           e);
                                                     
                                                 }
-                                                                                                    
+                                                
+                                            } else {
+                                                
+                                                // Invite I've received.                                            
+                                                if ((invite.getStatus () == Invite.Status.rejected)
+                                                    ||
+                                                    (invite.getStatus () == Invite.Status.accepted)
+                                                   )
+                                                {
+                                                    
+                                                    Environment.logError ("Illegal state, received invite from: " +
+                                                                          fromUsername +
+                                                                          " but invite status is: " +
+                                                                          invite.getStatus ().getType ());
+                                                    
+                                                    // Already accepted/rejected the invite.
+                                                    // Need to report.
+                                                    return;
+                                                    
+                                                }
+    
+                                                final Invite finvite = invite;
+                                                
+                                                if (invite.getStatus () == Invite.Status.pending)
+                                                {
+                                                
+                                                    // Create a new holding editor.
+                                                    EditorEditor ed = new EditorEditor ();
+                                                    ed.setEmail (invite.getFromEmail ());
+                                                    ed.setTheirPublicKey (invite.getFromPublicKey ());
+                                                    
+                                                    ed.setMessagingUsername (invite.getFromMessagingUsername ());
+                                                    ed.setServiceName (invite.getFromServiceName ());
+                                                                                                                                                                                                    
+                                                    try
+                                                    {
+                                                    
+                                                        _this.processMessageForEditor (ed,
+                                                                                       message);
+    
+                                                    } catch (Exception e) {
+                                                        
+                                                        Environment.logError ("Unable to process message for editor: " +
+                                                                              ed,
+                                                                              e);
+                                                        
+                                                    }
+                                                                                                        
+                                                }
+                                                
                                             }
         
                                         }

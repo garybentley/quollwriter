@@ -406,8 +406,8 @@ public class EditorsWebServiceHandler
             ed = new EditorEditor ();
             ed.setTheirPublicKey (invite.getFromPublicKey ());
             ed.setEmail (invite.getFromEmail ());
-            ed.setMessagingUsername (invite.getToMessagingUsername ());
-            ed.setServiceName (invite.getToServiceName ());
+            ed.setMessagingUsername (invite.getFromMessagingUsername ());
+            ed.setServiceName (invite.getFromServiceName ());
             
             try
             {
@@ -424,6 +424,43 @@ public class EditorsWebServiceHandler
                 
             }
             
+            try
+            {
+                
+                // Also add a fake InviteMessage.
+                InviteMessage inv = new InviteMessage ();
+                inv.setEditor (ed);
+                inv.setWhen (new Date ());
+                inv.setSentByMe (false);
+                inv.setOriginalMessage ("Created by EditorsWebServiceHandler in response to invite when user does not have an Editors Service account.");
+                inv.setMessageId ("created-invite-" + ed.getKey ());
+                
+                EditorsEnvironment.addMessage (inv);            
+
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to add fake invite message for editor: " +
+                                      ed,
+                                      e);
+                
+                // Remove the editor.
+                try
+                {
+                    
+                    EditorsEnvironment.deleteEditor (ed);
+                    
+                } catch (Exception ee) {
+                    
+                    // Goddamnit.
+                    Environment.logError ("Unable to delete editor: " +
+                                          ed,
+                                          ee);
+                    
+                }
+                
+            }
+            
+            /*
             if (!EditorsEnvironment.isShowPopupWhenNewMessageReceived ())
             {
 
@@ -431,8 +468,8 @@ public class EditorsWebServiceHandler
             
             }            
         
-            this.showInviteFromEditor (invite);
-
+            //this.showInviteFromEditor (invite);
+*/
         }
         
     }

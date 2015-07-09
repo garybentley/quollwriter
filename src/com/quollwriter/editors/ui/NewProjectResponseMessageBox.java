@@ -111,7 +111,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         }
         
         final ProjectEditor fpe = pe;        
-        
+      
         // Only do this if the editor is still pending.
         if ((!this.message.isDealtWith ())
             &&
@@ -230,6 +230,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                             fpe.setStatusMessage (String.format ("Accepted {project}: %s",
                                                                  Environment.formatDate (_this.message.getWhen ())));
                             
+                            fpe.setCurrent (true);
                             fpe.setStatus (ProjectEditor.Status.accepted);
                             
                             EditorsEnvironment.updateProjectEditor (fpe);                            

@@ -243,7 +243,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
                 
                 if ((!this.showPreviousEditors)
                     &&
-                    (!pe.isCurrent ())
+                    (pe.isPrevious ())
                    )
                 {
                     

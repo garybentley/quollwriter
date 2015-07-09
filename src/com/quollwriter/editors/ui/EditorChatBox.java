@@ -65,7 +65,7 @@ public class EditorChatBox extends Box implements EditorInteractionListener
             {
 
                 String text = _this.message.getText ().trim ();
-                System.out.println ("GOT: " + text);
+
                 if (text.length () == 0)
                 {
                     

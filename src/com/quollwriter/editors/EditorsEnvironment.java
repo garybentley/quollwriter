@@ -2557,6 +2557,22 @@ public class EditorsEnvironment
 
     }
 
+    public static void deleteEditor (EditorEditor ed)
+                              throws GeneralException
+    {
+
+        EditorsEnvironment.editorsManager.deleteObject (ed,
+                                                        false,
+                                                        null);
+
+        EditorsEnvironment.editors.remove (ed);
+
+        // Fire an event.
+        EditorsEnvironment.fireEditorChangedEvent (ed,
+                                                   EditorChangedEvent.EDITOR_DELETED);
+
+    }
+
     public static EditorEditor getEditorByEmail (String em)
     {
         

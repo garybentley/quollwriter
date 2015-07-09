@@ -578,7 +578,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                         
             // Show an accept/reject.
             EditorMessage m = null;
-            
+
             if ((this.editor.getMessages () != null)
                 &&
                 (this.editor.getMessages ().size () > 0)
@@ -594,6 +594,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
             }
             
+            // If there is no message then it means the invite was sent when the editor didn't have an
+            // account, so make a fake message box to show.            
             if ((m != null)
                 &&
                 (!m.isSentByMe ())
