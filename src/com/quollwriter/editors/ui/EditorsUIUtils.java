@@ -1502,6 +1502,7 @@ public class EditorsUIUtils
 
                                                                         // Update them to be current.
                                                                         pe.setCurrent (true);
+                                                                        pe.setFrom (new Date ());
                                                                         pe.setEditorTo (null);
                                                                         
                                                                         pe.setStatusMessage (String.format ("{Project} updated: %s",
