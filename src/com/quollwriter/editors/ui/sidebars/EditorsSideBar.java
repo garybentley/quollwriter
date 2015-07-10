@@ -56,6 +56,7 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.events.*;
 
 public class EditorsSideBar extends AbstractSideBar implements EditorChangedListener,
+                                                               EditorMessageListener,
                                                                UserOnlineStatusListener
 {
     
@@ -81,10 +82,20 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         super (v);
                 
         EditorsEnvironment.addEditorChangedListener (this);
+        EditorsEnvironment.addEditorMessageListener (this);        
         EditorsEnvironment.addUserOnlineStatusListener (this);
         
     }                
+             
+    @Override
+    public void handleMessage (EditorMessageEvent ev)
+    {
+
+        this.updateView ();
+    
+    }
                 
+    @Override
     public void editorChanged (EditorChangedEvent ev)
     {
 

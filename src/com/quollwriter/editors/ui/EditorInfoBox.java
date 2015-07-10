@@ -412,14 +412,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                   return false;
                                                                                 
                                                                               }
-                                                                              
-                                                                              if (m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
-                                                                              {
-                                                                                
-                                                                                  return false;
-                                                                                
-                                                                              }
-                                                                              
+                                                                                                                                                            
                                                                               if (m.isDealtWith ())
                                                                               {
                                                                                 
@@ -1115,8 +1108,6 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             if (messages.size () > 0)
             {
                 
-                menu.addSeparator ();                
-                                
                 menu.add (UIUtils.createMenuItem (String.format ("View new/important messages (%s)",
                                                                  Environment.formatNumber (messages.size ())),
                                                   Constants.ERROR_ICON_NAME,
@@ -1179,8 +1170,6 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
             if (messages.size () > 0)
             {
-                
-                menu.addSeparator ();                
                 
                 // Check to see if editor is a project editor.
                 String suffix = (this.projectViewer.getProject ().getProjectEditor (this.editor) != null ? "sent" : "received");
@@ -1390,39 +1379,80 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
         final EditorInfoBox _this = this;                
         
-        final boolean pending = this.editor.isPending ();        
+        if (this.editor.isPending ())
+        {
+            
+            return;
+            
+        }
 
         boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
         
-        if (!pending)
+        final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
         {
-
-            final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
+            
+            public boolean accept (EditorMessage m)
             {
                 
-                public boolean accept (EditorMessage m)
-                {
-                    
-                    return ((m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
-                            &&
-                            (_this.projectViewer.getProject ().getId ().equals (m.getForProjectId ())));
-                
-                }
-                
-            });
+                return ((m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
+                        &&
+                        (_this.projectViewer.getProject ().getId ().equals (m.getForProjectId ())));
+            
+            }
+            
+        });
+    
+        String suffix = (this.projectViewer.getProject ().getProjectEditor (this.editor) != null ? "received" : "sent");
         
-            String suffix = (this.projectViewer.getProject ().getProjectEditor (this.editor) != null ? "received" : "sent");
+        if ((isEditorProject)
+            &&
+            (messages.size () > 0)
+           )
+        {
+                
+            menu.add (UIUtils.createMenuItem (String.format ("View all {comments} sent",
+                                                             suffix),
+                                              Constants.COMMENT_ICON_NAME,
+                                              new ActionListener ()
+                                              {
+                                                
+                                                  public void actionPerformed (ActionEvent ev)
+                                                  {
+                                                    
+                                                    try
+                                                    {                                                            
+                                                    
+                                                        EditorsUIUtils.showAllCommentsForEditor (_this.editor,
+                                                                                                 _this.projectViewer,
+                                                                                                 null);
+                                                        
+                                                    } catch (Exception e) {
+                                                        
+                                                        Environment.logError ("Unable to show comments from editor: " +
+                                                                              _this.editor,
+                                                                              e);
+                                                        
+                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                  "Unable to show {comments} from editor.");
+                                                        
+                                                        return;
+                                                        
+                                                    }
+                                                    
+                                                  }
+                                                
+                                              }));
+                
+        } else {
         
             Iterator<EditorMessage> iter = messages.iterator ();
         
             if (messages.size () > 0)
             {
-                
-                menu.addSeparator ();                
-                
+                                
                 final ProjectCommentsMessage message = (ProjectCommentsMessage) messages.iterator ().next ();
                 
-                menu.add (UIUtils.createMenuItem (String.format ("View last {comments} (%s) %s",
+                menu.add (UIUtils.createMenuItem (String.format ("View last {comments} %s (%s)",
                                                                  message.getComments ().size (),
                                                                  suffix),
                                                   Constants.FIND_ICON_NAME,

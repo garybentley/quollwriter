@@ -85,8 +85,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                                            //(this.message.isSentByMe () ? "sent" : "received"));
                 
         JComponent h = UIUtils.createBoldSubHeader (text,
-                                                    null);
-                                                    //Constants.COMMENT_ICON_NAME);
+                                                    Constants.COMMENT_ICON_NAME);
         
         this.add (h);
         

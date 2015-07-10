@@ -30,6 +30,7 @@ import com.quollwriter.events.*;
 public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
 {
         
+    private Box responseBox = null;        
     private ProjectSentReceivedViewer sentViewer = null;
         
     public UpdateProjectMessageBox (UpdateProjectMessage     mess,
@@ -50,6 +51,8 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             
     public void doUpdate ()
     {
+
+        this.responseBox.setVisible (!this.message.isDealtWith ());
                 
     }
     
@@ -76,12 +79,12 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         
         final Project fproj = proj;
         
-        String text = "Update sent";//Sent {project} update";
+        String text = "{Project} update sent";//Sent {project} update";
         
         if (!this.message.isSentByMe ())
         {
             
-            text = "Update received"; //Received {project} update";
+            text = "{Project} update received"; //Received {project} update";
                             
         }
         
@@ -95,180 +98,16 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
         
         this.add (bp);                             
-                        
-/*
-        String plural = "";
+            
+        this.responseBox = new Box (BoxLayout.Y_AXIS);
         
-        if (this.message.getChapters ().size () > 1)
-        {
-            
-            plural = "s";
-            
-        }
-
-        // Show:
-        //   * Sent
-        //   * Version (optional)
-        //   * Word/chapter count
-        //   * Due by (optional)
-        //   * Notes
-        
-        String rows = "p"; 
-        
-        ProjectVersion projVer = this.message.getProjectVersion ();
-        String verName = projVer.getName ();
-        
-        if (verName != null)
-        {
-            
-            rows += ", 6px, p";
-            
-        }
-        
-        rows += ", 6px, p";
-        
-        if (projVer.getDueDate () != null)
-        {
-            
-            rows += ", 6px, p";
-            
-        }
-        
-        String notes = projVer.getDescription ();
-        
-        if (notes != null)
-        {
-            
-            rows += ", 6px, top:p";
-            
-        }
-        
-        FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow",
-                                        rows);
-
-        fl.setHonorsVisibility (true);
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        int row = 1;
-               
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Project}</i></html>"),
-                          cc.xy (1,
-                                 row));
-        
-        JLabel openProj = UIUtils.createClickableLabel (this.message.getForProjectName (),
-                                                        null,
-                                                        new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-            
-                if (fproj != null)
-                {
-            
-                    try
-                    {
-            
-                        Environment.openProject (fproj);
-                        
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to open project: " +
-                                              fproj,
-                                              e);
-                        
-                    }
-                    
-                }
+        this.responseBox.setVisible (false);
                 
-            }
-            
-        });        
-        
-        openProj.setToolTipText (Environment.replaceObjectNames ("Click to open the {project}"));
-        
-        builder.add (openProj,
-                     cc.xy (3,
-                            row));
-        
-        row += 2;
-        
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>Sent</i></html>"),
-                          cc.xy (1,
-                                 row));
-        
-        builder.addLabel (Environment.formatDateTime (this.message.getWhen ()),
-                          cc.xy (3,
-                                 row));
-        
-        row += 2;
-
-        if (verName != null)
+        this.add (this.responseBox);            
+                        
+        if (this.message.isSentByMe ())
         {
             
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>Version</i></html>"),
-                              cc.xy (1,
-                                     row));
-            
-            builder.addLabel (verName,
-                              cc.xy (3,
-                                     row));
-            
-            row += 2;
-            
-        }
-        
-        builder.addLabel (Environment.replaceObjectNames (Environment.formatNumber (this.message.getWordCount ()) + " words, " + this.message.getChapters ().size () + " {chapter" + plural + "}"),
-                          cc.xy (3,
-                                 row));
-        
-        row += 2;
-        
-        if (projVer.getDueDate () != null)
-        {
-        
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>Due by</i></html>"),
-                              cc.xy (1,
-                                     row));
-    
-            builder.addLabel ((projVer.getDueDate () != null ? Environment.formatDate (projVer.getDueDate ()) : "<i>Not specified.</i>"),
-                              cc.xy (3,
-                                     row));
-
-            row += 2;
-                                     
-        }
-                                     
-        if (notes != null)
-        {
-    
-            builder.addLabel (Environment.replaceObjectNames ("<html><i>Notes</i></html>"),
-                              cc.xy (1,
-                                     row));
-    
-            JComponent nc = UIUtils.createHelpTextPane (notes,
-                                                        this.projectViewer);
-            nc.setBorder (null);
-    
-            builder.add (nc,
-                         cc.xy (3,
-                                row));
-
-        }
-       
-        JPanel bp = builder.getPanel ();
-        bp.setOpaque (false);
-        bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        bp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
-        
-        this.add (bp);             
-        */
-
-        if (!this.message.isSentByMe ())
-        {
-            /*
             JLabel viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
@@ -325,38 +164,45 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             viewProj.setBorder (UIUtils.createPadding (5, 10, 5, 5));
             
             this.add (viewProj);            
-                                                 
+
         } else {
-           */ 
             
-            String l = "Click to view the update";
+            ActionListener updateOrView = new ActionListener ()
+            {
+                  
+                @Override                                                  
+                public void actionPerformed (ActionEvent ev)
+                {
+        
+                    EditorsUIUtils.showProjectUpdate (_this.message,
+                                                      _this.projectViewer,
+                                                      null);
+                                
+                }
+                
+            };
             
+            // Not sent by me.            
             if (!this.message.isDealtWith ())
             {
-                
-                l = "Click to update/view the {project}";
-                
-            }
-            
-            JLabel viewUpd = UIUtils.createClickableLabel (l,
-                                                            Environment.getIcon (Constants.VIEW_ICON_NAME,
-                                                                                 Constants.ICON_CLICKABLE_LABEL),
-                                                            new ActionListener ()
-                                                            {
-              
-            @Override                                                  
-            public void actionPerformed (ActionEvent ev)
-            {
+                                                                
+                JButton update = UIUtils.createButton ("Update the {project}",
+                                                       null);
+    
+                update.setToolTipText ("Click to update the {project}");
+                update.addActionListener (updateOrView);
 
-                EditorsUIUtils.showProjectUpdate (_this.message,
-                                                  _this.projectViewer,
-                                                  null);
+                JButton[] buts = new JButton[] { update };
+    
+                JComponent bb = UIUtils.createButtonBar2 (buts,
+                                                          Component.LEFT_ALIGNMENT);
                             
-            }});
-                            
-            viewUpd.setBorder (UIUtils.createPadding (6, 10, 0, 0));
-            
-            this.add (viewUpd);            
+                bb.setAlignmentX (Component.LEFT_ALIGNMENT);
+                
+                this.responseBox.add (bb);
+                this.responseBox.setVisible (true);
+                
+            } 
                      
         }
         

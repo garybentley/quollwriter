@@ -14,7 +14,7 @@ import com.quollwriter.ui.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class ProjectEditorsAccordionItem extends AccordionItem implements EditorChangedListener
+public class ProjectEditorsAccordionItem extends AccordionItem implements EditorChangedListener, EditorMessageListener
 {
 
     private Box editorsBox = null;
@@ -77,9 +77,32 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
         };
         
         EditorsEnvironment.addEditorChangedListener (this);        
+        EditorsEnvironment.addEditorMessageListener (this);        
             
     }
       
+    @Override
+    public void handleMessage (EditorMessageEvent ev)
+    {
+        
+        // See if the editor is a project editor.
+        ProjectEditor pe = this.viewer.getProject ().getProjectEditor (ev.getMessage ().getEditor ());
+        
+        if (pe == null)
+        {
+            
+            return;
+            
+        }
+      
+        this.updateBorders ();
+                
+        this.validate ();
+        this.repaint ();      
+      
+    }
+    
+    @Override
     public void editorChanged (EditorChangedEvent ev)
     {
 

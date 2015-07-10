@@ -4513,7 +4513,14 @@ public class EditorsUIUtils
                             }
 
                             final DataObject dobj = obj;
+                            
+                            if (c.getBook () == null)
+                            {
+                                
+                                return;
                                                         
+                            }
+                            
                             String projId = c.getBook ().getProject ().getId ();
 
                             Project p = null;
