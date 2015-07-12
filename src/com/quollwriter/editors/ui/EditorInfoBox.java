@@ -462,6 +462,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
     }
         
+    public ProjectEditor getProjectEditor ()
+    {
+        
+        return this.projEditor;
+        
+        
+    }
     public EditorEditor getEditor ()
     {
         
@@ -1558,13 +1565,22 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 }
                 
             }
+        /*
+            // Find out what was the last project message sent.
+            Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+                                                                                                   NewProjectMessage.MESSAGE_TYPE,
+                                                                                                   ProjectEditStopMessage.MESSAGE_TYPE,
+                                                                                                   UpdateProjectMessage.MESSAGE_TYPE));
+            
+            
         
             NewProjectMessage npm = (NewProjectMessage) this.editor.getMessage (NewProjectMessage.MESSAGE_TYPE,
                                                                                 this.projectViewer.getProject ());
         
             ProjectEditStopMessage psm = (ProjectEditStopMessage) this.editor.getMessage (ProjectEditStopMessage.MESSAGE_TYPE,
                                                                                           this.projectViewer.getProject ());
-
+*/
+/*
             if ((npm != null)
                 &&
                 (psm == null)
@@ -1573,24 +1589,28 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                 if (npm.isAccepted ())
                 {
-            
-                    menu.add (UIUtils.createMenuItem ("Update {project}/{chapters}",
-                                                      Constants.SEND_ICON_NAME,
-                                                      new ActionListener ()
-                                                      {
-                                                    
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                            
-                                                            EditorsUIUtils.showUpdateProject (_this.projectViewer,
-                                                                                              _this.editor,
-                                                                                              null);
-                                                            
-                                                        }
+  */
+            if ((this.projEditor != null)
+                &&
+                (this.projEditor.isCurrent ())
+               )
+            {
+                
+                menu.add (UIUtils.createMenuItem ("Update {project}/{chapters}",
+                                                  Constants.SEND_ICON_NAME,
+                                                  new ActionListener ()
+                                                  {
+                                                
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
                                                         
-                                                      }));
-
-                }
+                                                        EditorsUIUtils.showUpdateProject (_this.projectViewer,
+                                                                                          _this.editor,
+                                                                                          null);
+                                                        
+                                                    }
+                                                    
+                                                  }));
                 
             } else {
                 

@@ -1684,8 +1684,23 @@ public class EditorsUIUtils
                             UIUtils.getCenterShowPosition (viewer,
                                                            popup),
                             false);
+        
+        popup.resize ();
+        
         popup.setDraggable (viewer);
                 
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                popup.resize ();
+                
+            }
+            
+        });
+        
     }
     
     public static void showUpdateProject (final AbstractProjectViewer viewer,
@@ -1720,6 +1735,18 @@ public class EditorsUIUtils
                                                            popup),
                             false);
         popup.setDraggable (viewer);
+
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                popup.resize ();
+                
+            }
+            
+        });
 
     }
     

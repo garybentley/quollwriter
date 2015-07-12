@@ -14,12 +14,14 @@ import com.quollwriter.ui.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class ProjectEditorsAccordionItem extends AccordionItem implements EditorChangedListener, EditorMessageListener
+public class ProjectEditorsAccordionItem extends AccordionItem implements ProjectEditorChangedListener, EditorMessageListener
 {
 
-    private Box editorsBox = null;
+    private Box wrapper = null;
     private ProjectViewer viewer = null;
     private ComponentListener listener = null;
+    private Box currentEditors = null;
+    private Box previousEditors = null;
     private boolean showPreviousEditors = false;
 
     public ProjectEditorsAccordionItem (ProjectViewer pv)
@@ -33,13 +35,28 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
         
         final ProjectEditorsAccordionItem _this = this;
     
-        this.editorsBox = new ScrollableBox (BoxLayout.Y_AXIS);
-        this.editorsBox.setBorder (UIUtils.createPadding (0, 10, 0, 0));
+        this.wrapper = new ScrollableBox (BoxLayout.Y_AXIS);
+        this.wrapper.setBorder (UIUtils.createPadding (0, 10, 0, 0));
     
+        this.currentEditors = new Box (BoxLayout.Y_AXIS);
+        this.currentEditors.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        this.wrapper.add (this.currentEditors);
+        
+        this.previousEditors = new Box (BoxLayout.Y_AXIS);
+        this.previousEditors.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        this.wrapper.add (this.previousEditors);
+        
         JLabel help = UIUtils.createInformationLabel ("People who are editing this {project} for you.");        
         help.setBorder (UIUtils.createPadding (0, 0, 5, 0));
         
-        this.editorsBox.add (help);    
+        this.currentEditors.add (help);    
+        
+        this.previousEditors.add (UIUtils.createBoldSubHeader ("<i>Previous {Editors}</i>",
+                                                               null));    
+
+        this.previousEditors.setVisible (false);
         
         this.listener = new ComponentAdapter ()
         {
@@ -48,35 +65,13 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             public void componentResized (ComponentEvent ev)
             {
                 
-                int count = _this.editorsBox.getComponentCount ();
-                
-                for (int i = 0; i < count; i++)
-                {
-                    
-                    Component c = _this.editorsBox.getComponent (i);
-                    
-                    if (c instanceof EditorInfoBox)
-                    {
-                    
-                        EditorInfoBox infBox = (EditorInfoBox) _this.editorsBox.getComponent (i);
-                        
-                        if (infBox == ev.getSource ())
-                        {
-                        
-                            _this.setBorder (infBox,
-                                             i == (count - 1));
-                            
-                        }
-
-                    }
-                    
-                }                    
-                
+                _this.updateBorders ();
+                                
             }
             
         };
         
-        EditorsEnvironment.addEditorChangedListener (this);        
+        EditorsEnvironment.addProjectEditorChangedListener (this);        
         EditorsEnvironment.addEditorMessageListener (this);        
             
     }
@@ -84,6 +79,14 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
     @Override
     public void handleMessage (EditorMessageEvent ev)
     {
+        
+        if (this.viewer.getProject () == null)
+        {
+            
+            // The viewer is no longer valid.
+            return;
+            
+        }
         
         // See if the editor is a project editor.
         ProjectEditor pe = this.viewer.getProject ().getProjectEditor (ev.getMessage ().getEditor ());
@@ -95,15 +98,12 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             
         }
       
-        this.updateBorders ();
-                
-        this.validate ();
-        this.repaint ();      
+        this.setContentVisible (true);
       
     }
     
     @Override
-    public void editorChanged (EditorChangedEvent ev)
+    public void projectEditorChanged (ProjectEditorChangedEvent ev)
     {
 
         if (this.viewer.getProject () == null)
@@ -112,77 +112,24 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             return;
             
         }
-    
-        EditorEditor ed = ev.getEditor ();
-
-        // See if the editor is a project editor.
-        ProjectEditor pe = this.viewer.getProject ().getProjectEditor (ed);
-        
-        if (pe == null)
+            
+        ProjectEditor pe = ev.getProjectEditor ();
+            
+        if (ev.getType () == ProjectEditorChangedEvent.PROJECT_EDITOR_ADDED)
         {
             
-            return;
-            
-        }
-        
-        EditorInfoBox bb = null;
-        
-        // Check to see if we already have the editor.
-        for (int i = 0; i < this.editorsBox.getComponentCount (); i++)
-        {
-            
-            Component c = this.editorsBox.getComponent (i);
-            
-            if (c instanceof EditorInfoBox)
-            {
-                
-                EditorInfoBox b = (EditorInfoBox) c;
-                
-                if (b.getEditor () == ed)
-                {
-                    
-                    if (ev.getType () == EditorChangedEvent.EDITOR_DELETED)
-                    {
-                        
-                        this.editorsBox.remove (b);
-                        
-                        this.updateBorders ();
-                        
-                        this.validate ();
-                        this.repaint ();
-                        
-                        return;
-                        
-                    }
-                    
-                    if (ev.getType () == EditorChangedEvent.EDITOR_CHANGED)
-                    {
-                        
-                        bb = b;
-                        
-                    }
-                    
-                }
-                
-            }
-            
-        }
-        
-        if (bb == null)
-        {
-
             // Editor is new.
             EditorInfoBox infBox = null;
             
             try
             {
                 
-                infBox = this.getEditorBox (ed);
+                infBox = this.getEditorBox (pe);
                 
             } catch (Exception e) {
                 
-                Environment.logError ("Unable to get editor info box for editor: " +
-                                      pe.getEditor (),
+                Environment.logError ("Unable to get editor info box for project editor: " +
+                                      pe,
                                       e);
             
                 return;
@@ -191,38 +138,110 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             
             infBox.init ();
             
-            this.editorsBox.add (infBox,
-                                 1);
+            this.currentEditors.add (infBox,
+                                     1);
             
-            this.updateBorders ();
-            
-            this.updateItemCount ();
-            
-            this.validate ();
-            this.repaint ();
-            
-        } else {
-            
-            // See if there is a project editor and if they are now previous, if so remove them.
-            if (!pe.isCurrent ())
+        } else {                
+        
+            for (int i = 0; i < this.currentEditors.getComponentCount (); i++)
             {
                 
-                // Should we be showing it?
-                bb.setVisible (this.showPreviousEditors);
+                Component c = this.currentEditors.getComponent (i);
                 
-                this.updateBorders ();
+                if (c instanceof EditorInfoBox)
+                {
+                    
+                    EditorInfoBox b = (EditorInfoBox) c;
+                    
+                    if (b.getProjectEditor () == pe)
+                    {
+    
+                        if (ev.getType () == EditorChangedEvent.EDITOR_DELETED)
+                        {
+                    
+                            this.currentEditors.remove (b);
+                            
+                            break;
+                                                        
+                        }
+                        
+                        if (ev.getType () == EditorChangedEvent.EDITOR_CHANGED)
+                        {
+    
+                            // See if there is a project editor and if they are now previous, if so remove them.
+                            if (!pe.isCurrent ())
+                            {
+                                
+                                this.previousEditors.add (b);
+                                
+                                break;
+                                                                                        
+                            } 
+                            
+                        }
+                                            
+                    }
+                    
+                }
                 
-                this.updateItemCount ();
+            }
+                    
+            for (int i = 0; i < this.previousEditors.getComponentCount (); i++)
+            {
                 
-                this.validate ();
-                this.repaint ();
+                Component c = this.previousEditors.getComponent (i);
+                
+                if (c instanceof EditorInfoBox)
+                {
+                    
+                    EditorInfoBox b = (EditorInfoBox) c;
+                    
+                    if (b.getProjectEditor () == pe)
+                    {
+    
+                        if (ev.getType () == EditorChangedEvent.EDITOR_DELETED)
+                        {
+                    
+                            this.previousEditors.remove (b);
+                            
+                            break;
+                                                                                                        
+                        }
+                        
+                        if (ev.getType () == EditorChangedEvent.EDITOR_CHANGED)
+                        {
+    
+                            if (pe.isCurrent ())
+                            {
+                                
+                                this.currentEditors.add (b);
+                                  
+                                break;
+                                                            
+                            } 
+                            
+                        }
+                                            
+                    }
+                    
+                }
                 
             }
             
         }
         
+        this.setContentVisible (true);
+
     }    
       
+    private EditorInfoBox getEditorBox (ProjectEditor pe)
+                                 throws GeneralException
+    {
+        
+        return this.getEditorBox (pe.getEditor ());
+        
+    }
+
     private EditorInfoBox getEditorBox (EditorEditor ed)
                                  throws GeneralException
     {
@@ -247,11 +266,11 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
     public JComponent getContent ()
     {
         
-        return this.editorsBox;
+        return this.wrapper;
         
     }    
     
-    private Set<ProjectEditor> getVisibleEditors ()
+    private Set<ProjectEditor> getCurrentEditors ()
     {
         
         Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
@@ -264,10 +283,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             for (ProjectEditor pe : pes)
             {
                 
-                if ((!this.showPreviousEditors)
-                    &&
-                    (pe.isPrevious ())
-                   )
+                if (pe.isPrevious ())
                 {
                     
                     continue;
@@ -284,10 +300,40 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
         
     }
     
+    private Set<ProjectEditor> getPreviousEditors ()
+    {
+        
+        Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
+        
+        Set<ProjectEditor> ret = new LinkedHashSet ();
+        
+        if (pes != null)
+        {
+            
+            for (ProjectEditor pe : pes)
+            {
+                
+                if (pe.isCurrent ())
+                {
+                    
+                    continue;
+                    
+                }
+                
+                ret.add (pe);
+                
+            }
+
+        }
+
+        return ret;
+        
+    }
+
     public void updateItemCount ()
     {
         
-        Set<ProjectEditor> pes = this.getVisibleEditors ();
+        Set<ProjectEditor> pes = this.getCurrentEditors ();
         
         String title = String.format ("%s (%s)",
                                       this.getTitle (),
@@ -302,76 +348,30 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
     public void setContentVisible (boolean v)
     {
 
-        Set<ProjectEditor> pes = this.getVisibleEditors ();
+        Set<ProjectEditor> cpes = this.getCurrentEditors ();
         
-        super.setContentVisible (pes.size () > 0);
+        Set<ProjectEditor> ppes = this.getPreviousEditors ();
+
+        this.currentEditors.setVisible (cpes.size () > 0);
+        this.previousEditors.setVisible ((this.showPreviousEditors && ppes.size () > 0));
+        
+        super.setContentVisible (this.currentEditors.isVisible () || this.previousEditors.isVisible ());
+                
+        this.updateBorders ();
                 
         this.updateItemCount ();
                 
     }
-    
-    private void fillEditorsBox ()
-    {
         
-        int count = this.editorsBox.getComponentCount ();
-        
-        // Check to see if we already have the editor.
-        for (int i = count - 1; i > 0; i--)
-        {
-            
-            Component c = this.editorsBox.getComponent (i);
-            
-            if (c instanceof EditorInfoBox)
-            {
-             
-                this.editorsBox.remove (c);
-                
-            }
-            
-        }
-                
-        Set<ProjectEditor> pes = this.getVisibleEditors ();
-        
-        for (ProjectEditor pe : pes)
-        {
-                                         
-            EditorInfoBox infBox = null;
-            
-            try
-            {
-                
-                infBox = this.getEditorBox (pe.getEditor ());
-                
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to get editor info box for editor: " +
-                                      pe.getEditor (),
-                                      e);
-            
-                continue;
-                
-            }
-            
-            infBox.init ();
-                                                        
-            this.editorsBox.add (infBox);
-            
-        }
-        
-        this.updateBorders ();
-
-    }
-    
     private void updateBorders ()
     {
         
         EditorInfoBox last = null;
         
-        // Check to see if we already have the editor.
-        for (int i = 0; i < this.editorsBox.getComponentCount (); i++)
+        for (int i = 0; i < this.currentEditors.getComponentCount (); i++)
         {
             
-            Component c = this.editorsBox.getComponent (i);
+            Component c = this.currentEditors.getComponent (i);
             
             if (c instanceof EditorInfoBox)
             {
@@ -395,8 +395,45 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             
         }        
         
+        last = null;
+        
+        for (int i = 0; i < this.previousEditors.getComponentCount (); i++)
+        {
+            
+            Component c = this.previousEditors.getComponent (i);
+            
+            if (c instanceof EditorInfoBox)
+            {
+                
+                EditorInfoBox b = (EditorInfoBox) c;
+                
+                this.setBorder (b,
+                                false);
+                
+                last = b;                
+                
+            }
+            
+        }
+        
+        if (last != null)
+        {
+        
+            this.setBorder (last,
+                            true);
+            
+        }        
+
     }
     
+    private void showPreviousEditors ()
+    {
+        
+        this.previousEditors.setVisible (this.showPreviousEditors);
+
+        this.setContentVisible (true);
+                
+    }
     
     @Override
     public void init ()
@@ -437,8 +474,43 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             }
             
         });
-                                     
-        this.fillEditorsBox ();
+                   
+        Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
+        
+        for (ProjectEditor pe : pes)
+        {
+                                         
+            EditorInfoBox infBox = null;
+            
+            try
+            {
+                
+                infBox = this.getEditorBox (pe.getEditor ());
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get editor info box for editor: " +
+                                      pe.getEditor (),
+                                      e);
+            
+                continue;
+                
+            }
+            
+            infBox.init ();
+            
+            if (pe.isCurrent ())
+            {                                                        
+            
+                this.currentEditors.add (infBox);
+                
+            } else {
+                
+                this.previousEditors.add (infBox);
+                
+            }
+            
+        }
         
         this.setContentVisible (true);        
                                                                            
@@ -500,10 +572,12 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
             
             int prevCount = 0;
             
-            for (EditorEditor ed : EditorsEnvironment.getEditors ())
+            Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
+            
+            for (ProjectEditor pe : pes)
             {
             
-                if (ed.isPrevious ())
+                if (pe.isPrevious ())
                 {
                     
                     prevCount++;
@@ -524,13 +598,52 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Editor
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
                                                             
-                                                            //_this.showPreviousEditors ();
+                                                            _this.showPreviousEditors = true;                                                                
+                                                            _this.showPreviousEditors ();
                                                                                                                                                 
                                                         }
                                                    
                                                    }));
                 
             }
+            
+        } else {
+            
+            int prevCount = 0;
+            
+            Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
+            
+            for (ProjectEditor pe : pes)
+            {
+            
+                if (pe.isPrevious ())
+                {
+                    
+                    prevCount++;
+                    
+                }
+            
+            }
+          
+            if (prevCount > 0)
+            {
+    
+                m.add (UIUtils.createMenuItem ("Hide the previous {editors}",
+                                               Constants.CANCEL_ICON_NAME,
+                                               new ActionListener ()
+                                               {
+                                                   
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _this.showPreviousEditors = false;    
+                                                        _this.showPreviousEditors ();
+                                                                                                                                                
+                                                    }
+                                                   
+                                                }));
+                
+            }            
             
         }
         

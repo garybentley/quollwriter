@@ -236,16 +236,55 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                                   final boolean                showPopup)
                                            throws Exception    
     {
+                
+        String projId = mess.getForProjectId ();
+                        
+        Project proj = null;
+        
+        try
+        {
+            
+            proj = Environment.getProjectById (projId,
+                                               Project.NORMAL_PROJECT_TYPE);
+            
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to get project for id: " +
+                                        projId,
+                                        e);
+            
+        }                        
+
+        ProjectEditor pe = EditorsEnvironment.getProjectEditor (proj,
+                                                                ed);
+        
+        if (pe == null)
+        {
+            
+            throw new IllegalArgumentException ("Editor is not a project editor for project: " + projId + ", editor: " + ed);
+            
+        }
+
+        // It may be that we get some comments before the user acknowledged the editor's acceptance of the
+        // project.  In which case we need to update the project editor to current.        
+        if (pe.isInvited ())
+        {
+            
+            pe.setEditorFrom (mess.getWhen ());
+            pe.setCurrent (true);
+    
+            pe.setStatus (ProjectEditor.Status.accepted);
+            
+        }
         
         int c = mess.getComments ().size ();
         
-        // Get the project, get the project editor, set the status.
-        EditorsEnvironment.setProjectEditorStatus (mess.getForProjectId (),
-                                                   ed,
-                                                   Environment.replaceObjectNames (String.format ("Received %s {comment%s}: %s",
-                                                                                                  Environment.formatNumber (c),
-                                                                                                  (c > 1 ? "s" : ""),
-                                                                                                  Environment.formatDate (mess.getWhen ()))));
+        pe.setStatusMessage (String.format ("Received %s {comment%s}: %s",
+                                            Environment.formatNumber (c),
+                                            (c > 1 ? "s" : ""),
+                                            Environment.formatDate (mess.getWhen ())));
+        
+        EditorsEnvironment.updateProjectEditor (pe);
     
         if (showPopup)
         {

@@ -133,6 +133,9 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                         // Unsubscribe.
                         EditorsEnvironment.getMessageHandler ().unsubscribeFromEditor (ed);                
                         
+                        // For all projects, if they are a project editor then set them as previous.
+                        EditorsEnvironment.removeEditorAsProjectEditorForAllProjects (ed);
+                        
                         // Uupdate the editor to be previous.
                         ed.setEditorStatus (EditorEditor.EditorStatus.previous);
                     

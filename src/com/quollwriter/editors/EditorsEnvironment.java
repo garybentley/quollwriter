@@ -41,6 +41,7 @@ public class EditorsEnvironment
     private static EditorEditor.OnlineStatus lastOnlineStatus = null;
     
     private static Map<EditorChangedListener, Object> editorChangedListeners = null;
+    private static Map<ProjectEditorChangedListener, Object> projectEditorChangedListeners = null;
     private static Map<EditorMessageListener, Object> editorMessageListeners = null;
     private static Map<UserOnlineStatusListener, Object> userStatusListeners = null;
     private static Map<EditorInteractionListener, Object> editorInteractionListeners = null;
@@ -65,6 +66,8 @@ public class EditorsEnvironment
         // won't leak.
         EditorsEnvironment.editorChangedListeners = Collections.synchronizedMap (new WeakHashMap ());
         
+        EditorsEnvironment.projectEditorChangedListeners = Collections.synchronizedMap (new WeakHashMap ());
+
         EditorsEnvironment.editorMessageListeners = Collections.synchronizedMap (new WeakHashMap ());
 
         EditorsEnvironment.userStatusListeners = Collections.synchronizedMap (new WeakHashMap ());
@@ -704,6 +707,62 @@ public class EditorsEnvironment
         
     }    
     
+    public static void fireProjectEditorChangedEvent (ProjectEditor pe,
+                                                      int          changeType)
+    {
+        
+        EditorsEnvironment.fireProjectEditorChangedEvent (new ProjectEditorChangedEvent (pe,
+                                                                                         changeType));
+                
+    }
+    
+    public static void fireProjectEditorChangedEvent (final ProjectEditorChangedEvent ev)
+    {
+                
+        UIUtils.doActionLater (new ActionListener ()
+        {
+        
+            public void actionPerformed (ActionEvent aev)
+            {
+                
+                Set<ProjectEditorChangedListener> ls = null;
+                                
+                // Get a copy of the current valid listeners.
+                synchronized (EditorsEnvironment.projectEditorChangedListeners)
+                {
+                                    
+                    ls = new LinkedHashSet (EditorsEnvironment.projectEditorChangedListeners.keySet ());
+                    
+                }
+                    
+                for (ProjectEditorChangedListener l : ls)
+                {
+                    
+                    l.projectEditorChanged (ev);
+
+                }
+
+            }
+            
+        });
+                        
+    }
+
+    public static void removeProjectEditorChangedListener (ProjectEditorChangedListener l)
+    {
+        
+        EditorsEnvironment.projectEditorChangedListeners.remove (l);
+        
+    }
+    
+    public static void addProjectEditorChangedListener (ProjectEditorChangedListener l)
+    {
+        
+        EditorsEnvironment.projectEditorChangedListeners.put (l,
+                                                              EditorsEnvironment.listenerFillObj);
+        
+    }    
+
     public static boolean isEditorsServiceAvailable ()
     {
         
@@ -2202,8 +2261,8 @@ public class EditorsEnvironment
                                                       null);
 
         // Fire an event.
-        EditorsEnvironment.fireEditorChangedEvent (pe.getEditor (),
-                                                   EditorChangedEvent.EDITOR_CHANGED);
+        EditorsEnvironment.fireProjectEditorChangedEvent (pe,
+                                                          ProjectEditorChangedEvent.PROJECT_EDITOR_ADDED);
                                                       
     }
     
@@ -2230,8 +2289,8 @@ public class EditorsEnvironment
         {
             
             // Fire an event.
-            EditorsEnvironment.fireEditorChangedEvent (pe.getEditor (),
-                                                       EditorChangedEvent.EDITOR_CHANGED);            
+            EditorsEnvironment.fireProjectEditorChangedEvent (pe,
+                                                              ProjectEditorChangedEvent.PROJECT_EDITOR_DELETED);            
             
         }
 
@@ -2284,8 +2343,8 @@ public class EditorsEnvironment
         }
   */                                                      
         // Fire an event.
-        EditorsEnvironment.fireEditorChangedEvent (pe.getEditor (),
-                                                   EditorChangedEvent.EDITOR_CHANGED);
+        EditorsEnvironment.fireProjectEditorChangedEvent (pe,
+                                                          ProjectEditorChangedEvent.PROJECT_EDITOR_DELETED);
                                                       
     }
 
@@ -2364,6 +2423,36 @@ public class EditorsEnvironment
         
     }
     
+    public static void removeEditorAsProjectEditorForAllProjects (final EditorEditor ed)
+                                                           throws Exception
+    {
+        
+        Set<Project> projs = Environment.getAllProjects ();
+        
+        for (Project p : projs)
+        {
+            
+            ProjectEditor pe = EditorsEnvironment.getProjectEditor (p,
+                                                                    ed);
+            
+            if (pe == null)
+            {
+                
+                continue;
+                
+            }
+            
+            pe.setEditorTo (new java.util.Date ());
+            pe.setCurrent (false);
+            pe.setStatusMessage ("Removed");
+            
+            EditorsEnvironment.updateProjectEditor (pe);
+            
+            
+        }
+        
+    }
+    
     public static void removeEditor (final EditorEditor   ed,
                                      final ActionListener onComplete)
     {
@@ -2424,6 +2513,26 @@ public class EditorsEnvironment
                                                             
                                                         }
 
+                                                        try
+                                                        {
+                                                        
+                                                            EditorsEnvironment.removeEditorAsProjectEditorForAllProjects (ed);
+                                                            
+                                                        } catch (Exception e) {
+                                                            
+                                                            Environment.logError ("Unable to remove editor as project editor: " +
+                                                                                  ed,
+                                                                                  e);
+                                                            
+                                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                            
+                                                            UIUtils.showErrorMessage (viewer,
+                                                                                      "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                                                            
+                                                            return;
+                                                            
+                                                        }
+                                                        
                                                         // Unsubscribe.
                                                         EditorsEnvironment.messageHandler.unsubscribeFromEditor (ed);
                                                                                                                 
@@ -2524,8 +2633,8 @@ public class EditorsEnvironment
                                                       null);
 
         // Fire an event.
-        EditorsEnvironment.fireEditorChangedEvent (pe.getEditor (),
-                                                   EditorChangedEvent.EDITOR_CHANGED);
+        EditorsEnvironment.fireProjectEditorChangedEvent (pe,
+                                                          ProjectEditorChangedEvent.PROJECT_EDITOR_CHANGED);
                                                       
     }
     

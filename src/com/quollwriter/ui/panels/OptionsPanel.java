@@ -3141,7 +3141,10 @@ public class OptionsPanel extends QuollPanel
     private JComponent createWrapper (JComponent c)
     {
         
-        if (c instanceof JComboBox)
+        if ((c instanceof JComboBox)
+            ||
+            (c instanceof JCheckBox)
+           )
         {
 
             c.setMaximumSize (c.getPreferredSize ());
