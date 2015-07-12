@@ -229,7 +229,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                             
                             fpe.setStatusMessage (String.format ("Accepted {project}: %s",
                                                                  Environment.formatDate (_this.message.getWhen ())));
-                            
+                            fpe.setEditorFrom (_this.message.getWhen ());
                             fpe.setCurrent (true);
                             fpe.setStatus (ProjectEditor.Status.accepted);
                             
