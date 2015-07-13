@@ -662,7 +662,7 @@ public class EditorsEnvironment
 
     public static void fireEditorChangedEvent (final EditorChangedEvent ev)
     {
-                
+              
         UIUtils.doActionLater (new ActionListener ()
         {
         
@@ -2372,7 +2372,14 @@ public class EditorsEnvironment
         for (Project p : Environment.getAllProjects ())
         {
             
-            if (p.getForEditor () == ed)
+            if (p.getForEditor () == null)
+            {
+                
+                continue;
+                
+            }
+            
+            if (p.getForEditor ().getEmail ().equals (ed.getEmail ()))
             {
                 
                 projs.add (p);
@@ -2447,7 +2454,6 @@ public class EditorsEnvironment
             pe.setStatusMessage ("Removed");
             
             EditorsEnvironment.updateProjectEditor (pe);
-            
             
         }
         

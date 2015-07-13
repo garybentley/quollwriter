@@ -67,16 +67,24 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
         
         final EditorRemovedMessageBox _this = this;
                                         
-        String text = String.format ("Removed %sas {a contact}",
-                                     (this.message.isSentByMe () ? "" : "you "));
-                                           
-        JComponent h = UIUtils.createBoldSubHeader (text,
+        JComponent h = UIUtils.createBoldSubHeader (String.format ("Removed %sas {a contact}",
+                                                                   (this.message.isSentByMe () ? "" : "you ")),
                                                     Constants.DELETE_ICON_NAME);
         
         this.add (h);                   
         
-        JTextPane desc = UIUtils.createHelpTextPane (String.format ("<b>%s</b> has removed you as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
-                                                                    this.message.getEditor ().getShortName ()),
+        String text = String.format ("<b>%s</b> has removed you as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
+                                     this.message.getEditor ().getShortName ());
+        
+        if (this.message.isSentByMe ())
+        {
+            
+            text = String.format ("You removed <b>%s</b> as a {contact}.  You will no longer receive any messages from them or be able to send them messages.",
+                                  this.message.getEditor ().getShortName ());
+            
+        }
+        
+        JTextPane desc = UIUtils.createHelpTextPane (text,
                                                      this.projectViewer);        
         
         this.add (Box.createVerticalStrut (5));
@@ -146,7 +154,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                         _this.message.setDealtWith (true);
                         
                         EditorsEnvironment.updateMessage (_this.message);
-                                                    
+                                                  
                     } catch (Exception e) {
                         
                         Environment.logError ("Unable to update editor: " +

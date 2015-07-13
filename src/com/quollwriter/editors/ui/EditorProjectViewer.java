@@ -231,7 +231,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         };
                                                             
         this.sideBar = new EditorProjectSideBar (this);
-        
+                
     }
     
     public IconProvider getIconProvider ()
@@ -1001,61 +1001,26 @@ public class EditorProjectViewer extends AbstractProjectViewer
             
         }
         
-/*
- TODO: Needed???
-         
-        // Check to see if there are any unsent comments from previous versions that haven't been sent.
-        if ((this.proj.getProjectVersion () != null)
-            &&
-            (this.proj.getProjectVersion ().isLatest ())
-           )
+        final EditorProjectViewer _this = this;
+        
+        if (this.getProject ().getForEditor ().isPrevious ())
         {
-            
-            try
+
+            UIUtils.doLater (new ActionListener ()
             {
                 
-                int c = ((NoteDataHandler) this.getObjectManager ().getHandler (Note.class)).getDealtWithCountForOtherVersions (this.proj.getProjectVersion (),
-                                                                                                                                false,
-                                                                                                                                null);
-            
-                if (c > 0)
+                public void actionPerformed (ActionEvent ev)
                 {
-                 
-                    String mess = "There are <b>%s</b> outstanding {comments} from previous versions of this {project}.  You should consider sending those before editing this version.<br /><a href='#'>Click here to view the version(s) with outstanding {comments}.";
-                 
-                    // Show a notification.
-                    this.addNotification (String.format (mess,
-                                                         Environment.formatNumber (c)),
-                                          Constants.INFO_ICON_NAME,
-                                          90,
-                                          new HyperlinkListener ()
-                                          {
-                                          
-                                            public void hyperlinkUpdate (HyperlinkEvent ev)
-                                            {
-                          
-                                                if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
-                                                {
-                          
-                                                  
-                          
-                                                }
-                          
-                                            }                                                                        
-                                          
-                                          }));                
+                    
+                    UIUtils.showMessage (_this,
+                                         "Note: this is a {project} for a previous {contact}.  You can no longer send {comments}.");
                     
                 }
                 
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to get count of undealt with notes for previous versions.",
-                                      e);
-                
-            }
+            });
             
         }
-        */        
+
     }
 
     public void expandNoteTypeInNoteTree (String type)

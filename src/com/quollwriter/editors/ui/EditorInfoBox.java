@@ -547,7 +547,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.onlineStatus.setVisible (true);
             this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
 
-        }        
+        } 
           
         if (this.pendingMessageBox != null)
         {
@@ -695,6 +695,20 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             )
            )
         {
+            
+            if (this.editor.isPrevious ())
+            {
+                
+                this.onlineStatus.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
+                                                                Constants.ICON_MENU_INNER));
+                this.onlineStatus.setToolTipText (Environment.replaceObjectNames ("This is a previous {contact}."));
+                this.onlineStatus.setText ("");
+                this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
+                
+                this.onlineStatus.setVisible (true);
+                
+            }
+
             
             if (this.projEditor != null)
             {
@@ -1700,28 +1714,21 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }
         
-        boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
-        
-        if (!isEditorProject)
-        {
-        
-            menu.add (UIUtils.createMenuItem ("Remove {contact}",
-                                                Constants.DELETE_ICON_NAME,
-                                                new ActionListener ()
-                                                {
+        menu.add (UIUtils.createMenuItem ("Remove {contact}",
+                                            Constants.DELETE_ICON_NAME,
+                                            new ActionListener ()
+                                            {
+                                              
+                                               public void actionPerformed (ActionEvent ev)
+                                               {
                                                   
-                                                   public void actionPerformed (ActionEvent ev)
-                                                   {
-                                                      
-                                                       EditorsUIUtils.showRemoveEditor (_this.projectViewer,
-                                                                                        _this.editor,
-                                                                                        null);
-                                                      
-                                                   }
+                                                   EditorsUIUtils.showRemoveEditor (_this.projectViewer,
+                                                                                    _this.editor,
+                                                                                    null);
                                                   
-                                               }));
-
-        }        
+                                               }
+                                              
+                                           }));
         
     }
     

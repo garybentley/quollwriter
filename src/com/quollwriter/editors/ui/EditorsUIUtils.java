@@ -270,107 +270,164 @@ public class EditorsUIUtils
             
         }
         
-        Set<Project> edProjs = null;
-        
-        try
+        final ActionListener onComplete = new ActionListener ()
         {
             
-            edProjs = EditorsEnvironment.getProjectsForEditor (ed);
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                
+                UIUtils.showMessage ((PopupsSupported) viewer,
+                                     "{Contact} removed",
+                                     String.format ("<b>%s</b> has been removed as a {contact}.",
+                                                    ed.getMainName ()));
+                
+            }
             
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get projects for editor: " +
-                                  ed,
-                                  e);
-            
-            UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
-            
-            return;
-            
-        }
+        };
         
-        Set<Project> sentProjs = null;
-        
-        try
+        final ActionListener deleteEditorProjs = new ActionListener ()
         {
             
-            sentProjs = EditorsEnvironment.getProjectsSentToEditor (ed);
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                Set<Project> edProjs = null;
+        
+                try
+                {
+                    
+                    edProjs = EditorsEnvironment.getProjectsForEditor (ed);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get projects for editor: " +
+                                          ed,
+                                          e);
+                    
+                    UIUtils.showErrorMessage (viewer,
+                                              "Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
+                    
+                    return;
+                    
+                }
+                                                                                                                            
+                for (Project p : edProjs)
+                {
+                    
+                    // Just to be sure.
+                    if (!p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+                    {
+                        
+                        continue;
+                        
+                    }
+                    
+                    AbstractProjectViewer pv = Environment.getProjectViewer (p);
+                    
+                    if (pv != null)
+                    {
+                        
+                        pv.close (true,
+                                  null);
+                        
+                    }
+                    
+                    Environment.deleteProject (p);                                                            
+                    
+                }
+                                                            
+                onComplete.actionPerformed (ev);
+                
+            }
+            
+        };
+        
+        final ActionListener removeEditor = new ActionListener ()
+        {
+           
+           public void actionPerformed (ActionEvent ev)
+           {
+               
+               EditorsEnvironment.removeEditor (ed,
+                                                new ActionListener ()
+                                                {
+                                                   
+                                                   public void actionPerformed (ActionEvent ev)
+                                                   {
+                                                       
+                                                       // Remove all projects for the editor.
+                                                       Set<Project> edProjs = null;
+                                                       
+                                                       try
+                                                       {
+                                                           
+                                                           edProjs = EditorsEnvironment.getProjectsForEditor (ed);
+                                                           
+                                                       } catch (Exception e) {
+                                                           
+                                                           Environment.logError ("Unable to get projects for editor: " +
+                                                                                 ed,
+                                                                                 e);
+                                                           
+                                                           AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
 
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get projects sent to editor: " +
-                                  ed,
-                                  e);
-            
-            UIUtils.showErrorMessage (viewer,
-                                      "Unable to get {projects} sent to {contact}, please contact Quoll Writer support for assistance.");
-            
-            return;
+                                                           UIUtils.showErrorMessage (viewer,
+                                                                                     "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
+                                                           
+                                                           return;
+                                                           
+                                                       }
+                                                                                                                                           
+                                                       if (edProjs.size () > 0)
+                                                       {
+                                                           
+                                                           String sb = String.format ("You are currently editing <b>%s</b> {project%s} for <b>%s</b>.  To remove them enter the word <b>Yes</b> below.",
+                                                                                      Environment.formatNumber (edProjs.size ()),
+                                                                                      edProjs.size () > 1 ? "s" : "",
+                                                                                      ed.getShortName ());
+                                                           
+                                                           UIUtils.createTextInputPopup (viewer,
+                                                                                        "Delete {projects} for {contact}",
+                                                                                        Constants.DELETE_ICON_NAME,
+                                                                                        sb,
+                                                                                        "Yes, delete them",
+                                                                                        "No, keep them",
+                                                                                        null,
+                                                                                        UIUtils.getYesValueValidator (),
+                                                                                        deleteEditorProjs,
+                                                                                        onComplete,
+                                                                                        null);
+                                                           
+                                                       } else {
+                                                        
+                                                            onComplete.actionPerformed (ev);
+                                                        
+                                                       }
+                                                   
+                                                   }
+                                                   
+                                                });
+               
+           }
+           
+        };
         
-        } 
-        
-        StringBuilder sb = new StringBuilder (String.format ("Please confirm you wish to remove <b>%s</b> as {a contact}.<br /><br />A message will be sent to <b>%s</b> informing them of your decision.<br /><br /><p class='error'>Warning: you will no longer be able to receive messages from <b>%s</b> or send messages to them and any {projects} you are editing for them will be deleted from your system.</p>",
-                                                             ed.getMainName (),
-                                                             ed.getMainName (),
-                                                             ed.getMainName ()));
+        String sb = String.format ("Please confirm you wish to remove <b>%s</b> as {a contact}.<br /><br />A message will be sent to <b>%s</b> informing them of your decision.<br /><br />Enter <b>Yes</b> below to remove them.<br /><br /><p class='error'>Warning: you will no longer be able to receive messages from <b>%s</b> or send messages to them.</p>",
+                                    ed.getMainName (),
+                                    ed.getMainName (),
+                                    ed.getMainName ());
                                 
         UIUtils.createTextInputPopup (viewer,
                                      "Remove {contact}",
                                      Constants.DELETE_ICON_NAME,
-                                     sb.toString (),
+                                     sb,
                                      "Yes, remove them",
                                      "No, keep them",
                                      null,
-                                     new ValueValidator<String> ()
-                                     {
-
-                                        @Override
-                                        public String isValid (String v)
-                                        {
-                                          
-                                            if ((v == null)
-                                                ||
-                                                (!v.trim ().equalsIgnoreCase ("yes"))
-                                               )
-                                            {
-                                              
-                                                return "Please enter the word Yes.";
-                                              
-                                            }
-                                            
-                                            return null;
-                                            
-                                        }
-                                        
-                                     },
-                                     new ActionListener ()
-                                     {
-                                        
-                                        public void actionPerformed (ActionEvent ev)
-                                        {
-                                            
-                                            EditorsEnvironment.removeEditor (ed,
-                                                                             new ActionListener ()
-                                                                             {
-                                                                                
-                                                                                public void actionPerformed (ActionEvent ev)
-                                                                                {
-                                                                                    
-                                                                                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
-                                                                                    
-                                                                                    UIUtils.showMessage ((PopupsSupported) viewer,
-                                                                                                         "{Contact} removed",
-                                                                                                         String.format ("<b>%s</b> has been removed as a {contact}.",
-                                                                                                                        ed.getMainName ()));
-                                                                                    
-                                                                                }
-                                                                                
-                                                                             });
-                                            
-                                        }
-                                        
-                                     },
+                                     UIUtils.getYesValueValidator (),
+                                     removeEditor,
                                      null,
                                      null);
         

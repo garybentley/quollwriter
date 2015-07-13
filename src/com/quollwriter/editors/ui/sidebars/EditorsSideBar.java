@@ -898,7 +898,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
     private void updateView ()
     {
-                
+
         Set<EditorEditor> invitesForMe = new LinkedHashSet ();
         Set<ProjectEditor> projEds = new LinkedHashSet ();
         Set<EditorEditor> others = new LinkedHashSet ();
@@ -1229,18 +1229,11 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         edBox.setOpaque (true);
         edBox.setBackground (UIUtils.getComponentColor ());
 
-        final Notification n = Notification.createHelpNotification (this.projectViewer,
-                                                                    "{Contacts} you have removed or have removed you in the past.",
-                                                                    30,
-                                                                    null,
-                                                                    null);
-
-        n.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         100));
-                                                                    
-        n.init ();
+        JComponent nc = UIUtils.createInformationLabel ("{Contacts} you have removed or have removed you in the past.");
+            
+        nc.setBorder (UIUtils.createPadding (0, 0, 5, 0));
         
-        edBox.add (n);
+        edBox.add (nc);
         
         int prevCount = 0;
                                                                                                    

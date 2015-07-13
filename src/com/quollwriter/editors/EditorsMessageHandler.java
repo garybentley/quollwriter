@@ -1323,13 +1323,11 @@ public class EditorsMessageHandler implements ChatMessageListener
                                 final String jid = pre.getFrom ();
                                 
                                 final EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
-                                
+
                                 if (pre.getType () == Presence.Type.unsubscribe)
                                 {
                                                                         
                                     // Send unsubscribe.
-                                    _this.sendPresence (Presence.Type.unsubscribe,
-                                                        pre.getFrom ());
                                     _this.sendPresence (Presence.Type.unsubscribed,
                                                         pre.getFrom ());
                                     
@@ -1461,20 +1459,30 @@ public class EditorsMessageHandler implements ChatMessageListener
                         public void presenceChanged (Presence p)
                         {
                            
-                            // Get the editor associated with the presence.
-                            String jid = p.getFrom ();
-                            
-                            String username = EditorsMessageHandler.getUsernameFromJID (jid);
-                        
-                            EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
-                            
-                            if (ed != null)
+                            try
                             {
+                           
+                                // Get the editor associated with the presence.
+                                String jid = p.getFrom ();
                                 
-                                ed.setOnlineStatus (_this.getOnlineStatus (p));
+                                String username = EditorsMessageHandler.getUsernameFromJID (jid);
+                            
+                                EditorEditor ed = EditorsEnvironment.getEditorByMessagingUsername (username);
                                 
-                                EditorsEnvironment.fireEditorChangedEvent (new EditorChangedEvent (ed,
-                                                                                                   EditorChangedEvent.EDITOR_CHANGED));
+                                if (ed != null)
+                                {
+                                    
+                                    ed.setOnlineStatus (_this.getOnlineStatus (p));
+                                    
+                                    EditorsEnvironment.fireEditorChangedEvent (new EditorChangedEvent (ed,
+                                                                                                       EditorChangedEvent.EDITOR_CHANGED));
+                                    
+                                }
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to update editor",
+                                                      e);
                                 
                             }
 
@@ -1729,6 +1737,24 @@ public class EditorsMessageHandler implements ChatMessageListener
         final EditorsMessageHandler _this = this;
     
         this.logoutRequested = false;
+    
+        if (to.isPrevious ())
+        {
+            
+            Environment.logError ("Trying to send message to previous editor: " + to + ", message is: " + mess);
+            
+            if (onError != null)
+            {
+                
+                UIUtils.doLater (onError,
+                                 new Exception ("Trying to send message to: " + to),
+                                 null);
+                
+            }
+
+            return;
+            
+        }
     
         this.doLogin (loginReason,
                       new ActionListener ()

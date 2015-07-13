@@ -1202,6 +1202,17 @@ public class Environment
             
         }
         
+        if ((p.isEditorProject ())
+            &&
+            (EditorsEnvironment.getEditorByEmail (p.getForEditor ().getEmail ()) == null)
+           )
+        {
+            
+            return String.format ("Unable to find {contact}: <b>%s</b> you are editing the {project} for.",
+                                  p.getForEditor ().getEmail ());
+            
+        }
+        
         return null;
         
     }

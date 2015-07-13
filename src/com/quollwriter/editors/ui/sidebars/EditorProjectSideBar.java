@@ -80,6 +80,15 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
     private void showUnsentNotification ()
     {
                 
+        if (this.editor.isPrevious ())
+        {
+            
+            this.unsentLabel.setVisible (false);    
+                
+            return;
+                
+        }
+        
         // Get the unsent note count for the project (for this version).
         Set<Note> notes = null;
         

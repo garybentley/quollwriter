@@ -31,6 +31,13 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
             
     }
         
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+    
+    }
+        
     public void reloadTree (JTree tree)
     {
         
