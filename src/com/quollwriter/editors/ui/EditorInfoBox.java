@@ -1706,14 +1706,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             return;
             
         }
-        
-        if (this.editor.isPending ())
-        {
-            
-            return;
-            
-        }
-        
+                
         menu.add (UIUtils.createMenuItem ("Remove {contact}",
                                             Constants.DELETE_ICON_NAME,
                                             new ActionListener ()

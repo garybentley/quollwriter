@@ -1061,98 +1061,7 @@ public class EditorsEnvironment
                                                          null);
         
     }
-    
-    public static void deletePendingEditor (final EditorEditor          ed,
-                                            final ActionListener        onDeleteComplete)
-    {
-
-        if (!ed.isPending ())
-        {
-            
-            throw new IllegalStateException ("Only pending editors can be deleted using this method.");
-            
-        }
-    
-        final ActionListener doDelete = new ActionListener ()
-        {
-          
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                try
-                {
-                
-                    EditorsEnvironment.editors.remove (ed);
-
-                    EditorsEnvironment.editorsManager.deleteObject (ed,
-                                                                    true,
-                                                                    null);
-                                    
-                } catch (Exception e) {
-                    
-                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
-                    
-                    UIUtils.showErrorMessage (viewer,
-                                              "Unable to delete {editor} from local database.");
-                    
-                    Environment.logError ("Unable to delete editor: " +
-                                          ed);
-                    
-                    return;
-                    
-                }
-                
-                // Fire an event.
-                EditorsEnvironment.fireEditorChangedEvent (ed,
-                                                           EditorChangedEvent.EDITOR_DELETED);
-                
-                if (onDeleteComplete != null)
-                {
-                    
-                    onDeleteComplete.actionPerformed (new ActionEvent ("delete", 1, "delete"));
-                    
-                }                
-                
-            }
-            
-        };
-    
-        EditorsEnvironment.editorsHandler.deleteInvite (ed,
-                                                        new EditorsWebServiceAction ()
-        {
-            
-            public void processResult (EditorsWebServiceResult res)
-            {
-                
-                doDelete.actionPerformed (new ActionEvent ("delete", 1, " delete"));
-                
-            }
-        },
-        new EditorsWebServiceAction ()
-        {
-            
-            public void processResult (EditorsWebServiceResult res)
-            {
-
-                // If the invite couldn't be found then just delete the editor anyway since it's
-                // probably been removed from the QW end.
-                if (res.isNoDataFoundError ())
-                {
-
-                    doDelete.actionPerformed (new ActionEvent ("delete", 1, " delete"));
-
-                } else {               
-                      
-                    EditorsEnvironment.editorsHandler.getDefaultEditorsWebServiceErrorAction ().processResult (res);
-
-                }
-                
-            }
-            
-        });
         
-    }
-    
     public static void acceptInvite (final EditorEditor   editor,
                                      final EditorMessage  message,
                                      final ActionListener onComplete)
@@ -2459,10 +2368,70 @@ public class EditorsEnvironment
         
     }
     
+    public static void removePendingEditor (final EditorEditor          ed,
+                                            final ActionListener        onDeleteComplete)
+    {
+
+        if (!ed.isPending ())
+        {
+            
+            throw new IllegalStateException ("Only pending editors can be deleted using this method.");
+            
+        }
+    
+        final ActionListener doDelete = new ActionListener ()
+        {
+          
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                EditorsEnvironment.removeEditor (ed,
+                                                 onDeleteComplete);
+                
+            }
+            
+        };
+    
+        EditorsEnvironment.editorsHandler.deleteInvite (ed,
+                                                        new EditorsWebServiceAction ()
+        {
+            
+            public void processResult (EditorsWebServiceResult res)
+            {
+                
+                doDelete.actionPerformed (new ActionEvent ("delete", 1, " delete"));
+                
+            }
+        },
+        new EditorsWebServiceAction ()
+        {
+            
+            public void processResult (EditorsWebServiceResult res)
+            {
+
+                // If the invite couldn't be found then just delete the editor anyway since it's
+                // probably been removed from the QW end.
+                if (res.isNoDataFoundError ())
+                {
+
+                    doDelete.actionPerformed (new ActionEvent ("delete", 1, " delete"));
+
+                } else {               
+                      
+                    EditorsEnvironment.editorsHandler.getDefaultEditorsWebServiceErrorAction ().processResult (res);
+
+                }
+                
+            }
+            
+        });
+        
+    }
+    
     public static void removeEditor (final EditorEditor   ed,
                                      final ActionListener onComplete)
     {
-                
+                        
         // Send the editor removed message
         EditorRemovedMessage mess = new EditorRemovedMessage (ed);
         
@@ -2472,30 +2441,7 @@ public class EditorsEnvironment
                                                     
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                                   
-                                                        // Remove all projects for the editor.
-                                                        Set<Project> edProjs = null;
-                                                        
-                                                        try
-                                                        {
-                                                            
-                                                            edProjs = EditorsEnvironment.getProjectsForEditor (ed);
-                                                            
-                                                        } catch (Exception e) {
-                                                            
-                                                            Environment.logError ("Unable to get projects for editor: " +
-                                                                                  ed,
-                                                                                  e);
-                                                            
-                                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
-
-                                                            UIUtils.showErrorMessage (viewer,
-                                                                                      "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
-                                                            
-                                                            return;
-                                                            
-                                                        }
-                                                                                                             
+                                                                                                                                                                                
                                                         try
                                                         {
                                                             
@@ -2542,31 +2488,6 @@ public class EditorsEnvironment
                                                         // Unsubscribe.
                                                         EditorsEnvironment.messageHandler.unsubscribeFromEditor (ed);
                                                                                                                 
-                                                        for (Project p : edProjs)
-                                                        {
-                                                            
-                                                            // Just to be sure.
-                                                            if (!p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
-                                                            {
-                                                                
-                                                                continue;
-                                                                
-                                                            }
-                                                            
-                                                            AbstractProjectViewer pv = Environment.getProjectViewer (p);
-                                                            
-                                                            if (pv != null)
-                                                            {
-                                                                
-                                                                pv.close (true,
-                                                                          null);
-                                                                
-                                                            }
-                                                            
-                                                            Environment.deleteProject (p);                                                            
-                                                            
-                                                        }
-                                                        
                                                         if (onComplete != null)
                                                         {
                                                             

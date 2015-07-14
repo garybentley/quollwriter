@@ -15,6 +15,7 @@ public class Invite
         
         accepted ("accepted"),
         pending ("pending"),
+        deleted ("deleted"),
         rejected ("rejected");
         
         private String type = null;

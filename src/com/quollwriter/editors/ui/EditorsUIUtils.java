@@ -234,6 +234,123 @@ public class EditorsUIUtils
         
     }
     
+    /**
+     * If we are editing any projects for the specified editor then show a popup offering to delete
+     * the projects.  Once the delete is complete (or there are no projects) call <b>onRemoveComplete</b>.
+     * If any of the projects are open then they are force closed first.
+     *
+     */
+    public static void showDeleteProjectsForEditor (final AbstractProjectViewer viewer,
+                                                    final EditorEditor          ed,
+                                                    final ActionListener        onRemoveComplete)
+    {
+        
+        // Remove all projects for the editor.
+        Set<Project> edProjs = null;
+        
+        try
+        {
+            
+            edProjs = EditorsEnvironment.getProjectsForEditor (ed);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get projects for editor: " +
+                                  ed,
+                                  e);
+            
+            UIUtils.showErrorMessage (viewer,
+                                      "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
+            
+            return;
+            
+        }
+                                                                                            
+        if (edProjs.size () > 0)
+        {
+            
+            final ActionListener deleteEditorProjs = new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    Set<Project> edProjs = null;
+            
+                    try
+                    {
+                        
+                        edProjs = EditorsEnvironment.getProjectsForEditor (ed);
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to get projects for editor: " +
+                                              ed,
+                                              e);
+                        
+                        UIUtils.showErrorMessage (viewer,
+                                                  "Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
+                        
+                        return;
+                        
+                    }
+                                                                                                                                
+                    for (Project p : edProjs)
+                    {
+                        
+                        // Just to be sure.
+                        if (!p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+                        {
+                            
+                            continue;
+                            
+                        }
+                        
+                        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+                        
+                        if (pv != null)
+                        {
+                            
+                            pv.close (true,
+                                      null);
+                            
+                        }
+                        
+                        Environment.deleteProject (p);                                                            
+                        
+                    }
+                                                                
+                    onRemoveComplete.actionPerformed (ev);
+                    
+                }
+                
+            };
+            
+            String sb = String.format ("You are currently editing <b>%s</b> {project%s} for <b>%s</b>.  To remove them enter the word <b>Yes</b> below.",
+                                       Environment.formatNumber (edProjs.size ()),
+                                       edProjs.size () > 1 ? "s" : "",
+                                       ed.getShortName ());
+            
+            UIUtils.createTextInputPopup (viewer,
+                                         "Delete {projects} for {contact}",
+                                         Constants.DELETE_ICON_NAME,
+                                         sb,
+                                         "Yes, delete them",
+                                         "No, keep them",
+                                         null,
+                                         UIUtils.getYesValueValidator (),
+                                         deleteEditorProjs,
+                                         onRemoveComplete,
+                                         null);
+            
+        } else {
+         
+             onRemoveComplete.actionPerformed (new ActionEvent (ed, 1, "complete"));
+         
+        }
+        
+    }
+    
     public static void showRemoveEditor (final AbstractProjectViewer viewer,
                                          final EditorEditor          ed,
                                          final ActionListener        onRemoveComplete)
@@ -243,29 +360,30 @@ public class EditorsUIUtils
         if (ed.isPending ())
         {
             
-            UIUtils.createQuestionPopup (viewer,
-                                         "Remove pending {contact}",
+            UIUtils.createTextInputPopup (viewer,
+                                         "Remove {contact}",
                                          Constants.DELETE_ICON_NAME,
                                          String.format ("To confirm removal of <b>%s</b> as {a contact} please enter the word <b>Yes</b> in the box below.",
                                                         ed.getShortName ()),
                                          "Yes, remove them",
                                          "No, keep them",
+                                         null,
+                                         UIUtils.getYesValueValidator (),
                                          new ActionListener ()
                                          {
                                             
                                             public void actionPerformed (ActionEvent ev)
                                             {
                                                 
-                                                EditorsEnvironment.deletePendingEditor (ed,
+                                                EditorsEnvironment.removePendingEditor (ed,
                                                                                         onRemoveComplete);
                                                 
                                             }
                                             
                                          },
                                          null,
-                                         null,
                                          null);
-
+            
             return;            
             
         }
@@ -286,64 +404,7 @@ public class EditorsUIUtils
             }
             
         };
-        
-        final ActionListener deleteEditorProjs = new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
                 
-                Set<Project> edProjs = null;
-        
-                try
-                {
-                    
-                    edProjs = EditorsEnvironment.getProjectsForEditor (ed);
-                    
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to get projects for editor: " +
-                                          ed,
-                                          e);
-                    
-                    UIUtils.showErrorMessage (viewer,
-                                              "Unable to get {projects} for {contact}, please contact Quoll Writer support for assistance.");
-                    
-                    return;
-                    
-                }
-                                                                                                                            
-                for (Project p : edProjs)
-                {
-                    
-                    // Just to be sure.
-                    if (!p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
-                    {
-                        
-                        continue;
-                        
-                    }
-                    
-                    AbstractProjectViewer pv = Environment.getProjectViewer (p);
-                    
-                    if (pv != null)
-                    {
-                        
-                        pv.close (true,
-                                  null);
-                        
-                    }
-                    
-                    Environment.deleteProject (p);                                                            
-                    
-                }
-                                                            
-                onComplete.actionPerformed (ev);
-                
-            }
-            
-        };
-        
         final ActionListener removeEditor = new ActionListener ()
         {
            
@@ -354,59 +415,14 @@ public class EditorsUIUtils
                                                 new ActionListener ()
                                                 {
                                                    
-                                                   public void actionPerformed (ActionEvent ev)
-                                                   {
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
                                                        
-                                                       // Remove all projects for the editor.
-                                                       Set<Project> edProjs = null;
-                                                       
-                                                       try
-                                                       {
-                                                           
-                                                           edProjs = EditorsEnvironment.getProjectsForEditor (ed);
-                                                           
-                                                       } catch (Exception e) {
-                                                           
-                                                           Environment.logError ("Unable to get projects for editor: " +
-                                                                                 ed,
-                                                                                 e);
-                                                           
-                                                           AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
-
-                                                           UIUtils.showErrorMessage (viewer,
-                                                                                     "Unable to get {projects} for {editor}, please contact Quoll Writer support for assistance.");
-                                                           
-                                                           return;
-                                                           
-                                                       }
-                                                                                                                                           
-                                                       if (edProjs.size () > 0)
-                                                       {
-                                                           
-                                                           String sb = String.format ("You are currently editing <b>%s</b> {project%s} for <b>%s</b>.  To remove them enter the word <b>Yes</b> below.",
-                                                                                      Environment.formatNumber (edProjs.size ()),
-                                                                                      edProjs.size () > 1 ? "s" : "",
-                                                                                      ed.getShortName ());
-                                                           
-                                                           UIUtils.createTextInputPopup (viewer,
-                                                                                        "Delete {projects} for {contact}",
-                                                                                        Constants.DELETE_ICON_NAME,
-                                                                                        sb,
-                                                                                        "Yes, delete them",
-                                                                                        "No, keep them",
-                                                                                        null,
-                                                                                        UIUtils.getYesValueValidator (),
-                                                                                        deleteEditorProjs,
-                                                                                        onComplete,
-                                                                                        null);
-                                                           
-                                                       } else {
-                                                        
-                                                            onComplete.actionPerformed (ev);
-                                                        
-                                                       }
+                                                        EditorsUIUtils.showDeleteProjectsForEditor (Environment.getFocusedProjectViewer (),
+                                                                                                    ed,
+                                                                                                    onComplete);
                                                    
-                                                   }
+                                                    }
                                                    
                                                 });
                

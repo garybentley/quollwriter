@@ -137,7 +137,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
     
                     try
                     {
-    
+        
                         // Unsubscribe.
                         EditorsEnvironment.getMessageHandler ().unsubscribeFromEditor (ed);                
                         
@@ -154,6 +154,11 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                         _this.message.setDealtWith (true);
                         
                         EditorsEnvironment.updateMessage (_this.message);
+                        
+                        // Offer to remove any projects we are editing for them.
+                        EditorsUIUtils.showDeleteProjectsForEditor (_this.projectViewer,
+                                                                    _this.message.getEditor (),
+                                                                    null);
                                                   
                     } catch (Exception e) {
                         

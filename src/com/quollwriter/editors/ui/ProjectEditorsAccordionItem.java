@@ -499,7 +499,10 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
             
             infBox.init ();
             
-            if (pe.isCurrent ())
+            if ((pe.isCurrent ())
+                ||
+                (pe.getEditor ().isPending ())
+               )
             {                                                        
             
                 this.currentEditors.add (infBox);

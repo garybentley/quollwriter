@@ -344,6 +344,14 @@ public class EditorsMessageHandler implements ChatMessageListener
                                                 
                                             }                                                                
 
+                                            // Is the invite deleted?  If so just ignore the message.
+                                            if (invite.getStatus () == Invite.Status.deleted)
+                                            {
+                                                
+                                                return;
+                                                
+                                            }
+                                            
                                             // Did I send the invite or receive it?
                                             if (invite.getFromEmail ().equals (EditorsEnvironment.getUserAccount ().getEmail ()))
                                             {
