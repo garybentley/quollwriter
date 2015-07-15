@@ -230,9 +230,9 @@ public class AccordionItem extends Box
                 
                 if (c != null)
                 {
-                
-                    _this.setContentVisible (!c.isVisible ());
-        
+
+                    c.setVisible (!c.isVisible ());
+
                     _this.revalidate ();
                     _this.repaint ();                    
 

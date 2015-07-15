@@ -502,16 +502,13 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
                 
                 infBox.init ();
                 
-                if ((pe.isCurrent ())
-                    ||
-                    (pe.getEditor ().isPending ())
-                   )
+                if (!pe.isPrevious ())
                 {                                                        
-                
+
                     this.currentEditors.add (infBox);
                     
                 } else {
-                    
+
                     this.previousEditors.add (infBox);
                     
                 }

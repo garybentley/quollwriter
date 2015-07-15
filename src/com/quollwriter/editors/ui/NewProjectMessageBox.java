@@ -712,7 +712,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         if (!this.message.isSentByMe ())
         {
             
-            text = "Invitation to edit a {project}";
+            text = "Received an invitation to edit a {project}";
                             
         }
         

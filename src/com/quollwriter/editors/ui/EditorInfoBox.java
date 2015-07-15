@@ -1618,35 +1618,93 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 }
                 
             }
-        /*
+        
             // Find out what was the last project message sent.
             Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
                                                                                                    NewProjectMessage.MESSAGE_TYPE,
+                                                                                                   NewProjectResponseMessage.MESSAGE_TYPE,
                                                                                                    ProjectEditStopMessage.MESSAGE_TYPE,
                                                                                                    UpdateProjectMessage.MESSAGE_TYPE));
             
+            EditorMessage last = null;
             
+            for (EditorMessage m : messages)
+            {
+                
+                last = m;
+                
+            }
         
-            NewProjectMessage npm = (NewProjectMessage) this.editor.getMessage (NewProjectMessage.MESSAGE_TYPE,
-                                                                                this.projectViewer.getProject ());
+            boolean addSend = false;
+            boolean addUpdate = false;
         
-            ProjectEditStopMessage psm = (ProjectEditStopMessage) this.editor.getMessage (ProjectEditStopMessage.MESSAGE_TYPE,
-                                                                                          this.projectViewer.getProject ());
-*/
-/*
-            if ((npm != null)
-                &&
-                (psm == null)
+            if ((last == null)
+                ||
+                (last instanceof ProjectEditStopMessage)
                )
             {
-
-                if (npm.isAccepted ())
+                
+                addSend = true;
+                                
+            }
+        
+            if (last instanceof NewProjectMessage)
+            {
+                
+                // Sent the project.  Do nothing since we have no response.
+                return;                
+                
+            }
+        
+            if (last instanceof NewProjectResponseMessage)
+            {
+                
+                NewProjectResponseMessage npr = (NewProjectResponseMessage) last;
+                
+                if (!npr.isAccepted ())
                 {
-  */
-            if ((this.projEditor != null)
-                &&
-                (this.projEditor.isCurrent ())
-               )
+                    
+                    addSend = true;
+                                        
+                } else {
+                    
+                    addUpdate = true;
+                    
+                }
+
+            }
+            
+            if (last instanceof UpdateProjectMessage)
+            {
+                
+                addUpdate = true;
+                
+            }
+        
+            if (addSend)
+            {
+                
+                menu.add (UIUtils.createMenuItem ("Send {project}/{chapters}",
+                                                  Constants.SEND_ICON_NAME,
+                                                  new ActionListener ()
+                                                  {
+                                                
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+
+                                                        EditorsUIUtils.showSendProject (_this.projectViewer,
+                                                                                        _this.editor,
+                                                                                        null);
+
+                                                    }
+                                                    
+                                                  }));                
+                
+                return;
+                
+            }
+  
+            if (addUpdate)
             {
                 
                 menu.add (UIUtils.createMenuItem ("Update {project}/{chapters}",
