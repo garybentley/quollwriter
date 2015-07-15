@@ -394,74 +394,131 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             return false;
             
         }
-
-        // Are we in a project context?
-        if (this.showProjectInfo)
-        {
         
-            Set<EditorMessage> m = this.editor.getMessages (new EditorMessageFilter ()
-                                                                      {
-                                                                        
-                                                                          @Override
-                                                                          public boolean accept (EditorMessage m)
-                                                                          {
-                                                                              
-                                                                              if (!_this.projectViewer.getProject ().getId ().equals (m.getForProjectId ()))
-                                                                              {
-                                                                                
-                                                                                  return false;
-                                                                                
-                                                                              }
-                                                                                                                                                            
-                                                                              if (m.isDealtWith ())
-                                                                              {
-                                                                                
-                                                                                  return false;
-                                                                                
-                                                                              }
-                                                                              
-                                                                              return true;
-                                                                            
-                                                                          }
-                                                                        
-                                                                      });
-        
-            return m.size () > 0;
-        
-        } else {
-            
-            // Show all important messages across all projects.
-            Set<EditorMessage> m = this.editor.getMessages (EditorsUIUtils.getImportantMessageFilter ());
-            
-            Set<EditorMessage> cm = this.editor.getMessages (new EditorMessageFilter ()
-                                                                      {
-                                                                        
-                                                                          @Override
-                                                                          public boolean accept (EditorMessage m)
-                                                                          {
-                                                                              
-                                                                              if ((m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                                                                                  &&
-                                                                                  (!m.isDealtWith ())
-                                                                                 )
-                                                                              {
-                                                                                
-                                                                                  return true;
-                                                                                
-                                                                              }
-                                                                              
-                                                                              return false;
-                                                                            
-                                                                          }
-                                                                        
-                                                                      });
-            
-            return m.size () > 0 || cm.size () > 0;
-            
-        }
+        return this.editor.getMessages (EditorsUIUtils.getImportantMessageFilter ()).size () > 0;
         
     }
+    
+    private Set<EditorMessage> getProjectComments ()
+    {
+
+        return this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+                                                                        ProjectCommentsMessage.MESSAGE_TYPE));
         
+    }
+    
+    private Set<EditorMessage> getChatMessages ()
+    {
+        
+        return this.editor.getMessages (new EditorMessageFilter ()
+        {
+                                                                        
+            @Override
+            public boolean accept (EditorMessage m)
+            {
+                
+                if ((m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                    &&
+                    (!m.isDealtWith ())
+                   )
+                {
+                  
+                    return true;
+                  
+                }
+                
+                return false;
+              
+            }
+          
+        });        
+       
+    }
+    
+    private Set<EditorMessage> getProjectMessages ()
+    {
+        
+        final EditorInfoBox _this = this;
+        
+        final String projId = this.projectViewer.getProject ().getId ();        
+        
+        return this.editor.getMessages (new EditorMessageFilter ()
+        {
+       
+            @Override
+            public boolean accept (EditorMessage m)
+            {
+                
+                if (!projId.equals (m.getForProjectId ()))
+                {
+                    
+                    return false;
+                                                                                              
+                }
+                
+                if ((m.getMessageType ().equals (NewProjectMessage.MESSAGE_TYPE))
+                    ||
+                    (m.getMessageType ().equals (NewProjectResponseMessage.MESSAGE_TYPE))
+                    ||
+                    (m.getMessageType ().equals (UpdateProjectMessage.MESSAGE_TYPE))
+                    ||
+                    (m.getMessageType ().equals (ProjectEditStopMessage.MESSAGE_TYPE))                                                                                
+                   )
+                {
+                      
+                    return true;
+ 
+                }
+                
+                return false;
+                                                                                            
+            }
+                                           
+        });
+       
+    }
+    private Set<EditorMessage> getImportantMessages ()
+    {
+        
+        final EditorInfoBox _this = this;
+        
+        final String projId = this.projectViewer.getProject ().getId ();        
+        
+        Set<EditorMessage> mess = this.editor.getMessages (new EditorMessageFilter ()
+                                                           {
+                                                            
+                                                                @Override
+                                                                public boolean accept (EditorMessage m)
+                                                                {
+                                                                     
+                                                                    if (!EditorsUIUtils.getImportantMessageFilter ().accept (m))
+                                                                    {
+                                                                         
+                                                                        return false;
+                                                                         
+                                                                    }
+                                                               
+                                                                    if (_this.showProjectInfo)
+                                                                    {
+                                                                        
+                                                                        if (projId.equals (m.getForProjectId ()))
+                                                                        {
+                                                                            
+                                                                            return false;
+                                                                                                                                                      
+                                                                        }
+                                                                        
+                                                                    }
+                                                                    
+                                                                    return true;
+                                                                     
+                                                                 }
+                                                                 
+                                                            });
+
+        return mess;        
+        
+    }
     public ProjectEditor getProjectEditor ()
     {
         
@@ -557,7 +614,10 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }                  
                 
-        if (!this.editor.isPending ())
+        if ((!this.editor.isPending ())
+            &&
+            (!this.showProjectInfo)
+           )
         {
             
             UIUtils.setAsButton (this.editorInfo);
@@ -575,7 +635,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             }            
             
         } else {
-                        
+            /*            
             // Show an accept/reject.
             EditorMessage m = null;
 
@@ -634,7 +694,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 this.add (mb);
                     
             }
-    
+    */
             if (!this.editor.isInvitedByMe ())
             {
                                 
@@ -652,41 +712,52 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }
         
-        if (!this.showProjectInfo)
+        final String projId = this.projectViewer.getProject ().getId ();
+        
+        Set<EditorMessage> mess = this.getImportantMessages ();
+        
+        int ms = mess.size ();
+        
+        this.importantMessages.setForeground (java.awt.Color.black);
+
+        if (ms > 0)
+        {
+                    
+            this.importantMessages.setForeground (java.awt.Color.red);
+
+            this.importantMessages.setToolTipText (String.format ("%s new/important message%s requiring your attention, click to view them",
+                                                                  Environment.formatNumber (ms),
+                                                                  (ms == 1 ? "" : "s"),
+                                                                  (ms == 1 ? "s" : "")));
+            
+            this.importantMessages.setText (String.format ("%s",
+                                                           Environment.formatNumber (ms)));
+
+            this.importantMessages.setVisible (true);
+
+        }
+       /*
+        if (this.editor.isPending ())
         {
             
-            Set<EditorMessage> mess = this.editor.getMessages (EditorsUIUtils.getImportantMessageFilter ());
-            
-            int ms = mess.size ();
-            
-            this.importantMessages.setForeground (java.awt.Color.black);
-
-            if (ms > 0)
-            {
-                        
-                this.importantMessages.setForeground (java.awt.Color.red);
-    
-                this.importantMessages.setToolTipText (String.format ("%s new/important message%s requiring your attention, click to view them",
-                                                                      Environment.formatNumber (ms),
-                                                                      (ms == 1 ? "" : "s"),
-                                                                      (ms == 1 ? "s" : "")));
-                
-                this.importantMessages.setText (String.format ("%s",
-                                                               Environment.formatNumber (ms)));
-    
-                this.importantMessages.setVisible (true);
-
-            }
-           
-            if (this.editor.isPending ())
-            {
-                
-                this.importantMessages.setVisible (false);
-                
-            }
+            this.importantMessages.setVisible (false);
             
         }
-        
+         */           
+
+        if (this.editor.isPrevious ())
+        {
+             
+            this.onlineStatus.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
+                                                            Constants.ICON_MENU_INNER));
+            this.onlineStatus.setToolTipText (Environment.replaceObjectNames ("This is a previous {contact}."));
+            this.onlineStatus.setText ("");
+            this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
+            
+            this.onlineStatus.setVisible (true);
+            
+        }
+
         if ((this.showProjectInfo)
             &&
             ((this.projEditor != null)
@@ -696,20 +767,6 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
            )
         {
             
-            if (this.editor.isPrevious ())
-            {
-                
-                this.onlineStatus.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
-                                                                Constants.ICON_MENU_INNER));
-                this.onlineStatus.setToolTipText (Environment.replaceObjectNames ("This is a previous {contact}."));
-                this.onlineStatus.setText ("");
-                this.onlineStatus.setMaximumSize (this.onlineStatus.getPreferredSize ());
-                
-                this.onlineStatus.setVisible (true);
-                
-            }
-
-            
             if (this.projEditor != null)
             {
             
@@ -717,86 +774,52 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 this.other.setText (Environment.replaceObjectNames (this.projEditor.getStatusMessage ()));
 
             }
-            
-            final Set<EditorMessage> projUndealtWith = new HashSet ();
-            
-            final String projId = this.projectViewer.getProject ().getId ();
-            
+                        
+            int undealtWithCount = 0;
+                        
             // Get undealt with messages that are not chat.
             // If there is just one then show it, otherwise show a link that will display a popup of them.
-            Set<EditorMessage> projMess = this.editor.getMessages (new EditorMessageFilter ()
-                                                                   {
-                                                                   
-                                                                        @Override
-                                                                        public boolean accept (EditorMessage m)
-                                                                        {
-                                                                            
-                                                                            if (!projId.equals (m.getForProjectId ()))
-                                                                            {
-                                                                                
-                                                                                return false;
-                                                                                                                                                          
-                                                                            }
-                                                                            
-                                                                            if ((m.getMessageType ().equals (NewProjectMessage.MESSAGE_TYPE))
-                                                                                ||
-                                                                                (m.getMessageType ().equals (NewProjectResponseMessage.MESSAGE_TYPE))
-                                                                                ||
-                                                                                (m.getMessageType ().equals (UpdateProjectMessage.MESSAGE_TYPE))
-                                                                                ||
-                                                                                (m.getMessageType ().equals (ProjectEditStopMessage.MESSAGE_TYPE))                                                                                
-                                                                               )
-                                                                            {
-                                                                                                                                                                                                                                          // Going to hell for this...
-                                                                                  if (!m.isDealtWith ())
-                                                                                  {
-                                                                                    
-                                                                                      projUndealtWith.add (m);
-                                                                                    
-                                                                                  }
-                                                                                  
-                                                                                  return true;
-
-                                                                            }
-                                                                            
-                                                                            return false;
-                                                                                                                                                        
-                                                                        }
-                                                                        
-                                                                   });
+            Set<EditorMessage> projMess = this.getProjectMessages ();
+            
+            for (EditorMessage em : projMess)
+            {
+                
+                if (!em.isDealtWith ())
+                {
+                    
+                    undealtWithCount++;
+                    
+                }
+                
+            }
             
             int ps = projMess.size ();
             
             this.projectMessages.setForeground (java.awt.Color.black);
 
-            if (ps > 0)
+            if (undealtWithCount > 0)
             {
-                        
-                if (projUndealtWith.size () > 0)
-                {
-                    
-                    this.projectMessages.setForeground (java.awt.Color.red);
-    
-                    this.projectMessages.setToolTipText (String.format ("%s {project} message%s requiring your attention, click to view them",
-                                                                        Environment.formatNumber (projUndealtWith.size ()),
-                                                                        (projUndealtWith.size () == 1 ? "" : "s"),
-                                                                        (projUndealtWith.size () == 1 ? "s" : "")));
-                    
-                } else {
-                    
-                    this.projectMessages.setToolTipText (String.format ("%s {project} message%s, click to view them",
-                                                                        Environment.formatNumber (ps),
-                                                                        (projMess.size () == 1 ? "" : "s"),
-                                                                        (projMess.size () == 1 ? "s" : "")));                
-                    
-                }
                 
-                this.projectMessages.setText (String.format ("%s",
-                                                             Environment.formatNumber (ps)));
-    
-                this.projectMessages.setVisible (true);
+                this.projectMessages.setForeground (java.awt.Color.red);
 
+                this.projectMessages.setToolTipText (String.format ("%s {project} message%s requiring your attention, click to view them",
+                                                                    Environment.formatNumber (undealtWithCount),
+                                                                    (undealtWithCount == 1 ? "" : "s"),
+                                                                    (undealtWithCount == 1 ? "s" : "")));
+                
+            } else {
+                
+                this.projectMessages.setToolTipText (String.format ("%s {project} message%s, click to view them",
+                                                                    Environment.formatNumber (ps),
+                                                                    (projMess.size () == 1 ? "" : "s"),
+                                                                    (projMess.size () == 1 ? "s" : "")));                
+                
             }
+            
+            this.projectMessages.setText (String.format ("%s",
+                                                         Environment.formatNumber (ps)));
+
+            this.projectMessages.setVisible (true);
                                 
         } 
 
@@ -815,8 +838,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
                 // Get undealt with messages that are not chat.
                 // If there is just one then show it, otherwise show a link that will display a popup of them.
-                Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
-                                                                                                       ProjectCommentsMessage.MESSAGE_TYPE));
+                Set<EditorMessage> comments = this.getProjectComments ();
                 
                 if (comments.size () > 0)
                 {
@@ -881,31 +903,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         this.chat.setVisible (false);
 
-        Set<EditorMessage> chatMessages = this.editor.getMessages (new EditorMessageFilter ()
-                                                                   {
-                                                                    
-                                                                        public boolean accept (EditorMessage m)
-                                                                        {
-                                                                            
-                                                                            if (m.isDealtWith ())
-                                                                            {
-                                                                                
-                                                                                return false;
-                                                                                
-                                                                            }
-                                                                            
-                                                                            if (!m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
-                                                                            {
-                                                                                
-                                                                                return false;
-                                                                                
-                                                                            }
-                                                                            
-                                                                            return true;
-                                                                            
-                                                                        }
-                                                                    
-                                                                   });
+        Set<EditorMessage> chatMessages = this.getChatMessages ();
         
         int chatMessagesSize = chatMessages.size ();
                 
@@ -1732,26 +1730,21 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         final boolean pending = this.editor.isPending ();        
         
-        if (!pending)
-        {                        
-        
-            menu.add (UIUtils.createMenuItem ("View ALL messages sent/received",
-                                              Constants.FIND_ICON_NAME,
-                                              new ActionListener ()
+        menu.add (UIUtils.createMenuItem ("View ALL messages sent/received",
+                                          Constants.FIND_ICON_NAME,
+                                          new ActionListener ()
+                                          {
+                                               
+                                              public void actionPerformed (ActionEvent ev)
                                               {
                                                    
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
-                                                       
-                                                       EditorsUIUtils.showAllMessagesForEditor (_this.editor,
-                                                                                                _this.projectViewer,
-                                                                                                null);
-                                                       
-                                                  }
+                                                   EditorsUIUtils.showAllMessagesForEditor (_this.editor,
+                                                                                            _this.projectViewer,
+                                                                                            null);
                                                    
-                                              }));
-
-        }
+                                              }
+                                               
+                                          }));
 
     }
     
@@ -1805,23 +1798,18 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     
                 _this.addShowImportantMessagesMenuItem (m);
                                         
-                _this.addShowCommentsMenuItem (m);
+                //_this.addShowCommentsMenuItem (m);
 
                 //_this.addProjectsInvolvedWithMenuItem (m);                
                 
-                _this.addProjectSentAndUpdatesMenuItem (m);
+                //_this.addProjectSentAndUpdatesMenuItem (m);
 
 /*
                 infBox.addSearchMessagesMenuItem (m,
                                                   _this);
   */              
                     
-                if (_this.editor.isPrevious ())
-                {
-                    
-                    _this.addShowAllMessagesMenuItem (m);
-                    
-                }
+                _this.addShowAllMessagesMenuItem (m);
                 
                 _this.addUpdateEditorInfoMenuItem (m);
                 

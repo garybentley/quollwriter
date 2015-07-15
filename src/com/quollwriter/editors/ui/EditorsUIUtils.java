@@ -85,13 +85,14 @@ public class EditorsUIUtils
                     return false;
                   
                 }
-              
+              /*
                 if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
                 {
                   
                     return false;
                   
                 }
+                */
                 /*
                 if (m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
                 {
