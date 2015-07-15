@@ -477,39 +477,44 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
                    
         Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
         
-        for (ProjectEditor pe : pes)
+        if (pes != null)
         {
-                                         
-            EditorInfoBox infBox = null;
-            
-            try
+        
+            for (ProjectEditor pe : pes)
             {
+                                             
+                EditorInfoBox infBox = null;
                 
-                infBox = this.getEditorBox (pe.getEditor ());
+                try
+                {
+                    
+                    infBox = this.getEditorBox (pe.getEditor ());
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get editor info box for editor: " +
+                                          pe.getEditor (),
+                                          e);
                 
-            } catch (Exception e) {
+                    continue;
+                    
+                }
                 
-                Environment.logError ("Unable to get editor info box for editor: " +
-                                      pe.getEditor (),
-                                      e);
-            
-                continue;
+                infBox.init ();
                 
-            }
-            
-            infBox.init ();
-            
-            if ((pe.isCurrent ())
-                ||
-                (pe.getEditor ().isPending ())
-               )
-            {                                                        
-            
-                this.currentEditors.add (infBox);
+                if ((pe.isCurrent ())
+                    ||
+                    (pe.getEditor ().isPending ())
+                   )
+                {                                                        
                 
-            } else {
-                
-                this.previousEditors.add (infBox);
+                    this.currentEditors.add (infBox);
+                    
+                } else {
+                    
+                    this.previousEditors.add (infBox);
+                    
+                }
                 
             }
             
@@ -577,36 +582,41 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
             
             Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
             
-            for (ProjectEditor pe : pes)
+            if (pes != null)
             {
             
-                if (pe.isPrevious ())
+                for (ProjectEditor pe : pes)
                 {
-                    
-                    prevCount++;
+                
+                    if (pe.isPrevious ())
+                    {
+                        
+                        prevCount++;
+                        
+                    }
+                
+                }
+              
+                if (prevCount > 0)
+                {
+        
+                    m.add (UIUtils.createMenuItem (String.format ("View the previous {editors} (%s)",
+                                                                      Environment.formatNumber (prevCount)),
+                                                       Constants.STOP_ICON_NAME,
+                                                       new ActionListener ()
+                                                       {
+                                                       
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+                                                                
+                                                                _this.showPreviousEditors = true;                                                                
+                                                                _this.showPreviousEditors ();
+                                                                                                                                                    
+                                                            }
+                                                       
+                                                       }));
                     
                 }
-            
-            }
-          
-            if (prevCount > 0)
-            {
-    
-                m.add (UIUtils.createMenuItem (String.format ("View the previous {editors} (%s)",
-                                                                  Environment.formatNumber (prevCount)),
-                                                   Constants.STOP_ICON_NAME,
-                                                   new ActionListener ()
-                                                   {
-                                                   
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                            
-                                                            _this.showPreviousEditors = true;                                                                
-                                                            _this.showPreviousEditors ();
-                                                                                                                                                
-                                                        }
-                                                   
-                                                   }));
                 
             }
             
@@ -616,37 +626,42 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
             
             Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
             
-            for (ProjectEditor pe : pes)
+            if (pes != null)
             {
             
-                if (pe.isPrevious ())
+                for (ProjectEditor pe : pes)
                 {
-                    
-                    prevCount++;
-                    
+                
+                    if (pe.isPrevious ())
+                    {
+                        
+                        prevCount++;
+                        
+                    }
+                
                 }
+              
+                if (prevCount > 0)
+                {
+        
+                    m.add (UIUtils.createMenuItem ("Hide the previous {editors}",
+                                                   Constants.CANCEL_ICON_NAME,
+                                                   new ActionListener ()
+                                                   {
+                                                       
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                            
+                                                            _this.showPreviousEditors = false;    
+                                                            _this.showPreviousEditors ();
+                                                                                                                                                    
+                                                        }
+                                                       
+                                                    }));
+                    
+                }            
             
             }
-          
-            if (prevCount > 0)
-            {
-    
-                m.add (UIUtils.createMenuItem ("Hide the previous {editors}",
-                                               Constants.CANCEL_ICON_NAME,
-                                               new ActionListener ()
-                                               {
-                                                   
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        _this.showPreviousEditors = false;    
-                                                        _this.showPreviousEditors ();
-                                                                                                                                                
-                                                    }
-                                                   
-                                                }));
-                
-            }            
             
         }
         

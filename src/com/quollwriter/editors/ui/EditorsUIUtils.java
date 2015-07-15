@@ -345,7 +345,12 @@ public class EditorsUIUtils
             
         } else {
          
-             onRemoveComplete.actionPerformed (new ActionEvent (ed, 1, "complete"));
+            if (onRemoveComplete != null)
+            {
+            
+                onRemoveComplete.actionPerformed (new ActionEvent (ed, 1, "complete"));
+                
+            }
          
         }
         
