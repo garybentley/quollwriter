@@ -253,7 +253,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         
         if ((!this.message.isDealtWith ())
             &&
-            (this.showAttentionBorder)
+            (this.isShowAttentionBorder ())
            )
         {
             

@@ -671,6 +671,9 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
                             boolean       isLast)
     {
 
+        b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
+
+        /*
         if (b.isShowAttentionBorder ())
         {
             
@@ -683,7 +686,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
             b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
             
         }
-        
+        */
     }    
     
 }

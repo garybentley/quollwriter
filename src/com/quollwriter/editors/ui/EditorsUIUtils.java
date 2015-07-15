@@ -4298,16 +4298,25 @@ public class EditorsUIUtils
                                                       if (ed != null)
                                                       {
                                                         
-                                                          String other = "";
+                                                          String other = "You have already invited <b>%s (%s)</b>.";
                                                         
                                                           if (ed.getEditorStatus () == EditorEditor.EditorStatus.rejected)
                                                           {
                                                             
-                                                              other = ".<br />Note: your invitation was rejected.";
+                                                              other = "You have already invited: <b>%s (%s)</b>.  Your invitation was rejected.";
                                                             
                                                           }
                                                         
-                                                          return "You have already invited: " + v + other;
+                                                          if (ed.isPrevious ())
+                                                          {
+                                                            
+                                                              other = "<b>%s (%s)</b> is a previous {contact}.";
+                                                            
+                                                          }
+                                                        
+                                                          return String.format (other,
+                                                                                ed.getShortName (),
+                                                                                ed.getEmail ());
                                                         
                                                       }
                                                     
@@ -5059,6 +5068,16 @@ public class EditorsUIUtils
         }
         
         final Project _proj = proj;
+        
+        if (proj == null)
+        {
+            
+            UIUtils.showMessage (parentViewer,
+                                 "The {project} for this update no longer exists.");
+            
+            return;
+            
+        }
         
         ActionListener open = new ActionListener ()
         {

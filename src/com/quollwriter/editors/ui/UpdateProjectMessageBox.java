@@ -27,11 +27,12 @@ import com.quollwriter.editors.*;
 import com.quollwriter.text.*;
 import com.quollwriter.events.*;
 
-public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
+public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> implements EditorChangedListener
 {
         
     private Box responseBox = null;        
     private ProjectSentReceivedViewer sentViewer = null;
+    private JLabel previousLabel = null;    
         
     public UpdateProjectMessageBox (UpdateProjectMessage     mess,
                                     AbstractProjectViewer viewer)
@@ -42,6 +43,55 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         
     }
         
+    @Override    
+    public void editorChanged (EditorChangedEvent ev)
+    {
+        
+        if (ev.getEditor () == this.message.getEditor ())
+        {
+        
+            this.updateForEditor ();
+            
+        }
+        
+    }
+        
+    private void updateForEditor ()
+    {
+        
+        this.previousLabel.setVisible (false);
+        
+        if ((!this.message.isDealtWith ())
+            &&
+            (this.message.getEditor ().isPrevious ())
+           )
+        {
+            
+            this.previousLabel.setText (String.format ("<b>%s</b> is a previous {contact}.  This message can no longer be acted upon.",
+                                                       this.message.getEditor ().getShortName ()));        
+            
+            this.previousLabel.setVisible (true);
+                        
+        }
+        
+    }
+        
+    @Override
+    public boolean isShowAttentionBorder ()
+    {
+        
+        if (this.message.getEditor ().isPrevious ())
+        {
+            
+            return false;
+            
+        }
+        
+        return super.isShowAttentionBorder ();
+        
+    }
+    
+    @Override
     public boolean isAutoDealtWith ()
     {
         
@@ -58,6 +108,8 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
     
     public void doInit ()
     {
+        
+        EditorsEnvironment.addEditorChangedListener (this);        
         
         final UpdateProjectMessageBox _this = this;
                 
@@ -104,10 +156,16 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
         this.responseBox.setVisible (false);
                 
         this.add (this.responseBox);            
+                   
+        this.previousLabel = UIUtils.createInformationLabel ("");
+        
+        this.add (this.previousLabel);
+                
+        this.updateForEditor ();
                         
         if (this.message.isSentByMe ())
         {
-            
+            /*
             JLabel viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
                                                             Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                  Constants.ICON_CLICKABLE_LABEL),
@@ -164,7 +222,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             viewProj.setBorder (UIUtils.createPadding (5, 10, 5, 5));
             
             this.add (viewProj);            
-
+*/
         } else {
             
             ActionListener updateOrView = new ActionListener ()
@@ -183,7 +241,10 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage>
             };
             
             // Not sent by me.            
-            if (!this.message.isDealtWith ())
+            if ((!this.message.isDealtWith ())
+                &&
+                (!this.message.getEditor ().isPrevious ())
+               )
             {
                                                                 
                 JButton update = UIUtils.createButton ("Update the {project}",

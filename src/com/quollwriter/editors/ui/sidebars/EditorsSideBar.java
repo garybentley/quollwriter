@@ -2014,6 +2014,8 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                 boolean       isLast)
         {
 
+            b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
+/*
             if (b.isShowAttentionBorder ())
             {
         
@@ -2026,7 +2028,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 b.setBorder (isLast ? UIUtils.createPadding (5, 0, 5, 0) : UIUtils.createBottomLineWithPadding (5, 0, 5, 0));
                 
             }
-            
+  */          
         }
         
         public void updateForProjectEditors (Set<ProjectEditor> pes)

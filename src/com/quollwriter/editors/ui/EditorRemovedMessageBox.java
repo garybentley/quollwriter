@@ -84,7 +84,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
             
         }
         
-        JTextPane desc = UIUtils.createHelpTextPane (text,
+        JTextPane desc = UIUtils.createHelpTextPane ("<html><i>" + text + "</i></html>",
                                                      this.projectViewer);        
         
         this.add (Box.createVerticalStrut (5));

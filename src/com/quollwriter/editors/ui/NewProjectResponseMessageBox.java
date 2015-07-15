@@ -68,21 +68,21 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         final NewProjectResponseMessageBox _this = this;
         
         Project proj = null;
-        
+
         try
         {
-            
+        
             proj = Environment.getProjectById (this.message.getForProjectId (),
-                                               Project.NORMAL_PROJECT_TYPE);
+                                               (this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE));
             
         } catch (Exception e) {
             
-            Environment.logError ("Unable to get project by id: " +
+            Environment.logError ("Unable to get project: " +
                                   this.message.getForProjectId (),
                                   e);
-                            
-        }                                
-        
+                        
+        }
+                
         final Project fproj = proj;
         
         final EditorEditor ed = this.message.getEditor ();
@@ -338,8 +338,11 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
         this.add (h);
         
         this.add (this.getResponseDetails ());             
-                
-        if (this.message.isSentByMe ())
+                        
+        if ((this.message.isSentByMe ())
+            &&
+            (proj != null)
+           )
         {
         
             JLabel viewProj = UIUtils.createClickableLabel ("Click to view the {project}",
@@ -570,8 +573,22 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                          cc.xy (3,
                                 row));
             
-        } 
+        } else {
+            
+            NewProjectMessage m = (NewProjectMessage) this.message.getEditor ().getMessage (NewProjectMessage.MESSAGE_TYPE,
+                                                                                            this.message.getForProjectId ());
+            
+            if (m != null)
+            {
+                
+                builder.addLabel (m.getForProjectName (),
+                                  cc.xy (3,
+                                         row));
                                 
+            }
+
+        }
+        
         row += 2;
 
         if (resMessage != null)

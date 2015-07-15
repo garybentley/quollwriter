@@ -575,6 +575,27 @@ public class EditorEditor extends AbstractEditorObject
         if ((this.messages == null)
             ||
             (!this.messagesLoaded)
+            ||
+            (forProject == null)
+           )
+        {
+            
+            return null;
+            
+        }
+        
+        return this.getMessage (type,
+                                forProject.getId ());
+        
+    }
+    
+    public EditorMessage getMessage (String type,
+                                     String forProjectId)
+    {
+        
+        if ((this.messages == null)
+            ||
+            (!this.messagesLoaded)
            )
         {
             
@@ -588,7 +609,7 @@ public class EditorEditor extends AbstractEditorObject
             if (m.getMessageType ().equals (type))
             {
                 
-                if (m.getForProjectId ().equals (forProject.getId ()))
+                if (m.getForProjectId ().equals (forProjectId))
                 {
                     
                     return m;
@@ -602,7 +623,7 @@ public class EditorEditor extends AbstractEditorObject
         return null;
         
     }
-    
+
     public Set<EditorMessage> getMessages ()
     {
         

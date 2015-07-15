@@ -381,7 +381,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
     }
     
-    public boolean isShowAttentionBorder ()
+    private boolean isShowAttentionBorder ()
     {
         
         final EditorInfoBox _this = this;
@@ -389,6 +389,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         // TODO: Investigate why this is needed, this is being called on closedown of QW.
         // Probably from close of link to message server.
         if (this.projectViewer.getProject () == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.editor.isPrevious ())
         {
             
             return false;
@@ -477,8 +484,16 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         });
        
     }
+    
     private Set<EditorMessage> getImportantMessages ()
     {
+        
+        if (this.editor.isPrevious ())
+        {
+            
+            return new HashSet ();
+            
+        }
         
         final EditorInfoBox _this = this;
         
@@ -496,6 +511,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                          
                                                                         return false;
                                                                          
+                                                                    }
+                                                               
+                                                                    if (m.getMessageType ().equals (EditorChatMessage.MESSAGE_TYPE))
+                                                                    {
+                                                                        
+                                                                        return false;
+                                                                        
                                                                     }
                                                                
                                                                     if (_this.showProjectInfo)
@@ -920,7 +942,19 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             this.chat.setVisible (true);
             
         }
+             
+        if (this.isShowAttentionBorder ())
+        {
+             
+            this.editorInfo.setBorder (new CompoundBorder (new MatteBorder (0, 2, 0, 0, UIUtils.getColor ("#ff0000")),
+                                                           UIUtils.createPadding (0, 5, 0, 0)));
+            
+        } else {
+            
+            this.editorInfo.setBorder (null);            
                 
+        }
+        
         this.validate ();
         this.repaint ();
                 
@@ -1082,6 +1116,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     public void addShowImportantMessagesMenuItem (JPopupMenu menu)
     {
 
+        if (this.editor.isPrevious ())
+        {
+            
+            return;
+            
+        }
+    
         final EditorInfoBox _this = this;                
         
         final boolean pending = this.editor.isPending ();        
