@@ -23,14 +23,12 @@ public class TextArea extends Box
         super (BoxLayout.Y_AXIS);
         
         this.text = UIUtils.createTextArea (rows);
-        
-        this.text.setText (Environment.replaceObjectNames (placeholder));
-        
-        this.placeholder = placeholder;
-        
+                
         if (placeholder != null)
         {
             
+            this.placeholder = Environment.replaceObjectNames (placeholder);
+            this.text.setText (this.placeholder);
             this.text.setForeground (UIUtils.getHintTextColor ());
             
         }
@@ -181,10 +179,14 @@ public class TextArea extends Box
     
     public String getText ()
     {
+        System.out.println ("PL: " + this.placeholder);
+        System.out.println ("T: " + this.text.getText ());
         
+        System.out.println ("TL: " + this.text.getText ().length ());
         if (this.placeholder != null)
         {
-        
+        System.out.println ("PLL: " + this.placeholder.length ());
+        System.out.println ("T2: " + this.text.getText ().equals (this.placeholder));
             if (this.text.getText ().equals (this.placeholder))
             {
                 

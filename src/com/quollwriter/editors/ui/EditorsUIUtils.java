@@ -321,7 +321,12 @@ public class EditorsUIUtils
                         
                     }
                                                                 
-                    onRemoveComplete.actionPerformed (ev);
+                    if (onRemoveComplete != null)
+                    {
+                        
+                        onRemoveComplete.actionPerformed (ev);
+                        
+                    }
                     
                 }
                 
@@ -2817,8 +2822,17 @@ public class EditorsUIUtils
                             
                         }
                         
+                        String gc = genComments.getText ().trim ();
+                        
+                        if (gc.length () == 0)
+                        {
+                            
+                            gc = null;
+                            
+                        }
+                        
                         ProjectCommentsMessage mess = new ProjectCommentsMessage (viewer.getProject (),
-                                                                                  genComments.getText ().trim (),
+                                                                                  gc,
                                                                                   comments,
                                                                                   viewer.getProject ().getProjectVersion (),
                                                                                   ed);
