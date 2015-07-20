@@ -592,9 +592,6 @@ public class IconColumn extends JPanel implements DocumentListener
                 indent = SCENE_INDENT;
                 
             }
-
-            w.imagePanel.setImage (this.iconProv.getIcon (w.item,
-                                                          Constants.ICON_COLUMN).getImage ());            
             
             w.imagePanel.setVisible (true);
             
@@ -644,9 +641,6 @@ public class IconColumn extends JPanel implements DocumentListener
                 }
                 
             }
-
-            w.imagePanel.setImage (this.iconProv.getIcon (w.item,
-                                                          Constants.ICON_COLUMN).getImage ());
 
             w.imagePanel.setVisible (true);
 
@@ -1006,6 +1000,10 @@ public class IconColumn extends JPanel implements DocumentListener
         UIUtils.setAsButton (p);
         final StructureItemWrapper w = new StructureItemWrapper ();
         w.imagePanel = p;
+
+        w.imagePanel.setImage (this.iconProv.getIcon (item,
+                                                      Constants.ICON_COLUMN).getImage ());            
+        
         w.item = item;
         this.add (p);
 
@@ -1032,23 +1030,17 @@ public class IconColumn extends JPanel implements DocumentListener
         
         this.setMovable (item);
                 
-        p.addMouseListener (new MouseAdapter ()
+        p.addMouseListener (new MouseEventHandler ()
         {
-                
-            public void mouseClicked (MouseEvent ev)
+           
+            @Override
+            public void handlePress (MouseEvent ev)
             {
-
-                if (ev.isPopupTrigger ())
-                {
-                    
-                    return;
-                    
-                }
-
+                
                 _this.showItem (w.item);
                 
             }
-
+            
         });
 
         this.repaint ();
@@ -1086,6 +1078,8 @@ public class IconColumn extends JPanel implements DocumentListener
         UIUtils.setAsButton (p);
         final NoteWrapper w = new NoteWrapper ();
         w.imagePanel = p;
+        w.imagePanel.setImage (this.iconProv.getIcon (n,
+                                                      Constants.ICON_COLUMN).getImage ());            
         
         w.item = n;
 

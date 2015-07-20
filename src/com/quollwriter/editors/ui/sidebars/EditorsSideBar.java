@@ -676,7 +676,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                             
                                           }));
 
-                                          popup.add (UIUtils.createMenuItem ("Delete my account",
+                                          popup.add (UIUtils.createMenuItem ("Delete your account",
                                                                              Constants.DELETE_ICON_NAME,
                                                                              new ActionListener ()
                                           {

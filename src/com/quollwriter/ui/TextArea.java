@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 
 public class TextArea extends Box
 {
@@ -93,9 +94,10 @@ public class TextArea extends Box
             
         });
         
-        this.text.addMouseListener (new MouseAdapter ()
+        this.text.addMouseListener (new MouseEventHandler ()
         {
 
+            @Override
             public void mouseEntered (MouseEvent ev)
             {
 
@@ -118,7 +120,8 @@ public class TextArea extends Box
 
             }
             
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
                 
                 if ((!_this.text.getText ().equals (""))
@@ -134,11 +137,6 @@ public class TextArea extends Box
                 _this.text.setText ("");
                 _this.text.setForeground (Color.BLACK);                
                 
-            }
-
-            public void mouseExited (MouseEvent ev)
-            {
-                                
             }
             
         });        

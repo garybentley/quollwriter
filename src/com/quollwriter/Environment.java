@@ -91,8 +91,9 @@ public class Environment
     // Get rid of this value once bug reporting is via the web.
     public static boolean seenReportBugMessage = false;
 
-    private static String appVersion = null;
-    private static boolean betaVersion = false;
+    private static Version appVersion = null;
+    //private static String appVersion = null;
+    //private static boolean betaVersion = false;
     private static int    schemaVersion = 0;
 
     private static SimpleDateFormat dateFormatter = null;
@@ -2651,14 +2652,7 @@ public class Environment
         UIManager.put("PopupMenu.background", UIUtils.getComponentColor ());
         UIManager.put("PopupMenu.foreground", UIUtils.getTitleColor ());
         
-        Environment.appVersion = Environment.getResourceFileAsString (Constants.VERSION_FILE).trim ();
-
-        if (Environment.appVersion.endsWith ("b"))
-        {
-            
-            Environment.betaVersion = true;
-            
-        }
+        Environment.appVersion = new Version (Environment.getResourceFileAsString (Constants.VERSION_FILE).trim ());
         
         try
         {
@@ -3918,7 +3912,7 @@ public class Environment
 
     }
 
-    public static String getQuollWriterVersion ()
+    public static Version getQuollWriterVersion ()
     {
 
         return Environment.appVersion;
@@ -4049,11 +4043,11 @@ public class Environment
 
     }
         
-    public static URL getUpgradeURL (String version)
+    public static URL getUpgradeURL (Version version)
                               throws Exception
     {
 
-        String parms = "?version=" + version;
+        String parms = "?version=" + version.getVersion ();
                 
         return Environment.getSupportUrl (Constants.GET_UPGRADE_FILE_PAGE_PROPERTY_NAME,
                                           parms);
@@ -4142,19 +4136,13 @@ public class Environment
                         if (version != null)
                         {
                             
-                            final String newVersion = (String) version.get ("version");
-                            
-                            final boolean isBeta = (Boolean) version.get ("beta");
-                            
+                            final Version newVersion = new Version ((String) version.get ("version"));
+                                                        
                             final long size = ((Number) version.get ("size")).longValue ();
 
                             final String digest = (String) version.get ("digest");
 
-                            int oldVer = Environment.getVersionAsInt (Environment.getQuollWriterVersion ());
-
-                            final int newVer = Environment.getVersionAsInt (newVersion);
-
-                            if (newVer > oldVer)
+                            if (Environment.getQuollWriterVersion ().isNewer (newVersion))
                             {
 
                                 UIUtils.doLater (new ActionListener ()
@@ -4169,8 +4157,8 @@ public class Environment
 
                                         JTextPane p = UIUtils.createHelpTextPane (String.format ("A new version of %s is available.  <a href='help:version-changes/%s'>View the changes.</a>",
                                                                                                  Constants.QUOLL_WRITER_NAME,
-                                                                                                 newVersion.replace (".",
-                                                                                                                     "_")),
+                                                                                                 newVersion.getVersion ().replace (".",
+                                                                                                                                   "_")),
                                                                                   pv);
                                         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -4206,7 +4194,6 @@ public class Environment
                                                 removeNot.actionPerformed (ev);
 
                                                 new GetLatestVersion (pv,
-                                                                      isBeta,
                                                                       newVersion,
                                                                       size,
                                                                       digest).start ();
@@ -4453,9 +4440,9 @@ public class Environment
                 {
             
                     info.put ("quollWriterVersion",
-                              Environment.getQuollWriterVersion ().trim ());
+                              Environment.getQuollWriterVersion ().toString ());
                     info.put ("beta",
-                              Environment.betaVersion);
+                              Environment.appVersion.isBeta ());
                     info.put ("javaVersion",
                               System.getProperty ("java.version"));
                     info.put ("osName",
@@ -4467,9 +4454,9 @@ public class Environment
             
                     Element root = new Element ("message");
                     root.setAttribute ("quollWriterVersion",
-                                       Environment.getQuollWriterVersion ().trim ());
+                                       Environment.getQuollWriterVersion ().toString ());
                     root.setAttribute ("beta",
-                                       String.valueOf (Environment.betaVersion));
+                                       String.valueOf (Environment.appVersion.isBeta ()));
                     root.setAttribute ("javaVersion",
                                        System.getProperty ("java.version"));
                     root.setAttribute ("osName",
@@ -4724,7 +4711,7 @@ public class Environment
         return Environment.achievementsManager;
         
     }
-
+    
     public static int getVersionAsInt (String version)
     {
 

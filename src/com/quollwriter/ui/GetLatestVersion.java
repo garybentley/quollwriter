@@ -42,7 +42,7 @@ public class GetLatestVersion implements Runnable
     private AbstractProjectViewer projectViewer = null;
     private JProgressBar          progressBar = null;
     private boolean               stop = false;
-    private String                version = null;
+    private Version               version = null;
     private long                  size = 0;
     private byte[]                digest = null;
     private boolean               beta = false;
@@ -51,8 +51,7 @@ public class GetLatestVersion implements Runnable
     private JButton               cancel = null;
 
     public GetLatestVersion(AbstractProjectViewer pv,
-                            boolean               beta,
-                            String                version,
+                            Version               version,
                             long                  size,
                             String                digest)
     {
@@ -186,7 +185,7 @@ public class GetLatestVersion implements Runnable
         try
         {
 
-            tf = File.createTempFile (this.version,
+            tf = File.createTempFile (this.version.getVersion (),
                                       fileSuff);
 
             tf.deleteOnExit ();
@@ -327,7 +326,7 @@ public class GetLatestVersion implements Runnable
                 } else
                 {
 
-                    md.update (this.version.getBytes ());
+                    md.update (this.version.getVersion ().getBytes ());
 
                 }
 

@@ -1,16 +1,8 @@
 <whatsnew>
 
-  <version id="2.3" >        
-    <item>
-      <title>Editor Mode</title>
-      <description><![CDATA[Editor Mode is here, but in beta form to start.]]></description>
-    </item>
-
-  </version>
-
-  <version id="2.3" beta="true">        
-    <item>
-      <title>Editor Mode</title>
+  <version id="2.3b1">        
+    <item onlyIfCurrentVersion="true">
+      <title>Editor Mode Beta</title>
       <description><![CDATA[Editor Mode is here, but in beta form to start.]]></description>
     </item>
 

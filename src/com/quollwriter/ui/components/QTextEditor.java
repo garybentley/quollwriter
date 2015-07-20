@@ -57,6 +57,85 @@ public class QTextEditor extends JTextPane implements TextStylable
         this.getCaret ().setBlinkRate (500);
 
         this.doc = new DefaultStyledDocument ();
+        
+        // Adapted from: https://community.oracle.com/thread/2376090
+        // When there is a long contiguous piece of text it will prevent the text from
+        // wrapping.  This allows the wrapping to occur.  However it does not prevent the
+        // word wrapping from going nuts in text after this.
+        // The bug only triggers when the text is wider than the view.
+        final ViewFactory vf = new ViewFactory ()
+        {
+          
+            @Override
+            public View create (Element elem)
+            {
+                
+                String kind = elem.getName();
+
+                if (kind != null)
+                {
+                
+                    if (kind.equals (AbstractDocument.ContentElementName))
+                    {
+                    
+                        return new LabelView (elem)
+                        {
+                    
+                            @Override
+                            public float getMinimumSpan (int axis)
+                            {
+                                
+                                if (axis == View.X_AXIS)
+                                {
+                                    
+                                    return 0;
+                                    
+                                }
+                                
+                                if (axis == View.Y_AXIS)
+                                {
+                                    
+                                    return super.getMinimumSpan (axis);
+                                    
+                                }
+                                
+                                throw new IllegalArgumentException ("Invalid axis: " + axis);
+                                
+                            }
+                            
+                        };
+                        
+                    } else if (kind.equals(AbstractDocument.ParagraphElementName)) {
+                        return new ParagraphView(elem);
+                    } else if (kind.equals(AbstractDocument.SectionElementName)) {
+                        return new BoxView(elem, View.Y_AXIS);
+                    } else if (kind.equals(StyleConstants.ComponentElementName)) {
+                        return new ComponentView(elem);
+                    } else if (kind.equals(StyleConstants.IconElementName)) {
+                        return new IconView(elem);
+                    }
+                
+                }
+    
+                // default to text display
+                return new LabelView (elem);
+                
+            }
+            
+        };
+        
+        this.setEditorKit (new StyledEditorKit ()
+        {
+           
+            @Override
+            public ViewFactory getViewFactory ()
+            {
+                
+                return vf;
+                
+            }
+            
+        });
 
         this.doc.putProperty (DefaultEditorKit.EndOfLineStringProperty,
                               "\n");

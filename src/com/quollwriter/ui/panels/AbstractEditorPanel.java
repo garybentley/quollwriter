@@ -1643,11 +1643,10 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.setFontSize (props.getFontSize ());
         this.setFontFamily (props.getFontFamily ());
         this.setAlignment (props.getAlignment ());
-        this.setFirstLineIndent (proj.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
+        this.setFirstLineIndent (props.getFirstLineIndent ());
 
         this.setBackgroundColor (props.getBackgroundColor ());
         this.setTextColor (props.getTextColor ());
-        
         this.setWritingLineColor (props.getWritingLineColor ());
         this.setHighlightWritingLine (props.isHighlightWritingLine ());
         

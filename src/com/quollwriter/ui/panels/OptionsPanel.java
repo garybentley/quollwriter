@@ -34,6 +34,7 @@ import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.data.*;
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.events.*;
@@ -965,10 +966,10 @@ public class OptionsPanel extends QuollPanel
         final JComponent label = UIUtils.createClickableLabel ("View an example",
                                                                null);
         
-        label.addMouseListener (new MouseAdapter ()
+        label.addMouseListener (new MouseEventHandler ()
         {
             
-            public void mousePressed (MouseEvent ev)
+            public void handlePress (MouseEvent ev)
             {
                 
                 QPopup popup = _this.projectViewer.getPopupByName ("edit-complete-example-popup");
@@ -1206,10 +1207,11 @@ public class OptionsPanel extends QuollPanel
         final JComponent label2 = UIUtils.createClickableLabel ("View an example",
                                                                 null);
         
-        label2.addMouseListener (new MouseAdapter ()
+        label2.addMouseListener (new MouseEventHandler ()
         {
             
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
 
                 QPopup popup = _this.projectViewer.getPopupByName ("edit-position-example-popup");
@@ -1338,10 +1340,11 @@ public class OptionsPanel extends QuollPanel
         final JLabel label3 = UIUtils.createClickableLabel ("View an example",
                                                             null);
         
-        label3.addMouseListener (new MouseAdapter ()
+        label3.addMouseListener (new MouseEventHandler ()
         {
             
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
 
                 String img = Constants.COMPRESSED_CHAPTER_CONTEXT_MENU_IMAGE;
@@ -1521,10 +1524,11 @@ public class OptionsPanel extends QuollPanel
             
         };
         
-        downloadFiles.addMouseListener (new MouseAdapter ()
+        downloadFiles.addMouseListener (new MouseEventHandler ()
         {
             
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
                 
                 final String lang = spellcheckLang.getSelectedItem ().toString ();
@@ -1891,10 +1895,11 @@ public class OptionsPanel extends QuollPanel
         
         UIUtils.setAsButton (layoutSel);
                                 
-        layoutSel.addMouseListener (new MouseAdapter ()
+        layoutSel.addMouseListener (new MouseEventHandler ()
         {
            
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
                 
                 String selLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);

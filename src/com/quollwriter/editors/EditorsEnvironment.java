@@ -2432,6 +2432,18 @@ public class EditorsEnvironment
                                      final ActionListener onComplete)
     {
                         
+        if (ed.isPrevious ())
+        {
+            
+            if (onComplete != null)
+            {
+                
+                UIUtils.doLater (onComplete);
+                
+            }            
+                        
+        }
+        
         // Send the editor removed message
         EditorRemovedMessage mess = new EditorRemovedMessage (ed);
         
@@ -2978,7 +2990,7 @@ public class EditorsEnvironment
         
     }
  
-    private static void deleteAllEditors (final Deque<EditorEditor> eds,
+    private static void removeAllEditors (final Deque<EditorEditor> eds,
                                           final ActionListener      onComplete)
     {
         
@@ -3001,7 +3013,7 @@ public class EditorsEnvironment
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                                     
-                                                    EditorsEnvironment.deleteAllEditors (eds,
+                                                    EditorsEnvironment.removeAllEditors (eds,
                                                                                          onComplete);
                                                     
                                                 }
@@ -3024,88 +3036,104 @@ public class EditorsEnvironment
             public void actionPerformed (ActionEvent ev)
             {
                 
-                EditorsEnvironment.deleteAllEditors (new ArrayDeque (EditorsEnvironment.editors),
+                EditorsEnvironment.removeAllEditors (new ArrayDeque (EditorsEnvironment.editors),
                                                      new ActionListener ()
                 {
-                                                
+                    
+                    @Override                            
                     public void actionPerformed (ActionEvent ev)
                     {
-                                                    
-                        // Delete the account.
-                        EditorsEnvironment.editorsHandler.deleteAccount (new EditorsWebServiceAction ()
-                        {
-        
-                            public void processResult (EditorsWebServiceResult res)
-                            {
-                                
-                                // Sign out.
-                                EditorsEnvironment.goOffline ();
-                                                            
-                                // Remove saved values (if present).
-                                try
-                                {
-                                    
-                                    EditorsEnvironment.removeEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
-                                    
-                                } catch (Exception e) {
-                                    
-                                    Environment.logError ("Unable to remove editors property",
-                                                          e);
-                                           
-                                }
-                                                            
-                                // Close all the db connections.
-                                EditorsEnvironment.editorsManager.closeConnectionPool ();
-                                
-                                EditorsEnvironment.editorAccount = null;
-                                
-                                try
-                                {
-                                    
-                                    EditorsEnvironment.removeEditorsProperty (Constants.QW_EDITORS_DB_DIR_PROPERTY_NAME);
                         
-                                } catch (Exception e) {
-                                                                        
-                                    Environment.logError ("Unable to remove editors database location",
-                                                          e);
-                                                                                    
-                                }
-                                
-                                if (onComplete != null)
-                                {
-                                    
-                                    onComplete.actionPerformed (new ActionEvent ("deleted", 1, "deleted"));
-                                        
-                                }                                                    
-                                                            
-                            }
-                                                        
-                        },
-                        new EditorsWebServiceAction ()
+                        ActionListener deleteAcc = new ActionListener ()
                         {
                             
-                            public void processResult (EditorsWebServiceResult res)
+                            @Override
+                            public void actionPerformed (ActionEvent ev)
                             {
                                 
-                                Environment.logError ("Unable to delete all editors" + 
-                                                      res);
-
-                                if (onError != null)
+                                // Delete the account.
+                                EditorsEnvironment.editorsHandler.deleteAccount (new EditorsWebServiceAction ()
+                                {
+                
+                                    public void processResult (EditorsWebServiceResult res)
+                                    {
+                                        
+                                        // Sign out.
+                                        EditorsEnvironment.goOffline ();
+                                                                    
+                                        // Remove saved values (if present).
+                                        try
+                                        {
+                                            
+                                            EditorsEnvironment.removeEditorsProperty (Constants.QW_EDITORS_SERVICE_PASSWORD_PROPERTY_NAME);
+                                            
+                                        } catch (Exception e) {
+                                            
+                                            Environment.logError ("Unable to remove editors property",
+                                                                  e);
+                                                   
+                                        }
+                                                                    
+                                        // Close all the db connections.
+                                        EditorsEnvironment.editorsManager.closeConnectionPool ();
+                                        
+                                        EditorsEnvironment.editorAccount = null;
+                                        
+                                        try
+                                        {
+                                            
+                                            EditorsEnvironment.removeEditorsProperty (Constants.QW_EDITORS_DB_DIR_PROPERTY_NAME);
+                                
+                                        } catch (Exception e) {
+                                                                                
+                                            Environment.logError ("Unable to remove editors database location",
+                                                                  e);
+                                                                                            
+                                        }
+                                        
+                                        if (onComplete != null)
+                                        {
+                                            
+                                            onComplete.actionPerformed (new ActionEvent ("deleted", 1, "deleted"));
+                                                
+                                        }                                                    
+                                                                    
+                                    }
+                                },
+                                new EditorsWebServiceAction ()
                                 {
                                     
-                                    onError.actionPerformed (new ActionEvent (res, 1, "error"));
+                                    public void processResult (EditorsWebServiceResult res)
+                                    {
+                                        
+                                        Environment.logError ("Unable to delete user account: " + 
+                                                              res);
+        
+                                        if (onError != null)
+                                        {
+                                            
+                                            onError.actionPerformed (new ActionEvent (res, 1, "error"));
+                                            
+                                        } else {
+                                                                                
+                                            UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
+                                                                      "Unable to delete your account, please contact Quoll Writer support for assistance.");
+                                            
+                                        }
+                                        
+                                    }
                                     
-                                } else {
-                                                                        
-                                    UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
-                                                              "Unable to delete your account, please contact Quoll Writer support for assistance.");
+                                });
                                     
-                                }
+                                
                                 
                             }
-                            
-                        });
-                                                    
+                        };
+                        
+                        // Offer to remove all the editor projects.
+                        EditorsUIUtils.showDeleteProjectsForAllEditors (Environment.getFocusedProjectViewer (),
+                                                                        deleteAcc);                                                    
+                                                        
                     }
                                                 
                 });

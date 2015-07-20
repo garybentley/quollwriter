@@ -42,7 +42,7 @@ public class FullScreenTextProperties extends TextProperties
                                                                Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
                            proj.getPropertyAsBoolean (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
                                                       Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
-        
+
     }
 
     public FullScreenTextProperties (FullScreenFrame fsf,

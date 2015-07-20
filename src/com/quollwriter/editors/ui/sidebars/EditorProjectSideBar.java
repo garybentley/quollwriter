@@ -423,8 +423,8 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
             if (c == 1)
             {
                 
-                l = String.format ("1 other version (<b>%s</b>) is available, click to view it",
-                                   otherPv.getName ());
+                l = String.format ("1 other version%s is available, click to view it",
+                                   (otherPv.getName () != null ? String.format (" (<b>%s</b>)", otherPv.getName ()) : ""));
                                 
             } else {
                 

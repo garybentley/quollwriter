@@ -327,7 +327,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         
     }
     
-    private class PopupPreviewListener extends MouseAdapter
+    private class PopupPreviewListener extends MouseEventHandler
     {
         
         private NamedObjectPreviewPopup popup = null;
@@ -346,13 +346,15 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                   
         }
         
-        public void mousePressed (MouseEvent ev)
+        @Override
+        public void handlePress (MouseEvent ev)
         {
             
             this.popup.hidePopup ();
             
         }
         
+        @Override
         public void mouseMoved (MouseEvent ev)
         {
 
@@ -436,6 +438,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                             
         }
         
+        @Override
         public void mouseExited (MouseEvent ev)
         {
 /*

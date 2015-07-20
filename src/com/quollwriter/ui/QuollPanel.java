@@ -651,8 +651,10 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
             final boolean    hideVia = hideViaVisibility;
 
             // Need to do it this way because mouse events aren't being forwarded/delivered.
-            MouseAdapter m = new MouseAdapter ()
+            MouseEventHandler m = new MouseEventHandler ()
             {
+                
+                @Override
                 public void mouseReleased (MouseEvent ev)
                 {
 

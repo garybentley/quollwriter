@@ -132,7 +132,7 @@ public class EditorsUIUtils
         
         // Remove account.
 
-        String s = "To delete your account please enter the word <b>Yes</b> in the box below.<br /><br />Note: Your {editors} database will not be deleted, so you can keep a record of what you sent/received, however if you create another account you will not be able to use that database.<br /><br /><p class='error'>Warning: deleting your account means you will no longer be able to contact any of your {editors} and they cannot contact you and any {projects} you are editing for others will be removed from your system.</p>";
+        String s = "To delete your account please enter the word <b>Yes</b> in the box below.<br /><br />Note: Your {contacts} database will not be deleted allowing you to keep a record of what you have sent and received.  If you create another account you will not be able to use your current database.<br /><br /><p class='error'>Warning: deleting your account means you will no longer be able to send messages to any of your {contacts} or receive messages from them.  A message will be sent to each of them telling them you have removed them.</p>";
         
         UIUtils.createTextInputPopup (viewer,
                                      "Delete your account",
@@ -141,28 +141,7 @@ public class EditorsUIUtils
                                      "Yes, delete it",
                                      "No, keep it",
                                      null,
-                                     new ValueValidator<String> ()
-                                     {
-
-                                        @Override
-                                        public String isValid (String v)
-                                        {
-                                          
-                                            if ((v == null)
-                                                ||
-                                                (!v.trim ().equalsIgnoreCase ("yes"))
-                                               )
-                                            {
-                                              
-                                                return "Please enter the word Yes.";
-                                              
-                                            }
-                                            
-                                            return null;
-                                            
-                                        }
-                                        
-                                     },
+                                     UIUtils.getYesValueValidator (),
                                      new ActionListener ()
                                      {
                                         
@@ -171,10 +150,10 @@ public class EditorsUIUtils
                                             
                                             final String dbDir = EditorsEnvironment.getEditorsProperty (Constants.QW_EDITORS_DB_DIR_PROPERTY_NAME);
                                             
-                                            final Notification notify = viewer.addNotification ("Deleting your Editors service account, please wait.  This sometimes takes a little while...",
+                                            final Notification notify = viewer.addNotification ("Deleting your Editors Service account, please wait.  This sometimes takes a little while...",
                                                                                                 Constants.LOADING_GIF_NAME,
                                                                                                 -1);
-                                            
+
                                             EditorsEnvironment.deleteUserAccount (new ActionListener ()
                                                                                   {
                                                                                     
@@ -206,7 +185,7 @@ public class EditorsUIUtils
                                                                                         
                                                                                         UIUtils.showMessage ((PopupsSupported) viewer,
                                                                                                              "Account deleted",
-                                                                                                             String.format ("Your Editors service account has been deleted.<br /><br />Your {editors} database has <b>not</b> been deleted.<br /><a href='%s'>Click to view the folder containing the database</a>",
+                                                                                                             String.format ("Your Editors Service account has been deleted.<br /><br />Your {contacts} database has <b>not</b> been deleted.<br /><a href='%s'>Click to view the folder containing the database</a>",
                                                                                                                             url));
                                                                                         
                                                                                     }
@@ -232,6 +211,176 @@ public class EditorsUIUtils
                                      },
                                      null,
                                      null);
+        
+    }
+
+    /**
+     * If we are editing any projects for any editors then show a popup offering to delete
+     * the projects.  Once the delete is complete (or there are no projects) call <b>onRemoveComplete</b>.
+     * If any of the projects are open then they are force closed first.
+     *
+     */
+    public static void showDeleteProjectsForAllEditors (final AbstractProjectViewer viewer,
+                                                        final ActionListener        onRemoveComplete)
+    {
+        
+        Set<EditorEditor> eds = new HashSet ();
+        
+        Set<Project> edProjs = new LinkedHashSet ();
+        
+        Set<Project> projs = null;
+        
+        try
+        {
+            
+            projs = Environment.getAllProjects ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get all projects",
+                                  e);
+            
+            UIUtils.showErrorMessage (viewer,
+                                      "Unable to get all {projects}, please contact Quoll Support for assistance.");
+            
+            if (onRemoveComplete != null)
+            {
+                
+                onRemoveComplete.actionPerformed (new ActionEvent (viewer, 1, "complete"));                
+                
+            }
+            
+            return;
+            
+        }
+        
+        for (Project p : projs)
+        {
+
+            if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+            {
+                
+                edProjs.add (p);
+                
+                eds.add (p.getForEditor ());
+                
+            }
+            
+        }
+                                                                                            
+        if (edProjs.size () > 0)
+        {
+            
+            final ActionListener deleteEditorProjs = new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    Set<Project> edProjs = new LinkedHashSet ();
+
+                    Set<Project> projs = null;
+                    
+                    try
+                    {
+                        
+                        projs = Environment.getAllProjects ();
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to get all projects",
+                                              e);
+                        
+                        UIUtils.showErrorMessage (viewer,
+                                                  "Unable to get all {projects}, please contact Quoll Support for assistance.");
+                        
+                        if (onRemoveComplete != null)
+                        {
+                            
+                            onRemoveComplete.actionPerformed (new ActionEvent (viewer, 1, "complete"));                
+                            
+                        }
+
+                        return;
+                        
+                    }
+                    
+                    for (Project p : projs)
+                    {
+            
+                        if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+                        {
+                            
+                            edProjs.add (p);
+                                                        
+                        }
+                        
+                    }
+                    
+                    for (Project p : edProjs)
+                    {
+                        
+                        // Just to be sure.
+                        if (!p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+                        {
+                            
+                            continue;
+                            
+                        }
+                        
+                        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+                        
+                        if (pv != null)
+                        {
+                            
+                            pv.close (true,
+                                      null);
+                            
+                        }
+                        
+                        Environment.deleteProject (p);                                                            
+                        
+                    }
+                                                                
+                    if (onRemoveComplete != null)
+                    {
+                        
+                        onRemoveComplete.actionPerformed (ev);
+                        
+                    }
+                    
+                }
+                
+            };
+            
+            String sb = String.format ("You are currently editing <b>%s</b> {project%s} for <b>%s</b> {contact%s}.  To remove them enter the word <b>Yes</b> below.",
+                                       Environment.formatNumber (edProjs.size ()),
+                                       edProjs.size () > 1 ? "s" : "",
+                                       Environment.formatNumber (eds.size ()),
+                                       eds.size () > 1 ? "s" : "");
+            
+            UIUtils.createTextInputPopup (viewer,
+                                         "Delete all {projects} for {contact}",
+                                         Constants.DELETE_ICON_NAME,
+                                         sb,
+                                         "Yes, delete them",
+                                         "No, keep them",
+                                         null,
+                                         UIUtils.getYesValueValidator (),
+                                         deleteEditorProjs,
+                                         onRemoveComplete,
+                                         null);
+            
+        } else {
+         
+            if (onRemoveComplete != null)
+            {
+            
+                onRemoveComplete.actionPerformed (new ActionEvent (viewer, 1, "complete"));
+                
+            }
+         
+        }
         
     }
     

@@ -25,6 +25,7 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 
@@ -504,7 +505,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     public JComponent getEditorWrapper (QTextEditor q)
     {
 
-        Box b = new Box /*com.quollwriter.ui.components.ScrollableBox*/ (BoxLayout.X_AXIS);
+        Box b = new /*Box*/ com.quollwriter.ui.components.ScrollableBox (BoxLayout.X_AXIS);
         b.add (this.iconColumn);
         b.add (q);
         q.setMaximumSize (new Dimension (Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -1106,20 +1107,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         // pos++;
         
         JMenuItem mi = null;
-        
-                         /*                          
-        AddChapterActionHandler ac = new AddChapterActionHandler (this.chapter.getBook (),
-                                                                  this.chapter,
-                                                                  this.projectViewer);
-
-        JMenuItem mi = UIUtils.createMenuItem ("{Chapter} Below",
-                                               Chapter.OBJECT_TYPE,
-                                               ac);
-        ac.setPopupOver (this);
-        mi.addActionListener (ac);
-        nm.add (mi);
-*/
-                         
+                                 
         if (compress)
         {
                          
@@ -1858,10 +1846,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         this.updateIgnoredProblemsLabel ();
         
-        this.ignoredProblemsLabel.addMouseListener (new MouseAdapter ()
+        this.ignoredProblemsLabel.addMouseListener (new MouseEventHandler ()
         {
         
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
                 
                int s = _this.problemFinder.getIgnoredIssues ().size ();
@@ -2072,7 +2061,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         super.setBackgroundColor (c);
 
-        if (c.equals (Color.white))
+        if ((c.equals (Color.white))
+            ||
+            (c.equals (UIUtils.getComponentColor ()))
+           )
         {
 
             this.iconColumn.setBackground (IconColumn.defaultBGColor);

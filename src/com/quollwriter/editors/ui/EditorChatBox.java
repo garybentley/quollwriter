@@ -14,6 +14,7 @@ import javax.swing.border.*;
 
 import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.events.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.*;
 import com.quollwriter.editors.messages.*;
@@ -199,9 +200,10 @@ public class EditorChatBox extends Box implements EditorInteractionListener
             
         };        
         
-        this.message.addMouseListener (new MouseAdapter ()
+        this.message.addMouseListener (new MouseEventHandler ()
         {
 
+            @Override
             public void mouseEntered (MouseEvent ev)
             {
 
@@ -209,7 +211,8 @@ public class EditorChatBox extends Box implements EditorInteractionListener
 
             }
             
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
                 
                 if ((!_this.message.getText ().equals (""))
@@ -227,6 +230,7 @@ public class EditorChatBox extends Box implements EditorInteractionListener
                 
             }
 
+            @Override
             public void mouseExited (MouseEvent ev)
             {
                 

@@ -267,13 +267,13 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.projectViewer.removeMainPanelListener (this.properties);
     
         this.projectViewer.removeSideBarListener (this);
-    
+
         this.projectViewer.removeSideBar (this.properties);
-        
+
         this.clockTimer.stop ();
         
         this.restorePanel ();
- 
+
         this.projectViewer.doForPanels (QuollEditorPanel.class,
         new DefaultQuollPanelAction ()
         {
@@ -905,9 +905,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         this.initActionMappings (am);
         
-        this.mouseListener = new MouseAdapter ()
+        this.mouseListener = new MouseEventHandler ()
         {
                 
+            @Override
             public void mouseWheelMoved (MouseWheelEvent ev)
             {
 
@@ -966,6 +967,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 
             }
             
+            @Override
             public void mousePressed (MouseEvent ev)
             {
                 
@@ -973,6 +975,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 
             }
             
+            @Override
             public void mouseReleased (MouseEvent ev)
             {
 
@@ -981,8 +984,12 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                 this.handlePopup (ev);
                 
+                _this.validate ();
+                _this.repaint ();
+                
             }
 
+            @Override
             public void mouseDragged (MouseEvent ev)
             {
 
@@ -1128,9 +1135,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                           ProjectEvent.CHANGE_BORDER_SIZE);
 
                 }
-
+                
             }
 
+            @Override
             public void mouseExited (MouseEvent ev)
             {
                 
@@ -1140,6 +1148,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     
             }
             
+            @Override
             public void mouseMoved (MouseEvent ev)
             {
 
@@ -2523,7 +2532,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                  false);
         
             edPanel.initEditor (this.fullScreenTextProperties);
-                        
+
             this.showFirstTimeInDistractionFreeModeInfoPopup ();
                         
         }

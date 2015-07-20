@@ -343,10 +343,11 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         imgP.setToolTipText ("Click to set the image/color used for the background");
         UIUtils.setAsButton (imgP);
 
-        imgP.addMouseListener (new MouseAdapter ()
+        imgP.addMouseListener (new MouseEventHandler ()
         {
            
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
                 
                 Point p = ev.getPoint ();

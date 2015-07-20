@@ -304,6 +304,7 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
                                                aah);
         
                     mb.setActionCommand ("link");
+                    mb.addActionListener (aa);
                     buts.add (mb);
     
                 }

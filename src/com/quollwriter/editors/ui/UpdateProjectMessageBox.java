@@ -71,6 +71,8 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
                                                        this.message.getEditor ().getShortName ()));        
             
             this.previousLabel.setVisible (true);
+            
+            this.responseBox.setVisible (false);
                         
         }
         
@@ -163,68 +165,9 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
                 
         this.updateForEditor ();
                         
-        if (this.message.isSentByMe ())
+        if (!this.message.isSentByMe ())
         {
-            /*
-            JLabel viewProj = UIUtils.createClickableLabel ("Click to view what you sent",
-                                                            Environment.getIcon (Constants.VIEW_ICON_NAME,
-                                                                                 Constants.ICON_CLICKABLE_LABEL),
-                                                            new ActionListener ()
-                                                            {
-              
-            @Override                                                  
-            public void actionPerformed (ActionEvent ev)
-            {
 
-                // Load up the project with the specific text.
-                // See if we have a project viewer for the project.
-                Project proj = null;
-                
-                try
-                {
-                    
-                    proj = Environment.getProjectById (_this.message.getForProjectId (),
-                                                       Project.NORMAL_PROJECT_TYPE);
-                
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to get project for: " +
-                                          _this.message.getForProjectId (),
-                                          e);
-                    
-                    UIUtils.showErrorMessage (_this.projectViewer,
-                                              "Unable to show the {project}, please contact Quoll Writer support for assistance.");
-
-                    return;                        
-                    
-                }
-
-                try
-                {
-                
-                    Environment.openProject (proj);
-                    
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to open project: " +
-                                          proj,
-                                          e);
-                    
-                    UIUtils.showErrorMessage (_this.projectViewer,
-                                              "Unable to show the {project}, please contact Quoll Writer support for assistance.");
-
-                    return;                        
-                    
-                }
-                
-            }});
-                            
-            viewProj.setBorder (UIUtils.createPadding (5, 10, 5, 5));
-            
-            this.add (viewProj);            
-*/
-        } else {
-            
             ActionListener updateOrView = new ActionListener ()
             {
                   

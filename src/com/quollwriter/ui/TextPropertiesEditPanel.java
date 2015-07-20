@@ -215,7 +215,8 @@ public class TextPropertiesEditPanel extends Box
 
         r += 2;
 
-        this.indent = new JCheckBox ("Indent the first line of each paragraph");
+        this.indent = new JCheckBox ("<html>Indent the first line of each <br />paragraph</html>");
+        this.indent.setVerticalTextPosition (SwingConstants.TOP);
         this.indent.setOpaque (false);
         this.indent.setSelected (this.textProps.getFirstLineIndent ());
 

@@ -153,6 +153,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     private DictionaryManager dictMan = null;
     
     private WordCountTimer wordCountTimer = null;
+    
+    private int savedOtherSideBarWidth = 0;
+    private int savedSideBarWidth = 0;
                 
     public AbstractProjectViewer()
     {
@@ -1117,8 +1120,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                    
                     public void actionPerformed (ActionEvent ev)
                     {
-                        
-                        _this.showMainSideBar ();
+                            
+                        _this.closeSideBar ();
                         
                     }
                     
@@ -1556,9 +1559,6 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
         
         this.removeSideBarListener (sb);
-
-        this.showSideBar (this.getMainSideBarName ());
-
         
     }
     
@@ -1803,7 +1803,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     
     public void showSideBar (String name)
     {
-        
+
         if ((this.currentOtherSideBar != null)
             &&
             (this.currentOtherSideBar.getName ().equals (name))
@@ -1838,7 +1838,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (name.equals (this.getMainSideBarName ()))
         {
             
-            this.currentOtherSideBar = null;
+            // Need to check the layout.  If we are only showing one sidebar then set the current other
+            // to null.
+            if (this.isUILayoutShowSingleSidebar ())
+            {
+                
+                this.currentOtherSideBar = null;
+                
+            }
             
         } else {
             
@@ -3257,6 +3264,31 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
+    private boolean isUILayoutShowSingleSidebar ()
+    {
+        
+        String layout = this.getUILayout ();
+        
+        if (layout.equals (Constants.LEFT))
+        {
+            
+            layout = Constants.LAYOUT_PS_CH;
+            
+        }
+    
+        if (layout.equals (Constants.RIGHT))
+        {
+            
+            layout = Constants.LAYOUT_CH_PS;
+            
+        }
+
+        return (layout.equals (Constants.LAYOUT_PS_CH)
+                ||
+                layout.equals (Constants.LAYOUT_CH_PS));
+        
+    }
+    
     /**
      * The layout is done in terms of preferred sizes and resize weights.
      * We then call resetToPreferredSizes on the split panes to resize.
@@ -3272,201 +3304,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     public void setUILayout (String layout)
     {
 
-        // Legacy, pre-2.5
-        if (layout.equals (Constants.LEFT))
-        {
-            
-            layout = Constants.LAYOUT_PS_CH;
-            
-        }
+        final AbstractProjectViewer _this = this;    
+        final AbstractSideBar other = this.currentOtherSideBar;
     
-        if (layout.equals (Constants.RIGHT))
-        {
-            
-            layout = Constants.LAYOUT_CH_PS;
-            
-        }
-        
-        AbstractSideBar other = this.currentOtherSideBar;
-                
-        if (layout.equals (Constants.LAYOUT_PS_CH_OS))
-        {
-            
-            this.splitPane.setLeftComponent (this.sideBar);
-            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-            this.splitPane.setResizeWeight (0f);
-
-            this.splitPane2.setLeftComponent (this.tabs);            
-            this.splitPane2.setRightComponent (this.createLayoutFiller ());
-            this.splitPane2.setDividerSize (0);
-                        
-            this.sideBarWrapper.removeAll ();
-            this.sideBarWrapper.add (this.mainSideBar);                                            
-            
-            // Is a non-main sidebar visible?
-            if (other != null)
-            {
-             
-                this.splitPane2.setRightComponent (other);
-                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-                this.splitPane2.setResizeWeight (1f);
-                this.splitPane.setResizeWeight (0f);
-                
-            } 
-            
-        }
-        
-        if (layout.equals (Constants.LAYOUT_OS_CH_PS))
-        {
-
-            this.splitPane.setLeftComponent (this.tabs);
-            this.splitPane.setResizeWeight (0.98f);
-            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-
-            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
-            this.splitPane2.setRightComponent (this.sideBar);
-            this.splitPane2.setDividerSize (0);
-            //this.splitPane2.setResizeWeight (0f);            
-            
-            this.sideBarWrapper.removeAll ();
-            this.sideBarWrapper.add (this.mainSideBar);
-            
-            // Is a non-main sidebar visible?
-            if (other != null)
-            {
-            
-                this.splitPane.setLeftComponent (other);
-                this.splitPane.setResizeWeight (0.02f);
-
-                this.splitPane2.setLeftComponent (this.tabs);
-                this.splitPane2.setResizeWeight (0.98f);            
-                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-
-            }            
-                                    
-        }
-        
-        if (layout.equals (Constants.LAYOUT_PS_OS_CH))
-        {
-            
-            this.splitPane.setLeftComponent (this.sideBar);
-            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-            this.splitPane.setResizeWeight (0f);
-
-            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
-            this.splitPane2.setRightComponent (this.tabs);            
-            //this.splitPane2.setResizeWeight (0.02f);
-            this.splitPane2.setDividerSize (0);
-            
-            this.sideBarWrapper.removeAll ();
-            this.sideBarWrapper.add (this.mainSideBar);                                            
-
-            // Is a non-main sidebar visible?
-            if (other != null)
-            {
-
-                //this.splitPane.setResizeWeight (0.75f);
-             
-                this.splitPane2.setLeftComponent (other);
-                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-                //this.splitPane2.setResizeWeight (0.75f);
-                
-            } 
-            
-        }
-
-        if (layout.equals (Constants.LAYOUT_CH_OS_PS))
-        {
-                        
-            this.splitPane.setLeftComponent (this.tabs);
-            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-            
-            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
-            this.splitPane2.setRightComponent (this.sideBar);            
-            this.splitPane2.setDividerSize (0);
-
-            this.sideBarWrapper.removeAll ();
-            this.sideBarWrapper.add (this.mainSideBar);                                            
-                        
-            // Is a non-main sidebar visible?
-            if (other != null)
-            {
-             
-                this.splitPane.setResizeWeight (1f);
-
-                this.splitPane2.setLeftComponent (other);
-                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
-                //this.splitPane2.setResizeWeight (0.75f);
-        
-            }
-            
-        }
-
-        if (layout.equals (Constants.LAYOUT_PS_CH))
-        {
-            
-            this.splitPane.setLeftComponent (this.sideBar);
-            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);            
-            this.splitPane.setResizeWeight (0f);
-            
-            this.splitPane2.setLeftComponent (this.tabs);
-            this.splitPane2.setRightComponent (null);
-            this.splitPane2.setDividerSize (0);            
-
-            if (other != null)
-            {
-                
-                this.sideBarWrapper.removeAll ();
-                this.sideBarWrapper.add (other);                            
-                
-            } else {
-                
-                if (this.mainSideBar != null)
-                {
-                
-                    this.sideBarWrapper.removeAll ();
-                    this.sideBarWrapper.add (this.mainSideBar);                                            
-
-                }
-                
-            }
-                        
-        }
-        
-        if (layout.equals (Constants.LAYOUT_CH_PS))
-        {
-
-            this.splitPane.setLeftComponent (this.tabs);
-            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);                        
-            this.splitPane.setResizeWeight (1f);        
-
-            this.splitPane2.setLeftComponent (this.sideBar);//this.createLayoutFiller ());
-            this.splitPane2.setRightComponent (null);
-            //this.splitPane2.setRightComponent (this.sideBar);
-            this.splitPane2.setDividerSize (0);            
-
-            if (other != null)
-            {
-                
-                this.sideBarWrapper.removeAll ();
-                this.sideBarWrapper.add (other);                            
-                
-            } else {
-                
-                if (this.mainSideBar != null)
-                {
-                
-                    this.sideBarWrapper.removeAll ();
-                    this.sideBarWrapper.add (this.mainSideBar);                                            
-
-                }
-                
-            }
-                        
-        }
-        
-        this.layout = layout;        
-        
         final Dimension min = this.sideBar.getMinimumSize ();
 
         int ww = this.splitPane.getSize ().width;
@@ -3478,7 +3318,18 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
             
-        int sbw = this.sideBar.getSize ().width;
+        int sbw = this.savedSideBarWidth;
+        
+        if (sbw == 0)
+        {
+            
+            sbw = this.sideBar.getSize ().width;
+            
+        } else {
+            
+            this.savedSideBarWidth = 0;
+            
+        }
         
         if (sbw == 0)
         {
@@ -3488,7 +3339,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             if (sbw <= 0)
             {
             
-                // Legacy, pre-v2.5
+                // Legacy, pre-v2.3
                 int spd = this.proj.getPropertyAsInt (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME);
 
                 if (spd > 0)
@@ -3512,8 +3363,15 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 sbw = min.width;
                 
             }
-
-        } 
+            
+        }
+        
+        if (min.width > sbw)
+        {
+            
+            sbw = min.width;
+            
+        }            
                                 
         int h = this.splitPane.getSize ().height;
         
@@ -3524,55 +3382,433 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
-        int w = ww - sbw - 2;
+        int w = ww - sbw - INTERNAL_SPLIT_PANE_DIVIDER_WIDTH;
+        int ow = 0;
                         
         if (other != null)
         {
             
-            int ow = other.getMinimumSize ().width - 2;
+            ow = this.savedOtherSideBarWidth;
+            
+            if (ow == 0)
+            {
+            
+                ow = other.getMinimumSize ().width - INTERNAL_SPLIT_PANE_DIVIDER_WIDTH;
+                
+            } else {
+                
+                this.savedOtherSideBarWidth = 0;
+                
+            }
             
             w -= ow;
             
             other.setPreferredSize (new Dimension (ow,
                                                    h));
-
-            //this.sideBar.setMinimumSize (new Dimension (sbw, h));                                                                          
-                                                                      
+        
         }            
-                    
-        this.tabs.setPreferredSize (new Dimension (w, 100));
+                 
+        //this.tabs.setPreferredSize (new Dimension (w, 100));
 
-        this.sideBar.setPreferredSize (new Dimension (sbw, 200));                                                                          
-        
-        this.splitPane2.validate ();
-        this.splitPane.validate ();
-        this.splitPane2.resetToPreferredSizes ();
-        this.splitPane.resetToPreferredSizes ();
-                
-        final AbstractProjectViewer _this = this;
-        
-        /*
-         *Is causing the size to be too big when moving from a wider sidebar to a narrower one.
-        if (this.splitPane.getSize ().width > 0)
+        //this.sideBar.setPreferredSize (new Dimension (sbw, 200));                                                                          
+    
+        final int fw = w;
+        final int fow = ow;
+        final int fsbw = sbw;
+    
+        // Legacy, pre-2.3
+        if (layout.equals (Constants.LEFT))
         {
+            
+            layout = Constants.LAYOUT_PS_CH;
+                        
+        }
+    
+        if (layout.equals (Constants.RIGHT))
+        {
+            
+            layout = Constants.LAYOUT_CH_PS;
+                        
+        }
+                
+        if (layout.equals (Constants.LAYOUT_PS_CH_OS))
+        {
+            
+            this.splitPane.setLeftComponent (this.sideBar);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+            this.splitPane.setResizeWeight (0f);
+            this.splitPane.setDividerLocation (this.sideBar.getPreferredSize ().width);
+            
+            this.splitPane2.setLeftComponent (this.tabs);            
+            this.splitPane2.setRightComponent (this.createLayoutFiller ());
+            this.splitPane2.setDividerSize (0);
+                        
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);                                            
+            
+            this.splitPane.setDividerLocation (this.sideBar.getPreferredSize ().width);
+
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+             
+                this.splitPane2.setResizeWeight (1f);
+                this.splitPane2.setRightComponent (other);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+                this.splitPane2.setDividerLocation (fw);
+                
+                UIUtils.doLater (new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        // For reasons best known to swing this has to be done separately otherwise when
+                        // you exit full screen it will have the other sidebar as taking up all the space.
+                        _this.splitPane2.setDividerLocation (fw);
+                        
+                    }
+                    
+                });
+
+            } 
+            
+        }
         
-            this.sideBar.setMinimumSize (new Dimension (sbw, 200));                                                                          
+        if (layout.equals (Constants.LAYOUT_OS_CH_PS))
+        {
+
+            this.splitPane.setLeftComponent (this.tabs);
+            this.splitPane.setResizeWeight (1f);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+
+            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (this.sideBar);
+            this.splitPane2.setDividerSize (0);
+            
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);
+            
+            this.splitPane.setDividerLocation (fw);
+            
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+            
+                this.splitPane.setResizeWeight (0);
+                this.splitPane2.setResizeWeight (1f);
+                
+                this.splitPane.setLeftComponent (other);
+                this.splitPane.setResizeWeight (0);
+                
+                this.splitPane2.setLeftComponent (this.tabs);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+                this.splitPane.setDividerLocation (fow);
+                this.splitPane2.setDividerLocation (fw);
+
+                UIUtils.doLater (new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        // For reasons best known to swing this has to be done separately otherwise when
+                        // you exit full screen it will have the other sidebar as taking up all the space.
+                        _this.splitPane.setDividerLocation (fow);
+                        _this.splitPane2.setDividerLocation (fw);
+                        
+                    }
+                    
+                });                
+                
+            }            
+                                    
+        }
+        
+        if (layout.equals (Constants.LAYOUT_PS_OS_CH))
+        {
+            
+            this.splitPane.setLeftComponent (this.sideBar);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+            this.splitPane.setResizeWeight (0f);
+
+            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (this.tabs);            
+            //this.splitPane2.setResizeWeight (0.02f);
+            this.splitPane2.setDividerSize (0);
+            
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);                                            
+
+            this.splitPane.setDividerLocation (fsbw);            
+            
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+
+                //this.splitPane.setResizeWeight (0.5f);
+             
+                this.splitPane2.setLeftComponent (other);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+                this.splitPane2.setResizeWeight (0f);
+                
+                this.splitPane2.setDividerLocation (fow);
+                this.splitPane.setDividerLocation (fsbw);                
+
+                UIUtils.doLater (new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        // For reasons best known to swing this has to be done separately otherwise when
+                        // you exit full screen it will have the other sidebar as taking up all the space.
+                        _this.splitPane2.setDividerLocation (fow);
+                        _this.splitPane.setDividerLocation (fsbw);
+                        
+                    }
+                    
+                });                
+                
+            } 
+            
+        }
+
+        if (layout.equals (Constants.LAYOUT_CH_OS_PS))
+        {
+                        
+            this.splitPane.setLeftComponent (this.tabs);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+            
+            this.splitPane2.setLeftComponent (this.createLayoutFiller ());
+            this.splitPane2.setRightComponent (this.sideBar);            
+            this.splitPane2.setDividerSize (0);
+
+            this.sideBarWrapper.removeAll ();
+            this.sideBarWrapper.add (this.mainSideBar);                                            
+                        
+            this.splitPane.setDividerLocation (fw);                        
+                        
+            // Is a non-main sidebar visible?
+            if (other != null)
+            {
+             
+                this.splitPane.setResizeWeight (1f);
+
+                this.splitPane2.setLeftComponent (other);
+                this.splitPane2.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);
+
+                this.splitPane2.setDividerLocation (fow);
+                this.splitPane.setDividerLocation (fw);                
+
+                UIUtils.doLater (new ActionListener ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        // For reasons best known to swing this has to be done separately otherwise when
+                        // you exit full screen it will have the other sidebar as taking up all the space.
+                        _this.splitPane2.setDividerLocation (fow);
+                        _this.splitPane.setDividerLocation (fw);
+                        
+                    }
+                    
+                });                                
+        
+            }
+            
+        }
+
+        if (layout.equals (Constants.LAYOUT_PS_CH))
+        {
+            
+            this.splitPane.setLeftComponent (this.sideBar);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);            
+            this.splitPane.setResizeWeight (0f);
+            
+            this.splitPane2.setLeftComponent (this.tabs);
+            this.splitPane2.setResizeWeight (1f);
+            this.splitPane2.setRightComponent (this.createLayoutFiller ());
+            this.splitPane2.setDividerSize (0);            
+            
+            if (other != null)
+            {
+            
+                if (other.getMinimumSize ().width > sbw)
+                {
+                    
+                    sbw = other.getMinimumSize ().width;
+                    
+                }
+                
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (other);                            
+                
+            } else {
+                
+                if (this.mainSideBar != null)
+                {
+                
+                    if (this.mainSideBar.getMinimumSize ().width > sbw)
+                    {
+                        
+                        sbw = this.mainSideBar.getMinimumSize ().width;
+                        
+                    }
+
+                    this.sideBarWrapper.removeAll ();
+                    this.sideBarWrapper.add (this.mainSideBar);                                            
+
+                }
+                
+            }
+
+            final int fsbw2 = sbw;
+            
+            this.splitPane.setDividerLocation (sbw);                           
 
             UIUtils.doLater (new ActionListener ()
             {
                 
                 public void actionPerformed (ActionEvent ev)
                 {
-                    
-                    _this.sideBar.setMinimumSize (min);
+
+                    // For reasons best known to swing this has to be done separately otherwise when
+                    // you exit full screen it will have the other sidebar as taking up all the space.
+                    _this.splitPane.setDividerLocation (fsbw2);
                     
                 }
                 
-            });
-
+            });                                            
+                   
         }
-        */
-    }    
+        
+        if (layout.equals (Constants.LAYOUT_CH_PS))
+        {
+
+            w += ow;        
+        
+            this.splitPane.setLeftComponent (this.tabs);
+            this.splitPane.setDividerSize (INTERNAL_SPLIT_PANE_DIVIDER_WIDTH);                        
+            this.splitPane.setResizeWeight (1f);        
+
+            this.splitPane2.setLeftComponent (this.sideBar);
+            this.splitPane2.setRightComponent (this.createLayoutFiller ());
+            this.splitPane2.setDividerSize (0);            
+                        
+            if (other != null)
+            {
+                
+                if (other.getMinimumSize ().width > sbw)
+                {
+                    
+                    w = this.splitPane.getSize ().width - other.getMinimumSize ().width;
+                                        
+                }
+                
+                this.sideBarWrapper.removeAll ();
+                this.sideBarWrapper.add (other);                            
+                
+            } else {
+                
+                if (this.mainSideBar != null)
+                {
+
+                    if (this.mainSideBar.getMinimumSize ().width > sbw)
+                    {
+                        
+                        w = this.splitPane.getSize ().width - this.mainSideBar.getMinimumSize ().width;
+                        
+                    }
+                
+                    this.sideBarWrapper.removeAll ();
+                    this.sideBarWrapper.add (this.mainSideBar);                                            
+
+                }
+                
+            }
+            
+            this.splitPane.setDividerLocation (w);                           
+            
+            final int fw2 = w;
+            
+            UIUtils.doLater (new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    // For reasons best known to swing this has to be done separately otherwise when
+                    // you exit full screen it will have the other sidebar as taking up all the space.
+                    _this.splitPane.setDividerLocation (fw2);
+                    
+                }
+                
+            });                                            
+             
+        }
+        
+        this.layout = layout;        
+
+    }
+    
+    private String getUILayout ()
+    {
+        
+        String sidebarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+        
+        String uiLayout = Constants.LAYOUT_CH_PS;
+        
+        // Legacy, pre-v2.5
+        if (sidebarLoc != null)
+        {
+            
+            if (sidebarLoc.equals (Constants.RIGHT))
+            {
+                
+                uiLayout = Constants.LAYOUT_CH_PS;
+                
+            }
+            
+            Environment.getUserProperties ().removeProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+            
+            try
+            {
+            
+                Environment.saveUserProperties (Environment.getUserProperties ());
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to save user properties",
+                                      e);
+                
+            }
+            
+        } else {
+            
+            uiLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+            
+        }
+
+        // Legacy, pre-2.5
+        if (uiLayout.equals (Constants.LEFT))
+        {
+            
+            uiLayout = Constants.LAYOUT_PS_CH;
+            
+        }
+    
+        if (uiLayout.equals (Constants.RIGHT))
+        {
+            
+            uiLayout = Constants.LAYOUT_CH_PS;
+            
+        }        
+        
+        return uiLayout;
+        
+    }
     
     protected void initWindow ()
     {
@@ -3610,38 +3846,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         String sidebarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
         
-        String uiLayout = Constants.LAYOUT_CH_PS;
-        
-        // Legacy, pre-v2.5
-        if (sidebarLoc != null)
-        {
-            
-            if (sidebarLoc.equals (Constants.RIGHT))
-            {
-                
-                uiLayout = Constants.LAYOUT_CH_PS;
-                
-            }
-            
-            Environment.getUserProperties ().removeProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
-            
-            try
-            {
-            
-                Environment.saveUserProperties (Environment.getUserProperties ());
-                
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to save user properties",
-                                      e);
-                
-            }
-            
-        } else {
-            
-            uiLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
-            
-        }
+        String uiLayout = this.getUILayout ();
         
         this.setUILayout (uiLayout);        
 
@@ -3686,6 +3891,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.initKeyStrokeSound ();
 
         // TODO: Remove when 2.3 is released.
+        /*
         if ((Environment.getJavaVersion () < 7)
             &&
             (!Environment.isNewVersionGreater ("2.3",
@@ -3702,7 +3908,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                   90);
             
         }
-        
+        */
     }
 
     protected void initTitle ()
@@ -4653,10 +4859,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         if (whatsNewVersion != null)
         {
 
-            if (Environment.isNewVersionGreater (whatsNewVersion,
-                                                 Environment.getQuollWriterVersion ()))
+            Version lastViewed = new Version (whatsNewVersion);
+
+            if (lastViewed.isNewer (Environment.getQuollWriterVersion ()))
             {
-                
+        
                 showWhatsNew = true;
                 
             }
@@ -4760,7 +4967,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                cc.xy (2,
                                       y));
     
-            pbuilder.addLabel (Environment.getQuollWriterVersion ().trim (),
+            pbuilder.addLabel (Environment.getQuollWriterVersion ().getVersion (),
                                cc.xy (4,
                                       y));
     
@@ -4811,8 +5018,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     
             relNotesUrl = StringUtils.replaceString (relNotesUrl,
                                                      "[[VERSION]]",
-                                                     Environment.getQuollWriterVersion ().trim ().replace ('.',
-                                                                                                           '_'));
+                                                     Environment.getQuollWriterVersion ().getVersion ().replace ('.',
+                                                                                                                 '_'));
     
             pbuilder.add (UIUtils.createWebsiteLabel (relNotesUrl,
                                                       "Release Notes",
@@ -4917,6 +5124,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 // Not good but not the end of the world but shouldn't stop things from going on.
                 Environment.logError ("Unable to init whats new",
                                       e);
+                
+                UIUtils.showErrorMessage (this,
+                                          "Unable to show What's New, please contact Quoll Writer support for assitance.");
+                
+                return;
                 
             }
                 
@@ -6118,8 +6330,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             ed.grabFocus ();
 
         }
-        
-        this.setUILayout (this.layout);
+
+        //this.setUILayout (this.layout);
 /*        
         if (this.splitPane.getLeftComponent () == this.tabs)
         {
@@ -6135,7 +6347,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.splitPane.setDividerLocation (this.lastDividerLocation);
 */
         this.setVisible (true);                                                  
-        
+                this.setUILayout (this.layout);
         this.validate ();
         this.repaint ();
         
@@ -6226,49 +6438,58 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
         }
         
-        if (qep != null)
+        if (this.currentOtherSideBar != null)
+        {
+            
+            this.savedOtherSideBarWidth = this.currentOtherSideBar.getSize ().width;
+            
+        }
+        
+        if (this.mainSideBar != null)
+        {
+            
+            this.savedSideBarWidth = this.mainSideBar.getSize ().width;
+            
+        }
+        
+        FullScreenQuollPanel fs = new FullScreenQuollPanel (qep);
+
+        int tabInd = this.getTabIndexForPanelId (qep.getPanelId ());
+        
+        if (tabInd > -1)
+        {
+        
+            // Need to set the component, otherwise it will be removed.
+            this.tabs.setComponentAt (tabInd,
+                                      fs);
+
+        }
+                                      
+        if (this.fsf != null)
         {
 
-            FullScreenQuollPanel fs = new FullScreenQuollPanel (qep);
+            this.fsf.switchTo (fs);
 
-            int tabInd = this.getTabIndexForPanelId (qep.getPanelId ());
-            
-            if (tabInd > -1)
-            {
-            
-                // Need to set the component, otherwise it will be removed.
-                this.tabs.setComponentAt (tabInd,
-                                          fs);
-
-            }
-                                          
-            if (this.fsf != null)
-            {
-
-                this.fsf.switchTo (fs);
-
-            } else
-            {
-            
-                this.fsf = new FullScreenFrame (fs);
-
-                this.fsf.init ();
-
-                // Need to set the tabs hidden otherwise the parent qw window will flash in front
-                // or show up in front of the fsf.
-                this.tabs.setVisible (false);                
-                
-            }
-
-            //this.fsf.toFront ();
-
-            this.tabs.revalidate ();
-            this.tabs.repaint ();
-            this.validate ();
-            this.repaint ();            
-            
-        } 
+        } else
+        {
         
+            this.fsf = new FullScreenFrame (fs);
+
+            this.fsf.init ();
+
+            // Need to set the tabs hidden otherwise the parent qw window will flash in front
+            // or show up in front of the fsf.
+            this.tabs.setVisible (false);                
+            
+        }
+
+        //this.fsf.toFront ();
+
+        this.tabs.revalidate ();
+        this.tabs.repaint ();
+        this.validate ();
+        this.repaint ();            
+                    
     }
     
     public void showInFullScreen (DataObject n)

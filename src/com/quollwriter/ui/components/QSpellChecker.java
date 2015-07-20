@@ -120,6 +120,14 @@ public class QSpellChecker implements DocumentListener,
 
         }
 
+        if (ev.getType () == DictionaryChangedEvent.WORD_REMOVED)
+        {
+
+            // Recheck the document.
+            this.checkAll ();
+
+        }
+
     }
 
     public boolean isWordCorrect (String word)

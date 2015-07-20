@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.Random;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -38,13 +40,10 @@ public class WhatsNew extends Wizard //PopupWizard
         public static final String beta = "beta";
         
     }
-    
-    //private int currStage = 0;
-    //private int maxStage = 2;
-    
-    private TreeMap<Integer, WhatsNewItem> items = new TreeMap ();
-    
-    
+        
+    //private TreeMap<Integer, WhatsNewItem> items = new TreeMap ();
+    private TreeMap<Version, java.util.List<WhatsNewItem>> items = new TreeMap ();//Collections.reverseOrder ());
+        
     public WhatsNew (AbstractProjectViewer pv,
                      boolean               onlyShowCurrentVersion)
                      throws                GeneralException
@@ -53,9 +52,7 @@ public class WhatsNew extends Wizard //PopupWizard
         super (pv);
 
         // Get the current whats new version (i.e. old).
-        String lastWhatsNewVersion = Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
-
-        int currVer = Environment.getVersionAsInt (Environment.getQuollWriterVersion ());
+        Version lastWhatsNewVersion = new Version (Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME));
         
         boolean betasAllowed = Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME);
         
@@ -71,6 +68,8 @@ public class WhatsNew extends Wizard //PopupWizard
                                                                 XMLConstants.version,
                                                                 false);
             
+            // Assume they are in the right order
+            // TODO: Enforce the order and/or sort.
             for (int i = 0; i < verEls.size (); i++)
             {
                 
@@ -80,31 +79,24 @@ public class WhatsNew extends Wizard //PopupWizard
                                                          XMLConstants.id,
                                                          true);
                 
-                if (JDOMUtils.getAttributeValueAsBoolean (vEl,
-                                                          XMLConstants.beta,
-                                                          false))
+                Version v = new Version (id);
+/*
+                if ((v.isBeta ())
+                    &&
+                    (!betasAllowed)
+                   )
                 {
 
-                    if (!betasAllowed)
-                    {
-
-                        // Ignore, the user isn't interested in betas.
-                        continue;
-                        
-                    }
+                    // Ignore, the user isn't interested in betas.
+                    continue;
                     
                 }
-                
-                id = Environment.expandVersion (id);
-                
-                int verNum = Environment.getVersionAsInt (id);                
-                
-                if ((Environment.isNewVersionGreater (lastWhatsNewVersion,
-                                                      id))
+  */              
+                if ((lastWhatsNewVersion.isNewer (v))
                     ||
                     ((onlyShowCurrentVersion)
                      &&
-                     (verNum == currVer)
+                     (v.isSame (Environment.getQuollWriterVersion ()))
                     )
                    )
                 {
@@ -155,14 +147,13 @@ public class WhatsNew extends Wizard //PopupWizard
                                                                          WhatsNewItem.XMLConstants.root,
                                                                          true);
                     
+                    java.util.List<WhatsNewItem> its = new ArrayList ();
+                    
                     for (int j = 0; j < itemEls.size (); j++)
                     {
                     
                         Element itEl = (Element) itemEls.get (j);
-                    
-                        // Add this to the list.
-                        int itemNum = (verNum * 100) + j;
-                         
+                                             
                         WhatsNewItem it = new WhatsNewItem (itEl,
                                                             compProv,
                                                             pv);
@@ -170,7 +161,7 @@ public class WhatsNew extends Wizard //PopupWizard
                         if (it.onlyIfCurrentVersion)
                         {
                             
-                            if (verNum != currVer)
+                            if (!Environment.getQuollWriterVersion ().isSame (v))
                             {
                                 
                                 continue;
@@ -192,15 +183,22 @@ public class WhatsNew extends Wizard //PopupWizard
                             
                         }
                     
-                        this.items.put (itemNum,
-                                        it);
+                        its.add (it);
+                        
+                    }
+                    
+                    if (its.size () > 0)
+                    {
+                        
+                        this.items.put (v,
+                                        its);
                         
                     }
                     
                 }
                                 
             }
-
+            
         } catch (Exception e) {
             
             throw new GeneralException ("Unable to init whats new",
@@ -234,7 +232,9 @@ public class WhatsNew extends Wizard //PopupWizard
     public String getFirstHelpText ()
     {
 
-        return "Welcome to version <b>" + Environment.getQuollWriterVersion () + "</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/" + Environment.getQuollWriterVersion ().replace ('.', '_') + "'>full list of changes online</a>.";
+        return String.format ("Welcome to version <b>%s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%s'>full list of changes online</a>.",
+                              Environment.getQuollWriterVersion ().getVersion (),
+                              Environment.getQuollWriterVersion ().getVersion ().replace ('.', '_'));
 
     }
 
@@ -262,18 +262,32 @@ public class WhatsNew extends Wizard //PopupWizard
             
         }
 
-        int cs = -1;
+        int ind = currStage.indexOf (":");
         
-        try
+        Version v = new Version (currStage.substring (0,
+                                                      ind));
+        
+        int lind = Integer.parseInt (currStage.substring (ind + 1));
+        
+        java.util.List<WhatsNewItem> its = this.items.get (v);
+        
+        if (its == null)
         {
             
-            cs = Integer.parseInt (currStage);
-                        
-        } catch (Exception e) {
-                        
+            return null;
+            
         }
-
-        Integer n = this.items.higherKey (cs);
+        
+        lind++;
+        
+        if (lind <= (its.size () - 1))
+        {
+            
+            return v.getVersion () + ":" + lind;
+            
+        }
+        
+        Version n = this.items.higherKey (v);
         
         if (n == null)
         {
@@ -281,9 +295,18 @@ public class WhatsNew extends Wizard //PopupWizard
             return null;
             
         }
-
-        return n.toString ();
         
+        java.util.List<WhatsNewItem> nits = this.items.get (n);
+        
+        if (nits != null)
+        {
+            
+            return n.getVersion () + ":0";
+            
+        }
+        
+        return null;
+                
     }
     
     public String getPreviousStage (String currStage)
@@ -296,18 +319,32 @@ public class WhatsNew extends Wizard //PopupWizard
             
         }
 
-        int cs = -1;
+        int ind = currStage.indexOf (":");
         
-        try
+        Version v = new Version (currStage.substring (0,
+                                                      ind));
+        
+        int lind = Integer.parseInt (currStage.substring (ind + 1));
+        
+        java.util.List<WhatsNewItem> its = this.items.get (v);
+        
+        if (its == null)
         {
             
-            cs = Integer.parseInt (currStage);
-                                    
-        } catch (Exception e) {
-                        
+            return null;
+            
         }
-
-        Integer p = this.items.lowerKey (cs);
+        
+        lind--;
+        
+        if (lind > -1)
+        {
+            
+            return v.getVersion () + ":" + lind;
+            
+        }
+        
+        Version p = this.items.lowerKey (v);
         
         if (p == null)
         {
@@ -315,8 +352,17 @@ public class WhatsNew extends Wizard //PopupWizard
             return null;
             
         }
-
-        return p.toString ();
+        
+        java.util.List<WhatsNewItem> pits = this.items.get (p);
+        
+        if (pits != null)
+        {
+            
+            return p.getVersion () + ":" + (pits.size () - 1);
+            
+        }
+        
+        return null;
         
     }    
     
@@ -341,10 +387,10 @@ public class WhatsNew extends Wizard //PopupWizard
         try
         {
     
-            return this.items.firstKey ().toString ();
+            return this.items.firstKey ().getVersion () + ":0";
         
         } catch (Exception e) {
-            
+           
             return null;
             
         }
@@ -358,10 +404,24 @@ public class WhatsNew extends Wizard //PopupWizard
 
         WizardStep ws = new WizardStep ();
 
-        int ind = Integer.parseInt (stage);
+        int ind = stage.indexOf (":");
+
+        Version v = new Version (stage.substring (0,
+                                                  ind));
+
+        int lind = Integer.parseInt (stage.substring (ind + 1));
         
-        WhatsNewItem item = this.items.get (ind);
+        java.util.List<WhatsNewItem> its = this.items.get (v);
+
+        if (its == null)
+        {
+            
+            return null;
+            
+        }
         
+        WhatsNewItem item = its.get (lind);
+
         if (item == null)
         {
             
@@ -434,7 +494,7 @@ public class WhatsNew extends Wizard //PopupWizard
     
             Environment.setUserProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
                                          new StringProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                                             Environment.getQuollWriterVersion ()));
+                                                             Environment.getQuollWriterVersion ().getVersion ()));
 
         } catch (Exception e) {
             

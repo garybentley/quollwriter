@@ -67,26 +67,30 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
                         
     }
 
+    /**
+     * Always 270, 250.
+     */
+    @Override
     public Dimension getMinimumSize ()
     {
         
-        return this.getPreferredSize ();        
-        
-    }    
+        return new Dimension (270,
+                              250);        
+    }
     
+    @Override    
     public List<JButton> getHeaderControls ()
     {
         
-        List<JButton> buts = new ArrayList ();
-        
-        return buts;
+        return null;
         
     }
     
+    @Override
     public boolean removeOnClose ()
     {
         
-        return true;
+        return false;
         
     }
     

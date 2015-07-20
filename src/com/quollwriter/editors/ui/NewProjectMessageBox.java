@@ -670,6 +670,8 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                        this.message.getEditor ().getShortName ()));        
             
             this.previousLabel.setVisible (true);
+            
+            this.responseBox.setVisible (false);
                         
         }
         

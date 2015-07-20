@@ -481,7 +481,7 @@ public class UIUtils
         tree.setShowsRootHandles (true);
         tree.setScrollsOnExpand (true);
 
-        tree.addMouseListener (new MouseAdapter ()
+        tree.addMouseListener (new MouseEventHandler ()
         {
 
             private void selectAllChildren (DefaultTreeModel       model,
@@ -512,7 +512,8 @@ public class UIUtils
 
             }
 
-            public void mousePressed (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
 
                 TreePath tp = tree.getPathForLocation (ev.getX (),
@@ -584,7 +585,7 @@ public class UIUtils
             // Never toggle.
             // tree.setToggleClickCount (-1);
 
-            tree.addMouseListener (new MouseAdapter ()
+            tree.addMouseListener (new MouseEventHandler ()
                 {
 
                     private void selectAllChildren (DefaultTreeModel       model,
@@ -615,7 +616,8 @@ public class UIUtils
 
                     }
 
-                    public void mousePressed (MouseEvent ev)
+                    @Override
+                    public void handlePress (MouseEvent ev)
                     {
 
                         TreePath tp = tree.getPathForLocation (ev.getX (),
@@ -661,33 +663,34 @@ public class UIUtils
         } else
         {
 
-            tree.addMouseListener (new MouseAdapter ()
+            tree.addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void handlePress (MouseEvent ev)
                 {
 
-                    public void mousePressed (MouseEvent ev)
+                    TreePath tp = tree.getPathForLocation (ev.getX (),
+                                                           ev.getY ());
+
+                    if (tp != null)
                     {
 
-                        TreePath tp = tree.getPathForLocation (ev.getX (),
-                                                               ev.getY ());
+                        DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
-                        if (tp != null)
+                        if ((n.getChildCount () == 0) &&
+                            (ev.getClickCount () == 2))
                         {
 
-                            DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
-
-                            if ((n.getChildCount () == 0) &&
-                                (ev.getClickCount () == 2))
-                            {
-
-                                projectViewer.viewObject ((DataObject) n.getUserObject ());
-
-                            }
+                            projectViewer.viewObject ((DataObject) n.getUserObject ());
 
                         }
 
                     }
 
-                });
+                }
+
+            });
 
         }
 
@@ -847,26 +850,27 @@ public class UIUtils
             pa.add (l);
             pa.add (Box.createVerticalStrut (3));
 
-            l.addMouseListener (new MouseAdapter ()
+            l.addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void handlePress (MouseEvent ev)
                 {
 
-                    public void mouseReleased (MouseEvent ev)
+                    // Prevents the popup from disappearing.
+                    pv.viewObject (other);
+
+                    if (p != null)
                     {
 
-                        // Prevents the popup from disappearing.
-                        pv.viewObject (other);
-
-                        if (p != null)
-                        {
-
-                            // Close the popup.
-                            p.setVisible (false);
-
-                        }
+                        // Close the popup.
+                        p.setVisible (false);
 
                     }
 
-                });
+                }
+
+            });
 
         }
 
@@ -1632,78 +1636,79 @@ public class UIUtils
     public static void addSelectableListener (final JTree tree)
     {
 
-        tree.addMouseListener (new MouseAdapter ()
+        tree.addMouseListener (new MouseEventHandler ()
+        {
+
+            private void selectAllChildren (DefaultTreeModel       model,
+                                            DefaultMutableTreeNode n,
+                                            boolean                v)
             {
 
-                private void selectAllChildren (DefaultTreeModel       model,
-                                                DefaultMutableTreeNode n,
-                                                boolean                v)
+                Enumeration<DefaultMutableTreeNode> en = n.children ();
+
+                while (en.hasMoreElements ())
                 {
 
-                    Enumeration<DefaultMutableTreeNode> en = n.children ();
+                    DefaultMutableTreeNode c = en.nextElement ();
 
-                    while (en.hasMoreElements ())
-                    {
+                    SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
 
-                        DefaultMutableTreeNode c = en.nextElement ();
+                    s.selected = v;
 
-                        SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
+                    // Tell the model that something has changed.
+                    model.nodeChanged (c);
 
-                        s.selected = v;
-
-                        // Tell the model that something has changed.
-                        model.nodeChanged (c);
-
-                        // Iterate.
-                        this.selectAllChildren (model,
-                                                c,
-                                                v);
-
-                    }
+                    // Iterate.
+                    this.selectAllChildren (model,
+                                            c,
+                                            v);
 
                 }
 
-                public void mouseClicked (MouseEvent ev)
+            }
+
+            @Override
+            public void handlePress (MouseEvent ev)
+            {
+
+                TreePath tp = tree.getPathForLocation (ev.getX (),
+                                                       ev.getY ());
+
+                if (tp != null)
                 {
 
-                    TreePath tp = tree.getPathForLocation (ev.getX (),
-                                                           ev.getY ());
+                    DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
-                    if (tp != null)
-                    {
+                    // Tell the model that something has changed.
+                    DefaultTreeModel model = (DefaultTreeModel) tree.getModel ();
 
-                        DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
-
-                        // Tell the model that something has changed.
-                        DefaultTreeModel model = (DefaultTreeModel) tree.getModel ();
-
-                        SelectableDataObject s = (SelectableDataObject) n.getUserObject ();
+                    SelectableDataObject s = (SelectableDataObject) n.getUserObject ();
 /*
-                    if ((ev.getClickCount () == 2)
-                        &&
-                        (n.getChildCount () > 0)
-                       )
-                    {
+                if ((ev.getClickCount () == 2)
+                    &&
+                    (n.getChildCount () > 0)
+                   )
+                {
 
-                        this.selectAllChildren (model,
-                                                n,
-                                                s.selected);
+                    this.selectAllChildren (model,
+                                            n,
+                                            s.selected);
 
-                    } else {
+                } else {
 
-                        s.selected = !s.selected;
+                    s.selected = !s.selected;
 
-                    }
+                }
 */
-                        s.selected = !s.selected;
+                    s.selected = !s.selected;
 
-                        model.nodeChanged (n);
-
-                    }
+                    model.nodeChanged (n);
 
                 }
 
-            });
+            }
+
+        });
 
     }
 
@@ -2718,24 +2723,26 @@ public class UIUtils
             b.setContentAreaFilled (false);
 
             // b.setMargin (new Insets (2, 2, 2, 2));
-            b.addMouseListener (new MouseAdapter ()
+            b.addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void mouseEntered (MouseEvent ev)
                 {
 
-                    public void mouseEntered (MouseEvent ev)
-                    {
+                    b.setContentAreaFilled (true);
 
-                        b.setContentAreaFilled (true);
+                }
 
-                    }
+                @Override
+                public void mouseExited (MouseEvent ev)
+                {
 
-                    public void mouseExited (MouseEvent ev)
-                    {
+                    b.setContentAreaFilled (false);
 
-                        b.setContentAreaFilled (false);
+                }
 
-                    }
-
-                });
+            });
 
         }
 
@@ -5487,9 +5494,10 @@ public class UIUtils
                                       226));
         web.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
 
-        web.addMouseListener (new MouseAdapter ()
+        web.addMouseListener (new MouseEventHandler ()
         {
 
+            @Override
             public void mouseEntered (MouseEvent ev)
             {
 
@@ -5501,6 +5509,7 @@ public class UIUtils
 
             }
 
+            @Override
             public void mouseExited (MouseEvent ev)
             {
 
@@ -5512,7 +5521,8 @@ public class UIUtils
 
             }
 
-            public void mouseClicked (MouseEvent ev)
+            @Override
+            public void handlePress (MouseEvent ev)
             {
 
                 String w = website;
@@ -5628,11 +5638,11 @@ public class UIUtils
         l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
         l.setVerticalAlignment (SwingConstants.TOP);
         l.setVerticalTextPosition (SwingConstants.TOP);
-        l.addMouseListener (new MouseAdapter ()
+        l.addMouseListener (new MouseEventHandler ()
         {
 
             @Override
-            public void mousePressed (MouseEvent ev)
+            public void handlePress (MouseEvent ev)
             {
                 
                 if (onClick != null)
@@ -8134,7 +8144,7 @@ public class UIUtils
         text.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             text.getPreferredSize ().height));
         
-        text.addMouseListener (new MouseAdapter ()
+        text.addMouseListener (new MouseEventHandler ()
         {
            
             @Override

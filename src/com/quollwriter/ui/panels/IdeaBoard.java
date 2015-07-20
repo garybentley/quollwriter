@@ -321,10 +321,11 @@ public class IdeaBoard extends QuollPanel
                 
             });
             
-            MouseAdapter vis = new MouseAdapter ()
+            MouseEventHandler vis = new MouseEventHandler ()
             {
 
-                public void mousePressed (MouseEvent ev)
+                @Override
+                public void handlePress (MouseEvent ev)
                 {
                     
                     _this.shortDesc.setVisible (false);
@@ -764,239 +765,216 @@ public class IdeaBoard extends QuollPanel
             this.ideaBox = new Box (BoxLayout.Y_AXIS);
 
             UIUtils.setAsButton (this.getHeader ());
-            this.getHeader ().addMouseListener (new MouseAdapter ()
+            this.getHeader ().addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void mouseEntered (MouseEvent ev)
                 {
 
-                    public void mouseEntered (MouseEvent ev)
-                    {
+                    add.setVisible (true);
 
-                        add.setVisible (true);
+                }
 
-                    }
+                @Override
+                public void mouseExited (MouseEvent ev)
+                {
 
-                    public void mouseExited (MouseEvent ev)
-                    {
+                    add.setVisible (false);
 
-                        add.setVisible (false);
+                }
 
-                    }
+                @Override
+                public void fillPopup (JPopupMenu p,
+                                       MouseEvent ev)
+                {
 
-                    private void handlePress (MouseEvent ev)
-                    {
-
-                        if (!ev.isPopupTrigger ())
+                    JMenuItem mi = new JMenuItem ("Add new Idea",
+                                                  Environment.getIcon ("add",
+                                                                       Constants.ICON_MENU));
+                    mi.addActionListener (new ActionAdapter ()
                         {
 
-                            _this.showIdeas (!_this.ideaBox.isVisible ());
-
-                        } else
-                        {
-
-                            final JPopupMenu p = new JPopupMenu ();
-
-                            JMenuItem mi = new JMenuItem ("Add new Idea",
-                                                          Environment.getIcon ("add",
-                                                                               Constants.ICON_MENU));
-                            mi.addActionListener (new ActionAdapter ()
-                                {
-
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-
-                                        _this.showAdd ();
-
-                                    }
-
-                                });
-
-                            p.add (mi);
-
-                            JMenu sortMenu = new JMenu ("Sort Ideas by");
-
-                            p.add (sortMenu);
-
-                            ButtonGroup group = new ButtonGroup ();
-
-                            sortMenu.setIcon (Environment.getIcon ("sort",
-                                                                   Constants.ICON_MENU));
-
-                            mi = new JRadioButtonMenuItem ("Rating",
-                                                           Environment.getIcon ("star",
-                                                                                Constants.ICON_MENU));
-
-                            if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_RATING))
+                            public void actionPerformed (ActionEvent ev)
                             {
 
-                                mi.setSelected (true);
+                                _this.showAdd ();
 
                             }
 
-                            group.add (mi);
+                        });
 
-                            mi.addActionListener (new ActionAdapter ()
-                                {
+                    p.add (mi);
 
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
+                    JMenu sortMenu = new JMenu ("Sort Ideas by");
 
-                                        _this.sortIdeas (IdeaType.SORT_BY_RATING);
+                    p.add (sortMenu);
 
-                                        _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                              ProjectEvent.SORT,
-                                                                                              IdeaType.SORT_BY_RATING);
+                    ButtonGroup group = new ButtonGroup ();
 
-                                    }
+                    sortMenu.setIcon (Environment.getIcon ("sort",
+                                                           Constants.ICON_MENU));
 
-                                });
+                    mi = new JRadioButtonMenuItem ("Rating",
+                                                   Environment.getIcon ("star",
+                                                                        Constants.ICON_MENU));
 
-                            sortMenu.add (mi);
-
-                            mi = new JRadioButtonMenuItem ("Date Added",
-                                                           Environment.getIcon ("date",
-                                                                                Constants.ICON_MENU));
-
-                            mi.addActionListener (new ActionAdapter ()
-                                {
-
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-
-                                        _this.sortIdeas (IdeaType.SORT_BY_DATE);
-
-                                        _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                              ProjectEvent.SORT,
-                                                                                              IdeaType.SORT_BY_DATE);
-
-                                    }
-
-                                });
-
-                            if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_DATE))
-                            {
-
-                                mi.setSelected (true);
-
-                            }
-
-                            sortMenu.add (mi);
-
-                            group.add (mi);
-
-                            mi = new JRadioButtonMenuItem ("Alphabetical",
-                                                           Environment.getIcon (Constants.SPELLCHECKER_ICON_NAME,
-                                                                                Constants.ICON_MENU));
-
-                            mi.addActionListener (new ActionAdapter ()
-                                {
-
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-
-                                        _this.sortIdeas (IdeaType.SORT_BY_TEXT);
-
-                                        _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                              ProjectEvent.SORT,
-                                                                                              IdeaType.SORT_BY_TEXT);
-
-                                    }
-
-                                });
-
-                            if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_TEXT))
-                            {
-
-                                mi.setSelected (true);
-
-                            }
-
-                            sortMenu.add (mi);
-
-                            group.add (mi);
-
-                            mi = new JMenuItem ((_this.ideaBox.isVisible () ? "Hide" : "Show") + " Ideas");
-
-                            mi.addActionListener (new ActionAdapter ()
-                                {
-
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-
-                                        _this.showIdeas (!_this.ideaBox.isVisible ());
-
-                                    }
-
-                                });
-
-                            p.add (mi);
-
-                            mi = new JMenuItem ("Edit the name of this type",
-                                                Environment.getIcon (Constants.EDIT_ICON_NAME,
-                                                                     Constants.ICON_MENU));
-
-                            p.add (mi);
-
-                            mi.addActionListener (new EditIdeaTypeActionHandler (_this.ideaType,
-                                                                                 _this.ideaBoard));
-
-                            mi = new JMenuItem ("Delete this type of Idea",
-                                                Environment.getIcon (Constants.DELETE_ICON_NAME,
-                                                                     Constants.ICON_MENU));
-
-                            p.add (mi);
-
-                            if (_this.ideaType.getIdeaCount () == 0)
-                            {
-
-
-                                mi.addActionListener (new ActionAdapter ()
-                                    {
-
-                                        public void actionPerformed (ActionEvent ev)
-                                        {
-
-                                            // Just delete.
-                                            _this.ideaBoard.deleteIdeaType (_this.ideaType);
-
-                                        }
-
-                                    });
-
-                            } else
-                            {
-
-                                mi.addActionListener (new DeleteIdeaTypeActionHandler (_this.ideaType,
-                                                                                       _this.ideaBoard));
-
-                            }
-
-                            p.show (ev.getComponent (),
-                                    ev.getX (),
-                                    ev.getY ());
-
-                        }
-
-                    }
-
-                    public void mousePressed (MouseEvent ev)
+                    if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_RATING))
                     {
 
-                        if (!Environment.isWindows)
+                        mi.setSelected (true);
+
+                    }
+
+                    group.add (mi);
+
+                    mi.addActionListener (new ActionAdapter ()
                         {
 
-                            this.handlePress (ev);
+                            public void actionPerformed (ActionEvent ev)
+                            {
 
-                        }
+                                _this.sortIdeas (IdeaType.SORT_BY_RATING);
 
-                    }
+                                _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                                      ProjectEvent.SORT,
+                                                                                      IdeaType.SORT_BY_RATING);
 
-                    public void mouseReleased (MouseEvent ev)
+                            }
+
+                        });
+
+                    sortMenu.add (mi);
+
+                    mi = new JRadioButtonMenuItem ("Date Added",
+                                                   Environment.getIcon ("date",
+                                                                        Constants.ICON_MENU));
+
+                    mi.addActionListener (new ActionAdapter ()
+                        {
+
+                            public void actionPerformed (ActionEvent ev)
+                            {
+
+                                _this.sortIdeas (IdeaType.SORT_BY_DATE);
+
+                                _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                                      ProjectEvent.SORT,
+                                                                                      IdeaType.SORT_BY_DATE);
+
+                            }
+
+                        });
+
+                    if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_DATE))
                     {
 
-                        this.handlePress (ev);
+                        mi.setSelected (true);
 
                     }
 
-                });
+                    sortMenu.add (mi);
+
+                    group.add (mi);
+
+                    mi = new JRadioButtonMenuItem ("Alphabetical",
+                                                   Environment.getIcon (Constants.SPELLCHECKER_ICON_NAME,
+                                                                        Constants.ICON_MENU));
+
+                    mi.addActionListener (new ActionAdapter ()
+                        {
+
+                            public void actionPerformed (ActionEvent ev)
+                            {
+
+                                _this.sortIdeas (IdeaType.SORT_BY_TEXT);
+
+                                _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                                      ProjectEvent.SORT,
+                                                                                      IdeaType.SORT_BY_TEXT);
+
+                            }
+
+                        });
+
+                    if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_TEXT))
+                    {
+
+                        mi.setSelected (true);
+
+                    }
+
+                    sortMenu.add (mi);
+
+                    group.add (mi);
+
+                    mi = new JMenuItem ((_this.ideaBox.isVisible () ? "Hide" : "Show") + " Ideas");
+
+                    mi.addActionListener (new ActionAdapter ()
+                        {
+
+                            public void actionPerformed (ActionEvent ev)
+                            {
+
+                                _this.showIdeas (!_this.ideaBox.isVisible ());
+
+                            }
+
+                        });
+
+                    p.add (mi);
+
+                    mi = new JMenuItem ("Edit the name of this type",
+                                        Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                             Constants.ICON_MENU));
+
+                    p.add (mi);
+
+                    mi.addActionListener (new EditIdeaTypeActionHandler (_this.ideaType,
+                                                                         _this.ideaBoard));
+
+                    mi = new JMenuItem ("Delete this type of Idea",
+                                        Environment.getIcon (Constants.DELETE_ICON_NAME,
+                                                             Constants.ICON_MENU));
+
+                    p.add (mi);
+
+                    if (_this.ideaType.getIdeaCount () == 0)
+                    {
+
+
+                        mi.addActionListener (new ActionAdapter ()
+                            {
+
+                                public void actionPerformed (ActionEvent ev)
+                                {
+
+                                    // Just delete.
+                                    _this.ideaBoard.deleteIdeaType (_this.ideaType);
+
+                                }
+
+                            });
+
+                    } else
+                    {
+
+                        mi.addActionListener (new DeleteIdeaTypeActionHandler (_this.ideaType,
+                                                                               _this.ideaBoard));
+
+                    }
+                    
+                }
+                
+                @Override
+                public void handlePress (MouseEvent ev)
+                {
+
+                    _this.showIdeas (!_this.ideaBox.isVisible ());
+
+                }
+
+            });
 
             this.getHeader ().setToolTipText ("Click to show/hide the Ideas");
             
@@ -1365,6 +1343,7 @@ public class IdeaBoard extends QuollPanel
         //this.categories = new JPanel (layout)
 
         this.categories = new BackgroundImagePanel (layout);
+        this.categories.setToolTipText ("Double click to add a new type of Idea.  Right click to change the background.");
         
         //this.categories.setBackgroundObject (Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
     
@@ -1409,65 +1388,39 @@ public class IdeaBoard extends QuollPanel
         cscroll.setOpaque (false);
         cscroll.setBackground (null);
 
-        this.categories.addMouseListener (new MouseAdapter ()
+        this.categories.addMouseListener (new MouseEventHandler ()
+        {
+
+            @Override
+            public void handlePress (MouseEvent ev)
             {
 
-                public void mousePressed (MouseEvent ev)
+                if (ev.getClickCount () == 2)
                 {
-
-                    if (!Environment.isWindows)
-                    {
-
-                        this.handlePress (ev);
-
-                    }
-
+                    
+                    new NewIdeaTypeActionHandler (_this).actionPerformed (new ActionEvent (_this, 0, "show"));
+                    
                 }
+                
+            }
+                
+            @Override
+            public void fillPopup (JPopupMenu p,
+                                   MouseEvent ev)
+            {
+                
+                JMenuItem add = new JMenuItem ("Add a new type of Idea",
+                                               Environment.getIcon ("add",
+                                                                    Constants.ICON_MENU));
+                add.addActionListener (new NewIdeaTypeActionHandler (_this));
 
-                public void mouseReleased (MouseEvent ev)
-                {
+                p.add (add);
 
-                    this.handlePress (ev);
+                p.add (_this.getSelectBackgroundButton (true));
 
-                }
-
-                private void handlePress (MouseEvent ev)
-                {
-
-                    if (ev.isPopupTrigger ())
-                    {
-
-                        JPopupMenu p = new JPopupMenu ();
-
-                        JMenuItem add = new JMenuItem ("Add a new type of Idea",
-                                                       Environment.getIcon ("add",
-                                                                            Constants.ICON_MENU));
-                        add.addActionListener (new NewIdeaTypeActionHandler (_this));
-
-                        p.add (add);
-
-                        p.add (_this.getSelectBackgroundButton (true));
-
-                        //p.add (_this.getSelectOpacityButton (true));                        
-               
-                        p.show (ev.getComponent (),
-                                ev.getX (),
-                                ev.getY ());
-
-                    } else {
-                        
-                        if (ev.getClickCount () == 2)
-                        {
-                            
-                            new NewIdeaTypeActionHandler (_this).actionPerformed (new ActionEvent (_this, 0, "show"));
-                            
-                        }
-                        
-                    }
-
-                }
-
-            });
+            }
+                
+        });
 
         java.util.List<JButton> buts = new ArrayList ();
 
