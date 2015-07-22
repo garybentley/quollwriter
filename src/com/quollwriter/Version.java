@@ -99,6 +99,41 @@ public class Version implements Comparable<Version>
         
     }
     
+    private String expandVersion (String v)
+    {
+
+        char[] chs = v.toCharArray ();
+    
+        int c = 0;
+    
+        for (int i = 0; i < chs.length; i++)
+        {
+        
+            if (chs[i] == '.')
+            {
+                
+                c++;
+                
+            }
+            
+        }
+        
+        if (c < 2)
+        {
+            
+            for (int i = c; i < 2; i++)
+            {
+                
+                v += ".0";
+                
+            }
+            
+        }
+
+        return v;
+        
+    }    
+    
     private List<Integer> getVersionParts (String v)
     {
         
@@ -109,7 +144,7 @@ public class Version implements Comparable<Version>
             
         }
         
-        v = Environment.expandVersion (v);
+        v = this.expandVersion (v);
         
         StringTokenizer t = new StringTokenizer (v,
                                                  ".");
@@ -190,7 +225,16 @@ public class Version implements Comparable<Version>
         
         if (other.version == this.version)
         {
+
+            // i.e. 2.3 is NOT newer than 2.3b1
+            if (this.betaVersion == 0)
+            {
+                
+                return false;
+                
+            }
             
+            // 2.3 IS newer than 2.3b1
             if ((other.betaVersion == 0)
                 ||
                 (other.betaVersion > this.betaVersion)
@@ -202,14 +246,14 @@ public class Version implements Comparable<Version>
             }
                         
         }
-        
+
         if (other.version > this.version)
         {
                         
             return true;
             
         }
-        
+                        
         return false;
         
     }
