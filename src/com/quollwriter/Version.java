@@ -226,14 +226,14 @@ public class Version implements Comparable<Version>
         if (other.version == this.version)
         {
 
-            // i.e. 2.3 is NOT newer than 2.3b1
-            if (this.betaVersion == 0)
+            // 2.3 is NOT newer than 2.3
+            if (this.betaVersion == other.betaVersion)
             {
                 
                 return false;
                 
             }
-            
+                                
             // 2.3 IS newer than 2.3b1
             if ((other.betaVersion == 0)
                 ||
