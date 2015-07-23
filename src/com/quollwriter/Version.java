@@ -38,15 +38,15 @@ public class Version implements Comparable<Version>
         
         String ver = this._version;
         
-        int bind = v.indexOf ("b");
+        int bind = this._version.indexOf ("b");
         
         if (bind > 0)
         {
             
             // Get the version then the beta.
-            ver = v.substring (0, bind);
+            ver = this._version.substring (0, bind);
             
-            String bver = v.substring (bind + 1);
+            String bver = this._version.substring (bind + 1);
             
             this.betaVersion = Integer.parseInt (bver);     
             
