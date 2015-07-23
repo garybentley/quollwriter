@@ -51,8 +51,17 @@ public class WhatsNew extends Wizard //PopupWizard
         
         super (pv);
 
+        String wn = Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
+        
+        if (wn == null)
+        {
+            
+            wn = "0";
+            
+        }
+        
         // Get the current whats new version (i.e. old).
-        Version lastWhatsNewVersion = new Version (Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME));
+        Version lastWhatsNewVersion = new Version (wn);
         
         boolean betasAllowed = Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME);
         
