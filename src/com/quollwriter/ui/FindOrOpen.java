@@ -341,7 +341,14 @@ Won't animate due to rubber stamping in table renderer.
                     String tip = null;
                     
                     int rowIndex = this.rowAtPoint (e.getPoint ());
-        
+                    
+                    if (rowIndex < 0)
+                    {
+                        
+                        return null;
+                        
+                    }
+                    
                     Project p = (Project) projs.get (rowIndex);
     
                     tip = Environment.canOpenProject (p);
