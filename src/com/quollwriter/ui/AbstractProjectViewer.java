@@ -1560,6 +1560,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         this.removeSideBarListener (sb);
         
+        this.setUILayout (this.layout);
+        
     }
     
     public void addSideBar (String          name,
@@ -5776,9 +5778,9 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         }
         
         this.notifications.setVisible (false);        
-        
+                
         this.closeAllTabs (true);
-                        
+
         this.proj.setLastEdited (new Date ());
 
         try
@@ -6169,6 +6171,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         }
 
+        // We've drastically changed the size of things due to closing tabs and potentially the
+        // notifications so validate to ensure the sizes have changed.
+        this.validate ();
+        
         // Save the size of the window (more specifically the size of the split pane.
         try
         {
