@@ -65,6 +65,21 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
     {
         
         final InviteMessageBox _this = this;
+        
+        String text = "Sent invitation";
+        
+        if (!this.message.isSentByMe ())
+        {
+            
+            text = "Received an invitation to become {an editor}";
+                            
+        }
+        
+        JComponent h = UIUtils.createBoldSubHeader (text,
+                                                    Constants.EDITORS_ICON_NAME);
+        
+        this.add (h);
+        
                                         
         if ((!this.message.isDealtWith ())
             &&
@@ -73,6 +88,8 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
         {
             
             this.responseBox = new Box (BoxLayout.Y_AXIS);
+            
+            this.responseBox.setBorder (UIUtils.createPadding (0, 5, 0, 5));             
             
             this.add (this.responseBox);
                         

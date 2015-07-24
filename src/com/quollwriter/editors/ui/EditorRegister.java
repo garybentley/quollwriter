@@ -177,7 +177,16 @@ public class EditorRegister extends Wizard
                                                         this.keyPair.getPrivateKey ());
                     
                 // Save the name/picture away.
-                EditorsEnvironment.setUserInformation (this.nameField.getText ().trim (),
+                String n = this.nameField.getText ().trim ();
+                
+                if (n.length () == 0)
+                {
+                    
+                    n = null;
+                    
+                }
+                
+                EditorsEnvironment.setUserInformation (n,
                                                        this.avatar.getImage ());
     
             } catch (Exception e) {
@@ -405,7 +414,14 @@ public class EditorRegister extends Wizard
         
         if (oldStage.equals ("dir"))
         {
+            
+            if (newStage.equals ("start"))
+            {
+                
+                return true;
                         
+            }
+            
             if (Utils.getQuollWriterDirFile (this.finder.getSelectedFile ()).exists ())
             {
             
@@ -720,13 +736,9 @@ public class EditorRegister extends Wizard
             
             final JLabel message = new JLabel ("");
             
-            message.setBorder (new EmptyBorder (0,
-                                                5,
-                                                5,
-                                                0));
             message.setVisible (false);
                         
-            message.setBorder (new EmptyBorder (0, 0, 5, 0));
+            message.setBorder (UIUtils.createPadding (0, 0, 5, 0));
                         
             this.finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
                                                   "Select a Directory",
@@ -851,7 +863,7 @@ public class EditorRegister extends Wizard
 
             b.add (finderError);
             b.add (this.finder);
-            b.setBorder (UIUtils.createPadding (0, 0, 0, 5));
+            b.setBorder (UIUtils.createPadding (0, 5, 0, 5));
             
             ws.panel = b;
 

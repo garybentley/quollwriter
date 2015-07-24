@@ -2444,6 +2444,49 @@ public class EditorsEnvironment
                         
         }
         
+        // It may be that the user deletes their account and the editor is in a pending
+        // state but doesn't have an account so we can't send them a message.  Instead just
+        // delete the invite.
+        if ((ed.isPending ())
+            &&
+            (ed.getTheirPublicKey () == null)
+           )
+        {
+            
+            try
+            {
+                
+                // Uupdate the editor to be previous.
+                ed.setEditorStatus (EditorEditor.EditorStatus.previous);
+            
+                EditorsEnvironment.updateEditor (ed);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to update editor: " +
+                                      ed,
+                                      e);
+                
+                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                
+                UIUtils.showErrorMessage (viewer,
+                                          "Unable to update {editor}, please contact Quoll Writer support for assistance.");
+                
+                return;
+                
+            }
+
+            if (onComplete != null)
+            {
+                
+                UIUtils.doLater (onComplete);
+                
+            }
+
+            return;            
+            
+        }
+        
         // Send the editor removed message
         EditorRemovedMessage mess = new EditorRemovedMessage (ed);
         
@@ -3006,19 +3049,33 @@ public class EditorsEnvironment
             
         } else {
             
-            EditorsEnvironment.removeEditor (eds.pop (),
-                                             new ActionListener ()
-                                             {
-                                                
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-                                                    
-                                                    EditorsEnvironment.removeAllEditors (eds,
-                                                                                         onComplete);
-                                                    
-                                                }
-                                                
-                                             });
+            EditorEditor ed = eds.pop ();
+
+            ActionListener onDeleteComplete = new ActionListener ()
+            {
+               
+               public void actionPerformed (ActionEvent ev)
+               {
+                   
+                   EditorsEnvironment.removeAllEditors (eds,
+                                                        onComplete);
+                   
+               }
+               
+            };
+            
+            if (ed.isPending ())
+            {
+                
+                EditorsEnvironment.removePendingEditor (ed,
+                                                        onDeleteComplete);
+                
+            } else {
+            
+                EditorsEnvironment.removeEditor (ed,
+                                                 onDeleteComplete);
+                
+            }
                             
         }
         

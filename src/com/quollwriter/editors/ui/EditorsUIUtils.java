@@ -60,6 +60,7 @@ public class EditorsUIUtils
                                                       NewProjectMessage.MESSAGE_TYPE,
                                                       NewProjectResponseMessage.MESSAGE_TYPE,
                                                       ProjectCommentsMessage.MESSAGE_TYPE,
+                                                      InviteMessage.MESSAGE_TYPE,
                                                       InviteResponseMessage.MESSAGE_TYPE,
                                                       ProjectEditStopMessage.MESSAGE_TYPE,
                                                       UpdateProjectMessage.MESSAGE_TYPE,
