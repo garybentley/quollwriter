@@ -56,6 +56,17 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
                                                        XMLConstants.count,
                                                        false);        
         
+        if (JDOMUtils.getAttribute (root,
+                                    XMLConstants.sentByMe,
+                                    false) != null)
+        {
+        
+            this.sentByMe = JDOMUtils.getAttributeValueAsBoolean (root,
+                                                                  XMLConstants.sentByMe,
+                                                                  false);        
+
+        }
+                                                           
         String mt = JDOMUtils.getAttributeValue (root,
                                                  XMLConstants.messageTypes,
                                                  true);
@@ -115,7 +126,7 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
             return;
             
         }
-            
+
         EditorMessage mess = ev.getMessage ();
         
         if (!this.messageTypes.contains (mess.getMessageType ()))
@@ -124,7 +135,7 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
             return;
             
         }
-                
+
         if ((mess.isSentByMe () && !this.sentByMe)
             ||
             (!mess.isSentByMe () && this.sentByMe)
@@ -185,7 +196,7 @@ public class EditorMessageAchievementRule extends AbstractAchievementRule implem
                 this.savedCount = JDOMUtils.getAttributeValueAsInt (root,
                                                                     XMLConstants.savedCount,
                                                                     false);        
-
+this.savedCount = 0;
             } catch (Exception e) {
                 
                 Environment.logError ("Unable to set saved count for rule: " +

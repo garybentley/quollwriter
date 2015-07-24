@@ -595,6 +595,30 @@
     <description>Invite 5 {editors}.</description>
   </item>
 
+  <item id="acceptinvite"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        count="1">
+    <name>Not your buddy, guy!</name>
+    <description>Accept an invite from {a contact}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>  
+  
+  <item id="acceptinvite3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="invite-response"
+        count="3">
+    <name>I'm not your guys, buddies... no wait...</name>
+    <description>Accept 3 {contact} invites.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>  
+
   <item id="inviteaccepted"
         category="user"
         type="editor-message"
@@ -603,7 +627,7 @@
         sentByMe="false"
         count="1">
     <name>Not alone in this</name>
-    <description>Receive an acceptance from {an editor}.</description>
+    <description>Receive an invite acceptance from {a contact}.</description>
     <match accessor="accepted"
            value="true" />
   </item>  
@@ -616,18 +640,30 @@
         sentByMe="false"
         count="3">
     <name>Team Building</name>
-    <description>Receive acceptances from 3 {editors}.</description>
+    <description>Receive invite acceptances from 3 {contacts}.</description>
     <match accessor="accepted"
            value="true" />
   </item>  
 
-  <item id="acceptinvite"
+  <item id="acceptprojectinvite"
         category="user"
         type="editor-message"
         icon="editors"
-        messageTypes="invite-response">
+        messageTypes="project-new-response">
     <name>I'm your [wo]man</name>
     <description>Accept an invite to edit a {project}.</description>
+    <match accessor="accepted"
+           value="true" />
+  </item>  
+
+  <item id="acceptprojectinvite3"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        messageTypes="project-new-response"
+        count="3">
+    <name>Team Player</name>
+    <description>Accept 3 invitations to edit a {project}.</description>
     <match accessor="accepted"
            value="true" />
   </item>  
@@ -635,7 +671,7 @@
   <item id="sendproject"
         category="user"
         type="editor-message"
-        icon="editors"
+        icon="project"
         count="1"
         messageTypes="project-new">
     <name>Projecting</name>
@@ -645,12 +681,31 @@
   <item id="sendproject3"
         category="user"
         type="editor-message"
-        icon="editors"
+        icon="project"
         messageTypes="project-new"
         count="3">
     <name>Many eyes</name>
     <description>Send a {project} to 3 {editors}.</description>
   </item>
+
+  <item id="updateproject"
+        category="user"
+        type="editor-message"
+        icon="editors"
+        count="1"
+        messageTypes="project-update">
+    <name>Wait, what about this version</name>
+    <description>Send a {project} update to {an editor}.</description>
+  </item>
+
+  <item id="projectcomments"
+        category="user"
+        type="editor-message"
+        icon="comment"
+        messageTypes="project-comments">
+    <name>I've got something to say</name>
+    <description>Send some comments about a {project}.</description>
+  </item>  
 
 </achievements>
 

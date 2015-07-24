@@ -657,8 +657,8 @@ public class AchievementsManager implements ProjectEventListener
      
     }
     
-    public void achievementReached (AbstractProjectViewer viewer,
-                                    AchievementRule       ar)
+    public synchronized void achievementReached (AbstractProjectViewer viewer,
+                                                 AchievementRule       ar)
     {
 
         if (Environment.isDebugModeEnabled ())
@@ -680,6 +680,13 @@ public class AchievementsManager implements ProjectEventListener
 
             // Add to the list of project achievements.
             Set<String> achieved = this.getAchievedIds (viewer.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+    
+            if (achieved.contains (ar.getId ()))
+            {
+                
+                return;
+                
+            }
     
             achieved.add (ar.getId ());
             
@@ -727,7 +734,7 @@ public class AchievementsManager implements ProjectEventListener
         
     }
 
-    public void userAchievementReached (AchievementRule ar)
+    public synchronized void userAchievementReached (AchievementRule ar)
     {
 
         if (Environment.isDebugModeEnabled ())
@@ -749,6 +756,13 @@ public class AchievementsManager implements ProjectEventListener
         
             // Add to the list of user achievements.
             Set<String> achieved = this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+            
+            if (achieved.contains (ar.getId ()))
+            {
+                
+                return;
+                
+            }
             
             achieved.add (ar.getId ());
             
