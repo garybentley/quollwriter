@@ -122,7 +122,7 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
         com.quollwriter.ui.components.Header h = UIUtils.createBoldSubHeader ("Prompt",
                                                 null);
         h.setBorder (UIUtils.createPadding (5, 5, 0, 5));
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14)).deriveFont (Font.PLAIN));        
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));        
         this.promptWrapper.add (h);
         
         this.promptWrapper.add (this.prompt);

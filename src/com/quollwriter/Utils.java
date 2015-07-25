@@ -919,6 +919,5 @@ public class Utils
         return gc.getTime ();
         
     }
-
     
 }

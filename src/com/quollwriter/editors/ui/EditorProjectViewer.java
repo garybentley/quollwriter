@@ -610,7 +610,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                 content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
                 qp.setContent (content);
         
-                content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                          content.getPreferredSize ().height));
                         
                 _this.showPopupAt (qp,

@@ -589,7 +589,7 @@ public class EditorPanel extends Box implements EditorMessageListener
         
         h.setControls (UIUtils.createButtonBar (buts));
         
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (java.awt.Font.PLAIN));
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (java.awt.Font.PLAIN));
         h.setAlignmentX (Component.LEFT_ALIGNMENT);
         
         wrapper.add (h);

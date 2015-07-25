@@ -111,7 +111,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
     public Dimension getMinimumSize ()
     {
         
-        return new Dimension (250,
+        return new Dimension (UIUtils.getScreenScaledWidth (250),
                               200);
         
     }

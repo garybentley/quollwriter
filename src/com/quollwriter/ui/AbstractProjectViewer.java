@@ -289,7 +289,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         // new
         Header h = this.title;
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (22d)).deriveFont (Font.PLAIN));
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (22)).deriveFont (Font.PLAIN));
         h.setPaintProvider (null);
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setIcon (null);
@@ -2497,7 +2497,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                     f.pack ();
 
-                    UIUtils.setCenterOfScreenLocation (f);
+                    //UIUtils.setCenterOfScreenLocation (f);
 
                     f.setVisible (true);
 
@@ -2520,7 +2520,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                     f.pack ();
 
-                    UIUtils.setCenterOfScreenLocation (f);
+                    //UIUtils.setCenterOfScreenLocation (f);
 
                     f.setVisible (true);
 
@@ -2738,9 +2738,10 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         WarmupPromptSelect w = new WarmupPromptSelect (this);
 
         w.init ();
-
-        w.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
+/*
+        w.setPreferredSize (new Dimension (Math.max (UIUtils.getPopupWidth (), w.getPreferredSize ().width) + 20,
                                   qp.getPreferredSize ().height));
+                                  */
         w.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
         
         qp.setContent (w);
@@ -3363,7 +3364,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             {
                 
                 sbw = min.width;
-                
+
             }
             
         }
@@ -3639,11 +3640,11 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             
                 if (other.getMinimumSize ().width > sbw)
                 {
-                    
+
                     sbw = other.getMinimumSize ().width;
                     
                 }
-                
+
                 this.sideBarWrapper.removeAll ();
                 this.sideBarWrapper.add (other);                            
                 
@@ -3862,7 +3863,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         this.pack ();
 
-        UIUtils.setCenterOfScreenLocation (this);
+        // Allow the underlying Windowing manager determine where to put the window.
+        this.setLocationByPlatform (true);
 
         this.setVisible (true);
 
@@ -6353,7 +6355,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         this.splitPane.setDividerLocation (this.lastDividerLocation);
 */
         this.setVisible (true);                                                  
-                this.setUILayout (this.layout);
+        this.setUILayout (this.layout);
         this.validate ();
         this.repaint ();
         

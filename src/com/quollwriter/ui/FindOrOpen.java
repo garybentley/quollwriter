@@ -447,6 +447,7 @@ Won't animate due to rubber stamping in table renderer.
 
                 });
 
+            // TODO: Change to use a mouseeventhandler.
             projOpenTable.addMouseListener (new MouseAdapter ()
                 {
 
@@ -569,7 +570,16 @@ Won't animate due to rubber stamping in table renderer.
                     public void mouseClicked (MouseEvent ev)
                     {
 
-                        Project p = (Project) projs.get (projOpenTable.rowAtPoint (ev.getPoint ()));
+                        int r = projOpenTable.rowAtPoint (ev.getPoint ());
+                        
+                        if (r < 0)
+                        {
+                            
+                            return;
+                            
+                        }
+                    
+                        Project p = (Project) projs.get (r);
                         
                         if (p == null)
                         {

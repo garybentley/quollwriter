@@ -37,7 +37,7 @@ public class QPopup extends Box
                           icon,
                           controls));
 
-        this.header.setFont (this.header.getFont ().deriveFont ((float) com.quollwriter.ui.UIUtils.scaleToScreenSize (14)).deriveFont (Font.PLAIN));
+        this.header.setFont (this.header.getFont ().deriveFont ((float) com.quollwriter.ui.UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
         this.header.setTitleColor (com.quollwriter.ui.UIUtils.getTitleColor ());
 
     }
@@ -160,6 +160,7 @@ public class QPopup extends Box
         JComponent c = this.getContent ();
         c.setPreferredSize (null);
 
+        c.validate ();
         c.setPreferredSize (new Dimension (com.quollwriter.ui.UIUtils.getPopupWidth (),
                                            c.getPreferredSize ().height));
         c.setMinimumSize (c.getPreferredSize ());

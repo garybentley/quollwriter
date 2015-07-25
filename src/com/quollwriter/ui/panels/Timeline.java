@@ -357,7 +357,7 @@ public class Timeline extends QuollPanel
             
             }
 
-            this.headerHeight = UIUtils.scaleToScreenSize (maxH);
+            this.headerHeight = UIUtils.getScaledFontSize ((int) maxH);
             this.colWidth = ((int) Math.round (maxW)) + (this.padding * 2);
 
             // Round to a multiple of the minWidth.

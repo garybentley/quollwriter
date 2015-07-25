@@ -150,7 +150,7 @@ public class ChatMessageBox extends MessageBox<EditorChatMessage>
         l.setAlignmentX (Component.RIGHT_ALIGNMENT);        
         l.setForeground (UIUtils.getColor ("#aaaaaa"));
         
-        l.setFont (l.getFont ().deriveFont ((float) 10));
+        l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (10)));
         b.add (l);
         
         b.setMaximumSize (b.getPreferredSize ());

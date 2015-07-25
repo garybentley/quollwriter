@@ -1263,6 +1263,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();        
         
         this.setSize (d);
+        
+        // Setting the location here ensures that we don't get shifted over by the taskbar (on windows).
+        this.setLocation (0, 0);
         this.validate ();
         this.repaint ();
         this.setVisible (true);
@@ -1654,7 +1657,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                     0,
                                                     3,
                                                     20));
-        this.clockLabel.setFont (this.clockLabel.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (18)).deriveFont (Font.PLAIN));        
+        this.clockLabel.setFont (this.clockLabel.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (18)).deriveFont (Font.PLAIN));        
                 
         titleC.add (this.clockLabel);
 

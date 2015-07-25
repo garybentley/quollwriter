@@ -47,7 +47,8 @@ public class AccordionItem extends Box
                                      ii,
                                      null);
 
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (Font.PLAIN));
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+
         h.setPaintProvider (null);
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setPadding (new Insets (5, 5, 0, 0));

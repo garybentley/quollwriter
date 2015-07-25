@@ -274,7 +274,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                                         
         }
         
-        if (pcms.size () > 1)
+        if (pcms.size () == 1)
         {
             
             
@@ -341,29 +341,34 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                     // Get the first line of the notes, if provided.
                     String genComm = pcm.getGeneralComment ();
                     
-                    TextIterator ti = new TextIterator (genComm);
-                    
-                    if (ti.getSentenceCount () > 1)
+                    if (genComm != null)
                     {
+                    
+                        TextIterator ti = new TextIterator (genComm);
                         
-                        genComm = ti.getNextClosestSentenceTo (-1).getText ();
+                        if (ti.getSentenceCount () > 1)
+                        {
+                            
+                            genComm = ti.getNextClosestSentenceTo (-1).getText ();
+    
+                        }
+                            
+                        JComponent mess = UIUtils.createHelpTextPane (genComm,
+                                                                      _this.projectViewer);
+    
+                        Box mb = new Box (BoxLayout.X_AXIS);
+                        
+                        mb.setAlignmentX (Component.LEFT_ALIGNMENT);
+                        
+                        mess.setBorder (null);
+                        
+                        mb.add (mess);
+                        
+                        mb.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+                                                        
+                        b.add (mb);
 
                     }
-                        
-                    JComponent mess = UIUtils.createHelpTextPane (genComm,
-                                                                  _this.projectViewer);
-
-                    Box mb = new Box (BoxLayout.X_AXIS);
-                    
-                    mb.setAlignmentX (Component.LEFT_ALIGNMENT);
-                    
-                    mess.setBorder (null);
-                    
-                    mb.add (mess);
-                    
-                    mb.setBorder (UIUtils.createPadding (0, 5, 0, 5));
-                                                    
-                    b.add (mb);
                                         
                     JLabel info = UIUtils.createInformationLabel (String.format ("Received: %s",
                                                                                  Environment.formatDate (pcm.getWhen ())));
@@ -393,7 +398,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
             content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
             qp.setContent (content);
     
-            content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                      content.getPreferredSize ().height));
     
             _this.projectViewer.showPopupAt (qp,
@@ -401,7 +406,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                                              false);
             
             qp.setDraggable (_this);
-            
+
         }        
         
     }

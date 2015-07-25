@@ -63,7 +63,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
                                         });
         
         update.setRepeats (false);
-        
+                
         this.add (new JLayer<JComponent> (this.content, new LayerUI<JComponent> ()
         {
             
@@ -166,6 +166,10 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         this.message = mess;
         this.projectViewer = viewer;
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        this.content.setToolTipText (String.format ("%s %s",
+                                            this.message.isSentByMe () ? "Sent" : "Received",
+                                            Environment.formatDateTime (this.message.getWhen ())));
                 
     }
     

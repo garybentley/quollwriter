@@ -92,9 +92,10 @@ import org.josql.utils.*;
 public class UIUtils
 {
 
-    public static int DEFAULT_POPUP_WIDTH = 450;
+    private static int DEFAULT_ASSUMED_SCREEN_RESOLUTION = 96;
+    private static int DEFAULT_POPUP_WIDTH = 450;
     public static int DEFAULT_SCROLL_BY_AMOUNT = 20;
-
+    
     public static Font headerFont = null; 
 
     public static final Border textFieldSpacing = new EmptyBorder (3,
@@ -109,11 +110,17 @@ public class UIUtils
                    
     }
     
-    public static int getPopupWidth ()
+    public static int getScreenScaledWidth (int w)
     {
         
-        return DEFAULT_POPUP_WIDTH;
+        return Math.round ((float) w * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / (float) DEFAULT_ASSUMED_SCREEN_RESOLUTION));
         
+    }
+    
+    public static int getPopupWidth ()
+    {
+           
+        return UIUtils.getScreenScaledWidth (DEFAULT_POPUP_WIDTH);
                                                                    
     }
     
@@ -901,7 +908,7 @@ public class UIUtils
         
         ep.setContent (b);
 
-        b.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
+        b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                            b.getPreferredSize ().height));
    
         if (showAt == null)
@@ -2039,7 +2046,7 @@ public class UIUtils
         
                 JTextPane m = UIUtils.createHelpTextPane (message + "<br /><br /><a href='qw:/report-a-bug'>Click here to contact Quoll Writer support about this problem.</a>",
                                                           pv);
-                m.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+                m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                           m.getPreferredSize ().height));
                 m.setBorder (null);
                 content.add (m);
@@ -2074,7 +2081,7 @@ public class UIUtils
                     }
                 });
                 
-                content.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
+                content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                          content.getPreferredSize ().height));
                                                     
                 parent.showPopupAt (ep,
@@ -2297,7 +2304,7 @@ public class UIUtils
 
                 close.addActionListener (ep.getCloseAction ());
         
-                content.setPreferredSize (new Dimension (DEFAULT_POPUP_WIDTH,
+                content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                     content.getPreferredSize ().height));
                                                     
                 parent.showPopupAt (ep,
@@ -2331,7 +2338,7 @@ public class UIUtils
         JTextPane m = UIUtils.createHelpTextPane (message,
                                                   pv);
         
-        m.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+        m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                   m.getPreferredSize ().height));
         m.setBorder (null);
 
@@ -3113,8 +3120,8 @@ public class UIUtils
                                                                                  Constants.ICON_MENU)),
                                null);
 
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (12)).deriveFont (Font.PLAIN));
-                                            
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14)).deriveFont (Font.PLAIN));
+                                                      
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
 
@@ -3650,11 +3657,16 @@ public class UIUtils
                 }
 
                 // Now replace whatever we got...
-                String st = b.toString ();
+                String st = b.toString ().trim ();
 
-                if (st.length () == 0)
+                if ((st.length () == 0)
+                    ||
+                    (st.equals (urlPrefix))
+                   )
                 {
 
+                    ind = ind + urlPrefix.length ();
+                
                     continue;
 
                 }
@@ -3953,6 +3965,51 @@ public class UIUtils
                         
                         Integer ind = iter.next ();
                         
+                        // Now search back through the string to make sure
+                        // we aren't actually part of a http or https string.
+                        int httpInd = t.lastIndexOf ("http://",
+                                                     ind);
+                        int httpsInd = t.lastIndexOf ("https://",
+                                                      ind);
+                        
+                        if ((httpInd > -1)
+                            ||
+                            (httpsInd > -1)
+                           )
+                        {
+                            
+                            // Check forward to ensure there is no white space.
+                            String ss = t.substring (Math.max (httpInd, httpsInd),
+                                                     ind);
+                            
+                            boolean hasWhitespace = false;
+                            
+                            char[] chars = ss.toCharArray ();
+                            
+                            for (int i = 0; i < chars.length; i++)
+                            {
+                                
+                                if (Character.isWhitespace (chars[i]))
+                                {
+                                    
+                                    hasWhitespace = true;
+                                    
+                                    break;
+                                    
+                                }
+                                
+                            }
+                            
+                            if (!hasWhitespace)
+                            {
+                                
+                                // This name is part of a http/https link so ignore.
+                                continue;
+                                
+                            }
+                            
+                        }
+                        
                         // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
                         if (Character.isLowerCase (t.charAt (ind)))
                         {
@@ -3993,7 +4050,6 @@ public class UIUtils
             b = b.replace (ind,
                            ind + obj.name.length (),
                            "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + obj.namedObject.getObjectReference ().asString () + "'>" + obj.name + "</a>");
-            
             
         }
         
@@ -6241,11 +6297,24 @@ public class UIUtils
 
     }
 
+    public static int getScaledFontSize (int v)
+    {
+        
+        // Ugh, assume a 96 dpi and let the underlying windows manager handle scaling.
+        return Math.round ((float) v * ((float) DEFAULT_ASSUMED_SCREEN_RESOLUTION / 72f));       
+        
+    }
+    
+    @Deprecated
+    /**
+     * Use UIUtils.getScaledFontSize instead.
+     */
     public static int scaleToScreenSize (double h)
     {
         
-        return Math.round ((float) h * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / 72f));
-        
+        // Ugh, assume a 96 dpi and let the underlying windows manager handle scaling.
+        return UIUtils.getScaledFontSize ((int) h);
+                
     }
 
     public static int getPrintFontSize ()
@@ -6264,12 +6333,12 @@ public class UIUtils
 
     public static int getEditorFontSize (int size)
     {
-
+    
         // Need to take the screen resolution into account.
         float s = (float) size * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / 72f);
 
         return (int) s;
-
+                
     }
 
     public static JFreeChart createSparkLine (TimeSeries series,
@@ -7497,7 +7566,7 @@ public class UIUtils
         JComponent mess = UIUtils.createHelpTextPane (Environment.replaceObjectNames (message),
                                                       viewer);
         mess.setBorder (null);
-        mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+        mess.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                      500));
 
         return UIUtils.createQuestionPopup (viewer,
@@ -7567,7 +7636,7 @@ public class UIUtils
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
         qp.setContent (content);
 
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (Math.max (UIUtils.getPopupWidth (), bs.getPreferredSize ().width) + 20,
                                                  content.getPreferredSize ().height));
 
         if (showAt == null)
@@ -7647,12 +7716,9 @@ public class UIUtils
         JComponent mess = UIUtils.createHelpTextPane (message,
                                                       viewer);
         mess.setBorder (null);
-        mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+        mess.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                      mess.getPreferredSize ().height));
-        /*
-        mess.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
-                                     500));
-*/
+
         content.add (mess);
 
         content.add (Box.createVerticalStrut (10));
@@ -7721,7 +7787,7 @@ public class UIUtils
                             // Got to be an easier way of doing this.
                             content.setPreferredSize (null);
 
-                            content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                                      content.getPreferredSize ().height));
 
                             viewer.showPopupAt (qp,
@@ -7789,7 +7855,7 @@ public class UIUtils
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
         qp.setContent (content);
                         
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         if (showAt == null)
@@ -8056,7 +8122,7 @@ public class UIUtils
                 
         wizard.init ();
         
-        wizard.setSize (new Dimension (DEFAULT_POPUP_WIDTH - 20,
+        wizard.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                         wizard.getPreferredSize ().height));
         wizard.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
         

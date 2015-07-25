@@ -42,8 +42,8 @@ public class AchievementBox extends Box
         
         JLabel name = new JLabel (Environment.replaceObjectNames (ar.getName ()));
         
-        name.setFont (name.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (12)).deriveFont (Font.PLAIN));        
-        //name.setFont (name.getFont ().deriveFont (((float) name.getFont ().getSize () + 2f)).deriveFont (Font.PLAIN));
+        name.setFont (name.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));        
+
         name.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         
         t.add (name);

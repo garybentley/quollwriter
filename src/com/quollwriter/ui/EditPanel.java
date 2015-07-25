@@ -121,7 +121,7 @@ public abstract class EditPanel extends Box
                                                            0)
                                           )); 
 
-        this.header.setFont (this.header.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (Font.PLAIN));
+        this.header.setFont (this.header.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
         this.header.setTitleColor (UIUtils.getTitleColor ());
         this.header.setPaintProvider (new GradientPainter (com.quollwriter.ui.UIUtils.getComponentColor (),
                                                            com.quollwriter.ui.UIUtils.getComponentColor ()));
@@ -635,8 +635,7 @@ public abstract class EditPanel extends Box
                                                                         Constants.ICON_PANEL_SECTION)),
                                null);
 
-        h.setFont (h.getFont ().deriveFont (Font.BOLD,
-                                            12f));
+        h.setFont (h.getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
         h.setBackground (UIUtils.getComponentColor ());

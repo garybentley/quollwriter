@@ -794,7 +794,7 @@ public class EditorsUIUtils
         content.add (p);
                                                        
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);
@@ -1006,7 +1006,7 @@ public class EditorsUIUtils
         content.add (p);
                                                        
         content.setBorder (new EmptyBorder (10, 10, 10, 10));
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);
@@ -2690,7 +2690,7 @@ public class EditorsUIUtils
                             
             qp.setContent (content);
     
-            content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                      content.getPreferredSize ().height));
     
             Point showAt = UIUtils.getCenterShowPosition (viewer,
@@ -4113,7 +4113,7 @@ public class EditorsUIUtils
         content.add (bs);
         
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
         
         qp.setContent (content);        
@@ -4293,7 +4293,7 @@ public class EditorsUIUtils
         content.add (p);
                                                        
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);
@@ -5669,7 +5669,7 @@ public class EditorsUIUtils
         
         content.add (bp);                                                 
                                                  
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);
@@ -5977,7 +5977,7 @@ public class EditorsUIUtils
         
         content.add (bp);                                                 
                                                  
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);
@@ -6162,7 +6162,7 @@ public class EditorsUIUtils
         
         content.add (bp);                                                 
                                                  
-        content.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         qp.setContent (content);

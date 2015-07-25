@@ -182,7 +182,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         l.setBorder (null);
         l.setVerticalAlignment (JLabel.TOP);
         l.setAlignmentX (Component.LEFT_ALIGNMENT);
-        l.setFont (l.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (java.awt.Font.PLAIN));
+        l.setFont (l.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (java.awt.Font.PLAIN));
         
         //l.setFont (l.getFont ().deriveFont ((float) 16).deriveFont (Font.PLAIN));
         l.setAlignmentY (Component.TOP_ALIGNMENT);

@@ -883,7 +883,8 @@ public class Environment
 
             f.pack ();
 
-            UIUtils.setCenterOfScreenLocation (f);
+            // Allow the underlying Windowing manager determine where to put the window.
+            f.setLocationByPlatform (true);
 
             f.setVisible (true);
 

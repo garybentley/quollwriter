@@ -68,13 +68,13 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
     }
 
     /**
-     * Always 270, 250.
+     * Always pref width, 250.
      */
     @Override
     public Dimension getMinimumSize ()
     {
         
-        return new Dimension (270,
+        return new Dimension (this.getPreferredSize ().width,
                               250);        
     }
     

@@ -231,8 +231,11 @@ public abstract class PopupWindow extends JFrame
         if (this.showAt == null)
         {
         
-            UIUtils.setCenterOfScreenLocation (this);
+            //UIUtils.setCenterOfScreenLocation (this);
             
+            // Let the windows manager decide where to show.
+            this.setLocationByPlatform (true);
+
         } else {
             
             this.setLocation (this.showAt.x,
@@ -251,10 +254,10 @@ public abstract class PopupWindow extends JFrame
     public void resize ()
     {
 
+        this.pack ();
+
         this.getContentPane ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                                 this.content.getPreferredSize ().height));
-
-        this.pack ();
                                                  
     }
     

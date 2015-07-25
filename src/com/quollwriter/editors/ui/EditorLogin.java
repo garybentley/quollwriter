@@ -182,7 +182,10 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
                 
         this.loginReason.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                                  this.loginReason.getPreferredSize ().height));
-
+                              
+        this.loginReason.setMaximumSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                                        this.loginReason.getPreferredSize ().height));
+                                                                               
     }
     
     public void init ()
@@ -543,10 +546,10 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
         b.add (p);
     
         _this.setContent (b);
-                     
-        b.setPreferredSize (new Dimension (UIUtils.DEFAULT_POPUP_WIDTH,
+                   /*  
+        b.setMaximumSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                              b.getPreferredSize ().height));
-        
+        */
         this.setContent (b);
         
         this.inited = true;

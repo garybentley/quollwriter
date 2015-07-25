@@ -1369,10 +1369,11 @@ public class EditorsEnvironment
                     
                 }
                 
+                //xxx get notification by name.
                 final Notification n = viewer.addNotification (String.format (s + "  <a href='action:showundealtwitheditormessages'>Click here to view the message(s).</a>",
                                                                               c),
                                                                Constants.EDITORS_ICON_NAME,
-                                                               6000);
+                                                               60);
                 
                 // TODO: Find a nicer way of getting rid of clickable notifications.
                 // Bit of a risk this...

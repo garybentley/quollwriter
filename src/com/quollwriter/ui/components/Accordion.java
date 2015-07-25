@@ -613,7 +613,7 @@ public class Accordion extends ScrollableBox
                             null);
 
                                     // new
-        h.setFont (h.getFont ().deriveFont ((float) com.quollwriter.ui.UIUtils.scaleToScreenSize (14d)).deriveFont (Font.PLAIN));
+        h.setFont (h.getFont ().deriveFont ((float) com.quollwriter.ui.UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
         h.setPaintProvider (null);
         h.setTitleColor (UIUtils.getColor ("#333333"));
         h.setIcon (null);

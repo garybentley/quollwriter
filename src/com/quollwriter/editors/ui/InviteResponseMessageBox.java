@@ -124,7 +124,7 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
                         name.setAlignmentY (Component.TOP_ALIGNMENT);
                         name.setVerticalAlignment (JLabel.TOP);
                         name.setAlignmentX (Component.LEFT_ALIGNMENT);
-                        name.setFont (name.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (java.awt.Font.PLAIN));
+                        name.setFont (name.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (java.awt.Font.PLAIN));
                     
                     }
                     
