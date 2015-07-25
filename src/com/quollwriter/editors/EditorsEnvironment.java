@@ -1564,26 +1564,72 @@ public class EditorsEnvironment
                                                 ActionListener        onError)
     {
                 
-        for (EditorEditor ed : EditorsEnvironment.getEditors ())
+        EditorsEnvironment.sendMessageToAllEditors (new ArrayDeque (EditorsEnvironment.editors),
+                                                    loginReason,
+                                                    mess,
+                                                    onSend,
+                                                    onLoginCancel,
+                                                    onError);
+        
+    }
+
+    private static void sendMessageToAllEditors (final Deque<EditorEditor> eds,
+                                                 final String              loginReason,
+                                                 final EditorMessage       mess,
+                                                 final ActionListener      onSend,
+                                                 final ActionListener      onLoginCancel,
+                                                 final ActionListener      onError)
+    {
+        
+        if (eds.size () == 0)
         {
+            
+            if (onSend != null)
+            {
+                
+                onSend.actionPerformed (new ActionEvent ("sent", 1, "sent"));                
+                
+            }
+            
+        } else {
+            
+            EditorEditor ed = eds.pop ();
+
+            ActionListener onSendComplete = new ActionListener ()
+            {
+               
+               public void actionPerformed (ActionEvent ev)
+               {
+                   
+                   EditorsEnvironment.sendMessageToAllEditors (eds,
+                                                               loginReason,
+                                                               mess,
+                                                               onSend,
+                                                               onLoginCancel,
+                                                               onError);
+                   
+               }
+               
+            };
             
             EditorsEnvironment.messageHandler.sendMessage (loginReason,
                                                            mess,
                                                            ed,
-                                                           onSend,
+                                                           onSendComplete,
                                                            onLoginCancel,
-                                                           onError);
-            
+                                                           onError);            
+                            
         }
         
     }
-
+    
+    
     public static void sendUserInformationToAllEditors (ActionListener        onSend,
                                                         ActionListener        onLoginCancel,
                                                         ActionListener        onError)
     {
         
-        String loginReason = "To send your information to your {editors} you must first login to the Editors service.";
+        String loginReason = "To send your information to your {contacts} you must first login to the Editors Service.";
         
         EditorsEnvironment.sendMessageToAllEditors (loginReason,
                                                     new EditorInfoMessage (EditorsEnvironment.getUserAccount ()),
@@ -1599,7 +1645,7 @@ public class EditorsEnvironment
                                                     ActionListener        onError)
     {
         
-        EditorsEnvironment.messageHandler.sendMessage ("To send your information to <b>" + ed.getMainName () + "</b> you must first login to the Editors service.",
+        EditorsEnvironment.messageHandler.sendMessage ("To send your information to <b>" + ed.getMainName () + "</b> you must first login to the Editors Service.",
                                                        new EditorInfoMessage (EditorsEnvironment.getUserAccount ()),
                                                        ed,
                                                        onSend,

@@ -739,9 +739,26 @@ public class EditorsUIUtils
                     EditorsEnvironment.setUserInformation (newName,
                                                            avatar.getImage ());
                     
-                    EditorsEnvironment.sendUserInformationToAllEditors (null,
-                                                                        null,
-                                                                        null);
+                    EditorsEnvironment.sendUserInformationToAllEditors (new ActionListener ()
+                    {
+                        
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                        
+                            if (EditorsEnvironment.getEditors ().size () > 0)
+                            {
+                                                            
+                                UIUtils.showMessage ((PopupsSupported) viewer,
+                                                     "Details sent",
+                                                     "Your updated details have been sent to your {editors}");
+                                
+                            }
+                            
+                        }
+                        
+                    },
+                    null,
+                    null);
                     
                 } catch (Exception e) {
                     

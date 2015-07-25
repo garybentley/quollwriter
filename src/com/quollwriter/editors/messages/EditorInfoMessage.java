@@ -80,16 +80,90 @@ public class EditorInfoMessage extends EditorMessage
     }
     
     public String getMessage ()
+                       throws GeneralException
     {
         
-        return this.name;
+        Map m = new HashMap ();
+        
+        if (this.name != null)
+        {
+            
+            m.put (MessageFieldNames.name,
+                   this.name);
+
+        }
+        
+        if (this.avatar != null)
+        {
+
+            try
+            {
+        
+                m.put (MessageFieldNames.avatar,
+                       EditorsUtils.getImageAsBase64EncodedString (this.avatar));
+                
+            } catch (Exception e) {
+                
+                throw new GeneralException ("Unable to convert avatar image to a base64 string",
+                                            e);
+                
+            }
+            
+        }
+
+        try
+        {
+        
+            return JSONEncoder.encode (m);
+        
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to json encode message: " +
+                                        m,
+                                        e);
+            
+        }
         
     }
     
     public void setMessage (String s)
+                     throws GeneralException
     {
         
-        // Nothing to do.  No need to construct.
+        // This is a summary of what was sent/received.
+        Map data = (Map) JSONDecoder.decode (s);
+        
+        String n = this.getString (MessageFieldNames.name,
+                                   data,
+                                   false);
+        
+        if (n != null)
+        {
+            
+            this.name = n;
+            
+        }
+        
+        String avatar = this.getString (MessageFieldNames.avatar,
+                                        data,
+                                        false);
+        
+        if (avatar != null)
+        {
+            
+            try
+            {
+
+                this.avatar = EditorsUtils.getImageFromBase64EncodedString (avatar);
+                
+            } catch (Exception e) {
+                
+                throw new GeneralException ("Unable to convert string to an avatar image",
+                                            e);
+                
+            }
+            
+        }
         
     }
     

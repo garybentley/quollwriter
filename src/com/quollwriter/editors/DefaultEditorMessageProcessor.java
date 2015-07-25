@@ -550,7 +550,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             return true;
             
         }
-        
+        /*
         if (hasSentInfo)
         {
         
@@ -597,7 +597,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             }
                                                             
         }
-        
+        */
         return true;        
         
     }
