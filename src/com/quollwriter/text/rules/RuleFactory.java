@@ -116,9 +116,12 @@ public class RuleFactory
                 } catch (Exception e)
                 {
 
-                    throw new GeneralException ("Unable to load user rule: " +
-                                                files[i],
-                                                e);
+                    // Delete the rule.
+                    files[i].delete ();
+                
+                    Environment.logError ("Unable to load user rule: " +
+                                          files[i],
+                                          e);
 
                 }
 
