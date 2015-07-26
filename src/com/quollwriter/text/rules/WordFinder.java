@@ -1,6 +1,7 @@
 package com.quollwriter.text.rules;
 
 import java.util.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -34,7 +35,10 @@ public class WordFinder extends AbstractDialogueRule
 
     private JTextField words = null;
     private List<Word> tWords = null;
-
+    private JCheckBox ignoreInDialogueCB = null;
+    private JCheckBox onlyInDialogueCB = null;
+    private JComboBox whereCB = null;
+    
     public WordFinder(boolean user)
     {
 
@@ -247,15 +251,34 @@ public class WordFinder extends AbstractDialogueRule
     public void updateFromForm ()
     {
 
-        if (this.words == null)
+        this.setOnlyInDialogue (this.onlyInDialogueCB.isSelected ());
+        this.setIgnoreInDialogue (this.ignoreInDialogueCB.isSelected ());                
+        
+        int ws = this.whereCB.getSelectedIndex ();
+
+        if (ws == 0)
         {
 
-            return;
+            this.setWhere (DialogueConstraints.ANYWHERE);
 
         }
 
-        this.setWord (this.words.getText ());
+        if (ws == 1)
+        {
 
+            this.setWhere (DialogueConstraints.START);
+
+        }
+
+        if (ws == 2)
+        {
+
+            this.setWhere (DialogueConstraints.END);
+
+        }
+
+        this.setWord (this.words.getText ().trim ());
+        
     }
 
     public String getDescription ()
@@ -281,8 +304,98 @@ public class WordFinder extends AbstractDialogueRule
 
         this.words.setText (this.word);
 
+        Vector whereVals = new Vector ();
+        whereVals.add ("Anywhere");
+        whereVals.add ("Start of sentence");
+        whereVals.add ("End of sentence");
+
+        final WordFinder _this = this;
+        
+        this.whereCB = new JComboBox (whereVals);
+
+        String loc = this.getWhere ();
+
+        if (loc.equals (DialogueConstraints.START))
+        {
+
+            this.whereCB.setSelectedIndex (1);
+
+        }
+
+        if (loc.equals (DialogueConstraints.END))
+        {
+
+            this.whereCB.setSelectedIndex (2);
+
+        }
+
+        items.add (new FormItem ("Where",
+                                 this.whereCB));        
+                
+        this.ignoreInDialogueCB = new JCheckBox ("Ignore in dialogue");
+        this.onlyInDialogueCB = new JCheckBox ("Only in dialogue");
+
+        this.ignoreInDialogueCB.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (_this.ignoreInDialogueCB.isSelected ())
+                {
+
+                    _this.onlyInDialogueCB.setSelected (false);
+
+                }
+
+            }
+
+        });
+
+        this.onlyInDialogueCB.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (_this.onlyInDialogueCB.isSelected ())
+                {
+
+                    _this.ignoreInDialogueCB.setSelected (false);
+
+                }
+
+            }
+
+        });
+                                 
+        this.ignoreInDialogueCB.setSelected (this.isIgnoreInDialogue ());
+        this.onlyInDialogueCB.setSelected (this.isOnlyInDialogue ());
+
+        items.add (new FormItem (null,
+                                 this.ignoreInDialogueCB));
+
+        items.add (new FormItem (null,
+                                 this.onlyInDialogueCB));
+        
         return items;
 
+    }
+    
+    public String getFormError ()
+    {
+        
+        String newWords = words.getText ().trim ();
+        
+        if (newWords.length () == 0)
+        {
+            
+            return "Please enter at least one word or symbol.";
+        
+        }
+        
+        return null;
+        
     }
 
 }

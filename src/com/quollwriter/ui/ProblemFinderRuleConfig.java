@@ -931,213 +931,46 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 
         editBox.removeAll ();
 
-        List<FormItem> items = new ArrayList ();
-
-        final JTextField summary = UIUtils.createTextField ();
-
-        summary.setText (r.getSummary ());
-
-        if (r instanceof SentenceRule)
-        {
-
-            if (r instanceof AbstractSentenceRule)
-            {
-
-                summary.setText (((AbstractSentenceRule) r).getEditSummary ());
-
-            }
-
-            items.add (new FormItem ("Summary",
-                                     summary));
-
-        }
-
-        if (r instanceof ParagraphRule)
-        {
-
-            if (r instanceof AbstractParagraphRule)
-            {
-
-                summary.setText (((AbstractParagraphRule) r).getEditSummary ());
-
-            }
-
-            items.add (new FormItem ("Summary",
-                                     summary));
-
-        }
+        final Box _editBox = editBox;        
         
-        items.addAll (r.getFormItems ());
-
-        final JCheckBox ignoreInDialogue = new JCheckBox ("Ignore in dialogue");
-        final JCheckBox onlyInDialogue = new JCheckBox ("Only in dialogue");
-
-        ignoreInDialogue.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    if (ignoreInDialogue.isSelected ())
+        Form f = r.getEditForm (new ActionListener ()
+          {
+               
+               public void actionPerformed (ActionEvent ev)
+               {
+                    
+                    r.updateFromForm ();
+                    
+                    try
                     {
-
-                        onlyInDialogue.setSelected (false);
-
-                    }
-
-                }
-
-            });
-
-        onlyInDialogue.addActionListener (new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    if (onlyInDialogue.isSelected ())
+    
+                        RuleFactory.saveUserRule (r);
+    
+                    } catch (Exception e)
                     {
-
-                        ignoreInDialogue.setSelected (false);
-
+    
+                        Environment.logError ("Unable to save user rule: " +
+                                              r,
+                                              e);
+    
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to save rule");
+    
                     }
-
-                }
-
-            });
-
-        Vector whereVals = new Vector ();
-        whereVals.add ("Anywhere");
-        whereVals.add ("Start of sentence");
-        whereVals.add ("End of sentence");
-
-        final JComboBox where = new JComboBox (whereVals);
-
-        if (r instanceof DialogueRule)
-        {
-
-            DialogueRule dr = (DialogueRule) r;
-
-            String loc = dr.getWhere ();
-
-            if (loc.equals (DialogueConstraints.START))
-            {
-
-                where.setSelectedIndex (1);
-
-            }
-
-            if (loc.equals (DialogueConstraints.END))
-            {
-
-                where.setSelectedIndex (2);
-
-            }
-
-            items.add (new FormItem ("Where",
-                                     where));
-
-            ignoreInDialogue.setSelected (dr.isIgnoreInDialogue ());
-            onlyInDialogue.setSelected (dr.isOnlyInDialogue ());
-
-            items.add (new FormItem (null,
-                                     ignoreInDialogue));
-
-            items.add (new FormItem (null,
-                                     onlyInDialogue));
-
-        }
-
-        final JTextArea desc = UIUtils.createTextArea (3);
-
-        if (!add)
-        {
-
-            if (r instanceof AbstractSentenceRule)
-            {
-
-                desc.setText (((AbstractSentenceRule) r).getEditDescription ());
-
-            } else if (r instanceof AbstractParagraphRule) {
+    
+                    _this.restoreToView (_editBox,
+                                         r,
+                                         add);
+    
+                    _this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                          (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
+                                                          r);
+                    
+               }
                
-               desc.setText (((AbstractParagraphRule) r).getEditDescription ());
-            
-            } else {
-
-                desc.setText (r.getDescription ());
-
-            }
-
-        }
-
-        items.add (new FormItem ("Description",
-                                 desc));
-
-        // Create a new form.
-        String title = null;
-
-        if (add)
-        {
-
-            if (r instanceof SentenceRule)
-            {
-
-                title = "Add new Sentence Structure rule";
-
-            }
-
-            if (r instanceof ParagraphRule)
-            {
-
-                title = "Add new Paragraph Structure rule";
-
-            }
-
-            if (r instanceof WordFinder)
-            {
-
-                title = "Add new Word/Phrase rule";
-
-            }
-            
-        } else
-        {
-
-            if ((r instanceof SentenceRule)
-                ||
-                (r instanceof ParagraphRule)
-               )
-            {
-
-                title = "Edit Rule";
-
-            } 
-
-            if (r instanceof WordFinder)
-            {
-               
-               title = "Edit: " + r.getSummary ();
-               
-            }
-            
-        }
-
-        Form f = new Form (title,
-                           null,
-                           items,
-                           null,
-                           Form.SAVE_CANCEL_BUTTONS);
-        f.setAlignmentX (Component.LEFT_ALIGNMENT);
-        f.setBorder (null);
-        editBox.add (f);
-
-        f.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         f.getPreferredSize ().height));
-      
-        editBox.add (Box.createVerticalGlue ());
+          },
+          add);
         
-        final Box _editBox = editBox;
-
         f.addFormListener (new FormAdapter ()
         {
 
@@ -1154,75 +987,20 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
                     return;
 
                 }
-
-                r.setSummary (summary.getText ());
-
-                r.setDescription (desc.getText ().trim ());
-
-                if (r instanceof DialogueRule)
-                {
-
-                    DialogueRule dr = (DialogueRule) r;
-
-                    dr.setOnlyInDialogue (onlyInDialogue.isSelected ());
-                    dr.setIgnoreInDialogue (ignoreInDialogue.isSelected ());
-
-                    int ws = where.getSelectedIndex ();
-
-                    if (ws == 0)
-                    {
-
-                        dr.setWhere (DialogueConstraints.ANYWHERE);
-
-                    }
-
-                    if (ws == 1)
-                    {
-
-                        dr.setWhere (DialogueConstraints.START);
-
-                    }
-
-                    if (ws == 2)
-                    {
-
-                        dr.setWhere (DialogueConstraints.END);
-
-                    }
-
-                }
-
-                r.updateFromForm ();
-
-                try
-                {
-
-                    RuleFactory.saveUserRule (r);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to save user rule: " +
-                                          r,
-                                          e);
-
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to save rule");
-
-                }
-
-                _this.restoreToView (_editBox,
-                                     r,
-                                     add);
-
-                _this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                      (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
-                                                      r);
-
+                
             }
-
+            
         });
+        
+        f.setAlignmentX (Component.LEFT_ALIGNMENT);
+        f.setBorder (null);
+        editBox.add (f);
 
+        f.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                         f.getPreferredSize ().height));
+      
+        editBox.add (Box.createVerticalGlue ());        
+        
         if (r instanceof WordFinder)
         {
            

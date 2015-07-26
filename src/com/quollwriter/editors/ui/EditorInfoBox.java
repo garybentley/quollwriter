@@ -636,10 +636,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }                  
                 
-        if ((!this.editor.isPending ())
-            &&
-            (!this.showProjectInfo)
-           )
+        if (!this.editor.isPending ())
         {
             
             UIUtils.setAsButton (this.editorInfo);
@@ -657,66 +654,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             }            
             
         } else {
-            /*            
-            // Show an accept/reject.
-            EditorMessage m = null;
 
-            if ((this.editor.getMessages () != null)
-                &&
-                (this.editor.getMessages ().size () > 0)
-               )
-            {
-                
-                for (EditorMessage em : this.editor.getMessages ())
-                {
-                
-                    m = em;
-                    
-                }
-                
-            }
-            
-            // If there is no message then it means the invite was sent when the editor didn't have an
-            // account, so make a fake message box to show.            
-            if ((m != null)
-                &&
-                (!m.isSentByMe ())
-               )
-            {
-            
-                MessageBox mb = null;
-                
-                try
-                {
-                
-                    mb = MessageBoxFactory.getMessageBoxInstance (m,
-                                                                  this.projectViewer);
-                    mb.setShowAttentionBorder (false);
-        
-                    mb.init ();
-        
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to get message box for message: " +
-                                          m,
-                                          e);
-                                    
-                    UIUtils.showErrorMessage (this.projectViewer,
-                                              "Unable to show invite from {editor}, please contact Quoll Writer support for assistance.");
-    
-                    return;
-                    
-                }
-                
-                mb.setAlignmentX (Component.LEFT_ALIGNMENT);
-    
-                mb.setBorder (new CompoundBorder (UIUtils.createPadding (3, 0, 0, 0),
-                                                  mb.getBorder ()));
-                this.pendingMessageBox = mb;
-                this.add (mb);
-                    
-            }
-    */
             if (!this.editor.isInvitedByMe ())
             {
                                 

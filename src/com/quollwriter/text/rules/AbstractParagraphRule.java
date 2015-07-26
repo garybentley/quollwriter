@@ -29,5 +29,13 @@ public abstract class AbstractParagraphRule extends AbstractRule<Paragraph> impl
         return this.desc;
 
     }
+    
+    @Override
+    public String getEditFormTitle (boolean add)
+    {
+        
+        return (add ? "Add new Paragraph Structure rule" : null);
+        
+    }    
 
 }

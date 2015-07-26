@@ -277,7 +277,9 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
         if (pcms.size () == 1)
         {
             
-            
+            EditorsUIUtils.showProjectComments (pcms.get (0),
+                                                _this.projectViewer,
+                                                null);            
             
         } else {
                                

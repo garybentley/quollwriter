@@ -1,6 +1,7 @@
 package com.quollwriter.text.rules;
 
 import java.util.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -64,6 +65,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     }
 
+    @Override    
     public String getSummary ()
     {
 
@@ -193,7 +195,8 @@ public class TooManyClausesRule extends AbstractSentenceRule
         return issues;
 
     }
-
+        
+    @Override
     public List<FormItem> getFormItems ()
     {
 
@@ -217,6 +220,15 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     }
 
+    @Override
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }
+    
+    @Override
     public void updateFromForm ()
     {
 

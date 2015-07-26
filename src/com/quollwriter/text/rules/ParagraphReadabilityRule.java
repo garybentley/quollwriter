@@ -275,6 +275,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public List<FormItem> getFormItems ()
     {
 
@@ -328,6 +329,15 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
     }
 
+    @Override
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }    
+    
+    @Override
     public void updateFromForm ()
     {
 

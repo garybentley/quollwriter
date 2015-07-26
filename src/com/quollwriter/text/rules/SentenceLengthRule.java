@@ -183,7 +183,14 @@ public class SentenceLengthRule extends AbstractSentenceRule
         return items;
 
     }
-
+    
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }
+    
     public void updateFromForm ()
     {
 

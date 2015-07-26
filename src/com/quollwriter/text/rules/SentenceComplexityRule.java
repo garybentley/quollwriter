@@ -243,6 +243,13 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }
+    
     public void updateFromForm ()
     {
 

@@ -1,6 +1,7 @@
 package com.quollwriter.text;
 
 import java.util.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -22,6 +23,8 @@ public interface Rule<E extends TextBlock>
 
     public void setDescription (String d);
 
+    public String getDefaultSummary ();
+    
     public String getSummary ();
 
     public void setSummary (String i);
@@ -47,8 +50,9 @@ public interface Rule<E extends TextBlock>
 
     public String getCreateType ();
 
-    public List<FormItem> getFormItems ();
-
+    public Form getEditForm (ActionListener onSaveComplete,
+                             boolean        add);
+                                 
     public void updateFromForm ();
     
 }

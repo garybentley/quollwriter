@@ -1553,7 +1553,7 @@ public class OptionsPanel extends QuollPanel
                                                                             
                                                                             _this.projectViewer.addNotification (String.format ("The language files for <b>%s</b> have been downloaded and the project language set.",
                                                                                                                                 lang),
-                                                                                                                 Constants.BUG_ICON_NAME,
+                                                                                                                 Constants.INFO_ICON_NAME,
                                                                                                                  30);
                                                                             
                                                                         }

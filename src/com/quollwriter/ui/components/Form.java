@@ -28,6 +28,7 @@ public class Form extends QPopup
     public static String SAVE_BUTTON_LABEL = "Save";
     public static String CANCEL_BUTTON_LABEL = "Cancel";
 
+    private JLabel  error = null;
     private List    formListeners = new ArrayList ();
     private boolean hideOnCancel = true;
 
@@ -132,10 +133,16 @@ public class Form extends QPopup
 */
         }
 
+        this.error = com.quollwriter.ui.UIUtils.createErrorLabel ("");
+        
+        this.error.setVisible (false);
+        
+        this.error.setBorder (com.quollwriter.ui.UIUtils.createPadding (5, 10, 0, 5));
+        
         String cols = "right:pref, 6px, fill:100px:grow";
 
         StringBuilder rows = new StringBuilder ();
-
+        
         for (int i = 0; i < items.size (); i++)
         {
 
@@ -143,8 +150,6 @@ public class Form extends QPopup
 
             if (fi.component instanceof JComboBox)
             {
-
-                rows.append ("p");
 
                 fi.component.setMaximumSize (fi.component.getPreferredSize ());
 
@@ -154,11 +159,17 @@ public class Form extends QPopup
 
                 fi.component = tb;
 
-            } else
+            }
+            
+            if (fi.component instanceof JTextArea)
             {
 
                 rows.append ("top:p:grow");
 
+            } else {
+                
+                rows.append ("p");                
+                
             }
 
             if (i < (items.size () - 1))
@@ -170,11 +181,13 @@ public class Form extends QPopup
 
         }
 
+        final Form _this = this;
+        
         FormLayout   fl = new FormLayout (cols,
                                           rows.toString () + ", 6px, fill:p:grow");
         PanelBuilder b = new PanelBuilder (fl);
         b.border (Borders.DIALOG);
-
+        
         CellConstraints cc = new CellConstraints ();
 
         Iterator<FormItem> iter = items.iterator ();
@@ -308,6 +321,10 @@ public class Form extends QPopup
                     public void actionPerformed (ActionEvent ev)
                     {
 
+                        _this.error.setVisible (false);
+                        
+                        _this.resize ();
+                    
                         Form.this.fireFormEvent (FormEvent.SAVE,
                                                  FormEvent.SAVE_ACTION_NAME);
 
@@ -357,8 +374,13 @@ public class Form extends QPopup
         JPanel p = b.getPanel ();
         //p.setBackground (UIManager.getColor ("Panel.background"));
         p.setBackground (com.quollwriter.ui.UIUtils.getComponentColor ());
-
-        this.setContent (p);
+        p.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        Box wb = new Box (BoxLayout.Y_AXIS);
+        wb.add (this.error);
+        wb.add (p);
+        
+        this.setContent (wb);
 
         if (parent != null)
         {
@@ -390,6 +412,17 @@ public class Form extends QPopup
 
     }
 
+    public void showError (String message)
+    {
+        
+        this.error.setText (message);
+        
+        this.error.setVisible (true);
+        
+        this.resize ();
+        
+    }
+    
     public void addFormListener (FormListener f)
     {
 

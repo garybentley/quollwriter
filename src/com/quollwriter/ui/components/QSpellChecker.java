@@ -133,6 +133,13 @@ public class QSpellChecker implements DocumentListener,
     public boolean isWordCorrect (String word)
     {
 
+        if (this.checker == null)
+        {
+            
+            return false;
+            
+        }
+    
         // See if the word is a number.
         try
         {

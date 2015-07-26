@@ -1,6 +1,17 @@
 package com.quollwriter.text.rules;
 
+import java.util.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
 import com.gentlyweb.xml.*;
+
+import com.quollwriter.ui.*;
+import com.quollwriter.ui.components.Form;
+import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.FormAdapter;
+import com.quollwriter.ui.components.FormEvent;
 
 import com.quollwriter.text.*;
 
@@ -26,6 +37,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
     protected String  desc = null;
     protected String  id = null;
     protected boolean userRule = false;
+    private String defaultSummary = null;
 
     public AbstractRule(boolean userRule)
     {
@@ -34,6 +46,19 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
+    public abstract String getEditFormTitle (boolean add);
+    
+    public abstract List<FormItem> getFormItems ();
+
+    public abstract String getFormError ();    
+    
+    public String getDefaultSummary ()
+    {
+        
+        return this.defaultSummary;
+        
+    }
+    
     public void setSummary (String s)
     {
 
@@ -102,6 +127,13 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                                                          XMLConstants.summary,
                                                          true);
 
+        if (!this.userRule)
+        {
+            
+            this.defaultSummary = this.summary;
+                                                         
+        }
+        
     }
 
     public Element getAsElement ()
@@ -142,5 +174,105 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
         return root;
 
     }
+
+    public Form getEditForm (final ActionListener onSaveComplete,
+                             final boolean        add)
+    {
+        
+        final AbstractRule _this = this;
+        
+        List<FormItem> items = new ArrayList ();
+
+        final JTextField summary = com.quollwriter.ui.UIUtils.createTextField ();
+
+        summary.setText (this.getSummary ());        
+        
+        items.add (new FormItem ("Summary",
+                                 summary));
+        
+        items.addAll (this.getFormItems ());
+        
+        final JTextArea desc = com.quollwriter.ui.UIUtils.createTextArea (3);
+        
+        desc.setText (this.getDescription ());
+
+        items.add (new FormItem ("Description",
+                                 desc));        
+        
+        String title = this.getEditFormTitle (add);
+        
+        if (title == null)
+        {
+            
+            title = (add ? "Add Rule" : "Edit Rule");
+            
+        }
+        
+        final Form f = new Form (title,
+                                 null,
+                                 items,
+                                 null,
+                                 Form.SAVE_CANCEL_BUTTONS);
+        
+        f.addFormListener (new FormAdapter ()
+        {
+
+            public void actionPerformed (FormEvent ev)
+            {
+                
+                String error = _this.getFormError ();
+                
+                if (error != null)
+                {
+                    
+                    f.showError (error);
+                    
+                    return;
+                    
+                }
+                
+                _this.setDescription (desc.getText ().trim ());
+                
+                String summ = summary.getText ().trim ();
+                
+                if (summ.length () == 0)
+                {
+                    
+                    summ = _this.getSummary ();
+                    
+                }
+                
+                if (summ == null)
+                {
+                    
+                    summ = _this.getDefaultSummary ();
+                    
+                }
+                
+                if (summ == null)
+                {
+                    
+                    f.showError ("Please enter a summary.");
+                    
+                    return;
+                    
+                }
+                
+                _this.setSummary (summ);
+                
+                if (onSaveComplete != null)
+                {
+                    
+                    onSaveComplete.actionPerformed (new ActionEvent (_this, 1, "saved"));
+                    
+                }
+                
+            }
+        
+        });
+        
+        return f;
+        
+    }    
 
 }

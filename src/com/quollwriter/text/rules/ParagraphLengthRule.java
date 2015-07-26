@@ -237,6 +237,15 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     }
 
+    @Override
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }
+    
+    @Override
     public List<FormItem> getFormItems ()
     {
 
@@ -275,6 +284,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public void updateFromForm ()
     {
 

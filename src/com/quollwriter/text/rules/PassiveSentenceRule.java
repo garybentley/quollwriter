@@ -418,6 +418,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public List<FormItem> getFormItems ()
     {
 
@@ -434,6 +435,15 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
     }
 
+    @Override
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }
+    
+    @Override
     public void updateFromForm ()
     {    
     

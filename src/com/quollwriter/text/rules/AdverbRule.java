@@ -301,6 +301,14 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
+    @Override
+    public String getFormError ()
+    {
+        
+        return null;
+        
+    }
+    
     public void updateFromForm ()
     {
 
