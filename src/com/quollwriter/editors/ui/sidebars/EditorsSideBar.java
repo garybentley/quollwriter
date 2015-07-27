@@ -883,7 +883,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                 
         edBox.add (this.otherEditors);
 
-        JScrollPane sp = UIUtils.createScrollPane (edBox);
+        final JScrollPane sp = UIUtils.createScrollPane (edBox);
         sp.setBorder (null);
                 
         this.tabs.add (sp,
@@ -893,6 +893,19 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                   Constants.ICON_EDITORS_LIST_TAB_HEADER));
         
         this.updateView ();
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+           
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                sp.getHorizontalScrollBar ().setValue (0);
+                sp.getVerticalScrollBar ().setValue (0);
+                
+            }
+            
+        });
         
     }
         
