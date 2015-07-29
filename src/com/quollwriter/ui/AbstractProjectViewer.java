@@ -297,8 +297,28 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
         JToolBar titleC = UIUtils.createButtonBar (new ArrayList ());
 
-        this.fillTitleToolbar (titleC);                                        
+        if (Environment.getQuollWriterVersion ().isBeta ())
+        {
+            
+            titleC.add (UIUtils.createButton (Constants.BUG_ICON_NAME,
+                                              Constants.ICON_TITLE_ACTION,
+                                              "Click to provide feedback/report a problem with the beta",
+                                              new ActionAdapter ()
+                                              {
+                                                
+                                                  public void actionPerformed (ActionEvent ev)
+                                                  {
+                                    
+                                                      _this.showReportProblem ();
+                                                    
+                                                  }
+                                                
+                                              }));            
+            
+        }
 
+        this.fillTitleToolbar (titleC);                                        
+        
         if (EditorsEnvironment.isEditorsServiceAvailable ())
         {
         
@@ -863,6 +883,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                          cc.xy (4, 3));
                                                                
             final JCheckBox sendLogFiles = new JCheckBox ("Send the log files");
+    
+            if (Environment.getQuollWriterVersion ().isBeta ())
+            {
+                
+                sendLogFiles.setEnabled (false);
+                sendLogFiles.setToolTipText ("Log files are always sent for beta versions, it really helps with debugging.");
+                
+            }
     
             sendLogFiles.setSelected (true);
             sendLogFiles.setOpaque (false);

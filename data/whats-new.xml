@@ -3,7 +3,7 @@
   <version id="2.3b1">        
     <item onlyIfCurrentVersion="true">
       <title>Editor Mode Beta</title>
-      <description><![CDATA[Editor Mode is here, but only as a beta for now.  <a href='help:editor-mode/overview.html'>Click here</a> to find out more about the Editors Service and Editor Mode.]]></description>
+      <description><![CDATA[Welcome to the Editor Mode beta and thank you for trying it out.<br /><br /><a href='help:editor-mode/overview.html'>Click here</a> to find out more about the Editors Service and Editor Mode.</a><br /><br />Please don't hesitate to let me know if you hit a bug or want to provide feedback.  The bug button on the header is only present for beta versions.<br /><br />If you have any problems or questions please just let me know.]]></description>
     </item>
 
   </version>
