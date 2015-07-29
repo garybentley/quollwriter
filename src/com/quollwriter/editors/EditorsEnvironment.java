@@ -2226,18 +2226,15 @@ public class EditorsEnvironment
                                       throws GeneralException
     {
 
-        List<ProjectEditor> pes = EditorsEnvironment.getProjectEditors (p.getId ());
-        
-        /*
-        // Damn what to do for the best here?
-        for (ProjectEditor pe : pes)
+        if (EditorsEnvironment.editorsManager == null)
         {
-        
-            EditorsEnvironment.removeProjectEditor (pe);                
             
-        }
-        */
+            return;
+            
+        }        
 
+        List<ProjectEditor> pes = EditorsEnvironment.getProjectEditors (p.getId ());
+                
         EditorsEnvironment.editorsManager.deleteObjects (pes,
                                                          null);
         
@@ -2256,6 +2253,13 @@ public class EditorsEnvironment
                                      throws GeneralException
     {
         
+        if (EditorsEnvironment.editorsManager == null)
+        {
+            
+            return;
+            
+        }        
+
         EditorsEnvironment.editorsManager.deleteObject (pe,
                                                         false,
                                                         null);
@@ -2609,6 +2613,13 @@ public class EditorsEnvironment
                                           throws GeneralException
     {
 
+        if (EditorsEnvironment.editorsManager == null)
+        {
+            
+            return null;
+            
+        }            
+    
         return (EditorMessage) (DataObject) EditorsEnvironment.editorsManager.getObjectByKey (EditorMessage.class,
                                                                                               key,
                                                                                               null, // parent object
