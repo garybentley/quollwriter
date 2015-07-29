@@ -97,8 +97,9 @@ public class Startup
 
                 ss.finish ();
 
-                UIUtils.showErrorMessage (f,
-                                          "Unable to open last edited project, please select another project or create one.");
+                UIUtils.showMessage (f,
+                                     "Unable to open last project",
+                                     "Unable to open last edited project, please select another project or create one.");
 
             }
 

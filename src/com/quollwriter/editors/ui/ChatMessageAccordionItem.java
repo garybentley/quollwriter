@@ -73,7 +73,7 @@ public class ChatMessageAccordionItem extends MessageAccordionItem<EditorChatMes
         
         Box b = new Box (BoxLayout.X_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+        
         b.add (cmb);
         
         b.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getColor ("#eeeeee")),

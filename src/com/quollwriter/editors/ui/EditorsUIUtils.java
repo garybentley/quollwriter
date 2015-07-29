@@ -5039,6 +5039,19 @@ public class EditorsUIUtils
             
         }        
         
+        if (proj == null)
+        {
+            
+            Environment.logError ("No project for: " +
+                                  message.getForProjectId ());
+            
+            UIUtils.showErrorMessage (parentViewer,
+                                      "Unable to show {comments}, please contact Quoll Writer support for assistance.");
+
+            return;                                    
+            
+        }
+        
         final Project _proj = proj;
         
         ActionListener open = new ActionListener ()

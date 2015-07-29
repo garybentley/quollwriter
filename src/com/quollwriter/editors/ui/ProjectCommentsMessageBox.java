@@ -244,136 +244,141 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
             
         }
         
-        JLabel viewComments = UIUtils.createClickableLabel ("Click to view the {comments}",
-                                                            Environment.getIcon (Constants.VIEW_ICON_NAME,
-                                                                                 Constants.ICON_CLICKABLE_LABEL),
-                                                            new ActionListener ()
+        if (proj != null)
         {
-            
-            public void actionPerformed (ActionEvent ev)
+        
+            JLabel viewComments = UIUtils.createClickableLabel ("Click to view the {comments}",
+                                                                Environment.getIcon (Constants.VIEW_ICON_NAME,
+                                                                                     Constants.ICON_CLICKABLE_LABEL),
+                                                                new ActionListener ()
             {
-            
-                _this.message.setDealtWith (true);
                 
-                try
+                public void actionPerformed (ActionEvent ev)
                 {
                 
-                    EditorsEnvironment.updateMessage (_this.message);
+                    _this.message.setDealtWith (true);
                     
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to update message: " +
-                                          _this.message,
-                                          e);
-                    
-                }
-            
-                if (_this.message.isSentByMe ())
-                {
-                    
-                    // Show a popup with the comments in it.
-
-                    Project p = _this.projectViewer.getProject ();
-                    
-                    // Need to now "fill out" the chapters and notes to have the correct values.
-                    // We use the ids to get the keys.
-                    for (Chapter c : _this.message.getChapters ())
+                    try
                     {
+                    
+                        EditorsEnvironment.updateMessage (_this.message);
                         
-                        NamedObject ch = (NamedObject) p.getObjectById (Chapter.class,
-                                                                        c.getId ());
+                    } catch (Exception e) {
                         
-                        if (ch != null)
-                        {
-                                        
-                            c.setName (ch.getName ());
-            
-                        }
-                                    
+                        Environment.logError ("Unable to update message: " +
+                                              _this.message,
+                                              e);
+                        
                     }
-                    
-                    JTree tree = EditorsUIUtils.createViewTree (_this.message.getChapters (),
-                                                                _this.projectViewer);
-            
-                    UIUtils.expandAllNodesWithChildren (tree);
-                    
-                    Dimension pref = tree.getPreferredSize ();
-                    
-                    if (pref.height > 300)
+                
+                    if (_this.message.isSentByMe ())
                     {
                         
-                        pref.height = 300;
+                        // Show a popup with the comments in it.
+    
+                        Project p = _this.projectViewer.getProject ();
+                        
+                        // Need to now "fill out" the chapters and notes to have the correct values.
+                        // We use the ids to get the keys.
+                        for (Chapter c : _this.message.getChapters ())
+                        {
+                            
+                            NamedObject ch = (NamedObject) p.getObjectById (Chapter.class,
+                                                                            c.getId ());
+                            
+                            if (ch != null)
+                            {
+                                            
+                                c.setName (ch.getName ());
+                
+                            }
+                                        
+                        }
+                        
+                        JTree tree = EditorsUIUtils.createViewTree (_this.message.getChapters (),
+                                                                    _this.projectViewer);
+                
+                        UIUtils.expandAllNodesWithChildren (tree);
+                        
+                        Dimension pref = tree.getPreferredSize ();
+                        
+                        if (pref.height > 300)
+                        {
+                            
+                            pref.height = 300;
+                            
+                        } else {
+                            
+                            pref.height += 5;
+                                        
+                        }
+                        
+                        final JScrollPane sp = UIUtils.createScrollPane (tree);
+                                                                         
+                        sp.setPreferredSize (pref);        
+                        sp.setBorder (UIUtils.createPadding (5, 0, 0, 0));
+                        
+                        UIUtils.createClosablePopup (text,
+                                                     Environment.getIcon (Constants.COMMENT_ICON_NAME,
+                                                                          Constants.ICON_POPUP),
+                                                     null,
+                                                     sp,
+                                                     _this.projectViewer,
+                                                     null);
                         
                     } else {
                         
-                        pref.height += 5;
-                                    
-                    }
-                    
-                    final JScrollPane sp = UIUtils.createScrollPane (tree);
-                                                                     
-                    sp.setPreferredSize (pref);        
-                    sp.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-                    
-                    UIUtils.createClosablePopup (text,
-                                                 Environment.getIcon (Constants.COMMENT_ICON_NAME,
-                                                                      Constants.ICON_POPUP),
-                                                 null,
-                                                 sp,
-                                                 _this.projectViewer,
-                                                 null);
-                    
-                } else {
-                    
-                    if (_this.commentsViewer != null)
-                    {
+                        if (_this.commentsViewer != null)
+                        {
+                            
+                            _this.commentsViewer.setExtendedState (JFrame.NORMAL);
+                            _this.commentsViewer.toFront ();
+                            
+                            return;
+                            
+                        }
                         
-                        _this.commentsViewer.setExtendedState (JFrame.NORMAL);
-                        _this.commentsViewer.toFront ();
-                        
-                        return;
-                        
-                    }
-                    
-                    EditorsUIUtils.showProjectComments (_this.message,
-                                                        _this.projectViewer,
-                                                        new ActionListener ()
-                                                        {
-                                                            
-                                                            public void actionPerformed (ActionEvent ev)
+                        EditorsUIUtils.showProjectComments (_this.message,
+                                                            _this.projectViewer,
+                                                            new ActionListener ()
                                                             {
                                                                 
-                                                                _this.commentsViewer = (AbstractProjectViewer) ev.getSource ();
-                                                                
-                                                                _this.commentsViewer.addWindowListener (new WindowAdapter ()
+                                                                public void actionPerformed (ActionEvent ev)
                                                                 {
                                                                     
-                                                                    public void windowClosed (WindowEvent ev)
+                                                                    _this.commentsViewer = (AbstractProjectViewer) ev.getSource ();
+                                                                    
+                                                                    _this.commentsViewer.addWindowListener (new WindowAdapter ()
                                                                     {
                                                                         
-                                                                        _this.commentsViewer = null;
+                                                                        public void windowClosed (WindowEvent ev)
+                                                                        {
+                                                                            
+                                                                            _this.commentsViewer = null;
+                                                                            
+                                                                        }
                                                                         
-                                                                    }
+                                                                    });                                                                
                                                                     
-                                                                });                                                                
+                                                                }
                                                                 
-                                                            }
-                                                            
-                                                        });
-
+                                                            });
+    
+                    }
+                    
                 }
                 
-            }
+            });        
             
-        });        
-        
-        viewComments.setBorder (UIUtils.createPadding (0, 10, 0, 0));
-        
-        builder.add (viewComments,
-                     cc.xywh (1,
-                              row,
-                              3,
-                              1));
+            viewComments.setBorder (UIUtils.createPadding (0, 10, 0, 0));
+            
+            builder.add (viewComments,
+                         cc.xywh (1,
+                                  row,
+                                  3,
+                                  1));
+
+        }
         
         JPanel bp = builder.getPanel ();
         bp.setOpaque (false);

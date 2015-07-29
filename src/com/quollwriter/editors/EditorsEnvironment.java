@@ -3249,5 +3249,13 @@ public class EditorsEnvironment
         onError);
 
     }
+ 
+    public static File getEditorsMessageLogFile ()
+    {
+        
+        return new File (Environment.getLogDir (),
+                         Constants.EDITOR_MESSAGES_LOG_NAME);
+        
+    }
     
 }

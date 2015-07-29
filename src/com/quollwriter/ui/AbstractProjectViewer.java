@@ -899,7 +899,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                     // Send the message.
                     Map details = new HashMap ();
                     details.put ("details",
-                                 "Email: " + email.getText () + "\nDetails: " + desc.getText ());
+                                 "Email: " + email.getText () + "\nDetails: " + desc.getText () + "\nCurrent project id: " + _this.proj.getId ());
                     details.put ("email",
                                  email.getText ());
     
@@ -914,6 +914,8 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                          IOUtils.getFile (Environment.getErrorLogFile ()));
                             details.put ("generalLog",
                                          IOUtils.getFile (Environment.getGeneralLogFile ()));
+                            details.put ("editorsMessageLog",
+                                         IOUtils.getFile (EditorsEnvironment.getEditorsMessageLogFile ()));
     
                         }
     

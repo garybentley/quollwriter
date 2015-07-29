@@ -456,6 +456,13 @@ Won't animate due to rubber stamping in table renderer.
 
                         int rowInd = projOpenTable.rowAtPoint (ev.getPoint ());
                         
+                        if (rowInd < 0)
+                        {
+                            
+                            return;
+                            
+                        }
+                        
                         projOpenTable.setRowSelectionInterval (rowInd,
                                                                rowInd);
                     

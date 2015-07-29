@@ -79,8 +79,7 @@ public class EditorsMessageHandler implements ChatMessageListener
             
         }
         
-        File lf = new File (Environment.getLogDir (),
-                            Constants.EDITOR_MESSAGES_LOG_NAME);
+        File lf = EditorsEnvironment.getEditorsMessageLogFile ();
         
         lf.delete ();
         
