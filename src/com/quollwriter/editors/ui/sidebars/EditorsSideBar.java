@@ -738,7 +738,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         // Get all our editors.
         List<EditorEditor> editors = EditorsEnvironment.getEditors ();        
 
-        Box edBox = new Box (BoxLayout.Y_AXIS);
+        Box edBox = new ScrollableBox (BoxLayout.Y_AXIS);
 
         edBox.setOpaque (true);
         edBox.setBackground (UIUtils.getComponentColor ());
