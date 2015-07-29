@@ -3479,7 +3479,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             this.sideBarWrapper.removeAll ();
             this.sideBarWrapper.add (this.mainSideBar);                                            
             
-            this.splitPane.setDividerLocation (this.sideBar.getPreferredSize ().width);
+            this.splitPane.setDividerLocation (fsbw);//this.sideBar.getPreferredSize ().width);
 
             // Is a non-main sidebar visible?
             if (other != null)
@@ -3498,6 +3498,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
                         // For reasons best known to swing this has to be done separately otherwise when
                         // you exit full screen it will have the other sidebar as taking up all the space.
+                        _this.splitPane.setDividerLocation (fsbw);
                         _this.splitPane2.setDividerLocation (fw);
                         
                     }
