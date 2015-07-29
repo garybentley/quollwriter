@@ -268,8 +268,11 @@ Won't animate due to rubber stamping in table renderer.
         
         Collections.sort (projs,
                           new ProjectSorter ());
-
-        if ((show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
+                          
+        if (((show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
+            &&
+            (projs.size () > 0)
+           )
         {
 
             Header h = UIUtils.createHeader ("Open an existing {Project}",
@@ -977,7 +980,10 @@ Won't animate due to rubber stamping in table renderer.
         if ((show & FindOrOpen.SHOW_NEW) == FindOrOpen.SHOW_NEW)
         {
 
-            if ((show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
+            if (((show & FindOrOpen.SHOW_OPEN) == FindOrOpen.SHOW_OPEN)
+                &&
+                (projs.size () > 0)
+               )
             {
 
                 b.add (Box.createVerticalStrut (20));
