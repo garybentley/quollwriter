@@ -5161,6 +5161,8 @@ public class UIUtils
         t.append ("h1.help{font-size:" + (((int) f.getSize ()) + 6) + "pt; padding: 0px; margin: 0px; border-bottom: solid 1px " + UIUtils.colorToHex (Environment.getBorderColor ()) + "; font-weight: normal;}");
         t.append ("p.help{margin: 0px; margin-left: 5px; margin-top: 5px; padding: 0px; margin-bottom: 10px;}");
         t.append ("p.help img{padding-left: 3px; padding-right: 3px;}");
+        t.append (".error{color: red;}");
+        t.append (".warning{color: red;}");
         t.append ("</style>");
 
         return t.toString ();

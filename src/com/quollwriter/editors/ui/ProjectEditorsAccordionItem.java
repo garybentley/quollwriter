@@ -530,47 +530,52 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
         
         final ProjectEditorsAccordionItem _this = this;
         
-        m.add (UIUtils.createMenuItem ("Invite someone to edit this {project}",
-                                       Constants.ADD_ICON_NAME,
-                                       new ActionListener ()
-                                       {
-                                        
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
+        if (EditorsEnvironment.getUserAccount () != null)
+        {
+        
+            m.add (UIUtils.createMenuItem ("Invite someone to edit this {project}",
+                                           Constants.ADD_ICON_NAME,
+                                           new ActionListener ()
+                                           {
                                             
-                                                EditorsUIUtils.showInviteEditor (_this.viewer);
-                                            
-                                            }
-                                        
-                                        }));
-
-        m.add (UIUtils.createMenuItem ("Show all {contacts}",
-                                       Constants.EDITORS_ICON_NAME,
-                                       new ActionListener ()
-                                       {
-                                        
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                            
-                                                try
+                                                public void actionPerformed (ActionEvent ev)
                                                 {
-                                            
-                                                    _this.viewer.viewEditors ();
                                                 
-                                                } catch (Exception e) {
-                                                
-                                                    Environment.logError ("Unable to view all editors",
-                                                                          e);
-                                                
-                                                    UIUtils.showErrorMessage (_this.viewer,
-                                                                              "Unable to view all {contacts}");
+                                                    EditorsUIUtils.showInviteEditor (_this.viewer);
                                                 
                                                 }
                                             
-                                            }
-                                        
-                                        }));        
+                                            }));
 
+            m.add (UIUtils.createMenuItem ("Show all {contacts}",
+                                           Constants.EDITORS_ICON_NAME,
+                                           new ActionListener ()
+                                           {
+                                            
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                
+                                                    try
+                                                    {
+                                                
+                                                        _this.viewer.viewEditors ();
+                                                    
+                                                    } catch (Exception e) {
+                                                    
+                                                        Environment.logError ("Unable to view all editors",
+                                                                              e);
+                                                    
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  "Unable to view all {contacts}");
+                                                    
+                                                    }
+                                                
+                                                }
+                                            
+                                            }));        
+
+        }
+                                            
         // Get all previous editors.
         if (!this.showPreviousEditors)
         {

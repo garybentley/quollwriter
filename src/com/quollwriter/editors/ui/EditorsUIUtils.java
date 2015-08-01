@@ -4133,7 +4133,7 @@ public class EditorsUIUtils
                               throws Exception
     {
         
-        final QPopup popup = UIUtils.createWizardPopup ("Register for the Editors service",
+        final QPopup popup = UIUtils.createWizardPopup ("Register for the Editors service (beta)",
                                                   Constants.EDITORS_ICON_NAME,
                                                   null,
                                                   new EditorRegister (viewer));

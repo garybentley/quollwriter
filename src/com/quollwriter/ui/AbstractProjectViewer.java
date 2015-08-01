@@ -4990,7 +4990,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
             Box content = new Box (BoxLayout.Y_AXIS);
     
             FormLayout pfl = new FormLayout ("5px, right:p, 6px, fill:p:grow",
-                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
+                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
     
             PanelBuilder pbuilder = new PanelBuilder (pfl);
     
@@ -5064,6 +5064,14 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
     
             y += 2;
     
+            pbuilder.add (UIUtils.createWebsiteLabel ("https://www.patreon.com/quollwriter?ty=h",
+                                                      "Patreon",
+                                                      false),
+                          cc.xy (4,
+                                 y));
+    
+            y += 2;
+
             pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME),
                                                       "Acknowledgments",
                                                       false),
@@ -5604,6 +5612,33 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 
             }
 
+            if (v.equals ("editors"))
+            {
+
+                this.viewEditors ();
+                
+                return;
+                
+            }
+
+            if (v.startsWith ("options"))
+            {
+                
+                String section = null;
+                
+                int dot = v.indexOf ('.');
+                
+                if (dot > 1)
+                {
+                    
+                    section = v.substring (dot + 1);
+                    
+                }
+                
+                this.showOptions (section);
+                
+            }
+            
         } catch (Exception e) {
             
             Environment.logError ("Unable to perform action: " +

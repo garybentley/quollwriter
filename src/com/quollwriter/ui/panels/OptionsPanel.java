@@ -2556,13 +2556,17 @@ public class OptionsPanel extends QuollPanel
         
         this.setContentBorder (box);
         
-        this.accordion.add (this.createHeader (UIUtils.formatForUser ("How things look and sound"),
-                                               "eye"),
-                            null,
-                            box,
-                            UIUtils.createHelpTextPane ("Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
-                                                        this.projectViewer));
+        Accordion.Item item = this.accordion.add (this.createHeader (UIUtils.formatForUser ("How things look and sound"),
+                                                                     "eye"),
+                                                  null,
+                                                  box,
+                                                  UIUtils.createHelpTextPane ("Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
+                                                                              this.projectViewer));
 
+        this.sections.put ("look",
+                           item);
+                                                        
+                                                        
     }
 
     private void updateUserProperty (String  name,

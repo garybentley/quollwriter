@@ -1,9 +1,24 @@
 <whatsnew>
 
-  <version id="2.3b1">        
+  <version id="2.3">        
     <item onlyIfCurrentVersion="true">
       <title>Editor Mode Beta</title>
-      <description><![CDATA[Welcome to the Editor Mode beta and thank you for trying it out.<br /><br /><a href='help:editor-mode/overview.html'>Click here</a> to find out more about the Editors Service and Editor Mode.</a><br /><br />Please don't hesitate to let me know if you hit a bug or want to provide feedback.  The bug button on the header is only present for beta versions.<br /><br />If you have any problems or questions please just let me know.<br /><br />To get started with Editor Mode just click on the {contacts} [editors] icon on the header bar.]]></description>
+      <description><![CDATA[Editor Mode is here!  The service is currently in beta and all feedback is welcome.<br /><br /><a href='help:editor-mode/overview.html'>Click here</a> to find out more about the Editors Service and Editor Mode.</a>  In short, it allows you to get feedback from other people about your work.  However it is not designed for proofreading or copy editing.<br /><br />Please don't hesitate to let me know if you hit a bug or want to provide feedback.<br /><br />If you have any problems or questions please just let me know.<br /><br />To get started with Editor Mode just click on the {contacts} [editors] icon on the header bar.]]></description>
+    </item>
+
+    <item>
+      <title>Multiple sidebar layouts</title>
+      <description><![CDATA[You can now have two sidebars visible at any time, the standard {project} and another such as the find or text properties.  Check out the <b>How things look and sound</b> section in the [options] <a href="action:options.look">Options panel</a> to try it out.]]></description>
+    </item>
+
+    <item>
+      <title>Spellchecker change and more languages</title>
+      <description><![CDATA[The spellchecker has been changed and now more languages are available.  Czech, Dutch, French, German, Italian, Polish, Russian and Spanish are now available as well as English.<br /><br />However a side-effect of this change is that I've had to remove the English dialect options.  Sorry UK users!  I'm looking at ways to make that available again.]]></description>
+    </item>
+
+    <item>
+      <title>Patreon</title>
+      <description><![CDATA[Quoll Writer now has a Patreon page.  Development on QW will always continue but if you want to help speed things up consider donating.<br /><br /><a href="https://www.patreon.com/quollwriter?ty=h">Click here to view the Patreon page</a>.]]></description>
     </item>
 
   </version>

@@ -167,7 +167,7 @@
 
   <property id="spellCheckLanugage" type="string">
     <description>The spell check language.</description>
-    <value>US English</value>
+    <value>English</value>
   </property>
 
   <property id="EnglishDictionaryFiles" type="string">
