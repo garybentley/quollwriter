@@ -1075,7 +1075,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                           Constants.ICON_EDITOR_MESSAGE),
                                      null);
         
-        p.getHeader ().setFont (p.getHeader ().getFont ().deriveFont (UIUtils.getScaledFontSize (14)));
+        p.getHeader ().setFont (p.getHeader ().getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
 
         p.getHeader ().setBorder (UIUtils.createPadding (10, 10, 10, 10));
         
