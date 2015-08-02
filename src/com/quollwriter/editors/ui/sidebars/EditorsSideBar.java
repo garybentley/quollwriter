@@ -794,7 +794,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
         });
 
-        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (16)));
+        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (14)));
 
         but.setText ("Click to Login");
         List<JButton> buts = new ArrayList ();
