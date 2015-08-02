@@ -794,7 +794,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
         });
 
-        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (14)));
+        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
 
         but.setText ("Click to Login");
         List<JButton> buts = new ArrayList ();
@@ -845,7 +845,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
         });
 
-        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (14)));
+        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
 
         but.setText ("Send an invite");
         buts = new ArrayList ();
