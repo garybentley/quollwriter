@@ -3120,7 +3120,7 @@ public class UIUtils
                                                                                  Constants.ICON_MENU)),
                                null);
 
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+        h.setFont (h.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
                                                       
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
@@ -6299,11 +6299,13 @@ public class UIUtils
 
     }
 
-    public static int getScaledFontSize (int v)
+    public static float getScaledFontSize (int v)
     {
         
         // Ugh, assume a 96 dpi and let the underlying windows manager handle scaling.
-        return Math.round ((float) v * ((float) DEFAULT_ASSUMED_SCREEN_RESOLUTION / 72f));       
+        // We return a float here so that calls to Font.deriveFont can use the value directly rather than
+        // having to cast.
+        return (float) (Math.round ((float) v * ((float) DEFAULT_ASSUMED_SCREEN_RESOLUTION / 72f)));       
         
     }
     
