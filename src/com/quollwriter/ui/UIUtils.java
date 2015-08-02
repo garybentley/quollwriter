@@ -6313,7 +6313,7 @@ public class UIUtils
     /**
      * Use UIUtils.getScaledFontSize instead.
      */
-    public static int scaleToScreenSize (double h)
+    public static float scaleToScreenSize (double h)
     {
         
         // Ugh, assume a 96 dpi and let the underlying windows manager handle scaling.
