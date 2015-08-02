@@ -3120,7 +3120,7 @@ public class UIUtils
                                                                                  Constants.ICON_MENU)),
                                null);
 
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14)).deriveFont (Font.PLAIN));
+        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
                                                       
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
