@@ -845,7 +845,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
         });
 
-        but.setFont (but.getFont ().deriveFont ((float) 16));
+        but.setFont (but.getFont ().deriveFont (UIUtils.getScaledFontSize (14)));
 
         but.setText ("Send an invite");
         buts = new ArrayList ();
@@ -1075,7 +1075,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                           Constants.ICON_EDITOR_MESSAGE),
                                      null);
         
-        p.getHeader ().setFont (p.getHeader ().getFont ().deriveFont ((float) 14));
+        p.getHeader ().setFont (p.getHeader ().getFont ().deriveFont (UIUtils.getScaledFontSize (14)));
 
         p.getHeader ().setBorder (UIUtils.createPadding (10, 10, 10, 10));
         
