@@ -72,6 +72,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
     }
     
+    // TODO: Change so that each chapter has its own information sidebar
     public void panelShown (MainPanelEvent ev)
     {
 
