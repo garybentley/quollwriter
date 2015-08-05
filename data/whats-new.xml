@@ -1,5 +1,12 @@
 <whatsnew>
 
+  <version id="2.3.1">        
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes</title>
+      <description><![CDATA[A few fixes arising from the major 2.3 update.  See the release notes for the gory detail.]]></description>
+    </item>
+  </version>
+    
   <version id="2.3">        
     <item onlyIfCurrentVersion="true">
       <title>Editor Mode Beta</title>
