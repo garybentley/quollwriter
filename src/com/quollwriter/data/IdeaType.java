@@ -22,6 +22,7 @@ public class IdeaType extends NamedObject
     private String     sortBy = null;
     private String     iconType = null;
     private List<Idea> ideas = new ArrayList ();
+    private Project    proj = null;
 
     public IdeaType()
     {
@@ -30,6 +31,15 @@ public class IdeaType extends NamedObject
 
     }
 
+    public void setProject (Project p)
+    {
+        
+        this.proj = p;
+        
+        this.setParent (p);
+        
+    }
+    
     public String getSortBy ()
     {
 

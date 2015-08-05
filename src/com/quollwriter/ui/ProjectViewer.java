@@ -2360,6 +2360,9 @@ public class ProjectViewer extends AbstractProjectViewer
 
             this.refreshObjectPanels (otherObjects);
 
+            // See if there is a chapter information sidebar.
+            this.removeSideBar ("chapterinfo-" + c.getKey ());
+            
             this.fireProjectEvent (c.getObjectType (),
                                    ProjectEvent.DELETE,
                                    c);

@@ -17,13 +17,6 @@ public class QCharacter extends Asset
 
     }
 
-    public String toString ()
-    {
-
-        return this.getObjectType () + "(name: " + this.name + ", id: " + this.getKey () + "), in: " + this.getProject ();
-
-    }
-
     public void getChanges (NamedObject old,
                             Element     root)
     {

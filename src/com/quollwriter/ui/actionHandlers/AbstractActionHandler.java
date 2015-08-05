@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 
@@ -173,7 +174,7 @@ public abstract class AbstractActionHandler extends FormAdapter
                         d.height = 150;
                         
                     }
-                                       
+                                                           
                     return d;
                     
                 }
@@ -239,6 +240,37 @@ public abstract class AbstractActionHandler extends FormAdapter
 
             final JTree tr = this.tree;
 
+            this.tree.addTreeExpansionListener (new TreeExpansionListener ()
+            {
+
+                @Override
+                public void treeCollapsed (TreeExpansionEvent ev)
+                {
+                    
+                    _this.f.getContent ().setPreferredSize (null);
+                    
+                    _this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                             _this.f.getContent ().getPreferredSize ().height));
+
+                    _this.showPopup (true);
+                    
+                }
+            
+                @Override
+                public void treeExpanded (TreeExpansionEvent ev)
+                {
+                    
+                    _this.f.getContent ().setPreferredSize (null);
+                    
+                    _this.f.getContent ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                             _this.f.getContent ().getPreferredSize ().height));
+                    
+                    _this.showPopup (true);
+                    
+                }
+
+            });
+            
             this.tree.addMouseListener (new MouseAdapter ()
                 {
 
@@ -306,7 +338,7 @@ public abstract class AbstractActionHandler extends FormAdapter
                             s.selected = !s.selected;
 
                             model.nodeChanged (n);
-
+                            
                         }
 
                     }
@@ -1002,6 +1034,13 @@ public abstract class AbstractActionHandler extends FormAdapter
 
             SelectableDataObject sd = (SelectableDataObject) nn.getUserObject ();
 
+            if (sd.obj == null)
+            {
+                
+                throw new GeneralException ("Unable to get user object for tree node: " + nn);
+                
+            }
+            
             if (sd.selected)
             {
 

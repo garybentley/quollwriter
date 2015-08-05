@@ -30,7 +30,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
     private JCheckBox      addToChapter = new JCheckBox ();
     private Chapter        chapter = null;
     private int            showAt = -1;
-    private List<FormItem> formFields = new ArrayList ();
+    //private List<FormItem> formFields = new ArrayList ();
 
     public ChapterItemActionHandler(ChapterItem         item,
                                     AbstractEditorPanel qep,
@@ -145,7 +145,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
         List<FormItem> f = new ArrayList ();
 
         f.add (new FormItem ("Description",
-                             new JScrollPane (this.descField)));
+                             this.descField));
 
         if (mode == AbstractActionHandler.ADD)
         {
@@ -280,6 +280,8 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
             } catch (Exception e)
             {
 
+                this.chapter.removeChapterItem (it);
+            
                 Environment.logError ("Unable to add new chapter item",
                                       e);
 

@@ -635,7 +635,7 @@ public abstract class EditPanel extends Box
                                                                         Constants.ICON_PANEL_SECTION)),
                                null);
 
-        h.setFont (h.getFont ().deriveFont (UIUtils.getScaledFontSize (12)));
+        h.setFont (h.getFont ().deriveFont (UIUtils.getScaledFontSize (10)).deriveFont (Font.PLAIN));
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
         h.setBackground (UIUtils.getComponentColor ());
@@ -706,7 +706,14 @@ public abstract class EditPanel extends Box
 
             if (item.label != null)
             {
-        
+
+                pb.addLabel (item.label.toString (),
+                        cc.xywh (1,
+                                 row,
+                                 3,
+                                 1));
+
+        /*
                 pb.add (this.createHeader (item.label.toString (),
                                            null,
                                            ip,
@@ -715,7 +722,7 @@ public abstract class EditPanel extends Box
                                  row,
                                  3,
                                  1));
-
+*/
             }
                                  
             row += 2;

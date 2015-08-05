@@ -2524,10 +2524,12 @@ public class EditorsUIUtils
                     try
                     {
 
+                        // We create the project but then close the connection pool since the user
+                        // may not want to open the project yet.
                         Environment.createProject (saveField.getSelectedFile (),
                                                    p,
-                                                   pwd);
-
+                                                   pwd).closeConnectionPool ();
+                                                   
                         Environment.addProjectToListOfProjects (p);
                                                    
                     } catch (Exception e) {

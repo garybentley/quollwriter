@@ -544,7 +544,7 @@ public class ObjectManager
                              Set<Link>   newLinks)
                       throws GeneralException
     {
-
+    
         Connection c = null;
     
         try
@@ -562,14 +562,24 @@ public class ObjectManager
 
                 Link l = iter.next ();
 
+                if ((l.getObject1 () == null)
+                    ||
+                    (l.getObject2 () == null)
+                   )
+                {
+                    
+                    continue;
+                    
+                }
+                
                 if ((this.project.getObjectForReference (l.getObject1 ().getObjectReference ()) == null) ||
                     (this.project.getObjectForReference (l.getObject2 ().getObjectReference ()) == null))
                 {
 
                     continue;
 
-                }
-
+                }                
+                
                 this.saveObject (l,
                                  c);
 
@@ -596,11 +606,17 @@ public class ObjectManager
     }
 
     public void getLinks (NamedObject d,
-                          Project     p,
                           Connection  conn)
                    throws GeneralException
     {
 
+        if (d == null)
+        {
+            
+            return;
+            
+        }
+    
         if (d.getKey () == null)
         {
 
@@ -614,7 +630,14 @@ public class ObjectManager
             return;
 
         }
-
+        
+        if (this.project == null)
+        {
+            
+            throw new IllegalStateException ("No project set yet, either call getProject or setProject first.");
+            
+        }
+        
         boolean closeConn = false;
 
         if (conn == null)
@@ -683,8 +706,8 @@ public class ObjectManager
                                                           o2key,
                                                           null);
 
-                NamedObject d1 = (NamedObject) p.getObjectForReference (o1);
-                NamedObject d2 = (NamedObject) p.getObjectForReference (o2);
+                NamedObject d1 = (NamedObject) this.project.getObjectForReference (o1);
+                NamedObject d2 = (NamedObject) this.project.getObjectForReference (o2);
 
                 if ((d1 == null) ||
                     (d2 == null))
@@ -724,8 +747,7 @@ public class ObjectManager
 
     }
 
-    public void getLinks (NamedObject d,
-                          Project     p)
+    public void getLinks (NamedObject d)
                    throws GeneralException
     {
 
@@ -737,7 +759,6 @@ public class ObjectManager
             c = this.getConnection ();
 
             this.getLinks (d,
-                           p,
                            c);
 
         } catch (Exception e)
@@ -1193,7 +1214,6 @@ public class ObjectManager
         {
         
             this.getLinks (n,
-                           this.project,
                            conn);
     
             Set<Link> links = n.getLinks ();
@@ -1384,7 +1404,7 @@ public class ObjectManager
         }
             
     }
-
+    
     public void deleteObjects (Collection<? extends DataObject> objs,
                                Connection                       conn)
                         throws GeneralException
@@ -2021,6 +2041,23 @@ public class ObjectManager
         
     }
     
+    public void setProject (Project p)
+    {
+        
+        if (this.project != null)
+        {
+            
+            throw new IllegalStateException ("Already have a project: " +
+                                             this.project);
+            
+        }
+        
+        p.setProjectDirectory (this.dir);        
+        
+        this.project = p;
+        
+    }
+    
     public Project getProject ()
                         throws GeneralException
     {
@@ -2031,7 +2068,7 @@ public class ObjectManager
             return this.project;
             
         }
-
+    
         Project proj = null;
         
         Connection conn = null;
@@ -2068,11 +2105,11 @@ public class ObjectManager
             this.releaseConnection (conn);
             
         }
+        
+        proj.setProjectDirectory (this.dir);
 
         this.project = proj;
         
-        this.project.setProjectDirectory (this.dir);
-
         return this.project;
 
     }
@@ -2619,7 +2656,7 @@ public class ObjectManager
 
     }
 
-    public File createBackup ()
+    public File createBackup (Project project)
                        throws Exception
     {
 
@@ -2693,7 +2730,7 @@ public class ObjectManager
 
             this.releaseConnection (conn);
 
-            this.createActionLogEntry (this.project,
+            this.createActionLogEntry (project,
                                        "Created backup, written to file: " + f.getPath (),
                                        null,
                                        null);
@@ -2734,7 +2771,7 @@ public class ObjectManager
         }
 
     }
-
+/*
     public void saveWordCounts (java.util.Date start,
                                 java.util.Date end)
     {
@@ -2818,7 +2855,7 @@ public class ObjectManager
         }
 
     }
-
+*/
     public void loadNotes (NamedObject n,
                            Connection  conn)
                     throws GeneralException

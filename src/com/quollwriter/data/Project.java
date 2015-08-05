@@ -1035,6 +1035,8 @@ public class Project extends NamedObject
         
         this.ideaTypes.add (it);
         
+        it.setProject (this);
+        
     }
 
     public List<ResearchItem> getResearchItems ()

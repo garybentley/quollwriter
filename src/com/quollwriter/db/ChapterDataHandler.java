@@ -483,6 +483,92 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         
     }
 
+    // TODO: Pass in a list of pre-calculated ChapterCounts.
+    public void saveWordCounts (Project        project,
+                                java.util.Date start,
+                                java.util.Date end)
+    {
+
+        if ((project == null) ||
+            (project.getKey () == null))
+        {
+
+            return;
+
+        }
+
+        Connection conn = null;
+
+        try
+        {
+
+            List wcs = new ArrayList ();
+
+            conn = this.objectManager.getConnection ();
+
+            start = Environment.zeroTimeFieldsForDate (start);
+            end = Environment.zeroTimeFieldsForDate (end);
+
+            List params = new ArrayList ();
+            params.add (start);
+            params.add (project.getKey ());
+
+            this.objectManager.executeStatement ("DELETE FROM wordcount WHERE start = ? AND projectdbkey = ?",
+                                                 params,
+                                                 conn);
+
+            for (Book book : project.getBooks ())
+            {
+
+                for (Chapter c : book.getChapters ())
+                {
+
+                    ChapterCounts cc = com.quollwriter.ui.UIUtils.getChapterCounts (c.getText ());
+
+                    params = new ArrayList ();
+                    params.add (project.getKey ());
+
+                    params.add (c.getKey ());
+
+                    params.add (cc.wordCount);
+                    params.add (start);
+                    params.add (end);
+
+                    this.objectManager.executeStatement ("INSERT INTO wordcount (projectdbkey, chapterdbkey, count, start, end) VALUES (?, ?, ?, ?, ?)",
+                                                         params,
+                                                         conn);
+
+                }
+
+            }
+
+        } catch (Exception e)
+        {
+
+            try
+            {
+        
+                this.objectManager.throwException (conn,
+                                                   "Unable to save session word counts for project: " +
+                                                   project,
+                                                   e);
+                
+            } catch (Exception ee) {
+                
+                Environment.logError ("Unable to save session word counts, see cause for details",
+                                      ee);
+                
+            }
+
+        } finally
+        {
+
+            this.objectManager.releaseConnection (conn);
+
+        }
+
+    }    
+    
     public List<WordCount> getWordCounts (Chapter ch,
                                           int     daysPast)
                                    throws GeneralException

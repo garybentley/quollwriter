@@ -1691,9 +1691,9 @@ public class IdeaBoard extends QuollPanel
         it.setName (name);
         it.setIconType (iconType);
 
-        this.projectViewer.addNewIdeaType (it);
-
         this.projectViewer.getProject ().addIdeaType (it);
+        
+        this.projectViewer.addNewIdeaType (it);
 
         TypeBox cb = this.addType (it);
 
@@ -1853,7 +1853,20 @@ public class IdeaBoard extends QuollPanel
             
         }
         
-        this.setBoardBackground (bg);
+        try
+        {
+        
+            this.setBoardBackground (bg);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set board background to: " +
+                                  bg,
+                                  e);
+            
+            this.setBoardBackground ("bg:" + Environment.getProperty (Constants.DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME));
+            
+        }
         
         String op = s.get ("opacity");
         

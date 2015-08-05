@@ -1574,9 +1574,23 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         
     }
     
+    public void removeSideBar (String name)
+    {
+        
+        this.removeSideBar (this.getSideBar (name));
+        
+    }
+    
     public void removeSideBar (AbstractSideBar sb)
     {
 
+        if (sb == null)
+        {
+            
+            return;
+            
+        }
+    
         this.sideBars.remove (sb.getName ());
 
         this.activeSideBars.remove (sb);
@@ -2474,7 +2488,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                                         try
                                                         {
                                 
-                                                            File f = pv.dBMan.createBackup ();
+                                                            File f = pv.dBMan.createBackup (pv.proj);
                                 
                                                             UIUtils.showMessage ((PopupsSupported) pv,
                                                                                  "Snapshot created",
@@ -4050,15 +4064,12 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
 
         this.setIgnoreProjectEvents (true);
                 
-        Environment.createProject (saveDir,
-                                   p,
-                                   filePassword);                
+        this.dBMan = Environment.createProject (saveDir,
+                                                p,
+                                                filePassword);                
           
-        this.proj = p;
-                
-        this.dBMan = Environment.getProjectObjectManager (this.proj,
-                                                          filePassword);
-                
+        this.proj = this.dBMan.getProject ();
+                          
         if ((this.proj.getBooks () == null) ||
             (this.proj.getBooks ().size () == 0) ||
             (this.proj.getBooks ().get (0).getChapters ().size () == 0))
@@ -4287,7 +4298,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                 try
                 {
 
-                    bf = this.dBMan.createBackup ();
+                    bf = this.dBMan.createBackup (this.proj);
 
                     this.addNotification ("An automatic snapshot has been created.  <a href='" + bf.getParentFile ().toURI ().toURL () + "'>Click to view the backup directory.</a>",
                                           "information",
@@ -5867,9 +5878,12 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
                                   
         }
 
-        this.dBMan.saveWordCounts (this.sessionStart,
-                                   new Date ());
+        ChapterDataHandler ch = (ChapterDataHandler) this.dBMan.getHandler (Chapter.class);
 
+        ch.saveWordCounts (this.proj,
+                           this.sessionStart,
+                           new Date ());
+        
         this.dBMan.createActionLogEntry (this.proj,
                                          "Closed project",
                                          null,
@@ -7870,8 +7884,7 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         try
         {
 
-            this.dBMan.getLinks (o,
-                                 this.proj);
+            this.dBMan.getLinks (o);
 
         } catch (Exception e)
         {

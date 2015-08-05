@@ -61,6 +61,8 @@ public class Idea extends NamedObject
     {
 
         this.type = t;
+        
+        this.setParent (t);
 
     }
 

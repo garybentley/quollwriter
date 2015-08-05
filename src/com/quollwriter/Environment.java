@@ -1548,6 +1548,8 @@ public class Environment
                     filePassword,
                     Environment.getSchemaVersion ());
         
+        dBMan.getProject ();
+        
         return dBMan;
     
     }
@@ -1624,10 +1626,10 @@ public class Environment
      * @param filePassword Optional, provide if the project is to be encrypted.
      * @throws An exception if the schema cannot be created or if a project already exists at the save location.
      */
-    public static void createProject (File    saveDir,
-                                      Project p,
-                                      String  filePassword)
-                               throws Exception
+    public static ObjectManager createProject (File    saveDir,
+                                               Project p,
+                                               String  filePassword)
+                                        throws Exception
     {
         
         File projDir = new File (saveDir,
@@ -1660,11 +1662,13 @@ public class Environment
         p.setProjectDirectory (projDir);
         p.setEncrypted (filePassword != null);        
         
+        dBMan.setProject (p);
+        
         dBMan.saveObject (p,
                           null);
         
-        dBMan.closeConnectionPool ();
-        
+        return dBMan;
+                
     }
 
     public static void openObjectInProject (final Project    proj,

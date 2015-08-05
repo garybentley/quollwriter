@@ -288,7 +288,7 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         }
 
         f.add (new FormItem ("Description",
-                             new JScrollPane (this.descField)));
+                             this.descField));
 
         if (!editNeeded)
         {
@@ -457,9 +457,6 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         try
         {
 
-            this.projectViewer.saveObject (n,
-                                           true);
-
             if (this.mode == AbstractActionHandler.ADD)
             {
     
@@ -468,9 +465,14 @@ public class NoteActionHandler extends ProjectViewerActionHandler
     
             }
 
+            this.projectViewer.saveObject (n,
+                                           true);
+
         } catch (Exception e)
         {
 
+            this.chapter.removeNote (n);
+        
             Environment.logError ("Unable to save/add note: " +
                                   n,
                                   e);

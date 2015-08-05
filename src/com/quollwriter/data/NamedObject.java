@@ -213,6 +213,8 @@ public abstract class NamedObject extends DataObject
 
         n.setObject (this);
 
+        n.setParent (this);
+        
         this.notes.add (n);
         
     }

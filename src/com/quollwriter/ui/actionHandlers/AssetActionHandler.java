@@ -158,7 +158,7 @@ public class AssetActionHandler extends ProjectViewerActionHandler
         this.descField.setWrapStyleWord (true);
 
         formFields.add (new FormItem ("Description",
-                                      new JScrollPane (this.descField)));
+                                      this.descField));
 
         final AssetActionHandler _this = this;
 
