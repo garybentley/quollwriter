@@ -4209,7 +4209,20 @@ public abstract class AbstractProjectViewer extends JFrame implements PropertyCh
         Environment.incrStartupProgress ();
                          
         // Get the project.
-        this.proj = this.dBMan.getProject ();
+        try
+        {
+
+            this.proj = this.dBMan.getProject ();
+            
+        } catch (Exception e) {
+            
+            // This means we can't open the project and something is wrong, close the dbman to prevent
+            // it locking the project open but unusable.
+            this.dBMan.closeConnectionPool ();
+            
+            throw e;
+            
+        }
 
         Environment.incrStartupProgress ();
 
