@@ -218,7 +218,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         // Get the markup, if present.
         Markup mu = new Markup (m);
-        Environment.logMessage ("ALL MARKUP: " + mu);
+
         TextIterator iter = new TextIterator (chapterText);
         
         for (Paragraph p : iter.getParagraphs ())
@@ -229,78 +229,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                style,
                                b);
 
-/*            
-            String ptext = p.getText ();
-            
-            para = this.createParagraph (style);
-
-            b.getEGBlockLevelElts ().add (para);
-            
-            List<Markup.MarkupItem> items = mu.getMarkupBetween (p.getAllTextStartOffset (),
-                                                                 p.getAllTextEndOffset ());
-
-            String nullS = null;
-            Markup pm = new Markup (nullS);
-            pm.items = items;
-            pm.shiftBy (-1 * p.getAllTextStartOffset ());
-        
-            this.addParagraph (para);
-            this.addParagraph (paraText,
-                               items,
-                               para);
-  */          
         }
         
-        /*
-        Environment.logMessage ("MU: " + mu);
-        StringTokenizer t = new StringTokenizer (chapterText,
-                                                 String.valueOf ('\n'),
-                                                 true);
-     
-        int l = 0;
-        
-        while (t.hasMoreTokens ())
-        {
-        
-            String paraText = t.nextToken ();
-        
-            if ((paraText.length () == 1)
-                &&
-                (paraText.equals (String.valueOf ('\n')))
-               )
-            {
-               
-               l++;
-
-               continue;
-               
-            }
-            
-            para = this.createParagraph (style);
-
-            b.getEGBlockLevelElts ().add (para);
-            Environment.logMessage ("PARA: " + paraText);
-            List<Markup.MarkupItem> items = mu.getMarkupBetween (l,
-                                                                 l + paraText.length () + 1);
-Environment.logMessage ("ITEMS: " + items);
-for (Markup.MarkupItem mi : items)
-{
-    
-    Environment.logMessage ("MIX: " + mi + ", " + chapterText.substring (mi.start, mi.end));
-}
-            String nullS = null;
-            Markup pm = new Markup (nullS);
-            pm.items = items;
-            pm.shiftBy (-1 * l);
-        
-            this.addParagraph (paraText,
-                               items,
-                               para);
-
-            l += paraText.length ();
-                
-        }
-            */
     }
 
     private void addParagraph (Paragraph      para,
@@ -409,7 +339,7 @@ for (Markup.MarkupItem mi : items)
         
     }
             
-    private void addParagraph (String                  paraText,
+    private void addParagraphX (String                  paraText,
                                List<Markup.MarkupItem> items,
                                P                       para)
     {

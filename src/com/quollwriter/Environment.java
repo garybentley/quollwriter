@@ -148,13 +148,7 @@ public class Environment
     
     public class XMLConstants
     {
-/*
-        public static final String directory = "directory";
-        public static final String lastEdited = "lastEdited";
-        public static final String encrypted = "encrypted";
-        public static final String noCredentials = "noCredentials";
-        public static final String backupService = "backupService";
-*/
+
         public static final String projects = "projects";
         public static final String type = "type";
         public static final String name = "name";
