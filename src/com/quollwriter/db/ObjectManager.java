@@ -462,7 +462,7 @@ public class ObjectManager
         PoolingDataSource pds = (PoolingDataSource) this.ds;
 
         pds.setAccessToUnderlyingConnectionAllowed (true);
-
+        
         // Check to see if the project exists, if not create the schema.
         // Get the schema version.
 
@@ -1060,6 +1060,37 @@ public class ObjectManager
         
     }
 
+    public static boolean isDatabaseAlreadyInUseException (Throwable e)
+    {
+        
+        if (e instanceof JdbcSQLException)
+        {
+            
+            JdbcSQLException ex = (JdbcSQLException) e;
+            
+            if (ex.getErrorCode () == org.h2.constant.ErrorCode.DATABASE_ALREADY_OPEN_1)
+            {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        Throwable cause = e.getCause ();
+        
+        if (cause != null)
+        {
+            
+            return ObjectManager.isDatabaseAlreadyInUseException (cause);
+            
+        }
+        
+        return false;
+        
+        
+    }
+    
     public static boolean isEncryptionException (Throwable e)
     {
         
@@ -2251,7 +2282,7 @@ public class ObjectManager
         }
 
     }
-
+    
     private void createSchema ()
                         throws GeneralException
     {

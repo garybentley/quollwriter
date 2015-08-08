@@ -1877,6 +1877,13 @@ public class Environment
                                 
                                                     } catch (Exception e) {
                                                         
+                                                        if (ObjectManager.isDatabaseAlreadyInUseException (e))
+                                                        {
+                                                            
+                                                            return "Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
+                                                        
+                                                        }
+                                                        
                                                         if (ObjectManager.isEncryptionException (e))
                                                         {
                                                         
@@ -1929,8 +1936,25 @@ public class Environment
 
             }
 
-            pv.openProject (p,
-                            password);
+            try
+            {
+            
+                pv.openProject (p,
+                                password);
+
+            } catch (Exception e) {
+                
+                if (ObjectManager.isDatabaseAlreadyInUseException (e))
+                {
+                                    
+                    UIUtils.showErrorMessage (null,
+                                              "Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.");
+                    
+                    return;
+                             
+                }
+                
+            }
                        
             Environment.startupComplete ();
 
