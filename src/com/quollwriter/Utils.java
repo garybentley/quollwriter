@@ -10,6 +10,10 @@ import java.util.zip.*;
 
 import javax.swing.*;
 
+import org.jdom.*;
+
+import com.gentlyweb.xml.*;
+
 import com.gentlyweb.utils.*;
 import com.quollwriter.ui.*;
 
@@ -17,7 +21,378 @@ import com.quollwriter.data.*;
 
 public class Utils
 {
+    
+    public static boolean isSubDir (File parent,
+                                    File sub)
+    {
+        
+        File p = sub.getParentFile ();
+        
+        if (p == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (p.equals (parent))
+        {
+            
+            return true;
+            
+        }
+        
+        return Utils.isSubDir (parent,
+                               p);
+        
+    }
 
+    public static String checkEmail (String em)
+    {
+        
+        String err = "Email does not appear to be valid.";
+        
+        if ((em == null)
+            ||
+            (em.trim ().equals (""))
+           )
+        {
+            
+            return null;
+            
+        }
+        
+        int ind = em.indexOf ("@");
+        
+        if (ind < 1)
+        {
+            
+            return err;
+            
+        }
+
+        int ind2 = em.indexOf (".",
+                               ind + 1);
+        
+        if (ind2 < 1)
+        {
+            
+            return err;
+            
+        } else {
+            
+            if (em.length () - 1 == ind2)
+            {
+                
+                return err;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+
+    public static String getStatisticsAsXML (Map<ProjectInfo.Statistic, Object> stats)
+    {
+
+        if (stats == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (stats.size () == 0)
+        {
+            
+            return null;
+            
+        }
+        
+        Element root = new Element (Environment.XMLConstants.stats);
+
+        Iterator<ProjectInfo.Statistic> iter = stats.keySet ().iterator ();
+        
+        while (iter.hasNext ())
+        {
+            
+            ProjectInfo.Statistic s = iter.next ();
+            
+            Object v = stats.get (s);
+            
+            if ((s != null)
+                &&
+                (v != null)
+               )
+            {
+                
+                Element stat = new Element (Environment.XMLConstants.stat);
+                
+                root.addContent (stat);
+                
+                stat.setAttribute (Environment.XMLConstants.id,
+                                   s.getType ());
+                stat.addContent (v.toString ());
+                
+                if (v instanceof String)
+                {
+                    
+                    stat.setAttribute (Environment.XMLConstants.type,
+                                       "string");
+                    
+                }
+                
+                if (v instanceof Number)
+                {
+                    
+                    stat.setAttribute (Environment.XMLConstants.type,
+                                       "number");
+                    
+                }
+
+            }
+            
+        }
+                    
+        try
+        {
+
+            return JDOMUtils.getElementAsString (root);    
+        
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to convert element to string for statistics: " +
+                                  stats,
+                                  e);
+        
+            return null;
+            
+        }
+                
+    }
+
+    public static Map<ProjectInfo.Statistic, Object> getStatisticsFromXML (String t)
+    {
+        
+        Map<ProjectInfo.Statistic, Object> ret = new HashMap ();
+        
+        if (t == null)
+        {
+            
+            return ret;
+            
+        }
+        
+        Element root = null;
+        
+        try
+        {
+            
+            root = JDOMUtils.getStringAsElement (t);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to convert string: " +
+                                  t +
+                                  " to an element",
+                                  e);
+            
+            return ret;
+                
+        }
+        
+        List els = null;
+        
+        try
+        {
+            
+            els = JDOMUtils.getChildElements (root,
+                                              Environment.XMLConstants.stat,
+                                              false);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get child stat elements: " +
+                                  e);
+
+            return ret;
+            
+        }
+        
+        for (int i = 0; i < els.size (); i++)
+        {
+            
+            Element el = (Element) els.get (i);
+            
+            try
+            {
+                
+                String val = JDOMUtils.getChildContent (el);
+                
+                String id = JDOMUtils.getAttributeValue (el,
+                                                         Environment.XMLConstants.id,
+                                                         true);
+                
+                String type = JDOMUtils.getAttributeValue (el,
+                                                           Environment.XMLConstants.type,
+                                                           true);
+
+                if (type.equals ("number"))
+                {
+                    
+                    ret.put (ProjectInfo.Statistic.valueOf (id),
+                             Double.parseDouble (val));
+                                                           
+                }
+                
+                if (type.equals ("string"))
+                {
+                    
+                    ret.put (ProjectInfo.Statistic.valueOf (id),
+                             val);
+                                                           
+                }
+
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get stats info from element: " +
+                                      JDOMUtils.getPath (el),
+                                      e);
+                
+            }
+        
+        }
+        
+        return ret;
+        
+    }
+
+    public static Set<File> getFilesFromXML (String t)
+    {
+        
+        Set<File> ret = new LinkedHashSet ();
+        
+        if (t == null)
+        {
+            
+            return ret;
+            
+        }
+        
+        Element root = null;
+        
+        try
+        {
+            
+            root = JDOMUtils.getStringAsElement (t);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to convert string: " +
+                                  t +
+                                  " to an element",
+                                  e);
+            
+            return ret;
+                
+        }
+        
+        List els = null;
+        
+        try
+        {
+            
+            els = JDOMUtils.getChildElements (root,
+                                              Environment.XMLConstants.file,
+                                              false);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get child file elements: " +
+                                  e);
+
+            return ret;
+            
+        }
+        
+        // Get the user ones.
+        for (int i = 0; i < els.size (); i++)
+        {
+            
+            Element el = (Element) els.get (i);
+            
+            try
+            {
+                
+                String tf = JDOMUtils.getChildContent (el);
+                
+                File f = new File (tf);
+                
+                ret.add (f);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get file info from element: " +
+                                      JDOMUtils.getPath (el),
+                                      e);
+                
+            }
+        
+        }
+        
+        return ret;
+        
+    }
+
+    public static String getFilesAsXML (Set<File> files)
+    {
+
+        if (files == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (files.size () == 0)
+        {
+            
+            return null;
+            
+        }
+        
+        Element root = new Element (Environment.XMLConstants.files);
+
+        for (File f : files)
+        {
+            
+            Element fel = new Element (Environment.XMLConstants.file);
+            
+            root.addContent (fel);
+            
+            fel.addContent (f.getPath ());
+            
+        }
+            
+        try
+        {
+
+            return JDOMUtils.getElementAsString (root);    
+        
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to convert element to string for files: " +
+                                  files,
+                                  e);
+        
+            return null;
+            
+        }
+                
+    }
+    
     public static void postToURL (final URL                 url,
                                   final Map<String, String> headers,
                                   final String              content,
@@ -651,9 +1026,58 @@ public class Utils
 
     }
 
+    public static int getCountAsInt (String v)
+    {
+        
+        if (v == null)
+        {
+            
+            return -1;
+            
+        }
+        
+        if (v.equals (Constants.COUNT_10))
+        {
+            
+            return 10;
+            
+        }
+
+        if (v.equals (Constants.COUNT_20))
+        {
+            
+            return 20;
+            
+        }
+        
+        if (v.equals (Constants.COUNT_50))
+        {
+            
+            return 50;
+            
+        }
+
+        if (v.equals (Constants.COUNT_ALL))
+        {
+            
+            return -1;
+            
+        }
+
+        return -1;
+        
+    }
+    
     public static long getTimeAsMillis (String v)
     {
 
+        if (v == null)
+        {
+            
+            return 0;
+            
+        }
+    
         if (v.equals (Constants.MINS_5))
         {
 
@@ -754,12 +1178,33 @@ public class Utils
 
     public static boolean isDirectoryEmpty (File d)
     {
+
+        if (d == null)
+        {
+            
+            return true;
+            
+        }
+        
+        if (!d.exists ())
+        {
+            
+            return true;
+            
+        }
+        
+        if (d.isFile ())
+        {
+            
+            return false;
+            
+        }
         
         File[] files = d.listFiles ();
         
         if ((files != null)
-            ||
-            (files.length == 0)
+            &&
+            (files.length > 0)
            )
         {
             

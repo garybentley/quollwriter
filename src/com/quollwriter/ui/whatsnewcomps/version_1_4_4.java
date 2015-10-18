@@ -18,6 +18,7 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.achievements.*;
 import com.quollwriter.achievements.rules.*;
+import com.quollwriter.achievements.ui.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
 public class version_1_4_4 implements WhatsNewComponentProvider
@@ -30,8 +31,8 @@ public class version_1_4_4 implements WhatsNewComponentProvider
         
     }
     
-    public JComponent getComponent (final AbstractProjectViewer pv,
-                                    final String                id)
+    public JComponent getComponent (final AbstractViewer pv,
+                                    final String         id)
     {
         
         JComponent c = this.comps.get (id);
@@ -56,7 +57,7 @@ public class version_1_4_4 implements WhatsNewComponentProvider
         
             c = b;
             
-            b.add (AchievementsPanel.createAchievementsEnabledCheckbox (true));
+            b.add (Achievements.createAchievementsEnabledCheckbox (true));
                         
             b.add (Box.createVerticalStrut (5));
 
@@ -121,9 +122,9 @@ public class version_1_4_4 implements WhatsNewComponentProvider
             
             b.add (Box.createVerticalStrut (15));
             
-            final JCheckBox soundB = AchievementsPanel.createAchievementsSoundEnabledCheckbox ();
+            final JCheckBox soundB = Achievements.createAchievementsSoundEnabledCheckbox ();
 
-            final JCheckBox soundFSB = AchievementsPanel.createAchievementsSoundEnabledInFullScreenCheckbox ();
+            final JCheckBox soundFSB = Achievements.createAchievementsSoundEnabledInFullScreenCheckbox ();
 
             soundB.addActionListener (new ActionAdapter ()
             {

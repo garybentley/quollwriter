@@ -42,42 +42,14 @@ import com.quollwriter.ui.renderers.*;
 public class EditItemTypes extends TypesEditor
 {
 
-    public EditItemTypes (ProjectViewer pv)
+    public EditItemTypes (AbstractViewer pv)
     {
 
         super (pv,
-               pv.getObjectTypesHandler (QObject.OBJECT_TYPE));
-
-    }
-/*
-    public String getWindowTitle ()
-    {
-
-        return Environment.replaceObjectNames ("Manage the {Object} Types");
+               Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME));
 
     }
 
-    public String getHeaderTitle ()
-    {
-
-        return Environment.replaceObjectNames ("Manage the {Object} Types");
-
-    }
-
-    public String getHeaderIconType ()
-    {
-
-        return Constants.EDIT_ICON_NAME;
-
-    }
-
-    public String getHelpText ()
-    {
-
-        return null;
-
-    }
-*/
     public String getNewTypeHelp ()
     {
         

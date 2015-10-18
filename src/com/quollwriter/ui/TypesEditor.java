@@ -39,40 +39,41 @@ import com.quollwriter.exporter.*;
 
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.events.*;
 
-
-public abstract class TypesEditor extends Box //PopupWindow
+public abstract class TypesEditor extends Box implements PropertyChangedListener 
 {
 
-    private Project     proj = null;
     private TypesHandler handler = null;
     private DefaultTableModel typeModel = null;
-    private AbstractProjectViewer projectViewer = null;
+    private AbstractViewer viewer = null;
 
-    public TypesEditor (AbstractProjectViewer pv,
-                        TypesHandler          handler)
+    public TypesEditor (AbstractViewer pv,
+                        TypesHandler   handler)
     {
 
         super (BoxLayout.Y_AXIS);
         
-        this.projectViewer = pv;
+        this.viewer = pv;
         this.handler = handler;
-        this.proj = pv.getProject ();
         
-        final TypesEditor _this = this;
+        this.handler.addPropertyChangedListener (this);
         
-        this.handler.addChangeListener (new ChangeListener ()
-        {
-            
-            public void stateChanged (ChangeEvent ev)
-            {
-                
-                _this.reloadTypes ();
-                
-            }
-            
-        });
+    }
+    
+    @Override
+    public void propertyChanged (PropertyChangedEvent ev)
+    {
+        
+        this.reloadTypes ();
+        
+    }
 
+    public TypesHandler getTypesHandler ()
+    {
+        
+        return this.handler;
+        
     }
     
     public abstract String getTypesName ();
@@ -104,7 +105,7 @@ public abstract class TypesEditor extends Box //PopupWindow
                                                null));
 
         JTextPane tp = UIUtils.createHelpTextPane ("Enter the new types to add below, separate the types with commas or semi-colons.",
-                                                   this.projectViewer);
+                                                   this.viewer);
 
         tp.setBorder (new EmptyBorder (5,
                                        5,
@@ -219,11 +220,16 @@ public abstract class TypesEditor extends Box //PopupWindow
                                        0,
                                        5));                                            
                                             
-        tp = UIUtils.createHelpTextPane (Environment.replaceObjectNames (this.getNewTypeHelp ()),
-                                         this.projectViewer);
-        tp.setBorder (null);
-        fb.add (tp);
-        fb.add (Box.createVerticalStrut (10));
+        if (this.getNewTypeHelp () != null)
+        {
+                                            
+            tp = UIUtils.createHelpTextPane (Environment.replaceObjectNames (this.getNewTypeHelp ()),
+                                             this.viewer);
+            tp.setBorder (null);
+            fb.add (tp);
+            fb.add (Box.createVerticalStrut (10));
+
+        }
         
         final JScrollPane ppsp = UIUtils.createScrollPane (typeTable);
 

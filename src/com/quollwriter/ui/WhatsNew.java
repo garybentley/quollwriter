@@ -44,12 +44,12 @@ public class WhatsNew extends Wizard //PopupWizard
     //private TreeMap<Integer, WhatsNewItem> items = new TreeMap ();
     private TreeMap<Version, java.util.List<WhatsNewItem>> items = new TreeMap ();//Collections.reverseOrder ());
         
-    public WhatsNew (AbstractProjectViewer pv,
-                     boolean               onlyShowCurrentVersion)
-                     throws                GeneralException
+    public WhatsNew (AbstractViewer viewer,
+                     boolean        onlyShowCurrentVersion)
+              throws GeneralException
     {
         
-        super (pv);
+        super (viewer);
 
         String wn = Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
         
@@ -165,7 +165,7 @@ public class WhatsNew extends Wizard //PopupWizard
                                              
                         WhatsNewItem it = new WhatsNewItem (itEl,
                                                             compProv,
-                                                            pv);
+                                                            viewer);
                         
                         if (it.onlyIfCurrentVersion)
                         {
@@ -453,7 +453,7 @@ public class WhatsNew extends Wizard //PopupWizard
             {
 
                 JTextPane hp = UIUtils.createHelpTextPane (item.description,
-                                                           this.projectViewer);
+                                                           this.viewer);
                 
                 hp.setBorder (null);
                 hp.setSize (new Dimension (UIUtils.getPopupWidth () - 25, 500));
@@ -523,7 +523,7 @@ public class WhatsNew extends Wizard //PopupWizard
             
         }
         
-        public void init (AbstractProjectViewer pv)
+        public void init (AbstractViewer pv)
         {
             
             
@@ -554,7 +554,7 @@ public class WhatsNew extends Wizard //PopupWizard
     
         public WhatsNewItem (Element                   root,
                              WhatsNewComponentProvider prov,
-                             AbstractProjectViewer     pv)
+                             AbstractViewer            pv)
                              throws                    Exception
         {
             

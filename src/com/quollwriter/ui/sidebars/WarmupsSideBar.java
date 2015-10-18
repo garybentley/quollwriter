@@ -44,8 +44,7 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
                                           
         this.content = this.wrapInScrollPane (this.contentBox);
         
-        this.prompt = UIUtils.createHelpTextPane (null,
-                                                  this.projectViewer);
+        this.prompt = UIUtils.createHelpTextPane (this.viewer);
         this.prompt.setBorder (null);
         
     }
@@ -110,7 +109,7 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
         
         super.init ();
         
-        this.warmupsItem = new WarmupsAccordionItem (this.projectViewer);
+        this.warmupsItem = new WarmupsAccordionItem (this.viewer);
 
         this.warmupsItem.setTitle ("Previous {Warmups}");
 
@@ -161,7 +160,7 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
         if (d instanceof Chapter)
         {                    
         
-            Warmup w = this.projectViewer.getWarmupForChapter ((Chapter) d);
+            Warmup w = this.viewer.getWarmupForChapter ((Chapter) d);
             
             this.prompt.setText (UIUtils.formatPrompt (w.getPrompt ()));
 

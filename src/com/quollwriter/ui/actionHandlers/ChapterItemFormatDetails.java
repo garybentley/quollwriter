@@ -1,8 +1,10 @@
 package com.quollwriter.ui.actionHandlers;
 
 import java.awt.event.*;
+import javax.swing.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.*;
 

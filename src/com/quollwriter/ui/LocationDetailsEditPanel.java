@@ -4,6 +4,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import java.awt.event.*;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -54,7 +56,7 @@ public class LocationDetailsEditPanel extends DetailsEditPanel
 
     }
 
-    public List<FormItem> getExtraEditItems ()
+    public List<FormItem> getExtraEditItems (ActionListener onSave)
     {
 
         List<FormItem> items = new ArrayList ();

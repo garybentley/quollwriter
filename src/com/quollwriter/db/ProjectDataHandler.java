@@ -13,7 +13,7 @@ import com.quollwriter.editors.*;
 public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, type, lastedited, description, id, lastmodified, datecreated, properties FROM project_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, type, lastedited, description, markup, files, id, lastmodified, datecreated, properties FROM project_v ";
     private ObjectManager objectManager = null;
 
     public ProjectDataHandler(ObjectManager om)
@@ -42,7 +42,9 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             p.setName (rs.getString (ind++));
             p.setType (rs.getString (ind++));
             p.setLastEdited (rs.getTimestamp (ind++));
-            p.setDescription (rs.getString (ind++));
+            p.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            p.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             p.setId (rs.getString (ind++));
 
             p.setLastModified (rs.getTimestamp (ind++));
@@ -147,7 +149,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                 
                 int l = 0;
                 
-                String t = c.getText ();
+                String t = c.getChapterText ();
                 
                 if (t != null)
                 {
@@ -171,7 +173,6 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                         
                         i.setPosition ((l > 0 ? l : 0));
                         
-                        Environment.logMessage ("NEW POS: " + i.getPosition ());
                         try
                         {
                         
@@ -209,7 +210,6 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                     
                                     oi.setPosition ((l > 0 ? l : 0));
                                     
-                                    Environment.logMessage ("NEW POSX: " + oi.getPosition ());
                                     try
                                     {
                                     

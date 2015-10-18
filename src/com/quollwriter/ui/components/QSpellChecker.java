@@ -245,7 +245,7 @@ public class QSpellChecker implements DocumentListener,
 
     public List getSuggestions (String word)
     {
-
+    
         if ((word == null) ||
             (word.trim ().equals ("")))
         {
@@ -254,6 +254,13 @@ public class QSpellChecker implements DocumentListener,
 
         }
 
+        if (this.checker == null)
+        {
+            
+            return null;
+            
+        }
+        
         List l = null;
 
         if ((!this.checker.isCorrect (word)) &&
@@ -417,7 +424,14 @@ public class QSpellChecker implements DocumentListener,
         int docLength = this.text.getDocument ().getLength ();
 
         int end = el.getEndOffset ();
-
+        
+        if (start == end)
+        {
+            
+            return;
+            
+        }
+        
         TextIterator ti = new TextIterator (this.text.getText ().substring (start,
                                                                             end - 1));
         
@@ -552,9 +566,53 @@ public class QSpellChecker implements DocumentListener,
             this.lastCharacterOver = QSpellChecker.NULL_CHAR;
 
         }
-
-        this.checkElements (ev.getOffset (),
-                            ev.getLength ());
+        
+        if (ev.getLength () == 1)
+        {
+        
+            String t = null;
+            
+            try
+            {
+                
+                t = ev.getDocument ().getText (ev.getOffset (),
+                                               ev.getLength ());
+                
+            } catch (Exception e) {
+                
+                // Wtf...
+                return;
+                
+            }
+            
+            if (t.trim ().length () == 0)
+            {
+                
+                // Check the previous element.
+                Element element;
+        
+                try
+                {
+    
+                    element = ((AbstractDocument) ev.getDocument ()).getParagraphElement (ev.getOffset ());
+    
+                } catch (Exception ex)
+                {
+    
+                    return;
+    
+                }
+        
+                this.checkElement (element);
+                
+            }
+            
+        } else {
+            
+            this.checkElements (ev.getOffset (),
+                                ev.getLength ());
+            
+        }
 
     }
 
@@ -587,8 +645,55 @@ public class QSpellChecker implements DocumentListener,
 
         }
 
-        this.checkElements (ev.getOffset (),
-                            0);
+        if (ev.getLength () == 1)
+        {
+        
+            // Check the previous char, if there is one then don't check, if it's whitespace then check.
+            if (ev.getOffset () > 0)
+            {
+                
+                String t = null;
+                
+                try
+                {
+                    
+                    t = ev.getDocument ().getText (ev.getOffset () - 1,
+                                                   ev.getLength ());
+                    
+                } catch (Exception e) {
+                    
+                    // Wtf...
+                    return;
+                    
+                }
+            
+                // Check the previous element.
+                Element element;
+        
+                try
+                {
+    
+                    element = ((AbstractDocument) ev.getDocument ()).getParagraphElement (ev.getOffset ());
+    
+                } catch (Exception ex)
+                {
+    
+                    return;
+    
+                }
+        
+                this.checkElement (element);
+
+                return;
+                
+            }
+            
+        } else {
+            
+            this.checkElements (ev.getOffset (),
+                                ev.getLength ());
+            
+        }
 
     }
 

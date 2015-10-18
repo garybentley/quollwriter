@@ -44,7 +44,7 @@ public class ChapterDescriptionAccordionItem extends ChapterFieldAccordionItem
         
     }
     
-    public String getFieldValue (Chapter c)
+    public StringWithMarkup getFieldValue (Chapter c)
     {
         
         return c.getDescription ();
@@ -65,7 +65,7 @@ public class ChapterDescriptionAccordionItem extends ChapterFieldAccordionItem
         
     }
     
-    public void setFieldValue (String v,
+    public void setFieldValue (StringWithMarkup v,
                                Chapter c)
     {
         

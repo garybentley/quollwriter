@@ -254,7 +254,7 @@ Won't animate due to rubber stamping in table renderer.
         try
         {
 
-            pss.addAll (Environment.getAllProjects ());
+            //pss.addAll (Environment.getAllProjects ());
 
         } catch (Exception e)
         {
@@ -883,7 +883,7 @@ Won't animate due to rubber stamping in table renderer.
                         _this.close ();
                         
                         // Open the file.
-                        Environment.openProject (nf);
+                        //Environment.openProject (nf);
                         
                         return;
                         
@@ -1140,7 +1140,7 @@ Won't animate due to rubber stamping in table renderer.
                         try
                         {
                      
-                            Environment.removeProjectFromProjectsFile (p);
+                            //Environment.removeProjectFromProjectsFile (p);
                             
                         } catch (Exception e) {
                             

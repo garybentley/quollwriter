@@ -65,14 +65,12 @@ public class ShareWritingPrompt extends PopupWindow
         b.add (UIUtils.createBoldSubHeader ("Your prompt",
                                             null));
 
-        JTextArea t = UIUtils.createTextArea (3);
+        TextArea t = UIUtils.createTextArea (null,
+                                              3,
+                                              -1);
         t.setText (this.prompt);
-        t.setCaretPosition (0);
 
-        JScrollPane sp = new JScrollPane (t);
-        sp.setBorder (null);
-        sp.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-        b.add (sp);
+        b.add (t);
 
         b.add (Box.createVerticalStrut (20));
         b.add (UIUtils.createBoldSubHeader ("Your details",

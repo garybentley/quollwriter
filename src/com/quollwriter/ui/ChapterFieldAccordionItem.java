@@ -25,7 +25,9 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
+import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.text.*;
 
 public abstract class ChapterFieldAccordionItem extends AccordionItem
 {
@@ -35,7 +37,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
     private Box content = null;
     private Box view = null;
     private Box edit = null;
-    private JTextArea editText = null;
+    private TextArea editText = null;
     private boolean typed = false;
         
     public ChapterFieldAccordionItem (ProjectViewer pv,
@@ -63,18 +65,24 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         this.content.add (this.edit);
         
         this.edit.setVisible (false);
-            
-        this.editText = UIUtils.createTextArea (20);
 
-        JScrollPane sp = new JScrollPane (this.editText);
-
-        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        sp.setOpaque (false);
-        sp.getViewport ().setOpaque (false);
-        sp.setBorder (null);
+        String help = "Separate each " + this.getFieldName () + " with a newline.  To save press Ctrl+Enter or use the buttons below.";
         
+        if (!this.isBulleted ())
+        {
+            
+            help = "Enter the " + this.getFieldName () + ", to save press Ctrl+Enter or use the buttons below.";
+            
+        }
+            
+        this.editText = UIUtils.createTextArea (pv,
+                                                help,
+                                                20,
+                                                -1);
+        this.editText.setCanFormat (true);
         this.editText.setBorder (null);
-        this.edit.add (sp);
+                    
+        this.edit.add (this.editText);
         
         JButton save = UIUtils.createButton (Constants.SAVE_ICON_NAME,
                                              Constants.ICON_MENU,
@@ -132,7 +140,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                                                                 
                                                                 
         this.edit.add (buttons);
-        
+        /*
         this.editText.addMouseListener (new MouseAdapter ()
         {
 
@@ -178,14 +186,32 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             }
 
         });        
-                
+          */
+        
+        UIUtils.addDoActionOnReturnPressed (this.editText,
+                                            new ActionListener ()
+                                            {
+                                            
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    _this.save ();
+                                                    
+                                                }
+                                                
+                                             });
+        this.edit.setBorder (UIUtils.createLineBorderWithPadding (3, 0, 5, 0));
+        /*
         this.edit.setBorder (new CompoundBorder (new EmptyBorder (3, 5, 5, 0),
                                                  UIUtils.createLineBorder ()));
+                                                 */
+        /*
         this.editText.setBorder (new EmptyBorder (3,
                                                   3,
                                                   3,
                                                   3));
-
+*/
         Header h = this.getHeader ();
                                         
         h.setBorder (new CompoundBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
@@ -198,23 +224,23 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
     public abstract boolean isBulleted ();
     
-    public abstract String getFieldValue (Chapter c);
+    public abstract StringWithMarkup getFieldValue (Chapter c);
     
     public abstract String getFieldName ();
     
     public abstract String getFieldNamePlural ();
     
-    public abstract void setFieldValue (String v,
-                                        Chapter c);
+    public abstract void setFieldValue (StringWithMarkup v,
+                                        Chapter          c);
     
     public abstract String getFieldIconType ();
         
     private boolean hasField ()
     {
  
-        String v = this.getFieldValue (this.chapter);
+        StringWithMarkup v = this.getFieldValue (this.chapter);
         
-        return (v != null && v.trim ().length () > 0);
+        return (v != null && v.hasText ());
         
     }
     
@@ -223,7 +249,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         
         if (!this.hasField ())
         {
-
+/*
             final Color lightGrey = UIUtils.getColor ("#aaaaaa");
 
             this.editText.setForeground (lightGrey);
@@ -240,27 +266,23 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             this.editText.setText (help);
 
             this.editText.getCaret ().setDot (0);
-
-            this.editText.grabFocus ();
+*/
+            //this.editText.grabFocus ();
 
         } else
         {
 
-            String v = this.getFieldValue (this.chapter);
+            StringWithMarkup v = this.getFieldValue (this.chapter);
+                    
+            if ((v != null)
+                &&
+                (v.hasText ())
+               )
+            {                    
             
-            if (v == null)
-            {
-                
-                v = ""; 
+                this.editText.setTextWithMarkup (v);
                 
             }
-        
-            v = v.trim ();
-        
-            this.editText.setText (v);
-            this.editText.setForeground (Color.BLACK);
-
-            this.editText.grabFocus ();
 
         }
         
@@ -271,34 +293,29 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                 
         this.chapter = c;
         
+        this.getHeaderControls ().setVisible (true);        
+        
         this.setValue (this.getFieldValue (this.chapter));
         
     }
         
-    public void setValue (String v)
+    public void setValue (StringWithMarkup v)
     {
 
         final ChapterFieldAccordionItem _this = this;
     
         this.view.removeAll ();    
-    
-        if ((v != null)
-            &&
-            (v.trim ().length () == 0)
+        
+        if ((v == null)
+            ||
+            (!v.hasText ())
            )
-        {
-            
-            v = null;
-            
-        }
-    
-        if (v == null)
         {
         
             JLabel l = UIUtils.createClickableLabel ("<i>No " + this.getFieldNamePlural () + " set, click to edit.</i>",
                                                      null);
 
-            l.setBorder (new EmptyBorder (0, 10, 0, 0));
+            l.setBorder (new EmptyBorder (0, 5, 0, 0));
                         
             l.addMouseListener (new MouseEventHandler ()
             {
@@ -306,7 +323,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                 @Override
                 public void handlePress (MouseEvent ev)
                 {
-                    
+                                        
                     _this.edit ();
                     
                 }
@@ -332,6 +349,25 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         
             StringBuilder layoutRows = new StringBuilder ();
     
+            String t = (v != null ? v.getText () : null);
+    
+            TextIterator iter = new TextIterator (t);
+            
+            for (Paragraph p : iter.getParagraphs ())
+            {
+                
+                if (layoutRows.length () > 0)
+                {
+    
+                    layoutRows.append (",");
+    
+                }
+    
+                layoutRows.append ("top:p, 6px");
+                
+            }
+    
+/*
             StringTokenizer t = new StringTokenizer (v,
                                                      String.valueOf ('\n'));
     
@@ -350,7 +386,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                 t.nextToken ();
     
             }
-    
+  */  
             FormLayout fl = new FormLayout ("3px, pref, 3px, fill:200px:grow, 3px",
                                             layoutRows.toString ());
     
@@ -358,34 +394,19 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
     
             CellConstraints cc = new CellConstraints ();
     
-            t = new StringTokenizer (v,
-                                     String.valueOf ('\n'));
-    
             int r = 1;
-        
-            while (t.hasMoreTokens ())
+    
+            Markup m = (v != null ? v.getMarkup () : null);
+
+            for (Paragraph p : iter.getParagraphs ())
             {
-    
-                String tok = t.nextToken ().trim ();
-                
-                if (tok.length () == 0)
-                {
-                    
-                    continue;
-                    
-                }
-    
+                                            
                 pb.add (new JLabel (Environment.getIcon (Constants.BULLET_ICON_NAME,
                                                          Constants.ICON_MENU)),
                         cc.xy (2,
                                r));
-                               
-      /*
-                pb.add (new JCheckBox (),
-                        cc.xy (2,
-                               r));
-        */                       
-                JTextPane tp = UIUtils.createObjectDescriptionViewPane (tok,
+
+                JTextPane tp = UIUtils.createObjectDescriptionViewPane (p.markupAsHTML (m),
                                                                         this.chapter,
                                                                         this.projectViewer,
                                                                         this.projectViewer.getEditorForChapter (this.chapter));
@@ -395,7 +416,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                                r));
     
                 r += 2;
-    
+                               
             }
     
             JPanel p = pb.getPanel ();
@@ -447,7 +468,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
         
     }
         
-    public JComponent getWrappedText (String t,
+    public JComponent getWrappedText (StringWithMarkup t,
                                       int    initialWidth)
     {
         
@@ -484,7 +505,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
     private void save ()
     {
-        
+        /*
         if (!this.typed)
         {
             
@@ -493,14 +514,21 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             return;
             
         }
+        */
         
-        String t = this.editText.getText ().trim ();
+        this.getHeaderControls ().setVisible (true);
         
-        if (t.length () == 0)
+        StringWithMarkup t = this.editText.getTextWithMarkup ();
+                
+        if ((t != null)
+            &&
+            (!t.hasText ())
+           )
         {
             
-            t = null;
-            
+            t.update (null,
+                      null);
+                
         }
         
         this.setFieldValue (t,
@@ -518,20 +546,20 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             
         } catch (Exception e) {
             
-            UIUtils.showErrorMessage (this,
-                                      "Unable to save the " + this.getFieldNamePlural ());
-            
             Environment.logError ("Unable to save " + this.getFieldNamePlural () + " for chapter: " +
                                   this.chapter,
                                   e);
-            
+
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to save the " + this.getFieldNamePlural ());
+                        
         }
                 
     }
     
     private void edit ()
     {
-        
+        /*
         if (this.edit.isVisible ())
         {
             
@@ -540,13 +568,14 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             return;
             
         }
-                
+          */      
         this.setContentVisible (true);
         
-        this.editText.setText (this.getFieldValue (this.chapter));
+        //this.editText.setTextWithMarkup (this.getFieldValue (this.chapter));
 
         this.view.setVisible (false);
         this.edit.setVisible (true);
+        this.getHeaderControls ().setVisible (false);
 
         this.initEditText ();
 /*

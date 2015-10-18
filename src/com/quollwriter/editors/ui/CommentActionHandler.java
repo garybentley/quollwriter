@@ -4,8 +4,6 @@ package com.quollwriter.editors.ui;
 import java.awt.event.*;
 import java.awt.font.*;
 
-import java.text.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,13 +18,14 @@ import javax.swing.text.*;
 import com.gentlyweb.properties.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.text.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.Form;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.BlockPainter;
@@ -219,7 +218,7 @@ public class CommentActionHandler extends ProjectViewerActionHandler
                                      5,
                                      -1);
         
-        UIUtils.addDoActionOnReturnPressed (this.comment.getTextArea (),
+        UIUtils.addDoActionOnReturnPressed (this.comment,
                                             doSave);
         
     }
@@ -243,7 +242,7 @@ public class CommentActionHandler extends ProjectViewerActionHandler
 
             Note n = (Note) obj;
             
-            this.comment.setText (n.getDescription ());
+            this.comment.setTextWithMarkup (n.getDescription ());
 
         }
 
@@ -252,29 +251,26 @@ public class CommentActionHandler extends ProjectViewerActionHandler
     }
 
     @Override
-    public boolean handleSave (int mode)
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         Note n = (Note) this.dataObject;
 
-        String c = this.comment.getText ().trim ();
+        String c = this.comment.getText ();
         
-        n.setDescription (c);
+        n.setDescription (this.comment.getTextWithMarkup ());
 
         // Use the first line of the description as the summary.
-        BreakIterator bi = BreakIterator.getSentenceInstance ();
-        bi.setText (c);
+        Paragraph p = new Paragraph (c,
+                                     0);
 
-        int s = bi.first ();
-        int e = bi.next ();
-
-        n.setSummary (c.substring (s,
-                                   e));
+        n.setSummary (p.getFirstSentence ().getText ());
         
         String type = Note.EDIT_NEEDED_NOTE_TYPE;
 
-        s = this.editorPanel.getEditor ().getSelectionStart ();
-        e = this.editorPanel.getEditor ().getSelectionEnd ();
+        int s = this.editorPanel.getEditor ().getSelectionStart ();
+        int e = this.editorPanel.getEditor ().getSelectionEnd ();
     
         if ((mode == AbstractActionHandler.EDIT)
             &&

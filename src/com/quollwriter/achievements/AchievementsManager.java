@@ -50,13 +50,16 @@ public class AchievementsManager implements ProjectEventListener
         
     private Clip achievementSound = null;
         
-    private Set<AchievementReachedListener> listeners = new HashSet ();
+    private Map<AchievementReachedListener, Object> listeners = null;
+    private Object listenerFillObj = new Object ();
         
     private boolean soundRunning = false;
         
     public AchievementsManager ()
                                 throws Exception
     {
+        
+        this.listeners = Collections.synchronizedMap (new WeakHashMap ());        
         
         // Load our list of user achieved achievements.
         Set<String> achieved = this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));      
@@ -178,6 +181,8 @@ public class AchievementsManager implements ProjectEventListener
             
         }
         
+        Environment.addUserProjectEventListener (this);
+        
     }
     
     public void removeAchievementReachedListener (AchievementReachedListener l)
@@ -190,22 +195,44 @@ public class AchievementsManager implements ProjectEventListener
     public void addAchievementReachedListener (AchievementReachedListener l)
     {
         
-        this.listeners.add (l);        
+        this.listeners.put (l, this.listenerFillObj);        
         
     }
     
     protected void fireAchievementReachedEvent (AchievementRule ar)
     {
         
-        AchievementReachedEvent ev = new AchievementReachedEvent (ar);
+        final AchievementsManager _this = this;
         
-        for (AchievementReachedListener l : this.listeners)
+        final AchievementReachedEvent ev = new AchievementReachedEvent (ar);
+        
+        UIUtils.doActionLater (new ActionListener ()
         {
-            
-            l.achievementReached (ev);            
-            
-        }
         
+            public void actionPerformed (ActionEvent aev)
+            {
+                                
+                Set<AchievementReachedListener> ls = null;
+                                
+                // Get a copy of the current valid listeners.
+                synchronized (_this.listeners)
+                {
+                                    
+                    ls = new LinkedHashSet (_this.listeners.keySet ());
+                    
+                }
+                    
+                for (AchievementReachedListener l : ls)
+                {
+                    
+                    l.achievementReached (ev);
+
+                }
+
+            }
+            
+        });
+                
     }
     
     public Set<String> getUserAchievedIds ()
@@ -415,19 +442,24 @@ public class AchievementsManager implements ProjectEventListener
         
     }
     
-    public Map<String, Set<String>> getAchievedAchievementIds (AbstractProjectViewer viewer)
+    public Map<String, Set<String>> getAchievedAchievementIds (AbstractViewer viewer)
     {
         
         Map<String, Set<String>> achieved = new HashMap ();
         
-        achieved.put ("user",
+        achieved.put (USER,
                       this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
         
-        if (viewer != null)
+        if ((viewer != null)
+            &&
+            (viewer instanceof AbstractProjectViewer)
+           )
         {
             
+            AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+
             achieved.put ("project",
-                          this.getAchievedIds (viewer.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
+                          this.getAchievedIds (pv.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
 
         }
         
@@ -550,7 +582,7 @@ public class AchievementsManager implements ProjectEventListener
         
         // Get the list of project/chapter achieved achievements.
         Set<String> achieved = this.getAchievedIds (v.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
-
+        
         // Load the state for the achievements and init.
         Map<String, Element> initEls = this.getInitElements (v.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_STATE_PROPERTY_NAME));
         
@@ -1038,50 +1070,57 @@ public class AchievementsManager implements ProjectEventListener
 
         }
                 
-        for (AbstractProjectViewer pv : this.eventRules.keySet ())
-        {
+        if (ev.getSource () instanceof AbstractProjectViewer)
+        {                
+        
+            AbstractProjectViewer pv = (AbstractProjectViewer) ev.getSource ();
             
             Map<String, Set<AchievementRule>> evRules = this.eventRules.get (pv);
             
-            Set<AchievementRule> rs = evRules.get (ev.getEventId ());
-            
-            if (rs != null)
+            if (evRules != null)
             {
-
-                Set<AchievementRule> achieved = new HashSet ();
+            
+                Set<AchievementRule> rs = evRules.get (ev.getEventId ());
                 
-                for (AchievementRule ar : rs)
+                if (rs != null)
                 {
-                
-                    try
+    
+                    Set<AchievementRule> achieved = new HashSet ();
+                    
+                    for (AchievementRule ar : rs)
                     {
                     
-                        if (ar.achieved (pv,
-                                         ev))
+                        try
                         {
+                        
+                            if (ar.achieved (pv,
+                                             ev))
+                            {
+                                
+                                this.achievementReached (pv,
+                                                         ar);
+                                
+                                achieved.add (ar);
+                                
+                            }
+    
+                        } catch (Exception e) {
                             
-                            this.achievementReached (pv,
-                                                     ar);
-                            
-                            achieved.add (ar);
+                            Environment.logError ("Unable to check for achievement: " +
+                                                  ar,
+                                                  e);
                             
                         }
-
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to check for achievement: " +
-                                              ar,
-                                              e);
                         
                     }
-                    
-                }
-
-                for (AchievementRule ar : achieved)
-                {
-                    
-                    this.removeRule (ar,
-                                     pv);
+    
+                    for (AchievementRule ar : achieved)
+                    {
+                        
+                        this.removeRule (ar,
+                                         pv);
+                        
+                    }
                     
                 }
                 
@@ -1220,10 +1259,10 @@ public class AchievementsManager implements ProjectEventListener
         
     }
 
-    public void removeAchievedAchievement (String                type,
-                                           String                id,
-                                           AbstractProjectViewer viewer)
-                                           throws                Exception
+    public void removeAchievedAchievement (String         type,
+                                           String         id,
+                                           AbstractViewer viewer)
+                                    throws Exception
     {
 
         if (type.toLowerCase ().equals (USER))
@@ -1238,13 +1277,23 @@ public class AchievementsManager implements ProjectEventListener
 
         } else {
             
-            Set<String> achieved = this.getAchievedIds (viewer.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
-    
-            achieved.remove (id);
+            if ((viewer != null)
+                &&
+                (viewer instanceof AbstractProjectViewer)
+               )
+            {
             
-            viewer.getProject ().getProperties ().setProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
-                                                               new StringProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
-                                                                                   this.getAsString (achieved)));
+                AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+            
+                Set<String> achieved = this.getAchievedIds (pv.getProject ().getProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME));
+        
+                achieved.remove (id);
+                
+                pv.getProject ().getProperties ().setProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                                                   new StringProperty (Constants.PROJECT_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                                                                       this.getAsString (achieved)));
+
+            }
             
         }
 

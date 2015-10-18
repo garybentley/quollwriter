@@ -2,6 +2,8 @@ package com.quollwriter.data;
 
 import java.util.*;
 
+import com.quollwriter.text.*;
+
 public class ChapterCounts
 {
 
@@ -12,6 +14,28 @@ public class ChapterCounts
     //public int     standardPageCount = 0;
     public Map<String, Integer> wordFrequency = null;
 
+    public ChapterCounts ()
+    {
+        
+    }
+    
+    public ChapterCounts (String t)
+    {
+        
+        if (t != null)
+        {
+            
+            TextIterator ti = new TextIterator (t);
+            
+            this.wordCount = ti.getWordCount ();
+            this.sentenceCount = ti.getSentenceCount ();
+            
+            this.wordFrequency = ti.getWordFrequency ();
+            
+        }
+        
+    }
+    
     public void add (ChapterCounts c)
     {
 

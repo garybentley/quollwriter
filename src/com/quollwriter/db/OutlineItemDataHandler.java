@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObject>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT chapterdbkey, scenedbkey, position, dbkey, name, description, lastmodified, datecreated, properties FROM outlineitem_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT chapterdbkey, scenedbkey, position, dbkey, name, description, markup, files, lastmodified, datecreated, properties FROM outlineitem_v ";
     private ObjectManager     objectManager = null;
 
     public OutlineItemDataHandler(ObjectManager om)
@@ -70,8 +69,9 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
             
             o.setKey (key);
             o.setName (rs.getString (ind++));
-            o.setDescription (rs.getString (ind++));
-
+            o.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            o.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             o.setLastModified (rs.getTimestamp (ind++));
             o.setDateCreated (rs.getTimestamp (ind++));
             o.setPropertiesAsString (rs.getString (ind++));

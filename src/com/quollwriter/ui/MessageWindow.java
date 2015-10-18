@@ -29,9 +29,9 @@ public class MessageWindow extends PopupWindow
     private String confirmButtonLabel = null;
     private ActionListener onConfirm = null;
 
-    public MessageWindow (AbstractProjectViewer v,
-                          String                title,
-                          String                message)
+    public MessageWindow (AbstractViewer v,
+                          String         title,
+                          String         message)
     {
 
         super (v,
@@ -42,11 +42,11 @@ public class MessageWindow extends PopupWindow
 
     }
 
-    public MessageWindow (AbstractProjectViewer v,
-                          String                title,
-                          String                message,
-                          String                confirmButtonLabel,
-                          ActionListener        onConfirm)
+    public MessageWindow (AbstractViewer v,
+                          String         title,
+                          String         message,
+                          String         confirmButtonLabel,
+                          ActionListener onConfirm)
     {
 
         super (v,

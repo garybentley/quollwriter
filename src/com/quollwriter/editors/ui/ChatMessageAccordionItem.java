@@ -40,7 +40,7 @@ import com.quollwriter.ui.renderers.*;
 public class ChatMessageAccordionItem extends MessageAccordionItem<EditorChatMessage>
 {
                 
-    public ChatMessageAccordionItem (AbstractProjectViewer  pv,
+    public ChatMessageAccordionItem (AbstractViewer         pv,
                                      Date                   d,
                                      Set<EditorChatMessage> messages)
     {
@@ -56,7 +56,7 @@ public class ChatMessageAccordionItem extends MessageAccordionItem<EditorChatMes
     {
 
         ChatMessageBox cmb = new ChatMessageBox (m,
-                                                 this.projectViewer);
+                                                 this.viewer);
 
         try
         {                                                 

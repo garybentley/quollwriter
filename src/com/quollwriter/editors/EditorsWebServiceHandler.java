@@ -345,7 +345,7 @@ public class EditorsWebServiceHandler
             
         }
     
-        AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+        AbstractViewer viewer = Environment.getFocusedViewer ();
 
         for (int i = 0; i < invites.size (); i++)
         {
@@ -991,7 +991,7 @@ public class EditorsWebServiceHandler
     {
 
         ep.setName (name);
-        ep.setDescription (desc);
+        ep.setDescription (new StringWithMarkup (desc));
         ep.setExpectations (expectations);
         ep.setGenres (genres);
         ep.setWordCountLength (wordCountLength);
@@ -1186,7 +1186,7 @@ public class EditorsWebServiceHandler
         
         ep.setId ((String) data.get (FieldNames.id));
         ep.setName ((String) data.get (FieldNames.name));
-        ep.setDescription ((String) data.get (FieldNames.description));
+        ep.setDescription (new StringWithMarkup ((String) data.get (FieldNames.description)));
         ep.setExpectations ((String) data.get (FieldNames.expectations));
         ep.setLastModified (new Date ((Long) data.get (FieldNames.lastModified)));
 

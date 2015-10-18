@@ -30,7 +30,7 @@ import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.FormItem;
 
-public class WordCountsSideBar extends AbstractSideBar 
+public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
 
     private final String COL_SPEC = "right:max(80px;p), 6px, p:grow";
@@ -188,7 +188,7 @@ public class WordCountsSideBar extends AbstractSideBar
             
         }
         
-        ChapterCounts achc = this.projectViewer.getAllChapterCounts (true);
+        ChapterCounts achc = this.viewer.getAllChapterCounts (true);
         
         // When shutting down we may get a null back, just return.
         if (achc == null)
@@ -202,14 +202,14 @@ public class WordCountsSideBar extends AbstractSideBar
             
         }
         
-        this.sessionWordCount.setText (Environment.formatNumber ((achc.wordCount - this.projectViewer.getStartWordCounts ().wordCount)));
+        this.sessionWordCount.setText (Environment.formatNumber ((achc.wordCount - this.viewer.getStartWordCounts ().wordCount)));
         
-        final Chapter c = this.projectViewer.getChapterCurrentlyEdited ();
+        final Chapter c = this.viewer.getChapterCurrentlyEdited ();
         
         if (c != null)
         {
 
-            AbstractEditorPanel qep = this.projectViewer.getEditorForChapter (c);
+            AbstractEditorPanel qep = this.viewer.getEditorForChapter (c);
 
             String sel = qep.getEditor ().getSelectedText ();
 
@@ -220,7 +220,7 @@ public class WordCountsSideBar extends AbstractSideBar
             if (!sel.equals (""))
             {
                 
-                ChapterCounts sc = UIUtils.getChapterCounts (sel);
+                ChapterCounts sc = new ChapterCounts (sel);
                 
                 this.selectedWordCount.setText (Environment.formatNumber (sc.wordCount));
                 
@@ -228,7 +228,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 
                 if ((sc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
                     &&
-                    (this.projectViewer.isLanguageEnglish ())
+                    (this.viewer.isLanguageEnglish ())
                    )
                 {
                     
@@ -236,7 +236,7 @@ public class WordCountsSideBar extends AbstractSideBar
                     this.selectedReadability.setVisible (true);
                     this.selectedReadabilityHeader.setVisible (true);
                                         
-                    ReadabilityIndices ri = this.projectViewer.getReadabilityIndices (sel);
+                    ReadabilityIndices ri = this.viewer.getReadabilityIndices (sel);
             
                     this.selectedFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
             
@@ -248,8 +248,8 @@ public class WordCountsSideBar extends AbstractSideBar
                 
             } 
 
-            ChapterCounts chc = this.projectViewer.getChapterCounts (c,
-                                                                     true);
+            ChapterCounts chc = this.viewer.getChapterCounts (c,
+                                                              true);
             
             this.chapterEditPointBox.setVisible (false);
 
@@ -262,7 +262,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 if (editText.trim ().length () > 0)
                 {
                 
-                    ChapterCounts sc = UIUtils.getChapterCounts (editText);
+                    ChapterCounts sc = new ChapterCounts (editText);
                     
                     this.editPointWordCount.setText (Environment.formatNumber (sc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (sc.wordCount, chc.wordCount)) + "%");
                 
@@ -279,7 +279,7 @@ public class WordCountsSideBar extends AbstractSideBar
             this.chapterReadability.setVisible (false);
             this.chapterReadabilityHeader.setVisible (false);
             
-            if ((this.projectViewer.isLanguageEnglish ())
+            if ((this.viewer.isLanguageEnglish ())
                 &&
                 (chc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
                )
@@ -288,7 +288,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 this.chapterReadability.setVisible (true);
                 this.chapterReadabilityHeader.setVisible (true);
             
-                ReadabilityIndices ri = this.projectViewer.getReadabilityIndices (c);
+                ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
 
                 this.chapterFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
                 
@@ -308,7 +308,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 try
                 {
         
-                    ChapterDataHandler dh = (ChapterDataHandler) this.projectViewer.getDataHandler (Chapter.class);
+                    ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
         
                     // TODO: Find a better way of handling this.
                     if (dh != null)
@@ -426,7 +426,7 @@ public class WordCountsSideBar extends AbstractSideBar
         this.allReadability.setVisible (false);
         this.allReadabilityHeader.setVisible (false);
         
-        if ((this.projectViewer.isLanguageEnglish ())
+        if ((this.viewer.isLanguageEnglish ())
             &&
             (achc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
            )
@@ -435,7 +435,7 @@ public class WordCountsSideBar extends AbstractSideBar
             this.allReadability.setVisible (true);
             this.allReadabilityHeader.setVisible (true);
         
-            ReadabilityIndices ri = this.projectViewer.getAllReadabilityIndices ();
+            ReadabilityIndices ri = this.viewer.getAllReadabilityIndices ();
                     
             this.allChaptersFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
             
@@ -453,7 +453,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 
         final StringBuilder buf = new StringBuilder ();
 
-        Set<NamedObject> chapters = this.projectViewer.getProject ().getAllNamedChildObjects (Chapter.class);
+        Set<NamedObject> chapters = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class);
         
         int editComplete = 0; 
         
@@ -472,7 +472,7 @@ public class WordCountsSideBar extends AbstractSideBar
                     
                 }
         
-                AbstractEditorPanel pan = this.projectViewer.getEditorForChapter (nc);        
+                AbstractEditorPanel pan = this.viewer.getEditorForChapter (nc);        
                 
                 String t = null;
                 
@@ -483,7 +483,7 @@ public class WordCountsSideBar extends AbstractSideBar
                     
                 } else {
                     
-                    t = nc.getText ();
+                    t = nc.getChapterText ();
                     
                 }
                     
@@ -511,7 +511,7 @@ public class WordCountsSideBar extends AbstractSideBar
         if (buf.length () > 0)
         {
         
-            ChapterCounts allc = UIUtils.getChapterCounts (buf.toString ());
+            ChapterCounts allc = new ChapterCounts (buf.toString ());
 
             this.allEditPointWordCount.setText (Environment.formatNumber (allc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (allc.wordCount, achc.wordCount)) + "%");
             
@@ -644,12 +644,12 @@ public class WordCountsSideBar extends AbstractSideBar
         
     }
     
-    public List<JButton> getHeaderControls ()
+    public List<JComponent> getHeaderControls ()
     {
 
         final WordCountsSideBar _this = this;
         
-        List<JButton> buts = new ArrayList ();        
+        List<JComponent> buts = new ArrayList ();        
         
         JButton b = UIUtils.createButton ("chart",
                                           Constants.ICON_SIDEBAR,
@@ -660,7 +660,7 @@ public class WordCountsSideBar extends AbstractSideBar
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                                 
-                                                    _this.projectViewer.viewWordCountHistory ();
+                                                    _this.viewer.viewWordCountHistory ();
                                                 
                                               }
                                             
@@ -687,7 +687,7 @@ public class WordCountsSideBar extends AbstractSideBar
         box.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                            Short.MAX_VALUE));
                 
-        final Chapter c = this.projectViewer.getChapterCurrentlyEdited ();
+        final Chapter c = this.viewer.getChapterCurrentlyEdited ();
 
         this.sessionWordCount = UIUtils.createInformationLabel (null);
         this.chapterWordCount = UIUtils.createInformationLabel (null);
@@ -799,7 +799,7 @@ public class WordCountsSideBar extends AbstractSideBar
         try
         {
 
-            ProjectDataHandler dh = (ProjectDataHandler) this.projectViewer.getDataHandler (Project.class);
+            ProjectDataHandler dh = (ProjectDataHandler) this.viewer.getDataHandler (Project.class);
 
             // TODO: Find a better way of handling this.
             if (dh != null)
@@ -813,7 +813,7 @@ public class WordCountsSideBar extends AbstractSideBar
                 int max = Integer.MIN_VALUE;
     
                 // Get all the word counts for the project.
-                java.util.List<WordCount> wordCounts = dh.getWordCounts (this.projectViewer.getProject (),
+                java.util.List<WordCount> wordCounts = dh.getWordCounts (this.viewer.getProject (),
                                                                          -30);
     
                 for (WordCount wc : wordCounts)
@@ -926,7 +926,7 @@ public class WordCountsSideBar extends AbstractSideBar
             public void handlePress (MouseEvent ev)
             {
 
-                _this.projectViewer.viewWordCountHistory ();
+                _this.viewer.viewWordCountHistory ();
 
             }
 

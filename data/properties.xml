@@ -14,6 +14,11 @@
     <value>true</value>
   </property>
 
+  <property id="showLandingOnStart" type="boolean">
+    <description>Whether the landing window should be opened when quoll writer starts.</description>
+    <value>false</value>
+  </property>
+
   <property id="compressChapterContextMenu" type="boolean">
     <description>Whether the chapter context menu (usually accessed via right-click) is compressed or not.</description>
     <value>false</value>
@@ -167,6 +172,11 @@
 
   <property id="spellCheckLanugage" type="string">
     <description>The spell check language.</description>
+    <value>English</value>
+  </property>
+
+  <property id="defaultSpellCheckLanugage" type="string">
+    <description>The default spell check language.</description>
     <value>English</value>
   </property>
 
@@ -396,5 +406,36 @@ This message will only be shown once during your current session using Quoll Wri
     <description>Has the user been in distraction free mode before?</description>
     <value>false</value>
   </property>  
+
+  <property id="sortProjectsBy" type="string">
+    <description>The field to sort projects on in the landing viewer.</description>
+    <value>lastEdited</value>
+  </property>
   
+  <property id="defaultProjectInfoFormat" type="string">
+    <description>The default format to use for project information.</description>
+    <value><![CDATA[<b>{s}</b>  {wc}, {ch}
+<i>{le}</i>]]></value>
+  </property>
+
+  <property id="backupsToKeepCount" type="integer">
+    <description>The number of backups to keep, the oldest backups are pruned.</description>
+    <value>-1</value>
+  </property>
+  
+  <property id="projectStatuses" type="string">
+    <description>The default project statuses.</description>
+    <value>In Progress|Complete|Editing|On Hold|Waiting for feedback</value>
+  </property>
+
+  <property id="closeProjectsWindowWhenProjectOpened" type="boolean">
+    <description>Close the projects window when a project is opened.</description>
+    <value>true</value>
+  </property>
+  
+  <property id="showProjectsWindowWhenNoOpenProjects" type="boolean">
+    <description>Show the projects window when there are no open projects.</description>
+    <value>true</value>
+  </property>
+
 </properties>

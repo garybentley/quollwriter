@@ -280,73 +280,14 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                                 "[[TITLE]]",
                                                                 c.getName ());
                 
-                StringBuilder ct = new StringBuilder ();
-
-                String t = c.getText ();
-
-                String m = c.getMarkup ();
-
-                if (m != null)
-                {
-
-                    // Get the markup, if present.
-                    Markup mu = new Markup (m);
-
-                    Iterator<Markup.MarkupItem> iter = mu.iterator ();
-
-                    Markup.MarkupItem last = null;
-
-                    while (iter.hasNext ())
-                    {
-
-                        last = iter.next ();
-
-                        String st = t.substring (last.start,
-                                                 last.end);
-
-                        boolean styled = last.isStyled ();
-                        
-                        if (styled)
-                        {
-
-                            ct.append ("<span class=\"");
-                            ct.append (last.getStyles (" "));
-                            ct.append ("\">");
-
-                            ct.append (StringUtils.replaceString (st,
-                                                                  String.valueOf ('\n'),
-                                                                  "<br />"));
-
-                            ct.append ("</span>");
-
-                        } else {
-
-                            ct.append (st);
-                        
-                        }
-                            
-                    }
-
-                    if (last.end < t.length ())
-                    {
-
-                        ct.append (t.substring (last.end));
-
-                    }
-
-                } else
-                {
-
-                    ct.append (t);
-
-                }
-
+                String t = (c.getText () != null ? c.getText ().getMarkedUpText () : "");
+                
                 // Split the text on new line, for each one output a p tag if not empty.
 
                 // Get the text and split it.
-                TextIterator ti = new TextIterator (ct.toString ());
+                TextIterator ti = new TextIterator (t);
                 
-                ct = new StringBuilder ();
+                StringBuilder ct = new StringBuilder ();
                 
                 for (Paragraph para : ti.getParagraphs ())
                 {
@@ -511,8 +452,11 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             }
 
+            // TODO: Change to use a textiterator.
+            String at = (a.getDescription () != null ? a.getDescription ().getText () : "");
+            
             // Get the text and split it.
-            StringTokenizer t = new StringTokenizer (a.getDescription (),
+            StringTokenizer t = new StringTokenizer (at,
                                                      String.valueOf ('\n') + String.valueOf ('\n'));
 
             while (t.hasMoreTokens ())

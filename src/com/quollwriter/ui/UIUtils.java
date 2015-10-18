@@ -21,6 +21,8 @@ import java.awt.Point;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsConfiguration;
 import java.awt.FontMetrics;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
@@ -46,6 +48,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.tree.*;
 import javax.swing.table.*;
+import javax.swing.filechooser.*;
 
 import javax.imageio.*;
 import javax.activation.*;
@@ -73,6 +76,7 @@ import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
+import com.quollwriter.synonyms.*;
 
 import com.quollwriter.text.*;
 
@@ -103,6 +107,12 @@ public class UIUtils
                                                                    3,
                                                                    3);
 
+    public static final FileNameExtensionFilter imageFileFilter = new FileNameExtensionFilter ("Image files: jpg, png, gif",
+                                                                                               "jpg",
+                                                                                               "jpeg",
+                                                                                               "gif",
+                                                                                               "png");
+                                                                   
     public static int getScrollByAmount ()
     {
         
@@ -122,6 +132,46 @@ public class UIUtils
            
         return UIUtils.getScreenScaledWidth (DEFAULT_POPUP_WIDTH);
                                                                    
+    }
+    
+    public static TreePath getTreePathForUserObjects (DefaultMutableTreeNode node,
+                                                      TreePath               p)
+    {
+        
+        Object[] objs = p.getPath ();
+        
+        for (int i = 0; i < objs.length; i++)
+        {
+            
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode) objs[i];
+            
+            Object nObj = n.getUserObject ();
+            
+            TreePath tp = UIUtils.getTreePathForUserObject (node,
+                                                            nObj);
+            
+            if (tp == null)
+            {
+                
+                continue;
+                
+            } else {
+                
+                if (i == objs.length - 1)
+                {
+                    
+                    return tp;
+                    
+                }
+                
+            }
+            
+            node = (DefaultMutableTreeNode) tp.getPath ()[tp.getPath ().length - 1];
+            
+        }
+        
+        return null;
+        
     }
     
     public static TreePath getTreePathForUserObject (DefaultMutableTreeNode node,
@@ -674,7 +724,7 @@ public class UIUtils
             {
 
                 @Override
-                public void handlePress (MouseEvent ev)
+                public void handleDoublePress (MouseEvent ev)
                 {
 
                     TreePath tp = tree.getPathForLocation (ev.getX (),
@@ -888,12 +938,12 @@ public class UIUtils
 
     }
 
-    public static QPopup createClosablePopup (final String                title,
-                                              final Icon                  icon,
-                                              final ActionListener        onClose,
-                                              final Component             content,
-                                              final AbstractProjectViewer viewer,
-                                                    Point                 showAt)
+    public static QPopup createClosablePopup (final String         title,
+                                              final Icon           icon,
+                                              final ActionListener onClose,
+                                              final Component      content,
+                                              final AbstractViewer viewer,
+                                                    Point          showAt)
     {
         
         final QPopup ep = UIUtils.createClosablePopup (title,
@@ -1044,18 +1094,12 @@ public class UIUtils
 
     }
     
-    public static DefaultMutableTreeNode createNoteTree (AbstractProjectViewer pv)
+    public static DefaultMutableTreeNode createNoteTree (ProjectViewer pv)
     {
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode (pv.getProject ());
 
-        TypesHandler noteTypeHandler = pv.getObjectTypesHandler (Note.OBJECT_TYPE);//getNoteTypeHandler ();
-        
-        //Set<Note> notes = pv.getAllNotes ();
-
-        //Set<String> types = noteTypeHandler.getTypesFromObjects ();
-
-        Map<String, Set<Note>> typeNotes = noteTypeHandler.getObjectsAgainstTypes ();
+        Map<String, Set<Note>> typeNotes = pv.getNotesAgainstTypes (); 
         
         Map<String, DefaultMutableTreeNode> noteNodes = new HashMap ();
 
@@ -1141,40 +1185,7 @@ public class UIUtils
                          0);
 
         }
-/*
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode (p);
 
-        Iterator<Note> iter = notes.keySet ().iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            String t = iter.next ();
-
-            List<Note> l = allNotes.get (t);
-
-            // Peek at the top of the list to see the actual type.
-            t = l.get (0).getType ();
-
-            Note b = new Note (0,
-                               null);
-            b.setName (t);
-
-            DefaultMutableTreeNode tn = new DefaultMutableTreeNode (b);
-
-            root.add (tn);
-
-            for (int i = 0; i < l.size (); i++)
-            {
-
-                DefaultMutableTreeNode n = new DefaultMutableTreeNode (l.get (i));
-
-                tn.add (n);
-
-            }
-
-        }
-*/
         return root;
 
     }
@@ -2139,7 +2150,7 @@ public class UIUtils
         if (parent instanceof PopupWindow)
         {
             
-            UIUtils.showErrorMessage (((PopupWindow) parent).getProjectViewer (),
+            UIUtils.showErrorMessage (((PopupWindow) parent).getViewer (),
                                       message);
             
             return;
@@ -2205,7 +2216,7 @@ public class UIUtils
             public void actionPerformed (ActionEvent ev)
             {
 
-                ErrorWindow ew = new ErrorWindow (p.getProjectViewer (),
+                ErrorWindow ew = new ErrorWindow (p.getViewer (),
                                                   message);
                 
                 ew.init ();
@@ -2363,11 +2374,11 @@ public class UIUtils
         
     }                                
      
-    public static void showMessage (AbstractProjectViewer parent,
-                                    String                title,
-                                    String                message,
-                                    String                confirmButtonLabel,
-                                    ActionListener        onConfirm)
+    public static void showMessage (AbstractViewer parent,
+                                    String         title,
+                                    String          message,
+                                    String          confirmButtonLabel,
+                                    ActionListener  onConfirm)
     {
 
         if (parent == null)
@@ -2438,7 +2449,7 @@ public class UIUtils
         if (parent instanceof PopupWindow)
         {
             
-            UIUtils.showMessage (((PopupWindow) parent).getProjectViewer (),
+            UIUtils.showMessage (((PopupWindow) parent).getViewer (),
                                  title,
                                  message,
                                  confirmButtonLabel,
@@ -3226,80 +3237,6 @@ public class UIUtils
             
         }
                 
-        /*
-        Map<String, List<String>> nameWords = new HashMap ();
-
-        // Tokenize it.
-        BreakIterator bi = BreakIterator.getSentenceInstance ();
-
-        bi.setText (text);
-
-        int start = bi.first ();
-
-        for (int end = bi.next (); end != BreakIterator.DONE; start = end, end = bi.next ())
-        {
-
-            String sentence = text.substring (start,
-                                              end);
-
-            String sentencel = sentence.toLowerCase ();
-
-            List<String> sentencelWords = TextUtilities.getAsWords (sentencel);
-
-            for (String name : names)
-            {
-
-                name = name.toLowerCase ();
-
-                List<String> nw = nameWords.get (name);
-                
-                if (nw == null)
-                {
-                    
-                    nw = TextUtilities.getAsWords (name);
-                    
-                    nameWords.put (name,
-                                   nw);
-                    
-                }
-
-                List<Integer> inds = null;
-                
-                try
-                {
-                    
-                    inds = TextUtilities.indexOf (sentencelWords,
-                                                  nw,
-                                                  false,
-                                                  new DialogueConstraints (false,
-                                                                           false,
-                                                                           null));
-                
-                } catch (Exception e) {
-                    
-                    // Ignore?
-                    continue;
-                    
-                }
-
-                if (inds.size () > 0)
-                {
-
-                    Segment s = new Segment (text.toCharArray (),
-                                             start,
-                                             sentence.length ());
-
-                    snippets.add (s);
-
-                    // Goto the next sentence.
-                    break;
-
-                }
-
-            }
-
-        }
-*/
         return snippets;
 
     }
@@ -3464,7 +3401,7 @@ public class UIUtils
 
                 Chapter c = chapters.get (j);
 
-                String t = c.getText ();
+                String t = (c.getText () != null ? c.getText ().getText () : null);
 
                 // See if there is an editor for it.
                 AbstractEditorPanel aep = (AbstractEditorPanel) pv.getEditorForChapter (c);
@@ -3543,8 +3480,13 @@ public class UIUtils
                     
                 } else {
                 
-                    // Get the text.
-                    t = c.getText ();
+                    if (c.getText () != null)
+                    {
+                
+                        // Get the text.
+                        t = c.getText ().getText ();
+                        
+                    }
 
                 }
                     
@@ -4277,8 +4219,8 @@ public class UIUtils
 
     }
 
-    public static void addHyperLinkListener (final JEditorPane           p,
-                                             final AbstractProjectViewer projectViewer)
+    public static void addHyperLinkListener (final JEditorPane    p,
+                                             final AbstractViewer projectViewer)
     {
 
         p.addHyperlinkListener (new HyperlinkAdapter ()
@@ -4395,16 +4337,7 @@ public class UIUtils
         pb.add (helpII,
                 cc.xy (1,
                        1));
-        /*
-        JTextArea helpT = new JTextArea ();
-        helpT.setText (helpText);
-        helpT.setEditable (false);
-        helpT.setOpaque (false);
-        helpT.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        helpT.setWrapStyleWord (true);
-        helpT.setLineWrap (true);
-         */
         JTextPane helpT = UIUtils.createHelpTextPane (helpText,
                                                       pv);
 
@@ -4503,9 +4436,27 @@ public class UIUtils
         return text;
         
     }
+
+    // TODO: Make this work.
+    public static JTextPane createHelpTextPane (StringWithMarkup text,
+                                                AbstractViewer   viewer)
+    {
+        
+        return UIUtils.createHelpTextPane ((text != null ? text.getMarkedUpText () : null),
+                                           viewer);
+        
+    }
     
-    public static JTextPane createHelpTextPane (String text,
-                                                AbstractProjectViewer projectViewer)
+    public static JTextPane createHelpTextPane (AbstractViewer   viewer)
+    {
+        
+        return UIUtils.createHelpTextPane ((String) null,
+                                           viewer);
+        
+    }
+    
+    public static JTextPane createHelpTextPane (String         text,
+                                                AbstractViewer viewer)
     {
 
         HTMLEditorKit kit = new HTMLEditorKit ();
@@ -4555,7 +4506,7 @@ public class UIUtils
         // end new
                                          
         UIUtils.addHyperLinkListener (desc,
-                                      projectViewer);
+                                      viewer);
 
         return desc;
 
@@ -4656,7 +4607,7 @@ public class UIUtils
 
     }
 
-    public static AbstractProjectViewer getProjectViewer (Component parent)
+    public static AbstractViewer getViewer (Component parent)
     {
         
         if (parent == null)
@@ -4666,17 +4617,17 @@ public class UIUtils
             
         }
         
-        if (parent instanceof AbstractProjectViewer)
+        if (parent instanceof AbstractViewer)
         {
             
-            return (AbstractProjectViewer) parent;
+            return (AbstractViewer) parent;
             
         }
         
         if (parent instanceof PopupWindow)
         {
             
-            return ((PopupWindow) parent).getProjectViewer ();
+            return ((PopupWindow) parent).getViewer ();
             
         }
         
@@ -4687,10 +4638,51 @@ public class UIUtils
             
         }
         
-        return UIUtils.getProjectViewer (parent.getParent ());
+        return UIUtils.getViewer (parent.getParent ());
         
     }
-
+    
+    public static AbstractProjectViewer getProjectViewer (Component parent)
+    {
+        
+        AbstractViewer v = UIUtils.getViewer (parent);
+        
+        if ((v != null)
+            &&
+            (v instanceof AbstractProjectViewer)
+           )
+        {
+            
+            return (AbstractProjectViewer) v;
+            
+        }
+        
+        return null;
+        
+    }
+    
+/*
+    public static AbstractViewer getViewer (Component parent)
+    {
+        
+        if (parent == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (parent instanceof AbstractViewer)
+        {
+            
+            return (AbstractViewer) parent;
+            
+        }
+                
+        return UIUtils.getViewer (parent.getParent ());
+        
+    }
+*/
     public static void showFile (Component parent,
                                  File      f)
     {
@@ -4818,7 +4810,7 @@ public class UIUtils
             if (parent != null)
             {
                 
-                AbstractProjectViewer pv = UIUtils.getProjectViewer (parent);
+                AbstractViewer pv = UIUtils.getViewer (parent);
 
                 if (pv != null)
                 {
@@ -4843,18 +4835,10 @@ public class UIUtils
             try
             {
                 
-                proj = Environment.getProjectById (projId,
-                                                   null);
-
-                if (proj != null)
-                {
-                    
-                    Environment.openProject (proj);
-                    
-                }
-
-                return;
-                
+                Environment.openProject (projId,
+                                         null,
+                                         null);
+                                    
             } catch (Exception e) {
                 
                 Environment.logError ("Unable to get project for id: " + projId,
@@ -4939,7 +4923,7 @@ public class UIUtils
             if (parent != null)
             {
                 
-                AbstractProjectViewer pv = UIUtils.getProjectViewer (parent);
+                AbstractViewer pv = Environment.getFocusedViewer ();
 
                 if (pv != null)
                 {
@@ -4980,6 +4964,20 @@ public class UIUtils
 
     }
 
+    public static JTextPane createObjectDescriptionViewPane (final StringWithMarkup      description,
+                                                             final NamedObject           n,
+                                                             final AbstractProjectViewer pv,
+                                                             final QuollPanel            qp)
+    {
+
+        // TODO: Markup to html?
+        return UIUtils.createObjectDescriptionViewPane ((description != null ? description.getMarkedUpText () : null),
+                                                        n,
+                                                        pv,
+                                                        qp);
+        
+    }
+    
     public static JTextPane createObjectDescriptionViewPane (final String                description,
                                                              final NamedObject           n,
                                                              final AbstractProjectViewer pv,
@@ -5163,6 +5161,25 @@ public class UIUtils
         t.append ("p.help img{padding-left: 3px; padding-right: 3px;}");
         t.append (".error{color: red;}");
         t.append (".warning{color: red;}");
+        
+        // A pox on the java html renderer.
+        t.append ("span.b{font-weight: bold;}");
+        t.append ("span.bi{font-style: italic; font-weight: bold;}");
+        t.append ("span.bu{font-weight: bold; text-decoration: underline;}");
+        t.append ("span.biu{font-style: italic; font-weight: bold; text-decoration: underline;}");
+        t.append ("span.i{font-style: italic;}");
+        t.append ("span.iu{font-style: italic; text-decoration: underline;}");
+        t.append ("span.u{text-decoration: underline;}");
+
+        // Sigh, this is needed otherwise inner "a" tags won't inherit the styles.
+        t.append ("span.b a{font-weight: bold;}");
+        t.append ("span.bi a{font-style: italic; font-weight: bold;}");
+        t.append ("span.bu a{font-weight: bold; text-decoration: underline;}");
+        t.append ("span.biu a{font-style: italic; font-weight: bold; text-decoration: underline;}");
+        t.append ("span.i a{font-style: italic;}");
+        t.append ("span.iu a{font-style: italic; text-decoration: underline;}");
+        t.append ("span.u a{text-decoration: underline;}");
+        t.append ("span.iu a{font-style: italic; text-decoration: underline;}");
         t.append ("</style>");
 
         return t.toString ();
@@ -5218,7 +5235,7 @@ public class UIUtils
             if (desc != null)
             {
                 
-                a.setDescription (desc);
+                a.setDescription (new StringWithMarkup (desc));
                 
             }
 
@@ -5302,7 +5319,7 @@ public class UIUtils
             if (desc != null)
             {
                 
-                a.setDescription (desc);
+                a.setDescription (new StringWithMarkup (desc));
                 
             }
 
@@ -5379,92 +5396,6 @@ public class UIUtils
                                             16),
                           Integer.parseInt (hexCode.substring (4),
                                             16));
-    }
-
-    public static int getWordCount (String text)
-    {
-
-        if (text == null)
-        {
-
-            return 0;
-
-        }
-
-        BreakIterator bi = BreakIterator.getWordInstance ();
-
-        bi.setText (text);
-
-        int wc = 0;
-
-        int start = bi.first ();
-
-        for (int end = bi.next (); end != BreakIterator.DONE; start = end, end = bi.next ())
-        {
-
-            String word = text.substring (start,
-                                          end).trim ();
-
-            if (word.equals (""))
-            {
-
-                continue;
-
-            }
-
-            // Check to make sure it's a word.
-            char[] chars = word.toCharArray ();
-
-            if ((!Character.isLetterOrDigit (chars[0])) ||
-                (!Character.isLetterOrDigit (chars[chars.length - 1])))
-            {
-
-                continue;
-
-            }
-
-            wc++;
-
-        }
-
-        return wc;
-
-    }
-
-    public static int getSentenceCount (String text)
-    {
-
-        if (text == null)
-        {
-
-            return 0;
-
-        }
-
-        BreakIterator bi = BreakIterator.getSentenceInstance ();
-
-        bi.setText (text);
-
-        return UIUtils.getBreakIteratorCount (bi);
-
-    }
-
-    public static int getBreakIteratorCount (BreakIterator iter)
-    {
-        
-        int wc = 0;
-
-        int start = iter.first ();
-
-        for (int end = iter.next (); end != BreakIterator.DONE; start = end, end = iter.next ())
-        {
-
-            wc++;
-
-        }
-
-        return wc;        
-        
     }
 
     public static String getFrameTitle (String name)
@@ -5776,7 +5707,7 @@ public class UIUtils
         ed.setFontFamily (c.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
         ed.setAlignment (c.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));
 
-        ed.setText (text);
+        ed.setTextWithMarkup (new StringWithMarkup (text));
 
         int ppi = java.awt.Toolkit.getDefaultToolkit ().getScreenResolution ();
 
@@ -5821,84 +5752,7 @@ public class UIUtils
         return a4PageCount;        
         
     }
-        
-    public static ChapterCounts getChapterCounts (String  text)
-    {
 
-        ChapterCounts cc = new ChapterCounts ();
-
-        if (text != null)
-        {
-
-            cc.wordCount = UIUtils.getWordCount (text);
-            cc.wordFrequency = UIUtils.getWordFrequency (text);
-            cc.sentenceCount = UIUtils.getSentenceCount (text);
-            
-        }
-
-        return cc;
-
-    }
-
-    public static Map<String, Integer> getWordFrequency (String t)
-    {
-        
-        Map<String, Integer> ret = new HashMap ();
-        
-        BreakIterator bi = BreakIterator.getWordInstance ();
-
-        bi.setText (t);
-
-        int start = bi.first ();
-
-        for (int end = bi.next (); end != BreakIterator.DONE; start = end, end = bi.next ())
-        {
-
-            String word = t.substring (start,
-                                       end).trim ();
-
-            if (word.equals (""))
-            {
-
-                continue;
-
-            }
-
-            // Check to make sure it's a word.
-            char[] chars = word.toCharArray ();
-
-            if ((!Character.isLetterOrDigit (chars[0])) ||
-                (!Character.isLetterOrDigit (chars[chars.length - 1])))
-            {
-
-                continue;
-
-            }
-
-            word = word.toLowerCase ();
-
-            Integer wc = ret.get (word);
-            
-            int c = 0;
-            
-            if (wc != null)
-            {
-                
-                c = wc.intValue ();
-                
-            }
-            
-            c++;
-
-            ret.put (word,
-                     Integer.valueOf (c));
-
-        }
-                
-        return ret;
-        
-    }
-    
     public static JScrollPane createScrollPane (JComponent c)
     {
         
@@ -5995,43 +5849,91 @@ public class UIUtils
         return c;
         
     }
-    
-    public static JScrollPane createScrollableTextArea (int rows)
-    {
 
-        return UIUtils.createScrollPane (UIUtils.createTextArea (rows));
+    /**
+     * Create a text area with the specified placeholder for the number of rows and max chars.  The
+     * dictionary and synonym providers from the passed in viewer are used.
+     *
+     * @param pv The project viewer.
+     * @param placeholder The placeholder text.
+     * @param rows The number of rows of text.
+     * @param maxChars The maximum number of characters allowed.
+     * @returns The text area.
+     */
+    public static TextArea createTextArea (AbstractProjectViewer pv,
+                                           String                placeholder,
+                                           int                   rows,
+                                           int                   maxChars)
+    {
         
-    }
-    
-    public static JTextArea createTextArea (int rows)
-    {
-
-        JTextArea t = new JTextArea ();
-        t.setFocusTraversalKeys (KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
-                                 null);
-        t.setFocusTraversalKeys (KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
-                                 null);
-        t.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        if (rows > 0)
+        TextArea t = new TextArea (placeholder,
+                                   rows,
+                                   maxChars);
+        t.setDictionaryProvider (pv.getDictionaryProvider ());
+        t.setSpellCheckEnabled (pv.isSpellCheckingEnabled ());
+        
+        try
         {
-
-            t.setRows (rows);
-
+        
+            t.setSynonymProvider (pv.getSynonymProvider ());
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set synonym provider.",
+                                  e);
+            
         }
 
-        t.setMargin (new Insets (3,
-                                 3,
-                                 3,
-                                 3));
-        t.setLineWrap (true);
-        t.setWrapStyleWord (true);
-
-        t.setSize (new Dimension (500,
-                                  t.getPreferredSize ().height));
-        
         return t;
+        
+    }
 
+    /**
+     * Create a text area with the specified placeholder for the number of rows and max chars.  The
+     * default dictionary provider from Environment.getDefaultDictionaryProvider is used and a
+     * synonym provider with null language is also used.
+     *
+     * @param placeholder The placeholder text.
+     * @param rows The number of rows of text.
+     * @param maxChars The maximum number of characters allowed.
+     * @returns The text area.
+     */
+    public static TextArea createTextArea (String placeholder,
+                                           int    rows,
+                                           int    maxChars)
+    {
+        
+        TextArea t = new TextArea (placeholder,
+                                   rows,
+                                   maxChars);
+        
+        try
+        {
+        
+            t.setDictionaryProvider (Environment.getDefaultDictionaryProvider ());
+            t.setSpellCheckEnabled (true);
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set dictionary provider",
+                                  e);
+            
+        }
+        
+        try
+        {
+        
+            t.setSynonymProvider (Environment.getSynonymProvider (null));
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set synonym provider.",
+                                  e);
+            
+        }
+
+        return t;
+        
     }
 
     public static JComponent createPopupMenuButtonBar (String           title,
@@ -6186,6 +6088,7 @@ public class UIUtils
             
         };
 
+        b.setFocusPainted (false);
         b.setToolTipText (toolTipText);
         b.setOpaque (false);
         UIUtils.setAsButton (b);
@@ -6491,6 +6394,40 @@ public class UIUtils
         
     }
     
+    public static Image replaceColorInImage (Image  im,
+                                             Color  orig,
+                                             Color  changeTo)
+    {
+        
+        if (im == null)
+        {
+            
+            return null;
+            
+        }
+        
+        final int orgb = orig.getRGB ();
+        final int crgb = changeTo.getRGB ();
+        
+        ImageFilter filter = new RGBImageFilter()
+        {
+          public final int filterRGB(int x, int y, int rgb)
+          {
+            if (rgb != 0)
+            {
+            
+            }
+            
+            return (rgb == orgb ? crgb : rgb);
+
+          }
+        };
+    
+        ImageProducer ip = new FilteredImageSource (im.getSource (), filter);
+        return Toolkit.getDefaultToolkit().createImage (ip); 
+        
+    }
+
     public static Color getIconColumnColor ()
     {
         
@@ -6659,7 +6596,7 @@ public class UIUtils
         
         BufferedImage image = new BufferedImage (width,
                                                  height,
-                                                 BufferedImage.TYPE_INT_RGB);
+                                                 BufferedImage.TYPE_INT_ARGB);
 
         Graphics g = image.getGraphics ();
                     
@@ -6725,9 +6662,14 @@ public class UIUtils
         
         g.setColor (color);
         
+        FontMetrics fm = g.getFontMetrics ();
+        
+        java.awt.geom.Rectangle2D b = g.getFontMetrics ().getStringBounds (text,
+                                                            g);
+        
         g.drawString (text,
                       where.x,
-                      where.y);
+                      (int) (where.y + b.getHeight ()));
         
         return newIm;
         
@@ -6885,6 +6827,29 @@ public class UIUtils
         
     }
     
+    public static BufferedImage iconToImage(Icon icon)
+    {
+    
+       if (icon instanceof ImageIcon) {
+          return (BufferedImage) ((ImageIcon)icon).getImage();
+       } else {
+        
+          int w = icon.getIconWidth();
+          int h = icon.getIconHeight();
+          GraphicsEnvironment ge = 
+            GraphicsEnvironment.getLocalGraphicsEnvironment();
+          GraphicsDevice gd = ge.getDefaultScreenDevice();
+          GraphicsConfiguration gc = gd.getDefaultConfiguration();
+          BufferedImage image = gc.createCompatibleImage(w, h);
+          Graphics2D g = image.createGraphics();
+          icon.paintIcon(null, g, 0, 0);
+          g.dispose();
+          return image;
+    
+       }
+     
+    }    
+    
     public static BufferedImage getScaledImage (BufferedImage img,
                                                 int           targetWidth,
                                                 int           targetHeight)
@@ -6907,7 +6872,7 @@ public class UIUtils
         return tmp;
   */  
     }    
-
+    
     public static ImageIcon overlayImage (ImageIcon bg,
                                           ImageIcon fg,
                                           String    where)
@@ -7281,9 +7246,12 @@ public class UIUtils
                                                    ActionListener action)
     {
         
+        text.addDoActionOnCtrlReturnPressed (action);
+
+        /*
         UIUtils.addDoActionOnReturnPressed (text.getTextArea (),
                                             action);
-        
+        */
     }
 
     public static void addDoActionOnReturnPressed (final JTextComponent text,
@@ -7433,7 +7401,7 @@ public class UIUtils
                                                      Point                 showAt)
     {
                 
-        final MessageWindow mw = new MessageWindow ((popup != null ? popup.getProjectViewer () : null),
+        final MessageWindow mw = new MessageWindow ((popup != null ? popup.getViewer () : null),
                                                     title,
                                                     message)
         {
@@ -7521,7 +7489,7 @@ public class UIUtils
         
     }
         
-    public static QPopup createQuestionPopup (AbstractProjectViewer viewer,
+    public static QPopup createQuestionPopup (AbstractViewer        viewer,
                                               String                title,
                                               String                icon,
                                               String                message,
@@ -7558,7 +7526,7 @@ public class UIUtils
         
     }
 
-    public static QPopup createQuestionPopup (AbstractProjectViewer       viewer,
+    public static QPopup createQuestionPopup (AbstractViewer              viewer,
                                               String                      title,
                                               String                      icon,
                                               String                      message,
@@ -7582,7 +7550,7 @@ public class UIUtils
                                             showAt);
                                      
     }
-    
+    /*
     public static QPopup createQuestionPopup (AbstractProjectViewer       viewer,
                                               String                      title,
                                               String                      icon,
@@ -7660,8 +7628,157 @@ public class UIUtils
         return qp;
         
     }
+*/
+    public static QPopup createQuestionPopup (PopupsSupported             viewer,
+                                              String                      title,
+                                              String                      icon,
+                                              JComponent                  mess,
+                                              Map<String, ActionListener> buttons,
+                                              ActionListener              onClose,
+                                              Point                       showAt)
+    {
+                
+        final QPopup qp = UIUtils.createClosablePopup (title,
+                                                       Environment.getIcon (icon,
+                                                                            Constants.ICON_POPUP),
+                                                       onClose);
+        
+        Box content = new Box (BoxLayout.Y_AXIS);
+        
+        content.add (mess);
+        content.add (Box.createVerticalStrut (10));
+                            
+        JButton[] buts = new JButton[buttons.size ()];
+        
+        int i = 0; 
+        
+        // Too much type information required to do entrySet...
+        // We will never do much iterating here so simpler and clearer to just do it the "hard way".
+        Iterator<String> iter = buttons.keySet ().iterator ();
+        
+        while (iter.hasNext ())
+        {
+            
+            String label = iter.next ();
+            
+            ActionListener a = buttons.get (label);
+            
+            JButton b = UIUtils.createButton (label,
+                                              null);
+        
+            b.addActionListener (qp.getCloseAction ());
 
-    public static QPopup createTextInputPopup (final AbstractProjectViewer viewer,
+            if (a != null)
+            {
+                
+                b.addActionListener (a);
+                
+            }
+                
+            buts[i++] = b;
+                        
+        }
+            
+        JComponent bs = UIUtils.createButtonBar2 (buts,
+                                                  Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
+        bs.setAlignmentX (Component.LEFT_ALIGNMENT);
+        content.add (bs);
+        content.setBorder (new EmptyBorder (10, 10, 10, 10));
+        qp.setContent (content);
+
+        content.setPreferredSize (new Dimension (Math.max (UIUtils.getPopupWidth (), bs.getPreferredSize ().width),
+                                                 content.getPreferredSize ().height));
+
+        if (showAt == null)
+        {
+        
+            if (viewer instanceof Component)
+            {
+        
+                showAt = UIUtils.getCenterShowPosition ((Component) viewer,
+                                                        qp);
+
+            }
+            
+        }
+        
+        viewer.showPopupAt (qp,
+                            showAt,
+                            false);
+        
+        if (viewer instanceof Component)
+        {
+        
+            qp.setDraggable ((Component) viewer);
+            
+        }
+        
+        return qp;
+        
+    }
+
+    public static QPopup createHelpPopup (AbstractViewer  viewer,
+                                          String          title,
+                                          String          text,
+                                          ActionListener  onClose,
+                                          Point           showAt)
+    {
+                
+        final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : "Help"),
+                                                       Environment.getIcon (Constants.HELP_ICON_NAME,
+                                                                            Constants.ICON_POPUP),
+                                                       onClose);
+        
+        Box content = new Box (BoxLayout.Y_AXIS);
+        
+        content.add (UIUtils.createHelpTextPane (text,
+                                                 viewer));
+        content.add (Box.createVerticalStrut (10));
+                                        
+        JButton b = UIUtils.createButton ("Close",
+                                          null);
+                        
+        JButton[] buts = { b };
+                        
+        JComponent bs = UIUtils.createButtonBar2 (buts,
+                                                  Component.CENTER_ALIGNMENT); 
+        bs.setAlignmentX (Component.LEFT_ALIGNMENT);
+        content.add (bs);
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+        qp.setContent (content);
+
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                 content.getPreferredSize ().height));
+
+        if (showAt == null)
+        {
+        
+            if (viewer instanceof Component)
+            {
+        
+                showAt = UIUtils.getCenterShowPosition ((Component) viewer,
+                                                        qp);
+
+            }
+            
+        }
+        
+        viewer.showPopupAt (qp,
+                            showAt,
+                            false);
+        
+        if (viewer instanceof Component)
+        {
+        
+            qp.setDraggable ((Component) viewer);
+            
+        }
+        
+        return qp;
+        
+    }
+
+    public static QPopup createTextInputPopup (final AbstractViewer  viewer,
                                                String                title,
                                                String                icon,
                                                String                message,
@@ -7915,6 +8032,13 @@ public class UIUtils
                                 final String         showOnError)
     {
         
+        if (l == null)
+        {
+            
+            return;
+            
+        }
+        
         SwingUtilities.invokeLater (new Runnable ()
         {
                                  
@@ -7971,7 +8095,7 @@ public class UIUtils
     public static String getOpenProjectHTML (String projId)
     {
         
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -7992,7 +8116,7 @@ public class UIUtils
         if (proj == null)
         {
             
-            Environment.logError ("Unable to get project with id: " +
+            Environment.logError ("Unable to get project info for project with id: " +
                                   projId);
             
             return "Unknown Project";
@@ -8032,7 +8156,7 @@ public class UIUtils
     /**
      * Is a wrapper for:
      * <code>
-     *  new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
+     *  new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getInnerBorderColor ()),
      *                      UIUtils.createPadding (top, left, bottom, right));
      * </code>
      *
@@ -8049,6 +8173,46 @@ public class UIUtils
         
     }
     
+    /**
+     * Is a wrapper for:
+     * <code>
+     *  new CompoundBorder (new MatteBorder (1, 0, 0, 0, UIUtils.getInnerBorderColor ()),
+     *                      UIUtils.createPadding (top, left, bottom, right));
+     * </code>
+     *
+     * @returns A compound border with an outer line and an inner padding.
+     */
+    public static CompoundBorder createTopLineWithPadding (int top,
+                                                           int left,
+                                                           int bottom,
+                                                           int right)
+    {
+       
+        return new CompoundBorder (new MatteBorder (1, 0, 0, 0, UIUtils.getInnerBorderColor ()),
+                                   UIUtils.createPadding (top, left, bottom, right));
+        
+    }
+
+    /**
+     * Is a wrapper for:
+     * <code>
+     *  new CompoundBorder (new MatteBorder (1, 1, 1, 1, UIUtils.getBorderColor ()),
+     *                      UIUtils.createPadding (top, left, bottom, right));
+     * </code>
+     *
+     * @returns A compound border with an outer line and an inner padding.
+     */
+    public static CompoundBorder createLineBorderWithPadding (int top,
+                                                              int left,
+                                                              int bottom,
+                                                              int right)
+    {
+       
+        return new CompoundBorder (new MatteBorder (1, 1, 1, 1, UIUtils.getBorderColor ()),
+                                   UIUtils.createPadding (top, left, bottom, right));
+        
+    }
+
     public static EmptyBorder createPadding (int top,
                                              int left,
                                              int bottom,
@@ -8486,9 +8650,9 @@ public class UIUtils
         
     }
 
-    public static void openProjectAndDoAction (Project               proj,
-                                               ActionListener        onOpen,
-                                               AbstractProjectViewer parentViewer)
+    public static void openProjectAndDoAction (ProjectInfo    proj,
+                                               ActionListener onOpen,
+                                               AbstractViewer parentViewer)
     {
         
         AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
@@ -8519,5 +8683,755 @@ public class UIUtils
         }                            
         
     }
+    
+    public static void askForPasswordForProject (final ProjectInfo    proj,
+                                                 final ActionListener onProvided,
+                                                 final AbstractViewer parentViewer)
+    {
+        
+        AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
+        
+        if ((pv == null)
+            &&
+            (proj.isEncrypted ())
+           )
+        {
+
+            UIUtils.createTextInputPopup (parentViewer,
+                                          "Password required",
+                                          Constants.PROJECT_ICON_NAME,
+                                          String.format ("{Project} %s is encrypted, please enter the password to unlock it below.",
+                                                         proj.getName ()),
+                                          "Open",
+                                          Constants.CANCEL_BUTTON_LABEL_ID,
+                                          null,
+                                          null,
+                                          new ActionListener ()
+                                          {
+                                            
+                                              @Override
+                                              public void actionPerformed (ActionEvent ev)
+                                              {
+                                                
+                                                  proj.setFilePassword ((String) ev.getSource ());
+                                                  
+                                                  if (onProvided != null)
+                                                  {
+                                                    
+                                                    onProvided.actionPerformed (new ActionEvent (proj,
+                                                                                                 1,
+                                                                                                 "provided"));
+                                                    
+                                                  }
+                                                
+                                              }
+                                            
+                                          },
+                                          null,
+                                          null);
+            
+        } else {
+            
+            onProvided.actionPerformed (new ActionEvent (proj, 1, "provided"));
+            
+        }                            
+        
+    }
+
+    public static JComboBox getSpellCheckLanguagesSelector (final ActionListener onSelect,
+                                                            final String         defLang)
+    {
+        
+        final JComboBox spellcheckLang = new JComboBox ();
+
+        if (onSelect != null)
+        {
+            
+            spellcheckLang.addItemListener (new ItemAdapter ()
+            {
+               
+               public void itemStateChanged (ItemEvent ev)
+               {
+                
+                    if (ev.getStateChange () != ItemEvent.SELECTED)
+                    {
+                        
+                        return;
+                        
+                    }
+                
+                    final String lang = spellcheckLang.getSelectedItem ().toString ();
+    
+                    onSelect.actionPerformed (new ActionEvent (spellcheckLang, 1, lang));
+    
+               }
+               
+            });
+            
+        }
+        
+        // Get the languages supported by the spellchecker.
+        new Thread (new Runnable ()
+        {
+
+            public void run ()
+            {
+                
+                String l = null;
+                
+                try
+                {
+                    
+                    l = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + Environment.getProperty (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
+                    
+                } catch (Exception e) {
+                    
+                    // Something gone wrong, so just add english.
+                    l = Constants.ENGLISH;
+                    
+                    Environment.logError ("Unable to get language files url",
+                                          e);
+                    
+                }
+        
+                StringTokenizer t = new StringTokenizer (l,
+                                                         String.valueOf ('\n'));
+
+                final Vector langs = new Vector ();
+                
+                while (t.hasMoreTokens ())
+                {
+                    
+                    String lang = t.nextToken ().trim ();
+                    
+                    if (lang.equals (""))
+                    {
+                        
+                        continue;
+                        
+                    }
+
+                    langs.add (lang);
+                    
+                }
+                
+                SwingUtilities.invokeLater (new Runnable ()
+                {
+                    
+                    public void run ()
+                    {
+                
+                        spellcheckLang.setModel (new DefaultComboBoxModel (langs));
+                        spellcheckLang.setSelectedItem (defLang);
+                        spellcheckLang.setEnabled (true);
+                        
+                    }
+                    
+                });
+                
+            }
+            
+        }).start ();        
+                
+        return spellcheckLang;
+        
+    }
+
+	public static void showManageBackups (final ProjectInfo    proj,
+                                          final AbstractViewer viewer)
+	{
+		
+		final QPopup popup = UIUtils.createClosablePopup ("Current Backups",
+                                                          Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
+                                                                         	   Constants.ICON_POPUP),
+                                                          null);
+			
+		BackupsManager bm = null;
+		
+		try
+		{
+		
+			bm = new BackupsManager (viewer,
+									 proj);
+			bm.init ();
+
+		} catch (Exception e) {
+			
+			Environment.logError ("Unable to show backups manager",
+								  e);
+			
+			UIUtils.showErrorMessage (viewer,
+									  "Unable to show backups manager, please contact Quoll Writer support for assitance.");
+			
+			return;
+			
+		}
+		
+		bm.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+							  bm.getPreferredSize ().height));
+		bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+	
+		popup.setContent (bm);
+		
+		popup.setDraggable (viewer);
+						  
+		popup.resize ();
+
+		viewer.showPopupAt (popup,
+						    UIUtils.getCenterShowPosition (viewer,
+														   popup),
+						    false);
+		
+	}
+
+    public static void showCreateBackup (final Project        proj,
+                                         final String         filePassword,
+                                         final AbstractViewer viewer)
+    {
+
+        UIUtils.showCreateBackup (Environment.getProjectInfo (proj),
+                                  filePassword,
+                                  viewer);
+    
+    }
+    
+    public static void showCreateBackup (final ProjectInfo    proj,
+                                         final String         filePassword,
+                                         final AbstractViewer viewer)
+    {
+        
+        UIUtils.createQuestionPopup (viewer,
+                                     "Create a Backup",
+                                     Constants.SNAPSHOT_ICON_NAME,
+                                     String.format ("Please confirm you wish to create a backup of {project} <b>%s</b>.",
+                                                    proj.getName ()),
+                                     "Yes, create it",
+                                     null,
+                                     new ActionAdapter ()
+                                     {
+                                        
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
+                                            
+                                            try
+                                            {
+
+                                                File f = Environment.createBackupForProject (proj,
+                                                                                             false);
+                    
+                                                UIUtils.showMessage ((PopupsSupported) viewer,
+                                                                     "Backup created",
+                                                                     String.format ("A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
+                                                                                    f.getParentFile ().toURI ().toString (),
+                                                                                    f));
+                    
+                                            } catch (Exception e)
+                                            {
+                    
+                                                Environment.logError ("Unable to create backup of project: " +
+                                                                      proj,
+                                                                      e);
+                    
+                                                UIUtils.showErrorMessage (viewer,
+                                                                          "Unable to create backup.");
+                    
+                                            }
+                                            
+                                        }
+                                        
+                                    },
+                                    null,
+                                    null,
+                                    null);
+        
+    }
+    
+    public static void showSynonymSelector (final Word        word,
+                                            final QTextEditor ed)
+                                     throws Exception
+    {
+
+        if ((ed == null)
+            ||
+            (ed.getSynonymProvider () == null)
+            ||
+            (word == null)
+           )
+        {
+            
+            return;
+            
+        }
+    
+        Synonyms syns = ed.getSynonymProvider ().getSynonyms (word.getText ());
+                    
+        if ((syns == null)
+            ||
+            (syns.words.size () == 0)
+           )
+        {
+            
+            return;
+            
+        }
+    
+        // Get the parent to show the popup at.
+        // This is wrong but good "enough" for now.
+        AbstractViewer viewer = UIUtils.getViewer (ed);
+        
+        if (viewer == null)
+        {
+            
+            throw new GeneralException ("Unable to show synonyms for editor that has no viewer parent.");
+            
+        }
+        
+        final Object highlight = ed.addHighlight (word.getAllTextStartOffset (),
+                                                  word.getAllTextEndOffset (),
+                                                  null,
+                                                  true);        
+    
+        final QPopup popup = new QPopup ("Synonyms for: " + word.getText (),
+                                         Environment.getIcon (Constants.FIND_ICON_NAME,
+                                                              Constants.ICON_POPUP),
+                                         null);
+
+        JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
+                                              Constants.ICON_MENU,
+                                              "Click to close",
+                                              null);
+        
+        List<JButton> buts = new ArrayList ();
+        buts.add (close);
+        
+        popup.getHeader ().setControls (UIUtils.createButtonBar (buts));
+                                                    
+        close.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                popup.setVisible (false);
+
+                ed.removeHighlight (highlight);
+                
+            }
+
+        });
+        
+        StringBuilder sb = new StringBuilder ();
+
+        sb.append ("6px");
+
+        for (int i = 0; i < syns.words.size (); i++)
+        {
+
+            if (sb.length () > 0)
+            {
+
+                sb.append (", ");
+
+            }
+
+            sb.append ("p, 3px, [p,90px], 5px");
+
+        }
+
+        FormLayout   summOnly = new FormLayout ("3px, fill:380px:grow, 3px",
+                                                sb.toString ());
+        PanelBuilder pb = new PanelBuilder (summOnly);
+
+        CellConstraints cc = new CellConstraints ();
+
+        int ind = 2;
+
+        Map<String, String> names = new HashMap ();
+        names.put (Synonyms.ADJECTIVE + "",
+                   "Adjectives");
+        names.put (Synonyms.NOUN + "",
+                   "Nouns");
+        names.put (Synonyms.VERB + "",
+                   "Verbs");
+        names.put (Synonyms.ADVERB + "",
+                   "Adverbs");
+        names.put (Synonyms.OTHER + "",
+                   "Other");
+
+        // Determine what type of word we are looking for.
+        for (Synonyms.Part i : syns.words)
+        {
+
+            JLabel l = new JLabel (names.get (i.type + ""));
+
+            l.setFont (l.getFont ().deriveFont (Font.ITALIC));
+            l.setFont (l.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (10)));
+            l.setBorder (new CompoundBorder (new MatteBorder (0,
+                                                              0,
+                                                              1,
+                                                              0,
+                                                              Environment.getBorderColor ()),
+                                             new EmptyBorder (0, 0, 3, 0)));
+
+            pb.add (l,
+                    cc.xy (2,
+                           ind));
+
+            ind += 2;
+
+            HTMLEditorKit kit = new HTMLEditorKit ();
+            HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
+
+            JTextPane t = new JTextPane (doc);
+            t.setEditorKit (kit);
+            t.setEditable (false);
+            t.setOpaque (false);
+
+            StringBuilder buf = new StringBuilder ("<style>a { text-decoration: none; } a:hover { text-decoration: underline; }</style><span style='color: #000000; font-size: " + ((int) UIUtils.getEditorFontSize (10)/*t.getFont ().getSize () + 2*/) + "pt; font-family: " + t.getFont ().getFontName () + ";'>");
+
+            for (int x = 0; x < i.words.size (); x++)
+            {
+
+                String w = (String) i.words.get (x);
+
+                buf.append ("<a class='x' href='http://" + w + "'>" + w + "</a>");
+
+                if (x < (i.words.size () - 1))
+                {
+
+                    buf.append (", ");
+
+                }
+
+            }
+
+            buf.append ("</span>");
+
+            t.setText (buf.toString ());
+
+            t.addHyperlinkListener (new HyperlinkAdapter ()
+                {
+
+                    public void hyperlinkUpdate (HyperlinkEvent ev)
+                    {
+
+                        if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
+                        {
+                            
+                            ed.replaceText (word.getAllTextStartOffset (),
+                                            word.getAllTextEndOffset (),
+                                            ev.getURL ().getHost ());
+
+                            ed.removeHighlight (highlight);
+                                                        
+                            popup.setVisible (false);
+
+                            Environment.fireUserProjectEvent (ProjectEvent.SYNONYM,
+                                                                  ProjectEvent.REPLACE,
+                                                                  ev.getURL ().getHost ());
+
+                        }
+
+                    }
+
+                });
+
+            // Annoying that we have to do this but it prevents the text from being too small.
+
+            t.setSize (new Dimension (380,
+                                      Short.MAX_VALUE));
+
+            JScrollPane sp = new JScrollPane (t);
+
+            t.setCaretPosition (0);
+
+            sp.setOpaque (false);
+            sp.getVerticalScrollBar ().setValue (0);
+/*
+            sp.setPreferredSize (t.getPreferredSize ());
+            sp.setMaximumSize (new Dimension (380,
+                                              75));
+*/
+            sp.getViewport ().setOpaque (false);
+            sp.setOpaque (false);
+            sp.setBorder (null);
+            sp.getViewport ().setBackground (Color.WHITE);
+            sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+            pb.add (sp,
+                    cc.xy (2,
+                           ind));
+
+            ind += 2;
+
+        }
+
+        JPanel pan = pb.getPanel ();
+        pan.setOpaque (true);
+        pan.setBackground (UIUtils.getComponentColor ());
+
+        popup.setContent (pan);
+
+        Rectangle r = ed.modelToView (word.getAllTextStartOffset ());
+
+        Point po = SwingUtilities.convertPoint (ed,
+                                                r.x,
+                                                r.y,
+                                                viewer);
+
+        r.setLocation (po);
+
+        popup.setOpaque (false);
+
+        popup.setDraggable (viewer);
+        
+        viewer.showPopupAt (popup,
+                            r,
+                            "above",
+                            true);
+
+    }
+    
+    public static void downloadDictionaryFiles (String               lang,
+                                                final AbstractViewer parent,
+                                                final ActionListener onComplete)
+    {
+
+        if (Environment.isEnglish (lang))
+        {
+            
+            lang = Constants.ENGLISH;
+            
+        }
+
+        final String langOrig = lang;
+        final String language = lang;
+        
+        String fileLang = lang;
+        
+        // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
+        // download the English-dictionary-only.zip.
+        if ((Environment.isEnglish (lang))
+            &&
+            (!Environment.getDictionaryFile (lang).exists ())
+            &&
+            (Environment.hasSynonymsDirectory (lang))
+           )
+        {
+            
+            fileLang = "English-dictionary-only";
+            
+        }
+        
+        URL url = null;
+        
+        try
+        {
+            
+            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (Environment.getProperty (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
+                                                                                                   "[[LANG]]",
+                                                                                                   StringUtils.replaceString (fileLang,
+                                                                                                                              " ",
+                                                                                                                              "%20")));
+            
+        } catch (Exception e) {
+            
+            UIUtils.showErrorMessage (parent,
+                                      "Unable to download language files");
+            
+            Environment.logError ("Unable to download language files, cant create url",
+                                  e);
+
+            return;            
+            
+        }
+        
+        Environment.logDebugMessage ("Downloading language file(s) from: " + url + ", for language: " + lang);
+        
+        File _file = null;
+    
+        // Create a temp file for it.
+        try
+        {
+
+            _file = File.createTempFile ("quollwriter-language-" + fileLang,
+                                         null);
+            
+        } catch (Exception e) {
+            
+            UIUtils.showErrorMessage (parent,
+                                      "Unable to download language files");
+            
+            Environment.logError ("Unable to download language files, cant create temp file",
+                                  e);
+
+            return;
+            
+        }
+
+        _file.deleteOnExit ();
+        
+        final File file = _file;
+                
+        Box b = new Box (BoxLayout.Y_AXIS);
+
+        final JTextPane htmlP = UIUtils.createHelpTextPane (String.format ("The language files for <b>%s</b> are now being downloaded.",
+                                                                           language),
+                                                            parent);
+        htmlP.setBorder (null);
+        htmlP.setBackground (null);
+        htmlP.setOpaque (false);
+        htmlP.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        b.add (htmlP);
+        b.add (Box.createVerticalStrut (10));
+        
+        final JProgressBar prog = new JProgressBar (0, 100);
+        
+        prog.setPreferredSize (new Dimension (500, 25));
+        prog.setMaximumSize (new Dimension (500, 25));
+        prog.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        b.add (prog);
+                
+        final Notification n = parent.addNotification (b,
+                                                       Constants.DOWNLOAD_ICON_NAME,
+                                                       -1,
+                                                       null);
+                                
+        final ActionListener removeNotification = new ActionListener ()
+        {
+        
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+               n.removeNotification ();
+                
+            }
+        };
+        
+        final UrlDownloader downloader = new UrlDownloader (url,
+                                                            file,
+                                                            new DownloadListener ()
+                                                            {
+                                                        
+                                                                public void handleError (Exception e)
+                                                                {
+                                                                    
+                                                                    UIUtils.showErrorMessage (parent,
+                                                                                              "A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+                                                                    
+                                                                    Environment.logError ("Unable to download language files",
+                                                                                          e);
+                                                                    
+                                                                    UIUtils.doLater (removeNotification);
+                                                                    
+                                                                }
+                                                        
+                                                                public void progress (final int downloaded,
+                                                                                      final int total)
+                                                                {
+
+                                                                    UIUtils.doLater (new ActionListener ()
+                                                                    {
+                                                            
+                                                                        @Override
+                                                                        public void actionPerformed (ActionEvent ev)
+                                                                        {
+                                                                            
+                                                                            int val = (int) (((double) downloaded / (double) total) * 100);
+                                                                            
+                                                                            prog.setValue (val);
+                                                                            
+                                                                        }
+                                                                        
+                                                                    });
+                                                                    
+                                                                }
+                                                                
+                                                                public void finished (int total)
+                                                                {
+                                                                                                                                        
+                                                                    prog.setValue (100);
+                                                                    prog.setIndeterminate (true);
+                                                                    
+                                                                    new Thread (new Runner ()
+                                                                    {
+                                                                    
+                                                                        public void run ()
+                                                                        {
+
+                                                                            // Now extract the file into the relevant directory.
+                                                                            try
+                                                                            {
+
+                                                                                Utils.extractZipFile (file,
+                                                                                                      Environment.getUserQuollWriterDir ());
+                                                                                
+                                                                            } catch (Exception e) {
+                                                                                
+                                                                                Environment.logError ("Unable to extract language zip file: " +
+                                                                                                      file +
+                                                                                                      " to: " +
+                                                                                                      Environment.getUserQuollWriterDir (),
+                                                                                                      e);
+                                                                                
+                                                                                return;
+                                                                                
+                                                                            } finally {
+        
+                                                                                file.delete ();
+                                                                                
+                                                                            }
+                                                                            
+                                                                            if (onComplete != null)
+                                                                            {
+                                                                                                                                                    
+                                                                                UIUtils.doLater (new ActionListener ()
+                                                                                {
+                                                                        
+                                                                                    @Override
+                                                                                    public void actionPerformed (ActionEvent ev)
+                                                                                    {
+                                                                        
+                                                                                        prog.setIndeterminate (false);                                                                    
+                                                                                       
+                                                                                        onComplete.actionPerformed (new ActionEvent (parent, 0, langOrig));
+                                                                                        
+                                                                                    }
+                                                                                    
+                                                                                });
+                                                                                
+                                                                            }
+
+                                                                            UIUtils.doLater (removeNotification);
+                                                                                                                                                        
+                                                                        }
+                                                                        
+                                                                    }).start ();
+                                                                    
+                                                                }
+                                                        
+                                                            });
+        
+        downloader.start ();
+                        
+        n.addCancelListener (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                downloader.stop ();
+                
+                file.delete ();
+
+            }
+            
+        });
+        
+    }    
     
 }

@@ -34,8 +34,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
     private AbstractProjectViewer commentsViewer = null;
     private Box responseBox = null;
         
-    public ProjectEditStopMessageBox (ProjectEditStopMessage     mess,
-                                      AbstractProjectViewer viewer)
+    public ProjectEditStopMessageBox (ProjectEditStopMessage mess,
+                                      AbstractViewer         viewer)
     {
         
         super (mess,
@@ -71,25 +71,7 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
     {
         
         final ProjectEditStopMessageBox _this = this;
-        
-        Project proj = null;
-        
-        try
-        {
-                        
-            proj = Environment.getProjectById (this.message.getForProjectId (),
-                                               null);
-                                    
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get project for id: " +
-                                  this.message.getForProjectId (),
-                                  e);
-                        
-        }
-        
-        final Project fproj = proj;
-            
+                    
         String title = "Stopped editing {project}";
                                 
         JComponent h = UIUtils.createBoldSubHeader (title,
@@ -130,18 +112,34 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
             public void actionPerformed (ActionEvent ev)
             {
             
-                if (fproj != null)
+                ProjectInfo proj = null;
+                
+                try
+                {
+                                
+                    proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                       null);
+                                            
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get project info for project with id: " +
+                                          _this.message.getForProjectId (),
+                                          e);
+                                
+                }
+                            
+                if (proj != null)
                 {
             
                     try
                     {
             
-                        Environment.openProject (fproj);
+                        Environment.openProject (proj);
                         
                     } catch (Exception e) {
                         
                         Environment.logError ("Unable to open project: " +
-                                              fproj,
+                                              proj,
                                               e);
                         
                     }
@@ -194,7 +192,7 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
             JTextPane rdesc = UIUtils.createHelpTextPane (String.format ("<b>%s</b> has stopped editing {project} <b>%s</b>.",
                                                                          this.message.getEditor ().getShortName (),
                                                                          this.message.getForProjectName ()),
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             
             this.responseBox.add (Box.createVerticalStrut (5));
                                 
@@ -223,8 +221,8 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
                     try
                     {
     
-                        Project p = Environment.getProjectById (_this.message.getForProjectId (),
-                                                                Project.NORMAL_PROJECT_TYPE);
+                        ProjectInfo p = Environment.getProjectById (_this.message.getForProjectId (),
+                                                                    Project.NORMAL_PROJECT_TYPE);
                                     
                         ProjectEditor pe = EditorsEnvironment.getProjectEditor (p,
                                                                                 ed);
@@ -246,7 +244,7 @@ public class ProjectEditStopMessageBox extends MessageBox<ProjectEditStopMessage
                                               ed,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update {contact}, please contact Quoll Writer support for assitance.");
                         
                         return;

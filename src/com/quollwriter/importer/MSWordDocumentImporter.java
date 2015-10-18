@@ -171,7 +171,7 @@ public class MSWordDocumentImporter implements DocumentImporter
             Chapter c = this.p.getBooks ().get (0).createChapterAfter (null,
                                                                        Environment.getProperty (Constants.DEFAULT_CHAPTER_NAME_PROPERTY_NAME));
 
-            c.setText (chapterText.toString ());
+            c.setText (new StringWithMarkup (chapterText.toString ()));
 
         }
 
@@ -186,7 +186,7 @@ public class MSWordDocumentImporter implements DocumentImporter
             Chapter c = (Chapter) this.n;
 
             this.p.getBooks ().get (0).addChapter (c);
-            c.setText (chapterText.toString ());
+            c.setText (new StringWithMarkup (chapterText.toString ()));
 
         }
 
@@ -299,7 +299,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                 
             }
             
-            this.n.setDescription (ct);
+            this.n.setDescription (new StringWithMarkup (ct));
 
         }
                 
@@ -360,6 +360,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                     this.n = new QCharacter ();
 
                     name = text.substring (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
+
                 }
 
                 if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (Location.OBJECT_TYPE).toLowerCase () + ":"))
@@ -392,7 +393,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
                 if (this.n == null)
                 {
-
+                
                     this.n = new Chapter (this.p.getBooks ().get (0),
                                           text);
 

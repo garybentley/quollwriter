@@ -235,22 +235,22 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
 
             CellConstraints cc = new CellConstraints ();
 
-            JTextPane t = UIUtils.createObjectDescriptionViewPane (it.getDescription (),
+            JTextPane t = UIUtils.createObjectDescriptionViewPane (formatter.getItemDescription (it), //null,
                                                                    it,
                                                                    viewer,
                                                                    panel);
-
+/*
             t.setText (UIUtils.getWithHTMLStyleSheet (t,
                                                       UIUtils.markupStringForAssets (formatter.getItemDescription (it),
                                                                                      viewer.getProject (),
                                                                                      it)));
 
-
+*/
             // t.setText (it.getDescription ());
             // Annoying that we have to do this but it prevents the text from being too small.
             t.setSize (380,
                        Short.MAX_VALUE);
-
+            
             pb.add (t,
                     cc.xy (2,
                            row++));

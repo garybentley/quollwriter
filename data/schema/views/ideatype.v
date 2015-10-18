@@ -3,6 +3,8 @@ AS
 SELECT i.dbkey dbkey,
        n.name name,
        n.description description,
+       n.markup markup,
+       n.files  files,
        i.sortby sortby,
        i.icontype icontype,
        n.lastmodified lastmodified,

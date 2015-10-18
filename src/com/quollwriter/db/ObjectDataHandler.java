@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class ObjectDataHandler implements DataHandler<QObject, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, type, id, version FROM qobject_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, type, id, version FROM qobject_v ";
     private ObjectManager objectManager = null;
 
     public ObjectDataHandler(ObjectManager om)
@@ -38,8 +37,9 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
             QObject l = new QObject ();
             l.setKey (key);
             l.setName (rs.getString (ind++));
-            l.setDescription (rs.getString (ind++));
-
+            l.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));

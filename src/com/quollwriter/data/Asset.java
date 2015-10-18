@@ -33,10 +33,9 @@ public abstract class Asset extends NamedObject
     public Asset(String objType,
                  String name)
     {
-
-        super (objType);
-
-        this.name = name;
+    
+        super (objType,
+               name);
 
     }
 

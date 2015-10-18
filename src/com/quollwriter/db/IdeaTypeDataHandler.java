@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, sortby, icontype, lastmodified, datecreated, properties FROM ideatype_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, sortby, icontype, lastmodified, datecreated, properties FROM ideatype_v ";
 
     private ObjectManager objectManager = null;
 
@@ -40,7 +39,8 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
             it.setKey (key);
 
             it.setName (rs.getString (ind++));
-            it.setDescription (rs.getString (ind++));
+            it.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                     rs.getString (ind++)));
             it.setSortBy (rs.getString (ind++));
             it.setIconType (rs.getString (ind++));
             it.setLastModified (rs.getTimestamp (ind++));

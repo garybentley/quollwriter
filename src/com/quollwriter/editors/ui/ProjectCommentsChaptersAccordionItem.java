@@ -36,8 +36,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
     }
         
     @Override
-    public DragActionHandler getTreeDragActionHandler (ProjectSentReceivedViewer pv,
-                                                       JTree                     tree)
+    public DragActionHandler getTreeDragActionHandler (ProjectSentReceivedViewer pv)
     {
         
         return null;
@@ -73,45 +72,19 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
         
     }        
         
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
         
-        java.util.List<TreePath> openPaths = new ArrayList ();
-        
-        Enumeration<TreePath> paths = tree.getExpandedDescendants (new TreePath (tree.getModel ().getRoot ()));
-
-        if (paths != null)
-        {
-
-            while (paths.hasMoreElements ())
-            {
-
-                openPaths.add (paths.nextElement ());
-
-            }
-
-        }
-
         ((DefaultTreeModel) tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
                                                                                   null,
                                                                                   null,
                                                                                   false));        
 
-        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
-
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
-
-        for (TreePath p : openPaths)
-        {
-
-            tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                               ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
-
-        }        
-        
     }    
     
-    public void init (JTree tree)
+    @Override
+    public void initTree ()
     {
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) EditorsUIUtils.createTree (this.projectViewer.getProject (),
@@ -119,10 +92,10 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
                                                                                           null,
                                                                                           false);
     
-        ((DefaultTreeModel) tree.getModel ()).setRoot (root);
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (root);
 
-        tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                           this.projectViewer.getProject ().getBook (0).getChapters ().get (0)));
+        this.tree.expandPath (UIUtils.getTreePathForUserObject (root,
+                                                                this.projectViewer.getProject ().getBook (0).getChapters ().get (0)));
                                                            
     }
 
@@ -208,8 +181,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
     }
 
     @Override
-    public TreeCellEditor getTreeCellEditor (ProjectSentReceivedViewer pv,
-                                             JTree                     tree)
+    public TreeCellEditor getTreeCellEditor (ProjectSentReceivedViewer pv)
     {
         
         return null;

@@ -19,40 +19,39 @@ import com.quollwriter.ui.components.*;
 public abstract class PopupWindow extends JFrame
 {
 
-    private boolean                 inited = false;
-    protected AbstractProjectViewer projectViewer = null;
-    private Header                  header = null;
-    //private JTextPane               helpText = null;
-    private float                   buttonAlignment = Component.LEFT_ALIGNMENT;
-    private Box                     content = null;
-    private Point                   showAt = null;
-    private JTextPane               helpP = null;
+    private boolean          inited = false;
+    protected AbstractViewer viewer = null;
+    private Header           header = null;
+    private float            buttonAlignment = Component.LEFT_ALIGNMENT;
+    private Box              content = null;
+    private Point            showAt = null;
+    private JTextPane        helpP = null;
     
     public PopupWindow()
     {
 
     }
 
-    public PopupWindow(AbstractProjectViewer pv,
-                       float                 buttonAlignment)
+    public PopupWindow(AbstractViewer pv,
+                       float          buttonAlignment)
     {
 
         this (pv);
         
-        this.projectViewer = pv;
+        this.viewer = pv;
         
         this.buttonAlignment = buttonAlignment;
                 
     }
     
-    public PopupWindow(AbstractProjectViewer pv)
+    public PopupWindow(AbstractViewer pv)
     {
 
         super ();
         
         this.setModalExclusionType (Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         
-        this.projectViewer = pv;
+        this.viewer = pv;
 
         if (pv != null)
         {
@@ -100,10 +99,10 @@ public abstract class PopupWindow extends JFrame
         
     }
     
-    public AbstractProjectViewer getProjectViewer ()
+    public AbstractViewer getViewer ()
     {
         
-        return this.projectViewer;
+        return this.viewer;
         
     }
 
@@ -173,11 +172,10 @@ public abstract class PopupWindow extends JFrame
         helpWrapper.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         helpWrapper.setBorder (UIUtils.createPadding (5, 5, 0, 0));
         
-        this.helpP = UIUtils.createHelpTextPane (null,
-                                                 this.projectViewer);
+        this.helpP = UIUtils.createHelpTextPane (this.viewer);
         this.helpP.setBorder (null);
         this.helpP.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                           500));
+                                           Short.MAX_VALUE));
         
         helpWrapper.add (this.helpP);
         
@@ -226,6 +224,8 @@ public abstract class PopupWindow extends JFrame
 
         this.setResizable (false);
         
+        this.pack ();
+        
         this.resize ();
                
         if (this.showAt == null)
@@ -248,17 +248,34 @@ public abstract class PopupWindow extends JFrame
         this.setVisible (true);
                 
         this.toFront ();
-     
+        this.pack ();
+        
     }
 
     public void resize ()
     {
 
-        this.pack ();
-
         this.getContentPane ().setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                                 this.content.getPreferredSize ().height));
+            
+        this.validate ();
+        this.repaint ();
+        
+        final PopupWindow _this = this;
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+        
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.pack ();
                                                  
+            }
+            
+        });
+        
     }
     
     public void setButtonAlignment (float v)
@@ -325,13 +342,17 @@ public abstract class PopupWindow extends JFrame
 
             this.helpP.setText (t);
 
+            this.helpP.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                               Short.MAX_VALUE));
+                        
             //this.helpP.setText (UIUtils.formatTextForHelpPane (t));
 
             this.helpP.setVisible (true);
 
         }
-
-        //this.resize ();
+        
+        this.resize ();
+        this.resize ();
         
     }
 

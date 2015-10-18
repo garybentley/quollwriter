@@ -64,7 +64,7 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
             if (item.getDescription () != null)
             {
                 
-                summ += "<br />" + item.getDescription ();
+                summ += "<br />" + item.getDescription ().getMarkedUpText ();
                 
             }
 
@@ -72,12 +72,12 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
             
         } else {
             
-            return item.getDescription ();
+            return item.getDescription ().getMarkedUpText ();
             
         }
 
-    }
-
+    }    
+    
     public AbstractActionHandler getEditItemActionHandler (Note                item,
                                                            AbstractEditorPanel ep)
     {

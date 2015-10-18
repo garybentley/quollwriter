@@ -51,6 +51,7 @@ public interface Rule<E extends TextBlock>
     public String getCreateType ();
 
     public Form getEditForm (ActionListener onSaveComplete,
+                             ActionListener onCancel,
                              boolean        add);
                                  
     public void updateFromForm ();

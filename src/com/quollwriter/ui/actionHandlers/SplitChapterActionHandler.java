@@ -69,7 +69,9 @@ public class SplitChapterActionHandler extends AbstractActionHandler
 
     }
 
-    public boolean handleSave (int mode)
+    @Override
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         String n = this.nameField.getText ().trim ();
@@ -77,8 +79,7 @@ public class SplitChapterActionHandler extends AbstractActionHandler
         if (n.equals (""))
         {
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Please select a {Chapter} name.");
+            f.showError ("Please select a {chapter} name.");
 
             return false;
 
@@ -108,20 +109,20 @@ public class SplitChapterActionHandler extends AbstractActionHandler
 
             this.dataObject = c;
 
-            String newText = ed.getText ().substring (start,
-                                                      end);
+            StringWithMarkup edT = ed.getTextWithMarkup ();
             
-            // Get the text.
-            c.setText (newText);
+            String newText = edT.getText ().substring (start,
+                                                       end);
             
             // Get the markup and shift
-            Markup newM = new Markup (ed.getMarkup (),
+            Markup newM = new Markup (edT.getMarkup (),
                                       start,
                                       end);
             newM.shiftBy (shiftBy);
-            
-            c.setMarkup (newM.toString ());
-            
+
+            c.setText (new StringWithMarkup (newText,
+                                             newM));
+                        
             this.projectViewer.saveObject (c,
                                            true);
 

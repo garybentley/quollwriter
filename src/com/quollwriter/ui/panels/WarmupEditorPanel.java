@@ -269,6 +269,7 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
 
     }
 
+    @Override
     public void close ()
     {
 

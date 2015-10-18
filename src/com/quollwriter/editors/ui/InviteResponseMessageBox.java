@@ -30,7 +30,7 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
     private Box responseBox = null;
         
     public InviteResponseMessageBox (InviteResponseMessage mess,
-                                     AbstractProjectViewer     viewer)
+                                     AbstractViewer        viewer)
     {
         
         super (mess,
@@ -80,7 +80,7 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
                 {
                                         
                     JTextPane desc = UIUtils.createHelpTextPane ("Additionally they provided the following name/avatar.",
-                                                                 this.projectViewer);        
+                                                                 this.viewer);        
                                     
                     this.responseBox.add (Box.createVerticalStrut (5));
                                         
@@ -198,7 +198,7 @@ public class InviteResponseMessageBox extends MessageBox<InviteResponseMessage>
                                               ed,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update {editor}, please contact Quoll Writer support for assitance.");
                         
                         return;

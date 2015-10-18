@@ -2,6 +2,8 @@ package com.quollwriter.ui.actionHandlers;
 
 import java.awt.event.ActionListener;
 
+import javax.swing.*;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -29,10 +31,10 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene>
     public String getItemDescription (Scene item)
     {
 
-        return item.getDescription ();
+        return item.getDescription ().getMarkedUpText ();
 
     }
-
+    
     public AbstractActionHandler getEditItemActionHandler (Scene               item,
                                                            AbstractEditorPanel ep)
     {

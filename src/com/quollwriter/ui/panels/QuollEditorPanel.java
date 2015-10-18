@@ -217,8 +217,21 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         this.setTransferHandler (this.chItemTransferHandler);
 
         this.actions.put (SPLIT_CHAPTER_ACTION_NAME,
-                          new SplitChapterActionHandler (this.chapter,
-                                                         this.projectViewer));
+                          new ActionAdapter ()
+                          {
+                           
+                              @Override
+                              public void actionPerformed (ActionEvent ev)
+                              {
+                                 
+                                 
+                                 
+                                 new SplitChapterActionHandler (_this.chapter,
+                                                                _this.projectViewer).actionPerformed (ev);
+        
+                              }
+                              
+                          });
         
         this.actions.put (REMOVE_EDIT_POINT_ACTION_NAME,
                           new ActionAdapter ()
@@ -453,6 +466,35 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                 
     }
 
+    // This is used to completely reflow the text in the editor to get around issues when
+    // we change parent.
+   @Override   
+   public void reflowText ()
+   {
+    
+      try
+      {
+      
+         // Need to remove first
+         this.iconColumn.removeAllItems ();
+      
+         super.reflowText ();
+         
+         this.iconColumn.init ();
+         
+      } catch (Exception e) {
+         
+         Environment.logError ("Unable to reflow text: " +
+                               this.getChapter (),
+                               e);
+         
+         UIUtils.showErrorMessage (this.projectViewer,
+                                   "Unable to reflow the {chapter} text, please contact Quoll Writer support for assistance.");
+         
+      }
+    
+   }
+   
     public int getTextPositionForMousePosition (Point p)
     {
       
@@ -1124,10 +1166,15 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                )
             {
 
-                buts.add (this.createButton (Constants.CHAPTER_SPLIT_ICON_NAME,
-                                             Constants.ICON_MENU,
-                                             "Split {Chapter}",
-                                             SPLIT_CHAPTER_ACTION_NAME));
+               if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
+               {
+            
+                  buts.add (this.createButton (Constants.CHAPTER_SPLIT_ICON_NAME,
+                                               Constants.ICON_MENU,
+                                               "Split {Chapter}",
+                                               SPLIT_CHAPTER_ACTION_NAME));
+
+               }
                                             
             }
                         
@@ -2019,14 +2066,15 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         
     }
 
-    public void close ()
-    {
+   @Override
+   public void close ()
+   {
 
-        super.close ();
+       super.close ();
 
-        this.problemFinder.saveIgnores ();
+       this.problemFinder.saveIgnores ();
 
-    }
+   }
 /*
     public ProblemFinderRuleConfig getProblemFinderRuleConfig ()
     {

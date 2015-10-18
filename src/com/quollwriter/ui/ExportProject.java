@@ -36,7 +36,7 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
 
-public class ExportProject extends Wizard
+public class ExportProject extends Wizard<ProjectViewer>
 {
 
     private static Map<String, String> fileTypes = new LinkedHashMap ();
@@ -94,7 +94,6 @@ public class ExportProject extends Wizard
     private JScrollPane                   itemsTreeScroll = null;
     private Project                       proj = null;
     private Map<String, DocumentExporter> exporters = new HashMap ();
-    private ProjectViewer   pv = null;
 
     private FileFinder      fileFind = null;
     private JLabel          fileFindError = null;
@@ -104,7 +103,6 @@ public class ExportProject extends Wizard
 
         super (pv);
 
-        this.pv = pv;
         this.proj = pv.getProject ();
 
     }
@@ -130,12 +128,12 @@ public class ExportProject extends Wizard
 
             de.exportProject (dir);
 
-            this.projectViewer.createActionLogEntry (this.proj,
-                                                     "Exported project to directory: " +
-                                                     dir);
+            this.viewer.createActionLogEntry (this.proj,
+                                              "Exported project to directory: " +
+                                              dir);
 
-            this.projectViewer.fireProjectEvent (ProjectEvent.EXPORT,
-                                                 ProjectEvent.ANY);
+            this.viewer.fireProjectEvent (ProjectEvent.EXPORT,
+                                          ProjectEvent.ANY);
 
         } catch (Exception e)
         {
@@ -151,7 +149,7 @@ public class ExportProject extends Wizard
 
         }
 
-        UIUtils.showMessage ((PopupsSupported) this.pv,
+        UIUtils.showMessage ((PopupsSupported) this.viewer,
                              "Your {Project} has been exported",
                              String.format ("{Project} <b>%s</b> has been exported to:\n\n   <a href='%s'>%s</a>",
                                             this.proj.getName (),

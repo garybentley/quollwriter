@@ -1,5 +1,6 @@
 package com.quollwriter.data;
 
+import java.io.*;
 import java.util.*;
 
 import com.gentlyweb.xml.*;
@@ -19,12 +20,13 @@ public abstract class NamedObject extends DataObject
     public static final String DESCRIPTION = "description";
     public static final String ALIASES = "aliases";
 
-    protected String   name = null;
-    protected Date     lastModified = null;
-    protected String   description = null;
+    private String   name = null;
+    private Date     lastModified = null;
+    private StringWithMarkup   description = null;
     private Set<Link>  links = new HashSet ();
     private Set<Note> notes = new TreeSet (new ChapterItemSorter ());
     private String     aliases = null;
+    private Set<File> files = new LinkedHashSet ();
 
     public NamedObject(String objType,
                        String name)
@@ -108,10 +110,13 @@ public abstract class NamedObject extends DataObject
             
         }
 
-        if (this.description != null)
+        if ((this.description != null)
+            &&
+            (this.description.getText () != null)
+           )
         {
 
-            if (this.description.toLowerCase ().indexOf (s) != -1)
+            if (this.description.getText ().toLowerCase ().indexOf (s) != -1)
             {
                 
                 return true;
@@ -208,6 +213,34 @@ public abstract class NamedObject extends DataObject
 
     public abstract Set<NamedObject> getAllNamedChildObjects ();
 
+    public Set<File> getFiles ()
+    {
+        
+        return this.files;
+        
+    }
+    
+    public void setFiles (Set<File> files)
+    {
+        
+        this.files = files;
+        
+    }
+    
+    public void addFile (File f)
+    {
+        
+        if (this.files == null)
+        {
+            
+            this.files = new LinkedHashSet ();
+            
+        }
+        
+        this.files.add (f);
+        
+    }
+    
     public void addNote (Note n)
     {
 
@@ -397,17 +430,31 @@ public abstract class NamedObject extends DataObject
 
     }
 
-    public String getDescription ()
+    public String getDescriptionText ()
+    {
+        
+        if (this.description != null)
+        {
+            
+            return this.description.getText ();
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public StringWithMarkup getDescription ()
     {
 
         return this.description;
 
     }
 
-    public void setDescription (String d)
+    public void setDescription (StringWithMarkup d)
     {
 
-        String oldDesc = this.description;
+        StringWithMarkup oldDesc = this.description;
 
         this.description = d;
 
@@ -487,6 +534,39 @@ public abstract class NamedObject extends DataObject
 
             oldEl.addContent ((oldValue != null) ? (oldValue + "") : (null + ""));
             newEl.addContent ((newValue != null) ? (newValue + "") : (null + ""));
+
+            fieldEl.addContent (oldEl);
+            fieldEl.addContent (newEl);
+
+        }
+
+    }
+
+    protected void addFieldChangeElement (Element          changesEl,
+                                          String           fieldName,
+                                          StringWithMarkup oldValue,
+                                          StringWithMarkup newValue)
+    {
+
+        String ot = (oldValue != null ? oldValue.getText () : null);
+        String nt = (newValue != null ? newValue.getText () : null);
+    
+        if (Environment.areDifferent (ot,
+                                      nt))
+        {
+
+            Element fieldEl = new Element ("field");
+
+            changesEl.addContent (fieldEl);
+
+            fieldEl.setAttribute ("name",
+                                  fieldName);
+
+            Element oldEl = new Element ("old");
+            Element newEl = new Element ("new");
+
+            oldEl.addContent ((ot != null) ? (ot + "") : (null + ""));
+            newEl.addContent ((nt != null) ? (nt + "") : (null + ""));
 
             fieldEl.addContent (oldEl);
             fieldEl.addContent (newEl);

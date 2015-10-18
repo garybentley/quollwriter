@@ -1,0 +1,116 @@
+<update-script from="0" to="1">
+  <item>
+    <log>Create the key_sequence sequence.</log>
+    <sql>
+CREATE SEQUENCE key_sequence START WITH 1 INCREMENT BY 1    
+    </sql>
+  </item>
+    
+  <item>
+    <log>Create dataobject table.</log>
+    <sql>
+CREATE TABLE dataobject
+(
+  dbkey BIGINT DEFAULT (NEXT VALUE FOR key_sequence) NOT NULL,
+  objecttype VARCHAR(255),
+  datecreated TIMESTAMP,
+  properties CLOB,
+  version UUID DEFAULT RANDOM_UUID(),
+  id UUID DEFAULT RANDOM_UUID(),
+  latest BOOLEAN DEFAULT TRUE,  
+  PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create namedobject table.</log>
+    <sql>
+CREATE TABLE namedobject
+(
+    dbkey BIGINT NOT NULL,
+    name CLOB,
+    description CLOB,
+    markup CLOB,
+    files CLOB,    
+    lastmodified TIMESTAMP,
+    PRIMARY KEY (dbkey)
+)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create project info table.</log>
+    <sql>
+CREATE TABLE projectinfo
+(
+    dbkey BIGINT NOT NULL,
+    lastedited TIMESTAMP,
+    directory CLOB,
+    backupdirectory CLOB,
+    status CLOB,
+    type VARCHAR(100) DEFAULT 'normal' NOT NULL,
+    statistics CLOB,
+    encrypted BOOLEAN DEFAULT FALSE,
+    nocredentials BOOLEAN DEFAULT FALSE,
+    icon CLOB,
+    foreditor CLOB,
+    PRIMARY KEY (dbkey)
+)        
+    </sql>
+  </item>  
+  
+  <item>
+    <log>Create the actionlog table.</log>
+    <sql>
+CREATE TABLE actionlog
+(
+    onobjectdbkey BIGINT,
+    when TIMESTAMP NOT NULL,
+    message CLOB,
+    changes BLOB,
+    digest CLOB
+)
+    </sql>
+  </item>  
+  
+  <item>
+    <log>Create info table.</log>
+    <sql>
+CREATE TABLE info
+(
+    schema_version SMALLINT DEFAULT 1
+)        
+    </sql>
+  </item>
+  
+  <item>
+    <log>Create foreign key constraint for namedobject/dataobject.</log>
+    <sql>
+ALTER TABLE namedobject ADD CONSTRAINT namedobject_dataobject_fk FOREIGN KEY(dbkey) REFERENCES dataobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Create foreign key constraint for projectinfo/namedobject.</log>
+    <sql>
+ALTER TABLE projectinfo ADD CONSTRAINT projectinfo_namedobject_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+    </sql>
+  </item>
+
+  <item>
+    <log>Add a unique constraint on the id/version dataobject.</log>
+    <sql>
+ALTER TABLE dataobject ADD CONSTRAINT dataobject_id_uk UNIQUE(id)
+    </sql>
+  </item>  
+  
+  <item>
+    <log>Initing info record.</log>
+    <sql>
+INSERT INTO info (schema_version) VALUES (-1)
+    </sql>
+  </item>
+  
+</update-script>
+

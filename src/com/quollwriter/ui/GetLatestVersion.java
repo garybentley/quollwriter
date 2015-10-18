@@ -39,26 +39,26 @@ import org.jdom.*;
 public class GetLatestVersion implements Runnable
 {
 
-    private AbstractProjectViewer projectViewer = null;
-    private JProgressBar          progressBar = null;
-    private boolean               stop = false;
-    private Version               version = null;
-    private long                  size = 0;
-    private byte[]                digest = null;
-    private boolean               beta = false;
-    private Notification          notification = null;
-    private JTextPane             help = null;
-    private JButton               cancel = null;
+    private AbstractViewer viewer = null;
+    private JProgressBar   progressBar = null;
+    private boolean        stop = false;
+    private Version        version = null;
+    private long           size = 0;
+    private byte[]         digest = null;
+    private boolean        beta = false;
+    private Notification   notification = null;
+    private JTextPane      help = null;
+    private JButton        cancel = null;
 
-    public GetLatestVersion(AbstractProjectViewer pv,
-                            Version               version,
-                            long                  size,
-                            String                digest)
+    public GetLatestVersion(AbstractViewer viewer,
+                            Version        version,
+                            long           size,
+                            String         digest)
     {
 
         final GetLatestVersion _this = this;
 
-        this.projectViewer = pv;
+        this.viewer = viewer;
 
         this.progressBar = new JProgressBar ();
 
@@ -76,7 +76,7 @@ public class GetLatestVersion implements Runnable
 
         this.help = UIUtils.createHelpTextPane (String.format ("Downloading upgrade file for new version: <b>%s</b>",
                                                                version),
-                                                  pv);
+                                                viewer);
         this.help.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.help.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -121,9 +121,9 @@ public class GetLatestVersion implements Runnable
         
         c.add (pb);        
         
-        this.notification = pv.addNotification (c,
-                                                Constants.DOWNLOAD_ICON_NAME,
-                                                -1);
+        this.notification = viewer.addNotification (c,
+                                                    Constants.DOWNLOAD_ICON_NAME,
+                                                    -1);
         
         this.notification.setOnRemove (new ActionListener ()
         {
@@ -152,7 +152,7 @@ public class GetLatestVersion implements Runnable
     private void showError (String m)
     {
 
-        UIUtils.showErrorMessage (this.projectViewer,
+        UIUtils.showErrorMessage (this.viewer,
                                   m);
 
         this.notification.removeNotification ();
@@ -439,7 +439,7 @@ public class GetLatestVersion implements Runnable
                                                 
             this.notification.removeNotification ();
                                                  
-            UIUtils.showMessage ((PopupsSupported) this.projectViewer,
+            UIUtils.showMessage ((PopupsSupported) this.viewer,
                                  "Upgrade complete",
                                  String.format ("Quoll Writer has been upgraded to version: <b>%s</b>.\n\nThe changes will be available once you restart Quoll Writer.",
                                                 this.version));

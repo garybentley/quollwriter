@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class ResearchItemDataHandler implements DataHandler<ResearchItem, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, url, id, version FROM researchitem_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, url, id, version FROM researchitem_v ";
 
     private ObjectManager objectManager = null;
 
@@ -39,8 +38,9 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
             ResearchItem l = new ResearchItem ();
             l.setKey (key);
             l.setName (rs.getString (ind++));
-            l.setDescription (rs.getString (ind++));
-
+            l.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));

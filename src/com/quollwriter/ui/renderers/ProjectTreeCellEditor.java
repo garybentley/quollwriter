@@ -259,9 +259,9 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
         if (n.getForObjectType ().equals (Note.OBJECT_TYPE))
         {
 
-            if (this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).renameType (n.getName (),
-                                                                                        newName,
-                                                                                        true))
+            if (Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).renameType (n.getName (),
+                                                                                                    newName,
+                                                                                                    true))
             {
 
                 n.setName (newName);

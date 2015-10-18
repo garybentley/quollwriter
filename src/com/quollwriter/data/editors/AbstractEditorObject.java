@@ -29,6 +29,15 @@ public abstract class AbstractEditorObject extends NamedObject
         
     }
     
+    public AbstractEditorObject (String objType,
+                                 String name)
+    {
+        
+        super (objType,
+               name);
+        
+    }
+
     public AbstractEditorObject (Element root,
                                  String  objType)
                                  throws  Exception
@@ -43,8 +52,8 @@ public abstract class AbstractEditorObject extends NamedObject
         try
         {
             
-            this.lastModified = new Date (Long.parseLong (JDOMUtils.getAttributeValue (root,
-                                                                                       XMLConstants.lastModified)));
+            this.setLastModified (new Date (Long.parseLong (JDOMUtils.getAttributeValue (root,
+                                                                                         XMLConstants.lastModified))));
             
         } catch (Exception e) {
                         
@@ -96,7 +105,7 @@ public abstract class AbstractEditorObject extends NamedObject
         root.addContent (name);
         
         root.setAttribute (XMLConstants.lastModified,
-                           "" + this.lastModified.getTime ());
+                           "" + this.getLastModified ().getTime ());
         
     }
             

@@ -24,7 +24,7 @@ public class TextIterator
             {
                 
                 String pt = t.substring (start,
-                                         i).trim ();
+                                         i);
                 
                 if (pt.length () == 0)
                 {
@@ -58,7 +58,7 @@ public class TextIterator
         }
 
         String lt = t.substring (start,
-                                 l).trim ();
+                                 l);
         
         if (lt.length () > 0)
         {
@@ -428,6 +428,38 @@ public class TextIterator
         }
         
         return words;        
+        
+    }
+    
+    public Map<String, Integer> getWordFrequency ()
+    {
+        
+        Map<String, Integer> ret = new HashMap ();
+        
+        for (Word w : this.getWords ())
+        {
+            
+            String word = w.getText ().toLowerCase ();
+
+            Integer wc = ret.get (word);
+            
+            int c = 0;
+            
+            if (wc != null)
+            {
+                
+                c = wc.intValue ();
+                
+            }
+            
+            c++;
+
+            ret.put (word,
+                     c);
+            
+        }
+        
+        return ret;
         
     }
     

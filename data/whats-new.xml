@@ -1,5 +1,28 @@
 <whatsnew>
 
+  <version id="2.4">        
+    <item>
+      <title>Projects window</title>
+      <description><![CDATA[There is now a new way to interact with your projects.  The Projects window will show you all your projects on a single "page" and you can sort them, manage them and apply a status.]]></description>
+    </item>
+
+    <item>
+      <title>Documents</title>
+      <description><![CDATA[A much requested feature.  You can now add/link documents to your characters, locations, items and research.  Just drag-n-drop a file onto a character, location, item or research tab to add it (or use the add button and do it the slow way).]]></description>
+    </item>
+
+    <item>
+      <title>Backups</title>
+      <description><![CDATA[Snapshots have now become real backups.  You can restore your project from a backup, specify where they should be stored and manage them.]]></description>
+    </item>
+    
+    <item>
+      <title>Backups</title>
+      <description><![CDATA[Snapshots have now become real backups.  You can restore your project from a backup, specify where they should be stored and manage them.]]></description>
+    </item>
+
+  </version>
+  
   <version id="2.3.1">        
     <item onlyIfCurrentVersion="true">
       <title>Bug fixes</title>
@@ -8,7 +31,7 @@
   </version>
     
   <version id="2.3">        
-    <item onlyIfCurrentVersion="true">
+    <item>
       <title>Editor Mode Beta</title>
       <description><![CDATA[Editor Mode is here!  The service is currently in beta and all feedback is welcome.<br /><br /><a href='help:editor-mode/overview.html'>Click here</a> to find out more about the Editors Service and Editor Mode.</a>  In short, it allows you to get feedback from other people about your work.  However it is not designed for proofreading or copy editing.<br /><br />Please don't hesitate to let me know if you hit a bug or want to provide feedback.<br /><br />If you have any problems or questions please just let me know.<br /><br />To get started with Editor Mode just click on the {contacts} [editors] icon on the header bar.]]></description>
     </item>

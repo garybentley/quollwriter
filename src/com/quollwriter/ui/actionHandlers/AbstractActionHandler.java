@@ -89,7 +89,8 @@ public abstract class AbstractActionHandler extends FormAdapter
 
     public abstract void handleCancel (int mode);
 
-    public abstract boolean handleSave (int mode);
+    public abstract boolean handleSave (Form f,
+                                        int  mode);
 
     public abstract String getTitle (int mode);
 
@@ -923,7 +924,8 @@ public abstract class AbstractActionHandler extends FormAdapter
     
             }
 
-            if (this.handleSave (this.mode))
+            if (this.handleSave (this.f,
+                                 this.mode))
             {
     
                 if (this.dataObject != null)

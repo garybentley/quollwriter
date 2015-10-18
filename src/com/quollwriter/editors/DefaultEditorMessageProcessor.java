@@ -165,7 +165,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         if (showPopup)
         {                
                         
-            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+            AbstractViewer viewer = Environment.getFocusedViewer ();
                                     
             mess.setDealtWith (true);
             
@@ -215,7 +215,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         if (showPopup)
         {
                         
-            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+            AbstractViewer viewer = Environment.getFocusedViewer ();
                 
             UIUtils.showMessage ((PopupsSupported) viewer,
                                  "An {editor} has stopped editing your {project}",
@@ -239,7 +239,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                 
         String projId = mess.getForProjectId ();
                         
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -289,7 +289,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
         if (showPopup)
         {
                             
-            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+            AbstractViewer viewer = Environment.getFocusedViewer ();
                         
             UIUtils.createQuestionPopup (viewer,
                                          "{Comments} received about a {project}",
@@ -305,7 +305,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                             public void actionPerformed (ActionEvent ev)
                                             {
                                                 
-                                                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                AbstractViewer viewer = Environment.getFocusedViewer ();
                                                 
                                                 EditorsUIUtils.showProjectComments (mess,
                                                                                     viewer,
@@ -674,7 +674,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             
         }
         
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -684,7 +684,7 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
             
         } catch (Exception e) {
             
-            Environment.logError ("Unable to get project by id: " +
+            Environment.logError ("Unable to get project info for project with id: " +
                                   res.getForProjectId (),
                                   e);
             
@@ -826,8 +826,8 @@ public class DefaultEditorMessageProcessor implements EditorMessageProcessor
                                                                             proj.getForProjectId (),
                                                                             false);
         
-        Project pr = Environment.getProjectById (proj.getForProjectId (),
-                                                 Project.EDITOR_PROJECT_TYPE);
+        ProjectInfo pr = Environment.getProjectById (proj.getForProjectId (),
+                                                     Project.EDITOR_PROJECT_TYPE);
         
         ProjectEditor pe = EditorsEnvironment.getProjectEditor (pr,
                                                                 ed);

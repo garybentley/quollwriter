@@ -94,6 +94,20 @@ public class ReadabilityIndices
         */
     }
 
+    public int getSentenceCount ()
+    {
+        
+        return (int) this.sentenceCount;
+        
+    }
+    
+    public int getWordCount ()
+    {
+        
+        return (int) this.wordCount;
+        
+    }
+    
     public float getFleschKincaidGradeLevel ()
     {
 

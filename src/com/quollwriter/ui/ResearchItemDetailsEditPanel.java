@@ -6,6 +6,8 @@ import java.net.*;
 
 import java.util.*;
 
+import java.awt.event.*;
+
 import javax.swing.*;
 
 import com.quollwriter.*;
@@ -28,9 +30,6 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
                pv);
 
         this.urlEdit = UIUtils.createTextField ();
-
-        UIUtils.addDoActionOnReturnPressed (this.urlEdit,
-                                            this.getDoSaveAction ());
         
     }
 
@@ -114,13 +113,16 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
     }
 
-    public List<FormItem> getExtraEditItems ()
+    public List<FormItem> getExtraEditItems (ActionListener onSave)
     {
 
         List<FormItem> items = new ArrayList ();
         items.add (new FormItem ("Web Page",
                                  this.urlEdit));
 
+        UIUtils.addDoActionOnReturnPressed (this.urlEdit,
+                                            onSave);
+                                 
         return items;
 
     }

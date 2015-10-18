@@ -145,7 +145,7 @@ public class AdvertiseProjectPanel extends QuollPanel
         {
             
             title = proj.getName ();
-            desc = proj.getDescription ();
+            desc = (proj.getDescription () != null ? proj.getDescription ().getText () : null);
             selectedGenres = proj.getGenres ();
             wcLength = proj.getWordCountLength ().getType ();
             exp = proj.getExpectations ();

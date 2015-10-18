@@ -297,7 +297,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
                                  final JPopupMenu popup,
                                        boolean    compress)
     {
-System.out.println ("HERE: " + compress);
+
         final ChapterCommentsPanel _this = this;
 
         final QTextEditor         editor = this.editor;

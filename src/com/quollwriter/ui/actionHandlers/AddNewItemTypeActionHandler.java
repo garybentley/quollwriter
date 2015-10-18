@@ -78,8 +78,8 @@ public class AddNewItemTypeActionHandler extends TextInputActionHandler
             return "Please enter a name.";
             
         }
-        
-        if (this.projectViewer.getObjectTypesHandler (QObject.OBJECT_TYPE).hasType (v))
+                
+        if (Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME).hasType (v))
         {
 
             return "A type called: " + v + " already exists.";
@@ -94,8 +94,8 @@ public class AddNewItemTypeActionHandler extends TextInputActionHandler
                               throws Exception
     {
         
-        this.projectViewer.getObjectTypesHandler (QObject.OBJECT_TYPE).addType (v,
-                                                                                false);
+        Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME).addType (v,
+                                                                                           false);
         
         return true;
         

@@ -315,6 +315,14 @@ public class AccordionItem extends Box
         this.header.setControls (c);
         
     }
+    
+    public JComponent getHeaderControls ()
+    {
+        
+        return (JComponent) this.header.getControls ();
+        
+    }
+    
     /*
     public void addHeaderPopupMenuItem (String         title,
                                         String         icon,

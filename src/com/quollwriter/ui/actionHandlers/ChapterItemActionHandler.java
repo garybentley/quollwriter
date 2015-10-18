@@ -1,6 +1,5 @@
 package com.quollwriter.ui.actionHandlers;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
 
@@ -18,15 +17,15 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.Form;
 import com.quollwriter.ui.components.QTextEditor;
-import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.panels.*;
 
 public class ChapterItemActionHandler extends ProjectViewerActionHandler
 {
 
-    private JTextArea      descField = UIUtils.createTextArea (-1);
+    private TextArea descField = null;    
     private JCheckBox      addToChapter = new JCheckBox ();
     private Chapter        chapter = null;
     private int            showAt = -1;
@@ -44,7 +43,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
                true);
 
         this.chapter = item.getChapter ();
-
+        
         if (mode == AbstractActionHandler.EDIT)
         {
 
@@ -70,7 +69,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public JTextArea getFocussedField ()
+    public JComponent getFocussedField ()
     {
 
         return this.descField;
@@ -101,10 +100,26 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
     private void initFormItems ()
     {
 
-        this.descField.setRows (5);
-        this.descField.setLineWrap (true);
-        this.descField.setWrapStyleWord (true);
+        this.descField = UIUtils.createTextArea (this.projectViewer,
+                                                 null,
+                                                 5,
+                                                 -1);
 
+        this.descField.setCanFormat (true);
+        
+        try
+        {
+        
+            this.descField.setSynonymProvider (this.projectViewer.getSynonymProvider ());
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set synonym provider for note edit: " +
+                                  this.dataObject,
+                                  e);
+            
+        }
+        
         this.addToChapter.setText (Environment.replaceObjectNames ("Add the description to the {Chapter}"));
         
         boolean sel = true;
@@ -120,7 +135,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
         final ChapterItemActionHandler _this = this;
 
-        ActionListener doSave = new ActionAdapter ()
+        ActionListener doSave = new ActionListener ()
         {
           
             public void actionPerformed (ActionEvent ev)
@@ -159,7 +174,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
                )
             {
 
-                this.descField.setText (selectedText);
+                this.descField.setTextWithMarkup (new StringWithMarkup (selectedText));
                 this.addToChapter.setSelected (false);
                 
             }
@@ -169,7 +184,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
             ChapterItem it = (ChapterItem) obj;
 
-            this.descField.setText (it.getDescription ());
+            this.descField.setTextWithMarkup (it.getDescription ());
 
         }
 
@@ -177,7 +192,9 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public boolean handleSave (int mode)
+    @Override
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         if (this.descField.getText ().trim ().equals (""))
@@ -193,9 +210,7 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
         ChapterItem it = (ChapterItem) this.dataObject;
 
         // Fill up the outline item.
-        it.setDescription (this.descField.getText ().trim ());
-
-        // QuollEditorPanel qep = this.projectViewer.getEditorForChapter (this.chapter);
+        it.setDescription (this.descField.getTextWithMarkup ());
 
         this.projectViewer.setTempOption ("addToChapter",
                                           this.addToChapter.isSelected ());
@@ -208,10 +223,10 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
             try
             {
 
+                String d = it.getDescriptionText ();
+
                 if (this.addToChapter.isSelected ())
                 {
-
-                    String d = it.getDescription ();
 
                     if ((d != null) &&
                         (d.trim ().equals ("")))
@@ -224,15 +239,23 @@ public class ChapterItemActionHandler extends ProjectViewerActionHandler
                     } else
                     {
 
-                        String toAdd = it.getDescription () + "\n";
+                        if ((d != null)
+                            &&
+                            (!d.trim ().equals (""))
+                           )
+                        {
+                    
+                            String toAdd = d.trim () + "\n";
+    
+                            // We need to append the text.
+                            editor.insertText (it.getPosition (),
+                                               toAdd);
+    
+                            // Need to update the text position because it will have moved.
+                            it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () - toAdd.length () + 1));
 
-                        // We need to append the text.
-                        editor.insertText (it.getPosition (),
-                                           toAdd);
-
-                        // Need to update the text position because it will have moved.
-                        it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () - toAdd.length () + 1));
-
+                        }
+                            
                     }
 
                 }

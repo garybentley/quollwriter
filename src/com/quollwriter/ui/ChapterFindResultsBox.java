@@ -38,10 +38,10 @@ public class ChapterFindResultsBox extends FindResultsBox
     }
     
     @Override
-    public void init (JTree tree)
+    public void initTree ()
     {
         
-        tree.setCellRenderer (new ChapterSnippetsTreeCellRenderer ());//new MultiLineTreeCellRenderer (this));
+        this.tree.setCellRenderer (new ChapterSnippetsTreeCellRenderer ());//new MultiLineTreeCellRenderer (this));
 
         DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.projectViewer.getProject ());
 
@@ -49,7 +49,7 @@ public class ChapterFindResultsBox extends FindResultsBox
                             tn);
 
         // Create the tree.
-        ((DefaultTreeModel) tree.getModel ()).setRoot (tn);
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (tn);
             
         int c = 0;
         

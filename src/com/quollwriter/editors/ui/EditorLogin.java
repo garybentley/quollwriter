@@ -28,7 +28,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.UIUtils;
 import com.quollwriter.ui.PopupWindow;
-import com.quollwriter.ui.AbstractProjectViewer;
+import com.quollwriter.ui.AbstractViewer;
 import com.quollwriter.ui.ValueValidator;
 import com.quollwriter.ui.TextInputWindow;
 
@@ -90,8 +90,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
         
         this.getHeader ().setControls (UIUtils.createButtonBar (buts));
 
-        this.loginReason = UIUtils.createHelpTextPane (null,
-                                                       null);        
+        this.loginReason = UIUtils.createHelpTextPane (null);        
         
         this.error = UIUtils.createErrorLabel ("Please enter a value.");
 
@@ -371,7 +370,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
                     _this.savePwd.setSelected (false);
                                             
                     // Show the warning.
-                    UIUtils.createTextInputPopup (Environment.getFocusedProjectViewer (),
+                    UIUtils.createTextInputPopup (Environment.getFocusedViewer (),
                                                    "Warning!",
                                                    Constants.WARN_ICON_NAME,
                                                    "It is not recommended that your password is saved.<br /><br />This is because there is no way to securely store the password on your local computer, encrypting the password would have no effect/benefit, because of this your password will be saved in clear text in your editor properties file.<br /><br />If you understand the risks and are happy for the password to be stored in an insecure manner then please enter the word <b>Yes</b> in the box below.<br /><br />Note: if you select <b>No, don't save it</b> then you will have to enter the password each time you use login to the Editors service.",
@@ -556,7 +555,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
         
     }
 
-    public void show (AbstractProjectViewer viewer)
+    public void show (AbstractViewer viewer)
     {
         
         if (!this.inited)

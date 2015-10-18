@@ -36,6 +36,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     private AppearsInChaptersSideBar sideBar = null;
     private QTextEditor editor = null;
     private Object highlightId = null;
+    private String sideBarId = null;
         
     public AppearsInChaptersEditPanel (AbstractProjectViewer viewer,
                                        NamedObject           obj)
@@ -45,6 +46,8 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         
         this.obj = obj;
         this.viewer = viewer;
+        
+        this.sideBarId = SIDEBAR_PANEL_ID + this.obj.getObjectReference ().asString ();
         
         final AppearsInChaptersEditPanel _this = this;
         
@@ -64,10 +67,11 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
                     final Map<Chapter, List<Segment>> snippets = UIUtils.getObjectSnippets (_this.obj,
                                                                                             _this.viewer);
                     
-                    SwingUtilities.invokeLater (new Runnable ()
+                    UIUtils.doLater (new ActionListener ()
                     {
                        
-                        public void run ()
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
                         {
                             
                             try
@@ -82,7 +86,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
                                                       e);
                                 
                             }
-                            
+                                                     
                         }
                         
                     });
@@ -98,7 +102,8 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
             }
             
         },
-        30 * 1000);
+        10 * 1000,
+        5 * 1000);
         
     }
 
@@ -237,7 +242,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         
             this.removeHighlight ();
     
-            this.viewer.showSideBar (SIDEBAR_PANEL_ID);
+            this.viewer.showSideBar (this.sideBarId);
     
             this.sideBar.setSnippets (UIUtils.getObjectSnippets (this.obj,
                                                                  this.viewer));
@@ -251,7 +256,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         this.sideBar = new AppearsInChaptersSideBar (this.viewer,
                                                      this);
         
-        this.viewer.addSideBar (SIDEBAR_PANEL_ID,
+        this.viewer.addSideBar (this.sideBarId,
                                 this.sideBar);
 
         this.showInProjectViewerSideBar ();
@@ -460,7 +465,6 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     {
         
         this.refreshTimer.cancel ();
-        this.refreshTimer = null;
         
     }
     

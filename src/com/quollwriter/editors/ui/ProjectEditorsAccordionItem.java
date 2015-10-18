@@ -439,6 +439,8 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
     public void init ()
     {
 
+        super.init ();
+    
         final ProjectEditorsAccordionItem _this = this;
     
         this.getHeader ().addMouseListener (new MouseEventHandler ()
@@ -519,8 +521,6 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
         
         this.setContentVisible (true);        
                                                                            
-        super.init ();
-                
     }
     
     @Override

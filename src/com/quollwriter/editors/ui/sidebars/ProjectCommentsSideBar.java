@@ -99,7 +99,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                         
         String rows = "p";
 
-        String verName = this.projectViewer.getProject ().getProjectVersion ().getName ();
+        String verName = this.viewer.getProject ().getProjectVersion ().getName ();
 
         if (verName != null)
         {
@@ -175,7 +175,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
             }
             
             JComponent mess = UIUtils.createHelpTextPane (commText,
-                                                          this.projectViewer);
+                                                          this.viewer);
             
             if (sc > 1)
             {
@@ -186,7 +186,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                     public void handlePress (MouseEvent ev)
                     {
         
-                        UIUtils.showMessage ((PopupsSupported) _this.projectViewer,
+                        UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                              "Notes",
                                              genComments);
                         
@@ -278,7 +278,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
         {
             
             EditorsUIUtils.showProjectComments (pcms.get (0),
-                                                _this.projectViewer,
+                                                _this.viewer,
                                                 null);            
             
         } else {
@@ -294,7 +294,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                     ProjectCommentsMessage pcm = projCmsL.getSelectedValue ();
             
                     EditorsUIUtils.showProjectComments (pcm,
-                                                        _this.projectViewer,
+                                                        _this.viewer,
                                                         null);            
                                 
                     UIUtils.closePopupParent (projCmsL);
@@ -356,7 +356,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                         }
                             
                         JComponent mess = UIUtils.createHelpTextPane (genComm,
-                                                                      _this.projectViewer);
+                                                                      _this.viewer);
     
                         Box mb = new Box (BoxLayout.X_AXIS);
                         
@@ -403,9 +403,9 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
             content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                      content.getPreferredSize ().height));
     
-            _this.projectViewer.showPopupAt (qp,
-                                             this.otherCommentsLabel,
-                                             false);
+            _this.viewer.showPopupAt (qp,
+                                      this.otherCommentsLabel,
+                                      false);
             
             qp.setDraggable (_this);
 

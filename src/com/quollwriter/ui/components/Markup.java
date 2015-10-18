@@ -5,10 +5,12 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import com.gentlyweb.utils.*;
 
 public class Markup
 {
 
+    public static String DEFAULT_SEPARATOR = "";
     public static final String B = "b";
     public static final String U = "u";
     public static final String I = "i";
@@ -82,7 +84,7 @@ public class Markup
 
                 }
 
-                this.currInd = 0;
+                this.currInd = 1;
 
                 return this.current;
 
@@ -101,7 +103,7 @@ public class Markup
                                                false,
                                                false,
                                                false);
-
+                                               
             } else
             {
 
@@ -233,8 +235,20 @@ public class Markup
                    int    to)
     {
 
-        this.items = fromMarkup.getItems (from,
-                                          to);
+        if (fromMarkup == null)
+        {
+            
+            return;
+            
+        }
+    
+        for (MarkupItem mi : fromMarkup.getItems (from,
+                                                  to))
+        {
+            
+            this.items.add (this.createItem (mi));
+            
+        }
         
     }
         
@@ -320,6 +334,173 @@ public class Markup
         
     }
     
+    public String markupAsHTML (String text)
+    {
+        
+        return this.markupAsHTML (text,
+                                  DEFAULT_SEPARATOR);
+        
+    }
+    
+    public String markupAsHTML (String text,
+                                String sep)
+    {
+
+        if (text == null)
+        {
+            
+            return "";
+            
+        }
+    
+        if (this.items.size () == 0)
+        {
+            
+            return text;
+            
+        }
+    
+        StringBuilder ct = new StringBuilder ();
+        
+        Markup.MarkupItem last = null;
+
+        for (MarkupItem item : this.items)
+        {
+
+            if ((last == null)
+                &&
+                (item.start > 0)
+               )
+            {
+                
+                // Got some unstyled text at the start.
+                ct.append (text.substring (0,
+                                           item.start));
+                                
+            }
+            
+            if ((last != null)
+                &&
+                (item.start > last.end)
+               )
+            {
+                
+                // Got some unstyled text in the middle of two items.
+                ct.append (text.substring (last.end,
+                                           item.start));
+                
+            }
+        
+            int end = Math.min (item.end, text.length ());
+                
+            String st = text.substring (item.start,
+                                        end);
+
+            boolean styled = item.isStyled ();
+            
+            if (styled)
+            {
+
+                ct.append ("<span class=\"");
+                ct.append (item.getStyles (sep));
+                ct.append ("\">");
+
+                ct.append (StringUtils.replaceString (st,
+                                                      String.valueOf ('\n'),
+                                                      "<br />"));
+
+                ct.append ("</span>");
+
+            } else {
+
+                ct.append (st);
+            
+            }
+            
+            last = item;
+            
+        }
+        
+        if ((last != null)
+            &&
+            (last.end < text.length ())
+           )
+        {
+            
+            // Got some unstyled text at the end.
+            ct.append (text.substring (last.end));
+            
+        }
+
+        return ct.toString ();
+        
+    }
+    
+    private void applyStyle (DefaultStyledDocument doc,
+                             Object                style,
+                             int                   start,
+                             int                   end)
+    {
+
+        MutableAttributeSet attrs = new SimpleAttributeSet ();
+        attrs.addAttribute (style,
+                            true);
+        
+        doc.setCharacterAttributes (start,
+                                    end - start,
+                                    attrs,
+                                    false);
+    
+    }
+    
+    public void apply (DefaultStyledDocument doc)
+    {
+        
+        for (MarkupItem i : items)
+        {
+
+            try
+            {
+
+                if (i.bold)
+                {
+
+                    this.applyStyle (doc,
+                                     StyleConstants.Bold,
+                                     i.start,
+                                     i.end);
+
+                }
+
+                if (i.italic)
+                {
+
+                    this.applyStyle (doc,
+                                     StyleConstants.Italic,
+                                     i.start,
+                                     i.end);
+
+                }
+
+                if (i.underline)
+                {
+
+                    this.applyStyle (doc,
+                                     StyleConstants.Underline,
+                                     i.start,
+                                     i.end);
+
+                }
+
+            } catch (Exception e)
+            {
+
+            }
+
+        }        
+        
+    }
+    
     public void apply (QTextEditor ed)
     {
 
@@ -364,14 +545,14 @@ public class Markup
         }
 
     }
-
+/*
     public Iterator iterator ()
     {
 
         return new MarkupIterator (this.items);
 
     }
-
+  */  
     private void traverseElement (Element el)
     {
 
@@ -423,22 +604,62 @@ public class Markup
         for (MarkupItem it : this.items)
         {
 
+            // start between from and to.
             if ((it.start >= from)
+                &&
+                (it.start <= to)
+               )
+            {
+                
+                its.add (it);
+                
+                continue;
+                
+            }
+        
+            // anything that covers the whole range.
+            if ((it.start <= from)
+                &&
+                (it.end >= from)
+               )
+            {
+                
+                its.add (it);
+                
+                continue;
+                
+            }
+                
+            // end between from and to.
+            if ((it.end >= from)
                 &&
                 (it.end <= to)
                )
             {
-
+                
                 its.add (it);
-
+                
+                continue;
+                
             }
-
+            
         }
 
         return its;
 
     }
 
+    public MarkupItem createItem (MarkupItem it)
+    {
+        
+        return this.createItem (it.start,
+                                it.end,
+                                it.bold,
+                                it.italic,
+                                it.underline);
+        
+    }
+    
     public MarkupItem createItem (int     start,
                                   int     end,
                                   boolean bold,

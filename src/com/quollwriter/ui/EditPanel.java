@@ -20,6 +20,7 @@ import com.quollwriter.ui.components.GradientPainter;
 import com.quollwriter.ui.components.ImagePanel;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 
 public abstract class EditPanel extends Box
 {
@@ -34,11 +35,12 @@ public abstract class EditPanel extends Box
                                                 171);
 */
     protected JComponent                   editPanel = null;
+    private JLabel editError = null;
     protected JComponent                   viewPanel = null;
     protected JComponent                   cancel = null;
     protected JComponent                   edit = null;
     private JComponent                     help = null;
-    private JPanel                         helpBox = null;
+    private JComponent                     helpBox = null;
     protected Header                         header = null;
     private Box                            panel = null;
     private JComponent                     visiblePanel = null;
@@ -196,7 +198,7 @@ public abstract class EditPanel extends Box
         if (this.viewPanel != null)
         {
 
-            this.viewPanel.setBackground (com.quollwriter.ui.UIUtils.getComponentColor ());
+            this.viewPanel.setBackground (UIUtils.getComponentColor ());
 
             this.panel.add (this.viewPanel);
             this.viewPanel.setVisible (true);
@@ -259,15 +261,26 @@ public abstract class EditPanel extends Box
         if (this.editPanel != null)
         {
 
+            Box epb = new Box (BoxLayout.Y_AXIS);
+        
+            this.editError = UIUtils.createErrorLabel ("Please enter a value.");
+            this.editError.setVisible (false);
+            
+            this.editError.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+                    
             this.editPanel.setOpaque (false);
-
+            this.editPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                          Short.MAX_VALUE));
+            this.editPanel.setPreferredSize (new Dimension (Short.MAX_VALUE,
+                                                          Short.MAX_VALUE));
+            
             this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            String ht = this.getHelpText ();
+            
+            final String ht = this.getHelpText ();
 
             if (ht != null)
             {
-
+            
                 FormLayout fl = new FormLayout ("p, 3px, fill:90px:grow",
                                                 "top:p");
 
@@ -284,59 +297,32 @@ public abstract class EditPanel extends Box
                         cc.xy (1,
                                1));
 
-                JTextArea helpT = new JTextArea ();
-                helpT.setText (this.getHelpText ());
-                helpT.setEditable (false);
-                helpT.setOpaque (false);
-                helpT.setAlignmentX (Component.LEFT_ALIGNMENT);
-/*
-                helpT.setFont (new Font ("Tahoma",
-                                         Font.ITALIC,
-                                         11));
-*/
-                helpT.setWrapStyleWord (true);
-                helpT.setLineWrap (true);
-
-                JScrollPane hsp = new JScrollPane (helpT);
-                hsp.setOpaque (false);
-                hsp.setBorder (null);
-                hsp.getViewport ().setOpaque (false);
-
-                pb.add (hsp,
+                pb.add (UIUtils.createHelpTextPane (ht,
+                                                    Environment.getFocusedViewer ()),
                         cc.xy (3,
                                1));
 
                 this.helpBox = pb.getPanel ();
                 this.helpBox.setOpaque (false);
                 this.helpBox.setVisible (false);
-                this.helpBox.setBorder (new EmptyBorder (0,
-                                                         0,
-                                                         5,
-                                                         0));
 
-                fl = new FormLayout ("fill:100px:grow",
-                                     "top:p, fill:100px:grow");
+                this.helpBox.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-                pb = new PanelBuilder (fl);
+                this.helpBox.setBorder (UIUtils.createPadding (0, 0, 5, 0));
 
-                cc = new CellConstraints ();
-
-                pb.add (this.helpBox,
-                        cc.xy (1,
-                               1));
-
-                pb.add (this.editPanel,
-                        cc.xy (1,
-                               2));
-
-                this.editPanel = pb.getPanel ();
+                epb.add (this.helpBox);
 
             }
 
-            this.editPanel.setBorder (new EmptyBorder (5,
-                                                       5,
-                                                       5,
-                                                       5));
+            epb.add (this.editError);
+        
+            epb.add (this.editPanel);
+
+            epb.add (Box.createVerticalGlue ());
+            
+            this.editPanel = epb;
+            
+            this.editPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
 
             this.panel.add (this.editPanel);
 
@@ -373,92 +359,101 @@ public abstract class EditPanel extends Box
 
                 buttons.add (this.help);
 
-                this.help.addMouseListener (new MouseAdapter ()
-                    {
-
-                        public void mousePressed (MouseEvent ev)
-                        {
-
-                            _this.helpBox.setVisible (!_this.helpBox.isVisible ());
-
-                            _this.repaint ();
-
-                        }
-
-                    });
-
-            }
-
-            this.header.setControls (UIUtils.createButtonBar (buttons));
-
-            this.edit.addMouseListener (new MouseAdapter ()
+                this.help.addMouseListener (new MouseEventHandler ()
                 {
 
-                    public void mousePressed (MouseEvent ev)
+                    @Override
+                    public void handlePress (MouseEvent ev)
                     {
+                    
+                        _this.helpBox.setVisible (!_this.helpBox.isVisible ());
 
-                        if (_this.editPanel.isVisible ())
-                        {
-
-                            _this.doSave ();
-
-                            _this.fireActionEvent (EditPanel.SAVED,
-                                                   "saved");
-
-                            return;
-
-                        }
-
-                        _this.showEditPanel ();
-                        
-                    }
-
-                });
-
-            this.cancel.addMouseListener (new MouseAdapter ()
-                {
-
-                    public void mousePressed (MouseEvent ev)
-                    {
-
-                        if (!_this.handleCancel ())
-                        {
-
-                            _this.repaint ();
-
-                            return;
-
-                        }
-
-                        _this.visiblePanel = null;
-
-                        if (_this.viewPanel != null)
-                        {
-
-                            _this.viewPanel.setVisible (true);
-
-                            _this.fireActionEvent (EditPanel.CANCELLED,
-                                                   "cancelled");
-
-                            _this.fireActionEvent (EditPanel.VIEW_VISIBLE,
-                                                   "view-visible");
-
-                            _this.visiblePanel = _this.viewPanel;
-
-                        }
-
-                        _this.editPanel.setVisible (false);
-                        _this.edit.setToolTipText ("Click to edit this section");
-
-                        _this.cancel.setVisible (false);
-                        _this.help.setVisible (false);
-                        _this.helpBox.setVisible (false);
-
+                        _this.validate ();
                         _this.repaint ();
 
                     }
 
                 });
+
+            }
+
+            this.header.setControls (UIUtils.createButtonBar (buttons));
+
+            this.edit.addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void handlePress (MouseEvent ev)
+                {
+
+                    _this.editError.setVisible (false);
+
+                    if (_this.editPanel.isVisible ())
+                    {
+                    
+                        _this.doSave ();
+
+                        _this.fireActionEvent (EditPanel.SAVED,
+                                               "saved");
+
+                        return;
+
+                    }
+
+                    _this.showEditPanel ();
+                    
+                }
+
+            });
+
+            this.cancel.addMouseListener (new MouseEventHandler ()
+            {
+
+                @Override
+                public void handlePress (MouseEvent ev)
+                {
+
+                    _this.editError.setVisible (false);                
+                
+                    if (!_this.handleCancel ())
+                    {
+
+                        _this.validate ();
+                        _this.repaint ();
+
+                        return;
+
+                    }
+
+                    _this.visiblePanel = null;
+
+                    if (_this.viewPanel != null)
+                    {
+
+                        _this.viewPanel.setVisible (true);
+
+                        _this.fireActionEvent (EditPanel.CANCELLED,
+                                               "cancelled");
+
+                        _this.fireActionEvent (EditPanel.VIEW_VISIBLE,
+                                               "view-visible");
+
+                        _this.visiblePanel = _this.viewPanel;
+
+                    }
+
+                    _this.editPanel.setVisible (false);
+                    _this.edit.setToolTipText ("Click to edit this section");
+
+                    _this.cancel.setVisible (false);
+                    _this.help.setVisible (false);
+                    _this.helpBox.setVisible (false);
+
+                    _this.repaint ();
+
+                }
+
+            });
 
             if (this.viewPanel == null)
             {
@@ -477,6 +472,25 @@ public abstract class EditPanel extends Box
 
     }
 
+    public void showEditError (String m)
+    {
+        
+        if (m == null)
+        {
+            
+            return;
+            
+        }
+        
+        this.editError.setText (m);
+        
+        this.editError.setVisible (true);
+
+        this.validate ();
+        this.repaint ();
+        
+    }
+    
     public void showEditPanel ()
     {
         

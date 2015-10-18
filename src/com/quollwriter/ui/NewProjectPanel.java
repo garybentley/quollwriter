@@ -96,48 +96,10 @@ public class NewProjectPanel
                           cc.xy (1,
                                  row));
 
-        String defDir = null;
-
-        java.util.List pss = new ArrayList ();
-
-        try
-        {
-
-            pss.addAll (Environment.getAllProjects ());
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to get all project stubs",
-                                  e);
-
-        }
-
-        final java.util.List projs = pss;
-
-        Collections.sort (projs,
-                          new ProjectSorter ());
-
-        if (projs.size () > 0)
-        {
-
-            Project p = (Project) projs.get (0);
-
-            defDir = p.getProjectDirectory ().getParentFile ().getPath ();
-
-        } else
-        {
-
-            File projsDir = new File (Environment.getUserQuollWriterDir ().getPath () + "/" + Constants.DEFAULT_PROJECTS_DIR_NAME);
-
-            projsDir.mkdirs ();
-
-            defDir = projsDir.getPath ();
-
-        }
-
+        File defDir = Environment.getDefaultSaveProjectDir ();
+        
         this.saveField = UIUtils.createTextField ();
-        this.saveField.setText (defDir);
+        this.saveField.setText (defDir.getPath ());
 
         // this.nameField.addKeyListener (k);
         // this.saveField.addKeyListener (k);
@@ -233,16 +195,7 @@ public class NewProjectPanel
 
                 ppanel.setVisible (_this.encryptField.isSelected ());
                 
-                parent.validate ();
-             
-                parent.repaint ();
-             
-                if (parent instanceof PopupWindow)
-                {
-                    
-                    ((PopupWindow) parent).resize ();
-                    
-                }
+                UIUtils.resizeParent (parent);
                 
             }
 
@@ -387,7 +340,11 @@ public class NewProjectPanel
             
             proj = new Project (this.getName ());
             
-        } 
+        } else {
+            
+            proj.setName (this.getName ());
+            
+        }
 
         AbstractProjectViewer pj = null;
 
@@ -562,6 +519,13 @@ public class NewProjectPanel
 
     }
 
+    public void setName (String n)
+    {
+        
+        this.nameField.setText (n);
+        
+    }
+    
     public String getName ()
     {
 

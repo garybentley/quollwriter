@@ -126,7 +126,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 public String getItemDescription (Note item)
                                                                 {
                                                                     
-                                                                    return item.getDescription ();
+                                                                    return item.getDescription ().getMarkedUpText ();
                                                                     
                                                                 }
                                                                 
@@ -178,7 +178,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
     }
         
     public abstract ProjectSentReceivedSideBar getSideBar ();
-        
+  
     public void close ()
     {
         
@@ -206,10 +206,27 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         return true;
         
     }
+		
+    @Override
+    public Set<String> getTitleHeaderControlIds ()
+	{
+		
+		Set<String> ids = new LinkedHashSet ();
+
+		ids.add (FIND_HEADER_CONTROL_ID);
+		ids.add (CLOSE_HEADER_CONTROL_ID);
+				
+		return ids;
+		
+	}
+    
+    @Override
     public void init ()
                throws Exception
     {
 
+        super.init ();
+    /*
         final ProjectSentReceivedViewer _this = this;
     
         JToolBar titleC = UIUtils.createButtonBar (new ArrayList ());
@@ -245,7 +262,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                           }));
                                           
         this.setViewerControls (titleC);
-        
+        */
         this.initSideBars ();
         
         this.initWindow ();
@@ -429,6 +446,14 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         
     }
 
+	@Override
+	public void saveProject ()
+	{
+		
+		
+		
+	}
+	
     public void doSaveState ()
     {
 
@@ -580,7 +605,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                       
                         try
                         {
-  
+
                             _this.getEditorForChapter (c).showNote (n);
   
                         } catch (Exception e) {

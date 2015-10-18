@@ -37,14 +37,14 @@ import com.quollwriter.ui.renderers.*;
 public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
 {
         
-    protected AbstractProjectViewer projectViewer = null;
+    protected AbstractViewer viewer = null;
     protected Box content = null;
     protected Set<MessageBox> messageBoxes = new LinkedHashSet ();
     protected Date date = null;
         
-    public MessageAccordionItem (AbstractProjectViewer pv,
-                                 Date                  d,
-                                 Set<E>                messages)
+    public MessageAccordionItem (AbstractViewer viewer,
+                                 Date           d,
+                                 Set<E>         messages)
     {
         
         super ("",
@@ -90,7 +90,7 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
                                       */
         this.setIconType (null);
 
-        this.projectViewer = pv;
+        this.viewer = viewer;
 
         final MessageAccordionItem _this = this;
         
@@ -228,7 +228,7 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
         {
         
             mb = MessageBoxFactory.getMessageBoxInstance (m,
-                                                          this.projectViewer);
+                                                          this.viewer);
 
         } catch (Exception e) {
             

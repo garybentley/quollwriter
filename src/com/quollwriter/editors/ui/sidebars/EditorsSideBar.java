@@ -55,9 +55,9 @@ import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.events.*;
 
-public class EditorsSideBar extends AbstractSideBar implements EditorChangedListener,
-                                                               EditorMessageListener,
-                                                               UserOnlineStatusListener
+public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements EditorChangedListener,
+                                                                               EditorMessageListener,
+                                                                               UserOnlineStatusListener
 {
     
     public static final String NAME = "editors";
@@ -76,7 +76,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         
     private Map<String, JComponent> specialTabs = new HashMap ();
 
-    public EditorsSideBar (AbstractProjectViewer v)
+    public EditorsSideBar (AbstractViewer v)
     {
         
         super (v);
@@ -254,7 +254,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                           status,
                                           e);
                     
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "Unable to change your status, please contact Quoll Writer support for assistance.");
                     
                 }
@@ -481,7 +481,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                                 
-                                                  EditorsUIUtils.showInviteEditor (_this.projectViewer);
+                                                  EditorsUIUtils.showInviteEditor (_this.viewer);
                                                 
                                               }
                                             
@@ -545,7 +545,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                                                 public void actionPerformed (ActionEvent ev)
                                                                                 {
                                                                                     
-                                                                                    EditorsUIUtils.updateYourInfo (_this.projectViewer);
+                                                                                    EditorsUIUtils.updateYourInfo (_this.viewer);
                                                                                                                                                                         
                                                                                 }
                                                                              
@@ -559,7 +559,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                                     
-                                                    EditorsUIUtils.showChangePassword (_this.projectViewer);
+                                                    EditorsUIUtils.showChangePassword (_this.viewer);
                                                     
                                                 }
                                             
@@ -576,7 +576,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                   public void actionPerformed (ActionEvent ev)
                                                   {
                                                       
-                                                        UIUtils.openURL (_this.projectViewer,
+                                                        UIUtils.openURL (_this.viewer,
                                                                          String.format (Environment.getQuollWriterWebsiteLink ("editor-mode/send-account-confirmation-email?email=%s",
                                                                                                                                EditorsEnvironment.getUserAccount ().getEmail ())));
                                                       
@@ -610,7 +610,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                             
                                                         }
                                                         
-                                                        UIUtils.showMessage ((PopupsSupported) _this.projectViewer,
+                                                        UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                                                              "Your Editors service password",
                                                                              String.format ("Note: your password is being displayed because you have checked the <i>Save password</i> box for logging into the Editors service.<br /><br />Your login details are:<br /><br />Email address: <b>%s</b><br />Password: <b>%s</b>%s",
                                                                                             EditorsEnvironment.getUserAccount ().getEmail (),
@@ -631,7 +631,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                                                                                 
-                                                        UIUtils.openURL (_this.projectViewer,
+                                                        UIUtils.openURL (_this.viewer,
                                                                          String.format (Environment.getQuollWriterWebsiteLink ("editor-mode/send-password-reset-email?email=%s",
                                                                                                                                null),
                                                                                         EditorsEnvironment.getUserAccount ().getEmail ()));
@@ -652,7 +652,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                                     
-                                                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                    AbstractViewer viewer = Environment.getFocusedViewer ();
                                                     
                                                     viewer.showOptions ("editors");
                                                     
@@ -669,7 +669,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                 {
                                                     
                                                     UIUtils.openURL (_this,
-                                                                     Environment.getQuollWriterHelpLink ("editor-mode/sidebar",
+                                                                     Environment.getQuollWriterHelpLink ("editor-mode/overview",
                                                                                                          null));
                                                     
                                                 }
@@ -684,7 +684,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                                     
-                                                    EditorsUIUtils.showDeleteAccount (_this.projectViewer);
+                                                    EditorsUIUtils.showDeleteAccount (_this.viewer);
                                                                                                         
                                                 }
                                             
@@ -712,12 +712,12 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         try
         {
         
-            this.projectViewer.addHelpTextTab ("Welcome to the Editors Service",
-                                               StringUtils.replaceString (Environment.getResourceFileAsString (Constants.EDITORS_SIDEBAR_FIRST_USE_HELP_FILE),
-                                                                          "\n",
-                                                                          ""),
-                                               Constants.EDITORS_ICON_NAME,
-                                               "editors-service-first-help");
+            this.viewer.showHelpText ("Welcome to the Editors Service",
+                                      StringUtils.replaceString (Environment.getResourceFileAsString (Constants.EDITORS_SIDEBAR_FIRST_USE_HELP_FILE),
+                                                                 "\n",
+                                                                 ""),
+                                      Constants.EDITORS_ICON_NAME,
+                                      "editors-service-first-help");
                     
         } catch (Exception e) {
             
@@ -751,7 +751,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                          null));
         
         JComponent firstLoginHelp = UIUtils.createHelpTextPane ("Once you've validated your email address click on the button below to login.",
-                                                                this.projectViewer);
+                                                                this.viewer);
         firstLoginHelp.setBorder (null);
         this.firstLogin.setBorder (new EmptyBorder (5, 5, 5, 5));
         
@@ -817,7 +817,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                                          null));
         
         JComponent noedsHelp = UIUtils.createHelpTextPane ("You currently have no {contacts}.  Click on the button below to invite someone to be {an editor} for your {project}.",
-                                                           this.projectViewer);
+                                                           this.viewer);
         noedsHelp.setBorder (null);
         this.noEditors.setBorder (new EmptyBorder (5, 5, 5, 5));
         
@@ -839,7 +839,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             public void actionPerformed (ActionEvent ev)
             {
                 
-                EditorsUIUtils.showInviteEditor (_this.projectViewer);                
+                EditorsUIUtils.showInviteEditor (_this.viewer);                
                 
             }
             
@@ -865,21 +865,21 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
         this.invitesForMe = new EditorsSection ("Invites from others",
                                                 "Invites I've received from other people.",
                                                 null,
-                                                this.projectViewer);
+                                                this.viewer);
                 
         edBox.add (this.invitesForMe);
         
         this.invitesIveSent = new EditorsSection ("Pending invites",
                                                   "Invites I've sent to other people.",
                                                   null,
-                                                  this.projectViewer);
+                                                  this.viewer);
     
         edBox.add (this.invitesIveSent);
 
         this.otherEditors = new EditorsSection ("All {Contacts}", //Editors
                                                 null,
                                                 null,
-                                                this.projectViewer);
+                                                this.viewer);
                 
         edBox.add (this.otherEditors);
 
@@ -988,7 +988,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             this.otherEditors.setVisible (false);
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to display others section, please contact Quoll Writer support for assistance.");            
             
         }
@@ -1008,7 +1008,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             this.invitesForMe.setVisible (false);
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to display invites from others section, please contact Quoll Writer support for assistance.");            
             
         }
@@ -1028,7 +1028,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
             
             this.invitesIveSent.setVisible (false);
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to display invites I've sent section, please contact Quoll Writer support for assistance.");            
             
         }
@@ -1079,9 +1079,9 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
 
         p.getHeader ().setBorder (UIUtils.createPadding (10, 10, 10, 10));
         
-        this.projectViewer.showPopupAt (p,
-                                        showAt,
-                                        true);
+        this.viewer.showPopupAt (p,
+                                 showAt,
+                                 true);
                         
         if (duration > 0)
         {
@@ -1294,7 +1294,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                                   eds,
                                   e);
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to build list of previous {contacts}, please contact Quoll Writer support for assistance.");
             
             return;
@@ -1792,7 +1792,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     {
         
         EditorInfoBox b = new EditorInfoBox (ed,
-                                             this.projectViewer,
+                                             this.viewer,
                                              false);
                                              
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1828,7 +1828,7 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
                     
                 } catch (Exception e) {
                     
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "Unable to show {editor}.");
                     
                     Environment.logError ("Unable to show editor: " +
@@ -1851,16 +1851,16 @@ public class EditorsSideBar extends AbstractSideBar implements EditorChangedList
     {
 
         private Box editorsListWrapper = null;
-        private AbstractProjectViewer viewer = null;
+        private AbstractViewer viewer = null;
         private String title = null;
         private JLabel help = null;
         private JLabel noEditorsHelp = null;
         private ComponentListener listener = null;
     
-        public EditorsSection (String title,
-                               String help,
-                               String noEditorsHelp,
-                               AbstractProjectViewer viewer)
+        public EditorsSection (String         title,
+                               String         help,
+                               String         noEditorsHelp,
+                               AbstractViewer viewer)
         {
             
             super ("",

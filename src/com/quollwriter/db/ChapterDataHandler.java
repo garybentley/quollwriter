@@ -16,7 +16,7 @@ import com.quollwriter.text.rules.*;
 public class ChapterDataHandler implements DataHandler<Chapter, Book>
 {
 
-    private final String STD_SELECT_PREFIX = "SELECT bookdbkey, dbkey, name, description, lastmodified, datecreated, properties, text, goals, markup, plan, editposition, editcomplete, id, version, latest FROM chapter_v ";
+    private final String STD_SELECT_PREFIX = "SELECT bookdbkey, dbkey, name, description, descriptionmarkup, files, lastmodified, datecreated, properties, text, markup, goals, goalsmarkup, plan, planmarkup, editposition, editcomplete, id, version, latest FROM chapter_v ";
 
     private ObjectManager objectManager = null;
 
@@ -188,15 +188,24 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             Chapter c = new Chapter ();
             c.setName (rs.getString (ind++));
             c.setKey (key);
-            c.setDescription (rs.getString (ind++));
-
+            c.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            c.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
+                                                    
             c.setLastModified (rs.getTimestamp (ind++));
             c.setDateCreated (rs.getTimestamp (ind++));
             c.setPropertiesAsString (rs.getString (ind++));
-            c.setText (rs.getString (ind++));
-            c.setGoals (rs.getString (ind++));
-            c.setMarkup (rs.getString (ind++));
-            c.setPlan (rs.getString (ind++));
+            
+            String t = rs.getString (ind++);
+            
+            c.setText (new StringWithMarkup (t,
+                                             rs.getString (ind++)));
+            
+            c.setGoals (new StringWithMarkup (rs.getString (ind++),
+                                              rs.getString (ind++)));
+                        
+            c.setPlan (new StringWithMarkup (rs.getString (ind++),
+                                             rs.getString (ind++)));
             c.setEditPosition (rs.getInt (ind++));
             c.setEditComplete (rs.getBoolean (ind++));
             c.setId (rs.getString (ind++));
@@ -239,11 +248,11 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 // Get all the notes.
                 this.objectManager.loadNotes (c,
                                               conn);
-
+                    
                 this.objectManager.getObjects (OutlineItem.class,
                                                c,
                                                conn,
-                                               loadChildObjects);                
+                                               loadChildObjects);
                 
             }
             
@@ -523,7 +532,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 for (Chapter c : book.getChapters ())
                 {
 
-                    ChapterCounts cc = com.quollwriter.ui.UIUtils.getChapterCounts (c.getText ());
+                    ChapterCounts cc = new ChapterCounts (c.getChapterText ());
 
                     params = new ArrayList ();
                     params.add (project.getKey ());
@@ -645,11 +654,50 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         List params = new ArrayList ();
         params.add (c.getKey ());
         params.add (c.getBook ().getKey ());
-        params.add (c.getText ());
+        
+        StringWithMarkup d = c.getText ();
+        
+        String t = null;
+        String m = null;
+        
+        if (d != null)
+        {
+            
+            t = d.getText ();
+            m = (d.getMarkup () != null ? d.getMarkup ().toString () : null);
+            
+        }
+        
+        params.add (t);
+        params.add (m);        
         params.add (c.getBook ().getChapterIndex (c));
-        params.add (c.getGoals ());
-        params.add (c.getMarkup ());
-        params.add (c.getPlan ());
+                
+        StringWithMarkup g = c.getGoals ();
+        
+        if (g != null)
+        {
+            
+            t = g.getText ();
+            m = (g.getMarkup () != null ? g.getMarkup ().toString () : null);
+            
+        }
+        
+        params.add (t);
+        params.add (m);
+
+        StringWithMarkup p = c.getPlan ();
+        
+        if (p != null)
+        {
+            
+            t = p.getText ();
+            m = (p.getMarkup () != null ? p.getMarkup ().toString () : null);
+            
+        }
+
+        params.add (t);
+        params.add (m);
+        
         params.add (c.getEditPosition ());
         params.add (c.isEditComplete ());
 
@@ -664,7 +712,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             
         }
       
-        this.objectManager.executeStatement ("INSERT INTO chapter (dbkey, bookdbkey, text, index, goals, markup, plan, editposition, editcomplete, projectversiondbkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        this.objectManager.executeStatement ("INSERT INTO chapter (dbkey, bookdbkey, text, markup, index, goals, goalsmarkup, plan, planmarkup, editposition, editcomplete, projectversiondbkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);
 
@@ -875,7 +923,6 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                     newc.setVersion (c.getVersion ());
                     newc.setText (c.getText ());
                     newc.setPlan (c.getPlan ());
-                    newc.setMarkup (c.getMarkup ());
                     newc.setGoals (c.getGoals ());
                     newc.setLatest (true);
                     newc.setProjectVersion (pv);
@@ -951,7 +998,6 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         newc.setVersion (newVer.getVersion ());
         newc.setText (newVer.getText ());
         newc.setPlan (newVer.getPlan ());
-        newc.setMarkup (newVer.getMarkup ());
         newc.setGoals (newVer.getGoals ());
         newc.setProjectVersion (newVer.getProjectVersion ());
         newc.setLatest (true);
@@ -1011,7 +1057,6 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         newc.setId (c.getId ());
         newc.setText (c.getText ());
         newc.setPlan (c.getPlan ());
-        newc.setMarkup (c.getMarkup ());
         newc.setGoals (c.getGoals ());
         newc.setEditPosition (c.getEditPosition ());
         newc.setEditComplete (c.isEditComplete ());
@@ -1131,17 +1176,54 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                        throws GeneralException
     {
 
+        StringWithMarkup d = c.getText ();
+        
+        String t = null;
+        String m = null;
+        
+        if (d != null)
+        {
+            
+            t = d.getText ();
+            m = (d.getMarkup () != null ? d.getMarkup ().toString () : null);
+            
+        }
+    
         List params = new ArrayList ();
-        params.add (c.getText ());
+        params.add (t);
+        params.add (m);        
         params.add (c.getBook ().getChapterIndex (c));
-        params.add (c.getGoals ());
-        params.add (c.getMarkup ());
-        params.add (c.getPlan ());
+        
+        StringWithMarkup g = c.getGoals ();
+        
+        if (g != null)
+        {
+            
+            t = g.getText ();
+            m = (g.getMarkup () != null ? g.getMarkup ().toString () : null);
+            
+        }
+        
+        params.add (t);
+        params.add (m);
+        
+        StringWithMarkup p = c.getPlan ();
+        
+        if (p != null)
+        {
+            
+            t = p.getText ();
+            m = (p.getMarkup () != null ? p.getMarkup ().toString () : null);
+            
+        }
+
+        params.add (t);
+        params.add (m);
         params.add (c.getEditPosition ());
         params.add (c.isEditComplete ());
         params.add (c.getKey ());
 
-        this.objectManager.executeStatement ("UPDATE chapter SET text = ?, index = ?, goals = ?, markup = ?, plan = ?, editposition = ?, editcomplete = ? WHERE dbkey = ?",
+        this.objectManager.executeStatement ("UPDATE chapter SET text = ?, markup = ?, index = ?, goals = ?, goalsmarkup = ?, plan = ?, planmarkup = ?, editposition = ?, editcomplete = ? WHERE dbkey = ?",
                                              params,
                                              conn);
 

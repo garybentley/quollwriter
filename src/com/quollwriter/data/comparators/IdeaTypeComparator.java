@@ -42,7 +42,7 @@ public class IdeaTypeComparator implements Comparator<Idea>
         if (this.sortBy.equals (SORT_BY_TEXT))
         {
             
-            return i1.getDescription ().compareTo (i2.getDescription ());
+            return i1.getDescriptionText ().compareTo (i2.getDescriptionText ());
             
         }
 

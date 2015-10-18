@@ -12,7 +12,7 @@ import com.quollwriter.data.*;
 public class BookDataHandler implements DataHandler<Book, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, id, version FROM book_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, lastmodified, datecreated, properties, id, version FROM book_v ";
     private ObjectManager objectManager = null;
 
     public BookDataHandler(ObjectManager om)
@@ -39,7 +39,9 @@ public class BookDataHandler implements DataHandler<Book, Project>
 
             b.setName (rs.getString (ind++));
             b.setKey (key);
-            b.setDescription (rs.getString (ind++));
+            
+            b.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
 
             b.setLastModified (rs.getTimestamp (ind++));
             b.setDateCreated (rs.getTimestamp (ind++));

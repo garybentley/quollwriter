@@ -1,6 +1,7 @@
 package com.quollwriter.ui;
 
 import java.awt.Color;
+import java.awt.event.*;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ import com.quollwriter.ui.components.*;
 public class CharacterDetailsEditPanel extends DetailsEditPanel
 {
 
-    private JTextArea aliasesEdit = null;
+    private TextArea aliasesEdit = null;
 
     public CharacterDetailsEditPanel (Asset                 a,
                                       AbstractProjectViewer pv)
@@ -25,11 +26,12 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
         super (a,
                pv);
 
-        this.aliasesEdit = UIUtils.createTextArea (2);
-        
-        UIUtils.addDoActionOnReturnPressed (this.aliasesEdit,
-                                            this.getDoSaveAction ());
-        
+        this.aliasesEdit = new TextArea (this.getEditHelpText (),
+                                         2,
+                                         -1);
+        this.aliasesEdit.setSpellCheckEnabled (false);
+        this.aliasesEdit.setAutoGrabFocus (false);
+                
     }
 
     public Set<String> getObjectChangeEventTypes ()
@@ -44,8 +46,8 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
     
     public String getEditHelpText ()
     {
-
-        return "Use semi-colons, commas or new lines to separate aliases.";
+ 
+        return "Use semicolons, commas or new lines to separate aliases.";
 
     }
 
@@ -102,10 +104,21 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
 
         QCharacter character = (QCharacter) this.object;
 
-        this.aliasesEdit.setText (character.getAliases ());
+        String aliases = character.getAliases ();
+        
+        if ((aliases != null)
+            &&
+            (aliases.trim ().length () > 0)
+           )
+        {
+        
+            this.aliasesEdit.setTextWithMarkup (new StringWithMarkup (character.getAliases ()));
+            
+        }
 
     }
 
+    @Override
     public boolean canSave ()
     {
 
@@ -113,7 +126,7 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
 
     }
 
-    public List<FormItem> getExtraEditItems ()
+    public List<FormItem> getExtraEditItems (ActionListener onSave)
     {
 
         List<FormItem> items = new ArrayList ();
@@ -121,6 +134,9 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
         items.add (new FormItem ("Aliases",
                                  this.aliasesEdit));
 
+        UIUtils.addDoActionOnReturnPressed (this.aliasesEdit,
+                                            onSave);                                 
+                                 
         return items;
 
     }

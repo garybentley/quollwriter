@@ -41,6 +41,26 @@ public class PasswordInputWindow extends TextInputWindow
     {
         
         final PasswordInputWindow ti = new PasswordInputWindow ();
+
+        ti.addWindowListener (new WindowAdapter ()
+        {
+
+            @Override
+            public void windowClosing (WindowEvent ev)
+            {
+
+                if (onCancel != null)
+                {
+                    
+                    onCancel.actionPerformed (new ActionEvent (ti,
+                                                               0,
+                                                               "cancel"));
+                                    
+                }
+            
+            }
+
+        });
         
         ti.setHeaderTitle (title);
         ti.setMessage (message);
@@ -77,6 +97,8 @@ public class PasswordInputWindow extends TextInputWindow
                             
                             ti.showError (true);
 
+                            ti.resize ();
+                            
                             return;
                             
                         }

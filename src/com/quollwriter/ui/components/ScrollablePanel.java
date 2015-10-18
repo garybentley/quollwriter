@@ -34,6 +34,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
         
         if (this.getParent() instanceof JViewport)
 		{
+			
 		    return (((JViewport)this.getParent()).getHeight() > this.getPreferredSize().height);
 		}        
         

@@ -833,33 +833,19 @@ public class IconColumn extends JPanel implements DocumentListener
                 if (w.item == item)
                 {
 
+                    this.structureItems.remove (w);
+        
+                    this.remove (w.imagePanel);
+        
+                    w.item.setTextPosition (null);
+                    w.item.setEndTextPosition (null);
+
                     break;
 
                 }
 
             }
-
-            if (w == null)
-            {
-
-                return;
-
-            }
-
-            this.structureItems.remove (w);
-
-            if (w != null)
-            {
-
-                this.remove (w.imagePanel);
-
-            }
-
-            this.validate ();
-            this.repaint ();
-            
-            return;
-            
+                        
         }
 
         if (item instanceof Note)
@@ -877,23 +863,19 @@ public class IconColumn extends JPanel implements DocumentListener
                 if (w.item == n)
                 {
 
+                    this.notes.remove (w);
+        
+                    this.remove (w.imagePanel);
+        
+                    w.item.setTextPosition (null);
+                    w.item.setEndTextPosition (null);
+
                     break;
 
                 }
 
             }
-
-            if (w == null)
-            {
-
-                return;
-
-            }
-
-            this.notes.remove (w);
-
-            this.remove (w.imagePanel);
-
+            
         }
 
         this.validate ();

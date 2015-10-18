@@ -29,8 +29,8 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                 
     private Box responseBox = null;
                 
-    public EditorRemovedMessageBox (EditorRemovedMessage         mess,
-                                    AbstractProjectViewer viewer)
+    public EditorRemovedMessageBox (EditorRemovedMessage mess,
+                                    AbstractViewer       viewer)
     {
         
         super (mess,
@@ -85,7 +85,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
         }
         
         JTextPane desc = UIUtils.createHelpTextPane ("<html><i>" + text + "</i></html>",
-                                                     this.projectViewer);        
+                                                     this.viewer);        
         
         this.add (Box.createVerticalStrut (5));
                             
@@ -109,7 +109,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
             
             JTextPane rdesc = UIUtils.createHelpTextPane (String.format ("Clicking on the button below will remove <b>%s</b> from your list of current {contacts}.  You can still get access to them in the options menu of the {Contacts} sidebar via the <b>View the previous {contacts}</b> item.",
                                                                          this.message.getEditor ().getShortName ()),
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             
             this.responseBox.add (Box.createVerticalStrut (5));
                                 
@@ -156,7 +156,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                         EditorsEnvironment.updateMessage (_this.message);
                         
                         // Offer to remove any projects we are editing for them.
-                        EditorsUIUtils.showDeleteProjectsForEditor (_this.projectViewer,
+                        EditorsUIUtils.showDeleteProjectsForEditor (_this.viewer,
                                                                     _this.message.getEditor (),
                                                                     null);
                                                   
@@ -166,7 +166,7 @@ public class EditorRemovedMessageBox extends MessageBox<EditorRemovedMessage>
                                               ed,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update {contact}, please contact Quoll Writer support for assitance.");
                         
                         return;

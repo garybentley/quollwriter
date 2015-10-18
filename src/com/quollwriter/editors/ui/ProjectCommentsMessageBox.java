@@ -34,8 +34,8 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
     private JComponent commentsTree = null;
     private AbstractProjectViewer commentsViewer = null;
         
-    public ProjectCommentsMessageBox (ProjectCommentsMessage     mess,
-                                      AbstractProjectViewer viewer)
+    public ProjectCommentsMessageBox (ProjectCommentsMessage mess,
+                                      AbstractViewer         viewer)
     {
         
         super (mess,
@@ -60,8 +60,8 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
     {
         
         final ProjectCommentsMessageBox _this = this;
-        
-        Project proj = null;
+            
+        ProjectInfo proj = null;
         
         try
         {
@@ -71,14 +71,12 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                                     
         } catch (Exception e) {
             
-            Environment.logError ("Unable to get project for id: " +
+            Environment.logError ("Unable to get project info for project with id: " +
                                   this.message.getForProjectId (),
                                   e);
                         
-        }
-        
-        final Project fproj = proj;
-                
+        }            
+                        
         final String text = String.format ("%s {Comment%s}", // %s
                                            this.message.getComments ().size (),
                                            (this.message.getComments ().size () > 1 ? "s" : ""));
@@ -150,18 +148,34 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                 public void actionPerformed (ActionEvent ev)
                 {
                 
-                    if (fproj != null)
+                    ProjectInfo proj = null;
+                    
+                    try
+                    {
+                                    
+                        proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                           (_this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE));
+                                                
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to get project info for project with id: " +
+                                              _this.message.getForProjectId (),
+                                              e);
+                                    
+                    }
+                                    
+                    if (proj != null)
                     {
                 
                         try
                         {
                 
-                            Environment.openProject (fproj);
+                            Environment.openProject (proj);
                             
                         } catch (Exception e) {
                             
                             Environment.logError ("Unable to open project: " +
-                                                  fproj,
+                                                  proj,
                                                   e);
                             
                         }
@@ -228,7 +242,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
             }
                 
             JComponent mess = UIUtils.createHelpTextPane (genComm,
-                                                          _this.projectViewer);
+                                                          _this.viewer);
 
             mess.setBorder (null);
                                                           
@@ -271,6 +285,43 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                         
                     }
                 
+                    if (_this.commentsViewer != null)
+                    {
+                        
+                        _this.commentsViewer.setExtendedState (JFrame.NORMAL);
+                        _this.commentsViewer.toFront ();
+                        
+                        return;
+                        
+                    }
+                    
+                    EditorsUIUtils.showProjectComments (_this.message,
+                                                        _this.viewer,
+                                                        new ActionListener ()
+                                                        {
+                                                            
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+                                                                
+                                                                _this.commentsViewer = (AbstractProjectViewer) ev.getSource ();
+                                                                
+                                                                _this.commentsViewer.addWindowListener (new WindowAdapter ()
+                                                                {
+                                                                    
+                                                                    public void windowClosed (WindowEvent ev)
+                                                                    {
+                                                                        
+                                                                        _this.commentsViewer = null;
+                                                                        
+                                                                    }
+                                                                    
+                                                                });                                                                
+                                                                
+                                                            }
+                                                            
+                                                        });
+                
+/*                
                     if (_this.message.isSentByMe ())
                     {
                         
@@ -323,7 +374,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                                                                           Constants.ICON_POPUP),
                                                      null,
                                                      sp,
-                                                     _this.projectViewer,
+                                                     _this.viewer,
                                                      null);
                         
                     } else {
@@ -339,7 +390,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                         }
                         
                         EditorsUIUtils.showProjectComments (_this.message,
-                                                            _this.projectViewer,
+                                                            _this.viewer,
                                                             new ActionListener ()
                                                             {
                                                                 
@@ -365,7 +416,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                                                             });
     
                     }
-                    
+                    */
                 }
                 
             });        

@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class SceneDataHandler implements DataHandler<Scene, Chapter>
 {
 
-    private final static String STD_SELECT_PREFIX = "SELECT chapterdbkey, position, dbkey, name, description, lastmodified, datecreated, properties FROM scene_v ";
+    private final static String STD_SELECT_PREFIX = "SELECT chapterdbkey, position, dbkey, name, description, markup, files, lastmodified, datecreated, properties FROM scene_v ";
     private ObjectManager objectManager = null;
 
     public SceneDataHandler(ObjectManager om)
@@ -42,8 +41,9 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
                                  parent);
             s.setKey (key);
             s.setName (rs.getString (ind++));
-            s.setDescription (rs.getString (ind++));
-
+            s.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            s.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             s.setLastModified (rs.getTimestamp (ind++));
             s.setDateCreated (rs.getTimestamp (ind++));
             s.setPropertiesAsString (rs.getString (ind++));
@@ -66,7 +66,7 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
                                                s,
                                                conn,
                                                loadChildObjects);
-
+                
             }
 
             return s;

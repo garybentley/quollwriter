@@ -15,6 +15,7 @@ import org.incava.util.diff.*;
 
 import org.jdom.*;
 
+import com.quollwriter.text.*;
 
 public class Chapter extends NamedObject
 {
@@ -24,10 +25,9 @@ public class Chapter extends NamedObject
     public static final String EDIT_POSITION = "editposition";
 
     private Book              book = null;
-    private String            text = null;
-    private String            goals = null;
-    private String            plan = null;
-    private String            markup = null;
+    private StringWithMarkup  text = null;
+    private StringWithMarkup  goals = null;
+    private StringWithMarkup  plan = null;
     private TreeSet<OutlineItem> outlineItems = new TreeSet (new ChapterItemSorter ());
     private TreeSet<Scene>       scenes = new TreeSet (new ChapterItemSorter ());
     private int editPosition = -1;
@@ -144,7 +144,7 @@ public class Chapter extends NamedObject
         this.editComplete = b;
                 
     }
-    
+    /*
     public String getMarkup ()
     {
 
@@ -158,7 +158,7 @@ public class Chapter extends NamedObject
         this.markup = m;
 
     }
-
+*/
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -178,15 +178,8 @@ public class Chapter extends NamedObject
         if (old != null)
         {
 
-            if (c.getText () == null)
-            {
-
-                c.setText ("");
-
-            }
-
-            String ot = c.getText ();
-
+            String ot = c.getChapterText ();
+        
             if (ot == null)
             {
 
@@ -194,7 +187,9 @@ public class Chapter extends NamedObject
 
             }
 
-            String nt = this.text;
+            ot = TextUtilities.stripNonValidXMLCharacters (ot);
+            
+            String nt = this.getChapterText ();
 
             if (nt == null)
             {
@@ -203,6 +198,8 @@ public class Chapter extends NamedObject
 
             }
 
+            nt = TextUtilities.stripNonValidXMLCharacters (nt);
+            
             String[] oldText = ot.split ("\\n");
             String[] newText = nt.split ("\\n");
 
@@ -320,7 +317,7 @@ public class Chapter extends NamedObject
             this.addFieldChangeElement (root,
                                         "text",
                                         null,
-                                        this.getText ());
+                                        this.getChapterText ());
 
         }
 
@@ -888,45 +885,66 @@ public class Chapter extends NamedObject
 
     }
 
-    public String getText ()
+    public String getChapterText ()
+    {
+        
+        return (this.text != null ? this.text.getText () : null);
+        
+    }
+    
+    public StringWithMarkup getText ()
     {
 
         return this.text;
 
     }
 
-    public void setText (String t)
+    public void setText (StringWithMarkup t)
     {
-
+    
         if (t != null)
         {
 
-            t = StringUtils.replaceString (t,
-                                           String.valueOf ('\r'),
-                                           "");
+            String _t = t.getText ();
+        
+            if (_t != null)
+            {
+        
+                _t = StringUtils.replaceString (_t,
+                                                String.valueOf ('\r'),
+                                                "");
+        
+                t.update (_t,
+                          t.getMarkup ());
 
+            }
+                                                      
         }
 
         this.text = t;
 
     }
 
-    public String getGoals ()
+    public StringWithMarkup getGoals ()
     {
 
         return this.goals;
 
     }
 
-    public void setGoals (String t)
+    public void setGoals (StringWithMarkup t)
     {
 
-        if (t != null)
+        if ((t != null)
+            &&
+            (t.hasText ())
+           )
         {
 
-            t = StringUtils.replaceString (t,
-                                           String.valueOf ('\r'),
-                                           "");
+            t.update (StringUtils.replaceString (t.getText (),
+                                                 String.valueOf ('\r'),
+                                                 ""),
+                      t.getMarkup ());
 
         }
 
@@ -934,22 +952,26 @@ public class Chapter extends NamedObject
 
     }
 
-    public String getPlan ()
+    public StringWithMarkup getPlan ()
     {
 
         return this.plan;
 
     }
 
-    public void setPlan (String t)
+    public void setPlan (StringWithMarkup t)
     {
 
-        if (t != null)
+        if ((t != null)
+            &&
+            (t.hasText ())
+           )
         {
 
-            t = StringUtils.replaceString (t,
-                                           String.valueOf ('\r'),
-                                           "");
+            t.update (StringUtils.replaceString (t.getText (),
+                                                 String.valueOf ('\r'),
+                                                 ""),
+                      t.getMarkup ());
 
         }
 
@@ -979,7 +1001,7 @@ public class Chapter extends NamedObject
                                     this.editComplete);
         this.addToStringProperties (props,
                                     "textLength",
-                                    ((this.text != null) ? this.text.length () : "0"));
+                                    this.getChapterLength ());
         this.addToStringProperties (props,
                                     "book",
                                     this.book);
@@ -1118,7 +1140,14 @@ public class Chapter extends NamedObject
             
         }
         
-        return this.text.length ();
+        if (this.text.getText () == null)
+        {
+            
+            return 0;
+            
+        }
+        
+        return this.text.getText ().length ();
         
     }
     

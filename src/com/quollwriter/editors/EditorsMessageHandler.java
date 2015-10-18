@@ -1142,7 +1142,7 @@ public class EditorsMessageHandler implements ChatMessageListener
                                     
                                 }
                                                                 
-                                UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
+                                UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                                           "Unable to change password, please contact Quoll Writer support for assistance.");                                
                                 
                               }
@@ -1861,7 +1861,7 @@ public class EditorsMessageHandler implements ChatMessageListener
 
                                         } else {
                                         
-                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                            AbstractViewer viewer = Environment.getFocusedViewer ();
                                             
                                             UIUtils.showErrorMessage (viewer,
                                                                       "Unable to send message to <b>" + to.getName () + "</b>.  Please contact Quoll Writer support for assistance.");

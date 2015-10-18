@@ -34,8 +34,8 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
     private ProjectSentReceivedViewer sentViewer = null;
     private JLabel previousLabel = null;    
         
-    public UpdateProjectMessageBox (UpdateProjectMessage     mess,
-                                    AbstractProjectViewer viewer)
+    public UpdateProjectMessageBox (UpdateProjectMessage mess,
+                                    AbstractViewer       viewer)
     {
         
         super (mess,
@@ -114,25 +114,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
         EditorsEnvironment.addEditorChangedListener (this);        
         
         final UpdateProjectMessageBox _this = this;
-                
-        Project proj = null;
-        
-        try
-        {
-                        
-            proj = Environment.getProjectById (this.message.getForProjectId (),
-                                               (this.message.isSentByMe () ? Project.NORMAL_PROJECT_TYPE : Project.EDITOR_PROJECT_TYPE));
-                                    
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get project for id: " +
-                                  this.message.getForProjectId (),
-                                  e);
-                        
-        }
-        
-        final Project fproj = proj;
-        
+
         String text = "{Project} update sent";//Sent {project} update";
         
         if (!this.message.isSentByMe ())
@@ -148,7 +130,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
         this.add (h);
                 
         JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
-                                                                       this.projectViewer);
+                                                                       this.viewer);
         bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
         
         this.add (bp);                             
@@ -176,7 +158,7 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
                 {
         
                     EditorsUIUtils.showProjectUpdate (_this.message,
-                                                      _this.projectViewer,
+                                                      _this.viewer,
                                                       null);
                                 
                 }

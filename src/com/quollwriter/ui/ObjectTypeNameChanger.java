@@ -26,14 +26,14 @@ public class ObjectTypeNameChanger extends Box
 
     private Map<String, JTextField> singular = new HashMap ();
     private Map<String, JTextField> plural = new HashMap ();
-    private AbstractProjectViewer projectViewer = null;
+    private AbstractViewer viewer = null;
     
-    public ObjectTypeNameChanger (AbstractProjectViewer pv)
+    public ObjectTypeNameChanger (AbstractViewer viewer)
     {
 
         super (BoxLayout.Y_AXIS);
         
-        this.projectViewer = pv;
+        this.viewer = viewer;
 
     }
     
@@ -84,80 +84,127 @@ public class ObjectTypeNameChanger extends Box
         if (changing)
         {
 
-            final Project proj = this.projectViewer.getProject ();
-            final ObjectTypeNameChanger _this = this;
+            if (this.viewer instanceof AbstractProjectViewer)
+            {
+                
+                AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
+                
+                final Project proj = pv.getProject ();
+                final ObjectTypeNameChanger _this = this;
             
-            // Offer to reopen project.
-            UIUtils.createQuestionPopup (this.projectViewer,
-                                         "Confirm name changes?",
-                                         Constants.EDIT_ICON_NAME,
-                                         "Warning!  To change the object names the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
-                                         "Yes, change the names",
-                                         null,
-                                         new ActionListener ()
-                                         {
-                                
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                                
-                                                try
+            //XXX xxx handle ALL open projects
+            //xxx recreate the landing
+            
+                // Offer to reopen project.
+                UIUtils.createQuestionPopup (this.viewer,
+                                             "Confirm name changes?",
+                                             Constants.EDIT_ICON_NAME,
+                                             "Warning!  To change the object names the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
+                                             "Yes, change the names",
+                                             null,
+                                             new ActionListener ()
+                                             {
+                                    
+                                                public void actionPerformed (ActionEvent ev)
                                                 {
-                                                
-                                                    Environment.setUserObjectTypeNames (sing,
-                                                                                        plur);
-                                
-                                                } catch (Exception e) {
                                                     
-                                                    UIUtils.showErrorMessage (_this,
-                                                                              "Unable to modify names");
+                                                    try
+                                                    {
                                                     
-                                                    Environment.logError ("Unable to modify names",
-                                                                          e);
+                                                        Environment.setUserObjectTypeNames (sing,
+                                                                                            plur);
+                                    
+                                                    } catch (Exception e) {
+                                                        
+                                                        UIUtils.showErrorMessage (_this,
+                                                                                  "Unable to modify names");
+                                                        
+                                                        Environment.logError ("Unable to modify names",
+                                                                              e);
+                                                        
+                                                        return;
+                                                                                            
+                                                    }
+                                    
+                                                    UIUtils.closePopupParent (_this.getParent ());
+                                                    //_this.close ();
                                                     
-                                                    return;
-                                                                                        
-                                                }
-                                
-                                                UIUtils.closePopupParent (_this.getParent ());
-                                                //_this.close ();
-                                                
-                                                _this.projectViewer.close (true,
-                                                                          new ActionListener ()
-                                                                          {
-                                                                            
-                                                                              public void actionPerformed (ActionEvent ev)
-                                                                              {
-                                                                                                                                
-                                                                                    // Open the project again.
-                                                                                    try
-                                                                                    {
-                                                                        
-                                                                                        Environment.openProject (proj);
-                                                                        
-                                                                                    } catch (Exception e)
-                                                                                    {
-                                                                        
-                                                                                        Environment.logError ("Unable to reopen project: " +
-                                                                                                              proj,
-                                                                                                              e);
+                                                    _this.viewer.close (true,
+                                                                        new ActionListener ()
+                                                                        {
+                                                                          
+                                                                            public void actionPerformed (ActionEvent ev)
+                                                                            {
+                                                                                                                              
+                                                                                  // Open the project again.
+                                                                                  try
+                                                                                  {
+                                                                      
+                                                                                      Environment.openProject (proj);
+                                                                      
+                                                                                  } catch (Exception e)
+                                                                                  {
+                                                                      
+                                                                                      Environment.logError ("Unable to reopen project: " +
+                                                                                                            proj,
+                                                                                                            e);
 
-                                                                                        UIUtils.showErrorMessage (_this,
-                                                                                                                  "Unable to reopen {project}.  Please contact Quoll Writer support for assistance.");
-                                                                                        
-                                                                                    }
-                                
-                                                                              }
-                                                                            
-                                                                          });
+                                                                                      UIUtils.showErrorMessage (_this,
+                                                                                                                "Unable to reopen {project}.  Please contact Quoll Writer support for assistance.");
+                                                                                      
+                                                                                  }
+                              
+                                                                            }
+                                                                          
+                                                                        });
+                                                    
+                                                }
                                                 
-                                            }
-                                            
-                                         },
-                                         null,
-                                         null,
-                                         null);
+                                             },
+                                             null,
+                                             null,
+                                             null);
+                
+                return;
             
-            return;
+            } else {
+                
+                try
+                {
+                
+                    Environment.setUserObjectTypeNames (sing,
+                                                        plur);
+
+                } catch (Exception e) {
+                    
+                    UIUtils.showErrorMessage (this,
+                                              "Unable to modify names");
+                    
+                    Environment.logError ("Unable to modify names",
+                                          e);
+                    
+                    return;
+                                                        
+                }
+                
+                try
+                {
+                
+                    Environment.relaunchLanding ();
+                    
+                } catch (Exception e) {
+                    
+                    UIUtils.showErrorMessage (this,
+                                              "Unable to show start window, please contact Quoll Writer support for assistance.");
+                    
+                    Environment.logError ("Unable to show start window",
+                                          e);
+                    
+                    return;
+                                                        
+                }
+                
+            }
             
         }
         
@@ -170,76 +217,119 @@ public class ObjectTypeNameChanger extends Box
     {
         
         final ObjectTypeNameChanger _this = this;
-        final Project proj = this.projectViewer.getProject ();
-
-        // Offer to reopen project.
-        UIUtils.createQuestionPopup (this.projectViewer,
-                                     "Confirm name changes?",
-                                     Constants.EDIT_ICON_NAME,
-                                     "Warning!  To reset the object names back to the defaults the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
-                                     "Yes, reset the names",
-                                     null,
-                                     new ActionListener ()
-                                     {
-                                        
-                                        public void actionPerformed (ActionEvent ev)
-                                        {
-                                                            
-                                            try
+        
+        if (this.viewer instanceof AbstractProjectViewer)
+        {
+            
+            AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
+                
+            final Project proj = pv.getProject ();
+    
+            // Offer to reopen project.
+            UIUtils.createQuestionPopup (this.viewer,
+                                         "Confirm name changes?",
+                                         Constants.EDIT_ICON_NAME,
+                                         "Warning!  To reset the object names back to the defaults the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
+                                         "Yes, reset the names",
+                                         null,
+                                         new ActionListener ()
+                                         {
+                                            
+                                            public void actionPerformed (ActionEvent ev)
                                             {
-                                            
-                                                Environment.resetObjectTypeNamesToDefaults ();
-                                
-                                            } catch (Exception e) {
+                                                                
+                                                try
+                                                {
                                                 
-                                                UIUtils.showErrorMessage (_this,
-                                                                          "Unable to modify names");
-                                                
-                                                Environment.logError ("Unable to modify names",
-                                                                      e);
-                                                
-                                                return;
-                                                                                    
-                                            }
-                                
-                                            //_this.close ();
-                                            UIUtils.closePopupParent (_this.getParent ());
-
-                                            _this.projectViewer.close (true,
-                                                                       new ActionListener ()
+                                                    Environment.resetObjectTypeNamesToDefaults ();
+                                    
+                                                } catch (Exception e) {
+                                                    
+                                                    UIUtils.showErrorMessage (_this,
+                                                                              "Unable to modify names");
+                                                    
+                                                    Environment.logError ("Unable to modify names",
+                                                                          e);
+                                                    
+                                                    return;
+                                                                                        
+                                                }
+                                    
+                                                //_this.close ();
+                                                UIUtils.closePopupParent (_this.getParent ());
+    
+                                                _this.viewer.close (true,
+                                                                    new ActionListener ()
+                                                                    {
+                                                                     
+                                                                       public void actionPerformed (ActionEvent ev)
                                                                        {
-                                                                        
-                                                                          public void actionPerformed (ActionEvent ev)
-                                                                          {
-                                                                                                                            
-                                                                                // Open the project again.
-                                                                                try
-                                                                                {
-                                                                    
-                                                                                    Environment.openProject (proj);
-                                                                    
-                                                                                } catch (Exception e)
-                                                                                {
-                                                                    
-                                                                                    Environment.logError ("Unable to reopen project: " +
-                                                                                                          proj,
-                                                                                                          e);
-                                                                                    
-                                                                                    UIUtils.showErrorMessage (null,
-                                                                                                              "Unable to reopen project.  Please contact Quoll Writer support for assistance.");
-                                                                                    
-                                                                                }
-                                
-                                                                          }
-                                                                        
-                                                                       });
-                                            
-                                        }
-                                     },
-                                     null,
-                                     null,
-                                     null);
+                                                                                                                         
+                                                                             // Open the project again.
+                                                                             try
+                                                                             {
+                                                                 
+                                                                                 Environment.openProject (proj);
+                                                                 
+                                                                             } catch (Exception e)
+                                                                             {
+                                                                 
+                                                                                 Environment.logError ("Unable to reopen project: " +
+                                                                                                       proj,
+                                                                                                       e);
+                                                                                 
+                                                                                 UIUtils.showErrorMessage (null,
+                                                                                                           "Unable to reopen project.  Please contact Quoll Writer support for assistance.");
+                                                                                 
+                                                                             }
+                             
+                                                                       }
+                                                                     
+                                                                    });
+                                                
+                                            }
+                                         },
+                                         null,
+                                         null,
+                                         null);
+            
+        } else {
+            
+            try
+            {
+            
+                Environment.resetObjectTypeNamesToDefaults ();
+    
+            } catch (Exception e) {
+                
+                UIUtils.showErrorMessage (this,
+                                          "Unable to modify names");
+                
+                Environment.logError ("Unable to modify names",
+                                      e);
+                
+                return;
+                                                    
+            }
+            
+            try
+            {
+            
+                Environment.relaunchLanding ();
+                
+            } catch (Exception e) {
+                
+                UIUtils.showErrorMessage (this,
+                                          "Unable to show start window, please contact Quoll Writer support for assistance.");
+                
+                Environment.logError ("Unable to show start window",
+                                      e);
+                
+                return;
+                                                    
+            }
                             
+        }
     }
     
     private boolean addRow (final String       objType,
@@ -292,7 +382,7 @@ public class ObjectTypeNameChanger extends Box
         final ObjectTypeNameChanger _this = this;
     
         JTextPane help = UIUtils.createHelpTextPane ("After saving any changes to names will appear when you next open the {project}.", 
-                                                     this.projectViewer);
+                                                     this.viewer);
 
         help.setBorder (null);
         help.setAlignmentX (Component.LEFT_ALIGNMENT);

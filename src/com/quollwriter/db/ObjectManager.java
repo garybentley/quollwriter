@@ -26,6 +26,7 @@ import org.h2.jdbc.*;
 
 import org.jdom.*;
 
+import org.josql.*;
 
 public class ObjectManager
 {
@@ -1067,14 +1068,21 @@ public class ObjectManager
         {
             
             JdbcSQLException ex = (JdbcSQLException) e;
-            
+            /*
             if (ex.getErrorCode () == org.h2.constant.ErrorCode.DATABASE_ALREADY_OPEN_1)
             {
                 
                 return true;
                 
             }
-            
+            */
+            if (ex.getErrorCode () == org.h2.api.ErrorCode.DATABASE_ALREADY_OPEN_1)
+            {
+                
+                return true;
+                
+            }
+
         }
         
         Throwable cause = e.getCause ();
@@ -1098,7 +1106,7 @@ public class ObjectManager
         {
             
             JdbcSQLException ex = (JdbcSQLException) e;
-            
+            /*
             if ((ex.getErrorCode () == org.h2.constant.ErrorCode.FILE_ENCRYPTION_ERROR_1)
                 ||
                 (ex.getErrorCode () == org.h2.constant.ErrorCode.WRONG_USER_OR_PASSWORD)
@@ -1108,7 +1116,16 @@ public class ObjectManager
                 return true;
                 
             }
-            
+            */
+            if ((ex.getErrorCode () == org.h2.api.ErrorCode.FILE_ENCRYPTION_ERROR_1)
+                ||
+                (ex.getErrorCode () == org.h2.api.ErrorCode.WRONG_USER_OR_PASSWORD)
+               )
+            {
+                
+                return true;
+                
+            }            
         }
         
         Throwable cause = e.getCause ();
@@ -1495,7 +1512,7 @@ public class ObjectManager
             
     }    
     
-    public void saveObjects (List<DataObject> objs,
+    public void saveObjects (List<? extends DataObject> objs,
                              Connection       conn)
                       throws GeneralException
     {
@@ -1889,9 +1906,32 @@ public class ObjectManager
                         params = new ArrayList ();
                         params.add (n.getKey ());
                         params.add (n.getName ());
-                        params.add (n.getDescription ());
+                        
+                        StringWithMarkup descm = n.getDescription ();
+                        
+                        String desc = null;
+                        String markup = null;
+                        
+                        if (descm != null)
+                        {
+                            
+                            desc = descm.getText ();
+                            
+                            if (descm.getMarkup () != null)
+                            {
+                            
+                                markup = descm.getMarkup ().toString ();
+                                
+                            }
+                            
+                        }
+                        
+                        params.add (desc);
+                        params.add (markup);
 
-                        this.executeStatement ("INSERT INTO namedobject (dbkey, name, description) VALUES (?, ?, ?)",
+                        params.add (Utils.getFilesAsXML (n.getFiles ()));
+                        
+                        this.executeStatement ("INSERT INTO namedobject (dbkey, name, description, markup, files) VALUES (?, ?, ?, ?, ?)",
                                                params,
                                                conn);
 
@@ -1965,12 +2005,33 @@ public class ObjectManager
 
                         }
 
+                        StringWithMarkup descm = n.getDescription ();
+                        
+                        String desc = null;
+                        String markup = null;
+                        
+                        if (descm != null)
+                        {
+                            
+                            desc = descm.getText ();
+                            
+                            if (descm.getMarkup () != null)
+                            {
+                            
+                                markup = descm.getMarkup ().toString ();
+                                
+                            }
+                            
+                        }
+                        
                         params = new ArrayList ();
                         params.add (n.getName ());
-                        params.add (n.getDescription ());
+                        params.add (desc);
+                        params.add (markup);
+                        params.add (Utils.getFilesAsXML (n.getFiles ()));
                         params.add (n.getKey ());
 
-                        this.executeStatement ("UPDATE namedobject SET name = ?, description = ? WHERE dbkey = ?",
+                        this.executeStatement ("UPDATE namedobject SET name = ?, description = ?, markup = ?, files = ? WHERE dbkey = ?",
                                                params,
                                                conn);
 
@@ -2687,20 +2748,22 @@ public class ObjectManager
 
     }
 
-    public File createBackup (Project project)
-                       throws Exception
+    private List<File> getBackupFiles (Project project)
+                                throws Exception
     {
+        
+        File dir = project.getBackupDirectory ();
+        
+        if (dir == null)
+        {
+            
+            return null;
+            
+        }
 
-        File dir = new File (this.dir.getPath () + "/versions");
-
-        dir.mkdirs ();
-
-        // Indicate that this directory can be deleted.
-        Utils.createQuollWriterDirFile (dir);
-
+        List<File> ret = new ArrayList ();
+        
         File[] files = dir.listFiles ();
-
-        int ver = 0;
 
         if (files != null)
         {
@@ -2714,28 +2777,150 @@ public class ObjectManager
                     (f.getName ().endsWith (".zip")))
                 {
 
-                    // Split the filename, get the version.
-                    String n = f.getName ().substring (6,
-                                                       f.getName ().length () - 4);
+                    ret.add (f);
+                    
+                }
+                
+            }
+            
+        }
 
-                    try
-                    {
-
-                        int v = Integer.parseInt (n);
-
-                        if (v > ver)
-                        {
-
-                            ver = v;
-
-                        }
-
-                    } catch (Exception e)
-                    {
-
-                    }
+        Query q = new Query ();
+        q.parse (String.format ("SELECT * FROM %s ORDER BY lastModified DESC",
+                                File.class.getName ()));
+        
+        QueryResults qr = q.execute (ret);
+        
+        ret = (List<File>) qr.getResults ();
+        
+        return ret;
+        
+    }
+    
+    public File getLastBackupFile (Project project)
+                            throws Exception
+    {
+        
+        List<File> files = this.getBackupFiles (project);
+        
+        if (files == null)
+        {
+            
+            return null;
+            
+        }
+        
+        if (files.size () > 0)
+        {
+            
+            return files.get (0);
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public void pruneBackups (Project project,
+                              int     keepCount)
+                       throws Exception
+    {
+        
+        File dir = project.getBackupDirectory ();
+        
+        if (dir == null)
+        {
+            
+            return;
+            
+        }
+        
+        if (keepCount < 1)
+        {
+            
+            return;
+            
+        }
+        
+        List<File> files = this.getBackupFiles (project);
+        
+        if (files == null)
+        {
+            
+            return;
+            
+        }
+        
+        if (files.size () > keepCount)
+        {
+            
+            files = files.subList (keepCount,
+                                   files.size ());
+            
+            // Delete the files.
+            for (File f : files)
+            {
+                
+                if (f.delete ())
+                {
+                
+                    this.createActionLogEntry (project,
+                                               "Pruned backup, file: " + f.getPath (),
+                                               null,
+                                               null);
 
                 }
+                
+            }
+            
+        }
+                
+    }
+    
+    public File createBackup (Project project,
+                              int     keepCount)
+                       throws Exception
+    {
+
+        File dir = project.getBackupDirectory ();
+        
+        if (dir == null)
+        {
+            
+            return null;
+            
+        }
+    
+        dir.mkdirs ();
+
+        // Indicate that this directory can be deleted.
+        Utils.createQuollWriterDirFile (dir);
+
+        File last = this.getLastBackupFile (project);
+        
+        int ver = 0;
+
+        if (last != null)
+        {
+            
+            // Split the filename, get the version.
+            String n = last.getName ().substring (6,
+                                                  last.getName ().length () - 4);
+
+            try
+            {
+
+                int v = Integer.parseInt (n);
+
+                if (v > ver)
+                {
+
+                    ver = v;
+
+                }
+
+            } catch (Exception e)
+            {
 
             }
 
@@ -2755,8 +2940,8 @@ public class ObjectManager
             List params = new ArrayList ();
             params.add (f.getPath ());
             
-            this.executeStatement ("BACKUP TO ?", //"BACKUP TO '" + f.getPath () + "'",
-                                   params, //null,
+            this.executeStatement ("BACKUP TO ?", 
+                                   params, 
                                    conn);
 
             this.releaseConnection (conn);
@@ -2766,6 +2951,8 @@ public class ObjectManager
                                        null,
                                        null);
 
+            // Test the backup?
+                                       
         } catch (Exception e)
         {
 
@@ -2776,6 +2963,9 @@ public class ObjectManager
 
         } 
 
+        this.pruneBackups (project,
+                           keepCount);
+        
         return f;
 
     }

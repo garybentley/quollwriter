@@ -16,10 +16,10 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 
-public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProjectViewer>
+public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer>
 {
         
-    public NotesAccordionItem (AbstractProjectViewer pv)
+    public NotesAccordionItem (ProjectViewer pv)
     {
         
         super (Environment.getObjectTypeNamePlural (Note.OBJECT_TYPE),
@@ -29,46 +29,12 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
             
     }
     
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
         
-        java.util.List<TreePath> openPaths = new ArrayList ();
-        
-        Enumeration<TreePath> paths = tree.getExpandedDescendants (new TreePath (tree.getModel ().getRoot ()));
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
 
-        if (paths != null)
-        {
-
-            while (paths.hasMoreElements ())
-            {
-
-                openPaths.add (paths.nextElement ());
-
-            }
-
-        }
-
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
-
-        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
-
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
-
-        for (TreePath p : openPaths)
-        {
-
-            tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                               ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
-
-        }        
-        
-    }
-
-    private void initTree ()
-    {
-        
-        
-        
     }
     
     @Override
@@ -86,10 +52,11 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
 
     }    
     
-    public void init (JTree tree)
+    @Override
+    public void initTree ()
     {
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
 
     }
 
@@ -142,9 +109,15 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
                                 
-                                                            _this.tree.setSelectionPath (tp);
-                                                            _this.tree.startEditingAtPath (tp);
+                                                            DefaultTreeModel dtm = (DefaultTreeModel) _this.tree.getModel ();
                                 
+                                                            DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+                                
+                                                            NamedObject nt = (NamedObject) n.getUserObject ();
+                                
+                                                            new RenameNoteTypeActionHandler (nt.getName (),
+                                                                                             _this.projectViewer).actionPerformed (ev);
+                                                                
                                                         }
                                 
                                                    }));
@@ -168,8 +141,8 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
                                 
                                                             NamedObject nt = (NamedObject) n.getUserObject ();
                                 
-                                                            _this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).removeType (nt.getName (),
-                                                                                                                                     false);
+                                                            Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).removeType (nt.getName (),
+                                                                                                                                                false);
                                 
                                                             dtm.removeNodeFromParent (n);
                                 
@@ -212,8 +185,8 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
         
     }
     
-    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv,
-                                             JTree                 tree)
+    @Override
+    public TreeCellEditor getTreeCellEditor (ProjectViewer pv)
     {
         
         return new ProjectTreeCellEditor (pv,
@@ -242,8 +215,8 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<AbstractProj
         
     }
     
-    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv,
-                                                       JTree                 tree)
+    @Override
+    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
     {
         
         return null;

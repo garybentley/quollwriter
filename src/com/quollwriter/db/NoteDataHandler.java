@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class NoteDataHandler implements DataHandler<Note, NamedObject>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT objectdbkey, dbkey, name, description, lastmodified, datecreated, properties, due, dealtwith, type, position, end_position, id, version FROM note_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT objectdbkey, dbkey, name, description, markup, files, lastmodified, datecreated, properties, due, dealtwith, type, position, end_position, id, version FROM note_v ";
     private ObjectManager objectManager = null;
 
     public NoteDataHandler(ObjectManager om)
@@ -44,8 +43,9 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
             n.setObject (obj);
             n.setKey (key);
             n.setName (rs.getString (ind++));
-            n.setDescription (rs.getString (ind++));
-
+            n.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            n.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             n.setLastModified (rs.getTimestamp (ind++));
             n.setDateCreated (rs.getTimestamp (ind++));
             n.setPropertiesAsString (rs.getString (ind++));

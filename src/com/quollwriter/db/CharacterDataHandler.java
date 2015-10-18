@@ -12,7 +12,7 @@ import com.quollwriter.data.*;
 public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
 
     private ObjectManager objectManager = null;
 
@@ -40,7 +40,9 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
             c.setKey (key);
             c.setName (rs.getString (ind++));
-            c.setDescription (rs.getString (ind++));
+            c.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            c.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
 
             c.setLastModified (rs.getTimestamp (ind++));
             c.setDateCreated (rs.getTimestamp (ind++));

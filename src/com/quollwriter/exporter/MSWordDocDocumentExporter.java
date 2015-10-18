@@ -35,7 +35,9 @@ public class MSWordDocDocumentExporter extends MSWordDocXDocumentExporter
     {
 
         String prefix = "";
-        String text = n.getDescription ();
+        
+        // TODO: Add style.
+        String text = (n.getDescription () != null ? n.getDescription ().getText () : null);
 
         if (n instanceof QCharacter)
         {
@@ -87,14 +89,21 @@ public class MSWordDocDocumentExporter extends MSWordDocXDocumentExporter
 
         } else
         {
-
+            
             if (n instanceof Chapter)
             {
 
-                text = ((Chapter) n).getText ();
+                StringWithMarkup t = ((Chapter) n).getText ();
+                
+                if (t.getText () != null)
+                {
+            
+                    text = t.getText ();
+                    
+                }
 
             }
-
+            
         }
 
         if (text == null)

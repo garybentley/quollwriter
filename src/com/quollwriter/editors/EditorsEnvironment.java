@@ -192,7 +192,7 @@ public class EditorsEnvironment
                                 }
 
                                 // Add a notification to the project viewer saying we are logging in.
-                                final AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                final AbstractViewer viewer = Environment.getFocusedViewer ();
                                 
                                 final Notification n = viewer.addNotification ("Logging in to the Editors service...",
                                                                                Constants.EDITORS_ICON_NAME,
@@ -487,7 +487,7 @@ public class EditorsEnvironment
             
         }
         
-        File f = new File (dir, Constants.EDITORS_DB_FILE_NAME_PREFIX + ".h2.db");
+        File f = new File (dir, Constants.EDITORS_DB_FILE_NAME_PREFIX + Constants.H2_DB_FILE_SUFFIX);
         
         if ((f.exists ())
             &&
@@ -520,11 +520,13 @@ public class EditorsEnvironment
         
         EditorsEnvironment.editorsManager = new EditorsObjectManager ();
         
-        EditorsEnvironment.editorsManager.init (new File (dir, Constants.EDITORS_DB_FILE_NAME_PREFIX),
+        File f = EditorsEnvironment.getEditorsDBFile (dir);
+        
+        EditorsEnvironment.editorsManager.init (f,
                                                 username,
                                                 password,
                                                 null,
-                                                EditorsEnvironment.getSchemaVersion ());
+                                                EditorsEnvironment.getSchemaVersion (dir));
 
         // Create a file that indicates that the directory can be deleted.
         Utils.createQuollWriterDirFile (dir);
@@ -801,9 +803,25 @@ public class EditorsEnvironment
         EditorsEnvironment.editorsManager.setUserInformation (EditorsEnvironment.editorAccount);
         
     }
-    
-    public static int getSchemaVersion ()
+        
+    private static File getEditorsDBFile (File dir)
     {
+        
+        return new File (dir, Constants.EDITORS_DB_FILE_NAME_PREFIX);
+        
+    }
+    
+    public static int getSchemaVersion (File dir)
+    {
+        
+        File dbf = new File (EditorsEnvironment.getEditorsDBFile (dir).getPath () + Constants.H2_DB_FILE_SUFFIX);
+
+        if (!dbf.exists ())
+        {
+            
+            return 0;
+            
+        }
         
         return EditorsEnvironment.schemaVersion;
         
@@ -1086,7 +1104,7 @@ public class EditorsEnvironment
                     
                 } catch (Exception e) {
                     
-                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                    AbstractViewer viewer = Environment.getFocusedViewer ();
                     
                     UIUtils.showErrorMessage (viewer,
                                               "Unable to update {editor} information in local database.");
@@ -1138,7 +1156,7 @@ public class EditorsEnvironment
                     
                 } catch (Exception e) {
                     
-                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                    AbstractViewer viewer = Environment.getFocusedViewer ();
                     
                     UIUtils.showErrorMessage (viewer,
                                               "Unable to update {editor} information in local database.");
@@ -1215,7 +1233,7 @@ public class EditorsEnvironment
                     
                 } catch (Exception e) {
                     
-                    AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                    AbstractViewer viewer = Environment.getFocusedViewer ();
                     
                     UIUtils.showErrorMessage (viewer,
                                               "Unable to update {editor} information in local database.");
@@ -1283,7 +1301,7 @@ public class EditorsEnvironment
             public void actionPerformed (ActionEvent ev)
             {
                 
-                UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
+                UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                           "Unable to update your password, please contact Quoll Writer support for assistance.");
                 
             }
@@ -1306,7 +1324,7 @@ public class EditorsEnvironment
                                                                       public void actionPerformed (ActionEvent ev)
                                                                       {
                                                                     
-                                                                        UIUtils.showMessage ((PopupsSupported) Environment.getFocusedProjectViewer (),
+                                                                        UIUtils.showMessage ((PopupsSupported) Environment.getFocusedViewer (),
                                                                                              "Password updated",
                                                                                              "Your password has been updated.");
                                                                         
@@ -1336,9 +1354,9 @@ public class EditorsEnvironment
     private static void checkForUndealtWithMessages ()
     {
         
-        final AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+        final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-        if (!viewer.isEditorsSideBarVisible ())
+        if (!viewer.isEditorsVisible ())
         {
         
             int c = 0;
@@ -1453,7 +1471,7 @@ public class EditorsEnvironment
                                  final ActionListener onError)
     {
         
-        final AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+        final AbstractViewer viewer = Environment.getFocusedViewer ();
         
         final String reason = (loginReason != null ? loginReason : "To go online you must first login.");
 
@@ -1708,7 +1726,7 @@ public class EditorsEnvironment
             public void processResult (EditorsWebServiceResult res)
             {
 
-                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                final AbstractViewer viewer = Environment.getFocusedViewer ();
                 
                 final EditorEditor ed = new EditorEditor ();
 
@@ -1777,9 +1795,9 @@ public class EditorsEnvironment
                                                                             public void actionPerformed (ActionEvent ev)
                                                                             {
                                                                                 
-                                                                                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                                                AbstractViewer viewer = Environment.getFocusedViewer ();
                                                                                 
-                                                                                UIUtils.showMessage (viewer,
+                                                                                UIUtils.showMessage ((PopupsSupported) viewer,
                                                                                                      "Invite sent",
                                                                                                      "An invite has been sent to: <b>" + toEmail + "</b>.",
                                                                                                      "Ok, got it",
@@ -1795,36 +1813,39 @@ public class EditorsEnvironment
                            
                         };
                         
-                        // Ask the user if they want to send the editor their project.
-                        QPopup p = UIUtils.createQuestionPopup (viewer,
-                                                     "Send {project} / {chapters}?",
-                                                     Constants.SEND_ICON_NAME,
-                                                     String.format ("Would you like to send your {project}/{chapters} to <b>%s</b> now?",
-                                                                    ed.getMainName ()),
-                                                     "Yes",
-                                                     "No, not now",
-                                                     new ActionListener ()
-                                                     {
-                                                        
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
+                        if (viewer instanceof AbstractProjectViewer)
+                        {
+                            
+                            // Ask the user if they want to send the editor their project.
+                            QPopup p = UIUtils.createQuestionPopup (viewer,
+                                                         "Send {project} / {chapters}?",
+                                                         Constants.SEND_ICON_NAME,
+                                                         String.format ("Would you like to send your {project}/{chapters} to <b>%s</b> now?",
+                                                                        ed.getMainName ()),
+                                                         "Yes",
+                                                         "No, not now",
+                                                         new ActionListener ()
+                                                         {
                                                             
-                                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+                                                                                                                                
+                                                                EditorsUIUtils.showSendProject ((AbstractProjectViewer) viewer,
+                                                                                                ed,
+                                                                                                null);
+    
+                                                            }
                                                             
-                                                            EditorsUIUtils.showSendProject (viewer,
-                                                                                            ed,
-                                                                                            null);
-
-                                                        }
-                                                        
-                                                     },
-                                                     onCancel,
-                                                     null,
-                                                     null);
+                                                         },
+                                                         onCancel,
+                                                         null,
+                                                         null);
+                            
+                            p.getHeader ().getControls ().setVisible (false);
+                            
+                            return;
                         
-                        p.getHeader ().getControls ().setVisible (false);
-                        
-                        return;
+                        }
                         
                     }
                     
@@ -1842,7 +1863,7 @@ public class EditorsEnvironment
                     
                 }
 
-                UIUtils.showMessage (viewer,
+                UIUtils.showMessage ((PopupsSupported) viewer,
                                      "Invite sent",
                                      String.format ("An invite has been sent to: <b>%s</b>.",
                                                     toEmail),
@@ -2088,6 +2109,17 @@ public class EditorsEnvironment
     
     public static ProjectEditor getProjectEditor (Project      p,
                                                   EditorEditor ed)
+                                           throws Exception
+    {
+        
+        return EditorsEnvironment.getProjectEditor (Environment.getProjectById (p.getId (),
+                                                                                p.getType ()),
+                                                    ed);
+        
+    }
+
+    public static ProjectEditor getProjectEditor (ProjectInfo  p,
+                                                  EditorEditor ed)
                                            throws GeneralException
     {
         
@@ -2144,7 +2176,7 @@ public class EditorsEnvironment
             
         }
         
-        Project p = new Project ();
+        ProjectInfo p = new ProjectInfo ();
         p.setId (projectId);
         
         return (List<ProjectEditor>) EditorsEnvironment.editorsManager.getObjects (ProjectEditor.class,
@@ -2265,7 +2297,7 @@ public class EditorsEnvironment
                                                         null);
         
         // Remove from any project tied to a project viewer.
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -2308,8 +2340,8 @@ public class EditorsEnvironment
                                                       
     }
 
-    public static Set<Project> getProjectsSentToEditor (EditorEditor ed)
-                                                 throws Exception
+    public static Set<ProjectInfo> getProjectsSentToEditor (EditorEditor ed)
+                                                     throws Exception
     {
         
         if (EditorsEnvironment.editorsManager == null)
@@ -2323,13 +2355,13 @@ public class EditorsEnvironment
         
     }
     
-    public static Set<Project> getProjectsForEditor (EditorEditor ed)
-                                              throws Exception
+    public static Set<ProjectInfo> getProjectsForEditor (EditorEditor ed)
+                                                  throws Exception
     {
         
-        Set<Project> projs = new LinkedHashSet ();
+        Set<ProjectInfo> projs = new LinkedHashSet ();
         
-        for (Project p : Environment.getAllProjects ())
+        for (ProjectInfo p : Environment.getAllProjectInfos ())
         {
             
             if (p.getForEditor () == null)
@@ -2358,7 +2390,7 @@ public class EditorsEnvironment
                                         throws Exception
     {
         
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -2394,9 +2426,9 @@ public class EditorsEnvironment
                                                            throws Exception
     {
         
-        Set<Project> projs = Environment.getAllProjects ();
+        Set<ProjectInfo> projs = Environment.getAllProjectInfos ();
         
-        for (Project p : projs)
+        for (ProjectInfo p : projs)
         {
             
             ProjectEditor pe = EditorsEnvironment.getProjectEditor (p,
@@ -2518,7 +2550,7 @@ public class EditorsEnvironment
                                       ed,
                                       e);
                 
-                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                AbstractViewer viewer = Environment.getFocusedViewer ();
                 
                 UIUtils.showErrorMessage (viewer,
                                           "Unable to update {editor}, please contact Quoll Writer support for assistance.");
@@ -2562,7 +2594,7 @@ public class EditorsEnvironment
                                                                                   ed,
                                                                                   e);
                                                             
-                                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                            AbstractViewer viewer = Environment.getFocusedViewer ();
                                                             
                                                             UIUtils.showErrorMessage (viewer,
                                                                                       "Unable to update {editor}, please contact Quoll Writer support for assistance.");
@@ -2582,7 +2614,7 @@ public class EditorsEnvironment
                                                                                   ed,
                                                                                   e);
                                                             
-                                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                            AbstractViewer viewer = Environment.getFocusedViewer ();
                                                             
                                                             UIUtils.showErrorMessage (viewer,
                                                                                       "Unable to update {editor}, please contact Quoll Writer support for assistance.");
@@ -3056,7 +3088,7 @@ public class EditorsEnvironment
             //if (!EditorsEnvironment.getEditorsPropertyAsBoolean (Constants.EDITORS_SEEN_OFFLINE_SEND_MESSAGE_PROPERTY_NAME))
             //{
                 
-                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                AbstractViewer viewer = Environment.getFocusedViewer ();
 
                 UIUtils.showMessage ((PopupsSupported) viewer,
                                      "{Editor} is offline",
@@ -3231,7 +3263,7 @@ public class EditorsEnvironment
                                             
                                         } else {
                                                                                 
-                                            UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
+                                            UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                                                       "Unable to delete your account, please contact Quoll Writer support for assistance.");
                                             
                                         }
@@ -3246,7 +3278,7 @@ public class EditorsEnvironment
                         };
                         
                         // Offer to remove all the editor projects.
-                        EditorsUIUtils.showDeleteProjectsForAllEditors (Environment.getFocusedProjectViewer (),
+                        EditorsUIUtils.showDeleteProjectsForAllEditors (Environment.getFocusedViewer (),
                                                                         deleteAcc);                                                    
                                                         
                     }

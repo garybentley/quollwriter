@@ -51,8 +51,8 @@ public class version_2_2 implements WhatsNewComponentProvider
         
     }
     
-    public JComponent getComponent (final AbstractProjectViewer pv,
-                                    final String                id)
+    public JComponent getComponent (final AbstractViewer pv,
+                                    final String         id)
     {
         
         final version_2_2 _this = this;
@@ -123,7 +123,12 @@ public class version_2_2 implements WhatsNewComponentProvider
                 public void actionPerformed (ActionEvent ev)
                 {
     
-                    pv.setHighlightWritingLine (line.isSelected ());
+                    if (pv instanceof AbstractProjectViewer)
+                    {
+    
+                        ((AbstractProjectViewer) pv).setHighlightWritingLine (line.isSelected ());
+                        
+                    }
 
                     if (line.isSelected ())
                     {

@@ -95,6 +95,12 @@ public class Constants
     
     public static final String QUOLLWRITER_PROTOCOL = "qw";
 
+    public static final String CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME = "closeProjectsWindowWhenProjectOpened";
+    
+    public static final String SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME = "showProjectsWindowWhenNoOpenProjects";
+    
+    public static final String PROJECT_INFO_DB_DIR_PROPERTY_NAME = "projctInfoDBDir";
+    
     public static final String FOR_EDITOR_EMAIL_PROPERTY_NAME = "forEditorEmail";
     
     public static final String EDITOR_RESPONSE_MESSAGE_PROPERTY_NAME = "editorProjectResponseMessage";
@@ -155,9 +161,11 @@ public class Constants
 
     public static final String LAST_EDITOR_SCROLL_POSITION_PROPERTY_NAME = "lastEditorScrollPosition";
 
-    public static final String TOP_BOTTOM_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "topBottomSplitPaneDividerLocation";
+    public static final String ASSET_MAIN_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "assetMainSplitPaneDividerLocation";
 
-    public static final String LEFT_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "leftRightSplitPaneDividerLocation";
+    public static final String ASSET_LEFT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "assetLeftSplitPaneDividerLocation";
+
+    public static final String ASSET_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME = "assetRightSplitPaneDividerLocation";
 
     public static final String COMPACT_MENUS_PROPERTY_NAME = "compactMenus";
 
@@ -179,12 +187,16 @@ public class Constants
 
     public static final String OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME = "openLastEditedProject";
 
+    public static final String SHOW_LANDING_ON_START_PROPERY_NAME = "showLandingOnStart";
+    
     public static final String EXPORT_DIRECTORY_PROPERTY_NAME = "exportDirectory";
 
     public static final String AUTHOR_NAME_PROPERTY_NAME = "authorName";
 
     public static final String BOOK_ID_PROPERTY_NAME = "bookId";
 
+    public static final String PROJECT_STATUSES_PROPERTY_NAME = "projectStatuses";
+    
     public static final String NOTE_TYPES_PROPERTY_NAME = "noteTypes";
 
     public static final String OBJECT_TYPES_PROPERTY_NAME = "objectTypes";
@@ -287,6 +299,8 @@ public class Constants
 
     public static final String SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "spellCheckLanugage";
 
+    public static final String DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "defaultSpellCheckLanugage";
+
     public static final String DEFAULT_IDEA_BOARD_BG_IMAGE_PROPERTY_NAME = "defaultIdeaBoardBackgroundImage";
 
     public static final String USER_ACHIEVEMENTS_STATE_PROPERTY_NAME = "userAchievementsState";
@@ -340,6 +354,11 @@ public class Constants
     public static final String INVITES_WEBSERVICE_URL_PROPERTY_NAME = "editorsInvitesWebserviceBaseURL";
     public static final String SESSIONS_WEBSERVICE_URL_PROPERTY_NAME = "editorsSessionsWebserviceBaseURL";
 
+    public static final String SORT_PROJECTS_BY_PROPERTY_NAME = "sortProjectsBy";
+    public static final String DEFAULT_PROJECT_INFO_FORMAT = "defaultProjectInfoFormat";
+    public static final String PROJECT_INFO_FORMAT = "projectInfoFormat";
+    
+    public static final String DEBUG_MODE_PROPERTY_NAME = "debugMode";
     public static final String EDITORS_SERVICE_HOST_PROPERTY_NAME = "editorsServiceHost";
     public static final String EDITORS_SERVICE_PORT_PROPERTY_NAME = "editorsServicePort";
     public static final String EDITORS_SERVICE_REPORT_MESSAGE_PAGE_PROPERTY_NAME = "editorsServiceReportMessagePage";
@@ -358,6 +377,8 @@ public class Constants
     public static final String EDITORS_DB_FILE_NAME_PREFIX = "quoll-writer-editors-db";
     
     public static final String AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME = "autoSendErrorsToSupport";
+    
+    public static final String BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME = "backupsToKeepCount";
     
     public static final String PROMPTS_EXCLUDE_FILE = "prompts-exclude.txt";
     public static final String USER_PROMPTS_FILE = "own-prompts.xml";
@@ -399,6 +420,8 @@ public class Constants
 
     public static final String IMGS_DIR = "/imgs/";
 
+    public static final String H2_DB_FILE_SUFFIX = ".h2.db";
+    
     public static final String BACKGROUND_IMGS_DIR = Constants.IMGS_DIR + "bgs/";
     public static final String BACKGROUND_THUMB_IMGS_DIR = Constants.BACKGROUND_IMGS_DIR + "thumbs/";
     public static final String ACHIEVEMENT_ICON_FILE = Constants.IMGS_DIR + "achievement24.png";
@@ -414,6 +437,12 @@ public class Constants
     public static final String WORD_SYLLABLE_COUNTS_FILE = Constants.DATA_DIR + "word-syllable-counts.txt";
     public static final String UPDATE_SCRIPTS_DIR = Constants.SCHEMA_DIR + "update-scripts";
     public static final String EDITOR_UPDATE_SCRIPTS_DIR = Constants.EDITOR_SCHEMA_DIR + "update-scripts";
+    
+    public static final String PROJECT_INFO_DB_FILE_NAME_PREFIX = "project-info-db";
+    public static final String PROJECT_INFO_SCHEMA_DIR = Constants.DATA_DIR + "project-info-schema/";
+    public static final String PROJECT_INFO_UPDATE_SCRIPTS_DIR = Constants.PROJECT_INFO_SCHEMA_DIR + "update-scripts";
+    public static final String PROJECT_INFO_SCHEMA_VERSION_FILE = Constants.DATA_DIR + "project-info-schema-version.txt";
+    
     public static final String LOGS_DIR = "/log/";
     public static final String DICTIONARIES_DIR = "/dictionaries/";
     public static final String THESAURUS_DIR = "/thesaurus/";
@@ -448,6 +477,9 @@ public class Constants
     public static final String NONE_COMPRESSED_CHAPTER_CONTEXT_MENU_IMAGE = Constants.DATA_DIR + "none-compressed-chapter-context-menu.png";
     public static final String EDITOR_NO_AVATAR_IMAGE = Constants.DATA_DIR + "editor-no-avatar.png";
     
+    public static final String DOCUMENT_NORMAL_FILE_NAME = Constants.DATA_DIR + "document-normal.png";
+    public static final String DOCUMENT_ERROR_FILE_NAME = Constants.DATA_DIR + "document-error.png";    
+    
     public static final String MINS_5 = "5 mins";
     public static final String MINS_10 = "10 mins";
     public static final String MINS_20 = "20 mins";
@@ -458,6 +490,10 @@ public class Constants
     public static final String DAYS_2 = "2 days";
     public static final String DAYS_5 = "5 days";
     public static final String WEEK_1 = "1 week";
+    public static final String COUNT_10 = "10";
+    public static final String COUNT_20 = "20";
+    public static final String COUNT_50 = "50";
+    public static final String COUNT_ALL = "All";
 
     public static final String DOCX_FILE_EXTENSION = ".docx";
     public static final String DOC_FILE_EXTENSION = ".doc";
@@ -499,6 +535,7 @@ public class Constants
     public static final String OPEN_PROJECT_ICON_NAME = "open-project";
     public static final String CHART_ICON_NAME = "chart";
     public static final String SNAPSHOT_ICON_NAME = "snapshot";
+    public static final String RESTORE_ICON_NAME = "restore";
     public static final String OPTIONS_ICON_NAME = "options";
     public static final String IDEA_ICON_NAME = "idea";
     public static final String WARMUPS_ICON_NAME = "warmups";
@@ -556,6 +593,9 @@ public class Constants
     public static final String RESET_ICON_NAME = "convert";
     public static final String CONFIG_ICON_NAME = "config";
     public static final String DICTIONARY_ICON_NAME = "dictionary";
+    public static final String DATE_ICON_NAME = "date";
+    public static final String STAR_ICON_NAME = "star";
+    public static final String SORT_ICON_NAME = "sort";
     
     public static final String SHOW_FIND_ACTION = "find-show";
 
@@ -565,6 +605,7 @@ public class Constants
     public static final String SAVE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "save$$__";
     public static final String SEND_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "send$$__";
     public static final String UPDATE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "update$$__";
+    public static final String FINISH_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "finish$$__";
 
     public static final String LAYOUT_PS_CH = "layout-ps-ch";
     public static final String LAYOUT_CH_PS = "layout-ch-ps";

@@ -103,7 +103,7 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
                 try
                 {
         
-                    ChapterCounts cc = UIUtils.getChapterCounts (_this.editor.getText ());
+                    ChapterCounts cc = new ChapterCounts (_this.editor.getText ());
                     cc.a4PageCount = UIUtils.getA4PageCountForChapter (_this.chapter,
                                                                        _this.editor.getText ());
         

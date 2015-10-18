@@ -41,23 +41,21 @@ public class WarmupPromptSelect extends Box
     private JComboBox mins = null;
     private JComboBox words = null;
     private JCheckBox doOnStartup = null;
-    private AbstractProjectViewer projectViewer = null;
+    private AbstractViewer viewer = null;
     private JTextPane promptPreview = null;
     private boolean inited = false;
 
-    public WarmupPromptSelect(AbstractProjectViewer v)
+    public WarmupPromptSelect(AbstractViewer v)
     {
 
         super (BoxLayout.Y_AXIS);
 
-        this.projectViewer = v;
+        this.viewer = v;
         
-        this.ownPrompt = new TextArea ("Enter your prompt text here...",
-                                       3,
-                                       -1);
+        this.ownPrompt = UIUtils.createTextArea ("Enter your prompt text here...",
+                                                 3,
+                                                 -1);
         
-        this.ownPrompt.setBorder (UIUtils.createPadding (5, 5, 15, 5));
-
         Prompts.shuffle ();
 
         this.prompt = Prompts.next ();
@@ -66,8 +64,7 @@ public class WarmupPromptSelect extends Box
         
         this.words = WarmupPromptSelect.getWordsOptions ();
 
-        this.promptPreview = UIUtils.createHelpTextPane (null,
-                                                         v);
+        this.promptPreview = UIUtils.createHelpTextPane (v);
 
         this.doOnStartup = WarmupPromptSelect.getDoWarmupOnStartupCheckbox ();
         
@@ -95,17 +92,12 @@ public class WarmupPromptSelect extends Box
         this.add (UIUtils.createBoldSubHeader ("Choose a prompt",
                                                null));
 
-        final JScrollPane ppsp = UIUtils.createScrollPane (this.promptPreview);
-        ppsp.setBorder (null);
-        ppsp.setOpaque (false);
-        ppsp.getViewport ().setOpaque (false);
-
-        ppsp.setPreferredSize (new Dimension (500,
-                                              75));
-        ppsp.setBorder (UIUtils.createPadding (0, 5, 10, 5));
-                                              
-        this.add (ppsp);
-
+        Box ppb = new Box (BoxLayout.Y_AXIS);
+        ppb.setBorder (UIUtils.createPadding (0, 5, 10, 5));
+        ppb.add (this.promptPreview);
+        
+        this.add (ppb);
+        
         Box buts = new Box (BoxLayout.X_AXIS);
 
         final JCheckBox doNotShow = new JCheckBox ("Do not show this prompt again");
@@ -212,6 +204,8 @@ public class WarmupPromptSelect extends Box
 
                     doNotShow.setSelected (false);
 
+                    UIUtils.resizeParent (_this);
+                    
                 }
 
             });
@@ -259,6 +253,8 @@ public class WarmupPromptSelect extends Box
 
                     doNotShow.setSelected (false);
 
+                    UIUtils.resizeParent (_this);
+                    
                 }
 
             });
@@ -279,7 +275,12 @@ public class WarmupPromptSelect extends Box
         this.add (UIUtils.createBoldSubHeader ("OR, Enter your own prompt",
                                                null));
         
-        this.add (this.ownPrompt);
+        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        b.setBorder (UIUtils.createPadding (5, 5, 15, 5));
+        b.add (this.ownPrompt);
+        
+        this.add (b);
 /*
         buts = new Box (BoxLayout.X_AXIS);
 
@@ -372,7 +373,7 @@ public class WarmupPromptSelect extends Box
                    )
                 {
                     
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "o_O  The timer can't be unlimited for both time and words.");
                     
                     return;
@@ -411,7 +412,7 @@ public class WarmupPromptSelect extends Box
                 final Prompt _prompt = prompt;
                 
                 // See if we already have the warmups project, if so then just open it.
-                Project p = null;
+                ProjectInfo p = null;
 
                 try
                 {
@@ -469,12 +470,14 @@ public class WarmupPromptSelect extends Box
                                             {
                                                 
                                                 WarmupsViewer v = new WarmupsViewer ();
-                                                
+                                                                                                
                                                 Project p = new Project (Constants.DEFAULT_WARMUPS_PROJECT_NAME);
                                                 p.setType (Project.WARMUPS_PROJECT_TYPE);
                     
                                                 try
                                                 {
+                    
+                                                    v.init ();
                     
                                                     // Put it in the user's directory.
                                                     v.newProject (Environment.getUserQuollWriterDir (),
@@ -534,18 +537,6 @@ public class WarmupPromptSelect extends Box
                                               
         this.add (bp);
         
-        UIUtils.doLater (new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-        
-                ppsp.getVerticalScrollBar ().setValue (0);
-
-            }
-
-        });
-
     }
 
     private void addWarmupToProject (final Prompt prompt)
@@ -562,7 +553,7 @@ public class WarmupPromptSelect extends Box
            )
         {
             
-            UIUtils.showErrorMessage (_this.projectViewer,
+            UIUtils.showErrorMessage (_this.viewer,
                                       "o_O  The timer can't be unlimited for both time and words.");
             
             return;
@@ -575,7 +566,7 @@ public class WarmupPromptSelect extends Box
             public void actionPerformed (ActionEvent ev)
             {                                
                 
-                Project p = null;
+                ProjectInfo p = null;
                 
                 try
                 {

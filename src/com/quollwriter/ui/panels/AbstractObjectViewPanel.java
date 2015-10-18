@@ -53,7 +53,8 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
     private List<Component>        topLevelComps = new ArrayList ();
     private Header                 title = null;
     private JPanel                 linkedTo = null;
-    private JSplitPane             splitPane = null;
+    private JSplitPane             leftSplitPane = null;
+    private JSplitPane             rightSplitPane = null;
     private JSplitPane             mainSplitPane = null;
     private JTree                  linkedToEditTree = null;
     private JTree                  linkedToViewTree = null;
@@ -63,6 +64,7 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
     protected EditPanel              linkedToPanel = null;
     private ActionListener         deleteObjectAction = null;
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
+    private ObjectDocumentsEditPanel objDocsEditPanel = null;
     //protected ProjectViewer        projectViewer = null;
 
     public AbstractObjectViewPanel (AbstractProjectViewer pv,
@@ -75,6 +77,13 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
 
     }
 
+    public ObjectDocumentsEditPanel getObjectDocumentsEditPanel ()
+    {
+        
+        return this.objDocsEditPanel;
+        
+    }
+    
     public DetailsEditPanel getDetailsPanel ()
     {
         
@@ -85,28 +94,7 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
     public void initDividers ()
     {
 
-        if (!this.panesInited)
-        {
-
-            final AbstractObjectViewPanel _this = this;
-
-            SwingUtilities.invokeLater (new Runner ()
-                {
-
-                    public void run ()
-                    {
-
-                        _this.mainSplitPane.setDividerLocation ((double) 0.8);
-
-                        _this.splitPane.setDividerLocation ((double) 0.75);
-
-                        _this.panesInited = true;
-
-                    }
-
-                });
-
-        }
+        // This method doesn't work for startup.
 
     }
 
@@ -172,22 +160,36 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
         b.setOpaque (true);
         b.setBackground (null);
 
-        this.mainSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
+        this.mainSplitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                              false);
         this.mainSplitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.mainSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
         this.mainSplitPane.setBorder (null);
         this.mainSplitPane.setOpaque (false);
         this.mainSplitPane.setContinuousLayout (true);
-
-        this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
-                                         false);
-        this.splitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
-        this.splitPane.setBorder (null);
-        this.splitPane.setOpaque (false);
-        this.splitPane.setContinuousLayout (true);
+        this.mainSplitPane.setBorder (UIUtils.createPadding (0, 0, 3, 0));
+        this.mainSplitPane.setResizeWeight (1);
         
-        this.mainSplitPane.setTopComponent (this.splitPane);
+        this.leftSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
+                                             false);
+        this.leftSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
+        this.leftSplitPane.setBorder (null);
+        this.leftSplitPane.setOpaque (false);
+        this.leftSplitPane.setContinuousLayout (true);
+        this.leftSplitPane.setResizeWeight (1);
+        
+        this.rightSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
+                                              false);
+        this.rightSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
+        this.rightSplitPane.setBorder (null);
+        this.rightSplitPane.setOpaque (false);
+        this.rightSplitPane.setContinuousLayout (true);
+        this.rightSplitPane.setResizeWeight (1);
+
+        //this.mainSplitPane.
+        
+        this.mainSplitPane.setLeftComponent (this.leftSplitPane);
+        this.mainSplitPane.setRightComponent (this.rightSplitPane);
 
         EditPanel botEp = this.getBottomEditPanel ();
 
@@ -198,21 +200,24 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
             
             this.bottomDetailsPanel = botEp;
 
-            this.mainSplitPane.setBottomComponent (botEp);
-
         }
 
         this.detailsPanel = this.getDetailEditPanel (this.projectViewer,
                                                      this.obj);
                                                      
         this.detailsPanel.init (this);
-
-        this.splitPane.setLeftComponent (this.detailsPanel);
-
+                
+        this.leftSplitPane.setTopComponent (this.detailsPanel);
+        this.leftSplitPane.setBottomComponent (botEp);
+        
         this.linkedToPanel = this.createLinkedToPanel ();
 
+        this.rightSplitPane.setBottomComponent (this.linkedToPanel);
+        
         this.linkedToPanel.init ();
 
+        this.linkedToPanel.setMinimumSize (new Dimension (200, 100));
+        
         this.linkedToPanel.addActionListener (new ActionAdapter ()
             {
 
@@ -240,8 +245,13 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
                 }
 
             });
-
-        this.splitPane.setRightComponent (this.linkedToPanel);
+                
+        this.objDocsEditPanel = new ObjectDocumentsEditPanel (this.projectViewer,
+                                                              this.obj);
+        
+        this.objDocsEditPanel.init ();
+        
+        this.rightSplitPane.setTopComponent (this.objDocsEditPanel);
 
         b.add (this.mainSplitPane);
 
@@ -262,6 +272,9 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
                                         Event.CTRL_MASK),
                 "edit");
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_D,
+                                        Event.CTRL_MASK),
+                "adddocument");
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_L,
                                         Event.CTRL_MASK),
                 "editlinkedto");
@@ -279,6 +292,19 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
                     
                 });
         
+        actions.put ("adddocument",
+                new ActionAdapter ()
+                {
+  
+                    public void actionPerformed (ActionEvent ev)
+                    {
+  
+                        _this.objDocsEditPanel.showAddDocument ();
+                        
+                    }
+                    
+                });
+
         actions.put ("editlinkedto",
                 new ActionAdapter ()
                 {
@@ -506,13 +532,13 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
                                                                      _this.obj,
                                                                      false);
 
-                JScrollPane treeScroll = new JScrollPane (_this.linkedToViewTree);
-                treeScroll.setOpaque (false);
+                JScrollPane treeScroll = UIUtils.createScrollPane (_this.linkedToViewTree);
+
                 treeScroll.setBorder (null);
-                treeScroll.setAlignmentX (Component.LEFT_ALIGNMENT);
-
                 UIUtils.expandAllNodesWithChildren (_this.linkedToViewTree);
-
+                
+                treeScroll.setMinimumSize (new Dimension (150, 0));                
+                
                 return treeScroll;
 
             }
@@ -589,31 +615,60 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
         try
         {
 
-            int v = Integer.parseInt (s.get (Constants.TOP_BOTTOM_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
+            int v = Integer.parseInt (s.get (Constants.ASSET_MAIN_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
+
+            if (v <= 0)
+            {
+                
+                return;
+                
+            }
 
             this.mainSplitPane.setDividerLocation (v);
-
-            this.panesInited = true;
             
         } catch (Exception e)
         {
 
+            return;
+        
         }
 
         try
         {
 
-            int v = Integer.parseInt (s.get (Constants.LEFT_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
+            int v = Integer.parseInt (s.get (Constants.ASSET_LEFT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
 
-            this.splitPane.setDividerLocation (v);
+            if (v > 0)
+            {
+                
+                this.leftSplitPane.setDividerLocation (v);
 
-            this.panesInited = true;
-
+            }
+            
         } catch (Exception e)
         {
 
         }
+        
+        try
+        {
 
+            int v = Integer.parseInt (s.get (Constants.ASSET_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME));
+
+            if (v > 0)
+            {
+                
+                this.rightSplitPane.setDividerLocation (v);
+
+            }
+            
+        } catch (Exception e)
+        {
+
+        }
+    
+        this.panesInited = true;
+        
         this.setReadyForUse (true);
 
     }
@@ -621,10 +676,12 @@ public abstract class AbstractObjectViewPanel extends QuollPanel
     public void getState (Map<String, Object> m)
     {
 
-        m.put (Constants.TOP_BOTTOM_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+        m.put (Constants.ASSET_MAIN_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
                this.mainSplitPane.getDividerLocation ());
-        m.put (Constants.LEFT_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-               this.splitPane.getDividerLocation ());
+        m.put (Constants.ASSET_LEFT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+               this.leftSplitPane.getDividerLocation ());
+        m.put (Constants.ASSET_RIGHT_SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
+               this.rightSplitPane.getDividerLocation ());
 
     }
 

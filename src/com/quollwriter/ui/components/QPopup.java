@@ -10,7 +10,7 @@ import javax.swing.border.*;
 import javax.swing.plaf.LayerUI;
 import java.awt.event.*;
 import com.quollwriter.ui.PopupsSupported;
-import com.quollwriter.ui.AbstractProjectViewer;
+import com.quollwriter.ui.AbstractViewer;
 
 public class QPopup extends Box
 {
@@ -27,6 +27,8 @@ public class QPopup extends Box
     private Dragger  dragger = null;
     private List<PopupListener> listeners = new ArrayList ();
     private String name = null;
+    private boolean allowRemoveOnEscape = true;
+    private boolean removeOnClose = true;
 
     public QPopup(String    title,
                   Icon      icon,
@@ -95,6 +97,13 @@ public class QPopup extends Box
                     public void actionPerformed (ActionEvent ev)
                     {
                         
+                        if (!_this.allowRemoveOnEscape)
+                        {
+                            
+                            return;
+                            
+                        }
+                                                
                         _this.removeFromParent ();
                         
                     }
@@ -106,10 +115,23 @@ public class QPopup extends Box
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
                                         0),
                 "hide");
-        
                 
         this.add (this.box);
 
+    }
+    
+    public void setRemoveOnClose (boolean v)
+    {
+        
+        this.removeOnClose = v;
+        
+    }
+    
+    public void setAllowRemoveOnEscape (boolean v)
+    {
+        
+        this.allowRemoveOnEscape = v;
+        
     }
     
     public void setPopupName (String n)
@@ -253,7 +275,14 @@ public class QPopup extends Box
         this.setVisible (false);
         
         Container p = this.getParent ();
+           
+        if (!this.removeOnClose)
+        {
+            
+            return;
                         
+        }
+        
         if (p != null)
         {
             
@@ -266,13 +295,13 @@ public class QPopup extends Box
             while (p != null)
             {
                 
-                if ((p instanceof AbstractProjectViewer)
+                if ((p instanceof AbstractViewer)
                     &&
                     (this.name != null)
                    )
                 {
                     
-                    ((AbstractProjectViewer) p).removeNamedPopup (this.name);
+                    ((AbstractViewer) p).removeNamedPopup (this.name);
                     
                 }
                 

@@ -339,8 +339,6 @@ public class EditorsUtils
                         
                         }
                 
-                        System.out.println ();
-        
                     }
                     
                     if (messObj2 instanceof PGPOnePassSignatureList)

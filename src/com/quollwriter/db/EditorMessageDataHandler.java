@@ -464,8 +464,8 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
         
     }
     
-    public Set<Project> getProjectsSentToEditor (EditorEditor ed)
-                                          throws GeneralException
+    public Set<ProjectInfo> getProjectsSentToEditor (EditorEditor ed)
+                                              throws GeneralException
     {
 
         // Ugh... so sick of this type of get connection, do something, release connection!
@@ -477,11 +477,11 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
             conn = this.objectManager.getConnection ();
 
             // Do this here to prevent an O^n lookup to occur.
-            Set<Project> allProjs = Environment.getAllProjects ();
+            Set<ProjectInfo> allProjs = Environment.getAllProjectInfos ();
         
-            Map<String, Project> allProjsM = new HashMap ();
+            Map<String, ProjectInfo> allProjsM = new HashMap ();
             
-            for (Project p : allProjs)
+            for (ProjectInfo p : allProjs)
             {
                 
                 allProjsM.put (p.getId (),
@@ -489,7 +489,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
                 
             }
         
-            Set<Project> projs = new LinkedHashSet ();
+            Set<ProjectInfo> projs = new LinkedHashSet ();
         
             List params = new ArrayList ();
             params.add (ed.getKey ());
@@ -504,7 +504,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
                 
                 String pid = rs.getString (1);
 
-                Project p = allProjsM.get (pid);
+                ProjectInfo p = allProjsM.get (pid);
                 
                 if (p != null)
                 {

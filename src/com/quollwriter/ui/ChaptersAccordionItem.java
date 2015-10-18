@@ -43,50 +43,25 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     
     }
     
-    public void init (JTree tree)
+    @Override
+    public void initTree ()
     {
-
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
-                                                                                   null,
-                                                                                   null,
-                                                                                   false));        
+    
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+                                                                                        null,
+                                                                                        null,
+                                                                                        false));
+        
     }
 
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
         
-        java.util.List<TreePath> openPaths = new ArrayList ();
-        
-        Enumeration<TreePath> paths = tree.getExpandedDescendants (new TreePath (tree.getModel ().getRoot ()));
-
-        if (paths != null)
-        {
-
-            while (paths.hasMoreElements ())
-            {
-
-                openPaths.add (paths.nextElement ());
-
-            }
-
-        }
-
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
-                                                                                   null,
-                                                                                   null,
-                                                                                   false));        
-
-        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
-
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
-
-        for (TreePath p : openPaths)
-        {
-
-            tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                               ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
-
-        }        
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+                                                                                        null,
+                                                                                        null,
+                                                                                        false));        
         
     }    
     
@@ -421,12 +396,12 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
     }
         
-    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv,
-                                             JTree                 tree)
+    @Override
+    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv)
     {
         
         return new ProjectTreeCellEditor (pv,
-                                          tree);
+                                          this.tree);
         
     }
     
@@ -451,12 +426,12 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
         
     }
     
-    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv,
-                                                       JTree                 tree)
+    @Override
+    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv)
     {
         
         return new ChapterTreeDragActionHandler (pv,
-                                                 tree);
+                                                 this.tree);
         
     }
     

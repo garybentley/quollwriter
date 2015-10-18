@@ -1,6 +1,5 @@
 package com.quollwriter.ui.actionHandlers;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
 
@@ -18,6 +17,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.Form;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.renderers.*;
 
@@ -25,7 +25,7 @@ import com.quollwriter.ui.renderers.*;
 public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 {
 
-    private JTextArea      descField = UIUtils.createTextArea (-1);
+    private TextArea descField = null;    
     private JCheckBox      addToChapter = new JCheckBox ();
     private Chapter        chapter = null;
     private int            showAt = -1;
@@ -77,7 +77,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public JTextArea getFocussedField ()
+    public JComponent getFocussedField ()
     {
 
         return this.descField;
@@ -94,24 +94,29 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
     public String getTitle (int mode)
     {
 
+        String t = "Add New {%s}";
+    
         if (mode == AbstractActionHandler.EDIT)
         {
 
-            return "Edit Plot Outline Item";
+            t = "Edit {%s}";
 
         }
-
-        return "Add New Plot Outline Item";
+        
+        return String.format (t,
+                              OutlineItem.OBJECT_TYPE);
 
     }
 
     private void initFormItems ()
     {
 
-        this.descField.setRows (5);
-        this.descField.setLineWrap (true);
-        this.descField.setWrapStyleWord (true);
-
+        this.descField = UIUtils.createTextArea (this.projectViewer,
+                                                 "Describe the item here",
+                                                 5,
+                                                 -1);
+        this.descField.setCanFormat (true);
+                                       
         this.addToChapter.setText (Environment.replaceObjectNames ("Add the description to the {Chapter}"));
 
         boolean sel = true;
@@ -127,25 +132,21 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 
         final OutlineItemChapterActionHandler _this = this;
 
-        this.descField.addKeyListener (new KeyAdapter ()
+        ActionListener doSave = new ActionListener ()
+        {
+          
+            public void actionPerformed (ActionEvent ev)
             {
+                
+                _this.submitForm ();
+                
+            }
+            
+        };
 
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) &&
-                        (ev.getKeyCode () == KeyEvent.VK_ENTER))
-                    {
-
-                        // This is the same as save for the form.
-                        _this.submitForm ();
-
-                    }
-
-                }
-
-            });
-
+        UIUtils.addDoActionOnReturnPressed (this.descField,
+                                            doSave);
+        
     }
 
     public List<FormItem> getFormItems (int         mode,
@@ -158,7 +159,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
         List<FormItem> f = new ArrayList ();
 
         f.add (new FormItem ("Description",
-                             new JScrollPane (this.descField)));
+                             this.descField));
 
         if (mode == AbstractActionHandler.ADD)
         {
@@ -174,14 +175,14 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 
                 this.addToChapter.setSelected (false);
 
-                this.descField.setText (selectedText);
+                this.descField.setTextWithMarkup (new StringWithMarkup (selectedText));
 
             }
 
         } else
         {
 
-            this.descField.setText (it.getDescription ());
+            this.descField.setTextWithMarkup (it.getDescription ());
 
         }
 
@@ -189,7 +190,9 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public boolean handleSave (int mode)
+    @Override
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         if (this.descField.getText ().trim ().equals (""))
@@ -205,7 +208,7 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
         OutlineItem it = (OutlineItem) this.dataObject;
 
         // Fill up the outline item.
-        it.setDescription (this.descField.getText ().trim ());
+        it.setDescription (this.descField.getTextWithMarkup ());
 
         // QuollEditorPanel qep = this.projectViewer.getEditorForChapter (this.chapter);
 
@@ -220,10 +223,10 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
             try
             {
 
+                String d = it.getDescriptionText ();
+            
                 if (this.addToChapter.isSelected ())
                 {
-
-                    String d = it.getDescription ();
 
                     if ((d != null) &&
                         (d.trim ().equals ("")))
@@ -236,15 +239,23 @@ public class OutlineItemChapterActionHandler extends ProjectViewerActionHandler
                     } else
                     {
 
-                        String toAdd = it.getDescription () + "\n";
+                        if ((d != null)
+                            &&
+                            (!d.trim ().equals (""))
+                           )
+                        {
+                    
+                            String toAdd = d + "\n";
 
-                        // We need to append the text.
-                        editor.insertText (it.getPosition (),
-                                           toAdd);
+                            // We need to append the text.
+                            editor.insertText (it.getPosition (),
+                                               toAdd);
+    
+                            // Need to update the text position because it will have moved.
+                            it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () - toAdd.length ()));
 
-                        // Need to update the text position because it will have moved.
-                        it.setTextPosition (editor.getDocument ().createPosition (it.getPosition () - toAdd.length ()));
-
+                        }
+                            
                     }
 
                 }

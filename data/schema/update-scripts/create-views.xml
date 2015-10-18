@@ -97,6 +97,13 @@ DROP VIEW IF EXISTS idea_v
     </sql>
   </item>
 
+  <item>
+    <log>Drop view projectversion_v</log>
+    <sql>
+DROP VIEW IF EXISTS projectversion_v
+    </sql>
+  </item>
+
   <!--
     Overhang from v2.2.4
   -->

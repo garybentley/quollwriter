@@ -14,20 +14,19 @@ import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 import com.quollwriter.achievements.*;
+import com.quollwriter.achievements.ui.*;
 import com.quollwriter.achievements.rules.*;
 
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.Accordion;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class AchievementsPanel extends QuollPanel implements AchievementReachedListener
+public class AchievementsPanel extends QuollPanel //implements AchievementReachedListener
 {
     
     public static final String PANEL_ID = "achievements";    
-
-    private Map<String, Header> headers = new HashMap ();
-    private Map<String, Box> boxes = new HashMap ();
-
+    private Achievements achievements = null;
+    
     public AchievementsPanel (AbstractProjectViewer pv,
                               Project               p)
                               throws                GeneralException
@@ -35,9 +34,11 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
 
         super (pv,
                p);
+        
+        this.achievements = new Achievements (pv);
 
     }
-
+/*
     public void achievementReached (AchievementReachedEvent ev)
     {
                 
@@ -135,10 +136,14 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
         }
                 
     }
-
+*/
     public void init ()
     {
 
+        this.achievements.init ();
+        
+        this.add (this.achievements);
+    /*
         final AchievementsPanel _this = this;
 
         final AchievementsManager man = Environment.getAchievementsManager ();
@@ -207,9 +212,9 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
         
         main.add (gen);
         main.add (proj);
-                                
+        */                        
     }
-
+/*
     private JComponent getAchievementsBox (Set<AchievementRule> rules,
                                            Set<String>          achievedIds,
                                            String               type)
@@ -273,7 +278,7 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
         return b;
                                 
     }
-
+*/
     public void fillPopupMenu (MouseEvent ev,
                                JPopupMenu popup)
     {
@@ -345,104 +350,6 @@ public class AchievementsPanel extends QuollPanel implements AchievementReachedL
     public void close ()
     {
 
-        Environment.getAchievementsManager ().removeAchievementReachedListener (this);
-
-    }
-
-    public static JCheckBox createAchievementsSoundEnabledInFullScreenCheckbox ()
-    {
-
-        final AchievementsManager man = Environment.getAchievementsManager ();
-        
-        final JCheckBox fullScreenSoundsOn = UIUtils.createCheckBox ("Play the sound in full screen mode");
-
-        fullScreenSoundsOn.setSelected (man.isSoundsInFullScreenEnabled ());
-        
-        fullScreenSoundsOn.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                man.setSoundsInFullScreenEnabled (fullScreenSoundsOn.isSelected ());
-                
-            }
-            
-        });
-        
-        return fullScreenSoundsOn;
-        
-    }
-
-    public static JCheckBox createAchievementsEnabledCheckbox (final boolean showOffMessage)
-    {
-        
-        final AchievementsManager man = Environment.getAchievementsManager ();
-        
-        final JCheckBox achievementsOn = UIUtils.createCheckBox ("Turn achievements on");
-        achievementsOn.setSelected (man.isAchievementsEnabled ());
-        
-        achievementsOn.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                if (showOffMessage)
-                {
-                
-                    SwingUtilities.invokeLater (new Runnable ()
-                    {
-    
-                        public void run ()
-                        {
-                    
-                            if (!achievementsOn.isSelected ())
-                            {
-                                
-                                UIUtils.showMessage (achievementsOn.getParent (),
-                                                     "You can turn achievements on at any time by using the Achievements option in the Project menu.");
-                                
-                            }
-    
-                        }
-                        
-                    });
-
-                }
-
-                man.setAchievementsEnabled (achievementsOn.isSelected ());
-                
-            }
-            
-        });
- 
-        return achievementsOn;
-        
-    }
-
-    public static JCheckBox createAchievementsSoundEnabledCheckbox ()
-    {
-
-        final AchievementsManager man = Environment.getAchievementsManager ();
-
-        final JCheckBox achievementSounds = UIUtils.createCheckBox ("Play a sound when an achievement is reached");
-        achievementSounds.setSelected (man.isSoundEnabled ());        
-        
-        achievementSounds.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                man.setSoundEnabled (achievementSounds.isSelected ());
-                
-            }
-            
-        });
-        
-        return achievementSounds;
-        
     }
     
 }

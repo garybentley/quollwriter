@@ -118,7 +118,7 @@ public abstract class PopupWizard extends PopupWindow
                                               ws);
 
                         }
-
+                        
                         if (!_this.handleStageChange (_this.currentStage,
                                                       prev))
                         {
@@ -137,7 +137,7 @@ public abstract class PopupWizard extends PopupWindow
                         _this.current = ws;
                         _this.currentStage = prev;
 
-                        _this.enableButtons ();
+                        _this.enableButtons (_this.currentStage);
                         
                         _this.initUI ();
 
@@ -197,7 +197,7 @@ public abstract class PopupWizard extends PopupWindow
                             }
 
                         }
-
+                        
                         if (!_this.handleStageChange (_this.currentStage,
                                                       next))
                         {
@@ -212,12 +212,12 @@ public abstract class PopupWizard extends PopupWindow
                             _this.contentPanel.remove (_this.current.panel);
                             
                         }
-
+                        
                         _this.current = ws;
                         _this.currentStage = next;
-
-                        _this.enableButtons ();
                         
+                        _this.enableButtons (_this.currentStage);
+
                         _this.initUI ();
 
                     } else
@@ -239,7 +239,10 @@ public abstract class PopupWizard extends PopupWindow
                 _this.setSize (new Dimension (_this.getSize ().width,
                                               _this.getPreferredSize ().height));
 */
-                    _this.repaint ();
+
+_this.resize ();
+_this.resize ();
+                //    _this.repaint ();
 
                 }
 
@@ -290,28 +293,18 @@ public abstract class PopupWizard extends PopupWindow
 
         this.initUI ();
 
-        this.enableButtons ();
+        this.enableButtons (this.currentStage);
 
         this.handleStageChange (null,
                                 this.currentStage);
 
-        SwingUtilities.invokeLater (new Runnable ()
+        UIUtils.doLater (new ActionListener ()
         {
-
-            public void run ()
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
-
-                try
-                {
-
-                    Thread.sleep (500);
-                    
-                } catch (Exception e) {
-                    
-                    // Ignore.
-                    
-                }
-
+            
                 _this.toFront ();
                 
             }
@@ -357,7 +350,7 @@ public abstract class PopupWizard extends PopupWindow
         this.current = ws;
         this.currentStage = stage;
 
-        this.enableButtons ();
+        this.enableButtons (this.currentStage);
         
         this.initUI ();
         
@@ -467,11 +460,11 @@ public abstract class PopupWizard extends PopupWindow
         
     }
     
-    private void enableButtons ()
+    protected void enableButtons (String currentStage)
     {
 
-        String prev = this.getPreviousStage (this.currentStage);
-        String next = this.getNextStage (this.currentStage);
+        String prev = this.getPreviousStage (currentStage);
+        String next = this.getNextStage (currentStage);
 
         if (this.current != null)
         {
@@ -488,7 +481,7 @@ public abstract class PopupWizard extends PopupWindow
 
         }
         
-        this.nextBut.setText (this.getNextButtonLabel (this.currentStage));
+        this.nextBut.setText (this.getNextButtonLabel (currentStage));
 
     }
 

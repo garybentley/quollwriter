@@ -51,23 +51,6 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
             
             public void actionPerformed (ActionEvent ev)
             {
-
-                // There is probably now (because of h2) a "projectdb.lobs.db" directory.
-                // Add a can delete file to it.
-                try
-                {
-        
-                    Utils.createQuollWriterDirFile (new File (pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db"));
-        
-                } catch (Exception e)
-                {
-        
-                    // Ignore for now.
-                    Environment.logError ("Unable to add can delete dir file to: " +
-                                          pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db",
-                                          e);
-        
-                }
         
                 Environment.deleteProject (pr);
                         

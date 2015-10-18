@@ -1042,6 +1042,13 @@ public class ProblemFinder extends Box
                 
                 this.para = this.iter.getPreviousClosestParagraphTo (this.startAt);
 
+                if (this.para == null)
+                {
+                    
+                    return null;
+                    
+                }
+                
                 if (this.startAt > this.para.getEnd ())
                 {
                     

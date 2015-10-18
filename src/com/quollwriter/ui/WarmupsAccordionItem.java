@@ -27,24 +27,25 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                         
     }
     
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
-                                                                                   null,
-                                                                                   null,
-                                                                                   false));        
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+                                                                                        null,
+                                                                                        null,
+                                                                                        false));        
         
     }
     
     @Override
-    public void init (JTree tree)
+    public void initTree ()
     {
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
-                                                                                   null,
-                                                                                   null,
-                                                                                   false));        
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+                                                                                        null,
+                                                                                        null,
+                                                                                        false));        
     }
 
     @Override
@@ -141,8 +142,8 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
     }
     
-    public TreeCellEditor getTreeCellEditor (WarmupsViewer pv,
-                                             JTree         tree)
+    @Override
+    public TreeCellEditor getTreeCellEditor (WarmupsViewer pv)
     {
         
         return new WarmupsProjectTreeCellEditor (pv,
@@ -171,8 +172,8 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
     }
     
-    public DragActionHandler getTreeDragActionHandler (WarmupsViewer pv,
-                                                       JTree         tree)
+    @Override
+    public DragActionHandler getTreeDragActionHandler (WarmupsViewer pv)
     {
         
         return null;

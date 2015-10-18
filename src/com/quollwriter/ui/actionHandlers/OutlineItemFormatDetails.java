@@ -29,7 +29,7 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
     public String getItemDescription (OutlineItem item)
     {
         
-        String desc = item.getDescription ();
+        String desc = item.getDescription ().getMarkedUpText ();
         
         if (item.getScene () != null)
         {

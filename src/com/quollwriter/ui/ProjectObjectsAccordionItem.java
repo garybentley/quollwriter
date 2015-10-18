@@ -9,6 +9,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+
 import com.quollwriter.data.*;
 import com.quollwriter.*;
 import com.quollwriter.events.*;
@@ -122,13 +125,12 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     
     public abstract int getItemCount ();
     
-    public abstract void init (JTree tree);
+    public abstract void initTree ();
     
     public abstract void fillTreePopupMenu (JPopupMenu menu,
                                             MouseEvent ev);
     
-    public abstract TreeCellEditor getTreeCellEditor (E     pv,
-                                                      JTree tree);
+    public abstract TreeCellEditor getTreeCellEditor (E     pv);
     
     public abstract int getViewObjectClickCount (Object d);
     
@@ -136,10 +138,9 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     
     public abstract boolean isDragEnabled ();
     
-    public abstract void reloadTree (JTree tree);
+    public abstract void reloadTree ();
     
-    public abstract DragActionHandler getTreeDragActionHandler (E     pv,
-                                                                JTree tree);
+    public abstract DragActionHandler getTreeDragActionHandler (E     pv);
     
     public void update ()
     {
@@ -155,21 +156,54 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                         
         this.updateItemCount (c);
         
-        this.reloadTree (this.tree);
+        java.util.List<TreePath> openPaths = new ArrayList ();
+        
+        Enumeration<TreePath> paths = this.tree.getExpandedDescendants (new TreePath (this.tree.getModel ().getRoot ()));
+
+        if (paths != null)
+        {
+
+            while (paths.hasMoreElements ())
+            {
+
+                TreePath el = paths.nextElement ();
+            
+                openPaths.add (el);
+               
+            }
+
+        }        
+        
+        this.reloadTree ();
+        
+        DefaultTreeModel dtm = (DefaultTreeModel) this.tree.getModel ();
+
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
+
+        for (TreePath p : openPaths)
+        {
+
+            this.tree.expandPath (UIUtils.getTreePathForUserObjects (root,
+                                                                     p));
+                                                                    //((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
+
+
+        }                
         
     }
     
+    @Override
     public void init ()
     {
 
+        super.init ();
+    
         this.setContentVisible (true);
-        
-        this.init (this.tree);
-        
+                
         this.tree.setOpaque (false);
-        
-        super.init ();        
-        
+                
+        this.initTree ();
+                
     }
     
     public void clearSelectedItemInTree ()
@@ -221,8 +255,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
         this.tree = UIUtils.createTree ();
 
-        this.tree.setCellEditor (this.getTreeCellEditor (this.projectViewer,
-                                                         this.tree));
+        this.tree.setCellEditor (this.getTreeCellEditor (this.projectViewer));
 
         this.tree.setEditable (this.isTreeEditable ());
 
@@ -308,8 +341,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
             this.tree.setDropMode (DropMode.ON);
             this.tree.setTransferHandler (new DataObjectTransferHandler (this.projectViewer,
-                                                                         this.getTreeDragActionHandler (this.projectViewer,
-                                                                                                        this.tree)));
+                                                                         this.getTreeDragActionHandler (this.projectViewer)));
 
         }
 

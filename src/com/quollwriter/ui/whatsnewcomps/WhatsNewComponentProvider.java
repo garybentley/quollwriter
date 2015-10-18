@@ -7,7 +7,7 @@ import com.quollwriter.ui.*;
 public interface WhatsNewComponentProvider
 {
     
-    public JComponent getComponent (AbstractProjectViewer pv,
-                                    String                id);    
+    public JComponent getComponent (AbstractViewer pv,
+                                    String         id);    
     
 }

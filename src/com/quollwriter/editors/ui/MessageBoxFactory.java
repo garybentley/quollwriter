@@ -62,8 +62,8 @@ public class MessageBoxFactory
      * @return The message box instance or null if the message isn't supported.
      * @throws Exception The type can be various depending on the myriad of reasons it can go wrong.
      */
-    public static MessageBox getMessageBoxInstance (EditorMessage         mess,
-                                                    AbstractProjectViewer viewer)
+    public static MessageBox getMessageBoxInstance (EditorMessage  mess,
+                                                    AbstractViewer viewer)
                                              throws Exception
     {
         
@@ -90,7 +90,7 @@ public class MessageBoxFactory
         {
             
             cons = c.getConstructor (mess.getClass (),
-                                     AbstractProjectViewer.class);
+                                     AbstractViewer.class);
             
         } catch (Exception e) {
             

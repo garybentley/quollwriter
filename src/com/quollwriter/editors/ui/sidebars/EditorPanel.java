@@ -41,6 +41,7 @@ import com.quollwriter.ui.components.Header;
 public class EditorPanel extends Box implements EditorMessageListener
 {
     
+    private AbstractViewer viewer = null;
     private EditorsSideBar sideBar = null;
     private EditorChatBox chatBox = null;
     //private JTextArea message = null;
@@ -70,12 +71,21 @@ public class EditorPanel extends Box implements EditorMessageListener
     {
 
         super (BoxLayout.Y_AXIS);
-                
+             
+        this.viewer = sb.getViewer ();   
         this.sideBar = sb;
         this.editor = ed;
         this.messages = messages;
-        this.project = this.sideBar.getProjectViewer ().getProject ();
-        this.projectEditor = this.project.getProjectEditor (this.editor);
+        
+        if  (viewer instanceof AbstractProjectViewer)
+        {
+            
+            AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+            this.project = pv.getProject ();
+            this.projectEditor = this.project.getProjectEditor (this.editor);
+            
+        }
+            
         EditorsEnvironment.addEditorMessageListener (this);
         
         Project np = null;
@@ -167,7 +177,7 @@ public class EditorPanel extends Box implements EditorMessageListener
                 messages = new LinkedHashSet ();
                 messages.add (cmess);
                 
-                it = new ChatMessageAccordionItem (this.sideBar.getProjectViewer (),
+                it = new ChatMessageAccordionItem (this.viewer,
                                                    w,
                                                    messages);
                                             
@@ -251,7 +261,7 @@ public class EditorPanel extends Box implements EditorMessageListener
                                                          Set<EditorChatMessage> messages)
     {
 
-        ChatMessageAccordionItem it = new ChatMessageAccordionItem (this.sideBar.getProjectViewer (),
+        ChatMessageAccordionItem it = new ChatMessageAccordionItem (this.viewer,
                                                                     d,
                                                                     messages);
 
@@ -428,7 +438,7 @@ public class EditorPanel extends Box implements EditorMessageListener
         final EditorPanel _this = this;
 
         final EditorInfoBox infBox = new EditorInfoBox (this.editor,
-                                                        this.sideBar.getProjectViewer (),
+                                                        this.viewer,
                                                         false);
         
         infBox.setToolTipText ("Right click to see the menu");
@@ -456,7 +466,7 @@ public class EditorPanel extends Box implements EditorMessageListener
         final EditorPanel _this = this;
         
         this.chatBox = new EditorChatBox (this.editor,
-                                          this.sideBar.getProjectViewer ()).init ();
+                                          this.viewer).init ();
         this.chatBox.setBorder (new CompoundBorder (UIUtils.createPadding (0, 0, 0, 5),
                                                     UIUtils.createLineBorder ()));
         this.chatBox.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -531,7 +541,7 @@ public class EditorPanel extends Box implements EditorMessageListener
             {
             
                 mb = MessageBoxFactory.getMessageBoxInstance (m,
-                                                              this.sideBar.getProjectViewer ());
+                                                              this.viewer);
                 //mb.setShowAttentionBorder (showAttentionBorder);
     
                 mb.init ();

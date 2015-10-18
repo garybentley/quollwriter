@@ -232,88 +232,10 @@ public class TextUtilities
                         
         }
         
-        Environment.logMessage ("RET: " + items);
         return items;
         
     }
     
-    public static int getWordPosition (String text,
-                                       Issue  i)
-    {
-
-        BreakIterator iter = BreakIterator.getWordInstance ();
-        iter.setText (text);
-
-        int start = iter.first ();
-
-        int c = 0;
-
-        boolean singleQ = false;
-
-        for (int end = iter.next (); end != BreakIterator.DONE; start = end, end = iter.next ())
-        {
-
-            String w = text.substring (start,
-                                       end);
-
-            if (w.trim ().equals (""))
-            {
-
-                continue;
-
-            }
-
-            if (singleQ)
-            {
-
-                singleQ = false;
-
-                // Last character was a ' so check to see if this is a contraction.
-                if (TextUtilities.contractionEnds.containsKey (w))
-                {
-
-                    continue;
-
-                } else
-                {
-
-                    // The previous ' and now this word are separate.
-                    c++;
-
-                }
-
-            }
-
-            if (w.length () == 1)
-            {
-
-                if ((w.charAt (0) == '\'') ||
-                    (w.charAt (0) == '\u2019'))
-                {
-
-                    singleQ = true;
-
-                    continue;
-
-                }
-
-            }
-
-            if (c == i.getStartIssuePosition ())
-            {
-
-                return start;
-
-            }
-
-            c++;
-
-        }
-
-        return -1;
-
-    }
-
     public static boolean isWord (String w)
     {
 
@@ -362,28 +284,15 @@ public class TextUtilities
     public static int getSentenceCount (String text)
     {
         
-        Paragraph p = new Paragraph (text,
-                                     0);
-
-        return p.getSentenceCount ();
+        return new TextIterator (text).getSentenceCount ();
         
     }    
    
     public static int getWordCount (String l)
     {
         
-        if ((l == null)
-            ||
-            (l.length () == 0)
-           )
-        {
-            
-            return 0;
-            
-        }
-        
-        return TextUtilities.getAsWords (l).size ();
-        
+        return new TextIterator (l).getWordCount ();
+                
     }
     
     public static String capitalize (String l)
@@ -424,94 +333,10 @@ public class TextUtilities
     public static List<Word> getAsWords (String l)
     {
 
-        if (l == null)
-        {
-            
-            return null;
-            
-        }
-    
-        return new Sentence (l,
-                             new DialogueInd ()).getWords ();
+        return new TextIterator (l).getWords ();
     
     }
-    /*
-    public static List<String> getAsWords (String l)
-    {
 
-        List<String> ret = new ArrayList ();
-
-        if (l == null)
-        {
-
-            return ret;
-
-        }
-
-        BreakIterator iter = BreakIterator.getWordInstance ();
-        iter.setText (l);
-
-        boolean singleQ = false;
-
-        int start = iter.first ();
-
-        for (int end = iter.next (); end != BreakIterator.DONE; start = end, end = iter.next ())
-        {
-
-            String w = l.substring (start,
-                                    end);
-
-            if (w.trim ().equals (""))
-            {
-
-                continue;
-
-            }
-
-            if (singleQ)
-            {
-
-                singleQ = false;
-
-                // Last character was a ' so check to see if this is a contraction.
-                if (TextUtilities.contractionEnds.containsKey (w))
-                {
-
-                    int rs = ret.size ();
-
-                    // Remove the quote.
-                    String q = ret.remove (rs - 1);
-
-                    ret.set (rs - 2,
-                             ret.get (rs - 2) + q + w);
-
-                    continue;
-
-                }
-
-            }
-
-            if (w.length () == 1)
-            {
-
-                if ((w.charAt (0) == '\'') ||
-                    (w.charAt (0) == '\u2019'))
-                {
-
-                    singleQ = true;
-
-                }
-
-            }
-
-            ret.add (w);
-
-        }
-
-        return ret;
-
-    }
-*/
     public static int charCount (String l,
                                  char   c)
     {
@@ -771,4 +596,43 @@ public class TextUtilities
 
     }
 
+    /**
+     * Taken from: http://blog.mark-mclaren.info/2007/02/invalid-xml-characters-when-valid-utf8_5873.html
+     * This method ensures that the output String has only
+     * valid XML unicode characters as specified by the
+     * XML 1.0 standard. For reference, please see
+     * <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
+     * standard</a>. This method will return an empty
+     * String if the input is null or empty.
+     *
+     * @param in The String whose non-valid characters we want to remove.
+     * @return The in String, stripped of non-valid characters.
+     */
+    public static String stripNonValidXMLCharacters (String in)
+    {
+    
+        StringBuilder out = new StringBuilder (); // Used to hold the output.
+        char current; // Used to reference the current character.
+  
+        if (in == null || ("".equals(in)))
+        {
+            return ""; // vacancy test.
+        
+        }
+        
+        for (int i = 0; i < in.length(); i++) {
+            current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
+            if ((current == 0x9) ||
+                (current == 0xA) ||
+                (current == 0xD) ||
+                ((current >= 0x20) && (current <= 0xD7FF)) ||
+                ((current >= 0xE000) && (current <= 0xFFFD)) ||
+                ((current >= 0x10000) && (current <= 0x10FFFF)))
+                out.append(current);
+        }
+        
+        return out.toString ();
+    
+    }       
+    
 }

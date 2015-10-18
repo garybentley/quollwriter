@@ -69,7 +69,8 @@ public class AddChapterActionHandler extends AbstractActionHandler
 
     }
 
-    public boolean handleSave (int mode)
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         String n = this.nameField.getText ().trim ();

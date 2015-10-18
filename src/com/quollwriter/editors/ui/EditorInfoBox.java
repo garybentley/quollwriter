@@ -31,7 +31,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 {
     
     private EditorEditor editor = null;
-    private AbstractProjectViewer projectViewer = null;
+    private AbstractViewer viewer = null;
     private JLabel avatar = null;
     private JLabel mainName = null;
     private JLabel onlineStatus = null;
@@ -45,10 +45,12 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     private boolean showProjectInfo = false;
     private ProjectEditor projEditor = null;
     private MessageBox pendingMessageBox = null;
+    private Project proj = null;
+    private boolean editorProject = false;
     
-    public EditorInfoBox (EditorEditor          ed,
-                          AbstractProjectViewer viewer,
-                          boolean               showProjectInfo)
+    public EditorInfoBox (EditorEditor   ed,
+                          AbstractViewer viewer,
+                          boolean        showProjectInfo)
                    throws GeneralException
     {
         
@@ -56,9 +58,32 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         final EditorInfoBox _this = this;
 
-        this.editor = ed;
+if (viewer == null)
+{
+    throw new GeneralException ("here");
+}
+    this.editor = ed;
         
         this.showProjectInfo = showProjectInfo;
+        
+        if ((this.showProjectInfo)
+            &&
+            (!(viewer instanceof AbstractProjectViewer))
+           )
+        {
+           
+           throw new IllegalArgumentException ("To show project information then a project viewer must be provided."); 
+            
+        }
+        
+        if (viewer instanceof AbstractProjectViewer)
+        {
+            
+            this.proj = ((AbstractProjectViewer) viewer).getProject ();
+            
+            this.editorProject = this.proj.isEditorProject ();
+            
+        }
         
         // Load the messages.        
         EditorsEnvironment.loadMessagesForEditor (this.editor);        
@@ -71,9 +96,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        this.projectViewer = viewer;
+        this.viewer = viewer;
         
-        this.projEditor = viewer.getProject ().getProjectEditor (this.editor);
+        if (this.viewer instanceof AbstractProjectViewer)
+        {
+        
+            this.projEditor = ((AbstractProjectViewer) this.viewer).getProject ().getProjectEditor (this.editor);
+                
+        }
                 
         this.editorInfo = new Box (BoxLayout.X_AXIS);                
         this.editorInfo.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -140,11 +170,11 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 try
                 {
                                         
-                    _this.projectViewer.sendMessageToEditor (_this.editor);
+                    _this.viewer.sendMessageToEditor (_this.editor);
                     
                 } catch (Exception e) {
                     
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "Unable to show {editor}.");
                     
                     Environment.logError ("Unable to show editor: " +
@@ -221,12 +251,12 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             {
                                                                                                                                  
                                                                 EditorsUIUtils.showProjectMessagesForEditor (_this.editor,
-                                                                                                             _this.projectViewer,
+                                                                                                             (AbstractProjectViewer) _this.viewer,
                                                                                                              _this.projectMessages);
                                                                          
                                                             } catch (Exception e) {
                                                                          
-                                                                UIUtils.showErrorMessage (_this.projectViewer,
+                                                                UIUtils.showErrorMessage (_this.viewer,
                                                                                           "Unable to show {project} messages for {editor}.");
                                                                              
                                                                 Environment.logError ("Unable to show project messages for editor: " +
@@ -256,12 +286,12 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             {
                                                                                                                                  
                                                                 EditorsUIUtils.showImportantMessagesForEditor (_this.editor,
-                                                                                                               _this.projectViewer,
+                                                                                                               _this.viewer,
                                                                                                                _this.importantMessages);
                                                                          
                                                             } catch (Exception e) {
                                                                          
-                                                                UIUtils.showErrorMessage (_this.projectViewer,
+                                                                UIUtils.showErrorMessage (_this.viewer,
                                                                                           "Unable to show important messages for {editor}.");
                                                                              
                                                                 Environment.logError ("Unable to show important messages for editor: " +
@@ -291,12 +321,12 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     {
                                                                  
                                                         EditorsUIUtils.showAllCommentsForEditor (_this.editor,
-                                                                                                 _this.projectViewer,
+                                                                                                 (AbstractProjectViewer) _this.viewer,
                                                                                                  _this.comments);
                                                                          
                                                     } catch (Exception e) {
                                                         
-                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                        UIUtils.showErrorMessage (_this.viewer,
                                                                                   "Unable to show {comments} for {editor}.");
                                                         
                                                         Environment.logError ("Unable to show comments for editor: " +
@@ -325,11 +355,11 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     try
                                                     {
                                                                  
-                                                        _this.projectViewer.sendMessageToEditor (_this.editor);
+                                                        _this.viewer.sendMessageToEditor (_this.editor);
                                                                          
                                                     } catch (Exception e) {
                                                         
-                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                        UIUtils.showErrorMessage (_this.viewer,
                                                                                   "Unable to show {editor}.");
                                                         
                                                         Environment.logError ("Unable to show editor: " +
@@ -388,11 +418,16 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         // TODO: Investigate why this is needed, this is being called on closedown of QW.
         // Probably from close of link to message server.
-        if (this.projectViewer.getProject () == null)
+        if (this.viewer instanceof AbstractProjectViewer)
         {
             
-            return false;
-            
+            if (((AbstractProjectViewer) this.viewer).getProject () == null)
+            {
+                
+                return false;
+                
+            }
+
         }
         
         if (this.editor.isPrevious ())
@@ -409,7 +444,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     private Set<EditorMessage> getProjectComments ()
     {
 
-        return this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+        return this.editor.getMessages (new DefaultEditorMessageFilter (this.proj,
                                                                         ProjectCommentsMessage.MESSAGE_TYPE));
         
     }
@@ -447,7 +482,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         final EditorInfoBox _this = this;
         
-        final String projId = this.projectViewer.getProject ().getId ();        
+        final String projId = this.proj.getId ();        
         
         return this.editor.getMessages (new EditorMessageFilter ()
         {
@@ -497,7 +532,16 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         final EditorInfoBox _this = this;
         
-        final String projId = this.projectViewer.getProject ().getId ();        
+        String _projId = "";
+        
+        if (this.proj != null)
+        {
+            
+            _projId = this.proj.getId ();        
+        
+        }
+        
+        final String projId = _projId;
         
         Set<EditorMessage> mess = this.editor.getMessages (new EditorMessageFilter ()
                                                            {
@@ -582,12 +626,18 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
     private void update ()
     {
         
-        if (this.projectViewer.getProject () == null)
+        if (this.proj != null)
         {
             
-            // We are closing down.
-            return;
-            
+            // TODO: Fix this.
+            if (((AbstractProjectViewer) this.viewer).getProject () == null)
+            {
+                
+                // We are closing down.
+                return;
+                
+            }
+
         }
         
         this.onlineStatus.setVisible (false);
@@ -672,7 +722,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }
         
-        final String projId = this.projectViewer.getProject ().getId ();
+        //final String projId = this.projectViewer.getProject ().getId ();
         
         Set<EditorMessage> mess = this.getImportantMessages ();
         
@@ -722,7 +772,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             &&
             ((this.projEditor != null)
              ||
-             (this.projectViewer.getProject ().isEditorProject ())
+             (this.editorProject)
             )
            )
         {
@@ -788,6 +838,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         if (this.showProjectInfo)
         {
         
+            AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
+        
             int commCount = 0;
         
             if (!this.editor.isPending ())
@@ -798,7 +850,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
                 // Get undealt with messages that are not chat.
                 // If there is just one then show it, otherwise show a link that will display a popup of them.
-                Set<EditorMessage> comments = this.getProjectComments ();
+                Set<EditorMessage> comments = this.editor.getMessages (new DefaultEditorMessageFilter (pv.getProject (),
+                                                                                                       ProjectCommentsMessage.MESSAGE_TYPE));
                 
                 if (comments.size () > 0)
                 {
@@ -925,7 +978,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                             public void actionPerformed (ActionEvent ev)
                                             {
                                                 
-                                                UIUtils.createTextInputPopup (_this.projectViewer,
+                                                UIUtils.createTextInputPopup (_this.viewer,
                                                                               "Delete all messages?",
                                                                               Constants.DELETE_ICON_NAME,
                                                                               String.format ("To delete all messages from <b>%s</b> please enter <b>Yes</b> in the box below.",
@@ -954,7 +1007,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                                                   _this.editor,
                                                                                                                   e);
                                                                                             
-                                                                                            UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                            UIUtils.showErrorMessage (_this.viewer,
                                                                                                                       "Unable to load messages for editor.");
                                                                                             
                                                                                             return;
@@ -974,7 +1027,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                                               _this.editor,
                                                                                                               e);
                                                                                         
-                                                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                                                        UIUtils.showErrorMessage (_this.viewer,
                                                                                                                   "Unable to delete messages for editor.");
                                                                                         
                                                                                         return;
@@ -983,7 +1036,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                     
                                                                                     _this.editor.setMessages (null);
 
-                                                                                    UIUtils.showMessage ((PopupsSupported) _this.projectViewer,
+                                                                                    UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                                                                                          "All messages deleted",
                                                                                                          String.format ("All messages (sent and received) for <b>%s</b> have been deleted.",
                                                                                                                         _this.editor.getMainName ()));
@@ -1030,7 +1083,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                        try
                                                        {
                                                        
-                                                           _this.projectViewer.sendMessageToEditor (_this.editor);
+                                                           _this.viewer.sendMessageToEditor (_this.editor);
                                                            
                                                        } catch (Exception e) {
                                                            
@@ -1064,9 +1117,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         final EditorInfoBox _this = this;                
         
         final boolean pending = this.editor.isPending ();        
-
-        boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
-        
+                
         if (!pending)
         {
 
@@ -1119,7 +1170,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             {                                                            
                                                             
                                                               EditorsUIUtils.showImportantMessagesForEditor (_this.editor,
-                                                                                                             _this.projectViewer,
+                                                                                                             _this.viewer,
                                                                                                              null);
     
                                                             } catch (Exception e) {
@@ -1128,7 +1179,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       _this.editor,
                                                                                       e);
                                                                 
-                                                                UIUtils.showErrorMessage (_this.projectViewer,
+                                                                UIUtils.showErrorMessage (_this.viewer,
                                                                                           "Unable to {project} messages for editor.");
                                                                 
                                                                 return;
@@ -1152,15 +1203,17 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         
         final boolean pending = this.editor.isPending ();        
 
-        boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
+        //boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
         
         if ((!pending)
             &&
             (this.showProjectInfo)
+            &&
+            (this.proj != null)
            )
         {
 
-            final Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+            final Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.proj,
                                                                                                          NewProjectMessage.MESSAGE_TYPE,
                                                                                                          NewProjectResponseMessage.MESSAGE_TYPE,
                                                                                                          UpdateProjectMessage.MESSAGE_TYPE,
@@ -1168,9 +1221,6 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
             if (messages.size () > 0)
             {
-                
-                // Check to see if editor is a project editor.
-                String suffix = (this.projectViewer.getProject ().getProjectEditor (this.editor) != null ? "sent" : "received");
                                 
                 menu.add (UIUtils.createMenuItem (String.format ("View updates you have sent/received for this {project} (%s)",
                                                                  Environment.formatNumber (messages.size ())),
@@ -1185,7 +1235,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             {                                                            
                                                             
                                                                 EditorsUIUtils.showProjectMessagesForEditor (_this.editor,
-                                                                                                             _this.projectViewer,
+                                                                                                             (AbstractProjectViewer) _this.viewer,
                                                                                                              null);
 
                                                             } catch (Exception e) {
@@ -1194,7 +1244,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       _this.editor,
                                                                                       e);
                                                                 
-                                                                UIUtils.showErrorMessage (_this.projectViewer,
+                                                                UIUtils.showErrorMessage (_this.viewer,
                                                                                           "Unable to {project} messages for editor.");
                                                                 
                                                                 return;
@@ -1227,27 +1277,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             try
             {
             
-                Set<Project> allProjs = Environment.getAllProjects ();
+                projCount = Environment.getAllProjectInfos (Project.EDITOR_PROJECT_TYPE).size ();
                 
-                for (Project p : allProjs)
-                {
-                    
-                    if (p.isEditorProject ())
-                    {
-                    
-                        EditorEditor ed = EditorsEnvironment.getEditorByEmail (p.getForEditor ().getEmail ());
-                        
-                        if (ed == this.editor)
-                        {
-                            
-                            projCount++;
-                            
-                        }
-                        
-                    }
-                    
-                }
-
             } catch (Exception e) {
                 
                 Environment.logError ("Unable to get all projects",
@@ -1272,7 +1303,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             {
                                                                 
                                                                 EditorsUIUtils.showProjectsUserIsEditingForEditor (_this.editor,
-                                                                                                                   _this.projectViewer);
+                                                                                                                   _this.viewer);
                                                                 
                                                             } catch (Exception e) {
                                                                 
@@ -1280,7 +1311,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       _this.editor,
                                                                                       e);
                                                                 
-                                                                UIUtils.showErrorMessage (_this.projectViewer,
+                                                                UIUtils.showErrorMessage (_this.viewer,
                                                                                           String.format ("Unable to show {projects} you are editing for %s.",
                                                                                                          _this.editor.getShortName ()));
                                                                 
@@ -1346,7 +1377,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                             {                                                            
                                                             
                                                                 EditorsUIUtils.showProjectsEditorIsEditingForUser (_this.editor,
-                                                                                                                   _this.projectViewer);                                                            
+                                                                                                                   _this.viewer);                                                            
                                                             
                                                             } catch (Exception e) {
                                                                 
@@ -1354,7 +1385,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                       _this.editor,
                                                                                       e);
                                                                 
-                                                                UIUtils.showErrorMessage (_this.projectViewer,
+                                                                UIUtils.showErrorMessage (_this.viewer,
                                                                                           String.format ("Unable to show {projects} %s is editing for you.",
                                                                                                          _this.editor.getShortName ()));
                                                                 
@@ -1384,7 +1415,14 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }
 
-        boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
+        if (this.proj == null)
+        {
+            
+            return;
+            
+        }
+        
+        boolean isEditorProject = this.proj.isEditorProject ();
         
         final Set<EditorMessage> messages = this.editor.getMessages (new EditorMessageFilter ()
         {
@@ -1394,13 +1432,13 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                 
                 return ((m.getMessageType ().equals (ProjectCommentsMessage.MESSAGE_TYPE))
                         &&
-                        (_this.projectViewer.getProject ().getId ().equals (m.getForProjectId ())));
+                        (_this.proj.getId ().equals (m.getForProjectId ())));
             
             }
             
         });
     
-        String suffix = (this.projectViewer.getProject ().getProjectEditor (this.editor) != null ? "received" : "sent");
+        String suffix = (this.projEditor != null ? "received" : "sent");
         
         if ((isEditorProject)
             &&
@@ -1421,7 +1459,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     {                                                            
                                                     
                                                         EditorsUIUtils.showAllCommentsForEditor (_this.editor,
-                                                                                                 _this.projectViewer,
+                                                                                                 (AbstractProjectViewer) _this.viewer,
                                                                                                  null);
                                                         
                                                     } catch (Exception e) {
@@ -1430,7 +1468,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                               _this.editor,
                                                                               e);
                                                         
-                                                        UIUtils.showErrorMessage (_this.projectViewer,
+                                                        UIUtils.showErrorMessage (_this.viewer,
                                                                                   "Unable to show {comments} from editor.");
                                                         
                                                         return;
@@ -1461,7 +1499,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                         {
                                                                                                                                                             
                                                             EditorsUIUtils.showProjectComments (message,
-                                                                                                _this.projectViewer,
+                                                                                                (AbstractProjectViewer) _this.viewer,
                                                                                                 null);
 
                                                         }
@@ -1486,7 +1524,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                         {                                                            
                                                         
                                                             EditorsUIUtils.showAllCommentsForEditor (_this.editor,
-                                                                                                     _this.projectViewer,
+                                                                                                     (AbstractProjectViewer) _this.viewer,
                                                                                                      null);
                                                             
                                                         } catch (Exception e) {
@@ -1495,7 +1533,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                                                   _this.editor,
                                                                                   e);
                                                             
-                                                            UIUtils.showErrorMessage (_this.projectViewer,
+                                                            UIUtils.showErrorMessage (_this.viewer,
                                                                                       "Unable to show {comments} from editor.");
                                                             
                                                             return;
@@ -1524,9 +1562,16 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             
         }
                 
+        if (this.proj == null)
+        {
+            
+            return;
+                
+        }
+        
         final boolean pending = this.editor.isPending ();        
 
-        boolean isEditorProject = this.projectViewer.getProject ().isEditorProject ();
+        boolean isEditorProject = this.proj.isEditorProject ();
         
         if ((!pending)
             &&
@@ -1548,7 +1593,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                           _this.editor,
                                           e);
                     
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "Unable to load messages for editor.");
                     
                     return;
@@ -1558,7 +1603,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
             }
         
             // Find out what was the last project message sent.
-            Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.projectViewer.getProject (),
+            Set<EditorMessage> messages = this.editor.getMessages (new DefaultEditorMessageFilter (this.proj,
                                                                                                    NewProjectMessage.MESSAGE_TYPE,
                                                                                                    NewProjectResponseMessage.MESSAGE_TYPE,
                                                                                                    ProjectEditStopMessage.MESSAGE_TYPE,
@@ -1630,7 +1675,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
-                                                        EditorsUIUtils.showSendProject (_this.projectViewer,
+                                                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) _this.viewer,
                                                                                         _this.editor,
                                                                                         null);
 
@@ -1653,7 +1698,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                         
-                                                        EditorsUIUtils.showUpdateProject (_this.projectViewer,
+                                                        EditorsUIUtils.showUpdateProject ((AbstractProjectViewer) _this.viewer,
                                                                                           _this.editor,
                                                                                           null);
                                                         
@@ -1671,7 +1716,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
-                                                        EditorsUIUtils.showSendProject (_this.projectViewer,
+                                                        EditorsUIUtils.showSendProject ((AbstractProjectViewer) _this.viewer,
                                                                                         _this.editor,
                                                                                         null);
 
@@ -1703,7 +1748,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                                                 
-                                                    EditorsUIUtils.updateEditorInfo (_this.projectViewer,
+                                                    EditorsUIUtils.updateEditorInfo (_this.viewer,
                                                                                      _this.editor);
                                                                 
                                                 }
@@ -1750,7 +1795,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                                public void actionPerformed (ActionEvent ev)
                                                {
                                                   
-                                                   EditorsUIUtils.showRemoveEditor (_this.projectViewer,
+                                                   EditorsUIUtils.showRemoveEditor (_this.viewer,
                                                                                     _this.editor,
                                                                                     null);
                                                   
@@ -1776,7 +1821,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                               {
                                                    
                                                    EditorsUIUtils.showAllMessagesForEditor (_this.editor,
-                                                                                            _this.projectViewer,
+                                                                                            _this.viewer,
                                                                                             null);
                                                    
                                               }

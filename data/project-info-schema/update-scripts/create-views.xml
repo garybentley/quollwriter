@@ -1,0 +1,39 @@
+<!--
+  Deploy the views.
+-->
+<update-script>
+
+  <!--
+    Drop first.
+  -->
+  <item>
+    <log>Drop view projectinfo_v</log>
+    <sql>
+DROP VIEW IF EXISTS projectinfo_v
+    </sql>
+  </item>
+
+  <!--
+    Has to be done last, all other views (nearly) use it.
+  -->
+  <item>
+    <log>Drop view namedobject_v</log>
+    <sql>
+DROP VIEW IF EXISTS namedobject_v    
+    </sql>
+  </item>
+    
+  <!--
+    Has to be done first, all other views (nearly) use it.
+  -->
+  <item>
+    <log>Create namedobject_v view</log>
+    <sql file="views/namedobject.v" />
+  </item>
+
+  <item>
+    <log>Create projectinfo_v view</log>
+    <sql file="views/projectinfo.v" />
+  </item>
+  
+</update-script>

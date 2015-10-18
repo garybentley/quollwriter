@@ -44,6 +44,8 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
 import com.quollwriter.editors.*;
+import com.quollwriter.achievements.rules.*;
+import com.quollwriter.achievements.ui.*;
 
 public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarListener
 {
@@ -94,6 +96,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private BufferedImage         noImageBackground = null;
     private boolean              hideIconColumnForEditors = false;
     private boolean              distractionFreeModeEnabled = false;
+    private Timer achievementsHideTimer = null;
+    private QPopup                achievementsPopup = null;
     
     public FullScreenFrame (FullScreenQuollPanel qp)
     {
@@ -569,6 +573,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     
             edPanel.restoreFontColor ();
     
+            edPanel.reflowText ();
+    
             edPanel.setIgnoreDocumentChanges (false);
 
             edPanel.setUseTypewriterScrolling (false);
@@ -623,6 +629,14 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         // See if they have been in this mode before, if not then show the help popup.
         this.showFirstTimeInDistractionFreeModeInfoPopup ();
+        
+        if (v)
+        {
+            
+            this.projectViewer.fireProjectEvent (ProjectEvent.DISTRACTION_FREE,
+                                                 ProjectEvent.ENTER);            
+            
+        }
         
     }
     
@@ -2223,22 +2237,150 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     
     }
 
-    public void showAchievementsPopup (QPopup popup,
-                                       Point  p)
+    public void showAchievement (AchievementRule ar)
     {
 
-        popup.setBounds (p.x,
-                         p.y,
-                         popup.getPreferredSize ().width,
-                         popup.getPreferredSize ().height);
+        if (this.isDistractionFreeModeEnabled ())
+        {
+            
+            return;
+            
+        }
+    
+        final FullScreenFrame _this = this;
+    
+        try
+        {
+            
+            Box b = null;
+            
+            if (this.achievementsPopup == null)
+            {
+    
+                b = new Box (BoxLayout.Y_AXIS);
+                b.setBackground (UIUtils.getComponentColor ());
+                b.setOpaque (true);            
+                
+                this.achievementsPopup = UIUtils.createPopup ("You've got an Achievement",
+                                                              Constants.ACHIEVEMENT_ICON_NAME,
+                                                              b,
+                                                              true,
+                                                              null);
+                
+                this.achievementsPopup.getHeader ().setPreferredSize (new Dimension (250,
+                                                                      this.achievementsPopup.getHeader ().getPreferredSize ().height));
+    
+                final Box content = b;
         
-        this.getLayeredPane ().add (popup,
-                                    1,
-                                    1);
+                this.achievementsPopup.getHeader ().addMouseListener (new MouseAdapter ()
+                {
         
-        popup.setVisible (true);
+                    public void mouseReleased (MouseEvent ev)
+                    {
         
+                        _this.achievementsPopup.setVisible (false);
+        
+                        content.removeAll ();                    
+        
+                    }
+        
+                });
+    
+                this.achievementsPopup.addMouseListener (new ComponentShowHide (new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.achievementsHideTimer.stop ();
+                        
+                    }
+                    
+                },
+                new ActionAdapter ()
+                {
+    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.achievementsHideTimer.start ();
+                        
+                    }
+                    
+                }));
+    
+            } else {
+                
+                b = (Box) this.achievementsPopup.getContent ();
+                            
+            }
+    
+            JComponent arBox = new AchievementBox (ar,
+                                                   false,
+                                                   true);
+    
+            if (b.getComponentCount () > 0)
+            {
+                
+                arBox.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
+                                                     arBox.getBorder ()));
+                
+            }
+    
+            b.add (arBox,
+                   0);
+    
+            if (this.achievementsPopup.getParent () != null)
+            {
+                
+                this.achievementsPopup.getParent ().remove (this.achievementsPopup);
+                
+            }
+    
+            this.showPopupAt (this.achievementsPopup,
+                              new Point (10, 10),
+                              true);
+    
+            this.achievementsPopup.setVisible (true);
+            
+            final Box content = b;
+            
+            if (this.achievementsHideTimer == null)
+            {
+            
+                this.achievementsHideTimer = new Timer (10000,
+                                                        new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.achievementsPopup.setVisible (false);
+        
+                        content.removeAll ();
+                                        
+                    }
+                    
+                });
+    
+                this.achievementsHideTimer.setRepeats (false);
+    
+            }
+    
+            this.achievementsHideTimer.stop ();
+                    
+            this.achievementsHideTimer.start ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to display achievement: " +
+                                  ar,
+                                  e);
+            
+        }
+
     }
+
 /*
     private void setBackgroundImage (File f)
     {
@@ -2552,14 +2694,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         {       
         
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
-
+            
+            edPanel.reflowText ();
+                        
             // Ensure the caret is visible.
             edPanel.scrollCaretIntoView ();
 
             edPanel.updateViewportPositionForTypewriterScrolling ();            
             
         }
-            
+                    
     }
 
     private void initActionMappings (ActionMap am)

@@ -176,6 +176,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
     }
 
     public Form getEditForm (final ActionListener onSaveComplete,
+                             final ActionListener onCancel,
                              final boolean        add)
     {
         
@@ -192,7 +193,9 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
         
         items.addAll (this.getFormItems ());
         
-        final JTextArea desc = com.quollwriter.ui.UIUtils.createTextArea (3);
+        final TextArea desc = com.quollwriter.ui.UIUtils.createTextArea (null,
+                                                                         3,
+                                                                         -1);
         
         desc.setText (this.getDescription ());
 
@@ -219,6 +222,18 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
             public void actionPerformed (FormEvent ev)
             {
+                
+                if (ev.getActionCommand ().equals (FormEvent.CANCEL_ACTION_NAME))
+                {
+                    
+                    if (onCancel != null)
+                    {
+                        
+                        onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));                        
+                        
+                    }
+                    
+                }
                 
                 String error = _this.getFormError ();
                 

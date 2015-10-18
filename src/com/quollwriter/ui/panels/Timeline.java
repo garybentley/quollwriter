@@ -495,6 +495,7 @@ public class Timeline extends QuollPanel
         
     }
     
+    @Override
     public void close ()
     {
         

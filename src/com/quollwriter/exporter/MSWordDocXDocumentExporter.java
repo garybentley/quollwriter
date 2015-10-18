@@ -183,6 +183,15 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                  throws Exception
     {
 
+        StringWithMarkup sm = c.getText ();
+
+        if (sm.getText () == null)
+        {
+        
+            return;
+            
+        }
+        
         PPrBase.PStyle style = null;
 
         Styles styles = mp.getStyleDefinitionsPart ().getJaxbElement ();
@@ -198,16 +207,6 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             }
 
         }
-
-        String m = c.getMarkup ();
-        String chapterText = c.getText ();
-
-        if (chapterText == null)
-        {
-            
-            chapterText = "";
-            
-        }
         
         P para = null;//this.createParagraph (style);
 
@@ -217,15 +216,13 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                      c.getName ());
 
         // Get the markup, if present.
-        Markup mu = new Markup (m);
-
-        TextIterator iter = new TextIterator (chapterText);
+        TextIterator iter = new TextIterator (sm.getText ());
         
         for (Paragraph p : iter.getParagraphs ())
         {
             
             this.addParagraph (p,
-                               mu,
+                               sm.getMarkup (),
                                style,
                                b);
 
@@ -243,9 +240,14 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         body.getEGBlockLevelElts ().add (p);
 
+        Markup pm = new Markup (markup,
+                                para.getAllTextStartOffset (),
+                                para.getAllTextEndOffset ());
+                    
+        pm.shiftBy (-1 * para.getAllTextStartOffset ());        
+        
         // Get the markup items.
-        List<Markup.MarkupItem> items = TextUtilities.getParagraphMarkup (para,
-                                                                          markup);
+        List<Markup.MarkupItem> items = pm.items;
 
         String ptext = para.getText ();
         int textLength = ptext.length ();
@@ -338,77 +340,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         }
         
     }
-            
-    private void addParagraphX (String                  paraText,
-                               List<Markup.MarkupItem> items,
-                               P                       para)
-    {
-        
-        int ind = 0;
-        
-        if (items.size () > 0)
-        {                                                                    
-        
-            //Iterator<Markup.MarkupItem> iter = mu.iterator ();
-
-            Markup.MarkupItem last = null;
-            
-            int start = -1;
-            int end = -1;
-            
-            for (Markup.MarkupItem item : items)
-            {
-
-                start = -1;
-                end = -1;
-            
-                if (last == null)
-                {
-                    
-                    start = 0;
-                    end = item.start;
-                    
-                    this.addText (paraText,
-                                  start,
-                                  end,
-                                  null,
-                                  para);
-                    
-                }
-            
-                last = item;
-
-                this.addText (paraText,
-                              last.start,
-                              last.end,
-                              last,
-                              para);
-
-            }                
-
-            if (last.end < paraText.length ())
-            {
-
-                this.addText (paraText,
-                              last.end,
-                              -1,
-                              null,
-                              para);
-
-            }
-
-        } else {
-            
-            this.addText (paraText,
-                          -1,
-                          -1,
-                          null,
-                          para);
-            
-        }
-        
-    }
-    
+                
     private org.docx4j.wml.R createRun (String            text,
                                         Markup.MarkupItem item)
     {
@@ -567,8 +499,9 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                  throws Exception
     {
 
+        // TODO: Export markup for asset descriptions.
         String prefix = "";
-        String text = n.getDescription ();
+        String text = n.getDescriptionText ();
 
         if (n instanceof QCharacter)
         {
@@ -699,7 +632,14 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             if (n instanceof Chapter)
             {
 
-                text = ((Chapter) n).getText ();
+                StringWithMarkup t = ((Chapter) n).getText ();
+                
+                if (t.getText () != null)
+                {
+            
+                    text = t.getText ();
+                    
+                }
 
             }
 
@@ -1006,20 +946,25 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (Asset.class));
 
-                Collections.sort (objs,
-                                  new NamedObjectSorter ());
-
-                for (NamedObject n : objs)
+                if (objs.size () > 0)
                 {
-
-                    this.addTo (mp,
-                                n);
+                
+                    Collections.sort (objs,
+                                      new NamedObjectSorter ());
+    
+                    for (NamedObject n : objs)
+                    {
+    
+                        this.addTo (mp,
+                                    n);
+    
+                    }
+    
+                    this.save (wordMLPackage,
+                               p.getName () + " - Assets");
 
                 }
-
-                this.save (wordMLPackage,
-                           p.getName () + " - Assets");
-
+                               
             }
 
             if (settings.otherExportType == ExportSettings.INDIVIDUAL_FILE)
@@ -1113,8 +1058,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         try
         {
 
-            String goals = c.getGoals ();
-            String plan = c.getPlan ();        
+            String goals = c.getGoals ().getText ();
+            String plan = c.getPlan ().getText ();        
         
             if (goals != null)
             {

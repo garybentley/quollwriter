@@ -177,7 +177,10 @@
         <include name="data/editor-no-avatar.png" />
         <include name="data/editors-schema-version.txt" />
         <include name="data/editor-schema/**" />
-        <include name="data/editors-first-use-help.txt" />
+        <include name="data/document-normal.png" />
+        <include name="data/document-error.png" />
+        <include name="data/project-info-schema/**" />
+        <include name="data/project-info-schema-version.txt" />
       </fileset>
       <manifest>
         <attribute name="Built-By" value="${projectName}" />

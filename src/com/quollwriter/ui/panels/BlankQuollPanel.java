@@ -34,11 +34,13 @@ public class BlankQuollPanel extends QuollPanel
     
     }
     
+    @Override
     public void close ()
     {
         
     }
 
+    @Override
     public void init ()
     {
 /*

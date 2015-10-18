@@ -48,7 +48,7 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
 
-public class FullScreenPropertiesSideBar extends AbstractSideBar implements MainPanelListener
+public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer> implements MainPanelListener
 {
     
     private FullScreenFrame fsf = null;
@@ -112,10 +112,10 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
                 
     }
     
-    public List<JButton> getHeaderControls ()
+    public List<JComponent> getHeaderControls ()
     {
         
-        List<JButton> buts = new ArrayList ();
+        List<JComponent> buts = new ArrayList ();
         buts.add (UIUtils.createHelpPageButton ("fullscreen/properties",
                                                 Constants.ICON_SIDEBAR,
                                                 null));
@@ -221,7 +221,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar implements Main
         
         final FullScreenPropertiesSideBar _this = this;
                 
-        final Project proj = this.projectViewer.getProject ();
+        final Project proj = this.viewer.getProject ();
         
         // Create a box that will be the container for the chapters/properties.
         Box b = new Box (BoxLayout.Y_AXIS);

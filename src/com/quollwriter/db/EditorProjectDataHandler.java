@@ -168,7 +168,7 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
             
             p.setWordCountLength (EditorProject.WordCountLength.getWordCountLengthByType (wcLength));
             
-            p.setDescription (rs.getString (ind++));
+            p.setDescription (new StringWithMarkup (rs.getString (ind++)));
 
             p.setLastModified (rs.getTimestamp (ind++));
             p.setDateCreated (rs.getTimestamp (ind++));

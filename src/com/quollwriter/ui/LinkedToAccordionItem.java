@@ -21,6 +21,7 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.events.*;
 
 public class LinkedToAccordionItem extends AccordionItem
 {
@@ -32,6 +33,7 @@ public class LinkedToAccordionItem extends AccordionItem
     private Box content = null;
     private Box view = null;
     private Box edit = null;
+    private JLabel noLinks = null;
         
     public LinkedToAccordionItem (ProjectViewer pv,
                                   NamedObject   c)
@@ -43,6 +45,8 @@ public class LinkedToAccordionItem extends AccordionItem
         this.object= c;
         this.projectViewer = pv;
 
+        final LinkedToAccordionItem _this = this;
+        
         this.viewTree = UIUtils.createLinkedToTree (this.projectViewer,
                                                     this.object,
                                                     false);
@@ -55,6 +59,28 @@ public class LinkedToAccordionItem extends AccordionItem
         
         this.view = new Box (BoxLayout.Y_AXIS);
 
+        this.noLinks = UIUtils.createClickableLabel ("<i>No Links set, click to edit.</i>",
+                                                     null);
+
+        this.noLinks.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+                    
+        this.noLinks.addMouseListener (new MouseEventHandler ()
+        {
+           
+            @Override
+            public void handlePress (MouseEvent ev)
+            {
+                
+                _this.edit ();
+                
+            }
+            
+        });
+                                                 
+        this.view.add (this.noLinks);
+        
+        this.noLinks.setVisible (this.object.getLinks ().size () == 0);
+        
         this.view.add (this.viewTree);
         
         this.edit = new Box (BoxLayout.Y_AXIS);
@@ -63,8 +89,6 @@ public class LinkedToAccordionItem extends AccordionItem
         this.content.add (this.edit);
         
         this.edit.setVisible (false);
-
-        final LinkedToAccordionItem _this = this;
                 
         this.editTree = UIUtils.createLinkedToTree (this.projectViewer,
                                                     this.object,
@@ -242,6 +266,8 @@ public class LinkedToAccordionItem extends AccordionItem
     public void updateTree ()
     {
 
+        this.noLinks.setVisible (this.object.getLinks ().size () == 0);
+    
         UIUtils.scrollIntoView (this);
         
         this.viewTree.setModel (UIUtils.getLinkedToTreeModel (this.projectViewer,

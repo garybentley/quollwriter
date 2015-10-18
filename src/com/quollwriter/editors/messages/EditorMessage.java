@@ -228,8 +228,8 @@ public abstract class EditorMessage extends DataObject
         try
         {
             
-            Project proj = Environment.getProjectById (this.forProjectId,
-                                                       null);
+            ProjectInfo proj = Environment.getProjectById (this.forProjectId,
+                                                           null);
             
             if (proj != null)
             {

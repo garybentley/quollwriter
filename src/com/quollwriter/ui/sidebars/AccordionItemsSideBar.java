@@ -18,7 +18,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends AbstractSideBar
+public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends AbstractSideBar<E>
 {
     
     private List<AccordionItem> items = new ArrayList ();
@@ -92,7 +92,8 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
         
     }
     
-    public List<JButton> getHeaderControls ()
+    @Override
+    public List<JComponent> getHeaderControls ()
     {
         
         return null;

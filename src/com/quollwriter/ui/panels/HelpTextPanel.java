@@ -48,11 +48,13 @@ public class HelpTextPanel extends QuollPanel
     
     }
     
+    @Override
     public void close ()
     {
         
     }
 
+    @Override
     public void init ()
     {
 

@@ -82,8 +82,9 @@ public class TextFormItem extends FormItem<String>
                                                      this.text.getPreferredSize ().height));
                         
         } else {
-                                
-            this.text = UIUtils.createTextArea (lineCount);
+              
+            // TODO: Replace with TextArea when needed.                  
+            //this.text = UIUtils.createTextArea (lineCount);
     
         }
         

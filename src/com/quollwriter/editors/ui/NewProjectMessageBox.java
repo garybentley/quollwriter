@@ -34,8 +34,8 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
     private ProjectSentReceivedViewer sentViewer = null;
     private JLabel previousLabel = null;
         
-    public NewProjectMessageBox (NewProjectMessage     mess,
-                                 AbstractProjectViewer viewer)
+    public NewProjectMessageBox (NewProjectMessage mess,
+                                 AbstractViewer    viewer)
     {
         
         super (mess,
@@ -65,7 +65,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
     }    
 
     public static JComponent getProjectMessageDetails (final AbstractProjectMessage message,
-                                                       final AbstractProjectViewer  viewer)
+                                                       final AbstractViewer         viewer)
     {
         
         String plural = "";
@@ -80,10 +80,10 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         ProjectVersion projVer = message.getProjectVersion ();
         Date dueDate = projVer.getDueDate ();
         
-        String notes = projVer.getDescription ();        
+        String notes = ((projVer.getDescription () != null) ? projVer.getDescription ().getText () : null);        
         String verName = projVer.getName ();
         
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -99,7 +99,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                         
         }
         
-        final Project fproj = proj;        
+        final ProjectInfo fproj = proj;        
         
         // Show:
         //   * Project 
@@ -283,7 +283,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
   */              
                 // Load up the project with the specific text.
                 // See if we have a project viewer for the project.
-                Project proj = null;
+                ProjectInfo proj = null;
                 
                 try
                 {
@@ -304,7 +304,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                     
                 }
 
-                final Project _proj = proj;
+                final ProjectInfo _proj = proj;
                 
                 ActionListener open = new ActionListener ()
                 {
@@ -443,7 +443,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                 
                                             }
                                     
-                                            final String notes = projVer.getDescription ();
+                                            final String notes = (projVer.getDescription () != null ? projVer.getDescription ().getText () : null);
                                             
                                             if (notes != null)
                                             {
@@ -508,7 +508,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                 }
                                                 
                                                 JComponent mess = UIUtils.createHelpTextPane (commText,
-                                                                                              this.projectViewer);
+                                                                                              this.viewer);
                                                 
                                                 mess.addMouseListener (new MouseEventHandler ()
                                                 {
@@ -517,7 +517,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                     public void handlePress (MouseEvent ev)
                                                     {
                                         
-                                                        UIUtils.showMessage ((PopupsSupported) _this.getProjectViewer (),
+                                                        UIUtils.showMessage ((PopupsSupported) _this.getViewer (),
                                                                              "Notes",
                                                                              notes);
                                                         
@@ -589,6 +589,8 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                 }
                                 
                             });
+                            
+                            pcv.showViewer ();
                             
                         } catch (Exception e) {
                             
@@ -690,25 +692,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         EditorsEnvironment.addEditorChangedListener (this);
         
         final NewProjectMessageBox _this = this;
-                
-        Project proj = null;
-        
-        try
-        {
-                        
-            proj = Environment.getProjectById (this.message.getForProjectId (),
-                                               (this.message.isSentByMe () ? Project.NORMAL_PROJECT_TYPE : Project.EDITOR_PROJECT_TYPE));
-                                    
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to get project for id: " +
-                                  this.message.getForProjectId (),
-                                  e);
-                        
-        }
-        
-        final Project fproj = proj;
-        
+                                
         String text = "Sent {project}";
         
         if (!this.message.isSentByMe ())
@@ -724,7 +708,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         this.add (h);
 
         JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
-                                                                       this.projectViewer);
+                                                                       this.viewer);
         bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
         
         this.add (bp);             
@@ -807,7 +791,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
         
         final NewProjectMessageBox _this = this;
         
-        EditorsUIUtils.handleNewProjectResponse (_this.projectViewer,
+        EditorsUIUtils.handleNewProjectResponse (_this.viewer,
                                                  _this.message,
                                                  accepted);
         

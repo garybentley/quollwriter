@@ -123,11 +123,10 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.editor.addKeyListener (new KeyAdapter ()
         {
 
+            @Override
             public void keyPressed (KeyEvent ev)
             {
-
-                _this.projectViewer.playKeyStrokeSound ();
-
+                
                 // Get the caret.
                 if (_this.editor.getCaretPosition () >= _this.editor.getText ().length ())
                 {
@@ -138,6 +137,21 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                                                                                       d.height + 200));
 
                 }
+
+            }
+        
+            @Override
+            public void keyTyped (KeyEvent ev)
+            {
+
+                if ((ev.getModifiers () & KeyEvent.CTRL_MASK) != 0)
+                {
+                    
+                    return;
+                    
+                }
+            
+                Environment.playKeyStrokeSound ();
 
             }
         });
@@ -257,6 +271,28 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
     }
 
     public abstract JComponent getEditorWrapper (QTextEditor editor);    
+    
+    // This is used to completely reflow the text in the editor to get around issues when
+    // we change parent.
+    public void reflowText ()
+    {
+        
+        this.setIgnoreDocumentChanges (true);
+        
+        int c = this.editor.getCaret ().getDot ();
+        
+        StringWithMarkup t = this.editor.getTextWithMarkup ();
+                    
+        StringWithMarkup b = new StringWithMarkup ("");
+                    
+        this.editor.setTextWithMarkup (b);
+        this.editor.setTextWithMarkup (t);
+        
+        this.editor.getCaret ().setDot (c);
+
+        this.setIgnoreDocumentChanges (false);
+        
+    }
     
     public void setWritingLineColor (Color c)
     {
@@ -458,8 +494,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
         final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
 
-        this.editor.setText (this.chapter.getText (),
-                             this.chapter.getMarkup ());
+        this.editor.setTextWithMarkup (this.chapter.getText ());
     
         this.editor.addStyleChangeListener (new StyleChangeAdapter ()
         {

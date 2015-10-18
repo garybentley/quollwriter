@@ -21,7 +21,7 @@ import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 
-public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Project>
+public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, ProjectInfo>
 {
 
     private static final String STD_SELECT_PREFIX = "SELECT dbkey, editordbkey, forprojectid, forprojectname, status, statusmessage, current, editorfrom, editorto FROM projecteditor_v";
@@ -139,7 +139,7 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
     }
 
     @Override
-    public List<ProjectEditor> getObjects (Project     p,
+    public List<ProjectEditor> getObjects (ProjectInfo p,
                                            Connection  conn,
                                            boolean     loadChildObjects)
                                     throws GeneralException
@@ -242,10 +242,10 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
     }
         
     @Override
-    public ProjectEditor getObjectByKey (int        key,
-                                         Project    p,
-                                         Connection conn,
-                                         boolean    loadChildObjects)
+    public ProjectEditor getObjectByKey (int         key,
+                                         ProjectInfo p,
+                                         Connection  conn,
+                                         boolean     loadChildObjects)
                                   throws GeneralException
     {
         

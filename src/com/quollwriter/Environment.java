@@ -10,6 +10,8 @@ import java.awt.KeyboardFocusManager;
 import java.awt.image.*;
 import java.awt.event.*;
 
+import java.nio.channels.*;
+
 import java.beans.*;
 
 import java.io.*;
@@ -30,6 +32,8 @@ import javax.swing.border.*;
 import javax.swing.plaf.*;
 
 import javax.imageio.*;
+
+import javax.sound.sampled.*;
 
 import com.gentlyweb.logging.Logger;
 
@@ -78,7 +82,8 @@ public class Environment
 
     public static String GZIP_EXTENSION = ".gz";
 
-    private static Map<Project, AbstractProjectViewer> openProjects = new HashMap ();
+    private static Landing landingViewer = null;
+    private static Map<ProjectInfo, AbstractProjectViewer> openProjects = new HashMap ();
 
     public static Map defaultObjectProperties = new HashMap ();
 
@@ -95,6 +100,7 @@ public class Environment
     //private static String appVersion = null;
     //private static boolean betaVersion = false;
     private static int    schemaVersion = 0;
+    private static int    projectInfoSchemaVersion = 0;
 
     private static SimpleDateFormat dateFormatter = null;
     private static SimpleDateFormat timeFormatter = null;
@@ -104,9 +110,12 @@ public class Environment
     public static boolean  isWindows = false;
     public static boolean  isMac = false;
     public static boolean  isLinux = false;
+    private static boolean isFirstUse = false;
 
     private static List<File> installJarFilesToDelete = new ArrayList ();
 
+    private static Map<String, UserPropertyHandler> userPropertyHandlers = new HashMap ();
+    
     private static boolean upgradeRequired = false;
     
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
@@ -114,20 +123,33 @@ public class Environment
 
     private static Map<String, Image> backgroundImages = new HashMap ();
 
-    //public static String quollWriterWebsite = null;
-
     private static AchievementsManager achievementsManager = null;
 
     private static Map<String, String> objectTypeNamesSingular = new HashMap ();
     private static Map<String, String> objectTypeNamesPlural = new HashMap ();
             
     private static Map<String, SynonymProvider> synonymProviders = new WeakHashMap ();
+    private static DictionaryProvider defaultDictProv = null;
     
     private static Map<String, String> buttonLabels = new HashMap ();
     
     private static List<PropertyChangedListener> startupProgressListeners = new ArrayList ();
     private static int startupProgress = 0;
     
+    private static FileLock lock = null;
+    
+    private static ProjectInfoObjectManager projectInfoManager = null;
+
+    private static Map<ProjectInfoChangedListener, Object> projectInfoChangedListeners = null;
+
+    private static Map<ProjectEventListener, Object> userProjectEventListeners = null;
+    
+    // Just used in the maps above as a placeholder for the listeners.
+    private static final Object listenerFillObj = new Object ();
+    
+    private static boolean playSoundOnKeyStroke = false;
+    private static Clip keyStrokeSound = null;
+        
     static
     {
         
@@ -143,7 +165,20 @@ public class Environment
                "Send");
         m.put (Constants.UPDATE_BUTTON_LABEL_ID,
                "Update");
+        m.put (Constants.FINISH_BUTTON_LABEL_ID,
+               "Finish");        
+
+        // We use a synchronized weak hash map here so that we don't have to worry about all the
+        // references since they will be transient compared to the potential length of the service
+        // running.
         
+        // Where possible listeners should de-register as normal but this just ensure that objects
+        // that don't have a controlled pre-defined lifecycle (as opposed say to AbstractSideBar)
+        // won't leak.
+        Environment.projectInfoChangedListeners = Collections.synchronizedMap (new WeakHashMap ());
+        
+        Environment.userProjectEventListeners = Collections.synchronizedMap (new WeakHashMap ());
+
     }
     
     public class XMLConstants
@@ -155,8 +190,64 @@ public class Environment
         public static final String object = "object";
         public static final String singular = "singular";
         public static final String plural = "plural";
+        public static final String file = "file";
+        public static final String files = "files";
+        public static final String stats = "stats";
+        public static final String stat = "stat";
+        public static final String id = "id";
 
     }
+        
+    public static void fireProjectInfoChangedEvent (final ProjectInfo proj,
+                                                    final String      changeType)
+    {
+              
+        UIUtils.doActionLater (new ActionListener ()
+        {
+        
+            public void actionPerformed (ActionEvent aev)
+            {
+                
+                ProjectInfoChangedEvent ev = new ProjectInfoChangedEvent (proj,
+                                                                          changeType);
+                
+                Set<ProjectInfoChangedListener> ls = null;
+                                
+                // Get a copy of the current valid listeners.
+                synchronized (Environment.projectInfoChangedListeners)
+                {
+                                    
+                    ls = new LinkedHashSet (Environment.projectInfoChangedListeners.keySet ());
+                    
+                }
+                    
+                for (ProjectInfoChangedListener l : ls)
+                {
+                    
+                    l.projectInfoChanged (ev);
+
+                }
+
+            }
+            
+        });
+                        
+    }
+
+    public static void removeProjectInfoChangedListener (ProjectInfoChangedListener l)
+    {
+        
+        Environment.projectInfoChangedListeners.remove (l);
+        
+    }
+    
+    public static void addProjectInfoChangedListener (ProjectInfoChangedListener l)
+    {
+        
+        Environment.projectInfoChangedListeners.put (l,
+                                                     Environment.listenerFillObj);
+        
+    }    
         
     public static void addStartupProgressListener (PropertyChangedListener l)
     {
@@ -240,9 +331,21 @@ public class Environment
         
     }
     
-    public static AbstractProjectViewer getFocusedProjectViewer ()
+    public static AbstractViewer getFocusedViewer ()
     {
 
+        if (Environment.landingViewer != null)
+        {
+            
+            if (Environment.landingViewer.isFocused ())
+            {
+                
+                return Environment.landingViewer;
+                
+            }
+            
+        }
+    
         if (Environment.openProjects.size () == 0)
         {
             
@@ -299,6 +402,13 @@ public class Environment
                 
     }
         
+    public static AbstractProjectViewer getProjectViewer (ProjectInfo p)
+    {
+        
+        return Environment.openProjects.get (p);
+        
+    }
+
     public static AbstractProjectViewer getProjectViewer (Project p)
     {
         
@@ -348,7 +458,7 @@ public class Environment
             
             String text = JDOMUtils.getChildContent (el);
             
-            ch.setText (text);
+            ch.setText (new StringWithMarkup (text));
             
             b.addChapter (ch);
             
@@ -557,6 +667,13 @@ public class Environment
         }
     
         t = t.toLowerCase ();
+        
+        if (t.equals ("qw"))
+        {
+            
+            return Constants.QUOLL_WRITER_NAME;
+            
+        }
         
         return Environment.objectTypeNamesSingular.get (t);
 /*    
@@ -811,19 +928,30 @@ public class Environment
         return false;
 
     }
-
-    public static void deleteProject (Project pr)
-    {
-
-        Environment.deleteProject (pr,
-                                   null);
-        
-    }
     
-    public static void deleteProject (Project        pr,
+    public static void deleteProject (Project        p,
                                       ActionListener onDelete)
     {
         
+        ProjectInfo pi = Environment.getProjectInfo (p.getId (),
+                                                     p.getType ());
+        
+        if (pi == null)
+        {
+            
+            return;
+            
+        }
+        
+        Environment.deleteProject (pi,
+                                   onDelete);
+        
+    }
+    
+    public static void deleteProject (ProjectInfo pr,
+                                      ActionListener onDelete)
+    {
+
         AbstractProjectViewer viewer = Environment.openProjects.get (pr);
         
         if (viewer != null)
@@ -834,25 +962,49 @@ public class Environment
             
         }
         
-        // Delete the directory.
-        Utils.deleteDir (pr.getProjectDirectory ());
-
-        // Remove the project from the list.
+        // There is probably now (because of h2) a "projectdb.lobs.db" directory.
+        // Add a can delete file to it.
         try
         {
 
-            Environment.removeProjectFromProjectsFile (pr);
+            Utils.createQuollWriterDirFile (new File (pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db"));
 
         } catch (Exception e)
         {
 
-            Environment.logError ("Unable to remove project: " +
-                                  pr +
-                                  " from list of projects.",
+            // Ignore for now.
+            Environment.logError ("Unable to add can delete dir file to: " +
+                                  pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db",
+                                  e);
+
+        }        
+        
+        // Delete the directory.
+        Utils.deleteDir (pr.getProjectDirectory ());
+
+        // Delete the backup directory.
+        Utils.deleteDir (pr.getBackupDirectory ());
+        
+        // Remove the project from the list.
+        try
+        {
+
+            Environment.projectInfoManager.deleteObject (pr,
+                                                         false,
+                                                         null);
+        
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to delete project: " +
+                                  pr,
                                   e);
 
         }
 
+        Environment.fireProjectInfoChangedEvent (pr,
+                                                 ProjectInfoChangedEvent.DELETED);
+        
         if (onDelete != null)
         {
             
@@ -860,64 +1012,111 @@ public class Environment
             
         } else {
         
-            Environment.showFindOrOpenIfNoOpenProjects ();
+            Environment.showLandingIfNoOpenProjects ();
 
         }
+                
+    }
+        
+    public static void deleteProject (Project pr)
+    {
+
+        if (pr == null)
+        {
+            
+            return;
+            
+        }
+    
+        ProjectInfo p = Environment.getProjectInfo (pr);
+    
+        if (p == null)
+        {
+            
+            return;
+            
+        }
+    
+        Environment.deleteProject (p,
+                                   null);
         
     }
     
-    public static void showFindOrOpenIfNoOpenProjects ()
+    public static ProjectInfo getProjectInfo (Project p)
     {
         
+        ProjectInfo pi =  Environment.getProjectInfo (p.getId (),
+                                                      p.getType ());
+        
+        if (pi != null)
+        {
+            
+            pi.setFilePassword (p.getFilePassword ());
+            
+        }
+        
+        return pi;
+        
+    }
+    
+    public static ProjectInfo getProjectInfo (String id,
+                                              String type)
+    {
+        
+        try
+        {
+                        
+            for (ProjectInfo p : Environment.getAllProjectInfos ())
+            {
+                
+                if (p.getId ().equals (id))
+                {
+                    
+                    if (type == null)
+                    {
+                        
+                        return p;
+                        
+                    }
+                    
+                    if (type.equals (p.getType ()))
+                    {
+                        
+                        return p;
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get all project infos to check for project: " +
+                                  id +
+                                  ", type: " +
+                                  type,
+                                  e);
+            
+        }
+
+        return null;
+        
+    }
+    
+    public static void showLandingIfNoOpenProjects ()
+    {
+
         // Show the welcome screen if there are no projects open.
         if (Environment.getOpenProjects ().size () == 0)
         {
 
-            FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
-
-            f.pack ();
-
-            // Allow the underlying Windowing manager determine where to put the window.
-            f.setLocationByPlatform (true);
-
-            f.setVisible (true);
-
+            Environment.showLanding ();
+        
         }
         
     }
     
-    public static void removeProjectFromProjectsFile (Project p)
-                               throws Exception
-    {
-
-        // Remove all the project editors for the project.
-        EditorsEnvironment.removeProjectEditors (p);
-    
-        Set<Project> projs = Environment.getAllProjects ();
-
-        Set<Project> nprojs = new LinkedHashSet ();
-
-        Iterator<Project> iter = projs.iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            Project pr = iter.next ();
-
-            if (!Environment.projectsEqual (pr,
-                                            p))
-            {
-
-                nprojs.add (pr);
-
-            }
-
-        }
-
-        Environment.saveProjectsFile (nprojs);
-
-    }
-
     public static File getQuollWriterJarsDir ()
     {
         
@@ -957,41 +1156,9 @@ public class Environment
         
     }
     
-    public static void projectClosed (AbstractProjectViewer pv)
-                               throws Exception
+    public static void landingClosed ()
     {
-
-        Project proj = pv.getProject ();
-
-        Object r = Environment.openProjects.remove (proj);
-
-        // Update the last modified date.
-        Set<Project> projs = Environment.getAllProjects ();
-
-        Iterator<Project> iter = projs.iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            Project p = iter.next ();
-
-            if (Environment.projectsEqual (p,
-                                           proj))
-            {
-            
-                p.setLastEdited (new Date ());
-                                
-                // Need to do it here since when we getAllProjects we do a fresh read
-                // of the projects file.
-                Environment.initProjectId (p,
-                                           pv.getProject ());                                
-                                
-            }
-
-        }
-
-        Environment.saveProjectsFile (projs);
-
+        
         if (Environment.openProjects.size () == 0)
         {
 
@@ -1035,33 +1202,128 @@ public class Environment
 
             }
 
-        }
-
-    }
-
-    public static void addProjectToListOfProjects (Project p)
-                                            throws Exception
-    {
-        
-        Set<Project> projs = Environment.getAllProjects ();
-
-        projs.add (p);
-
-        Environment.saveProjectsFile (projs);
+        }        
         
     }
     
+    public static void projectClosed (AbstractProjectViewer pv)
+                               throws Exception
+    {
+
+        Project proj = pv.getProject ();
+
+        ProjectInfo p = Environment.getProjectInfo (pv.getProject ().getId (),
+                                                    pv.getProject ().getType ());
+        
+        if (p != null)
+        {
+        
+            Object r = Environment.openProjects.remove (p);
+
+        }
+        
+        if (Environment.userProperties.getPropertyAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+        {
+            
+            if (Environment.getOpenProjects ().size () == 0)
+            {
+    
+                Environment.showLanding ();
+            
+            }            
+            
+        } else {
+            
+            // Any more open projects?
+            if (Environment.getOpenProjects ().size () == 0)
+            {
+            
+                if ((Environment.landingViewer != null)
+                    &&
+                    (!Environment.landingViewer.isShowing ())
+                   )
+                {
+            
+                    // Exit the landing.
+                    Environment.landingViewer.close (false,
+                                                     null);
+
+                }
+                
+            }
+                
+        }
+    }
+
     public static void addOpenedProject (AbstractProjectViewer pv)
                                   throws Exception
     {
 
-        Environment.openProjects.put (pv.getProject (),
-                                      pv);
-
-        Environment.addProjectToListOfProjects (pv.getProject ());
-
+        final Project proj = pv.getProject ();
+    
+        ProjectInfo p = Environment.getProjectInfo (proj.getId (),
+                                                    proj.getType ());
+        
+        if (p == null)
+        {
+            
+            // We don't have this project, so add it.
+            p = new ProjectInfo (proj);
+            
+            try
+            {
+            
+                Environment.projectInfoManager.saveObject (p,
+                                                           null);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to add new project info for project: " +
+                                      proj,
+                                      e);
+                
+            }
+            
+        } else {
+            
+            p.setProject (proj);
+            
+        }
+        
+        Environment.openProjects.put (p,
+                                      pv);        
+                                      
+    }
+        
+    public static void updateProjectInfo (ProjectInfo pi)
+                                   throws GeneralException
+    {
+        
+        Environment.projectInfoManager.saveObject (pi,
+                                                   null);
+        
+        Environment.fireProjectInfoChangedEvent (pi,
+                                                 ProjectInfoChangedEvent.CHANGED);
+        
     }
     
+    public static void updateProjectInfos (List<ProjectInfo> pis)
+                                    throws GeneralException
+    {
+        
+        Environment.projectInfoManager.saveObjects (pis,
+                                                    null);
+        
+        for (ProjectInfo pi : pis)
+        {
+        
+            Environment.fireProjectInfoChangedEvent (pi,
+                                                     ProjectInfoChangedEvent.CHANGED);
+            
+        }
+        
+    }
+
     public static String replaceObjectNames (String t)
     {
 
@@ -1156,6 +1418,10 @@ public class Environment
 
                 start += newot.length ();
 
+            } else {
+                
+                start++;
+                
             }
 
             start = b.indexOf ("{",
@@ -1213,8 +1479,61 @@ public class Environment
         
     }
     
-    public static boolean checkCanOpenProject (Project p,
-                                               boolean showFindOrOpen)
+    public static String canOpenProject (ProjectInfo p)
+    {
+        
+        if (p == null)
+        {
+            
+            return "{Project} does not exist.";
+            
+        }
+        
+        if (!p.getProjectDirectory ().exists ())
+        {
+            
+            return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
+            
+        }
+        
+        if (!p.getProjectDirectory ().isDirectory ())
+        {
+            
+            return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
+            
+        }
+        
+        if (!Utils.getQuollWriterDirFile (p.getProjectDirectory ()).exists ())
+        {
+            
+            return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
+            
+        }
+        
+        if ((p.isEditorProject ())
+            &&
+            (EditorsEnvironment.getEditorByEmail (p.getForEditor ().getEmail ()) == null)
+           )
+        {
+            
+            return String.format ("Unable to find {contact}: <b>%s</b> you are editing the {project} for.",
+                                  p.getForEditor ().getEmail ());
+            
+        }
+        
+        return null;
+        
+    }
+
+    public static boolean isFirstUse ()
+    {
+        
+        return Environment.isFirstUse;
+    
+    }
+    
+    public static boolean checkCanOpenProject (ProjectInfo p,
+                                               boolean     showLanding)
     {
                 
         String r = Environment.canOpenProject (p);
@@ -1223,11 +1542,10 @@ public class Environment
         {
 
             // Do this first to ensure the error shows above it.
-            if (showFindOrOpen)
+            if (showLanding)
             {
                 
-                FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN);
-                f.setVisible (true);                                                
+                Environment.showLanding ();
                 
             }
             
@@ -1246,15 +1564,22 @@ public class Environment
                                           throws Exception
     {
 
-        List projs = new ArrayList (Environment.getAllProjects ());
-
+        List<ProjectInfo> projs = new ArrayList (Environment.getAllProjectInfos ());
+        
+        Collections.sort (projs,
+                          new ProjectInfoSorter ());
+        
+        ProjectInfo p = null;
+        
         if (projs.size () > 0)
         {
-
-            Collections.sort (projs,
-                              new ProjectSorter ());
-
-            Project p = (Project) projs.get (0);
+            
+            p = projs.get (0);
+            
+        }
+        
+        if (p != null)
+        {
 
             // Check to see if the project directory exists.
             if (!Environment.checkCanOpenProject (p,
@@ -1270,7 +1595,8 @@ public class Environment
             {
 
                 // Get the first.
-                Environment.openProject (p);
+                Environment.openProject (p,
+                                         null);
 
             } catch (Exception e)
             {
@@ -1278,8 +1604,6 @@ public class Environment
                 Environment.logError ("Unable to open project: " +
                                       p,
                                       e);
-
-                Environment.startupComplete ();
 
                 return false;
 
@@ -1292,39 +1616,10 @@ public class Environment
         return false;
 
     }
-    
-    public static Project getProjectByName (String name)
-                                     throws Exception
-    {
         
-        if (name == null)
-        {
-            
-            return null;
-            
-        }
-        
-        Set<Project> projs = Environment.getAllProjects ();
-
-        for (Project p : projs)
-        {
-            
-            if (p.getName ().equalsIgnoreCase (name))
-            {
-                
-                return p;
-                
-            }
-            
-        }
-        
-        return null;
-        
-    }
-    
-    public static Project getProjectById (String id,
-                                          String projType)
-                                   throws Exception
+    public static ProjectInfo getProjectById (String id,
+                                              String projType)
+                                       throws Exception
     {
         
         if (id == null)
@@ -1334,9 +1629,9 @@ public class Environment
             
         }
         
-        Set<Project> projs = Environment.getAllProjects ();
+        Set<ProjectInfo> projs = Environment.getAllProjectInfos ();
 
-        for (Project p : projs)
+        for (ProjectInfo p : projs)
         {
             
             String pid = p.getId ();
@@ -1373,6 +1668,35 @@ public class Environment
         
     }
         
+    public static ProjectInfo getProjectByDirectory (File dir)
+                                              throws Exception
+    {
+        
+        if (dir == null)
+        {
+            
+            return null;
+            
+        }
+        
+        Set<ProjectInfo> projs = Environment.getAllProjectInfos ();
+
+        for (ProjectInfo p : projs)
+        {
+            
+            if (p.getProjectDirectory ().equals (dir))
+            {
+                
+                return p;
+                        
+            }
+            
+        }
+        
+        return null;
+        
+    }
+
     /** For a given project, get the project version object by its id.
      *
      * @param p The project.
@@ -1382,9 +1706,9 @@ public class Environment
      * @throws Exception If something goes wrong.
      * TODO: Move the filepassword into the project and expect it there instead.
      */
-    public static ProjectVersion getProjectVersionById (Project p,
-                                                        String  id,
-                                                        String  filePassword)
+    public static ProjectVersion getProjectVersionById (ProjectInfo p,
+                                                        String      id,
+                                                        String      filePassword)
                                                  throws Exception
     {
         
@@ -1425,12 +1749,12 @@ public class Environment
      * @throws If something goes wrong.
      * TODO: Move the filepassword into the project and expect it there instead.
      */
-    public static Set<Chapter> getVersionedChapters (Project             p,
+    public static Set<Chapter> getVersionedChapters (ProjectInfo         p,
                                                      Collection<Chapter> chaps,
                                                      String              filePassword)
                                               throws Exception
     {
-        
+                
         AbstractProjectViewer pv = Environment.getProjectViewer (p);
         
         ObjectManager om = null;
@@ -1442,7 +1766,7 @@ public class Environment
             om = pv.getObjectManager ();
             
         } else {
-                                          
+                                         
             // Open the project.
             om = Environment.getProjectObjectManager (p,
                                                       filePassword);
@@ -1469,12 +1793,14 @@ public class Environment
      * @throws If something goes wrong.
      * TODO: Move the filepassword into the project and expect it there instead.
      */
-    public static Set<Chapter> updateToNewVersions (Project             p,
+    public static Set<Chapter> updateToNewVersions (ProjectInfo         p,
                                                     ProjectVersion      projVer,
                                                     Collection<Chapter> chaps,
                                                     String              filePassword)
                                              throws Exception
     {
+        
+        boolean closePool = false;
         
         AbstractProjectViewer pv = Environment.getProjectViewer (p);
         
@@ -1494,29 +1820,206 @@ public class Environment
             
             om.getProject ();
             
+            closePool = true;
+            
         }
         
-        ChapterDataHandler cdh = (ChapterDataHandler) om.getHandler (Chapter.class);
-        
-        // Check to see if we already have a version with the specified id.
-        ProjectVersionDataHandler pvdh = (ProjectVersionDataHandler) om.getHandler (ProjectVersion.class);
-        
-        if (pvdh.getById (projVer.getId ()) != null)
+        try
         {
+        
+            ChapterDataHandler cdh = (ChapterDataHandler) om.getHandler (Chapter.class);
             
-            // Already have this version.
-            return cdh.getChaptersForVersion (projVer,
-                                              om.getProject ().getBook (0),
-                                              null,
-                                              true);
+            // Check to see if we already have a version with the specified id.
+            ProjectVersionDataHandler pvdh = (ProjectVersionDataHandler) om.getHandler (ProjectVersion.class);
+            
+            if (pvdh.getById (projVer.getId ()) != null)
+            {
+                
+                // Already have this version.
+                return cdh.getChaptersForVersion (projVer,
+                                                  om.getProject ().getBook (0),
+                                                  null,
+                                                  true);
+                
+            }
+                
+            return cdh.updateToNewVersions (projVer,
+                                            chaps);
+        
+        } finally {
+            
+            if (closePool)
+            {
+                
+                if (om != null)
+                {
+                    
+                    om.closeConnectionPool ();
+                    
+                }
+                
+            }
             
         }
-                
-        return cdh.updateToNewVersions (projVer,
-                                        chaps);
         
     }
 
+    public static void restoreBackupForProject (ProjectInfo p,
+                                                File        restoreFile)
+                                         throws Exception
+    {
+        
+        // Get the project db file.
+
+        File dbFile = new File (p.getProjectDirectory (),
+                                Constants.PROJECT_DB_FILE_NAME_PREFIX + Constants.H2_DB_FILE_SUFFIX);
+        
+        if (!dbFile.exists ())
+        {
+            
+            throw new GeneralException ("No project database file found at: " +
+                                        dbFile +
+                                        ", for project: " +
+                                        p);
+            
+        }
+
+        File oldDBFile = new File (dbFile.getPath () + ".old");
+        
+        // Rename to .old
+        // TODO: Investigate using java.nio.file.Files.move instead.
+        if (!dbFile.renameTo (oldDBFile))
+        {
+            
+            throw new GeneralException ("Unable to rename project database file to: " +
+                                        dbFile.getPath () + ".old" +
+                                        ", for project: " +
+                                        p);
+            
+        }
+        
+        try
+        {
+        
+            Utils.extractZipFile (restoreFile,
+                                  p.getProjectDirectory ());        
+            
+            // See if there is a project db file in there now.
+            if (!dbFile.exists ())
+            {
+                
+                throw new GeneralException ("Backup file does not contain a valid project db file");
+                
+            }
+            
+            oldDBFile.delete ();
+                                  
+        } catch (Exception e) {
+            
+            // Try and rename back.
+            oldDBFile.renameTo (dbFile);
+            
+            throw e;
+            
+        } 
+        
+    }
+    
+    public static File createBackupForProject (Project p,
+                                               boolean noPrune)
+                                        throws Exception
+    {
+
+        return Environment.createBackupForProject (Environment.getProjectInfo (p),
+                                                   noPrune);
+    
+    }
+    
+    public static File createBackupForProject (ProjectInfo p,
+                                               boolean     noPrune)
+                                        throws Exception
+    {
+
+        boolean closePool = false;
+    
+        AbstractProjectViewer pv = Environment.getProjectViewer (p);
+        
+        ObjectManager om = null;
+        Project proj = null;
+        
+        if (pv != null)
+        {
+            
+            // Load up the chapters.
+            om = pv.getObjectManager ();
+            
+            proj = pv.getProject ();
+
+        } else {
+                            
+            if ((p.isEncrypted ())
+                &&
+                (p.getFilePassword () == null)
+               )
+            {
+                
+                throw new IllegalArgumentException ("The file password must be specified for encrypted projects when the project is not already open.");
+                                
+            }
+            
+            // Open the project.
+            try
+            {
+                
+                om = Environment.getProjectObjectManager (p,
+                                                          p.getFilePassword ());
+
+                proj = om.getProject ();                                              
+                                                          
+            } catch (Exception e) {
+                
+                // Can't open the project.
+                if (om != null)
+                {
+                    
+                    om.closeConnectionPool ();
+                    
+                }
+                
+                throw e;
+                
+            }
+                        
+            proj.setBackupDirectory (p.getBackupDirectory ());
+            
+            closePool = true;
+
+        }
+        
+        try
+        {
+            
+            return om.createBackup (proj,
+                                    (noPrune ? -1 : Utils.getCountAsInt (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME))));
+            
+        } finally {
+            
+            if (closePool)
+            {
+                
+                if (om != null)
+                {
+                    
+                    om.closeConnectionPool ();
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
     /**
      * Get an object manager for the specified project and init it.
      *
@@ -1526,14 +2029,22 @@ public class Environment
      * @throws An exception if the object manager cannot be inited.
      * TODO: Move the filepassword into the project and expect it there instead.
      */
-    public static ObjectManager getProjectObjectManager (Project p,
-                                                         String  filePassword)
+    public static ObjectManager getProjectObjectManager (ProjectInfo p,
+                                                         String      filePassword)
                                                   throws GeneralException
     {
-        
+                
         // Get the username and password.
         String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
         String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+        
+        if (p.isNoCredentials ())
+        {
+            
+            username = null;
+            password = null;
+            
+        }
         
         ObjectManager dBMan = new ObjectManager ();
         dBMan.init (new File (p.getProjectDirectory ().getPath (), Constants.PROJECT_DB_FILE_NAME_PREFIX),
@@ -1542,7 +2053,18 @@ public class Environment
                     filePassword,
                     Environment.getSchemaVersion ());
         
-        dBMan.getProject ();
+        try
+        {
+        
+            dBMan.getProject ();
+            
+        } catch (Exception e) {
+            
+            dBMan.closeConnectionPool ();
+            
+            throw e;
+            
+        }
         
         return dBMan;
     
@@ -1576,7 +2098,7 @@ public class Environment
                                                 projDir);
                                  
         }
-        
+                
         Project p = new Project ();
         p.setName (name);
         
@@ -1607,6 +2129,11 @@ public class Environment
         
         dBMan.closeConnectionPool ();
         
+        ProjectInfo pi = new ProjectInfo (p);
+
+        Environment.fireProjectInfoChangedEvent (pi,
+                                                 ProjectInfoChangedEvent.ADDED);        
+
         return p;
         
     }
@@ -1661,44 +2188,24 @@ public class Environment
         dBMan.saveObject (p,
                           null);
         
+        ProjectInfo pi = new ProjectInfo (p);
+        
+        Environment.projectInfoManager.saveObject (pi,
+                                                   null);
+
+        Environment.fireProjectInfoChangedEvent (pi,
+                                                 ProjectInfoChangedEvent.ADDED);        
+        
         return dBMan;
                 
     }
 
-    public static void openObjectInProject (final Project    proj,
-                                            final DataObject obj)
+    public static void openObjectInProject (final ProjectInfo proj,
+                                            final DataObject  obj)
                                      throws Exception
     {
-        
-        final DataObject dobj = obj;
-         
-        Project p = null;
-                                    
-        try
-        {
             
-            p = Environment.getProjectById (p.getId (),
-                                            p.getType ());
-            
-        } catch (Exception e) {
-            
-            throw new GeneralException ("Unable to get project for id: " +
-                                        proj.getId (),
-                                        e);
-            
-        }
-        
-        if (p == null)
-        {
-            
-            throw new GeneralException ("Unable to get project for id: " +
-                                        proj.getId ());
-            
-        }
-        
-        final Project fp = p;
-    
-        Environment.openProject (p,
+        Environment.openProject (proj,
                                  new ActionListener ()
                                  {
                                     
@@ -1706,7 +2213,7 @@ public class Environment
                                     {
                                         
                                         // View the object.
-                                        AbstractProjectViewer viewer = Environment.getProjectViewer (fp);
+                                        AbstractProjectViewer viewer = Environment.getProjectViewer (proj);
                                         
                                         viewer.viewObject (obj);
                                         
@@ -1715,34 +2222,100 @@ public class Environment
                                  });
                                 
     }
-    
-    public static void openProject (File f)
+                
+    public static void openObjectInProject (final Project    proj,
+                                            final DataObject obj)
+                                     throws Exception
     {
         
-        // Check the file extension
-  
+        final DataObject dobj = obj;
+         
+        ProjectInfo p = null;
+                                    
+        try
+        {
+            
+            p = Environment.getProjectInfo (proj);
+            
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to get project info for project id: " +
+                                        proj.getId (),
+                                        e);
+            
+        }
+        
+        if (p == null)
+        {
+            
+            throw new GeneralException ("Unable to get project info for project id: " +
+                                        proj.getId ());
+            
+        }
+        
+        Environment.openObjectInProject (p,
+                                         obj);
+                                
     }
-    
-    public static void openProjectWithId (String id,
+
+    public static void openProjectWithId (String projId,
                                           String projType)
                                    throws Exception
     {
         
-        Project p = Environment.getProjectById (id,
-                                                projType);
+        Environment.openProject (projId,
+                                 projType,
+                                 null);
+        
+    }
 
+    public static void openProject (Project p)
+                             throws Exception    
+    {
+
+        Environment.openProject (p,
+                                 null);
+    
+    }
+    
+    public static void openProject (Project        p,
+                                    ActionListener onProjectOpen)
+                             throws Exception
+    {
+        
         if (p == null)
         {
             
-            return;            
-                                                
+            return;
+            
         }
         
-        Environment.openProject (p);
+        Environment.openProject (p.getId (),
+                                 p.getType (),
+                                 onProjectOpen);
         
     }
     
-    public static void  openProject (final Project p)
+    public static void openProject (final String         projId,
+                                    final String         projType,
+                                    final ActionListener onProjectOpen)
+                             throws Exception
+    {
+
+        ProjectInfo p = Environment.getProjectInfo (projId,
+                                                    projType);
+        
+        if (p != null)
+        {
+            
+            Environment.openProject (p,
+                                     onProjectOpen);
+            
+        }
+        
+    }
+    
+    public static void  openProject (final ProjectInfo p)
                               throws Exception
     {
         
@@ -1751,16 +2324,25 @@ public class Environment
         
     }
 
-    public static void  openProject (final Project        p,
+    public static void  openProject (final ProjectInfo    p,
                                      final ActionListener onProjectOpen)
                               throws Exception
     {
 
+        if (p.isOpening ())
+        {
+            
+            return;
+            
+        }
+    
         AbstractProjectViewer pv = (AbstractProjectViewer) Environment.openProjects.get (p);
 
         if (pv != null)
         {
 
+            p.setOpening (false);
+        
             pv.setVisible (true);
             pv.setState (java.awt.Frame.NORMAL);
             pv.toFront ();
@@ -1798,7 +2380,7 @@ public class Environment
             }
                         
             final AbstractProjectViewer fpv = pv;
-
+            /*
             if (onProjectOpen != null)
             {
                 
@@ -1834,13 +2416,10 @@ public class Environment
                 });
                 
             }
-            
+            */
             Environment.incrStartupProgress ();
             
-            String password = p.getFilePassword ();
-
-            if ((p.isEncrypted ()) &&
-                (password == null))
+            if (p.isEncrypted ())
             {
 
                 Environment.startupComplete ();
@@ -1869,12 +2448,12 @@ public class Environment
                                                     {
     
                                                         fpv.openProject (p,
-                                                                         v);
-                                                                                        
-                                                        // Need to get the object again because the one passed in could be the one from the open.
-                                                        Environment.openProjects.put (fpv.getProject (),
+                                                                         v,
+                                                                         onProjectOpen);
+                                                                                      /*  
+                                                        Environment.openProjects.put (p,
                                                                                       fpv);
-                                
+                                */
                                                     } catch (Exception e) {
                                                         
                                                         if (ObjectManager.isDatabaseAlreadyInUseException (e))
@@ -1900,6 +2479,10 @@ public class Environment
                                                         
                                                         return null;
                                                         
+                                                    } finally {
+                                                        
+                                                        p.setOpening (false);
+                                                        
                                                     }
                                                     
                                                     return null;
@@ -1924,10 +2507,8 @@ public class Environment
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                         
-                                                    // Show the open/close.
-                                                    FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
-                                                    f.setVisible (true);                                                
-                                                    
+                                                    Environment.showLanding ();
+                                                                                            
                                                 }
                                                 
                                             });
@@ -1940,7 +2521,8 @@ public class Environment
             {
             
                 pv.openProject (p,
-                                password);
+                                null,
+                                onProjectOpen);
 
             } catch (Exception e) {
                 
@@ -1954,14 +2536,19 @@ public class Environment
                              
                 }
                 
-            }
+                throw e;
+                
+            } finally {
+                
+                p.setOpening (false);                
                        
+            }
+            
             Environment.startupComplete ();
-
-            // Need to get the object again because the one passed in could be the one from the open.
-            Environment.openProjects.put (pv.getProject (),
+            /*
+            Environment.openProjects.put (p,
                                           pv);
-
+*/
         }
 
         //return pv;
@@ -1978,8 +2565,8 @@ public class Environment
             
         } catch (Exception e) {
             
-            Environment.logError ("Unable to init achievements for project: " +
-                                  viewer.getProject (),
+            Environment.logError ("Unable to init achievements for viewer: " +
+                                  viewer,
                                   e);
             
         }
@@ -2023,7 +2610,7 @@ public class Environment
     public static void logDebugMessage (String m)
     {
         
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
             
             Environment.logMessage (m);
@@ -2035,7 +2622,7 @@ public class Environment
     public static void logMessage (String m)
     {
 
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
 
             //System.out.println (m);
@@ -2065,7 +2652,7 @@ public class Environment
                                         List   params)
     {
 
-        if (!Environment.debugMode)
+        if (!Environment.isDebugModeEnabled ())
         {
 
             return;
@@ -2091,7 +2678,7 @@ public class Environment
                                        ex,
                                        null);
 
-        if ((!Environment.debugMode)
+        if ((!Environment.isDebugModeEnabled ())
             &&
             (Environment.getUserProperties ().getPropertyAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME))
            )
@@ -2190,68 +2777,6 @@ public class Environment
         }
         
     }
-    
-    public static void renameProject (String oldName,
-                                      String newName)
-                               throws Exception
-    {
-
-        Set projs = Environment.getAllProjects ();
-
-        Iterator<Project> iter = projs.iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            Project p = iter.next ();
-            
-            if (p.getName ().equals (oldName))
-            {
-
-                p.setName (newName);
-                p.setProjectDirectory (new File (p.getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (newName)));
-
-            }
-
-        }
-
-        Environment.saveProjectsFile (projs);
-
-    }
-
-    public static void changeProjectDir (Project proj,
-                                         File    newDir)
-                                  throws Exception
-    {
-
-        Set projs = Environment.getAllProjects ();
-
-        Iterator<Project> iter = projs.iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            Project p = iter.next ();
-
-            if (p.getName ().equalsIgnoreCase (proj.getName ()))
-            {
-
-                p.setProjectDirectory (newDir);
-
-            }
-
-        }
-
-        Environment.saveProjectsFile (projs);
-
-    }
-    
-    public static boolean hasProjectsFile ()
-    {
-
-        return Environment.getProjectsFile ().exists ();
-
-    }
 
     private static File getUserDefaultProjectPropertiesFile ()
     {
@@ -2260,42 +2785,88 @@ public class Environment
         
     }
     
-    private static File getProjectsFile ()
-    {
-
-        return new File (Environment.getUserQuollWriterDir () + "/" + Constants.PROJECTS_FILE_NAME);
-
-    }
-
     public static AbstractProjectViewer getProjectViewerForType (Project p)
                                                           throws Exception
     {
 
+        AbstractProjectViewer v = null;
+    
         if (p.getType ().equals (Project.NORMAL_PROJECT_TYPE))
         {
 
-            return new ProjectViewer ();
+            v = new ProjectViewer ();
 
         }
 
         if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
         {
 
-            return new EditorProjectViewer ();
+            v = new EditorProjectViewer ();
 
         }
 
         if (p.getType ().equals (Project.WARMUPS_PROJECT_TYPE))
         {
 
-            return new WarmupsViewer ();
+            v = new WarmupsViewer ();
 
         }
 
-        throw new GeneralException ("Project type: " +
-                                    p.getType () +
-                                    " is not supported.");
+        if (v == null)
+        {
+        
+            throw new GeneralException ("Project type: " +
+                                        p.getType () +
+                                        " is not supported.");
 
+        }
+        
+        v.init ();
+        
+        return v;
+                                        
+    }
+
+    public static AbstractProjectViewer getProjectViewerForType (ProjectInfo p)
+                                                          throws Exception
+    {
+
+        AbstractProjectViewer v = null;
+    
+        if (p.getType ().equals (Project.NORMAL_PROJECT_TYPE))
+        {
+
+            v = new ProjectViewer ();
+
+        }
+
+        if (p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+        {
+
+            v = new EditorProjectViewer ();
+
+        }
+
+        if (p.getType ().equals (Project.WARMUPS_PROJECT_TYPE))
+        {
+
+            v = new WarmupsViewer ();
+
+        }
+
+        if (v == null)
+        {
+        
+            throw new GeneralException ("Project type: " +
+                                        p.getType () +
+                                        " is not supported.");
+
+        }
+        
+        v.init ();
+        
+        return v;
+                                        
     }
 
     public static String getButtonLabel (String preferredValue,
@@ -2326,43 +2897,17 @@ public class Environment
         return Environment.buttonLabels.get (id.toLowerCase ());
         
     }
-    
-    public static void saveProjectsFile (Set<Project> projs)
-                                  throws Exception
+        
+    private static void initProjectsDBFromProjectsFile ()
+                                                 throws Exception
     {
-
-        Element root = new Element (Environment.XMLConstants.projects);
-
-        Iterator<Project> iter = projs.iterator ();
-
-        while (iter.hasNext ())
-        {
-
-            Project p = iter.next ();
-
-            Element pEl = p.getAsJDOMElement ();
-            root.addContent (pEl);
-
-        }
-
-        JDOMUtils.writeElementToFile (root,
-                                      Environment.getProjectsFile (),
-                                      true);
-
-    }
-
-    public static Set<Project> getAllProjects ()
-                                        throws Exception
-    {
-
-        Set<Project> ret = new LinkedHashSet ();
-
-        File f = Environment.getProjectsFile ();
+        
+        File f = new File (Environment.getUserQuollWriterDir () + "/" + Constants.PROJECTS_FILE_NAME);
 
         if (!f.exists ())
         {
 
-            return ret;
+            return;
 
         }
 
@@ -2397,31 +2942,133 @@ public class Environment
                 
             }
 
-            ret.add (p);
+            ProjectInfo pi = null;
+            
+            // Try and load the project.
+            try
+            {
+                
+                pi = new ProjectInfo (p);
+                
+                ObjectManager om = Environment.getProjectObjectManager (pi,
+                                                                        null);
+
+                // Now deal with the real project.
+                pi = new ProjectInfo (om.getProject ());
+                
+                pi.setEncrypted (p.isEncrypted ());
+                pi.setNoCredentials (p.isNoCredentials ());
+                                                                  
+                om.closeConnectionPool ();
+                                                                        
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to load project: " +
+                                      p,
+                                      e);
+                
+            }
+            
+            if (pi == null)
+            {                        
+            
+                try
+                {
+                    
+                    pi = new ProjectInfo (p);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to convert project: " +
+                                          p +
+                                          " to a project info",
+                                          e);
+                    
+                    continue;
+                    
+                }
+
+            }
+            
+            try
+            {
+            
+                Environment.projectInfoManager.saveObject (pi,
+                                                           null);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to load project: " +
+                                      p +
+                                      ", path: " +
+                                      JDOMUtils.getPath (pEl) +
+                                      " into the project db",
+                                      e);
+                
+            }
 
         }
-
-        return ret;
+        
+        // Remove the projects file (rename for now).
+        f.renameTo (new File (f.getParentFile (), f.getName () + ".old"));
+        
+    }
+    
+    public static Set<ProjectInfo> getAllProjectInfos (String limitToType)
+                                                throws Exception
+    {
+                
+        Set<ProjectInfo> all = new LinkedHashSet (Environment.projectInfoManager.getObjects (ProjectInfo.class,
+                                                                                             null,
+                                                                                             null,
+                                                                                             true));
+        
+        if (limitToType != null)
+        {
+        
+            Set<ProjectInfo> pis = new LinkedHashSet ();
+        
+            for (ProjectInfo p : all)
+            {
+                
+                if (p.getType ().equals (limitToType))
+                {
+                    
+                    pis.add (p);
+                    
+                }
+                
+            }
+            
+            all = pis;
+            
+        }
+        
+        return all;
 
     }
     
-    public static Project getWarmupsProject ()
-                                      throws Exception
+    public static Set<ProjectInfo> getAllProjectInfos ()
+                                                throws Exception
+    {
+        
+        return Environment.getAllProjectInfos (null);
+        
+    }
+        
+    public static ProjectInfo getWarmupsProject ()
+                                          throws Exception
     {
 
-        Set<Project> projs = Environment.getAllProjects ();
+        Set<ProjectInfo> projs = Environment.getAllProjectInfos ();
 
-        Iterator<Project> iter = projs.iterator ();
-
-        while (iter.hasNext ())
+        for (ProjectInfo pi : projs)
         {
-
-            Project p = iter.next ();
-
-            if (p.getType ().equals (Project.WARMUPS_PROJECT_TYPE))
+            
+            if (pi.isWarmupsProject ())
             {
 
-                return p;
+                return pi;
 
             }
 
@@ -2556,6 +3203,19 @@ public class Environment
         
     }
 
+    public static void setUserProperty (String  name,
+                                        int     value)
+                                 throws Exception
+    {
+        
+        Environment.userProperties.setProperty (name,
+                                                new IntegerProperty (name,
+                                                                     value));
+        
+        Environment.saveUserProperties (Environment.userProperties);
+        
+    }
+
     public static void saveUserProperties (com.gentlyweb.properties.Properties props)
                                     throws Exception
     {
@@ -2641,7 +3301,30 @@ public class Environment
     public static void init ()
                       throws Exception
     {
+    
+        File f = Environment.getErrorLogFile ();
 
+        f.delete ();
+
+        Environment.errorLog = new Logger ();
+        Environment.errorLog.initLogFile (f);
+
+        f = Environment.getGeneralLogFile ();
+
+        f.delete ();
+
+        Environment.generalLog = new Logger ();
+        Environment.generalLog.initLogFile (f);
+
+        f = Environment.getSQLLogFile ();
+
+        f.delete ();
+
+        Environment.sqlLog = new Logger ();
+        Environment.sqlLog.initLogFile (f);
+
+        Environment.incrStartupProgress ();    
+    
         Header.defaultPaintLeftColor = UIUtils.getComponentColor (); //UIUtils.getColor ("#516CA3");
         GradientPanel.defaultPaintLeftColor = UIUtils.getComponentColor (); //UIUtils.getColor ("#516CA3");
         Header.defaultPaintRightColor = UIUtils.getComponentColor (); //UIUtils.getColor ("#516CA3");
@@ -2675,6 +3358,62 @@ public class Environment
         UIManager.put("PopupMenu.background", UIUtils.getComponentColor ());
         UIManager.put("PopupMenu.foreground", UIUtils.getTitleColor ());
         
+        if (Environment.isWindows)
+        {
+
+            try
+            {
+
+                com.jgoodies.looks.Options.setUseSystemFonts (true);
+
+                UIManager.setLookAndFeel (new WindowsLookAndFeel ());
+ 
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to set laf to: " +
+                                      WindowsLookAndFeel.class.getName (),
+                                      e);
+
+            }
+
+        }
+        
+        System.setProperty ("swing.aatext",
+                            "true");
+
+        System.setProperty ("aawt.useSystemAAFontSettings",
+                            "true");        
+        
+        // Remove border around splitpane divider.
+        UIManager.put ("SplitPaneDivider.border",
+                       BorderFactory.createEmptyBorder ());
+
+        UIManager.put ("Button.margin",
+                       new java.awt.Insets (3,
+                                            3,
+                                            3,
+                                            3));
+        
+        // Try and get a lock on the file.
+        File l = new File (Environment.getUserQuollWriterDir (),
+                           "___quollwriter_lock.lock");
+        
+        FileChannel ch = new RandomAccessFile (l, "rw").getChannel ();
+        
+        FileLock lock = ch.tryLock ();
+        
+        if (lock == null)
+        {
+            
+            throw new OverlappingFileLockException ();
+            
+        }
+        
+        Environment.lock = lock;
+        
+        l.deleteOnExit ();
+                    
         Environment.appVersion = new Version (Environment.getResourceFileAsString (Constants.VERSION_FILE).trim ());
         
         try
@@ -2689,6 +3428,83 @@ public class Environment
 
         }
 
+        try
+        {
+
+            Environment.projectInfoSchemaVersion = Integer.parseInt (Environment.getResourceFileAsString (Constants.PROJECT_INFO_SCHEMA_VERSION_FILE).trim ());
+
+        } catch (Exception e)
+        {
+
+            // Ignore.
+
+        }
+
+        com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROPERTIES_FILE),
+                                                                                                null);
+
+        Environment.incrStartupProgress ();
+
+        sysProps.setId ("system");
+
+        // Load the per user properties.
+        File pf = Environment.getUserPropertiesFile ();
+
+        if (pf.exists ())
+        {
+
+            try
+            {
+
+                Environment.userProperties = new com.gentlyweb.properties.Properties (pf,
+                                                                                      Environment.GZIP_EXTENSION);
+
+            } catch (Exception e)
+            {
+
+                throw new GeneralException ("Unable to load user properties: " +
+                                            pf,
+                                            e);
+
+            }
+
+            Environment.userProperties.setId ("user");
+
+            // Override the debug mode.
+            if (Environment.userProperties.getProperty (Constants.DEBUG_MODE_PROPERTY_NAME) != null)
+            {
+
+                Environment.setDebugModeEnabled (Environment.userProperties.getPropertyAsBoolean (Constants.DEBUG_MODE_PROPERTY_NAME));
+
+            }
+                
+        }
+
+        // Load the "system" properties.
+        Environment.userProperties.setParentProperties (sysProps);
+
+        // Get the system default project properties.
+        com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
+                                                                              Environment.userProperties);
+        
+        File defUserPropsFile = Environment.getUserDefaultProjectPropertiesFile ();
+        
+        if (defUserPropsFile.exists ())
+        {
+        
+            com.gentlyweb.properties.Properties userDefProjProps = new com.gentlyweb.properties.Properties (defUserPropsFile,
+                                                                                                            Environment.GZIP_EXTENSION);
+            
+            userDefProjProps.setParentProperties (sysDefProjProps);
+
+            sysDefProjProps = userDefProjProps;
+            
+        }
+        
+        // Load the default project properties.
+        Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
+                                                 sysDefProjProps);        
+        
         // Load the default object type names.
         try
         {
@@ -2723,7 +3539,7 @@ public class Environment
             }
             
         }
-        
+        /*
         com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROPERTIES_FILE),
                                                                                                 null);
 
@@ -2790,30 +3606,8 @@ public class Environment
                                                  sysDefProjProps);
 
         Environment.incrStartupProgress ();
-
-        File f = Environment.getErrorLogFile ();
-
-        f.delete ();
-
-        Environment.errorLog = new Logger ();
-        Environment.errorLog.initLogFile (f);
-
-        f = Environment.getGeneralLogFile ();
-
-        f.delete ();
-
-        Environment.generalLog = new Logger ();
-        Environment.generalLog.initLogFile (f);
-
-        f = Environment.getSQLLogFile ();
-
-        f.delete ();
-
-        Environment.sqlLog = new Logger ();
-        Environment.sqlLog.initLogFile (f);
-
-        Environment.incrStartupProgress ();
-
+*/
+        /*
         if (Environment.isWindows)
         {
 
@@ -2840,19 +3634,46 @@ public class Environment
 
         System.setProperty ("aawt.useSystemAAFontSettings",
                             "true");
+*/
 
-        // Remove border around splitpane divider.
-        UIManager.put ("SplitPaneDivider.border",
-                       BorderFactory.createEmptyBorder ());
+        Environment.playSoundOnKeyStroke = Environment.userProperties.getPropertyAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
+        
+        String sf = Environment.userProperties.getProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);				
 
-        UIManager.put ("Button.margin",
-                       new java.awt.Insets (3,
-                                            3,
-                                            3,
-                                            3));
+        try
+        {
+            
+            File ksf = null;
+            
+            if (sf != null)
+            {
+            
+                ksf = new File (sf);
+            
+            }
+            
+            Environment.setKeyStrokeSoundFile (ksf);
+            
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to get sound file to play on key stroke using file: " + sf,
+                                  e);
+
+        }
 
         Environment.incrStartupProgress ();
-                                            
+            
+        Environment.userPropertyHandlers.put (Constants.OBJECT_TYPES_PROPERTY_NAME,
+                                              new UserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME,
+                                                                       null));
+        Environment.userPropertyHandlers.put (Constants.NOTE_TYPES_PROPERTY_NAME,
+                                              new UserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME,
+                                                                       null));
+        Environment.userPropertyHandlers.put (Constants.PROJECT_STATUSES_PROPERTY_NAME,
+                                              new UserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME,
+                                                                       null));
+
         try
         {
 
@@ -2960,7 +3781,22 @@ public class Environment
                 
             }
         });
+
+        // See if this is first use.
+        Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
         
+        // Get the username and password.
+        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+        
+        Environment.projectInfoManager = new ProjectInfoObjectManager ();
+        
+        Environment.projectInfoManager.init (Environment.getProjectInfoDBFile (),
+                                             username,
+                                             password, 
+                                             null,
+                                             Environment.getProjectInfoSchemaVersion ());
+                
         try
         {
         
@@ -2970,6 +3806,27 @@ public class Environment
             
             Environment.logError ("Unable to init editors environment",
                                   e);
+            
+        }
+        
+        // Pre 2.4.
+        // See if there is a projects.xml file, if so load the db.
+        try
+        {
+            
+            Environment.initProjectsDBFromProjectsFile ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to init project info from projects file",
+                                  e);
+            
+        }
+        
+        if (Environment.isFirstUse)
+        {
+            
+            Environment.isFirstUse = (Environment.getAllProjectInfos ().size () == 0);
             
         }
         
@@ -2992,7 +3849,7 @@ public class Environment
                             public void actionPerformed (ActionEvent ev)
                             {            
             
-                                AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                AbstractViewer viewer = Environment.getFocusedViewer ();
                             
                                 if (viewer != null)
                                 {
@@ -3018,6 +3875,13 @@ public class Environment
         
     }
 
+    public static UserPropertyHandler getUserPropertyHandler (String userProp)
+    {
+        
+        return Environment.userPropertyHandlers.get (userProp);
+        
+    }
+    
     public static int getJavaVersion ()
     {
         
@@ -3070,7 +3934,7 @@ public class Environment
     public static String getQuollWriterWebsite ()
     {
         
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
 
             return Environment.getProperty (Constants.QUOLL_WRITER_DEBUG_WEBSITE_PROPERTY_NAME);
@@ -3100,6 +3964,41 @@ public class Environment
         return null;
         
     }
+        
+    public static DictionaryProvider getDefaultDictionaryProvider ()
+                                                            throws Exception
+    {
+        
+        if (Environment.defaultDictProv == null)
+        {
+            
+            String lang = Environment.getUserProperties ().getProperty (Constants.DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+            
+            if (lang == null)
+            {
+                
+                lang = Constants.ENGLISH;
+                
+            }
+            
+            File userDict = Environment.getUserDictionaryFile ();
+    
+            if (!userDict.exists ())
+            {
+    
+                userDict.createNewFile ();
+    
+            }
+            
+            Environment.defaultDictProv = new DictionaryProvider (lang,
+                                                                  null,
+                                                                  userDict);
+            
+        }
+        
+        return Environment.defaultDictProv;
+        
+    }    
     
     public static SynonymProvider getSynonymProvider (String language)
                                                       throws GeneralException
@@ -3380,7 +4279,7 @@ public class Environment
                 
         String prefName = Constants.SUPPORT_URL_BASE_PROPERTY_NAME;
         
-        if (Environment.debugMode)
+        if (Environment.isDebugModeEnabled ())
         {
             
             prefName = Constants.DEBUG_SUPPORT_URL_BASE_PROPERTY_NAME;
@@ -3698,7 +4597,7 @@ public class Environment
         if (url == null)
         {
 
-            if (Environment.debugMode)
+            if (Environment.isDebugModeEnabled ())
             {
 
                 // Can't find image, log the problem but keep going.
@@ -3740,7 +4639,7 @@ public class Environment
         if (url == null)
         {
 
-            if (Environment.debugMode)
+            if (Environment.isDebugModeEnabled ())
             {
 
                 // Can't find image, log the problem but keep going.
@@ -3798,7 +4697,7 @@ public class Environment
         if (url == null)
         {
 
-            if (Environment.debugMode)
+            if (Environment.isDebugModeEnabled ())
             {
 
                 // Can't find image, log the problem but keep going.
@@ -4039,6 +4938,46 @@ public class Environment
 
     }
 
+    public static File getProjectInfoDBFile ()
+    {
+        
+        File dir = null;
+        
+        String dv = Environment.getUserProperties ().getProperty (Constants.PROJECT_INFO_DB_DIR_PROPERTY_NAME);
+        
+        if (dv != null)
+        {
+
+            dir = new File (dv);
+            
+        } else {
+        
+            dir = Environment.getUserQuollWriterDir ();
+            
+        }
+        
+        return new File (dir, Constants.PROJECT_INFO_DB_FILE_NAME_PREFIX);        
+        
+    }
+    
+    public static int getProjectInfoSchemaVersion ()
+    {
+
+        File f = new File (Environment.getProjectInfoDBFile ().getPath () + Constants.H2_DB_FILE_SUFFIX);
+    
+        // See if we already have a project info db.
+        if (f.exists ())
+        {
+    
+            return Environment.projectInfoSchemaVersion;
+        
+        }
+        
+        // No file, so need to create the schema.
+        return 0;
+
+    }    
+    
     public static int getSchemaVersion ()
     {
 
@@ -4104,7 +5043,7 @@ public class Environment
         
     }
     
-    public static void doNewsAndVersionCheck (final AbstractProjectViewer pv)
+    public static void doNewsAndVersionCheck (final AbstractViewer viewer)
     {
 
         if (Environment.doneVersionCheck)
@@ -4182,7 +5121,7 @@ public class Environment
                                                                                                  Constants.QUOLL_WRITER_NAME,
                                                                                                  newVersion.getVersion ().replace (".",
                                                                                                                                    "_")),
-                                                                                  pv);
+                                                                                  viewer);
                                         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
                                         p.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -4204,9 +5143,9 @@ public class Environment
                                         ib.add (bb);
                                         ib.add (Box.createVerticalStrut (5));
 
-                                        final ActionListener removeNot = pv.addNotification (ib,
-                                                                                             "notify",
-                                                                                             600);
+                                        final ActionListener removeNot = viewer.addNotification (ib,
+                                                                                                 "notify",
+                                                                                                 600);
 
                                         installNow.addActionListener (new ActionAdapter ()
                                         {
@@ -4216,7 +5155,7 @@ public class Environment
 
                                                 removeNot.actionPerformed (ev);
 
-                                                new GetLatestVersion (pv,
+                                                new GetLatestVersion (viewer,
                                                                       newVersion,
                                                                       size,
                                                                       digest).start ();
@@ -4283,7 +5222,7 @@ public class Environment
                                                                   Short.MAX_VALUE));
 
                                 JTextPane p = UIUtils.createHelpTextPane (m,
-                                                                          pv);
+                                                                          viewer);
                                 p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
                                 p.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -4301,9 +5240,9 @@ public class Environment
                                 ib.add (bb);
                                 bb.setAlignmentX (Component.LEFT_ALIGNMENT);
                                 
-                                final ActionListener removeNot = pv.addNotification (ib,
-                                                                                     "notify",
-                                                                                     -1);
+                                final ActionListener removeNot = viewer.addNotification (ib,
+                                                                                         "notify",
+                                                                                         -1);
 
                                 ok.addActionListener (new ActionAdapter ()
                                 {
@@ -4676,17 +5615,17 @@ public class Environment
         throw new UnsupportedOperationException ("Cannot list files for URL " + dirURL);
     }
 
-    public static Map<String, Set<String>> getAchievedAchievementIds (AbstractProjectViewer viewer)
+    public static Map<String, Set<String>> getAchievedAchievementIds (AbstractViewer viewer)
     {
         
         return Environment.achievementsManager.getAchievedAchievementIds (viewer);
         
     }
 
-    public static void removeAchievedAchievement (String                achievementType,
-                                                  String                id,
-                                                  AbstractProjectViewer viewer)
-                                                  throws                Exception
+    public static void removeAchievedAchievement (String         achievementType,
+                                                  String         id,
+                                                  AbstractViewer viewer)
+                                           throws Exception
     {
         
         Environment.achievementsManager.removeAchievedAchievement (achievementType,
@@ -4765,7 +5704,7 @@ public class Environment
                                           ProjectViewerAction act)
     {
 
-        for (Project p : Environment.openProjects.keySet ())
+        for (ProjectInfo p : Environment.openProjects.keySet ())
         {
     
             AbstractProjectViewer pv = Environment.openProjects.get (p);
@@ -4785,7 +5724,7 @@ public class Environment
                                                 ProjectViewerAction act)
     {
 
-        for (Project p : Environment.openProjects.keySet ())
+        for (ProjectInfo p : Environment.openProjects.keySet ())
         {
     
             AbstractProjectViewer pv = Environment.openProjects.get (p);
@@ -4831,6 +5770,412 @@ public class Environment
             return props + "";
                 
         }
+        
+    }
+
+    public static void relaunchLanding ()
+                                 throws Exception
+    {
+        
+        if (Environment.landingViewer != null)
+        {
+        
+            Environment.landingViewer.removeProjectEventListener (Environment.achievementsManager);        
+
+            Environment.landingViewer.close (false,
+                                             null);
+            
+            Environment.landingViewer = null;
+
+        }
+        
+        Environment.showLanding ();
+        
+    }
+    
+    public static Landing getLanding ()
+    {
+        
+        return Environment.landingViewer;
+        
+    }
+    
+    public static void showLanding ()
+    {
+        
+        if (Environment.landingViewer == null)
+        {
+            
+            try
+            {
+            
+                Environment.landingViewer = new Landing ();
+                
+                Environment.landingViewer.init ();
+                
+                Environment.landingViewer.addProjectEventListener (Environment.achievementsManager);        
+
+                Environment.addProjectInfoChangedListener (Environment.landingViewer);
+                
+                Environment.userPropertyHandlers.get (Constants.PROJECT_STATUSES_PROPERTY_NAME).addPropertyChangedListener (new PropertyChangedListener ()
+                {
+                   
+                    @Override
+                    public void propertyChanged (PropertyChangedEvent ev)
+                    {
+                        
+                        if (ev.getChangeType ().equals (UserPropertyHandler.VALUE_CHANGED))
+                        {
+                        
+                            List<ProjectInfo> toSave = new ArrayList ();
+                    
+                            String oldValue = (String) ev.getOldValue ();
+                            String newValue = (String) ev.getNewValue ();
+                    
+                            // Change the type for all notes with the old type.
+                            Set<ProjectInfo> pis = null;
+                            
+                            try
+                            {
+                                
+                                pis = Environment.getAllProjectInfos ();
+                                
+                            } catch (Exception e) {
+                                                                
+                                Environment.logError ("Unable to save: " +
+                                                      toSave +
+                                                      " with new type: " +
+                                                      ev.getNewValue (),
+                                                      e);
+                
+                                UIUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                                          "Unable to change status");
+                                
+                                return;
+                                                
+                            }
+                            for (ProjectInfo pi : pis)
+                            {
+                    
+                                if (oldValue.equals (pi.getStatus ()))
+                                {
+                    
+                                    pi.setStatus (newValue);
+                    
+                                    toSave.add (pi);
+                    
+                                }
+                    
+                            }
+                    
+                            if (toSave.size () > 0)
+                            {
+                    
+                                try
+                                {
+                    
+                                    Environment.updateProjectInfos (toSave);
+                    
+                                } catch (Exception e)
+                                {
+                    
+                                    Environment.logError ("Unable to save: " +
+                                                          toSave +
+                                                          " with new type: " +
+                                                          ev.getNewValue (),
+                                                          e);
+                    
+                                    UIUtils.showErrorMessage (Environment.getFocusedViewer (),
+                                                              "Unable to change status");
+                                    
+                                }
+                    
+                            }
+
+                        }
+                        
+                    }
+                    
+                });
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to create landing viewer",
+                                      e);
+                
+                UIUtils.showErrorMessage (null,
+                                          "Unable to show all {projects}, please contact Quoll Writer support for assistance.");
+                
+                return;
+                
+            }
+            
+        }
+        
+        Environment.landingViewer.setVisible (true);
+        
+    }
+    
+    public static File getDefaultSaveProjectDir ()
+    {
+
+        try
+        {
+            
+            List<ProjectInfo> pis = new ArrayList (Environment.getAllProjectInfos ());
+            
+            Collections.sort (pis,
+                              new ProjectInfoSorter ());
+            
+            if (pis.size () > 0)
+            {
+                
+                return pis.get (0).getProjectDirectory ().getParentFile ();
+                
+            }
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get last edited project directory",
+                                  e);
+            
+        }
+        
+        return new File (Environment.getUserQuollWriterDir (),
+                         Constants.DEFAULT_PROJECTS_DIR_NAME);
+        
+    }
+
+    public static void removeUserProjectEventListener (ProjectEventListener l)
+    {
+        
+        Environment.userProjectEventListeners.remove (l);
+        
+    }
+
+    public static void addUserProjectEventListener (ProjectEventListener l)
+    {
+        
+        Environment.userProjectEventListeners.put (l,
+                                                   Environment.listenerFillObj);
+        
+    }
+
+    public static void fireUserProjectEvent (Object source,
+                                             String type,
+                                             String action,
+                                             Object contextObject)
+    {
+
+        Environment.fireUserProjectEvent (new ProjectEvent (source,
+                                                            type,
+                                                            action,
+                                                            contextObject));
+
+    }
+
+    public static void fireUserProjectEvent (Object source,
+                                             String type,
+                                             String action)
+    {
+        
+        Environment.fireUserProjectEvent (new ProjectEvent (source,
+                                                            type,
+                                                            action));
+        
+    }
+
+    public static void fireUserProjectEvent (final ProjectEvent ev)
+    {
+                
+        UIUtils.doActionLater (new ActionListener ()
+        {
+        
+            public void actionPerformed (ActionEvent aev)
+            {
+                                
+                Set<ProjectEventListener> ls = null;
+                                
+                // Get a copy of the current valid listeners.
+                synchronized (Environment.userProjectEventListeners)
+                {
+                                    
+                    ls = new LinkedHashSet (Environment.userProjectEventListeners.keySet ());
+                    
+                }
+                    
+                for (ProjectEventListener l : ls)
+                {
+                    
+                    l.eventOccurred (ev);
+
+                }
+
+            }
+            
+        });
+        
+    }
+
+    public static boolean isPlaySoundOnKeyStroke ()
+    {
+        
+        return Environment.playSoundOnKeyStroke;
+        
+    }
+    
+    public static void playKeyStrokeSound ()
+    {
+        
+        if (Environment.keyStrokeSound == null)
+        {
+            
+            return;
+            
+        }
+        
+        if (!Environment.playSoundOnKeyStroke)
+        {
+            
+            return;
+            
+        }
+        
+        try
+        {
+
+            if (Environment.keyStrokeSound.isRunning ())
+            {
+
+                Environment.keyStrokeSound.stop ();
+
+            }
+
+            Environment.keyStrokeSound.setFramePosition (0);
+
+            Environment.keyStrokeSound.start ();
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to play key stroke sound",
+                                  e);
+
+            Environment.playSoundOnKeyStroke = false;
+
+        }
+
+    }
+    
+    public static void setKeyStrokeSoundFile (File f)
+    {
+       
+        try
+        {
+       
+            InputStream is = null;
+    
+            if (f != null)
+            {
+                
+                try
+                {
+            
+                    is = new BufferedInputStream (new FileInputStream (f));
+                    
+                } catch (Exception e) {
+                    
+                    // Ignore.
+                    
+                }
+    
+            }
+            
+            if (is == null)
+            {
+    
+                // Play the default.
+                is = new BufferedInputStream (Environment.getResourceStream (Constants.DEFAULT_KEY_STROKE_SOUND_FILE));
+    
+            }
+    
+            // Get the clip.
+            AudioInputStream ais = AudioSystem.getAudioInputStream (is);
+    
+            Environment.keyStrokeSound = AudioSystem.getClip ();
+    
+            Environment.keyStrokeSound.open (ais);
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set key stroke sound file",
+                                  e);
+            
+            Environment.userProperties.removeProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
+            
+            try
+            {
+                
+                Environment.saveUserProperties (Environment.userProperties);
+                
+            } catch (Exception ee) {
+                
+                // Sigh...
+                Environment.logError ("Unable to save user properties",
+                                      ee);
+                
+            }
+            
+            return;
+            
+        }
+        
+        if (f != null)
+        {
+        
+            try
+            {
+        
+                Environment.setUserProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
+                                             new StringProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
+                                                                 f.getPath ()));
+        
+            } catch (Exception e)
+            {
+        
+                Environment.logError ("Unable to save user properties",
+                                      e);
+            
+            }
+
+        }
+        
+    }
+    
+    public static void setPlaySoundOnKeyStroke (boolean v)
+    {
+        
+        Environment.playSoundOnKeyStroke = v;
+        
+        try
+        {
+    
+            Environment.setUserProperty (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
+                                         new BooleanProperty (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
+                                                              v));
+    
+        } catch (Exception e)
+        {
+    
+            Environment.logError ("Unable to save user properties",
+                                  e);
+        
+        }
+        
+        Environment.fireUserProjectEvent (new Object (),
+                                          ProjectEvent.TYPE_WRITER_SOUND,
+                                          (v ? ProjectEvent.ON : ProjectEvent.OFF));
+        
         
     }
     

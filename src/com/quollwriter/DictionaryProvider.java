@@ -19,23 +19,23 @@ public class DictionaryProvider
 
     private List                           listeners = new ArrayList ();
     //private List<QWSpellDictionaryHashMap> dicts = new ArrayList ();
-    private QWSpellDictionaryHashMap       userDict = null;
     private QWSpellDictionaryHashMap       projDict = null;
-    private File                           userDictFile = null;
     private SpellChecker                   checker = null;
-    private com.swabunga.spell.event.SpellChecker jazzySpellChecker = null;
+    private com.swabunga.spell.event.SpellChecker projectSpellChecker = null;
+    
+    private static File                           userDictFile = null;
+    private static QWSpellDictionaryHashMap       userDict = null;
+    private static com.swabunga.spell.event.SpellChecker userSpellChecker = null;
     private String language = null;
 
     public DictionaryProvider (String lang,
                                List<String> projWords,
-                               File         userDict)
+                               File         userDictFile)
                                throws       Exception
     {
-        
+                
         this.language = lang;
-        
-        this.jazzySpellChecker = new com.swabunga.spell.event.SpellChecker ();
-        
+                
         File dictFile = Environment.getDictionaryFile (lang);
         
         if (!dictFile.exists ())
@@ -64,13 +64,20 @@ public class DictionaryProvider
                 try
                 {
                 
-                    if (_this.jazzySpellChecker.isCorrect (word))
+                    if (_this.projectSpellChecker.isCorrect (word))
                     {
                         
                         return true;
                         
                     }
                 
+                    if (DictionaryProvider.userSpellChecker.isCorrect (word))
+                    {
+                        
+                        return true;
+                        
+                    }
+
                     if (suggester.hasExactWord (word))
                     {
                         
@@ -109,8 +116,8 @@ public class DictionaryProvider
                 
                 List suggestions = null;
                 
-                List jsuggestions = _this.jazzySpellChecker.getSuggestions (word,
-                                                                            1);
+                List jsuggestions = _this.projectSpellChecker.getSuggestions (word,
+                                                                              1);
                 
                 if (jsuggestions != null)
                 {
@@ -124,6 +131,21 @@ public class DictionaryProvider
                     
                 }
                 
+                jsuggestions = DictionaryProvider.userSpellChecker.getSuggestions (word,
+                                                                                   1);
+                
+                if (jsuggestions != null)
+                {
+                    
+                    for (int i = 0; i < jsuggestions.size (); i++)
+                    {
+                                                
+                        ret.add (((com.swabunga.spell.engine.Word) jsuggestions.get (i)).getWord ());
+                        
+                    }
+                    
+                }
+
                 try
                 {
                     
@@ -170,6 +192,8 @@ public class DictionaryProvider
             
         };
 
+        this.projectSpellChecker = new com.swabunga.spell.event.SpellChecker ();        
+        
         if (projWords != null)
         {
 
@@ -185,17 +209,19 @@ public class DictionaryProvider
 
             this.projDict = new QWSpellDictionaryHashMap (new StringReader (b.toString ()));
 
-            this.jazzySpellChecker.addDictionary (this.projDict);
+            this.projectSpellChecker.addDictionary (this.projDict);
             
             //this.dicts.add (this.projDict);
 
         }
 
-        this.userDict = new QWSpellDictionaryHashMap (userDict);
+        DictionaryProvider.userDict = new QWSpellDictionaryHashMap (userDictFile);
 
-        this.userDictFile = userDict;
+        DictionaryProvider.userDictFile = userDictFile;
 
-        this.jazzySpellChecker.setUserDictionary (this.userDict);
+        DictionaryProvider.userSpellChecker = new com.swabunga.spell.event.SpellChecker ();        
+
+        DictionaryProvider.userSpellChecker.setUserDictionary (DictionaryProvider.userDict);
         
     }
 
@@ -314,6 +340,52 @@ public class DictionaryProvider
         
     }
 
+    public static void addUserWord (String word)
+    {
+        
+        if (!DictionaryProvider.userDict.isCorrect (word))
+        {
+
+            DictionaryProvider.userDict.addWord (word);
+/*
+            this.fireDictionaryEvent (new DictionaryChangedEvent (this,
+                                                                  DictionaryChangedEvent.WORD_ADDED,
+                                                                  word));
+*/
+        }        
+        
+    }
+    
+    public static void removeUserWord (String word)
+    {
+        
+        if (DictionaryProvider.userDict != null)
+        {
+
+            DictionaryProvider.userDict.removeWord (word);
+
+            try
+            {
+
+                DictionaryProvider.userDict.saveDictionaryToFile (DictionaryProvider.userDictFile);
+
+            } catch (Exception e)
+            {
+
+                Environment.logError ("Unable to save user dictionary file",
+                                      e);
+
+            }
+
+            /*
+            this.fireDictionaryEvent (new DictionaryChangedEvent (this,
+                                                                  DictionaryChangedEvent.WORD_REMOVED,
+                                                                  word));
+*/
+        }        
+        
+    }
+    
     public void removeWord (String word,
                             String type)
     {
@@ -336,16 +408,16 @@ public class DictionaryProvider
 
         if (type.equals ("user"))
         {
-
-            if (this.userDict != null)
+        
+            if (DictionaryProvider.userDict != null)
             {
 
-                this.userDict.removeWord (word);
+                DictionaryProvider.userDict.removeWord (word);
 
                 try
                 {
 
-                    this.userDict.saveDictionaryToFile (this.userDictFile);
+                    DictionaryProvider.userDict.saveDictionaryToFile (DictionaryProvider.userDictFile);
 
                 } catch (Exception e)
                 {
@@ -404,10 +476,10 @@ public class DictionaryProvider
         if (type.equals ("user"))
         {
 
-            if (!this.userDict.isCorrect (word))
+            if (!DictionaryProvider.userDict.isCorrect (word))
             {
 
-                this.userDict.addWord (word);
+                DictionaryProvider.userDict.addWord (word);
 
                 this.fireDictionaryEvent (new DictionaryChangedEvent (this,
                                                                       DictionaryChangedEvent.WORD_ADDED,

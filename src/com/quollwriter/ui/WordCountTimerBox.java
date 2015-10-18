@@ -301,19 +301,29 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
             }
     
             JLabel l = new JLabel (t);
-            l.setBorder (new EmptyBorder (10,
-                                          10,
-                                          10,
-                                          10));
+            l.setBorder (UIUtils.createPadding (10, 10, 10, 10));
             l.setToolTipText ("Click to close this popup");
+                        
+            final QPopup p = UIUtils.createPopup (title,
+                                                  Constants.INFO_ICON_NAME,
+                                                  l,
+                                                  true,
+                                                  null);
             
-            QPopup p = UIUtils.createPopup (title,
-                                            null,
-                                            l,
-                                            true,
-                                            null);
+            p.hideIn (30, true);
             
-            p.hideIn (10, true);
+            l.addMouseListener (new MouseEventHandler ()
+            {
+                
+                @Override
+                public void handlePress (MouseEvent ev)
+                {
+                    
+                    p.removeFromParent ();
+                    
+                }
+              
+            });
             
             this.parent.showPopupAt (p,
                                      new Point (10,
@@ -342,7 +352,7 @@ public class WordCountTimerBox extends Box implements WordCountTimerListener
         this.validate ();
         
         this.repaint ();
-        
+                
     }
 
     public void timerUpdated (WordCountTimerEvent ev)

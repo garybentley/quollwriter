@@ -1,6 +1,5 @@
 package com.quollwriter.ui.actionHandlers;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
 
@@ -23,16 +22,17 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.Form;
+import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
-
 
 public class AssetActionHandler extends ProjectViewerActionHandler
 {
 
     private static Map<String, Class> actionHandlers = new HashMap ();
 
-    private JTextField       nameField = UIUtils.createTextField ();
-    private JTextArea        descField = UIUtils.createTextArea (-1);
+    private JTextField       nameField = null;
+    private TextArea descField = null;    
     private int              showAt = -1;
     private boolean          displayAfterSave = false;
     private DetailsEditPanel delegate = null;
@@ -47,6 +47,8 @@ public class AssetActionHandler extends ProjectViewerActionHandler
                mode,
                true);
 
+        this.initFormItems ();
+               
         try
         {
 
@@ -121,6 +123,17 @@ public class AssetActionHandler extends ProjectViewerActionHandler
     private void initFormItems ()
     {
 
+        this.nameField = UIUtils.createTextField ();
+        this.descField = UIUtils.createTextArea (this.projectViewer,
+                                                 null,
+                                                 //String.format ("Describe the {%s} here.",
+                                                 //               this.dataObject.getObjectType ()),
+                                                 5,
+                                                 -1);        
+        this.descField.setCanFormat (true);
+        
+        this.descField.setAutoGrabFocus (false);        
+            
     }
 
     public List<FormItem> getFormItems (int         mode,
@@ -128,6 +141,26 @@ public class AssetActionHandler extends ProjectViewerActionHandler
                                         NamedObject obj)
     {
 
+        final AssetActionHandler _this = this;    
+    
+        ActionListener doSave = new ActionListener ()
+        {
+          
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.submitForm ();
+                
+            }
+            
+        };
+        
+        UIUtils.addDoActionOnReturnPressed (this.nameField,
+                                            doSave);
+        UIUtils.addDoActionOnReturnPressed (this.descField,
+                                            doSave);
+    
         List<FormItem> formFields = new ArrayList ();
 
         formFields.add (new FormItem ("Name",
@@ -145,67 +178,21 @@ public class AssetActionHandler extends ProjectViewerActionHandler
 
             this.delegate.fillForEdit ();
 
-            formFields.addAll (this.delegate.getExtraEditItems ()); // mode));
+            formFields.addAll (this.delegate.getExtraEditItems (doSave)); // mode));
 
-            /*
-                                                        selectedText,
-                                                        (Asset) obj));
-             */
         }
-
-        this.descField.setRows (5);
-        this.descField.setLineWrap (true);
-        this.descField.setWrapStyleWord (true);
 
         formFields.add (new FormItem ("Description",
                                       this.descField));
 
-        final AssetActionHandler _this = this;
-
-        this.nameField.addKeyListener (new KeyAdapter ()
-            {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        // This is the same as save for the form.
-                        _this.submitForm ();
-
-                    }
-
-                }
-
-            });
-
-        this.descField.addKeyListener (new KeyAdapter ()
-        {
-
-            public void keyPressed (KeyEvent ev)
-            {
-
-                if (((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) &&
-                    (ev.getKeyCode () == KeyEvent.VK_ENTER))
-                {
-
-                    // This is the same as save for the form.
-                    _this.submitForm ();
-
-                }
-
-            }
-
-        });
-            
         if (mode == AbstractActionHandler.EDIT)
         {
 
             Asset a = (Asset) obj;
 
             this.nameField.setText (a.getName ());
-            this.descField.setText (a.getDescription ());
+                        
+            this.descField.setTextWithMarkup (a.getDescription ());
 
         } else
         {
@@ -219,8 +206,19 @@ public class AssetActionHandler extends ProjectViewerActionHandler
                 
                 Asset a = (Asset) obj;
     
-                this.nameField.setText (a.getName ());
-                this.descField.setText (a.getDescription ());
+                if (a.getName () != null)
+                {
+    
+                    this.nameField.setText (a.getName ());
+                    
+                }
+                
+                if (a.getDescription () != null)
+                {
+                
+                    this.descField.setTextWithMarkup (a.getDescription ());
+                    
+                }
                 
             }
 
@@ -237,7 +235,8 @@ public class AssetActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public boolean handleSave (int mode)
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         String n = this.nameField.getText ().trim ();
@@ -245,8 +244,7 @@ public class AssetActionHandler extends ProjectViewerActionHandler
         if (n.equals (""))
         {
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Please select a name.");
+            f.showError ("Please select a name.");
 
             return false;
 
@@ -261,9 +259,9 @@ public class AssetActionHandler extends ProjectViewerActionHandler
             if (other != null)
             {
 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "Already have a " + Environment.getObjectTypeName (this.dataObject).toLowerCase () + " called: " +
-                                          other.getName ());
+                f.showError (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
+                                                                            this.dataObject.getObjectType (),
+                                                                            other.getName ())));
 
                 return false;
 
@@ -297,7 +295,7 @@ public class AssetActionHandler extends ProjectViewerActionHandler
 
         // Fill up the object.
         asset.setName (n);
-        asset.setDescription (this.descField.getText ().trim ());
+        asset.setDescription (this.descField.getTextWithMarkup ());
 
         if (this.delegate != null)
         {

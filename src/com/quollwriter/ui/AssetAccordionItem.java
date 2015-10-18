@@ -30,11 +30,12 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                                 
     }
         
-    public void init (final JTree tree)
+    @Override
+    public void initTree ()
     {
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
-                                                                                this.projectViewer.getProject ()));
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
+                                                                                     this.projectViewer.getProject ()));
         
     }
 
@@ -102,39 +103,12 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
     }
     
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
         
-        java.util.List<TreePath> openPaths = new ArrayList ();
-        
-        Enumeration<TreePath> paths = tree.getExpandedDescendants (new TreePath (tree.getModel ().getRoot ()));
-
-        if (paths != null)
-        {
-
-            while (paths.hasMoreElements ())
-            {
-
-                openPaths.add (paths.nextElement ());
-
-            }
-
-        }
-
-        ((DefaultTreeModel) tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
-                                                                                this.projectViewer.getProject ()));
-
-        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
-
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
-
-        for (TreePath p : openPaths)
-        {
-
-            tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                               ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
-
-        }        
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
+                                                                                     this.projectViewer.getProject ()));
         
     }
         
@@ -154,8 +128,8 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 
     }
     
-    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv,
-                                                       JTree         tree)
+    @Override
+    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
     {
         
         return null;
@@ -236,8 +210,8 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
     }
 
-    public TreeCellEditor getTreeCellEditor (ProjectViewer pv,
-                                             JTree         tree)
+    @Override
+    public TreeCellEditor getTreeCellEditor (ProjectViewer pv)
     {
         
         return new ProjectTreeCellEditor (pv,

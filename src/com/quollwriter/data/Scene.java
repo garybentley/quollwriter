@@ -4,9 +4,10 @@ import java.text.*;
 
 import java.util.*;
 
-import javax.swing.text.*;
-
 import com.quollwriter.data.comparators.*;
+
+import com.quollwriter.*;
+import com.quollwriter.text.*;
 
 public class Scene extends ChapterItem
 {
@@ -221,17 +222,7 @@ public class Scene extends ChapterItem
 
     }
 
-    /**
-     * Overridden because of legacy data.
-     */
-    public void setName (String s)
-    {
-
-        this.setDescription (s);
-
-    }
-
-    public void setDescription (String d)
+    public void setDescription (StringWithMarkup d)
     {
 
         // Legacy data check, can't control the order of calls that hibernate makes so ensure that it
@@ -247,32 +238,18 @@ public class Scene extends ChapterItem
         if (d != null)
         {
 
+            String t = d.getText ();
+        
             // Take the first sentence and use that as the "name".
-            BreakIterator iter = BreakIterator.getSentenceInstance ();
-
-            iter.setText (d);
-
-            int f = iter.first ();
-
-            if (f < 0)
+            Paragraph p = new Paragraph (t,
+                                         0);
+        
+            if (p.getSentenceCount () > 0)
             {
 
-                return;
+                this.setName (p.getFirstSentence ().getText ());
 
             }
-
-            int n = iter.next ();
-
-            if (n < 0)
-            {
-
-                return;
-
-            }
-
-            // Need to set the name to prevent a loop.
-            super.setName (d.substring (f,
-                                        n));
 
         }
 

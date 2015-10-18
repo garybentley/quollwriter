@@ -27,6 +27,7 @@ public class FileFinder extends Box
     private ActionListener onSelect = null;
     private ActionListener onCancel = null;
     private JButton cancelButton = null;
+    private JButton findButton = null;
     private FileFilter fileFilter = null;
     
     private String finderTitle = null;
@@ -35,14 +36,45 @@ public class FileFinder extends Box
     private String findButtonToolTip = null;
     private boolean allowUserEntry = false;
     private boolean clearOnCancel = false;
+    private boolean showCancel = false;
     
     public FileFinder ()
     {
 
         super (BoxLayout.X_AXIS);
 
+        this.text = UIUtils.createTextField ();
+                
+        this.findButton = UIUtils.createButton (Constants.FIND_ICON_NAME,
+                                                Constants.ICON_MENU,
+                                                Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")),
+                                                null);
+
+        this.cancelButton = UIUtils.createButton ("cancel",
+                                                  Constants.ICON_MENU,
+                                                  "Click to cancel.",
+                                                  null);
+        
     }
 
+    @Override
+    public void setEnabled (boolean v)
+    {
+        
+        super.setEnabled (v);
+        
+        this.text.setEnabled (v);
+        this.findButton.setEnabled (v);
+        
+        if (this.cancelButton != null)
+        {
+            
+            this.cancelButton.setEnabled (v);
+            
+        }
+        
+    }
+    
     public void setClearOnCancel (boolean v)
     {
         
@@ -68,10 +100,7 @@ public class FileFinder extends Box
                             ActionListener onCancel)
     {
 
-        this.cancelButton = UIUtils.createButton ("cancel",
-                                                  Constants.ICON_MENU,
-                                                  "Click to cancel.",
-                                                  null);
+        this.showCancel = true;
                 
         this.onCancel = onCancel;
         
@@ -121,6 +150,13 @@ public class FileFinder extends Box
         {
             
             this.text.setText (f.getPath ());
+
+            if (this.text.getText ().length () > 0)
+            {
+                
+                this.text.setCaretPosition (this.text.getText ().length () - 1);
+                
+            }
             
         }
         
@@ -144,15 +180,18 @@ public class FileFinder extends Box
     {
     
         final FileFinder _this = this;
-    
-        final JTextField text = UIUtils.createTextField ();
-        
-        this.text = text;
-        
+            
         if (this.file != null)
         {
         
             this.text.setText (this.file.getPath ());
+
+            if (this.text.getText ().length () > 0)
+            {
+                
+                this.text.setCaretPosition (this.text.getText ().length () - 1);
+                
+            }
             
         }
         
@@ -169,11 +208,8 @@ public class FileFinder extends Box
         //this.add (text);
         //this.add (Box.createHorizontalStrut (2));
 
-        final JButton dbut = UIUtils.createButton ("find",
-                                                   Constants.ICON_MENU,
-                                                   Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")),
-                                                   null);
-        
+        this.findButton.setToolTipText (Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")));
+                
         //this.add (dbut);
 
         if (this.chooser == null)
@@ -225,6 +261,7 @@ public class FileFinder extends Box
                     }
                 
                     _this.text.setText (_this.chooser.getSelectedFile ().getPath ());
+                    _this.text.setCaretPosition (_this.text.getText ().length () - 1);
                 
                 }
 
@@ -232,13 +269,20 @@ public class FileFinder extends Box
 
         };
 
-        dbut.addActionListener (aa);
+        this.findButton.addActionListener (aa);
         
         this.text.addMouseListener (new MouseAdapter ()
         {
            
             public void mousePressed (MouseEvent ev)
             {
+                
+                if (!_this.findButton.isEnabled ())
+                {
+                    
+                    return;
+                    
+                }
                 
                 aa.actionPerformed (new ActionEvent (text,
                                                      0,
@@ -248,7 +292,7 @@ public class FileFinder extends Box
             
         });
             
-        if (this.cancelButton != null)
+        if (this.showCancel)
         {
             
             //this.add (Box.createHorizontalStrut (2));
@@ -293,11 +337,11 @@ public class FileFinder extends Box
                      cc.xy (1,
                             1));
 
-        builder.add (dbut,
+        builder.add (this.findButton,
                      cc.xy (3,
                             1));
 
-        if (this.cancelButton != null)
+        if (this.showCancel)
         {
             
             builder.add (this.cancelButton,
@@ -319,6 +363,13 @@ public class FileFinder extends Box
 
     public File getSelectedFile ()
     {
+        
+        if (this.chooser == null)
+        {
+            
+            return this.file;
+            
+        }
         
         File f = this.chooser.getSelectedFile ();
         

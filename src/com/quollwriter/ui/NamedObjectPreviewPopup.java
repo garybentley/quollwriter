@@ -212,13 +212,15 @@ public class NamedObjectPreviewPopup extends Box
     
         String firstLine = "<b><i>No description.</i></b>";
         
-        if ((obj.getDescription () != null)
+        String t = (obj.getDescription () != null ? obj.getDescription ().getText () : null);
+        
+        if ((t != null)
             &&
-            (obj.getDescription ().length () > 0)
+            (t.length () > 0)
            )
         {
             
-            firstLine = new Paragraph (obj.getDescription (), 0).getFirstSentence ().getText ();
+            firstLine = new Paragraph (t, 0).getFirstSentence ().getText ();
             
         }
                         

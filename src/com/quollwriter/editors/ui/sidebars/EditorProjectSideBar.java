@@ -35,7 +35,6 @@ import com.quollwriter.ui.components.QPopup;
 public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
 {
     
-    private EditorProjectViewer viewer = null;
     private EditorChaptersAccordionItem chapters = null;
     private EditorInfoBox editorInfoBox = null;
     private EditorEditor editor = null;
@@ -48,7 +47,6 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
         
         super (v);
         
-        this.viewer = v;
         this.content = new Box (BoxLayout.Y_AXIS);
         
         this.content.setOpaque (false);
@@ -95,7 +93,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
         try
         {
             
-            notes = this.projectViewer.getUnsentComments ();
+            notes = this.viewer.getUnsentComments ();
             
         } catch (Exception e) {
             
@@ -274,7 +272,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                     
                     ProjectVersion pv = (ProjectVersion) value;
 
-                    Header h = UIUtils.createBoldSubHeader (pv.getName (),
+                    Header h = UIUtils.createBoldSubHeader ((pv.getName () != null ? pv.getName () : "No version"),
                                                             null);
 
                     b.add (h);
@@ -472,7 +470,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
         {
             
             JComponent pvp = EditorsUIUtils.getProjectVersionPanel (projVer,
-                                                                    this.projectViewer);
+                                                                    this.viewer);
 
             pvp.setBorder (UIUtils.createPadding (5, 5, 5, 5));
                                                 
@@ -495,7 +493,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
                                                                  
-                                                                EditorsUIUtils.showSendUnsentComments (_this.projectViewer,
+                                                                EditorsUIUtils.showSendUnsentComments (_this.viewer,
                                                                                                        null);
                                                                     
                                                             }
@@ -535,7 +533,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                                           300));
 
         this.content.add (sp);
-        this.content.setBorder (new EmptyBorder (0, 5, 0, 5));
+        this.content.setBorder (UIUtils.createPadding (0, 5, 0, 5));
         
     }
     

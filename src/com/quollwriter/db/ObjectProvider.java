@@ -8,7 +8,8 @@ import com.quollwriter.data.*;
 public interface ObjectProvider<E extends DataObject>
 {
     
-    public Set<E> getAll ();
+    public Set<E> getAll ()
+                   throws GeneralException;
     
     public E getByKey (Long key);
     

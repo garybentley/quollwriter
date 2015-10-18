@@ -24,9 +24,9 @@ public class Tips
     private List<Tip> tips = new ArrayList ();
     private Random ind = new Random ();
     private int lastInd = 0;
-    private AbstractProjectViewer viewer = null;
+    private AbstractViewer viewer = null;
     
-    public Tips (AbstractProjectViewer viewer)
+    public Tips (AbstractViewer viewer)
                  throws Exception
     {
         
@@ -124,7 +124,7 @@ public class Tips
             
         }
         
-        public String getText (AbstractProjectViewer viewer)
+        public String getText (AbstractViewer viewer)
         {
             
             for (Item it : this.items)
@@ -190,7 +190,7 @@ public class Tips
                 
             }
             
-            public boolean shouldShow (AbstractProjectViewer viewer)
+            public boolean shouldShow (AbstractViewer viewer)
             {
                 
                 for (String c : this.conds)
@@ -206,28 +206,14 @@ public class Tips
                     }
                     
                     boolean v = false;
-                    
-                    QuollPanel qp = viewer.getCurrentlyVisibleTab ();
-                    
-                    if (qp != null)
+                                            
+                    if (c.equals ("landingviewer"))
                     {
-                    
-                        if (c.equals ("chaptertab"))
-                        {
-                            
-                            v = (qp.getForObject () instanceof Chapter);
-                            
-                        }
-    
-                        if (c.equals ("ideaboard"))
-                        {
-                            
-                            v = qp.getPanelId ().equals (IdeaBoard.PANEL_ID);
-                            
-                        }
-
-                    }
                         
+                        v = (viewer instanceof Landing);
+                        
+                    }
+
                     if (c.equals ("projectviewer"))
                     {
                         
@@ -242,18 +228,46 @@ public class Tips
                         
                     }
 
-                    if (c.equals ("spellcheckon"))
+                    if (viewer instanceof AbstractProjectViewer)
                     {
+
+                        AbstractProjectViewer pv = (AbstractProjectViewer) viewer;
+                    
+                        QuollPanel qp = pv.getCurrentlyVisibleTab ();
                         
-                        v = viewer.isSpellCheckingEnabled ();
-
-                    }
-
-                    if (c.equals ("spellcheckoff"))
-                    {
+                        if (qp != null)
+                        {
                         
-                        v = !viewer.isSpellCheckingEnabled ();
-
+                            if (c.equals ("chaptertab"))
+                            {
+                                
+                                v = (qp.getForObject () instanceof Chapter);
+                                
+                            }
+        
+                            if (c.equals ("ideaboard"))
+                            {
+                                
+                                v = qp.getPanelId ().equals (IdeaBoard.PANEL_ID);
+                                
+                            }
+    
+                        }
+                    
+                        if (c.equals ("spellcheckon"))
+                        {
+                            
+                            v = pv.isSpellCheckingEnabled ();
+    
+                        }
+    
+                        if (c.equals ("spellcheckoff"))
+                        {
+                            
+                            v = !pv.isSpellCheckingEnabled ();
+    
+                        }
+                        
                     }
                         
                     if (v)

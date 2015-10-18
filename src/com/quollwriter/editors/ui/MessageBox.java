@@ -20,14 +20,14 @@ import com.quollwriter.editors.*;
 public abstract class MessageBox<E extends EditorMessage> extends Box implements EditorMessageListener
 {
     
-    protected AbstractProjectViewer projectViewer = null;
+    protected AbstractViewer viewer = null;
     protected E message = null;
     protected boolean showAttentionBorder = true;
     private Box content = null;
     private PropertyChangedListener updateListener = null;
     
-    public MessageBox (E                     mess,
-                       AbstractProjectViewer viewer)
+    public MessageBox (E              mess,
+                       AbstractViewer viewer)
     {
         
         super (BoxLayout.Y_AXIS);
@@ -105,7 +105,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
                                                             {
                                                 
                                                                 EditorsUIUtils.showReportMessage (_this,
-                                                                                                  _this.projectViewer);
+                                                                                                  _this.viewer);
                                                 
                                                             }
                                                 
@@ -164,7 +164,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         this.content.setBackground (UIUtils.getComponentColor ());
 
         this.message = mess;
-        this.projectViewer = viewer;
+        this.viewer = viewer;
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.content.setToolTipText (String.format ("%s %s",
@@ -311,7 +311,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         //b.add (Box.createHorizontalStrut (5));
         
         JComponent t = UIUtils.createHelpTextPane (message,
-                                                   this.projectViewer);
+                                                   this.viewer);
         t.setAlignmentY (Component.TOP_ALIGNMENT);
 
         t.setBorder (null);
@@ -346,7 +346,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
         }
         
         JComponent t = UIUtils.createHelpTextPane (message,
-                                                   this.projectViewer);
+                                                   this.viewer);
         t.setAlignmentY (Component.TOP_ALIGNMENT);
 
         t.setBorder (null);

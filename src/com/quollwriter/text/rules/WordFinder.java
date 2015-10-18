@@ -85,44 +85,54 @@ public class WordFinder extends AbstractDialogueRule
             return null;
             
         }
-    
-        StringBuilder b = new StringBuilder ("\"" + this.word + "\" ");
+        
+        return String.format ("\"<b>%s</b>\"%s",
+                              this.word,
+                              this.getWhereDesc ());
 
+    }
+
+    private String getWhereDesc ()
+    {
+        
+        String suffix = "";
+        
         if (this.where != null)
         {
 
             if (this.where.equals (DialogueConstraints.ANYWHERE))
             {
 
-                b.append ("anywhere in a sentence");
+                suffix = "anywhere in a sentence";
 
             } else
             {
 
-                b.append ("at the " + this.where + " of a sentence");
+                suffix = String.format ("at the %s of a sentence",
+                                        this.where);
 
             }
 
             if (this.ignoreInDialogue)
             {
                 
-                b.append (", ignore in dialogue");
+                suffix += ", ignore in dialogue";
                 
             }
             
             if (this.onlyInDialogue)
             {
                 
-                b.append (", but only in dialogue");
+                suffix += ", but only in dialogue";
                 
             }            
             
         }
 
-        return b.toString ();
-
+        return suffix;
+        
     }
-
+    
     public String getCreateType ()
     {
 
@@ -205,7 +215,10 @@ public class WordFinder extends AbstractDialogueRule
         Set<Integer> inds = sentence.find (this.tWords,
                                            this.getConstraints ());
 
-        if (inds != null)
+        if ((inds != null)
+            &&
+            (inds.size () > 0)
+           )
         {
 
             for (Integer i : inds)
@@ -218,19 +231,35 @@ public class WordFinder extends AbstractDialogueRule
                 if (this.tWords.size () > 1)
                 {
                     
-                    Word nw = w.getWordsAhead (this.tWords.size ());
+                    Word nw = w.getWordsAhead (this.tWords.size () - 1);
                     
                     l = nw.getAllTextEndOffset () - w.getAllTextStartOffset ();
                     
                 }
             
                 String suffix = "";
-            
+
                 if (this.onlyInDialogue)
                 {
                     
-                    suffix = " in dialogue";
+                    suffix = " (in dialogue)";
                     
+                }
+            
+                if (!this.where.equals (DialogueConstraints.ANYWHERE))
+                {
+    
+                    suffix = String.format (" (%s of sentence)",
+                                            this.where);
+    
+                    if (this.onlyInDialogue)
+                    {
+                        
+                        suffix = String.format (" (%s of sentence, in dialogue)",
+                                                this.where);
+                        
+                    }
+    
                 }
             
                 Issue iss = new Issue ("Contains: <b>" + this.word + "</b>" + suffix,
@@ -286,6 +315,13 @@ public class WordFinder extends AbstractDialogueRule
 
         String d = super.getDescription ();
 
+        if (d == null)
+        {
+            
+            return null;
+            
+        }
+        
         return StringUtils.replaceString (d,
                                           "[WORD]",
                                           ((this.word == null) ? "[WORD]" : this.word));

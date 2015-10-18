@@ -24,38 +24,32 @@ public class EditorChatBox extends Box implements EditorInteractionListener
 {
     
     private EditorEditor editor = null;
-    private JTextArea message = null;
-    private boolean typed = false;
-    private AbstractProjectViewer projectViewer = null;
+    private TextArea message = null;
+    private AbstractViewer viewer = null;
     private boolean typingStartedSent = false;
     private JLabel notification = null;
     
-    public EditorChatBox (EditorEditor          ed,
-                          AbstractProjectViewer viewer)
+    public EditorChatBox (EditorEditor   ed,
+                          AbstractViewer viewer)
     {
 
         super (BoxLayout.Y_AXIS);
     
         this.editor = ed;
-        this.projectViewer = viewer;
+        this.viewer = viewer;
     
     }
     
     public EditorChatBox init ()
     {
     
-        this.message = UIUtils.createTextArea (5);
-    
-        final JScrollPane sp = new JScrollPane (this.message);
-        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        sp.setOpaque (false);
-        sp.getViewport ().setOpaque (false);
-        sp.setBorder (null);
-        sp.setPreferredSize (this.message.getPreferredSize ());
-                
+        this.message = UIUtils.createTextArea ("Enter your message here...\n\nTo send press Ctrl+Enter or use the button below.",
+                                               5,
+                                               -1);
+                    
         final EditorChatBox _this = this;
         
-        this.add (sp);
+        this.add (this.message);
 
         this.notification = UIUtils.createLoadingLabel ("Sending message...");
                         
@@ -180,71 +174,6 @@ public class EditorChatBox extends Box implements EditorInteractionListener
                                                                 
         this.add (buttons);
         
-        final ActionListener initText = new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                _this.message.setForeground (UIUtils.getHintTextColor ());
-                
-                String help = "Enter your message here...\n\nTo send press Ctrl+Enter or use the button below.";
-                            
-                _this.message.setText (help);
-        
-                _this.message.getCaret ().setDot (0);
-        
-                _this.message.grabFocus ();
-
-            }
-            
-        };        
-        
-        this.message.addMouseListener (new MouseEventHandler ()
-        {
-
-            @Override
-            public void mouseEntered (MouseEvent ev)
-            {
-
-                _this.message.grabFocus ();
-
-            }
-            
-            @Override
-            public void handlePress (MouseEvent ev)
-            {
-                
-                if ((!_this.message.getText ().equals (""))
-                    &&
-                    (_this.message.getForeground () == Color.BLACK)
-                   )
-                {
-                    
-                    return;
-                    
-                }
-                
-                _this.message.setText ("");
-                _this.message.setForeground (Color.BLACK);                
-                
-            }
-
-            @Override
-            public void mouseExited (MouseEvent ev)
-            {
-                
-                if (!_this.typed)
-                {
-                    
-                    initText.actionPerformed (new ActionEvent ("init", 1, "init"));
-                    
-                }
-                
-            }
-            
-        });
-
         final Timer typingStop = new Timer (1500,
                                             new ActionListener ()
         {
@@ -298,17 +227,7 @@ public class EditorChatBox extends Box implements EditorInteractionListener
         
             public void keyPressed (KeyEvent ev)
             {
-                        
-                if (!_this.typed)
-                {                        
- 
-                    _this.typed = true;
-                
-                    _this.message.setText ("");
-                    _this.message.setForeground (Color.BLACK);
-                            
-                }
-                
+                                        
                 typingStop.stop ();
                 typingStart.start ();
                 
@@ -333,20 +252,13 @@ public class EditorChatBox extends Box implements EditorInteractionListener
             }
 
         });        
-                     
         
-                
-        this.message.setBorder (new EmptyBorder (3,
-                                                 3,
-                                                 3,
-                                                 3));
-
+        this.message.setBorder (null);
+                     
         this.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             this.getPreferredSize ().height));
         this.setMinimumSize (this.getPreferredSize ());
-        
-        initText.actionPerformed (new ActionEvent ("init", 1, "init"));
-        
+                
         EditorsEnvironment.addEditorInteractionListener (this);
                 
         return this;

@@ -43,25 +43,25 @@ import com.quollwriter.ui.renderers.*;
 public class EditNoteTypes extends TypesEditor
 {
 
-    public EditNoteTypes (AbstractProjectViewer pv)
+    public EditNoteTypes (AbstractViewer pv)
     {
 
         super (pv,
-               pv.getObjectTypesHandler (Note.OBJECT_TYPE));
+               Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME));
 
     }
 
     public String getWindowTitle ()
     {
 
-        return "Manage the Note Types";
+        return "Manage the {Note} Types";
 
     }
 
     public String getHeaderTitle ()
     {
 
-        return "Manage the Note Types";
+        return "Manage the {Note} Types";
 
     }
 

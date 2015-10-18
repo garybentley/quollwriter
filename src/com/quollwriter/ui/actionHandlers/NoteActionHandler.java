@@ -1,6 +1,5 @@
 package com.quollwriter.ui.actionHandlers;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
 
@@ -20,12 +19,13 @@ import javax.swing.text.*;
 import com.gentlyweb.properties.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.text.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.components.Form;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.BlockPainter;
@@ -34,8 +34,8 @@ import com.quollwriter.ui.renderers.*;
 public class NoteActionHandler extends ProjectViewerActionHandler
 {
 
-    private JTextField summaryField = UIUtils.createTextField ();
-    private JTextArea  descField = UIUtils.createTextArea (-1);
+    private JTextField summaryField = null;
+    private TextArea descField = null;    
     protected Chapter    chapter = null;
     protected int        showAt = -1;
     private JComboBox  types = null;
@@ -55,9 +55,9 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         this.initFormItems ();
 
         this.setPopupOver (qep); 
-
-        final QTextEditor editor = qep.getEditor ();
-
+        
+        final QTextEditor editor = qep.getEditor ();        
+        
         final int origSelStart = editor.getSelectionStart ();
         
         final BlockPainter highlight = new BlockPainter (Environment.getHighlightColor ());                
@@ -234,6 +234,29 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
         final NoteActionHandler _this = this;
 
+        this.summaryField = UIUtils.createTextField ();
+        
+        this.descField = UIUtils.createTextArea (this.projectViewer,
+                                                 null,
+                                                 5,
+                                                 -1);
+
+        this.descField.setCanFormat (true);
+        this.descField.setAutoGrabFocus (false);
+        
+        try
+        {
+        
+            this.descField.setSynonymProvider (this.projectViewer.getSynonymProvider ());
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set synonym provider for note edit: " +
+                                  this.dataObject,
+                                  e);
+            
+        }
+        
         ActionListener doSave = new ActionAdapter ()
         {
           
@@ -251,9 +274,7 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         UIUtils.addDoActionOnReturnPressed (this.descField,
                                             doSave);
         
-        this.descField.setRows (5);
-
-        this.types = new JComboBox (new Vector (this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).getTypes ()));
+        this.types = new JComboBox (new Vector (Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).getTypes ()));
         this.types.setEditable (true);
 
         this.types.setMaximumSize (this.types.getPreferredSize ());
@@ -314,19 +335,15 @@ public class NoteActionHandler extends ProjectViewerActionHandler
                 (!editNeeded))
             {
 
-                BreakIterator bi = BreakIterator.getSentenceInstance ();
-                bi.setText (selectedText);
+                Paragraph p = new Paragraph (selectedText,
+                                             0);
+                
+                this.summaryField.setText (p.getFirstSentence ().getText ());
 
-                int s = bi.first ();
-                int e = bi.next ();
-
-                this.summaryField.setText (selectedText.substring (s,
-                                                                   e).trim ());
-
-                if (e < selectedText.length ())
+                if (p.getSentenceCount () > 1)
                 {
 
-                    this.descField.setText (selectedText.substring (e).trim ());
+                    this.descField.setTextWithMarkup (new StringWithMarkup (selectedText.substring (p.getFirstSentence ().getNext ().getAllTextStartOffset ()).trim ()));
 
                 }
 
@@ -338,7 +355,7 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             Note n = (Note) obj;
 
             this.summaryField.setText (n.getSummary ());
-            this.descField.setText (n.getDescription ());
+            this.descField.setTextWithMarkup (n.getDescription ());
 
         }
 
@@ -346,7 +363,8 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public boolean handleSave (int mode)
+    public boolean handleSave (Form f,
+                               int  mode)
     {
 
         Note n = (Note) this.dataObject;
@@ -354,17 +372,24 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         if (n.isEditNeeded ())
         {
 
-            String text = this.descField.getText ().trim ();
+            String text = this.descField.getText ();
 
-            // Use the first line of the description as the summary.
-            BreakIterator bi = BreakIterator.getSentenceInstance ();
-            bi.setText (text);
-
-            int s = bi.first ();
-            int e = bi.next ();
-
-            n.setSummary (text.substring (s,
-                                          e));
+            if ((text == null)
+                ||
+                (text.trim ().length () == 0)
+               )
+            {
+                
+                f.showError ("Please enter a description.");
+                
+                return false;
+                
+            }
+            
+            Paragraph p = new Paragraph (text,
+                                         0);
+            
+            n.setSummary (p.getFirstSentence ().getText ());
 
         } else
         {
@@ -372,8 +397,7 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             if (this.summaryField.getText ().trim ().equals (""))
             {
 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "Please enter a summary.");
+                f.showError ("Please enter a summary.");
 
                 return false;
 
@@ -384,7 +408,7 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
         }
 
-        n.setDescription (this.descField.getText ().trim ());
+        n.setDescription (this.descField.getTextWithMarkup ());
 
         String type = null;
 
@@ -522,8 +546,8 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         // Need to reindex the chapter to ensure that things are in the right order.    
         n.getChapter ().reindex ();
         
-        this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).addType (type,
-                                                                             true);
+        Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addType (type,
+                                                                                         true);
 
         // Expand the note type.
         this.projectViewer.showObjectInTree (Note.OBJECT_TYPE,

@@ -1,10 +1,11 @@
-package com.quollwriter.ui;
+package com.quollwriter.achievements.ui;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
 import com.quollwriter.*;
+import com.quollwriter.ui.*;
 
 import com.quollwriter.achievements.rules.*;
 

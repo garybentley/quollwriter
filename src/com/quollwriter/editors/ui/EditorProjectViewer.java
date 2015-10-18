@@ -184,7 +184,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                 public String getItemDescription (Note item)
                                                                 {
                                                                     
-                                                                    return item.getDescription ();
+                                                                    return item.getDescription ().getMarkedUpText ();
                                                                     
                                                                 }
                                                                 
@@ -384,7 +384,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                
         this.proj.setProjectVersion (pv);
         
-        this.initTitle ();
+        this.setViewerTitle (this.getViewerTitle ());
         
         EditorProjectSideBar epb = null;
         
@@ -562,7 +562,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
                                                                             
-                                                                            Environment.showFindOrOpenIfNoOpenProjects ();
+                                                                            Environment.showLandingIfNoOpenProjects ();
                                                                             
                                                                         }
                                                                         
@@ -1742,4 +1742,19 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
+    public Set<String> getTitleHeaderControlIds ()
+	{
+		
+		Set<String> ids = new LinkedHashSet ();
+
+		ids.add (CONTACTS_HEADER_CONTROL_ID);
+		ids.add (FIND_HEADER_CONTROL_ID);
+		ids.add (FULL_SCREEN_HEADER_CONTROL_ID);
+        ids.add (SETTINGS_HEADER_CONTROL_ID);
+        
+		return ids;
+		
+	}
+    
 }

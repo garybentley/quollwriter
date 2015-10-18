@@ -933,9 +933,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 
         final Box _editBox = editBox;        
         
-        Form f = r.getEditForm (new ActionListener ()
+          Form f = r.getEditForm (new ActionListener ()
           {
                
+               @Override
                public void actionPerformed (ActionEvent ev)
                {
                     
@@ -943,28 +944,42 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
                     
                     try
                     {
-    
+     
                         RuleFactory.saveUserRule (r);
-    
+     
                     } catch (Exception e)
                     {
-    
+     
                         Environment.logError ("Unable to save user rule: " +
                                               r,
                                               e);
-    
+     
                         UIUtils.showErrorMessage (_this,
                                                   "Unable to save rule");
-    
+     
                     }
-    
+     
                     _this.restoreToView (_editBox,
                                          r,
                                          add);
-    
+     
                     _this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
                                                           (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
                                                           r);
+                    
+               }
+               
+          },
+          new ActionListener ()
+          {
+               
+               @Override
+               public void actionPerformed (ActionEvent ev)
+               {
+                    
+                    _this.restoreToView (_editBox,
+                                         r,
+                                         add);
                     
                }
                

@@ -137,7 +137,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ENTER,
                                         Event.CTRL_MASK),
                 INSERT_SECTION_BREAK_ACTION_NAME);
-                
+                                
     }
         
     public abstract void doFillToolBar (JToolBar b);
@@ -161,18 +161,14 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             this.chapterInfo.stop ();
             
         }
-        
-        this.chapterInfo = null;
-        
+                
         if (this.autoSave != null)
         {
             
             this.autoSave.cancel ();
             
         }
-        
-        this.autoSave = null;
-        
+                
     }
     
     @Override
@@ -213,7 +209,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                         try
                         {
                 
-                            ChapterCounts cc = UIUtils.getChapterCounts (_this.editor.getText ());
+                            ChapterCounts cc = new ChapterCounts (_this.editor.getText ());
                             cc.a4PageCount = UIUtils.getA4PageCountForChapter (_this.chapter,
                                                                                _this.editor.getText ());
                 
@@ -480,12 +476,26 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             public void insertUpdate (DocumentEvent ev)
             {
 
+                if (_this.isIgnoreDocumentChanges ())
+                {
+                    
+                    return;
+                    
+                }
+
                 _this.setHasUnsavedChanges (true);
 
             }
 
             public void removeUpdate (DocumentEvent ev)
             {
+
+                if (_this.isIgnoreDocumentChanges ())
+                {
+                    
+                    return;
+                    
+                }
 
                 _this.setHasUnsavedChanges (true);
 
@@ -726,8 +736,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                      throws Exception
     {
 
-        this.chapter.setText (this.editor.getText ());
-        this.chapter.setMarkup (this.editor.getMarkup ().toString ());
+        this.chapter.setText (this.editor.getTextWithMarkup ());
 
         super.saveObject ();
 

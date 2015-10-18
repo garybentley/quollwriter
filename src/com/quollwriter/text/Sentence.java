@@ -4,6 +4,7 @@ import java.util.*;
 import java.text.*;
 
 import com.quollwriter.*;
+import com.quollwriter.ui.components.*;
 
 public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 {
@@ -20,8 +21,13 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     public Sentence (String      sentence,
                      DialogueInd inDialogue)
     {
-
-        this.sentence = sentence;
+    
+        if (sentence == null)
+        {
+            
+            return;
+            
+        }
     
         Word last = null;
                 
@@ -34,52 +40,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         
         for (int end = iter.next (); end != BreakIterator.DONE; st = end, end = iter.next ())
         {
-/*
-            // Peek ahead to look for a single char.
-            if (end < sl)
-            {
- 
-                char c = sentence.charAt (end);
-                
-                if ((c == '\'') ||
-                    (c == '\u2019'))
-                {
 
-                    String con = null;
-                
-                    // Peek ahead again to look for a contraction.
-                    if (end + 3 < sl)
-                    {
-                        
-                        con = sentence.substring (end + 1,
-                                                  end + 3);
-                        
-                    }
-                
-                    if (end + 2 < sl)
-                    {
-                        
-                        con = sentence.substring (end + 1,
-                                                  end + 2);
-                        
-                    }
-
-                    if (TextUtilities.isContractionEnd (con))
-                    {
-                        
-                        // This is a contraction.
-                        end = end + 1 + con.length ();
-                        
-                        // Reposition the iterator.
-                        iter.next ();
-                        iter.next ();
-                        
-                    }
-                
-                }                
-                
-            }
-*/
             String word = sentence.substring (st,
                                               end);
 
@@ -120,6 +81,8 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
             last = w;
             
         }        
+    
+        this.sentence = sentence.trim ();    
     
     }
     
@@ -256,7 +219,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     
     public String getText ()
     {
-        
+                
         return this.sentence;
         
     }
@@ -327,26 +290,6 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 
                         Word w2 = words.get (i + wfc);
 
-                        if ((constraints.ignoreInDialogue) &&
-                            (w2.isInDialogue ()))
-                        {
-
-                            wfc++;
-
-                            continue;
-
-                        }
-
-                        if ((constraints.onlyInDialogue) &&
-                            (!w2.isInDialogue ()))
-                        {
-
-                            wfc++;
-                            
-                            continue;
-
-                        }
-
                         if (!w2.textEquals (fw))
                         {
 
@@ -356,7 +299,27 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
 
                         } else
                         {
-
+                            
+                            if ((constraints.ignoreInDialogue) &&
+                                (w2.isInDialogue ()))
+                            {
+    
+                                wfc++;
+    
+                                continue;
+    
+                            }
+    
+                            if ((constraints.onlyInDialogue) &&
+                                (!w2.isInDialogue ()))
+                            {
+    
+                                wfc++;
+                                
+                                continue;
+    
+                            }                            
+                            
                             match = true;
 
                         }
@@ -580,5 +543,32 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         return Environment.formatObjectToStringProperties (data);        
         
     }    
+ 
+    /**
+     * Get the text in this paragraph, marked up as html with the markup passed in.
+     * It assumes that the markup is relative to the getAllTextStartOffset.
+     *
+     * @param m The markup.
+     * @return The html marked up string.
+     */
+    public String markupAsHTML (Markup m)
+    {
+        
+        if (m == null)
+        {
+            
+            return this.sentence;
+            
+        }
+        
+        Markup pm = new Markup (m,
+                                this.getAllTextStartOffset (),
+                                this.getAllTextEndOffset ());
+                    
+        pm.shiftBy (-1 * this.getAllTextStartOffset ());
+ 
+        return pm.markupAsHTML (this.sentence);
+ 
+    }
     
 }

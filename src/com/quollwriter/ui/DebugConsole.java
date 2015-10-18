@@ -39,14 +39,14 @@ import org.josql.*;
 public class DebugConsole extends JFrame
 {
 
-    private AbstractProjectViewer projectViewer = null;
+    private AbstractViewer viewer = null;
 
-    public DebugConsole(AbstractProjectViewer pv)
+    public DebugConsole(AbstractViewer viewer)
     {
 
-        super (UIUtils.getFrameTitle (pv.getProject ().getName () + ": Debug"));
+        super (UIUtils.getFrameTitle ("Debug Console"));
 
-        this.projectViewer = pv;
+        this.viewer = viewer;
 
         this.setMinimumSize (new Dimension (800,
                                             0));
@@ -71,15 +71,22 @@ public class DebugConsole extends JFrame
         JTabbedPane tp = new JTabbedPane ();
         b.add (tp);
 
-        tp.add ("SQL Console",
-                this.createSQLConsolePanel ());
-
         tp.add ("Logs",
                 this.createLogPanel ());
 
-        tp.add ("Properties",
-                this.createPropertiesPanel (pv.getProject ().getProperties ()));
+        if (this.viewer instanceof AbstractProjectViewer)
+        {                
+        
+            AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
+        
+            tp.add ("SQL Console",
+                    this.createSQLConsolePanel (pv));
 
+            tp.add ("Properties",
+                    this.createPropertiesPanel (pv.getProject ().getProperties ()));
+
+        }
+                    
         tp.add ("Achievements",
                 this.createAchievementsPanel ());
 
@@ -136,7 +143,7 @@ public class DebugConsole extends JFrame
         
     }
     
-    private JComponent createSQLConsolePanel ()
+    private JComponent createSQLConsolePanel (final AbstractProjectViewer pv)
     {
 
         final DebugConsole _this = this;
@@ -166,7 +173,7 @@ public class DebugConsole extends JFrame
         try
         {
             
-            projSchemaVersion = this.projectViewer.getObjectManager ().getSchemaVersion ();
+            projSchemaVersion = pv.getObjectManager ().getSchemaVersion ();
             
         } catch (Exception e) {
             
@@ -199,7 +206,7 @@ public class DebugConsole extends JFrame
                           cc.xy (1,
                                  row));
 
-        String url = "jdbc:h2:" + this.projectViewer.getObjectManager ().getDBDir ().toString () + "/" + Constants.PROJECT_DB_FILE_NAME_PREFIX + ".h2.db";
+        String url = "jdbc:h2:" + pv.getObjectManager ().getDBDir ().toString () + "/" + Constants.PROJECT_DB_FILE_NAME_PREFIX + ".h2.db";
                                  
         final JTextField urlf = new JTextField (url);
         urlf.setText (url);
@@ -268,7 +275,7 @@ public class DebugConsole extends JFrame
                  try
                  {
                  
-                    _this.projectViewer.getObjectManager ().forceRunUpgradeScript (ver);
+                    pv.getObjectManager ().forceRunUpgradeScript (ver);
                     
                  } catch (Exception e) {
                     
@@ -413,7 +420,7 @@ public class DebugConsole extends JFrame
                                            3,
                                            3));
 
-        Map<String, Set<String>> achieved = Environment.getAchievedAchievementIds (this.projectViewer);
+        Map<String, Set<String>> achieved = Environment.getAchievedAchievementIds (this.viewer);
 
         Vector data = new Vector ();
 
@@ -488,7 +495,7 @@ public class DebugConsole extends JFrame
                     
                         Environment.removeAchievedAchievement (((String) mod.getValueAt (i, 0)).toLowerCase (),
                                                                id,
-                                                               _this.projectViewer);
+                                                               _this.viewer);
                     
                     } catch (Exception e) {
                         

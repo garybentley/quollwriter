@@ -28,7 +28,7 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class Finder extends AbstractSideBar
+public class Finder extends AbstractSideBar<AbstractProjectViewer>
 {
 
     private static final String TITLE_PREFIX = "Find";
@@ -97,7 +97,7 @@ public class Finder extends AbstractSideBar
         
     }
     
-    public List<JButton> getHeaderControls ()
+    public List<JComponent> getHeaderControls ()
     {
         
         return null;
@@ -115,8 +115,8 @@ public class Finder extends AbstractSideBar
         this.text.setBorder (new CompoundBorder (UIUtils.createPadding (5, 10, 5, 10),
                                                  this.text.getBorder ()));
 
-        this.projectViewer.fireProjectEvent (ProjectEvent.FIND,
-                                             ProjectEvent.SHOW);
+        this.viewer.fireProjectEvent (ProjectEvent.FIND,
+                                      ProjectEvent.SHOW);
 
         KeyAdapter vis = new KeyAdapter ()
         {
@@ -239,7 +239,7 @@ public class Finder extends AbstractSideBar
             
         }
         
-        Set<FindResultsBox> res = this.projectViewer.findText (t);
+        Set<FindResultsBox> res = this.viewer.findText (t);
         
         for (FindResultsBox r : res)
         {
@@ -314,8 +314,8 @@ public class Finder extends AbstractSideBar
 
             final Finder _this = this;            
                 
-            this.projectViewer.viewObject ((DataObject) o,
-                                           new ActionListener ()
+            this.viewer.viewObject ((DataObject) o,
+                                    new ActionListener ()
             {
 
                 public void actionPerformed (ActionEvent ev)
@@ -323,19 +323,19 @@ public class Finder extends AbstractSideBar
             
                     AbstractEditorPanel p = null;
 
-                    if (_this.projectViewer instanceof ProjectViewer)
+                    if (_this.viewer instanceof ProjectViewer)
                     {
                     
-                        ProjectViewer pv = (ProjectViewer) _this.projectViewer;
+                        ProjectViewer pv = (ProjectViewer) _this.viewer;
                 
                         p = pv.getEditorForChapter (c);
                 
                     }
         
-                    if (_this.projectViewer instanceof WarmupsViewer)
+                    if (_this.viewer instanceof WarmupsViewer)
                     {
                         
-                        WarmupsViewer wv = (WarmupsViewer) _this.projectViewer;
+                        WarmupsViewer wv = (WarmupsViewer) _this.viewer;
                         
                         p = wv.getEditorForWarmup (c);
                         

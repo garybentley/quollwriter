@@ -10,6 +10,8 @@ import java.util.Vector;
 import java.util.Set;
 import java.util.HashSet;
 
+import java.awt.event.*;
+
 import javax.swing.*;
 
 import com.gentlyweb.properties.*;
@@ -87,8 +89,8 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
             o.setType (t);
 
             // Add the type.
-            this.projectViewer.getObjectTypesHandler (QObject.OBJECT_TYPE).addType (t,
-                                                                                    true);
+            Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME).addType (t,
+                                                                                               true);
 
             Map nTypes = new HashMap ();
 
@@ -231,7 +233,7 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
     }
 
-    public List<FormItem> getExtraEditItems ()
+    public List<FormItem> getExtraEditItems (ActionListener onSave)
     {
 
         List<FormItem> items = new ArrayList ();

@@ -8,9 +8,13 @@ import java.util.*;
 public class VerticalLayout implements LayoutManager
 {
 
+    public static final int CENTER = 0;
+    public static final int LEFT = 1;
+
     private int vgap;
     private int hgap;
     private int width;
+    private int align = CENTER;
 
 //Constructors
     /**
@@ -48,6 +52,19 @@ public class VerticalLayout implements LayoutManager
         this.vgap = vgap;
         this.hgap = hgap;
         this.width = width;
+
+    }
+
+    public VerticalLayout(int vgap,
+                          int hgap,
+                          int width,
+                          int align)
+    {
+
+        this.vgap = vgap;
+        this.hgap = hgap;
+        this.width = width;
+        this.align = align;
 
     }
 
@@ -121,7 +138,7 @@ public class VerticalLayout implements LayoutManager
 
             n = visComps.size ();
 
-            int xs = ((pdw - w) / 2) + insets.left;
+            int xs = insets.left + (this.align == CENTER ? ((pdw - w) / 2) : 0);
 
             int x = xs;
 
@@ -170,7 +187,7 @@ public class VerticalLayout implements LayoutManager
 
                 y = this.getColHeight (col - 1,
                                        rowHeights,
-                                       insets.top);
+                                       insets.top + insets.bottom);
 
                 if ((col > 1) &&
                     (col < (ccount + 1)))
@@ -338,7 +355,7 @@ public class VerticalLayout implements LayoutManager
 
             n = visComps.size ();
 
-            int xs = ((pdw - w) / 2) + insets.left;
+            int xs = insets.left + (this.align == CENTER ? ((pdw - w) / 2) : 0);
 
             int x = xs;
 

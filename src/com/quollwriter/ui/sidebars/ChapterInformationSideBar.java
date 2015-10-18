@@ -104,16 +104,16 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
         List<AccordionItem> items = new ArrayList ();
 
-        this.desc = new ChapterDescriptionAccordionItem ((ProjectViewer) this.projectViewer,
+        this.desc = new ChapterDescriptionAccordionItem (this.viewer,
                                                          this.chapter);
         
-        this.goals = new ChapterGoalsAccordionItem ((ProjectViewer) this.projectViewer,
+        this.goals = new ChapterGoalsAccordionItem (this.viewer,
                                                     this.chapter);
 
-        this.plan = new ChapterPlanAccordionItem ((ProjectViewer) this.projectViewer,
+        this.plan = new ChapterPlanAccordionItem (this.viewer,
                                                   this.chapter);
                                 
-        this.linkedTo = new LinkedToAccordionItem ((ProjectViewer) this.projectViewer,
+        this.linkedTo = new LinkedToAccordionItem (this.viewer,
                                                    this.chapter);
                                                    
         items.add (this.desc);
@@ -149,11 +149,12 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
     }
     
-    public List<JButton> getHeaderControls ()
+    @Override
+    public List<JComponent> getHeaderControls ()
     {
         
         // Change chapter.        
-        List<JButton> buts = new ArrayList ();        
+        List<JComponent> buts = new ArrayList ();        
 
         return buts;        
                 

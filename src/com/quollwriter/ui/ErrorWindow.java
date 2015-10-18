@@ -26,8 +26,8 @@ public class ErrorWindow extends PopupWindow
 
     private String message = null;
 
-    public ErrorWindow (AbstractProjectViewer v,
-                        String                message)
+    public ErrorWindow (AbstractViewer v,
+                        String         message)
     {
 
         super (v,

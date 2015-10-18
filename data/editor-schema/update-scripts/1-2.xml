@@ -1,0 +1,16 @@
+<update-script from="1" to="2">
+  <item>
+    <log>Add the markup column to namedobject</log>
+    <sql>
+ALTER TABLE namedobject ADD markup CLOB;
+    </sql>
+  </item>
+
+  <item>
+    <log>Add the files column to namedobject</log>
+    <sql>
+ALTER TABLE namedobject ADD files CLOB;
+    </sql>
+  </item>
+
+</update-script>

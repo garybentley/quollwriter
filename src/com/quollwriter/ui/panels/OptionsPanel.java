@@ -12,6 +12,7 @@ import java.net.*;
 import java.beans.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Vector;
@@ -55,27 +56,44 @@ import com.quollwriter.editors.ui.*;
 
 public class OptionsPanel extends QuollPanel
 {
-    
+        
     public static final String PANEL_ID = "options";
     
     private Accordion accordion = null;
     private JScrollPane scrollPane = null;
     private JCheckBox sendErrorsToSupport = null;
     
-    private Map<String, Accordion.Item> sections = new HashMap ();
+    //private Map<Section, Accordion.Item> sections = new HashMap ();
     
-    public OptionsPanel (AbstractProjectViewer pv)
+    //private Set<Section> sectIds = null;
+    
+    private Options options = null;
+    
+    public OptionsPanel (AbstractProjectViewer viewer,
+                         Options.Section...    sectIds)
                   throws GeneralException
     {
 
-        super (pv,
-               pv.getProject ());
-
+        super (viewer,
+               null);
+        
+        this.options = new Options (viewer,
+                                    sectIds);
+                
     }
-    
+        
     public void showSection (String name)
     {
         
+        this.showSection (Options.Section.valueOf (name));
+        
+    }
+        
+    public void showSection (Options.Section name)
+    {
+
+        this.options.showSection (name);
+    /*
         final Accordion.Item item = this.sections.get (name);
         
         if (item != null)
@@ -139,12 +157,17 @@ public class OptionsPanel extends QuollPanel
             cycle.start ();
             
         }
-        
+        */
     }
-    
+        
     public void init ()
     {
                
+        this.options.init ();               
+        
+        this.add (this.options);
+        
+        /*       
         Header h = UIUtils.createHeader ("Options",
                                          Constants.PANEL_TITLE,
                                          "options",
@@ -232,9 +255,9 @@ public class OptionsPanel extends QuollPanel
             }
             
         });
-               
+        */       
     }
-
+        
     private void addWarmupsSection ()
     {
 
@@ -304,10 +327,10 @@ public class OptionsPanel extends QuollPanel
                 
     }
     
-    private void setContentBorder (Box box)
+    private void setContentBorder (JComponent box)
     {
         
-        box.setBorder (new EmptyBorder (7, 0, 10, 0));
+        box.setBorder (UIUtils.createPadding (7, 0, 10, 0));
         
     }
     
@@ -498,7 +521,7 @@ public class OptionsPanel extends QuollPanel
                                                         this.projectViewer));
         
     }
-
+/*
     private void addEditorsSection ()
     {
         
@@ -683,57 +706,7 @@ public class OptionsPanel extends QuollPanel
         box.add (c);
 
         box.add (Box.createVerticalStrut (15));
-        /*
-        final JCheckBox showPopups = UIUtils.createCheckBox ("Display a popup when I receive a new message from {an editor} (popups are never shown in full screen mode)");                
 
-        showPopups.setSelected (EditorsEnvironment.isShowPopupWhenNewMessageReceived ());
-                
-        c = this.createWrapper (showPopups);
-        this.setAsMainItem (c);
-        
-        box.add (c);
-
-        final JComponent label = UIUtils.createClickableLabel ("View an example",
-                                                               null);
-        
-        label.addMouseListener (new MouseAdapter ()
-        {
-            
-            public void mousePressed (MouseEvent ev)
-            {
-            
-                QPopup popup = _this.projectViewer.getPopupByName ("editors-popup-message-example-popup");
-                
-                if (popup == null)
-                {
-                                                                
-                    popup = UIUtils.createClosablePopup ("Example",
-                                                         null,
-                                                         null);
-    
-                    popup.setName ("editors-popup-message-example-popup");
-                    ImagePanel ip = new ImagePanel (Environment.getImage (Constants.QW_EDITORS_MESSAGE_POPUP_TEST_IMAGE),
-                                                    null);
-                                                                                                                                                                          
-                    popup.setContent (ip);                                                                      
-                         
-                }
-                                                                                                  
-                _this.projectViewer.showPopupAt (popup,
-                                                 label,
-                                                 true);
-
-            }
-            
-        });        
-
-        c = this.createWrapper (label);
-        this.setAsSubItem (c);
-        
-        box.add (c);
-         
-        box.add (Box.createVerticalStrut (15));
-        */
         final JCheckBox logMessages = UIUtils.createCheckBox ("Log messages I send/receive (debug only)");                
         
         logMessages.addItemListener (new ItemAdapter ()
@@ -767,11 +740,12 @@ public class OptionsPanel extends QuollPanel
                                                   UIUtils.createHelpTextPane ("Options related to the Editors service and how you interact with your {contacts}.",
                                                                               this.projectViewer));
         
-        this.sections.put ("editors",
+        this.sections.put (Section.Editors,
                            item);
         
     }
-    
+    */
+    /*
     private void addEditingChaptersSection ()
     {
         
@@ -1178,11 +1152,7 @@ public class OptionsPanel extends QuollPanel
                                                                         
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
-/*                                                                            
-                                                                            QPopup p = _this.popups.remove ("textcolor");
-                                                                            
-                                                                            p.removeFromParent ();
-  */                                                                          
+
                                                                         }
                                                                         
                                                                    });                
@@ -1414,6 +1384,7 @@ public class OptionsPanel extends QuollPanel
         }
                 
         final JCheckBox defLang = new JCheckBox (Environment.replaceObjectNames ("Set as default language"));        
+
         final JComboBox spellcheckLang = new JComboBox ();
 
         // Get the languages supported by the spellchecker.
@@ -1750,7 +1721,8 @@ public class OptionsPanel extends QuollPanel
                                                         this.projectViewer));
                 
     }
-    
+    */
+    /*
     private void addWhatThingsAreCalledSection ()
     {
         
@@ -1791,7 +1763,8 @@ public class OptionsPanel extends QuollPanel
                                                         this.projectViewer));
         
     }
-    
+    */
+    /*
     private void addHowThingsLookSection ()
     {
 
@@ -2153,77 +2126,6 @@ public class OptionsPanel extends QuollPanel
 
         box.add (Box.createVerticalStrut (15));
         
-        /*
-        c = this.createHelpText ("Show the sidebar");
-        this.setAsMainItem (c);
-        
-        box.add (c);
-    
-        v = new Vector ();
-        v.add (Environment.replaceObjectNames ("On the left"));
-        v.add (Environment.replaceObjectNames ("On the right"));
-
-        final JComboBox sidebarLoc = new JComboBox (v);
-
-        loc = userProps.getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
-
-        ind = 0;
-
-        if (loc.equals (Constants.RIGHT))
-        {
-
-            ind = 1;
-
-        }
-
-        sidebarLoc.setSelectedIndex (ind);        
-        
-        sidebarLoc.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                if (ev.getStateChange () != ItemEvent.SELECTED)
-                {
-                    
-                    return;
-                    
-                }
-
-                String loc = Constants.LEFT;
-        
-                if (sidebarLoc.getSelectedIndex () == 1)
-                {
-        
-                    loc = Constants.RIGHT;
-        
-                }
-        
-                if (!loc.equals (userProps.getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME)))
-                {
-                    
-                    _this.projectViewer.fireProjectEventLater (ProjectEvent.SIDEBAR,
-                                                               ProjectEvent.MOVE);            
-                    
-                }
-                
-                _this.projectViewer.setUILayout (loc);
-                
-                _this.updateUserProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME,
-                                          loc);
-
-            }
-            
-        });        
-        
-        c = this.createWrapper (sidebarLoc);
-        this.setAsSubItem (c);
-        
-        box.add (c);
-        */
-        box.add (Box.createVerticalStrut (15));
-
         // Sidebar location        
         c = this.createHelpText ("Show the tabs");
         this.setAsMainItem (c);
@@ -2313,6 +2215,11 @@ public class OptionsPanel extends QuollPanel
 
         boolean playSoundEnabled = userProps.getPropertyAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
 
+        final FileFinder f = new FileFinder ();
+        final JButton useB = new JButton ("Use Sound");
+        final JButton testB = new JButton ("Play Sound");                
+        
+        f.setEnabled (playSoundEnabled);
         playSound.setOpaque (false);
         playSound.addItemListener (new ItemAdapter ()
         {
@@ -2320,14 +2227,34 @@ public class OptionsPanel extends QuollPanel
             public void itemStateChanged (ItemEvent ev)
             {
 
+                boolean sel = playSound.isSelected ();
+            
+                f.setEnabled (sel);
+                                
+                if ((sel)
+                    &&
+                    (f.getSelectedFile () != null)
+                    &&
+                    (f.getSelectedFile ().exists ())
+                   )
+                {
+                
+                    useB.setEnabled (true);
+                    
+                } else {
+                    
+                    useB.setEnabled (false);
+                    
+                }
+            
                 try
                 {
                     
                     _this.projectViewer.setKeyStrokeSoundFile (null,
-                                                               playSound.isSelected ());
+                                                               sel);
                     
                     _this.updateUserProperty (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
-                                              playSound.isSelected ());
+                                              sel);
 
                 } catch (Exception e)
                 {
@@ -2367,11 +2294,6 @@ public class OptionsPanel extends QuollPanel
         }
 
         final String sfv = sf;
-
-        final JButton useB = new JButton ("Use Sound");
-        final JButton testB = new JButton ("Play Sound");                
-
-        final FileFinder f = new FileFinder ();
         
         f.setFile (new File (sfv));
 
@@ -2394,6 +2316,7 @@ public class OptionsPanel extends QuollPanel
             {
 
                 useB.setEnabled (true);
+                testB.setEnabled (true);
                 
             }
             
@@ -2410,7 +2333,8 @@ public class OptionsPanel extends QuollPanel
                 
                 props.removeProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
                 
-                useB.setEnabled (false);                
+                useB.setEnabled (false);
+                testB.setEnabled (false);
                 
             }
             
@@ -2418,23 +2342,15 @@ public class OptionsPanel extends QuollPanel
 
         f.init ();
         
+        boolean sel = (f.getSelectedFile ().exists () && playSoundEnabled);
+        useB.setEnabled (sel);
+        testB.setEnabled (sel);
+        
         c = this.createWrapper (f);
         this.setAsSubItem (c);
         
         box.add (c);
-        
-        useB.setEnabled (false);
-        
-        if ((sfv != null)
-            &&
-            (sfv.trim ().length () > 0)
-           )
-        {
-            
-            useB.setEnabled (true);
-            
-        }
-        
+                        
         useB.addActionListener (new ActionAdapter ()
         {
            
@@ -2443,7 +2359,10 @@ public class OptionsPanel extends QuollPanel
 
                 File file = f.getSelectedFile ();
             
-                if (file != null)
+                if ((file != null)
+                    &&
+                    (file.exists ())
+                   )
                 {
     
                     try
@@ -2563,12 +2482,12 @@ public class OptionsPanel extends QuollPanel
                                                   UIUtils.createHelpTextPane ("Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",
                                                                               this.projectViewer));
 
-        this.sections.put ("look",
+        this.sections.put (Section.Look,
                            item);
                                                         
                                                         
     }
-
+*/
     private void updateUserProperty (String  name,
                                      boolean value)
     {
@@ -2708,87 +2627,14 @@ public class OptionsPanel extends QuollPanel
         }        
         
     }
-    
+    /*
     private void addProjectAndSnapshotsSection ()
     {
 
         final OptionsPanel _this = this;
                 
-        //box.add (this.createHeader (Environment.replaceObjectNames ("{Project} & Snapshots")));
-        //box.add (Box.createVerticalStrut (5));
-
         Box box = new Box (BoxLayout.Y_AXIS);
-        
-        Vector snapshotA = new Vector ();
-        snapshotA.add (Constants.HOURS_12);
-        snapshotA.add (Constants.HOURS_24);
-        snapshotA.add (Constants.DAYS_2);
-        snapshotA.add (Constants.DAYS_5);
-        snapshotA.add (Constants.WEEK_1);
-
-        final JComboBox snapshotAmount = new JComboBox (snapshotA);        
-
-        final JCheckBox enableSnapshots = new JCheckBox (Environment.replaceObjectNames ("Automatically create snapshots of the {project}"));
-        enableSnapshots.setOpaque (false);        
-        
-        JComponent c = this.createWrapper (enableSnapshots);
-        this.setAsMainItem (c);
-        
-        box.add (c);
-        
-        box.add (Box.createVerticalStrut (5));
-        
-        boolean snapshotsEnabled = this.projectViewer.getProject ().getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
-        enableSnapshots.setSelected (snapshotsEnabled);        
-
-        snapshotAmount.setSelectedItem (this.projectViewer.getProject ().getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
-        snapshotAmount.setEnabled (enableSnapshots.isSelected ());
-        
-        snapshotAmount.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                if (ev.getStateChange () != ItemEvent.SELECTED)
-                {
-                    
-                    return;
-                    
-                }
                 
-                _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME,
-                                                    (String) snapshotAmount.getSelectedItem ());
-                
-            }
-
-        });
-        
-        enableSnapshots.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                snapshotAmount.setEnabled (enableSnapshots.isSelected ());
-
-                _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME,
-                                                    enableSnapshots.isSelected ());
-                
-            }
-
-        });
-
-        c = this.createHelpText ("Create a new snapshot after the following time between sessions");
-        this.setAsSubItem (c);
-        
-        box.add (c);
-        
-        c = this.createWrapper (snapshotAmount);
-        this.setAsSubItem (c);
-        
-        box.add (c);
-        
         final JButton b = new JButton ("Change");
                 
         final FileFinder f = UIUtils.createFileFind (this.projectViewer.getProject ().getProjectDirectory ().getParentFile ().getPath (),
@@ -2811,10 +2657,8 @@ public class OptionsPanel extends QuollPanel
             }
             
         });
-        
-        box.add (Box.createVerticalStrut (15));
-        
-        c = this.createHelpText ("Select the directory where your {project} is stored");
+                
+        JComponent c = this.createHelpText ("Select the directory where your {project} is stored");
         this.setAsMainItem (c);
 
         box.add (c);
@@ -2845,17 +2689,260 @@ public class OptionsPanel extends QuollPanel
         
         box.add (c);
 
+        box.add (Box.createVerticalStrut (15));        
+        
+        Vector backupsA = new Vector ();
+        backupsA.add (Constants.HOURS_12);
+        backupsA.add (Constants.HOURS_24);
+        backupsA.add (Constants.DAYS_2);
+        backupsA.add (Constants.DAYS_5);
+        backupsA.add (Constants.WEEK_1);
+
+        final JComboBox backupsAmount = new JComboBox (backupsA);        
+
+        Vector vals = new Vector ();
+        vals.add (Constants.COUNT_10);
+        vals.add (Constants.COUNT_20);
+        vals.add (Constants.COUNT_50);
+        vals.add (Constants.COUNT_ALL);
+        
+        final JComboBox backupsCount = new JComboBox (vals);        
+        backupsCount.setSelectedItem (this.projectViewer.getProject ().getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME));        
+
+        backupsCount.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                if (ev.getStateChange () != ItemEvent.SELECTED)
+                {
+                    
+                    return;
+                    
+                }
+                                                    
+                _this.updateDefaultProjectProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME,
+                                                    (String) backupsCount.getSelectedItem ());
+                
+                try
+                {
+                    
+                    _this.projectViewer.getObjectManager ().pruneBackups (_this.projectViewer.getProject (),
+                                                                          Utils.getCountAsInt ((String) backupsCount.getSelectedItem ()));
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to prune backups for project: " +
+                                          _this.projectViewer.getProject (),
+                                          e);                    
+                    
+                }
+                
+            }
+
+        });
+                
+        final JCheckBox enableBackups = new JCheckBox (Environment.replaceObjectNames ("Automatically create backups of the {project}"));
+        enableBackups.setOpaque (false);        
+        
+        c = this.createWrapper (enableBackups);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+        
+        box.add (Box.createVerticalStrut (5));
+        
+        boolean backupsEnabled = this.projectViewer.getProject ().getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
+        enableBackups.setSelected (backupsEnabled);        
+
+        backupsCount.setEnabled (backupsEnabled);           
+        
+        backupsAmount.setSelectedItem (this.projectViewer.getProject ().getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
+        backupsAmount.setEnabled (backupsEnabled);
+        
+        backupsAmount.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                if (ev.getStateChange () != ItemEvent.SELECTED)
+                {
+                    
+                    return;
+                    
+                }
+                
+                _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME,
+                                                    (String) backupsAmount.getSelectedItem ());
+                
+            }
+
+        });
+        
+        backupsCount.setEnabled (enableBackups.isSelected ());
+        
+        c = this.createHelpText ("Create a new backup after the following time between sessions or during a session");
+        this.setAsSubItem (c);
+        
+        box.add (c);
+        
+        c = this.createWrapper (backupsAmount);
+        this.setAsSubItem2 (c);
+        
+        box.add (c);       
+        
+        box.add (Box.createVerticalStrut (10));        
+        
+        c = this.createHelpText ("Number of backups to keep (oldest are deleted first)");
+        this.setAsSubItem (c);
+        
+        box.add (c);
+        
+        c = this.createWrapper (backupsCount);
+        this.setAsSubItem2 (c);
+        
+        box.add (c);        
+        
+        final JButton bb = new JButton ("Change");
+                
+        final FileFinder bf = UIUtils.createFileFind (this.projectViewer.getProject ().getBackupDirectory ().getPath (),
+                                                     "Select a Directory",
+                                                     JFileChooser.DIRECTORIES_ONLY,
+                                                     "Select",
+                                                     null);
+        bf.setFindButtonToolTip (Environment.replaceObjectNames ("Click to find a new backup directory"));
+        bf.setMaximumSize (new Dimension (400,
+                                          bf.getPreferredSize ().height));
+                
+        bf.setOnSelectHandler (new ActionAdapter ()
+        {
+                                                        
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                bb.setEnabled (!bf.getSelectedFile ().getPath ().equals (_this.projectViewer.getProject ().getBackupDirectory ().getPath ()));
+                
+            }
+            
+        });
+              
+        enableBackups.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+                
+                boolean sel = enableBackups.isSelected ();
+
+                backupsAmount.setEnabled (sel);
+
+                backupsCount.setEnabled (sel);
+                
+                bf.setEnabled (sel);
+                
+                _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME,
+                                                    sel);
+                
+            }
+
+        });              
+              
+        box.add (Box.createVerticalStrut (10));              
+                
+        c = this.createHelpText ("Select the directory where {project} backups are stored");
+        this.setAsSubItem (c);
+
+        box.add (c);
+        
+        c = this.createWrapper (bf);
+        this.setAsSubItem2 (c);        
+
+        box.add (c);
+        
+        box.add (Box.createVerticalStrut (5));
+                
+        bb.setEnabled (false);
+        
+        bb.addActionListener (new ActionAdapter ()
+        {
+         
+             public void actionPerformed (ActionEvent ev)
+             {
+                 
+                 _this.handleBackupsDirChange (bf);
+
+             }
+         
+        });
+
+        c = this.createWrapper (bb);
+        this.setAsSubItem2 (c);
+        
+        box.add (c);
+        
+        box.add (Box.createVerticalStrut (10));
+        
+        JButton create = new JButton ("Create a Backup");
+
+        create.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+            
+                UIUtils.showCreateBackup (_this.projectViewer.getProject (),
+                                          null,
+                                          _this.projectViewer);
+                            
+            }
+
+        });
+
+        JButton manage = new JButton ("Manage Backups");
+
+        manage.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+            
+                UIUtils.showManageBackups (Environment.getProjectInfo (_this.projectViewer.getProject ()),
+                                           _this.projectViewer);
+                            
+            }
+
+        });
+
+        JButton buts[] = new JButton[] { create, manage };
+                
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.LEFT_ALIGNMENT); 
+        bp.setOpaque (false);
+
+        c = this.createWrapper (bp);
+        
+        //c = this.createWrapper (mb);
+        this.setAsMainItem (c);
+        
+        box.add (c);
+        
         this.setContentBorder (box);
                 
-        this.accordion.add (this.createHeader (Environment.replaceObjectNames ("{Project} & Snapshots"),
-                                               Constants.PROJECT_ICON_NAME),
-                            null,
-                            box,
-                            UIUtils.createHelpTextPane ("Click the title above to open this section.  You can then change where your {project} is stored and how often snapshots are taken.",
-                                                        this.projectViewer));
+        Accordion.Item item = this.accordion.add (this.createHeader (Environment.replaceObjectNames ("{Project} & Backups"),
+                                                                     Constants.PROJECT_ICON_NAME),
+                                                  null,
+                                                  box,
+                                                  UIUtils.createHelpTextPane ("Click the title above to open this section.  You can then change where your {project} is stored and how often backups are created and where they are stored.",
+                                                                              this.projectViewer));
 
+        this.sections.put (Section.Project,
+                           item);
+                                       
+                                                        
     }
-    
+    */
     private boolean handleProjectDirChange (final FileFinder f)
     {
         
@@ -2867,7 +2954,8 @@ public class OptionsPanel extends QuollPanel
         
         final File newDir = f.getSelectedFile ();
         
-        final File newProjDir = new File (newDir.getPath () + "/" + Utils.sanitizeForFilename (proj.getName ()));
+        final File newProjDir = new File (newDir,
+                                          Utils.sanitizeForFilename (proj.getName ()));
 
         // See if the project directory is changing.
         if (!newDir.equals (oldProjDir))
@@ -2907,56 +2995,23 @@ public class OptionsPanel extends QuollPanel
                        public void actionPerformed (ActionEvent ev)
                        {
                
-                            try
+                            if (!proj.getProjectDirectory ().renameTo (newProjDir))
                             {
-                
-                                Utils.copyDir (proj.getProjectDirectory (),
-                                               newProjDir);
-                
-                            } catch (Exception e)
-                            {
-                
-                                Environment.logError ("Unable to copy directory: " +
+                                
+                                Environment.logError ("Unable to rename project directory: " +
                                                       proj.getProjectDirectory ().getParentFile () +
                                                       " to: " +
-                                                      newProjDir.getParentFile (),
-                                                      e);
-                
-                                //f.setFile (oldProjDir);
-         
+                                                      newProjDir.getParentFile ());
+                         
                                 UIUtils.showErrorMessage (null,
                                                           "Unable to change project directory, please contact Quoll Writer support for assistance.");                            
-                
-                                return;
-                
+                                                          
+                            } else {
+                                
+                                proj.setProjectDirectory (newProjDir);
+                                
                             }
-
-                            try
-                            {
-                
-                                Environment.changeProjectDir (proj,
-                                                              newProjDir);
-                
-                            } catch (Exception e)
-                            {
-                
-                                Environment.logError ("Unable to change project directory (probably an error with the projects file): " +
-                                                      proj,
-                                                      e);
-                
-                                //f.setFile (oldProjDir);
-                
-                                UIUtils.showErrorMessage (null,
-                                                          "Unable to change project directory, please contact Quoll Writer support for assistance.");                            
-         
-                                return;
-                
-                            }
-                
-                            File oldDir = proj.getProjectDirectory ();
-                
-                            proj.setProjectDirectory (newProjDir);
-                
+               
                             // Open the project again.
                             try
                             {
@@ -2978,7 +3033,7 @@ public class OptionsPanel extends QuollPanel
                             }
                 
                             // Finally, delete the old project directory.
-                            Utils.deleteDir (oldDir);
+                            //Utils.deleteDir (oldDir);
                 
                             Environment.getProjectViewer (proj).fireProjectEventLater (proj.getObjectType (),
                                                                                        ProjectEvent.CHANGED_DIRECTORY);
@@ -3021,6 +3076,64 @@ public class OptionsPanel extends QuollPanel
         
     }
     
+    private void handleBackupsDirChange (final FileFinder f)
+    {
+        
+        final OptionsPanel _this = this;
+        
+        final Project proj = this.projectViewer.getProject ();
+        
+        final File oldDir = proj.getBackupDirectory ();
+        
+        final File newDir = f.getSelectedFile ();
+        
+        // See if the project directory is changing.
+        if (!newDir.equals (oldDir))
+        {
+
+            if (Utils.isDirectoryEmpty (newDir))
+            {
+
+                UIUtils.showErrorMessage (this.projectViewer,
+                                          "Unable to change backup directory to: " +
+                                          newDir +
+                                          ", directory is not empty.");
+                                          
+                return;
+
+            }
+
+            // Do a trick, delete the directory then rename to it.
+            if (newDir.exists ())
+            {
+                
+                newDir.delete ();
+                
+            }
+
+            // Just rename it.
+            if (!oldDir.renameTo (newDir))
+            {
+                
+                UIUtils.showErrorMessage (this.projectViewer,
+                                          "Unable to change backup directory to: " +
+                                          newDir);
+                
+                return;
+                
+            }
+            
+            proj.setBackupDirectory (newDir);
+                        
+            UIUtils.showMessage ((PopupsSupported) this.projectViewer,
+                                 "Backups directory changed",
+                                 String.format ("The backups directory for the {project} has been changed to <b>%s</b>.",
+                                                newDir.getPath ()));
+            
+        }
+                    
+    }
+
     private void addItemsAndRulesSection ()
     {
 
@@ -3147,6 +3260,17 @@ public class OptionsPanel extends QuollPanel
         
     }
     
+    private void setAsSubItem2 (JComponent c)
+    {
+
+        c.setAlignmentX (Component.LEFT_ALIGNMENT);
+        c.setAlignmentY (Component.TOP_ALIGNMENT);    
+    
+        c.setBorder (new CompoundBorder (new EmptyBorder (0, 20, 0, 10),
+                                         c.getBorder ()));
+        
+    }
+
     private JComponent createWrapper (JComponent c)
     {
         
@@ -3291,7 +3415,6 @@ public class OptionsPanel extends QuollPanel
     public String getPanelId ()
     {
 
-        // Gonna regret this...
         return OptionsPanel.PANEL_ID;
 
     }
@@ -3302,6 +3425,10 @@ public class OptionsPanel extends QuollPanel
 
         final OptionsPanel _this = this;
     
+        this.options.setState (s);
+    
+        this.setReadyForUse (true);
+    /*
         this.accordion.setState (s.get ("sections"));
     
         SwingUtilities.invokeLater (new Runnable ()
@@ -3330,17 +3457,20 @@ public class OptionsPanel extends QuollPanel
             }
             
         });
-    
+    */
     }
 
     public void getState (Map<String, Object> m)
     {
 
+        this.options.getState (m);
+
+/*    
         m.put ("sections",
-               this.accordion.getState ());
+               this.options.getAccordionState ());
         m.put ("scroll",
                this.scrollPane.getVerticalScrollBar ().getValue ());
-    
+  */  
     }
 
     public String getTitle ()
@@ -3357,6 +3487,7 @@ public class OptionsPanel extends QuollPanel
 
     }
 
+    @Override
     public void close ()
     {
 

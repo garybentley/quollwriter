@@ -17,7 +17,7 @@ public abstract class DetailsEditPanel extends EditPanel
 {
 
     private AbstractObjectViewPanel viewPanel = null;
-    private JTextArea               descEdit = null;
+    private TextArea                descEdit = null;
     private JTextField              nameEdit = null;
     private JTextPane               desc = null;
     protected AbstractProjectViewer projectViewer = null;
@@ -32,9 +32,28 @@ public abstract class DetailsEditPanel extends EditPanel
         this.projectViewer = pv;
         this.object = n;
 
-        this.descEdit = UIUtils.createTextArea (-1);
-        this.descEdit.setWrapStyleWord (true);
-        this.descEdit.setLineWrap (true);
+        this.descEdit = UIUtils.createTextArea (pv,
+                                                String.format ("Describe the {%s} here.",
+                                                               n.getObjectType ()),
+                                                -1,
+                                                -1);
+
+        this.descEdit.setCanFormat (true);
+        this.descEdit.setAutoGrabFocus (false);
+        
+        try
+        {
+        
+            this.descEdit.setSynonymProvider (pv.getSynonymProvider ());
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to set synonym provider for details edit panel for: " +
+                                  n,
+                                  e);
+            
+        }
+
         this.nameEdit = UIUtils.createTextField ();
         
         UIUtils.addDoActionOnReturnPressed (this.descEdit,
@@ -43,7 +62,6 @@ public abstract class DetailsEditPanel extends EditPanel
                                             this.getDoSaveAction ());
                                              
     }
-
     public void init (AbstractObjectViewPanel avp)
     {
 
@@ -96,7 +114,7 @@ public abstract class DetailsEditPanel extends EditPanel
 
     public abstract boolean canSave ();
 
-    public abstract List<FormItem> getExtraEditItems ();
+    public abstract List<FormItem> getExtraEditItems (ActionListener onSave);
 
     public abstract List<FormItem> getExtraViewItems ();
 
@@ -109,7 +127,7 @@ public abstract class DetailsEditPanel extends EditPanel
     public String getViewDescription ()
     {
         
-        return this.object.getDescription ();
+        return (this.object.getDescription () != null ? this.object.getDescription ().getMarkedUpText () : null);
         
     }
     
@@ -123,6 +141,7 @@ public abstract class DetailsEditPanel extends EditPanel
 
     }
 
+    @Override
     public boolean handleSave ()
     {
 
@@ -132,11 +151,10 @@ public abstract class DetailsEditPanel extends EditPanel
         if (n.equals (""))
         {
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Please select a name.");
+            this.showEditError ("Please enter a name.");
 
-            this.nameEdit.setText (this.object.getName ());
-            this.nameEdit.selectAll ();
+            //this.nameEdit.setText (this.object.getName ());
+            //this.nameEdit.selectAll ();
 
             return false;
 
@@ -154,12 +172,12 @@ public abstract class DetailsEditPanel extends EditPanel
                )
             {
                 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "Already have a " + Environment.getObjectTypeName (a).toLowerCase () + " called: " +
-                                          a.getName ());
-                    
-                this.nameEdit.setText (this.object.getName ());
-                this.nameEdit.selectAll ();
+                this.showEditError (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
+                                                                                   a.getObjectType (),
+                                                                                   a.getName ())));
+                                    
+                //this.nameEdit.setText (this.object.getName ());
+                //this.nameEdit.selectAll ();
     
                 return false;                
                 
@@ -178,7 +196,7 @@ public abstract class DetailsEditPanel extends EditPanel
 
         this.object.setName (this.nameEdit.getText ());
 
-        this.object.setDescription (this.descEdit.getText ());
+        this.object.setDescription (this.descEdit.getTextWithMarkup ());
 
         this.fillForSave ();
 
@@ -233,9 +251,14 @@ public abstract class DetailsEditPanel extends EditPanel
     public void handleEditStart ()
     {
 
-        this.descEdit.setText (this.object.getDescription ());
+        if (this.object.getDescription () != null)
+        {
+    
+            this.descEdit.setTextWithMarkup (this.object.getDescription ());
+            
+        }
 
-        this.descEdit.grabFocus ();
+        this.nameEdit.grabFocus ();
 
         this.nameEdit.setText (this.object.getName ());
 
@@ -298,7 +321,7 @@ public abstract class DetailsEditPanel extends EditPanel
         items.add (new FormItem ("Name",
                                  this.nameEdit));
 
-        List<FormItem> extra = this.getExtraEditItems ();
+        List<FormItem> extra = this.getExtraEditItems (this.getDoSaveAction ());
 
         if (extra != null)
         {

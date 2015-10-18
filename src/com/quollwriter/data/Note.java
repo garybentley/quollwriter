@@ -1,9 +1,10 @@
 package com.quollwriter.data;
 
 import java.util.*;
-import java.text.*;
 
 import org.jdom.*;
+
+import com.quollwriter.text.*;
 
 public class Note extends ChapterItem
 {
@@ -108,7 +109,7 @@ public class Note extends ChapterItem
     public void setSummaryFromDescription ()
     {
 
-        String text = this.getDescription ();
+        String text = this.getDescriptionText ();
         
         if (text == null)
         {
@@ -117,15 +118,10 @@ public class Note extends ChapterItem
             
         }
         
-        // Use the first line of the description as the summary.
-        BreakIterator bi = BreakIterator.getSentenceInstance ();
-        bi.setText (text);
-
-        int s = bi.first ();
-        int e = bi.next ();
-
-        this.setSummary (text.substring (s,
-                                         e));
+        Paragraph p = new Paragraph (text,
+                                     0);
+        
+        this.setSummary (p.getFirstSentence ().getText ());
         
     }
     

@@ -23,17 +23,22 @@ public class Idea extends NamedObject
     public String getName ()
     {
         
-        return this.getDescription ();
+        return this.getDescriptionText ();
         
     }
 
-    public String toString ()
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
     {
 
-        return this.getObjectType () + "(type: " + this.type + ", id: " + this.getKey () + ")";
+        super.fillToStringProperties (props);
 
+        this.addToStringProperties (props,
+                                    "type",
+                                    this.type);
+                        
     }
-
+    
     public Date getLastModified ()
     {
         

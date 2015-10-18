@@ -619,6 +619,7 @@ public class WordCountPanel extends QuollPanel
 
     }
 
+    @Override
     public void close ()
     {
 

@@ -213,7 +213,9 @@ public class Book extends NamedObject
         for (Chapter c : this.chapters)
         {
             
-            i += TextUtilities.getWordCount (c.getText ());
+            String t = (c.getText () != null ? c.getText ().getText () : null);
+            
+            i += TextUtilities.getWordCount (t);
             
         }
         

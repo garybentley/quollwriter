@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
 
+import java.io.*;
+
 import java.net.*;
 
 import java.security.*;
@@ -21,6 +23,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -61,6 +64,8 @@ import com.quollwriter.editors.ui.sidebars.*;
 public class ProjectViewer extends AbstractProjectViewer
 {
 
+    public static final String IDEA_BOARD_HEADER_CONTROL_ID = "ideaBoard";
+
     public static final String TAB_OBJECT_TYPE = "tab";
     public static final int    NEW_CHAPTER_ACTION = 102; // "newChapter";
     public static final int    NEW_NOTE_ACTION = 103; // "newNote";
@@ -84,104 +89,21 @@ public class ProjectViewer extends AbstractProjectViewer
     public static final int NEW_ITEM_TYPE_ACTION = 129; // "newItemType"
 
     private Date            sessionStart = new Date ();
-    private NoteTypeHandler noteTypeHandler = null;
-    private ItemTypeHandler itemTypeHandler = null;
-    private EditNoteTypes   noteTypesEdit = null;
-    private EditItemTypes   itemTypesEdit = null;
     private ProjectSideBar  sideBar = null;
     private ChapterItemViewPopupProvider chapterItemViewPopupProvider = null;
     private IconProvider iconProvider = null;
+    private ImportTransferHandlerOverlay   importOverlay = null;
+	private PropertyChangedListener objectTypePropChangedListener = null;
+	private PropertyChangedListener noteTypePropChangedListener = null;
         
     public ProjectViewer()
     {
 
         final ProjectViewer _this = this;
-
-        ObjectProvider<Note> noteProvider = new GeneralObjectProvider<Note> ()
-        {
-            
-            public Set<Note> getAll ()
-            {
-
-                return (Set<Note>) _this.getAllNotes ();
-                
-            }
-            
-            public Note getByKey (Long key)
-            {
-                
-                return null;
-                
-            }
-            
-            public void save (Note   obj)
-                              throws GeneralException
-            {
-                
-                _this.saveObject (obj,
-                                  true);
-            
-            }
-            
-            public void saveAll (java.util.List<Note> objs)
-                                 throws    GeneralException
-            {
-                
-                _this.saveObjects (objs,
-                                   false);
-                
-            }
-            
-        };
         
         this.iconProvider = new DefaultIconProvider ();
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
         
-        this.noteTypeHandler = new NoteTypeHandler (this,
-                                                    noteProvider);
-
-        ObjectProvider<QObject> qObjectProvider = new GeneralObjectProvider<QObject> ()
-        {
-            
-            public Set<QObject> getAll ()
-            {
-
-                throw new UnsupportedOperationException ("Not supported");
-            
-                //return (Set<QObject>) _this.getAll ();
-                
-            }
-            
-            public QObject getByKey (Long key)
-            {
-                
-                return null;
-                
-            }
-            
-            public void save (QObject obj)
-                              throws  GeneralException
-            {
-                
-                _this.saveObject (obj,
-                                  true);
-            
-            }
-            
-            public void saveAll (java.util.List<QObject> objs)
-                                 throws                  GeneralException
-            {
-                
-                _this.saveObjects (objs,
-                                   false);
-                
-            }
-            
-        };
-
-        this.itemTypeHandler = new ItemTypeHandler (this,
-                                                    qObjectProvider);
-
         ProjectViewer.addAssetActionMappings (this,
                                               this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW),
                                               this.getActionMap ());
@@ -197,6 +119,124 @@ public class ProjectViewer extends AbstractProjectViewer
                         
         this.sideBar = new ProjectSideBar (this,
                                            objTypes);
+        
+		this.importOverlay = new ImportTransferHandlerOverlay ();
+
+        this.importOverlay.addMouseListener (new MouseEventHandler ()
+        {
+           
+            public void handlePress (MouseEvent ev)
+            {
+                
+                _this.importOverlay.setVisible (false);
+                
+                _this.validate ();
+                _this.repaint ();
+                
+            }
+            
+        });
+        
+		this.setTransferHandler (new ImportTransferHandler (new ActionListener ()
+		{
+			            
+			public void actionPerformed (ActionEvent ev)
+			{
+
+				File f = (File) ev.getSource ();
+                
+                QuollPanel qp = _this.getCurrentlyVisibleTab ();
+
+				if (qp.getForObject () instanceof Asset)
+				{
+					
+					_this.importOverlay.setDisplayText (String.format ("Drop the file to add it to %s's {documents}.",
+																	   qp.getForObject ().getName ()));
+												
+				} else {
+					
+					_this.importOverlay.setDisplayText ("Drop the file to begin the import");
+					
+				}
+				
+                _this.importOverlay.setFile (f);
+                
+                _this.setGlassPane (_this.importOverlay);
+            
+                _this.importOverlay.setVisible (true);
+                _this.validate ();
+                _this.repaint ();
+            
+			}
+			
+		},
+		new ActionListener ()
+		{
+			
+			public void actionPerformed (ActionEvent ev)
+			{
+
+                _this.importOverlay.setVisible (false);
+                _this.validate ();
+                _this.repaint ();
+                            
+				File f = (File) ev.getSource ();
+
+                QuollPanel qp = _this.getCurrentlyVisibleTab ();
+                                				
+				if (qp instanceof AssetViewPanel)
+				{
+
+					AssetViewPanel vp = (AssetViewPanel) qp;
+				
+					vp.getObjectDocumentsEditPanel ().addFile (f,
+															   false);
+				
+				} else {			
+				
+					_this.showImportProject (f);
+					
+				}
+				
+			}
+			
+		},
+		new ActionListener ()
+		{
+			
+			public void actionPerformed (ActionEvent ev)
+			{
+				
+                _this.importOverlay.setVisible (false);
+                _this.validate ();
+                _this.repaint ();
+				
+			}
+			
+		},
+		new FileFilter ()
+		{
+			
+			@Override
+			public boolean accept (File f)
+			{
+				                
+                QuollPanel qp = _this.getCurrentlyVisibleTab ();
+                                
+				if (qp.getForObject () instanceof Asset)
+				{
+					
+					return true;
+					
+				}
+				
+                return ImportProject.isSupportedFileType (f);				
+				
+			}
+			
+		}));                  
+
+        this.importOverlay.setTransferHandler (this.getTransferHandler ());
         
     }
     
@@ -278,7 +318,7 @@ public class ProjectViewer extends AbstractProjectViewer
         };
         
     }
-
+/*
     public TypesHandler getObjectTypesHandler (String objType)
     {
         
@@ -299,7 +339,7 @@ public class ProjectViewer extends AbstractProjectViewer
         return null;
         
     }    
-    
+  */  
     public static void addAssetActionMappings (final PopupsSupported parent,
                                                      InputMap        im,
                                                      ActionMap       actions)
@@ -419,7 +459,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                              AbstractProjectViewer.SHOW_STATISTICS_ACTION));
                                                      
         // Create Project Snapshot
-        titlePopup.add (this.createMenuItem ("Save Snapshot",
+        titlePopup.add (this.createMenuItem ("Create a Backup",
                                              Constants.SNAPSHOT_ICON_NAME,
                                              ProjectViewer.CREATE_PROJECT_SNAPSHOT_ACTION));
                                              
@@ -508,6 +548,60 @@ public class ProjectViewer extends AbstractProjectViewer
     }
 
     public void showImportProject ()
+	{
+		
+		this.showImportProject (null);
+		
+	}
+	
+    public void showImportProject (File   f)
+    {
+        
+        this.removeNamedPopup ("import-project");
+        
+        try
+        {
+        
+            ImportProject im = new ImportProject (this);
+            
+            if (f != null)
+            {
+                
+                im.setFile (f);
+                im.setAddToProjectOnly (true);
+
+            }
+            
+            QPopup popup = UIUtils.createWizardPopup ("Import a File",
+                                                      Constants.PROJECT_IMPORT_ICON_NAME,
+                                                      null,
+                                                      im);
+    
+            popup.setDraggable (this);
+                              
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+            this.addNamedPopup ("import-project",
+                                popup);
+                              
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to show import project for file: " +
+                                  f,
+                                  e);
+            
+            UIUtils.showErrorMessage (this,
+                                      "Unable to show import project wizard, please contact Quoll Writer support for assistance.");
+            
+        }
+        
+    }	
+    /*
+    public void showImportProject ()
     {
         
         QPopup popup = UIUtils.createWizardPopup ("Import a File",
@@ -524,110 +618,7 @@ public class ProjectViewer extends AbstractProjectViewer
                           false);
         
     }
-
-    public void showEditNoteTypes ()
-    {
-        
-        String popupName = "editnotetypes";
-        QPopup popup = this.getNamedPopup (popupName);
-        
-        if (popup == null)
-        {
-        
-            popup = UIUtils.createClosablePopup ("Manage the {Note} Types",
-                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
-                                                                      Constants.ICON_POPUP),
-                                                 null);
-        
-            popup.setPopupName (popupName);
-            
-            this.addNamedPopup (popupName,
-                                popup);
-        
-            EditNoteTypes content = new EditNoteTypes (this);
-            content.init ();
-        
-            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                             content.getPreferredSize ().height));
-            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
-        
-            popup.setContent (content);
-            
-            popup.setDraggable (this);
-                              
-            popup.resize ();
-            this.showPopupAt (popup,
-                              UIUtils.getCenterShowPosition (this,
-                                                             popup),
-                              false);
-        /*
-            this.noteTypesEdit = new EditNoteTypes (this);
-    
-            this.noteTypesEdit.init ();        
-
-            this.noteTypeHandler.setTypesEditor (this.noteTypesEdit);
 */
-        } else {
-            
-            popup.setVisible (true);
-            //this.noteTypesEdit.setVisible (true);
-            
-        }
-
-        this.fireProjectEvent (ProjectEvent.NOTE_TYPES,
-                               ProjectEvent.SHOW);
-        
-    }
-
-    public void showEditItemTypes ()
-    {
-        
-        String popupName = "edititemtypes";
-        QPopup popup = this.getNamedPopup (popupName);
-        
-        if (popup == null)
-        {
-        
-            popup = UIUtils.createClosablePopup ("Manage the {Object} Types",
-                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
-                                                                      Constants.ICON_POPUP),
-                                                 null);
-        
-            popup.setPopupName (popupName);
-            
-            this.addNamedPopup (popupName,
-                                popup);
-        
-            EditItemTypes content = new EditItemTypes (this);
-            content.init ();
-        
-            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-            
-            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                             content.getPreferredSize ().height));
-        
-            popup.setContent (content);
-            
-            popup.setDraggable (this);
-                              
-            popup.resize ();
-            this.showPopupAt (popup,
-                              UIUtils.getCenterShowPosition (this,
-                                                             popup),
-                              false);
-
-        } else {
-            
-            popup.setVisible (true);
-
-            
-        }
-
-        this.fireProjectEvent (ProjectEvent.ITEM_TYPES,
-                               ProjectEvent.SHOW);
-        
-    }
-
     public Action getAction (int               name,
                                      final NamedObject other)
     {
@@ -775,45 +766,38 @@ public class ProjectViewer extends AbstractProjectViewer
                 public void actionPerformed (final ActionEvent ev)
                 {
 
-                    if (!pv.isLanguageFunctionAvailable ())
-                    {
-                        
-                        return;
-                        
-                    }
-                
                     final Chapter c = ((ChapterItem) other).getChapter ();
 
-                    pv.viewObject (c);
+                    pv.viewObject (c,
+								   new ActionListener ()
+					{
 
-                    SwingUtilities.invokeLater (new Runner ()
-                        {
+						@Override
+                        public void actionPerformed (ActionEvent ev)
+						{
 
-                            public void run ()
-                            {
+							try
+							{
 
-                                try
-                                {
+								QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
 
-                                    QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
+								qep.editOutlineItem ((OutlineItem) other);
 
-                                    qep.editOutlineItem ((OutlineItem) other);
+							} catch (Exception e)
+							{
 
-                                } catch (Exception e)
-                                {
+								Environment.logError ("Unable to edit outline item: " +
+													  other,
+													  e);
 
-                                    Environment.logError ("Unable to edit outline item: " +
-                                                          other,
-                                                          e);
+								UIUtils.showErrorMessage (pv,
+														  "Unable to edit Outline Item");
 
-                                    UIUtils.showErrorMessage (pv,
-                                                              "Unable to edit Outline Item");
+							}
 
-                                }
+						}
 
-                            }
-
-                        });
+                    });
 
                 }
 
@@ -829,46 +813,39 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 public void actionPerformed (final ActionEvent ev)
                 {
-
-                    if (!pv.isLanguageFunctionAvailable ())
-                    {
-                        
-                        return;
-                        
-                    }
                 
                     final Chapter c = ((Note) other).getChapter ();
 
-                    pv.viewObject (c);
+                    pv.viewObject (c,
+								   new ActionListener ()
+					{
 
-                    SwingUtilities.invokeLater (new Runner ()
-                        {
+                        @Override
+						public void actionPerformed (ActionEvent ev)
+						{
 
-                            public void run ()
-                            {
+							try
+							{
 
-                                try
-                                {
+								QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
 
-                                    QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
+								qep.editNote ((Note) other);
 
-                                    qep.editNote ((Note) other);
+							} catch (Exception e)
+							{
 
-                                } catch (Exception e)
-                                {
+								Environment.logError ("Unable to edit note: " +
+													  other,
+													  e);
 
-                                    Environment.logError ("Unable to edit note: " +
-                                                          other,
-                                                          e);
+								UIUtils.showErrorMessage (pv,
+														  "Unable to edit Note");
 
-                                    UIUtils.showErrorMessage (pv,
-                                                              "Unable to edit Note");
+							}
 
-                                }
+						}
 
-                            }
-
-                        });
+                    });
 
                 }
 
@@ -884,46 +861,39 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 public void actionPerformed (final ActionEvent ev)
                 {
-
-                    if (!pv.isLanguageFunctionAvailable ())
-                    {
-                        
-                        return;
-                        
-                    }
                 
                     final Chapter c = ((ChapterItem) other).getChapter ();
 
-                    pv.viewObject (c);
+                    pv.viewObject (c,
+								   new ActionListener ()
+					{
+						
+						@Override
+						public void actionPerformed (ActionEvent ev)
+						{
 
-                    SwingUtilities.invokeLater (new Runner ()
-                        {
+							try
+							{
 
-                            public void run ()
-                            {
+								QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
 
-                                try
-                                {
+								qep.editScene ((Scene) other);
 
-                                    QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
+							} catch (Exception e)
+							{
 
-                                    qep.editScene ((Scene) other);
+								Environment.logError ("Unable to edit scene: " +
+													  other,
+													  e);
 
-                                } catch (Exception e)
-                                {
+								UIUtils.showErrorMessage (pv,
+														  "Unable to edit Scene");
 
-                                    Environment.logError ("Unable to edit scene: " +
-                                                          other,
-                                                          e);
+							}
 
-                                    UIUtils.showErrorMessage (pv,
-                                                              "Unable to edit Scene");
+						}
 
-                                }
-
-                            }
-
-                        });
+                    });
 
                 }
 
@@ -1189,7 +1159,9 @@ public class ProjectViewer extends AbstractProjectViewer
     public String getViewerIcon ()
     {
 
-        return this.proj.getObjectType ();
+        return Project.OBJECT_TYPE;
+    
+        //return this.proj.getObjectType ();
 
     }
 
@@ -1273,7 +1245,134 @@ public class ProjectViewer extends AbstractProjectViewer
     {
 
         this.initProjectItemBoxes ();
-                        
+                       
+		final ProjectViewer _this = this;
+					    
+		this.objectTypePropChangedListener = new PropertyChangedListener ()
+		{
+			
+			@Override
+			public void propertyChanged (PropertyChangedEvent ev)
+			{
+				
+				if (ev.getChangeType ().equals (UserPropertyHandler.VALUE_CHANGED))
+				{
+				
+					java.util.List<QObject> toSave = new ArrayList ();
+				
+					java.util.List<QObject> objs = _this.getProject ().getQObjects ();
+
+					for (QObject o : objs)
+					{
+			
+						if (o.getType ().equals ((String) ev.getOldValue ()))
+						{
+			
+							o.setType ((String) ev.getNewValue ());
+			
+							toSave.add (o);
+			
+						}
+
+						if (toSave.size () > 0)
+						{
+				
+							try
+							{
+				
+								_this.saveObjects (toSave,
+												   true);
+				
+							} catch (Exception e)
+							{
+				
+								Environment.logError ("Unable to save qobjects: " +
+													  toSave +
+													  " with new type: " +
+													  ev.getNewValue (),
+													  e);
+				
+								UIUtils.showErrorMessage (_this,
+														  "Unable to change type");
+								
+							}
+							
+						}
+
+					}
+					
+				}
+				
+			}
+			
+		};						
+		
+		Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME).addPropertyChangedListener (this.objectTypePropChangedListener);
+		
+		// Called whenever a note type is changed.				
+		this.noteTypePropChangedListener = new PropertyChangedListener ()
+		{
+			
+			@Override
+			public void propertyChanged (PropertyChangedEvent ev)
+			{
+				
+				if (ev.getChangeType ().equals (UserPropertyHandler.VALUE_CHANGED))
+				{
+				
+					java.util.List<Note> toSave = new ArrayList ();
+				
+					Set<Note> objs = _this.getAllNotes ();
+
+					for (Note o : objs)
+					{
+			
+						if (o.getType ().equals ((String) ev.getOldValue ()))
+						{
+			
+							o.setType ((String) ev.getNewValue ());
+			
+							toSave.add (o);
+			
+						}
+
+						if (toSave.size () > 0)
+						{
+				
+							try
+							{
+				
+								_this.saveObjects (toSave,
+												   true);
+				
+							} catch (Exception e)
+							{
+				
+								Environment.logError ("Unable to save notes: " +
+													  toSave +
+													  " with new type: " +
+													  ev.getNewValue (),
+													  e);
+				
+								UIUtils.showErrorMessage (_this,
+														  "Unable to change type");
+								
+							}
+							
+						}
+
+					}
+					
+					_this.reloadTreeForObjectType (Note.OBJECT_TYPE);
+					
+				}
+				
+			}
+			
+		};
+		
+		Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addPropertyChangedListener (this.noteTypePropChangedListener);
+
     }
 
     private void initProjectItemBoxes ()
@@ -2817,21 +2916,7 @@ public class ProjectViewer extends AbstractProjectViewer
         return notes;
 
     }
-/*
-    public NoteTypeHandler getNoteTypeHandler ()
-    {
 
-        return this.noteTypeHandler;
-
-    }
-
-    public ItemTypeHandler getItemTypeHandler ()
-    {
-
-        return this.itemTypeHandler;
-
-    }
-*/
     public void updateChapterIndexes (Book b)
                                throws GeneralException
     {
@@ -2980,6 +3065,126 @@ public class ProjectViewer extends AbstractProjectViewer
         }
         
         return res;
+        
+    }
+
+    @Override
+    public Set<String> getTitleHeaderControlIds ()
+	{
+		
+		Set<String> ids = new LinkedHashSet ();
+
+		ids.add (IDEA_BOARD_HEADER_CONTROL_ID);
+        
+        ids.addAll (super.getTitleHeaderControlIds ());
+				
+		return ids;
+		
+	}
+
+	@Override
+    public JComponent getTitleHeaderControl (String id)
+	{
+		
+		if (id == null)
+		{
+			
+			return null;
+			
+		}
+		
+		final ProjectViewer _this = this;
+		
+		JComponent c = null;
+		
+		if (id.equals (IDEA_BOARD_HEADER_CONTROL_ID))
+		{
+			
+            return UIUtils.createButton (Constants.IDEA_ICON_NAME,
+                                               Constants.ICON_TITLE_ACTION,
+                                               "Click to open the Idea Board",
+                                               new ActionAdapter ()
+                                               {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _this.viewIdeaBoard ();
+                                                        
+                                                    }
+                                                    
+                                               });
+										  
+		}
+
+        return super.getTitleHeaderControl (id);
+        
+    }
+
+    public Set<String> getNoteTypes ()
+    {
+        
+        Set<Note> notes = this.getAllNotes ();
+        
+        Set<String> types = new TreeSet ();
+        
+        for (Note nn : notes)
+        {
+
+            types.add (nn.getType ());
+            
+        }
+        
+        return types;
+        
+    }
+	
+    public Map<String, Set<Note>> getNotesAgainstTypes ()
+    {
+ 
+        // The implementation here is pretty inefficient but we can get away with it due to the generally
+        // low number of types and notes.
+        
+        // Might be worthwhile putting a josql wrapper around this for the grouping.
+ 
+        Map<String, Set<Note>> ret = new LinkedHashMap ();
+ 
+        Set<Note> notes = this.getAllNotes ();
+        
+        Set<String> types = this.getNoteTypes ();
+        
+        for (String type : types)
+        {
+
+            for (Note n : notes)
+            {
+
+                String t = n.getType ();
+                
+                if (t.equals (type))
+                {
+                    
+                    Set<Note> retNotes = ret.get (t);
+                    
+                    if (retNotes == null)
+                    {
+                        
+                        retNotes = new TreeSet (new ChapterItemSorter ());
+                        
+                        ret.put (t,
+                                 retNotes);
+                        
+                    }
+                    
+                    retNotes.add (n);
+                    
+                }
+
+            }        
+
+        }
+        
+        return ret;
         
     }
         

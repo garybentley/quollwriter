@@ -48,7 +48,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
     private AbstractProjectViewer projectViewer = null;
     private String                word = null;
     private int                   position = -1;
-    private Chapter               chapter = null;
+    //private Chapter               chapter = null;
     private QPopup                popup = null;
     private AbstractEditorPanel   editorPanel = null;
     private Object                highlight = null;
@@ -61,7 +61,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
         this.word = word;
         this.position = position;
-        this.chapter = c;
+        //this.chapter = c;
         this.editorPanel = p;
         this.projectViewer = this.editorPanel.getProjectViewer ();
 

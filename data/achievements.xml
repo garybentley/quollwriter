@@ -350,9 +350,9 @@
     <description>Delete a chapter.</description>
   </item>
 
-  <item id="export" category="project" type="event" icon="project-export" event="export">
+  <item id="export" category="user" type="event" icon="project-export" event="export">
     <name>Export Duty</name>
-    <description>Export your project.</description>
+    <description>Export your {project}.</description>
   </item>
 
   <item id="import" category="project" type="event" icon="project-import" event="import">

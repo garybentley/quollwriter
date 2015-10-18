@@ -21,8 +21,8 @@ import com.quollwriter.editors.*;
 public class ChatMessageBox extends MessageBox<EditorChatMessage>
 {
         
-    public ChatMessageBox (EditorChatMessage     mess,
-                           AbstractProjectViewer viewer)
+    public ChatMessageBox (EditorChatMessage mess,
+                           AbstractViewer    viewer)
     {
         
         super (mess,
@@ -55,7 +55,7 @@ public class ChatMessageBox extends MessageBox<EditorChatMessage>
         this.add (b);
                 
         JComponent message = UIUtils.createHelpTextPane (this.message.getMessage (),
-                                                         this.projectViewer);
+                                                         this.viewer);
         message.setAlignmentY (Component.TOP_ALIGNMENT);
         message.setSize (new Dimension (300,
                                         500));
@@ -87,13 +87,13 @@ public class ChatMessageBox extends MessageBox<EditorChatMessage>
                     
                 }
                 
-            }
+            } 
 
             message.setAlignmentX (Component.RIGHT_ALIGNMENT);
             b.add (message);
 
             JComponent avl = this.createAvatar (av,
-                                                (av == null ? "Me,<br />" : "") + Environment.formatTime (this.message.getWhen ()));
+                                                (av == null ? "Me<br />" : "") + Environment.formatTime (this.message.getWhen ()));
             avl.setBorder (UIUtils.createPadding (0, 5, 0, 0));
             b.add (avl);
                         
@@ -137,9 +137,18 @@ public class ChatMessageBox extends MessageBox<EditorChatMessage>
         
         Box b = new Box (BoxLayout.Y_AXIS);
         
-        JLabel ic = new JLabel (new ImageIcon (im));
+        JLabel ic = new JLabel ();
+        
+        if (im != null)
+        {
+            
+            ic.setIcon (new ImageIcon (im));
+            
+            ic.setBorder (UIUtils.createLineBorder ());
+
+        }
+        
         ic.setAlignmentX (Component.RIGHT_ALIGNMENT);
-        ic.setBorder (UIUtils.createLineBorder ());
         
         b.add (ic);
         

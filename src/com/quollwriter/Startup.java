@@ -1,6 +1,7 @@
 package com.quollwriter;
 
 import java.io.*;
+import java.nio.channels.*;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ public class Startup
 
     public static void main (String[] argv)
     {
-
+    
         if ((argv != null) &&
             (argv.length > 0))
         {
@@ -29,7 +30,7 @@ public class Startup
             }
 
         }
-
+        
         SplashScreen ss = null;
         
         try
@@ -43,18 +44,34 @@ public class Startup
 
             Environment.init ();
 
-            if (!Environment.hasProjectsFile ())
+            if (Environment.isFirstUse ())
+            {
+                
+                new FirstUseWizard ().init ();
+                
+                return;
+                
+            }
+            
+            if (Environment.getAllProjectInfos ().size () == 0)
             {
 
                 ss.finish ();
 
-                new FirstProject ().init ();
-
+                Environment.showLanding ();
+                
                 return;
 
             }
 
             boolean showError = false;
+
+            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+            {
+
+                Environment.showLanding ();
+            
+            }
 
             // See if the user property is to open the last edited project.
             if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
@@ -63,58 +80,57 @@ public class Startup
                 try
                 {
 
-                    if (Environment.openLastEditedProject ())
+                    if (!Environment.openLastEditedProject ())
                     {
 
-                        ss.finish ();
-
-                        return;
-
+                        showError = true;
+                        
                     }
-
-                    showError = true;
 
                 } catch (Exception e)
                 {
-
-                    Environment.logError ("Unable to open last edited project",
-                                          e);
 
                     showError = true;
 
                 }
 
-                ss.finish ();
-
-            }
-
-            FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN | FindOrOpen.SHOW_NEW);
-            f.setVisible (true);
+            } 
 
             // Need to do this here since, if there is no visible frame (somewhere) then showErrorMessage will throw an error that crashes the jvm... nice...
             if (showError)
             {
 
-                ss.finish ();
+                Environment.showLanding ();
 
-                UIUtils.showMessage (f,
-                                     "Unable to open last project",
-                                     "Unable to open last edited project, please select another project or create one.");
+                UIUtils.showMessage ((java.awt.Component) null,
+                                     "Unable to open last {project}",
+                                     "Unable to open last edited {project}, please select another {project} or create a new one.");
 
             }
-
+            
         } catch (Exception eee)
         {
 
-            Environment.logError ("Unable to open Quoll Writer",
-                                  eee);
+            if (eee instanceof OverlappingFileLockException)
+            {
+                
+                UIUtils.showErrorMessage (null,
+                                          "It appears that Quoll Writer is already running.  Please close the other instance before starting Quoll Writer again.");
+                
+                
+            } else {
+        
+                Environment.logError ("Unable to open Quoll Writer",
+                                      eee);
+    
+                UIUtils.showErrorMessage (null,
+                                          "Unable to start Quoll Writer");
 
-            UIUtils.showErrorMessage (null,
-                                      "Unable to start Quoll Writer");
-
+            }
+                                          
         } finally
-        {
-
+        {        
+        
             if (ss != null)
             {
 
@@ -122,6 +138,8 @@ public class Startup
 
             }
 
+            Environment.startupComplete ();
+            
         }
 
     }

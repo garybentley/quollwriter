@@ -18,9 +18,13 @@ import com.quollwriter.*;
 
 import com.quollwriter.ui.components.*;
 
-public abstract class Wizard extends Box
+public abstract class Wizard<E extends AbstractViewer> extends Box
 {
 
+    public static final String NEXT_BUTTON_ID = "next";
+    public static final String PREVIOUS_BUTTON_ID = "previous";
+    public static final String CANCEL_BUTTON_ID = "cancel";
+    public static final String FINISH_BUTTON_ID = "finish";
     private boolean                 inited = false;
     private WizardStep              current = null;
     private String                  currentStage = null;
@@ -31,16 +35,16 @@ public abstract class Wizard extends Box
     private JButton                 prevBut = null;
     private Header                  header = null;
     private JTextPane               helpText = null;
-    protected AbstractProjectViewer   projectViewer = null;
+    protected E                     viewer = null;
     
-    public Wizard (AbstractProjectViewer pv)
+    public Wizard (E viewer)
     {
         
         super (BoxLayout.Y_AXIS);
         
         this.contentPanel = new Box (BoxLayout.Y_AXIS);
         
-        this.projectViewer = pv;
+        this.viewer = viewer;
         
     }
 
@@ -49,6 +53,33 @@ public abstract class Wizard extends Box
         
         return 250;
         
+    }
+    
+    public void addButtonListener (String         type,
+                                   ActionListener l)
+    {
+        
+        if (NEXT_BUTTON_ID.equals (type))
+        {
+            
+            this.nextBut.addActionListener (l);
+            
+        }
+        
+        if (PREVIOUS_BUTTON_ID.equals (type))
+        {
+            
+            this.prevBut.addActionListener (l);
+            
+        }
+
+        if (CANCEL_BUTTON_ID.equals (type))
+        {
+            
+            this.cancelBut.addActionListener (l);
+            
+        }
+
     }
     
     public String getCurrentStage ()
@@ -77,8 +108,7 @@ public abstract class Wizard extends Box
     
         final Wizard _this = this;
     
-        this.helpText = UIUtils.createHelpTextPane (null,
-                                                    this.projectViewer);
+        this.helpText = UIUtils.createHelpTextPane (this.viewer);
 
         this.helpText.setBorder (null);
                                                     
@@ -116,6 +146,8 @@ public abstract class Wizard extends Box
                 public void actionPerformed (ActionEvent ev)
                 {
 
+                    Map<String, WizardStep> _stages = _this.stages;
+                
                     WizardStep ws = null;
 
                     String prev = _this.getPreviousStage (_this.currentStage);
@@ -123,7 +155,7 @@ public abstract class Wizard extends Box
                     if (prev != null)
                     {
 
-                        ws = _this.stages.get (prev);
+                        ws = _stages.get (prev);
 
                         if (ws == null)
                         {
@@ -197,7 +229,9 @@ public abstract class Wizard extends Box
                     if (next != null)
                     {
 
-                        ws = _this.stages.get (next);
+                        Map<String, WizardStep> _stages = _this.stages;                    
+                    
+                        ws = _stages.get (next);
 
                         if (ws == null)
                         {
@@ -393,22 +427,22 @@ public abstract class Wizard extends Box
                               boolean enable)
     {
 
-        if ((name.equals ("next")) ||
-            (name.equals ("finish")))
+        if ((name.equals (NEXT_BUTTON_ID)) ||
+            (name.equals (FINISH_BUTTON_ID)))
         {
 
             this.nextBut.setEnabled (enable);
 
         }
 
-        if (name.equals ("previous"))
+        if (name.equals (PREVIOUS_BUTTON_ID))
         {
 
             this.prevBut.setEnabled (enable);
 
         }
 
-        if (name.equals ("cancel"))
+        if (name.equals (CANCEL_BUTTON_ID))
         {
 
             this.cancelBut.setEnabled (enable);

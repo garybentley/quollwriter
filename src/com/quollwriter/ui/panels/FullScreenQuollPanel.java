@@ -45,11 +45,13 @@ public class FullScreenQuollPanel extends QuollPanel
 
     }
 
+    @Override
     public void init ()
     {
 
     }
 
+    @Override
     public void close ()
     {
 

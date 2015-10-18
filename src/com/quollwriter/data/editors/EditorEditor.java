@@ -134,10 +134,9 @@ public class EditorEditor extends AbstractEditorObject
                          EditorStatus  editorStatus)
     {
         
-        super (OBJECT_TYPE);
+        super (OBJECT_TYPE,
+               name);
         
-        this.name = name;
-        //this.shortName = shortName;
         this.avatar = avatar;
         this.status = status;
         this.editorStatus = editorStatus;

@@ -3,28 +3,28 @@
     <item><![CDATA[Quoll Writer has a Patreon page.  If you want to help speed up development why not consider donating?  <a href="https://www.patreon.com/quollwriter?ty=h">Click here to view the Patreon page</a>]]></item>
   </tip>
   <tip>
-    <item condition="chaptertab"><![CDATA[Did you know you can keep track of how much of a chapter you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[Did you know you can keep track of how much of a {chapter} you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.]]></item>
   </tip>
   <tip>
     <item><![CDATA[Don't like what things are called?  <a href="action:editobjectnames">Click here to change them.</a>]]></item>
   </tip>
   <tip>
-    <item><![CDATA[You know when you right click when editing a chapter?  You can compress the menu you see in the options.  <a href="action:options">Click here to view options.</a>]]></item>
+    <item><![CDATA[There is an option to compress the right click menu you see when editing a {chapter}. <a href="action:options.editing">Click here to view options.</a>]]></item>
   </tip>
   <tip>
-    <item><![CDATA[Don't like the position of the tabs?  Change it in the options.  <a href="action:options">Click here to view options.</a>]]></item>
+    <item><![CDATA[Don't like the position of the tabs?  Change it in the options.  <a href="action:options.look">Click here to view options.</a>]]></item>
   </tip>
   <tip>
-    <item><![CDATA[Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href="action:textproperties">Click here to view the text properties now.</a>]]></item>
+    <item condition="!landingviewer"><![CDATA[Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href="action:textproperties">Click here to view the text properties now.</a>]]></item>
   </tip>
   <tip>
-    <item condition="!options"><![CDATA[Want to change something?  <a href="action:projectoptions">Check out the options, there might be a setting for it.</a>]]></item>
+    <item condition="!options"><![CDATA[Want to change something?  <a href="action:options">Check out the options, there might be a setting for it.</a>]]></item>
   </tip>
   <tip>
     <item><![CDATA[Changing the setting of an option will take effect straight away, no need to save.]]></item>
   </tip>
   <tip>
-    <item><![CDATA[Want to work in full screen mode?  <a href="action:fullscreen">Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen,fullscreen] button on the toolbar to enter full screen mode.]]></item>
+    <item condition="!landingviewer"><![CDATA[Want to work in full screen mode?  <a href="action:fullscreen">Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen,fullscreen] button on the toolbar to enter full screen mode.]]></item>
   </tip>
   <tip>
     <item><![CDATA[Can't remember what the awesome was added in this release?  <a href="action:whatsnew">Click to see what's new.</a>]]></item>
@@ -60,7 +60,7 @@
   </tip>
 
   <tip>
-    <item><![CDATA[Do you know about the keyboard shortcuts?  <a href="help:main-window/keyboard-shortcuts">Click to view the shortcuts.</a>]]></item>
+    <item><![CDATA[Like to use the keyboard rather than the mouse?  <a href="help:main-window/keyboard-shortcuts">Click to view the shortcuts.</a>]]></item>
   </tip>
   
   <tip>
@@ -68,7 +68,7 @@
   </tip>
 
   <tip>
-    <item><![CDATA[You can export your project to a number of different file formats?  <a href="action:export">Click to export your project.</a><br />You can also select [project-export]<b>Export Project</b> from the project menu to export.]]></item>
+    <item condition="projectviewer"><![CDATA[You can export your project to a number of different file formats?  <a href="action:export">Click to export your project.</a><br />You can also select [project-export]<b>Export Project</b> from the project menu to export.]]></item>
   </tip>
   
   <tip>
@@ -93,7 +93,7 @@
   </tip>
 
   <tip>
-    <item condition="chaptertab"><![CDATA[Missing the sound of a typewriter?  <a href="action:enabletypewritersound">Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the chapter tab of the <a href="action:projectoptions">project options</a>.]]></item>
+    <item condition="chaptertab"><![CDATA[Missing the sound of a typewriter?  <a href="action:enabletypewritersound">Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the chapter tab of the <a href="action:options.project">project options</a>.]]></item>
   </tip>
   
   <tip>
@@ -105,14 +105,14 @@
   </tip>
 
   <tip>
-    <item><![CDATA[Did you know that in full screen mode you can change the color of the text and the background of the writing area? <a href="action:fullscreen">Click to enter full screen mode now.</a>]]></item>
+    <item condition="!landingviewer"><![CDATA[Did you know that in full screen mode you can change the color of the text and the background of the writing area? <a href="action:fullscreen">Click to enter full screen mode now.</a>]]></item>
   </tip>
   
   <tip>
-    <item><![CDATA[Did you know that in full screen mode you can set an image for the background?  <a href="action:fullscreen">Click to enter full screen mode now.</a>]]></item>
+    <item condition="!landingviewer"><![CDATA[Did you know that in full screen mode you can set an image for the background?  <a href="action:fullscreen">Click to enter full screen mode now.</a>]]></item>
   </tip>
   
   <tip>
-    <item><![CDATA[Looking to find where a word or term is mentioned?  <a href="action:find">Click to open the find.</a><br />You can open the find with <b>Ctrl+F</b> or select [find]<b>Find</b> from the project menu at any time.]]></item>
+    <item condition="!landingviewer"><![CDATA[Looking to find where a word or term is mentioned?  <a href="action:find">Click to open the find.</a><br />You can open the find with <b>Ctrl+F</b> or select [find]<b>Find</b> from the project menu at any time.]]></item>
   </tip>
 </tips>

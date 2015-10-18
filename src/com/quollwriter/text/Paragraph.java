@@ -4,6 +4,7 @@ import java.text.*;
 import java.util.*;
 
 import com.quollwriter.*;
+import com.quollwriter.ui.components.*;
 
 public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
 {
@@ -22,7 +23,13 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
     {
         
         this.start = start;
-        this.paragraph = paragraph;
+        
+        if (paragraph == null)
+        {
+            
+            return;
+            
+        }
         
         // Split up the sentences.
         BreakIterator bi = BreakIterator.getSentenceInstance ();
@@ -51,7 +58,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
             }
             
             String t = paragraph.substring (st,
-                                            en).trim ();
+                                            en);
             
             if (t.length () == 0)
             {
@@ -82,7 +89,9 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
             st = en;
             
         }
-                
+        
+        this.paragraph = paragraph.trim ();
+                        
     }
     
     @Override
@@ -475,5 +484,32 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         return matches;
         
     }
-    
+ 
+    /**
+     * Get the text in this paragraph, marked up as html with the markup passed in.
+     * It assumes that the markup is relative to the getAllTextStartOffset.
+     *
+     * @param m The markup.
+     * @return The html marked up string.
+     */
+    public String markupAsHTML (Markup m)
+    {
+        
+        if (m == null)
+        {
+            
+            return this.paragraph;
+            
+        }
+        
+        Markup pm = new Markup (m,
+                                this.getAllTextStartOffset (),
+                                this.getAllTextEndOffset ());
+                    
+        pm.shiftBy (-1 * this.getAllTextStartOffset ());
+ 
+        return pm.markupAsHTML (this.paragraph);
+ 
+    }
+        
 }

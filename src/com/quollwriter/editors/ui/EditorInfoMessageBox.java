@@ -20,8 +20,8 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
         
     private Box responseBox = null;
         
-    public EditorInfoMessageBox (EditorInfoMessage     mess,
-                                 AbstractProjectViewer viewer)
+    public EditorInfoMessageBox (EditorInfoMessage mess,
+                                 AbstractViewer    viewer)
     {
         
         super (mess,
@@ -171,7 +171,7 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
                                               ed,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update {editor}, please contact Quoll Writer support for assitance.");
                         
                         return;
@@ -203,7 +203,7 @@ public class EditorInfoMessageBox extends MessageBox<EditorInfoMessage>
                                               _this.message,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update {editor}, please contact Quoll Writer support for assitance.");
                         
                         return;

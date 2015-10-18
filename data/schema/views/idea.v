@@ -2,6 +2,8 @@ CREATE VIEW idea_v
 AS
 SELECT i.dbkey dbkey,
        n.description description,
+       n.markup markup,
+       n.files  files,
        i.rating rating,
        i.ideatypedbkey ideatypedbkey,
        n.lastmodified lastmodified,

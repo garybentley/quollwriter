@@ -75,7 +75,7 @@ public class AddNewNoteTypeActionHandler extends TextInputActionHandler
             
         }
         
-        if (this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).hasType (v))
+        if (Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).hasType (v))
         {
 
             return "A type called: " + v + " already exists.";
@@ -90,8 +90,8 @@ public class AddNewNoteTypeActionHandler extends TextInputActionHandler
                               throws Exception
     {
         
-        this.projectViewer.getObjectTypesHandler (Note.OBJECT_TYPE).addType (v,
-                                                                             false);
+        Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addType (v,
+                                                                                         true);
         
         return true;
         

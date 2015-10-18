@@ -48,7 +48,8 @@ public class Form extends QPopup
 
     }
 
-    public Form(String         title,
+    public Form(String         NEWVERSION,
+                String         title,
                 Icon           icon,
                 List<FormItem> items,
                 Component      parent,
@@ -60,6 +61,9 @@ public class Form extends QPopup
                icon,
                null);
 
+        // TODO: Change this, handle properly via hiding and a popup listener.
+        this.setAllowRemoveOnEscape (false);
+               
         if (addHideControl)
         {
 
@@ -101,18 +105,256 @@ public class Form extends QPopup
             tb.add (bt);
             
             this.getHeader ().setControls (tb);
-/*
-            final ImagePanel ip = new ImagePanel (Environment.getIcon ("cancel",
-                                                                       false).getImage (),
-                                                  Environment.getTransparentImage ());
-            com.quollwriter.ui.UIUtils.setAsButton (ip);
 
-            this.getHeader ().setControls (ip);
+        }
 
-            ip.addMouseListener (new MouseAdapter ()
+        this.error = com.quollwriter.ui.UIUtils.createErrorLabel ("");
+        
+        this.error.setVisible (false);
+        
+        this.error.setBorder (com.quollwriter.ui.UIUtils.createPadding (5, 10, 0, 5));
+        
+        //String cols = "right:pref, 6px, fill:100px:grow";
+
+        String cols = "5px, fill:100px:grow";
+        
+        StringBuilder rows = new StringBuilder ();
+        
+        for (int i = 0; i < items.size (); i++)
+        {
+
+            FormItem fi = (FormItem) items.get (i);
+
+            if (fi.label != null)
+            {
+                
+                rows.append ("p");
+                
+                if (fi.component != null)
+                {
+                    
+                    rows.append (", 6px, ");
+                    
+                }
+                
+            }
+            
+            if (fi.component instanceof JComboBox)
+            {
+
+                fi.component.setMaximumSize (fi.component.getPreferredSize ());
+
+                Box tb = new Box (BoxLayout.X_AXIS);
+                tb.add (fi.component);
+                tb.add (Box.createHorizontalGlue ());
+
+                fi.component = tb;
+
+            }
+            
+            rows.append ("p");
+            /*
+            if ((fi.component instanceof JTextArea)
+                ||
+                // TODO: Fix this.
+                (fi.component instanceof com.quollwriter.ui.TextArea)
+               )
+            {
+
+                rows.append ("top:p:grow");
+
+            } else {
+                
+                rows.append ("p");                
+                
+            }
+*/
+            if (i < (items.size () - 1))
+            {
+
+                rows.append (", 6px, ");
+
+            }
+
+        }
+
+        final Form _this = this;
+        
+        FormLayout   fl = new FormLayout (cols,
+                                          rows.toString () + ", 10px, fill:p:grow");
+        PanelBuilder b = new PanelBuilder (fl);
+        b.border (Borders.DIALOG);
+        
+        CellConstraints cc = new CellConstraints ();
+
+        Iterator<FormItem> iter = items.iterator ();
+
+        int r = 1;
+
+        while (iter.hasNext ())
+        {
+
+            FormItem fi = iter.next ();
+
+            Object l = fi.label;
+
+            Component c = fi.component;
+
+            if (c instanceof JComponent)
+            {
+            
+                ((JComponent) c).setOpaque (false);
+            
+            }
+            
+            if (c == null)
+            {
+
+                if (l instanceof String)
                 {
 
-                    public void mouseReleased (MouseEvent ev)
+                    String label = l.toString ();
+
+                    if (label != null)
+                    {
+
+                        b.addLabel (label,
+                                    cc.xyw (1,
+                                            r,
+                                            2));
+                        
+                        r += 2;
+
+                    }
+
+                } else
+                {
+
+                    b.add ((Component) l,
+                           cc.xyw (1,
+                                   r,
+                                   2));
+                           
+                    r += 2;
+
+                }
+
+            } else
+            {
+
+                if (l instanceof String)
+                {
+
+                    String label = l.toString ();
+
+                    if (label != null)
+                    {
+
+                        b.addLabel (label,
+                                    cc.xyw (1,
+                                            r,
+                                            2));
+                        
+                        r += 2;
+
+                    }
+
+                } else
+                {
+
+                    if ((l instanceof JTextArea) ||
+                        (l instanceof JTextPane) ||
+                        (l instanceof JList))
+                    {
+
+                        l = new JScrollPane ((Component) l);
+                        ((JScrollPane) l).getViewport ().setOpaque (false);
+                        
+                    }
+
+                    if (l == null)
+                    {
+
+                        b.addLabel ("",
+                                    cc.xyw (1,
+                                            r,
+                                            2));
+                        
+                        r += 2;
+
+                    } else
+                    {
+
+                        b.add ((Component) l,
+                               cc.xyw (1,
+                                       r,
+                                       2));
+                        
+                        r += 2;
+
+                    }
+
+                }
+                
+                if ((c instanceof JTextArea) ||
+                    (c instanceof JTextPane) ||
+                    (c instanceof JList))
+                {
+
+                    c = new JScrollPane (c);
+                    ((JScrollPane) c).getViewport ().setOpaque (false);
+                    ((JScrollPane) c).setOpaque (false);
+                    
+                }
+                
+
+                b.add (c,
+                       cc.xy (2,
+                              r));
+                
+                r += 2;
+
+            }
+
+        }
+
+        List bs = new ArrayList ();
+
+        if ((buttons | Form.SAVE_BUTTON) > 0)
+        {
+
+            JButton but = new JButton (Form.SAVE_BUTTON_LABEL);
+
+            but.addActionListener (new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
+                    {
+
+                        _this.error.setVisible (false);
+                        
+                        _this.resize ();
+                    
+                        Form.this.fireFormEvent (FormEvent.SAVE,
+                                                 FormEvent.SAVE_ACTION_NAME);
+
+                    }
+
+                });
+
+            bs.add (but);
+
+        }
+
+        if ((buttons | Form.CANCEL_BUTTON) > 0)
+        {
+
+            JButton but = new JButton (Form.CANCEL_BUTTON_LABEL);
+
+            but.addActionListener (new ActionAdapter ()
+                {
+
+                    public void actionPerformed (ActionEvent ev)
                     {
 
                         Form.this.setVisible (false);
@@ -130,7 +372,117 @@ public class Form extends QPopup
                     }
 
                 });
-*/
+
+            bs.add (but);
+
+        }
+
+        b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
+               cc.xyw (2,
+                       r,
+                       1));
+
+        JPanel p = b.getPanel ();
+        //p.setBackground (UIManager.getColor ("Panel.background"));
+        p.setBackground (com.quollwriter.ui.UIUtils.getComponentColor ());
+        p.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        Box wb = new Box (BoxLayout.Y_AXIS);
+        wb.add (this.error);
+        wb.add (p);
+        
+        this.setContent (wb);
+
+        if (parent != null)
+        {
+
+            this.setDraggable (parent);
+
+        }
+
+        p.setVisible (true);
+
+    }
+
+    public Form(String         title,
+                Icon           icon,
+                List<FormItem> items,
+                Component      parent,
+                int            buttons,
+                boolean        addHideControl)
+    {
+
+        super (title,
+               icon,
+               null);
+
+        this.addPopupListener (new PopupListener ()
+        {
+            
+            @Override
+            public void popupShown (PopupEvent ev)
+            {
+                
+              
+            }
+            
+            @Override
+            public void popupResized (PopupEvent ev)
+            {
+                
+              
+            }
+
+            @Override
+            public void popupHidden (PopupEvent ev)
+            {
+                
+                Form.this.fireFormEvent (FormEvent.CANCEL,
+                                         FormEvent.CANCEL_ACTION_NAME);
+
+                if (Form.this.hideOnCancel)
+                {
+
+                    Form.this.hideForm ();
+
+                }                    
+                
+            }
+            
+        });
+        
+        if (addHideControl)
+        {
+
+            JButton bt = new JButton (Environment.getIcon ("cancel",
+                                                           Constants.ICON_MENU));
+            bt.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+            bt.setOpaque (false);
+    
+            bt.addActionListener (new ActionAdapter ()
+            {
+               
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    Form.this.setVisible (false);
+                    
+                }
+                
+            });
+            
+            JToolBar tb = new JToolBar ();
+            tb.setOpaque (false);
+            tb.setFloatable (false);
+            tb.setBackground (new Color (0,
+                                         0,
+                                         0,
+                                         0));
+
+            tb.add (bt);
+            
+            this.getHeader ().setControls (tb);
+
         }
 
         this.error = com.quollwriter.ui.UIUtils.createErrorLabel ("");
@@ -161,7 +513,11 @@ public class Form extends QPopup
 
             }
             
-            if (fi.component instanceof JTextArea)
+            if ((fi.component instanceof JTextArea)
+                ||
+                // TODO: Fix this.
+                (fi.component instanceof com.quollwriter.ui.TextArea)
+               )
             {
 
                 rows.append ("top:p:grow");

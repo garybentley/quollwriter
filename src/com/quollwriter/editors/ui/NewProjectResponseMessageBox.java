@@ -30,7 +30,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
     private Box responseBox = null;
         
     public NewProjectResponseMessageBox (NewProjectResponseMessage mess,
-                                         AbstractProjectViewer     viewer)
+                                         AbstractViewer            viewer)
     {
         
         super (mess,
@@ -67,7 +67,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
 
         final NewProjectResponseMessageBox _this = this;
         
-        Project proj = null;
+        ProjectInfo proj = null;
 
         try
         {
@@ -83,25 +83,23 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                         
         }
                 
-        final Project fproj = proj;
-        
         final EditorEditor ed = this.message.getEditor ();
                                 
         ProjectEditor pe = null;
         
-        if (fproj != null)
+        if (proj != null)
         {
         
             try
             {
                 
-                pe = EditorsEnvironment.getProjectEditor (fproj,
+                pe = EditorsEnvironment.getProjectEditor (proj,
                                                           ed);
     
             } catch (Exception e) {
                 
                 Environment.logError ("Unable to get project editor for project: " +
-                                      fproj +
+                                      proj +
                                       ", editor: " +
                                       ed,
                                       e);
@@ -143,7 +141,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                 {
                                         
                     JTextPane desc = UIUtils.createHelpTextPane ("Additionally they provided the following name/avatar.",
-                                                                 this.projectViewer);        
+                                                                 this.viewer);        
                                     
                     this.responseBox.add (Box.createVerticalStrut (5));
                                         
@@ -273,7 +271,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               ed,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update {editor}, please contact Quoll Writer support for assitance.");
                         
                         return;
@@ -354,7 +352,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                 public void actionPerformed (ActionEvent ev)
                 {
                 
-                    Project proj = null;
+                    ProjectInfo proj = null;
                     
                     try
                     {
@@ -368,7 +366,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               _this.message.getForProjectId (),
                                               e);
                         
-                        UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
+                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                                   "Unable to open {project}, please contact Quoll Writer support for assistance.");
                         
                         return;
@@ -386,7 +384,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               _this.message.getForProjectId (),
                                               e);
                         
-                        UIUtils.showErrorMessage (Environment.getFocusedProjectViewer (),
+                        UIUtils.showErrorMessage (Environment.getFocusedViewer (),
                                                   "Unable to open {project}, please contact Quoll Writer support for assistance.");
                         
                         return;
@@ -461,7 +459,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                               _this.message,
                                               e);
                         
-                        UIUtils.showErrorMessage (_this.projectViewer,
+                        UIUtils.showErrorMessage (_this.viewer,
                                                   "Unable to update message, please contact Quoll Writer support for assistance.");
                         
                         return;
@@ -491,6 +489,8 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
     private JComponent getResponseDetails ()
     {
         
+        final NewProjectResponseMessageBox _this = this;
+        
         String rows = "top:p";
         
         String resMessage = this.message.getResponseMessage ();        
@@ -516,7 +516,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                           cc.xy (1,
                                  row));
 
-        Project proj = null;
+        ProjectInfo proj = null;
         
         try
         {
@@ -531,9 +531,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                   e);
                         
         }
-        
-        final Project fproj = proj;
-        
+                
         if (proj != null)
         {
         
@@ -545,18 +543,34 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                 public void actionPerformed (ActionEvent ev)
                 {
                 
-                    if (fproj != null)
+                    ProjectInfo proj = null;
+                    
+                    try
+                    {
+                    
+                        proj = Environment.getProjectById (_this.message.getForProjectId (),
+                                                           (_this.message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE));
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to get project: " +
+                                              _this.message.getForProjectId (),
+                                              e);
+                                    
+                    }
+
+                    if (proj != null)
                     {
                 
                         try
                         {
                 
-                            Environment.openProject (fproj);
+                            Environment.openProject (proj);
                             
                         } catch (Exception e) {
                             
                             Environment.logError ("Unable to open project: " +
-                                                  fproj,
+                                                  proj,
                                                   e);
                             
                         }
@@ -599,7 +613,7 @@ public class NewProjectResponseMessageBox extends MessageBox<NewProjectResponseM
                                      row));
                             
             JComponent nc = UIUtils.createHelpTextPane (resMessage,
-                                                        this.projectViewer);
+                                                        this.viewer);
             nc.setBorder (null);
     
             builder.add (nc,

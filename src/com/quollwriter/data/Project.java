@@ -34,6 +34,10 @@ public class Project extends NamedObject
 
     }
 
+    public static final String LAST_EDITED = "lastEdited";    
+    public static final String PROJECT_DIRECTORY = "projectDirectory";
+    public static final String BACKUP_DIRECTORY = "backupDirectory";
+    
     public static final String OBJECT_TYPE = "project";
     public static final String WORDCOUNTS_OBJECT_TYPE = "wordcounts";
 
@@ -47,6 +51,7 @@ public class Project extends NamedObject
     private List<Book>         books = new ArrayList ();
     private int                lastBookId = 0;
     private File               projectDirectory = null;
+    private File               backupDirectory = null;
     private Date               lastEdited = null;
     private boolean            backup = false;
     private boolean            encrypted = false;
@@ -122,7 +127,7 @@ public class Project extends NamedObject
                                                 
         File dir = new File (directory);
 
-        this.name = name;
+        this.setName (name);
         
         this.setProjectDirectory (dir);
         this.setEncrypted (encrypted);
@@ -455,10 +460,133 @@ public class Project extends NamedObject
         
     }
 
-    public int getChapterWordCount ()
+    public int getChapterCount ()
     {
         
         int c = 0;
+        
+        if (this.books == null)
+        {
+            
+            return c;
+            
+        }
+        
+        for (Book b : this.books)
+        {
+            
+            c += b.getChapters ().size ();
+            
+        }
+        
+        return c;        
+        
+    }
+    
+    public ReadabilityIndices getAllProjectReadabilityIndices ()
+    {
+        
+        ReadabilityIndices ri = new ReadabilityIndices ();
+        
+        if (this.books == null)
+        {
+            
+            return ri;
+            
+        }
+        
+        for (Book b : this.books)
+        {
+            
+            for (Chapter c : b.getChapters ())
+            {
+                
+                ri.add (c.getChapterText ());
+            }
+            
+        }
+
+        return ri;
+        
+    }
+    
+    public int getEditedWordCount ()
+    {
+        
+        if (this.books == null)
+        {
+            
+            return 0;
+            
+        }
+        
+        final StringBuilder buf = new StringBuilder ();
+        
+        int editComplete = 0; 
+        
+        for (Book b : this.books)
+        {
+        
+            for (Chapter c : b.getChapters ())
+            {
+                    
+                if (c.getEditPosition () > 0)
+                {
+                                
+                    if (buf.length () > 0)
+                    {
+                        
+                        buf.append (" ");
+                        
+                    }
+                            
+                    String t = c.getChapterText ();
+                    
+                    if (t == null)
+                    {
+                        
+                        continue;
+                        
+                    }
+                    
+                    if (c.getEditPosition () <= t.length ())
+                    {
+                        
+                        buf.append (t.substring (0,
+                                                 c.getEditPosition ()));
+                        
+                    }
+
+                }
+            
+            }
+            
+        }
+                                
+        if (buf.length () > 0)
+        {
+        
+            ChapterCounts allc = new ChapterCounts (buf.toString ());
+
+            return allc.wordCount;
+            
+        }
+
+        return 0;
+        
+    }
+    
+    public int getWordCount ()
+    {
+        
+        int c = 0;
+        
+        if (this.books == null)
+        {
+            
+            return c;
+            
+        }
         
         for (Book b : this.books)
         {
@@ -976,8 +1104,14 @@ public class Project extends NamedObject
     public void setLastEdited (Date d)
     {
 
+        Date oldDate = this.lastEdited;
+    
         this.lastEdited = d;
 
+        this.firePropertyChangedEvent (Project.LAST_EDITED,
+                                       oldDate,
+                                       this.lastEdited);
+        
     }
 
     public File getProjectDirectory ()
@@ -986,14 +1120,48 @@ public class Project extends NamedObject
         return this.projectDirectory;
 
     }
-
+    
     public void setProjectDirectory (File dir)
     {
 
+        File oldDir = this.projectDirectory;
+    
         this.projectDirectory = dir;
 
+        this.firePropertyChangedEvent (Project.PROJECT_DIRECTORY,
+                                       oldDir,
+                                       this.projectDirectory);
+        
     }
     
+    public File getBackupDirectory ()
+    {
+
+        if (this.backupDirectory == null)
+        {
+            
+            this.backupDirectory = new File (this.projectDirectory,
+                                             "versions");
+            
+        }
+    
+        return this.backupDirectory;
+
+    }
+
+    public void setBackupDirectory (File dir)
+    {
+
+        File oldDir = this.backupDirectory;
+    
+        this.backupDirectory = dir;
+
+        this.firePropertyChangedEvent (Project.BACKUP_DIRECTORY,
+                                       oldDir,
+                                       this.backupDirectory);
+        
+    }
+
     public List<QCharacter> getCharacters ()
     {
 
@@ -1172,6 +1340,9 @@ public class Project extends NamedObject
                                     "projectDir",
                                     (this.projectDirectory != null ? this.projectDirectory.getPath () : "Not set"));
         this.addToStringProperties (props,
+                                    "backupDir",
+                                    (this.backupDirectory != null ? this.backupDirectory.getPath () : "Not set"));
+        this.addToStringProperties (props,
                                     "lastEdited",
                                     this.lastEdited);
         this.addToStringProperties (props,
@@ -1217,14 +1388,6 @@ public class Project extends NamedObject
         
     }
     
-    @Override
-    public String toString ()
-    {
-
-        return Environment.formatObjectToStringProperties (this);        
-
-    }
-
     public int getBookIndex (Book b)
     {
 

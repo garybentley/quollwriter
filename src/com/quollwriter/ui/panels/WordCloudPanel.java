@@ -79,6 +79,7 @@ public class WordCloudPanel extends QuollPanel
     
     }
     
+    @Override
     public void close ()
     {
         

@@ -5,8 +5,9 @@ import java.util.*;
 import javax.swing.event.*;
 
 import com.quollwriter.data.*;
+import com.quollwriter.events.*;
 
-public interface TypesHandler<E extends DataObject> 
+public interface TypesHandler
 {
     
     public boolean removeType (String  type,
@@ -21,20 +22,12 @@ public interface TypesHandler<E extends DataObject>
 
     public boolean hasType (String type);
                                
-    public int getUsedInCount (String type);
-
     public Set<String> getTypes ();
-    
-    public Set<String> getTypesFromObjects ();
-
-    public Set<E> getObjectsForType (String t);
-    
-    public Map<String, Set<E>> getObjectsAgainstTypes ();
-    
+        
     public boolean typesEditable ();
     
-    public void removeChangeListener (ChangeListener l);
+    public void removePropertyChangedListener (PropertyChangedListener l);
     
-    public void addChangeListener (ChangeListener l);
+    public void addPropertyChangedListener (PropertyChangedListener l);
     
 }

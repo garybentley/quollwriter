@@ -39,7 +39,8 @@ public abstract class FindResultsBox extends ProjectObjectsAccordionItem
         
     }
 
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
         
     }        
@@ -50,8 +51,8 @@ public abstract class FindResultsBox extends ProjectObjectsAccordionItem
         
     }
     
-    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv,
-                                             JTree                 tree)
+    @Override
+    public TreeCellEditor getTreeCellEditor (AbstractProjectViewer pv)
     {
         
         return null;
@@ -79,8 +80,8 @@ public abstract class FindResultsBox extends ProjectObjectsAccordionItem
         
     }
     
-    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv,
-                                                       JTree                 tree)
+    @Override
+    public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv)
     {
         
         return null;

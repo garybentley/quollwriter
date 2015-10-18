@@ -37,7 +37,7 @@ public class ChapterGoalsAccordionItem extends ChapterFieldAccordionItem
                     
     }
 
-    public String getFieldValue (Chapter c)
+    public StringWithMarkup getFieldValue (Chapter c)
     {
         
         return c.getGoals ();
@@ -58,8 +58,8 @@ public class ChapterGoalsAccordionItem extends ChapterFieldAccordionItem
         
     }
     
-    public void setFieldValue (String v,
-                               Chapter c)
+    public void setFieldValue (StringWithMarkup v,
+                               Chapter          c)
     {
         
         c.setGoals (v);

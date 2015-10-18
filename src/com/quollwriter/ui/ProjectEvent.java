@@ -8,12 +8,14 @@ public class ProjectEvent extends EventObject
 {
     
     public static final String FULL_SCREEN = "fullscreen";
+    public static final String DISTRACTION_FREE = "distractionfree";
     public static final String TYPE_WRITER_SOUND = "typewritersound";
     public static final String WORD_COUNTS = "wordcounts";
     public static final String WORD_COUNT_HISTORY = "wordcounthistory";
     public static final String AUTO_SAVE = "autosave";
     public static final String SPELL_CHECK = "spellcheck";
     public static final String TOOLBAR = "toolbar";
+    public static final String LAYOUT = "layout";
     public static final String SIDEBAR = "sidebar";
     public static final String FIND = "find";
     public static final String SYNONYM = "synonym";
@@ -52,6 +54,7 @@ public class ProjectEvent extends EventObject
     public static final String NEWRULE = "newrule";
     public static final String EDITRULE = "editrule";
     public static final String SUBMIT = "submit";
+    public static final String CHANGED = "changed";
     public static final String ENTER = "enter";
     public static final String EXIT = "exit";
     public static final String REPLACE = "replace";
@@ -81,31 +84,29 @@ public class ProjectEvent extends EventObject
     public static final String CHANGE_LINE_INDENT = "changelineindent";
     public static final String CHANGE_HIGHLIGHT_WRITING_LINE = "changehighlightwritingline";
     
-    private AbstractProjectViewer viewer = null;
     private String type = null;
     private String action = null;
     private Object contextObject = null;
     
-    public ProjectEvent (AbstractProjectViewer viewer,
-                         String                type,
-                         String                action)
+    public ProjectEvent (Object source,
+                         String type,
+                         String action)
     {
         
-        super (viewer);
+        super (source);
         
-        this.viewer = viewer;
         this.type = type;
         this.action = action;
         
     }
 
-    public ProjectEvent (AbstractProjectViewer viewer,
-                         String                type,
-                         String                action,
-                         Object                contextObject)
+    public ProjectEvent (Object source,
+                         String type,
+                         String action,
+                         Object contextObject)
     {
         
-        this (viewer,
+        this (source,
               type,
               action);
         
@@ -113,34 +114,34 @@ public class ProjectEvent extends EventObject
                 
     }
     
-    public ProjectEvent (AbstractProjectViewer viewer,
-                         String                type)
+    public ProjectEvent (Object source,
+                         String type)
     {
         
-        this (viewer,
+        this (source,
               type,
               "*");
                         
     }
 
-    public ProjectEvent (AbstractProjectViewer viewer,
-                         String                type,
-                         Object                contextObject)
+    public ProjectEvent (Object source,
+                         String type,
+                         Object contextObject)
     {
         
-        this (viewer,
+        this (source,
               type,
               "*",
               contextObject);
                         
     }
 
-    public ProjectEvent (AbstractProjectViewer viewer,
-                         DataObject            contextObject,
-                         String                action)
+    public ProjectEvent (Object     source,
+                         DataObject contextObject,
+                         String     action)
     {
         
-        this (viewer,
+        this (source,
               contextObject.getObjectType (),
               action,
               contextObject);
@@ -181,12 +182,5 @@ public class ProjectEvent extends EventObject
         return this.type + (this.action != null ? this.action : "");
         
     }
-    
-    public AbstractProjectViewer getProjectViewer ()
-    {
         
-        return this.viewer;
-        
-    }
-    
 }

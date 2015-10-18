@@ -12,7 +12,7 @@ import com.quollwriter.data.*;
 public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, description, rating, lastmodified, datecreated FROM idea_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, description, markup, files, rating, lastmodified, datecreated FROM idea_v ";
 
     private ObjectManager objectManager = null;
 
@@ -40,7 +40,9 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
             i.setKey (key);
 
             i.setType (ideaType);
-            i.setDescription (rs.getString (ind++));
+            i.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            i.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));            
             i.setRating (rs.getInt (ind++));
 
             i.setLastModified (rs.getTimestamp (ind++));

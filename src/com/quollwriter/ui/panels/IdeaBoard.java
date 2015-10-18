@@ -117,7 +117,7 @@ public class IdeaBoard extends QuollPanel
             this.add (this.viewBox);
             this.viewBox.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-            this.shortDesc = UIUtils.createObjectDescriptionViewPane (null,
+            this.shortDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                       this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                       this.typeBox.ideaBoard.getProjectViewer (),
                                                                       this.typeBox.ideaBoard);
@@ -125,7 +125,7 @@ public class IdeaBoard extends QuollPanel
             this.viewBox.add (this.shortDesc);
             this.shortDesc.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-            this.fullDesc = UIUtils.createObjectDescriptionViewPane (null,
+            this.fullDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                      this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                      this.typeBox.ideaBoard.getProjectViewer (),
                                                                      this.typeBox.ideaBoard);
@@ -217,7 +217,7 @@ public class IdeaBoard extends QuollPanel
                                                              _this.typeBox.ideaBoard,
                                                              _this.typeBox.ideaBoard.projectViewer,
                                                              null,
-                                                             _this.idea.getDescription ());
+                                                             _this.idea.getDescriptionText ());
 
                         Component c = (Component) ev.getSource ();
 
@@ -338,6 +338,8 @@ public class IdeaBoard extends QuollPanel
 
             };
 
+            this.shortDesc.addMouseListener (vis);
+            
             StarBar sb = new StarBar ();
 
             sb.setToolTipText ("Rate this item.");
@@ -370,10 +372,10 @@ public class IdeaBoard extends QuollPanel
                                           });
 
             tbb.add (sb);
-
+/*
             UIUtils.addListenerToChildren (vis,
                                            this.viewBox);
-
+*/
             this.viewBox.add (Box.createVerticalStrut (3));
 
             this.viewBox.setBorder (new MatteBorder (0,
@@ -384,18 +386,17 @@ public class IdeaBoard extends QuollPanel
 
         }
 
-        public void saveIdea (String text)
+        public void saveIdea (StringWithMarkup text)
         {
-
-            if ((text == null) ||
-                (text.trim ().length () == 0))
+        
+            if (!text.hasText ())
             {
 
                 return;
 
             }
 
-            this.idea.setDescription (text.trim ());
+            this.idea.setDescription (text);
 
             this.updateIdea ();
 
@@ -431,7 +432,9 @@ public class IdeaBoard extends QuollPanel
         private void updateViewText ()
         {
 
-            Paragraph p = new Paragraph (this.idea.getDescription (),
+            StringWithMarkup sm = this.idea.getDescription ();
+        
+            Paragraph p = new Paragraph (sm.getText (),
                                          0);
         
             String firstSent = "";
@@ -439,12 +442,12 @@ public class IdeaBoard extends QuollPanel
             if (p.getSentenceCount () > 0)
             {
                 
-                firstSent = p.getFirstSentence ().getText ();
+                firstSent = p.getFirstSentence ().markupAsHTML (sm.getMarkup ());
             
                 if (p.getSentenceCount () > 1)
                 {
                     
-                    firstSent += " more...";
+                    firstSent += " <b><i>More...</i></b>";
                     
                 }
                 
@@ -458,7 +461,7 @@ public class IdeaBoard extends QuollPanel
             this.shortDesc.setToolTipText ("Click to show the full text");
                                                                                                   
             this.fullDesc.setText (UIUtils.getWithHTMLStyleSheet (this.fullDesc,
-                                                                  UIUtils.markupStringForAssets (this.idea.getDescription (),
+                                                                  UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
                                                                                                  this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                                                  null)));
 
@@ -470,8 +473,7 @@ public class IdeaBoard extends QuollPanel
     {
 
         private Idea      idea = null;
-        private JTextArea text = null;
-        private boolean   typed = false;
+        private TextArea  text = null;
         private TypeBox   typeBox = null;
         private IdeaBox   ideaBox = null;
 
@@ -492,61 +494,32 @@ public class IdeaBoard extends QuollPanel
                                                                  3),
                                                 UIUtils.createLineBorder ()));
 
-            this.add (Box.createVerticalStrut (3));
-
-            this.text = UIUtils.createTextArea (5);
-
+            this.text = UIUtils.createTextArea (typeBox.getIdeaBoard ().projectViewer,
+                                                "Enter your {Idea} here...",
+                                                5,
+                                                -1);
+            this.text.setCanFormat (true);
+            this.text.setAutoGrabFocus (true);
+            this.text.setBorder (null);
+            
             final AddEditBox _this = this;
 
-            this.text.addMouseListener (new MouseAdapter ()
-                {
+            UIUtils.addDoActionOnReturnPressed (this.text,
+                                                new ActionListener ()
+                                                {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
 
-                    public void mouseEntered (MouseEvent ev)
-                    {
+                                                        _this.save ();
+                                                        
+                                                    }
 
-                        _this.text.grabFocus ();
-
-                    }
-                });
-
-            this.text.addKeyListener (new KeyAdapter ()
-                {
-
-                    public void keyPressed (KeyEvent ev)
-                    {
-
-                        if ((!_this.typed) &&
-                            (_this.idea == null))
-                        {
-
-                            _this.text.setForeground (Color.BLACK);
-                            _this.text.setText ("");
-
-                        }
-
-                        _this.typed = true;
-
-                        if ((ev.getKeyCode () == KeyEvent.VK_ENTER) &&
-                            ((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK))
-                        {
-
-                            _this.save ();
-
-                        }
-
-                    }
-
-                });
+                                                });
 
             this.initTextArea ();
-
-            final JScrollPane sp = new JScrollPane (_this.text);
-
-            sp.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            sp.setBorder (null);
             
-            this.add (sp);
+            this.add (this.text);
 
             this.setVisible (false);
 
@@ -560,9 +533,7 @@ public class IdeaBoard extends QuollPanel
                                                     
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
-                                                        _this.typed = true;
-                                                        
+                                                                                                                
                                                         _this.save ();
                                                         
                                                     }
@@ -605,15 +576,7 @@ public class IdeaBoard extends QuollPanel
             buttons.add (Box.createHorizontalGlue ());
             buttons.add (tb);
 
-            buttons.setBorder (new CompoundBorder (new MatteBorder (1,
-                                                                    0,
-                                                                    0,
-                                                                    0,
-                                                                    UIUtils.getColor ("#dddddd")),
-                                                   new EmptyBorder (3,
-                                                                    3,
-                                                                    3,
-                                                                    3)));
+            buttons.setBorder (UIUtils.createTopLineWithPadding (3, 3, 3, 3));
 
             this.add (buttons);
 
@@ -622,24 +585,28 @@ public class IdeaBoard extends QuollPanel
         private void save ()
         {
 
-            if (!this.typed)
+            StringWithMarkup t = this.text.getTextWithMarkup ();
+            
+            if (!t.hasText ())
             {
-
+                
                 return;
-
+                
             }
-
+                            
             if (this.idea == null)
             {
 
-                typeBox.createIdea (this.text.getText ().trim ());
+                typeBox.createIdea (t);
 
             } else
             {
 
-                ideaBox.saveIdea (this.text.getText ().trim ());
+                ideaBox.saveIdea (t);
 
             }
+            
+            this.text.setTextWithMarkup (null);
 
         }
 
@@ -655,27 +622,10 @@ public class IdeaBoard extends QuollPanel
         private void initTextArea ()
         {
 
-            this.typed = false;
-
-            if (this.idea == null)
+            if (this.idea != null)
             {
 
-                final Color lightGrey = UIUtils.getColor ("#aaaaaa");
-
-                this.text.setForeground (lightGrey);
-                this.text.setText ("Enter your Idea here...");
-
-                this.text.getCaret ().setDot (0);
-
-                this.text.grabFocus ();
-
-            } else
-            {
-
-                this.text.setText (this.idea.getDescription ());
-                this.text.setForeground (Color.BLACK);
-
-                this.text.grabFocus ();
+                this.text.setTextWithMarkup (this.idea.getDescription ());
 
             }
 
@@ -703,6 +653,8 @@ public class IdeaBoard extends QuollPanel
 
             this.ideaType = it;
 
+            this.setAllowRemoveOnEscape (false);
+            
             this.ideaBoard = ideaBoard;
 
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -812,11 +764,11 @@ public class IdeaBoard extends QuollPanel
 
                     ButtonGroup group = new ButtonGroup ();
 
-                    sortMenu.setIcon (Environment.getIcon ("sort",
+                    sortMenu.setIcon (Environment.getIcon (Constants.SORT_ICON_NAME,
                                                            Constants.ICON_MENU));
 
                     mi = new JRadioButtonMenuItem ("Rating",
-                                                   Environment.getIcon ("star",
+                                                   Environment.getIcon (Constants.STAR_ICON_NAME,
                                                                         Constants.ICON_MENU));
 
                     if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_RATING))
@@ -847,7 +799,7 @@ public class IdeaBoard extends QuollPanel
                     sortMenu.add (mi);
 
                     mi = new JRadioButtonMenuItem ("Date Added",
-                                                   Environment.getIcon ("date",
+                                                   Environment.getIcon (Constants.DATE_ICON_NAME,
                                                                         Constants.ICON_MENU));
 
                     mi.addActionListener (new ActionAdapter ()
@@ -1201,18 +1153,20 @@ public class IdeaBoard extends QuollPanel
 
         }
 
-        public void createIdea (String text)
+        public void createIdea (StringWithMarkup text)
         {
-
-            if (text.trim ().length () == 0)
+        
+            if (!text.hasText ())
             {
 
                 return;
 
             }
 
+            text.update (text);
+            
             Idea i = new Idea ();
-            i.setDescription (text.trim ());
+            i.setDescription (text);
             i.setType (this.ideaType);
 
             // Ask the project viewer to save the new object.
@@ -1317,6 +1271,9 @@ public class IdeaBoard extends QuollPanel
         // Get the idea types.
         this.projectViewer = pv;
 
+        this.setBackground (UIUtils.getComponentColor ());
+        this.setOpaque (true);
+        
     }
 
     public String getPanelId ()
@@ -1392,15 +1349,10 @@ public class IdeaBoard extends QuollPanel
         {
 
             @Override
-            public void handlePress (MouseEvent ev)
+            public void handleDoublePress (MouseEvent ev)
             {
 
-                if (ev.getClickCount () == 2)
-                {
-                    
-                    new NewIdeaTypeActionHandler (_this).actionPerformed (new ActionEvent (_this, 0, "show"));
-                    
-                }
+                new NewIdeaTypeActionHandler (_this).actionPerformed (new ActionEvent (_this, 0, "show"));
                 
             }
                 
@@ -1767,6 +1719,7 @@ public class IdeaBoard extends QuollPanel
 
     }
 
+    @Override
     public void close ()
     {
 

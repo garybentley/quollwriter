@@ -70,7 +70,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
         for (Chapter c : chapters)
         {
         
-            wc += TextUtilities.getWordCount (c.getText ());
+            wc += TextUtilities.getWordCount (c.getChapterText ());
         
         }
         
@@ -135,14 +135,14 @@ public abstract class AbstractProjectMessage extends EditorMessage
         data.put (MessageFieldNames.name,
                   this.getForProjectName ());
         
-        if ((this.projVer.getDescription () != null)
+        if ((this.projVer.getDescriptionText () != null)
             &&
-            (this.projVer.getDescription ().trim ().length () > 0)
+            (this.projVer.getDescriptionText ().trim ().length () > 0)
            )
         {
         
             data.put (MessageFieldNames.notes,
-                      this.projVer.getDescription ().trim ());
+                      this.projVer.getDescriptionText ().trim ());
             
         }
         
@@ -193,11 +193,11 @@ public abstract class AbstractProjectMessage extends EditorMessage
         m.put (MessageFieldNames.chaptercount,
                this.chapters.size ());
         
-        if (this.projVer.getDescription () != null)
+        if (this.projVer.getDescriptionText () != null)
         {
         
             m.put (MessageFieldNames.notes,
-                   this.projVer.getDescription ());
+                   this.projVer.getDescriptionText ());
 
         }
         
@@ -276,9 +276,9 @@ public abstract class AbstractProjectMessage extends EditorMessage
                                               data));
         
         ProjectVersion pv = new ProjectVersion ();
-        pv.setDescription (this.getString (MessageFieldNames.notes,
-                                           data,
-                                           false));
+        pv.setDescription (new StringWithMarkup (this.getString (MessageFieldNames.notes,
+                                                                 data,
+                                                                 false)));
         pv.setName (this.getString (MessageFieldNames.versionname,
                                     data,
                                     false));
@@ -443,7 +443,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
                 
             }
             
-            pv.setDescription (notes);
+            pv.setDescription (new StringWithMarkup (notes));
             
         }
                         
@@ -494,7 +494,7 @@ public abstract class AbstractProjectMessage extends EditorMessage
 
             Chapter c = TypeEncoder.decodeToChapter (cm);
 
-            wc += TextUtilities.getWordCount (c.getText ());
+            wc += TextUtilities.getWordCount (c.getChapterText ());
             
             chapsS.add (c);
             

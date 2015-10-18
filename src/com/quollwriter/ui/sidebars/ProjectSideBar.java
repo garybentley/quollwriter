@@ -161,7 +161,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             ProjectObjectsAccordionItem it = this.projItemBoxes.get (objType);
             
             it.clearSelectedItemInTree ();
-            
+         
             if (d.getObjectType ().equals (objType))
             {
                 
@@ -317,7 +317,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 if (objType.equals (Chapter.OBJECT_TYPE))
                 {
                     
-                    ChaptersAccordionItem it = new ChaptersAccordionItem (this.projectViewer);
+                    ChaptersAccordionItem it = new ChaptersAccordionItem (this.viewer);
                                         
                     this.addAccordionItem (it);
                 
@@ -328,7 +328,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                     
                     final ProjectSideBar _this = this;
                     
-                    this.editors = new ProjectEditorsAccordionItem (this.projectViewer);
+                    this.editors = new ProjectEditorsAccordionItem (this.viewer);
 
                     this.contentBox.add (this.editors);
                                 
@@ -339,26 +339,15 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 if (assetObjTypes.contains (objType))
                 {
                     
-                    if (!(this.projectViewer instanceof ProjectViewer))
-                    {
-                    
-                        throw new IllegalArgumentException ("Asset object type: " +
-                                                            objType +
-                                                            " is only supported when the project viewer is an instance of: " +
-                                                            ProjectViewer.class.getName ());
-                                            
-                    }
-        
-                    // TODO: Sheer laziness here, fix up later.        
                     this.addAccordionItem (new AssetAccordionItem (objType,
-                                                                   (ProjectViewer) this.projectViewer));
+                                                                   this.viewer));
                             
                 }
             
                 if (objType.equals (Note.OBJECT_TYPE))
                 {
             
-                    this.addAccordionItem (new NotesAccordionItem (this.projectViewer));
+                    this.addAccordionItem (new NotesAccordionItem (this.viewer));
                 
                 }
                 

@@ -52,6 +52,8 @@ import com.quollwriter.ui.sidebars.*;
 public class WarmupsViewer extends AbstractProjectViewer
 {
 
+    public static final String WORD_COUNT_TIMER_HEADER_CONTROL_ID = "wordCountTimer";
+    
     public static final int EDIT_WARMUP_ACTION = 201;
     public static final int NEW_WARMUP_ACTION = 202;
     public static final int DELETE_WARMUP_ACTION = 203;
@@ -174,10 +176,6 @@ public class WarmupsViewer extends AbstractProjectViewer
                     _this.showConvertWarmupToProject (w,
                                                       aep);
                                                 
-                    _this.fireProjectEvent (Warmup.OBJECT_TYPE,
-                                            ProjectEvent.CONVERT_TO_PROJECT,
-                                            w);
-
                 }
 
             };
@@ -248,9 +246,7 @@ public class WarmupsViewer extends AbstractProjectViewer
                     return false;
 
                 }
-
-                ProjectViewer pj = new ProjectViewer ();
-
+                
                 Project p = new Project (this.getName ());
 
                 Book b = new Book (p,
@@ -263,8 +259,7 @@ public class WarmupsViewer extends AbstractProjectViewer
                 b.addChapter (c);
 
                 c.setName (warmup.getChapter ().getName ());
-                c.setText (panel.getEditor ().getText ());
-                c.setMarkup (panel.getEditor ().getMarkup ().toString ());
+                c.setText (panel.getEditor ().getTextWithMarkup ());
 
                 p.addBook (b);
 
@@ -273,10 +268,18 @@ public class WarmupsViewer extends AbstractProjectViewer
                 try
                 {
 
+                    ProjectViewer pj = new ProjectViewer ();
+    
+                    pj.init ();
+                
                     pj.newProject (this.getSaveDirectory (),
                                    p,
                                    pwd);
 
+                    _this.fireProjectEvent (Warmup.OBJECT_TYPE,
+                                            ProjectEvent.CONVERT_TO_PROJECT,
+                                            warmup);                                   
+                                   
                     pj.createActionLogEntry (p,
                                              "Project created from warmup, prompt id: " +
                                              warmup.getPrompt ().getId () +
@@ -1007,11 +1010,11 @@ public class WarmupsViewer extends AbstractProjectViewer
             } else
             {
 
-                text = c.getText ();
+                text = c.getChapterText ();
 
             }
 
-            achc.add (UIUtils.getChapterCounts (text));
+            achc.add (new ChapterCounts (text));
 
         }
 
@@ -1069,7 +1072,6 @@ public class WarmupsViewer extends AbstractProjectViewer
     {
 
         return this.proj.getName ();
-        //return "{Warmups}";
 
     }
     
@@ -1085,6 +1087,54 @@ public class WarmupsViewer extends AbstractProjectViewer
         toolbar.add (wct);
     
     }    
+    
+    @Override
+    public Set<String> getTitleHeaderControlIds ()
+	{
+		
+		Set<String> ids = new LinkedHashSet ();
+
+		ids.add (WORD_COUNT_TIMER_HEADER_CONTROL_ID);
+
+        ids.add (DO_WARMUP_HEADER_CONTROL_ID);
+        
+        ids.addAll (super.getTitleHeaderControlIds ());
+				
+		return ids;
+		
+	}
+    
+	@Override
+    public JComponent getTitleHeaderControl (String id)
+	{
+		
+		if (id == null)
+		{
+			
+			return null;
+			
+		}
+		
+		final WarmupsViewer _this = this;
+		
+		JComponent c = null;
+		
+		if (id.equals (WORD_COUNT_TIMER_HEADER_CONTROL_ID))
+		{
+			
+            WordCountTimerBox wct = new WordCountTimerBox (this,
+                                                         Constants.ICON_FULL_SCREEN_ACTION,
+                                                         this.getWordCountTimer ());
+    
+            wct.setBarHeight (20);
+
+            return wct;
+            										  
+		}
+
+        return super.getTitleHeaderControl (id);
+        
+    }
     
     public void fillTitleToolbar (JToolBar toolbar)
     {

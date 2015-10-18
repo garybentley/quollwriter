@@ -28,7 +28,7 @@ import com.quollwriter.ui.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 
-public class SendProjectWizard extends Wizard
+public class SendProjectWizard extends Wizard<AbstractProjectViewer>
 {
     
     private EditorEditor editor = null;
@@ -125,7 +125,7 @@ public class SendProjectWizard extends Wizard
         for (Chapter c : chapters)
         {
             
-            QuollPanel qp = this.projectViewer.getQuollPanelForObject (c);
+            QuollPanel qp = this.viewer.getQuollPanelForObject (c);
             
             if (qp != null)
             {
@@ -174,7 +174,7 @@ public class SendProjectWizard extends Wizard
         ProjectVersion pv = new ProjectVersion ();
         pv.setName (this.newVerName.getText ().trim ());
         pv.setDueDate (this.date.getDate ());
-        pv.setDescription (n);
+        pv.setDescription (new StringWithMarkup (n));
                         
         // Need to snapshot the chapters.
         Set<Chapter> nchapters = null;
@@ -182,8 +182,8 @@ public class SendProjectWizard extends Wizard
         try
         {
 
-            nchapters = this.projectViewer.snapshotChapters (chapters,
-                                                             pv);
+            nchapters = this.viewer.snapshotChapters (chapters,
+                                                      pv);
             
         } catch (Exception e) {
             
@@ -191,14 +191,14 @@ public class SendProjectWizard extends Wizard
                                   chapters,
                                   e);
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to send new project to {editor}, please contact Quoll Writer support for assistance.");
             
             return false;
                         
         }
         
-        NewProjectMessage mess = new NewProjectMessage (this.projectViewer.getProject (),
+        NewProjectMessage mess = new NewProjectMessage (this.viewer.getProject (),
                                                         nchapters,
                                                         pv,
                                                         this.editor,
@@ -217,7 +217,7 @@ public class SendProjectWizard extends Wizard
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                                 
-                                                        ProjectEditor pe = new ProjectEditor (_this.projectViewer.getProject (),
+                                                        ProjectEditor pe = new ProjectEditor (_this.viewer.getProject (),
                                                                                               _this.editor);
                                                         
                                                         pe.setStatus (ProjectEditor.Status.invited);
@@ -233,7 +233,7 @@ public class SendProjectWizard extends Wizard
                                                             
                                                             EditorsEnvironment.addProjectEditor (pe);
                                                             
-                                                            _this.projectViewer.getProject ().addProjectEditor (pe);
+                                                            _this.viewer.getProject ().addProjectEditor (pe);
                                                             
                                                         } catch (Exception e) {
                                                             
@@ -242,18 +242,18 @@ public class SendProjectWizard extends Wizard
                                                             Environment.logError ("Unable to add editor: " +
                                                                                   _this.editor +
                                                                                   " to project: " +
-                                                                                  _this.projectViewer.getProject (),
+                                                                                  _this.viewer.getProject (),
                                                                                   e);
                                                             
-                                                            UIUtils.showErrorMessage (_this.projectViewer,
+                                                            UIUtils.showErrorMessage (_this.viewer,
                                                                                       "Unable to add {editor} " + _this.editor.getMainName () + " to the {project}.  Please contact Quoll Writer support for assistance.");
                                                             
                                                         }
                                                         
-                                                        UIUtils.showMessage ((PopupsSupported) _this.projectViewer,
+                                                        UIUtils.showMessage ((PopupsSupported) _this.viewer,
                                                                              "Your {project} has been sent",
                                                                              String.format ("Your {project} <b>%s</b> has been sent to <b>%s</b>",
-                                                                                            _this.projectViewer.getProject ().getName (),
+                                                                                            _this.viewer.getProject ().getName (),
                                                                                             _this.editor.getMainName ()));
                                                         
                                                         UIUtils.closePopupParent (_this);
@@ -301,9 +301,9 @@ public class SendProjectWizard extends Wizard
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
                                                             
-                                                            AbstractProjectViewer viewer = Environment.getFocusedProjectViewer ();
+                                                            AbstractViewer viewer = Environment.getFocusedViewer ();
                                                             
-                                                            UIUtils.showMessage (viewer,
+                                                            UIUtils.showMessage ((PopupsSupported) viewer,
                                                                                  "Invite sent",
                                                                                  String.format ("An invite has been sent to: <b>%s</b>.",
                                                                                                 _this.editor.getEmail ()),
@@ -540,7 +540,7 @@ public class SendProjectWizard extends Wizard
                     try
                     {
                     
-                        if (this.projectViewer.getProjectVersion (this.newVerName.getText ().trim ()) != null)
+                        if (this.viewer.getProjectVersion (this.newVerName.getText ().trim ()) != null)
                         {
                             
                             this.newVerNameError.setText ("Already have a version with that name.");
@@ -557,7 +557,7 @@ public class SendProjectWizard extends Wizard
                                               this.newVerName.getText (),
                                               e);
                         
-                        UIUtils.showErrorMessage (this.projectViewer,
+                        UIUtils.showErrorMessage (this.viewer,
                                                   "Unable to check the version name.");
                         
                         return false;
@@ -610,7 +610,7 @@ public class SendProjectWizard extends Wizard
             CellConstraints cc = new CellConstraints ();
 
             JTextPane desc = UIUtils.createHelpTextPane ("The final step in creating a version is adding some notes about what you would like the {editor} to do.  It's a description of what you would like them to focus on while editing and areas they should pay attention to (or not).<br /><br />Leave this bit blank if you want to give individual instructions for each {editor}.",
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             desc.setBorder (null);
 
             int row = 1;
@@ -651,7 +651,7 @@ public class SendProjectWizard extends Wizard
             CellConstraints cc = new CellConstraints ();
 
             JTextPane desc = UIUtils.createHelpTextPane ("Select the {chapters} that you would like to be part of the version.  But don't worry, the version only acts as a template for what you send.  You can always change what you actually send to {an editor} when you send it.",
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             desc.setBorder (null);
 
             int row = 1;
@@ -664,7 +664,7 @@ public class SendProjectWizard extends Wizard
             
             this.chapterTree = UIUtils.createSelectableTree ();
             
-            Project proj = this.projectViewer.getProject ();
+            Project proj = this.viewer.getProject ();
             
             final DefaultMutableTreeNode root = UIUtils.createTreeNode (proj,
                                                                         null,
@@ -785,7 +785,7 @@ public class SendProjectWizard extends Wizard
             CellConstraints cc = new CellConstraints ();
 
             JTextPane desc = UIUtils.createHelpTextPane ("Version names should be meanginful to you, for example <b>1st Draft</b>, <b>2nd Draft</b>.  You can also create special versions just for your {editor}, for example <b>Jason first edit</b>.  The only restriction is that the name must be unique across all versions you create for this {project}.<br /><br />Enter the name of the version in the box below.",
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             desc.setBorder (null);
 
             builder.add (desc,
@@ -871,7 +871,7 @@ public class SendProjectWizard extends Wizard
             CellConstraints cc = new CellConstraints ();
 
             JTextPane desc = UIUtils.createHelpTextPane ("It is recommended that you send a <i>version</i> of your {project}.  A version is just a snapshot of your {chapters} with a name you provide.  It acts as a template or shortcut for what you send to {editors}.<br /><br />For example you might have a <b>1st Draft</b> version or a <b>Ready for edit</b> version and so on.  The name is a label that helps you remember what you sent and makes any comments you receive from {editors} more meaningful.<br /><br />A version helps ensure you send the same thing to your {editors} (although you can tweak what you send).<br /><br />So, pick an option below to continue.",
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             desc.setBorder (null);
 
             builder.add (desc,
@@ -1005,7 +1005,7 @@ public class SendProjectWizard extends Wizard
             ws.alwaysRefreshPanel = true;
                                 
             JTextPane desc = UIUtils.createHelpTextPane ("You can select a date indicating when you would like the editing to be completed, but be reasonable, {editors} have lives too!",
-                                                         this.projectViewer);        
+                                                         this.viewer);        
             desc.setBorder (null);
             
             desc.setBorder (UIUtils.createPadding (0, 5, 0, 0));
@@ -1101,7 +1101,7 @@ public class SendProjectWizard extends Wizard
                                                     
             this.chapterTree = UIUtils.createSelectableTree ();
             
-            Project p = this.projectViewer.getProject ();
+            Project p = this.viewer.getProject ();
             
             final DefaultMutableTreeNode root = UIUtils.createTreeNode (p,
                                                                         null,
@@ -1227,8 +1227,8 @@ public class SendProjectWizard extends Wizard
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    _this.notes.getTextArea ().getCaret ().setDot (0);
-                    _this.notes.getTextArea ().grabFocus ();
+                    //_this.notes.getTextArea ().getCaret ().setDot (0);
+                    //_this.notes.grabFocus ();
                     
                     UIUtils.resizeParent (_this);
                     

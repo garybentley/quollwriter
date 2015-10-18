@@ -260,7 +260,7 @@ public abstract class DataObject
         }
         
         Object o = new Object ();
-        
+                
         Set<PropertyChangedListener> ls = null;
                         
         // Get a copy of the current valid listeners.

@@ -16,7 +16,7 @@ import com.quollwriter.text.rules.*;
 public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, due, name, description, lastmodified, datecreated, properties, id, version, latest FROM projectversion_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, due, name, description, markup, lastmodified, datecreated, properties, id, version, latest FROM projectversion_v ";
 
     private ObjectManager objectManager = null;
 
@@ -42,7 +42,8 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
             pv.setDueDate (rs.getTimestamp (ind++));
             pv.setName (rs.getString (ind++));
             pv.setKey (key);
-            pv.setDescription (rs.getString (ind++));
+            pv.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                     rs.getString (ind++)));
 
             pv.setLastModified (rs.getTimestamp (ind++));
             pv.setDateCreated (rs.getTimestamp (ind++));

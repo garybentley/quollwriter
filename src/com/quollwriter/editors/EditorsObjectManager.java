@@ -134,8 +134,8 @@ public class EditorsObjectManager extends ObjectManager
                                
     }
 
-    public Set<Project> getProjectsSentToEditor (EditorEditor ed)
-                                          throws Exception
+    public Set<ProjectInfo> getProjectsSentToEditor (EditorEditor ed)
+                                              throws Exception
     {
         
         EditorMessageDataHandler handler = (EditorMessageDataHandler) this.getHandler (EditorMessage.class);
@@ -205,6 +205,7 @@ public class EditorsObjectManager extends ObjectManager
     }
     
     public int getSchemaVersion ()
+                          throws GeneralException    
     {
         
         Connection c = null;
@@ -228,22 +229,14 @@ public class EditorsObjectManager extends ObjectManager
         } catch (Exception e)
         {
 
+            this.throwException (c,
+                                 "Unable to get schema version",
+                                 e);
+                
         } finally
         {
 
-            if (c != null)
-            {
-
-                try
-                {
-
-                    this.releaseConnection (c);
-
-                } catch (Exception e)
-                {
-                }
-
-            }
+            this.releaseConnection (c);
 
         }
 
@@ -313,25 +306,20 @@ public class EditorsObjectManager extends ObjectManager
 
             }
 
+        } catch (Exception e)
+        {
+
+            this.throwException (c,
+                                 "Unable to get user account",
+                                 e);
+                
         } finally
         {
 
-            if (c != null)
-            {
-
-                try
-                {
-
-                    this.releaseConnection (c);
-
-                } catch (Exception e)
-                {
-                }
-
-            }
+            this.releaseConnection (c);
 
         }
-
+            
         return null;
         
     }    
@@ -420,24 +408,21 @@ public class EditorsObjectManager extends ObjectManager
             
             }
             
+        } catch (Exception e)
+        {
+
+            this.throwException (c,
+                                 "Unable to get new message id",
+                                 e);
+                
         } finally
         {
 
-            if (c != null)
-            {
-
-                try
-                {
-
-                    this.releaseConnection (c);
-
-                } catch (Exception e)
-                {
-                }
-
-            }
+            this.releaseConnection (c);
 
         }
+        
+        return null;
         
     }        
     
@@ -459,25 +444,20 @@ public class EditorsObjectManager extends ObjectManager
             this.executeStatement ("UPDATE info SET lastlogin = ?",
                                    params,
                                    c);
-            
+
+        } catch (Exception e)
+        {
+
+            this.throwException (c,
+                                 "Unable to set last login",
+                                 e);
+                
         } finally
         {
 
-            if (c != null)
-            {
+            this.releaseConnection (c);
 
-                try
-                {
-
-                    this.releaseConnection (c);
-
-                } catch (Exception e)
-                {
-                }
-
-            }
-
-        }        
+        }
         
     }
     
@@ -531,25 +511,20 @@ public class EditorsObjectManager extends ObjectManager
                                    params,
                                    c);
             
+        } catch (Exception e)
+        {
+
+            this.throwException (c,
+                                 "Unable to update user info",
+                                 e);
+                
         } finally
         {
 
-            if (c != null)
-            {
+            this.releaseConnection (c);
 
-                try
-                {
-
-                    this.releaseConnection (c);
-
-                } catch (Exception e)
-                {
-                }
-
-            }
-
-        }        
-        
+        }
+                    
     }
     
     public String getSchemaFile (String file)

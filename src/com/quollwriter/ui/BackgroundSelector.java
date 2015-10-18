@@ -369,12 +369,8 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         {
             
             JFileChooser fc = new JFileChooser ();//f);
-            FileNameExtensionFilter fil = new FileNameExtensionFilter ("Image files: jpg, png, gif",
-                                                                       "jpg",
-                                                                       "jpeg",
-                                                                       "gif",
-                                                                       "png");
-            fc.setFileFilter (fil);
+
+            fc.setFileFilter (UIUtils.imageFileFilter);
             
             if (this.selectedFile != null)
             {

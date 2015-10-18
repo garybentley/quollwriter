@@ -50,15 +50,14 @@ public class DictionaryManager extends Box
     private Project     proj = null;
     private JTable      wordTable = null;
     private FileWatcher watcher = null;
-    private AbstractProjectViewer projectViewer = null;
+    private AbstractViewer viewer = null;
 
-    public DictionaryManager(AbstractProjectViewer pv)
+    public DictionaryManager(AbstractViewer pv)
     {
 
         super (BoxLayout.Y_AXIS);
 
-        this.projectViewer = pv;
-        this.proj = pv.getProject ();
+        this.viewer = pv;
 
     }
 
@@ -168,7 +167,7 @@ public class DictionaryManager extends Box
                                                null));
 
         JTextPane tp = UIUtils.createHelpTextPane ("Enter the new words to add below, separate the words with commas or semi-colons.",
-                                                   this.projectViewer);
+                                                   this.viewer);
 
         tp.setBorder (new EmptyBorder (5,
                                        5,
@@ -215,12 +214,11 @@ public class DictionaryManager extends Box
 
                     String w = t.nextToken ().trim ();
 
-                    _this.projectViewer.addWordToDictionary (w,
-                                                             "user");
+                    DictionaryProvider.addUserWord (w);
 
-                    _this.projectViewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
-                                                          ProjectEvent.ADD_WORD,
-                                                          w);
+                    _this.viewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
+                                                   ProjectEvent.ADD_WORD,
+                                                   w);
 
                     DefaultTableModel m = (DefaultTableModel) wordTable.getModel ();
 
@@ -284,9 +282,8 @@ public class DictionaryManager extends Box
                     for (int i = selection.length - 1; i > -1; i--)
                     {
 
-                        _this.projectViewer.removeWordFromDictionary (m.getValueAt (selection[i],
-                                                                                    0).toString (),
-                                                                      "user");
+                        DictionaryProvider.removeUserWord (m.getValueAt (selection[i],
+                                                                         0).toString ());
 
                         // Remove the row.
                         m.removeRow (selection[i]);

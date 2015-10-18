@@ -21,9 +21,11 @@ public class TypeEncoder
             
         }
         
-        if ((n.getDescription () == null)
+        String t = (n.getDescription () != null ? n.getDescription ().getText () : null);
+        
+        if ((t == null)
             ||
-            (n.getDescription ().trim ().length () == 0)
+            (t.trim ().length () == 0)
            )
         {
             
@@ -42,7 +44,7 @@ public class TypeEncoder
         cdata.put (MessageFieldNames.chaptername,
                    n.getChapter ().getName ());
         cdata.put (MessageFieldNames.text,
-                   n.getDescription ());
+                   n.getDescriptionText ());
         cdata.put (MessageFieldNames.start,
                    n.getStartPosition ());
 
@@ -78,17 +80,31 @@ public class TypeEncoder
                    c.getId ());
         cdata.put (MessageFieldNames.name,
                    c.getName ());
+        
+        StringWithMarkup ct = c.getText ();
+        
+        String t = null;
+        String m = null;
+        
+        if (ct != null)
+        {
+            
+            t = ct.getText ();
+            m = ct.getMarkup ().toString ();
+            
+        }
+        
         cdata.put (MessageFieldNames.text,
-                   c.getText ());
+                   t);
 
         cdata.put (MessageFieldNames.version,
                    c.getVersion ());
         
-        if (c.getMarkup () != null)
+        if (m != null)
         {
         
             cdata.put (MessageFieldNames.markup,
-                       c.getMarkup ());
+                       m);
 
         }
         
@@ -124,7 +140,7 @@ public class TypeEncoder
         Note n = new Note ();
         
         n.setChapter (c);
-        n.setDescription (text);
+        n.setDescription (new StringWithMarkup (text));
         
         // Need to also setup the summary.
         n.setSummaryFromDescription ();
@@ -172,9 +188,9 @@ public class TypeEncoder
         Chapter c = new Chapter ();
         c.setId (cid);
         c.setName (cname);
-        c.setText (ctext);
         
-        c.setMarkup (cm);
+        c.setText (new StringWithMarkup (ctext, cm));
+        
         c.setVersion (cver);
         
         return c;

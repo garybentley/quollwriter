@@ -48,7 +48,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                 Chapter c = (Chapter) this.n;
 
                 this.p.getBooks ().get (0).addChapter (c);
-                c.setText (chapterText.toString ());
+                c.setText (new StringWithMarkup (chapterText.toString ()));
 
             }
 
@@ -56,7 +56,7 @@ public class HTMLDocumentImporter implements DocumentImporter
             {
 
                 this.p.addAsset ((Asset) this.n);
-                this.n.setDescription (chapterText.toString ());
+                this.n.setDescription (new StringWithMarkup (chapterText.toString ()));
 
             }
 
@@ -67,7 +67,7 @@ public class HTMLDocumentImporter implements DocumentImporter
             Chapter c = this.p.getBooks ().get (0).createChapterAfter (null,
                                                                        Environment.getProperty (Constants.DEFAULT_CHAPTER_NAME_PROPERTY_NAME));
 
-            c.setText (chapterText.toString ());
+            c.setText (new StringWithMarkup (chapterText.toString ()));
 
         }
 
@@ -117,7 +117,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                         Chapter c = (Chapter) this.n;
 
                         this.p.getBooks ().get (0).addChapter (c);
-                        c.setText (chapterText.toString ());
+                        c.setText (new StringWithMarkup (chapterText.toString ()));
 
                     }
 
@@ -125,7 +125,7 @@ public class HTMLDocumentImporter implements DocumentImporter
                     {
 
                         this.p.addAsset ((Asset) this.n);
-                        this.n.setDescription (chapterText.toString ());
+                        this.n.setDescription (new StringWithMarkup (chapterText.toString ()));
 
                     }
 

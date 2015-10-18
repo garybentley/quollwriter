@@ -63,8 +63,7 @@ public class ConvertWarmupToProject extends PopupWindow
                 b.addChapter (c);
 
                 c.setName (_this.warmup.getChapter ().getName ());
-                c.setText (_this.panel.getEditor ().getText ());
-                c.setMarkup (_this.panel.getEditor ().getMarkup ().toString ());
+                c.setText (_this.panel.getEditor ().getTextWithMarkup ());
 
                 p.addBook (b);
 

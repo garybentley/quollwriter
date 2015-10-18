@@ -295,6 +295,16 @@ public class BackgroundImagePanel extends JPanel implements MouseWheelListener
     private void setBackgroundObject (File f)
     {    
     
+        if ((f == null)
+            ||
+            (!f.exists ())
+           )
+        {
+            
+            return;
+            
+        }
+    
         Image im = UIUtils.getImage (f);
 
         BufferedImage bi = new BufferedImage (im.getWidth (this),

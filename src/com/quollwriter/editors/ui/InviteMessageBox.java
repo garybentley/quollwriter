@@ -29,8 +29,8 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
         
     private Box responseBox = null;
         
-    public InviteMessageBox (InviteMessage         mess,
-                             AbstractProjectViewer viewer)
+    public InviteMessageBox (InviteMessage  mess,
+                             AbstractViewer viewer)
     {
         
         super (mess,
@@ -172,7 +172,7 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
                                           _this.message,
                                           e);
                     
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "Unable to update invite, please contact Quoll Writer support for assistance.");
                     
                 }

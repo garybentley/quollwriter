@@ -91,7 +91,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
     public void setSnippets (Map<Chapter, List<Segment>> snippets)
     {
         
-        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.projectViewer.getProject ());
+        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.viewer.getProject ());
 
         UIUtils.createTree (snippets,
                             tn);
@@ -141,7 +141,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         Box b = new Box (BoxLayout.Y_AXIS);
         
         JComponent help = UIUtils.createHelpTextPane ("appears in the following {chapters}.",
-                                                      this.projectViewer);
+                                                      this.viewer);
         
         help.setSize (new Dimension (250,
                                      100));

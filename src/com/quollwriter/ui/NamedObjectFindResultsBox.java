@@ -32,7 +32,7 @@ public class NamedObjectFindResultsBox<E extends NamedObject> extends FindResult
     }
         
     @Override
-    public void init (JTree tree)
+    public void initTree ()
     {
         
         // Let subclasses override for their own behaviour.

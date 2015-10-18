@@ -30,7 +30,14 @@ public class TextInputWindow extends PopupWindow
     public TextInputWindow()
     {
 
-        super (null,
+        this (null);
+        
+    }
+
+    public TextInputWindow (AbstractViewer pv)
+    {
+
+        super (pv,
                Component.LEFT_ALIGNMENT);
     
         this.text = UIUtils.createTextField ();
@@ -38,13 +45,6 @@ public class TextInputWindow extends PopupWindow
         
         this.error.setVisible (false);
         this.error.setBorder (UIUtils.createPadding (5, 0, 0, 0));
-        
-    }
-
-    public TextInputWindow (AbstractProjectViewer pv)
-    {
-
-        this ();
 
     }
     
@@ -55,7 +55,7 @@ public class TextInputWindow extends PopupWindow
         
     }
     
-    public static TextInputWindow create (AbstractProjectViewer viewer,
+    public static TextInputWindow create (AbstractViewer        viewer,
                                           String                title,
                                           String                icon,
                                           String                message,
@@ -79,7 +79,7 @@ public class TextInputWindow extends PopupWindow
     
     }
     
-    public static TextInputWindow create (AbstractProjectViewer viewer,
+    public static TextInputWindow create (AbstractViewer        viewer,
                                           String                title,
                                           String                icon,
                                           String                message,
@@ -93,6 +93,26 @@ public class TextInputWindow extends PopupWindow
         
         final TextInputWindow ti = new TextInputWindow (viewer);
         
+        ti.addWindowListener (new WindowAdapter ()
+        {
+
+            @Override
+            public void windowClosing (WindowEvent ev)
+            {
+
+                if (onCancel != null)
+                {
+                    
+                    onCancel.actionPerformed (new ActionEvent (ti,
+                                                               0,
+                                                               "cancel"));
+                                    
+                }
+            
+            }
+
+        });
+                
         if (initValue != null)
         {
             
@@ -162,16 +182,7 @@ public class TextInputWindow extends PopupWindow
            
             public void actionPerformed (ActionEvent ev)
             {
-                
-                if (onCancel != null)
-                {
-                    
-                    onCancel.actionPerformed (new ActionEvent (ti,
-                                                               0,
-                                                               "cancel"));
-                                    
-                }
-                
+                                
                 ti.close ();
                 
             }

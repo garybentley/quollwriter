@@ -17,6 +17,8 @@ import javax.swing.undo.*;
 
 import com.gentlyweb.utils.*;
 
+import com.quollwriter.StringWithMarkup;
+
 import com.quollwriter.DictionaryProvider;
 
 import com.quollwriter.synonyms.SynonymProvider;
@@ -48,6 +50,7 @@ public class QTextEditor extends JTextPane implements TextStylable
     private Set<StyleChangeListener> styleChangeListeners = new LinkedHashSet ();
     private LineHighlighter  lineHighlighter = null;
     private boolean               canCopy = true;
+    private boolean               canFormat = true;
 
     public QTextEditor(DictionaryProvider prov,
                        boolean            spellCheckerEnabled)
@@ -172,7 +175,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         this.spellChecker = new QSpellChecker (this,
                                                prov);
         this.spellChecker.enable (spellCheckerEnabled);
-
+            
         ActionMap am = this.getActionMap ();
 
         am.put (REDO_ACTION_NAME,
@@ -442,6 +445,20 @@ public class QTextEditor extends JTextPane implements TextStylable
                 
     }
 
+    public void setCanFormat (boolean c)
+    {
+        
+        this.canFormat = c;
+        
+    }
+    
+    public boolean isCanFormat ()
+    {
+        
+        return this.canFormat;
+        
+    }
+    
     public void setCanCopy (boolean c)
     {
         
@@ -543,8 +560,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         qt.setAlignment (this.getAlignment ());
         qt.setFirstLineIndent (this.getFirstLineIndent ());
         qt.setMargin (null);
-        qt.setText (this.getText (),
-                    this.getMarkup ().toString ());
+        qt.setTextWithMarkup (this.getTextWithMarkup ());
 
         int ppi = java.awt.Toolkit.getDefaultToolkit ().getScreenResolution ();
 
@@ -566,7 +582,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setDictionaryProvider (DictionaryProvider dp)
     {
-
+    
         this.spellChecker.setDictionaryProvider (dp);
 
         this.checkSpelling ();
@@ -616,11 +632,12 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
-    public Markup getMarkup ()
+    public StringWithMarkup getTextWithMarkup ()
     {
-
-        return new Markup (this.getDocument ());
-
+        
+        return new StringWithMarkup (this.getText (),
+                                     new Markup (this.getDocument ()));
+        
     }
 
     public void addStyleChangeListener (StyleChangeListener l)
@@ -658,6 +675,26 @@ public class QTextEditor extends JTextPane implements TextStylable
         
     }
 
+    private void clearBoldItalicUnderline ()
+    {
+        
+        SimpleAttributeSet attrs = new SimpleAttributeSet ();
+
+        StyleConstants.setBold (attrs,
+                                false);
+        StyleConstants.setItalic (attrs,
+                                  false);
+        StyleConstants.setUnderline (attrs,
+                                     false);
+        
+        StyledEditorKit k = (StyledEditorKit) this.getEditorKit ();
+        
+        MutableAttributeSet inAttrs = k.getInputAttributes ();
+        
+        inAttrs.addAttributes (attrs);
+        
+    }
+    
     public void setStyle (MutableAttributeSet attrs,
                           TextRange           range)
     {
@@ -682,6 +719,13 @@ public class QTextEditor extends JTextPane implements TextStylable
     
     public void toggleBold ()
     {
+        
+        if (!this.canFormat)
+        {
+            
+            return;
+            
+        }
         
         int start = this.getSelectionStart ();
             
@@ -726,6 +770,13 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void toggleItalic ()
     {
 
+        if (!this.canFormat)
+        {
+            
+            return;
+            
+        }
+    
         int start = this.getSelectionStart ();
             
         if (start < 0)
@@ -769,6 +820,13 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void toggleUnderline ()
     {
 
+        if (!this.canFormat)
+        {
+            
+            return;
+            
+        }
+    
         int start = this.getSelectionStart ();
             
         if (start < 0)
@@ -1212,8 +1270,7 @@ public class QTextEditor extends JTextPane implements TextStylable
     public void setText (String t)
     {
 
-        this.setText (t,
-                      null);
+        throw new UnsupportedOperationException ("Not supported, use setTextWithMarkup");
 
     }
 
@@ -1367,8 +1424,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
-    public void setText (String t,
-                         String markup)
+    public void setTextWithMarkup (StringWithMarkup text)
     {
 
         boolean enabled = false;
@@ -1384,6 +1440,17 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         }
 
+        String t = null;
+        Markup markup = null;
+        
+        if (text != null)
+        {
+            
+            t = text.getText ();
+            markup = text.getMarkup ();
+            
+        }
+        
         if (t != null)
         {
 
@@ -1392,19 +1459,23 @@ public class QTextEditor extends JTextPane implements TextStylable
                                            "");
 
         }
-
+        
+        //this.styles = new SimpleAttributeSet ();        
+        
+        this.clearBoldItalicUnderline ();
+        
         super.setText (t);
 
-        this.applyStyles ();
+        //this.applyStyles ();
 
         this.initSectionBreaks (t);
 
         if (markup != null)
         {
 
-            Markup m = new Markup (markup);
+            //Markup m = new Markup (markup);
 
-            m.apply (this);
+            markup.apply (this);
 
         }
 

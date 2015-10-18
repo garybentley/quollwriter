@@ -18,22 +18,22 @@ import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends ScrollableBox implements MainPanelListener, SideBarListener
+public abstract class AbstractSideBar<V extends AbstractViewer> extends ScrollableBox implements MainPanelListener, SideBarListener
 {
         
     private boolean inited = false;
         
-    protected E projectViewer = null;
+    protected V viewer = null;
     protected Header header = null;
     private JComponent content = null;
     protected JButton otherSideBarsButton = null;
     
-    public AbstractSideBar (E pv)
+    public AbstractSideBar (V viewer)
     {
 
         super (BoxLayout.Y_AXIS);
         
-        this.projectViewer = pv;
+        this.viewer = viewer;
 
         final AbstractSideBar _this = this;
         
@@ -46,7 +46,7 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
                                                                 
-                                                                JPopupMenu menu = _this.projectViewer.getShowOtherSideBarsPopupSelector ();
+                                                                JPopupMenu menu = _this.viewer.getShowOtherSideBarsPopupSelector ();
                                                                 
                                                                 Component s = (Component) ev.getSource ();
                                                                 
@@ -62,7 +62,7 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
         
         this.otherSideBarsButton.setVisible (false);
         
-        this.projectViewer.addSideBarListener (this);
+        this.viewer.addSideBarListener (this);
         
     }
         
@@ -70,7 +70,7 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
     public void sideBarHidden (SideBarEvent ev)
     {
         
-        this.otherSideBarsButton.setVisible (this.projectViewer.getActiveSideBarCount () > 1 && this.projectViewer.getActiveOtherSideBar () != null);
+        this.otherSideBarsButton.setVisible (this.viewer.getActiveSideBarCount () > 1 && this.viewer.getActiveOtherSideBar () != null);
         
     }
     
@@ -78,7 +78,7 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
     public void sideBarShown (SideBarEvent ev)
     {
         
-        this.otherSideBarsButton.setVisible (this.projectViewer.getActiveSideBarCount () > 1 && this.projectViewer.getActiveOtherSideBar () != null);
+        this.otherSideBarsButton.setVisible (this.viewer.getActiveSideBarCount () > 1 && this.viewer.getActiveOtherSideBar () != null);
         
     }
 
@@ -108,10 +108,10 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
         
     }
     */
-    public E getProjectViewer ()
+    public AbstractViewer getViewer ()
     {
         
-        return this.projectViewer;
+        return this.viewer;
         
     }
     
@@ -169,14 +169,14 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
         
         if (this.inited)
         {
-            
+        
             return;
             
         }
         
         this.inited = true;
                 
-        this.projectViewer.addMainPanelListener (this);
+        //this.projectViewer.addMainPanelListener (this);
         
         String t = this.getTitle ();
         
@@ -234,7 +234,7 @@ public abstract class AbstractSideBar<E extends AbstractProjectViewer> extends S
                                                                                                             
                                                     //_this.onClose ();
                                                     
-                                                    _this.projectViewer.closeSideBar ();
+                                                    _this.viewer.closeSideBar ();
                                                     /*
                                                     if (_this.removeOnClose ())
                                                     {

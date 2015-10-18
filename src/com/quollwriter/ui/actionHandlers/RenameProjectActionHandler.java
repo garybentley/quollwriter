@@ -180,7 +180,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler
                         return;
         
                     }
-        
+        /*
                     // Change the name in the projects file.
                     try
                     {
@@ -201,7 +201,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler
                         return;
                                                       
                     }
-        
+        */
                     proj.setProjectDirectory (newDir);
         
                     // Open the project again.

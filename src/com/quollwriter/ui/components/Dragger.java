@@ -183,7 +183,8 @@ public class Dragger extends MouseAdapter
             this.startLoc = this.dragItem.getLocation ();
             
             Point p = e.getPoint ();
-            
+            this.dragItem.getParent ().setComponentZOrder (this.dragItem,
+                                                           0);
             SwingUtilities.convertPointToScreen (p,
                                                              this.within);
             this.last = p;

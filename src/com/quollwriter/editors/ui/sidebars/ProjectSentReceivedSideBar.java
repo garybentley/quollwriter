@@ -87,13 +87,13 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
         super.init ();
                                                 
         this.editorInfoBox = new EditorInfoBox (this.editor,
-                                                this.projectViewer,
+                                                this.viewer,
                                                 true).init ();
         this.editorInfoBox.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                           this.editorInfoBox.getPreferredSize ().height));
         this.editorInfoBox.setBorder (UIUtils.createPadding (5, 5, 5, 0));
         
-        this.chapters = new ProjectCommentsChaptersAccordionItem (this.projectViewer)
+        this.chapters = new ProjectCommentsChaptersAccordionItem (this.viewer)
         {
         
             @Override

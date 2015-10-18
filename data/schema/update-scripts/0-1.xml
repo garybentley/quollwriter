@@ -30,6 +30,8 @@ CREATE TABLE namedobject
     dbkey BIGINT NOT NULL,
     name CLOB,
     description CLOB,
+    markup CLOB,
+    files CLOB,
     lastmodified TIMESTAMP,
     PRIMARY KEY (dbkey)
 )
@@ -71,10 +73,12 @@ CREATE TABLE chapter
     dbkey BIGINT NOT NULL,
     bookdbkey BIGINT NOT NULL,
     text CLOB,
+    markup CLOB,
     index INTEGER,
     goals CLOB,
+    goalsmarkup CLOB,
     plan CLOB,
-    markup CLOB,
+    planmarkup CLOB,
     editposition INTEGER,
     editcomplete BOOLEAN,
     projectversiondbkey BIGINT,
@@ -285,7 +289,7 @@ CREATE TABLE projectversion
 )
     </sql>
   </item>
-
+  
   <item>
     <log>Create foreign key constraint for projectversion(dbkey)/namedobject(dbkey).</log>
     <sql>

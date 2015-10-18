@@ -8,11 +8,10 @@ import com.quollwriter.*;
 
 import com.quollwriter.data.*;
 
-
 public class LocationDataHandler implements DataHandler<Location, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, lastmodified, datecreated, properties, id, version FROM location_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, id, version FROM location_v ";
 
     private ObjectManager objectManager = null;
 
@@ -39,8 +38,10 @@ public class LocationDataHandler implements DataHandler<Location, Project>
             Location l = new Location ();
             l.setKey (key);
             l.setName (rs.getString (ind++));
-            l.setDescription (rs.getString (ind++));
-
+            l.setDescription (new StringWithMarkup (rs.getString (ind++),
+                                                    rs.getString (ind++)));
+            l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
+                                                    
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));

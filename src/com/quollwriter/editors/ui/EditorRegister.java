@@ -56,11 +56,11 @@ public class EditorRegister extends Wizard
     private boolean login = false;
     private boolean tcsClicked = false;
 
-    public EditorRegister (AbstractProjectViewer pv)
+    public EditorRegister (AbstractViewer viewer)
                     throws Exception
     {
 
-        super (pv);
+        super (viewer);
         
         final EditorRegister _this = this;
         
@@ -131,7 +131,7 @@ public class EditorRegister extends Wizard
             
         } catch (Exception e) {
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to init editors database");
             
             Environment.logError ("Unable to init editors database",
@@ -152,7 +152,7 @@ public class EditorRegister extends Wizard
 
         } catch (Exception e) {
             
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to save editors database location");
             
             Environment.logError ("Unable to save editors database location",
@@ -191,7 +191,7 @@ public class EditorRegister extends Wizard
     
             } catch (Exception e) {
                 
-                UIUtils.showErrorMessage (this.projectViewer,
+                UIUtils.showErrorMessage (this.viewer,
                                           "Unable to save your details");
                 
                 Environment.logError ("Unable to save user information/credentials",
@@ -213,7 +213,7 @@ public class EditorRegister extends Wizard
         try
         {
         
-            this.projectViewer.viewEditors ();
+            this.viewer.viewEditors ();
             
         } catch (Exception e) {
             
@@ -402,7 +402,7 @@ public class EditorRegister extends Wizard
             if (!this.tcsClicked)
             {
                 
-                UIUtils.showMessage ((PopupsSupported) this.projectViewer,
+                UIUtils.showMessage ((PopupsSupported) this.viewer,
                                      "A gentle nudge",
                                      String.format ("The Terms and Conditions only take a couple of minutes to read.  There is even a tl;dr of the impotant bits.<br /><br />It really is in your interests to give it a once over.  Spare a couple of minutes and save yourself some hassle later.%s",
                                                     "<br /><br />" + Environment.getQuollWriterHelpLink ("editor-mode/terms-and-conditions",
@@ -592,7 +592,7 @@ public class EditorRegister extends Wizard
                 Environment.logError ("Unable to create account",
                                       e);
                 
-                UIUtils.showErrorMessage (this.projectViewer,
+                UIUtils.showErrorMessage (this.viewer,
                                           "Unable to create account, please contact Quoll Writer support for assistance.");
                 
             }
