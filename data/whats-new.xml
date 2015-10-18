@@ -17,8 +17,8 @@
     </item>
     
     <item>
-      <title>Backups</title>
-      <description><![CDATA[Snapshots have now become real backups.  You can restore your project from a backup, specify where they should be stored and manage them.]]></description>
+      <title>Bold/italic/underline and more</title>
+      <description><![CDATA[Another frequent flyer in the "Can you add..." feature club.  You can now use bold/italic/underline in the description of just about anything (if I've missed something please let me know).  Most multi-line text boxes also have support for spell checking and synonym lookups.  Go wild!]]></description>
     </item>
 
   </version>
