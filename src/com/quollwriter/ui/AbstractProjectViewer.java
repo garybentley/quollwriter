@@ -6404,7 +6404,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 			public void actionPerformed (ActionEvent ev)
 			{
 				
-				_this.fsf.toFront ();				
+				if (_this.fsf != null)
+				{
+				
+					_this.fsf.toFront ();
+					
+				}
                     
 			}
 			
