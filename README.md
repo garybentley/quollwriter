@@ -18,7 +18,7 @@ The license is included in the repository and also can be found at: http://www.a
 Requirements
 ============
 
-At least Java 1.6 is required to run Quoll Writer.
+At least Java 1.7 is required to run Quoll Writer.
 
 Ant is required to execute the build file.  
 
@@ -91,16 +91,15 @@ After an upgrade `data/schema/update-scripts/create-views.xml` is always run to 
 
 The files defining the views used are held in: `data/schema/views`.
 
-Versions
-========
+Version
+=======
 
-Version 2.2 is now available.  A lot has changed in that version, mostly things that the user never sees.  The major changes are:
+The current stable version of Quoll Writer is 2.4.
 
-  * The way the problem finder handles text has been rewritten.  Now a model of the text is built up, word by word, see: src/com/quollwriter/text/Sentence|Paragraph|Word for details.
-  * Removal of the native java blocking popup windows.  Good riddance.
-  * Inclusion of distraction free mode.  This caused a number of changes to occur including removing the use of jgoodies forms for the editor wrapper.
-  * Dictionaries are now downloaded upon first use rather than distributed in the exe.  This means that the data/dictionaries directory has been removed.  Please change the <b>quollWriterWebsite</b> property to your own website.
-
+Note: only the *master* branch is supported for bug reports etc.  Branches prefixed with *dev-* are for development of new releases
+and will contain unstable code that may damage your projects.  It is not recommended that you use them without a detailed examination
+of the changes they contain.  Also the *dev-* branches contain the latest changes so things are liable to change rapidly from
+commit to commit, use them at your own peril!
 
 Windows Installer
 =================
