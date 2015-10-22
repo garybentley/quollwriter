@@ -5914,6 +5914,8 @@ public class Environment
         
         Environment.landingViewer.setVisible (true);
         
+        Environment.landingViewer.toFront ();
+        
     }
     
     public static File getDefaultSaveProjectDir ()
