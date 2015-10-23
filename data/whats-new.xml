@@ -5,6 +5,11 @@
       <title>Bug squashing</title>
       <description><![CDATA[A number of minor bugs have been fixed and one major one relating to words getting chopped up in a chapter when moving from normal mode to full screen or when resizing the window.]]></description>
     </item>
+
+    <item onlyIfCurrentVersion="true">
+      <title>Editors and some projects</title>
+      <description><![CDATA[I've discovered that some projects weren't opening, including the Editors database, this version fixes that problem.  If one or more of your projects are not showing up when you open a Project then, in the Projects window, select <b>Find your Projects</b> from the menu and add them back in."]]></description>
+    </item>
   </version>
 
   <version id="2.4">        
