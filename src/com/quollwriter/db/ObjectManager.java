@@ -1068,20 +1068,23 @@ public class ObjectManager
         {
             
             JdbcSQLException ex = (JdbcSQLException) e;
-            /*
+            
             if (ex.getErrorCode () == org.h2.constant.ErrorCode.DATABASE_ALREADY_OPEN_1)
             {
                 
                 return true;
                 
             }
-            */
+            
+            /*
+             *176
             if (ex.getErrorCode () == org.h2.api.ErrorCode.DATABASE_ALREADY_OPEN_1)
             {
                 
                 return true;
                 
             }
+            */
 
         }
         
@@ -1106,7 +1109,7 @@ public class ObjectManager
         {
             
             JdbcSQLException ex = (JdbcSQLException) e;
-            /*
+            
             if ((ex.getErrorCode () == org.h2.constant.ErrorCode.FILE_ENCRYPTION_ERROR_1)
                 ||
                 (ex.getErrorCode () == org.h2.constant.ErrorCode.WRONG_USER_OR_PASSWORD)
@@ -1116,7 +1119,9 @@ public class ObjectManager
                 return true;
                 
             }
-            */
+            
+            /*
+             *176
             if ((ex.getErrorCode () == org.h2.api.ErrorCode.FILE_ENCRYPTION_ERROR_1)
                 ||
                 (ex.getErrorCode () == org.h2.api.ErrorCode.WRONG_USER_OR_PASSWORD)
@@ -1125,7 +1130,8 @@ public class ObjectManager
                 
                 return true;
                 
-            }            
+            }
+            */
         }
         
         Throwable cause = e.getCause ();
