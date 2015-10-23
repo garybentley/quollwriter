@@ -58,14 +58,15 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.setCaret (new QCaret ());
         this.getCaret ().setBlinkRate (500);
-
-        this.doc = new DefaultStyledDocument ();
         
+        this.undoManager = new CompoundUndoManager (this);
+                
         // Adapted from: https://community.oracle.com/thread/2376090
         // When there is a long contiguous piece of text it will prevent the text from
         // wrapping.  This allows the wrapping to occur.  However it does not prevent the
         // word wrapping from going nuts in text after this.
         // The bug only triggers when the text is wider than the view.
+        /*
         final ViewFactory vf = new ViewFactory ()
         {
           
@@ -126,8 +127,9 @@ public class QTextEditor extends JTextPane implements TextStylable
             }
             
         };
-        
-        this.setEditorKit (new StyledEditorKit ()
+*/        
+        this.setEditorKit (new QStyledEditorKit ());
+/*
         {
            
             @Override
@@ -139,29 +141,9 @@ public class QTextEditor extends JTextPane implements TextStylable
             }
             
         });
-
-        this.doc.putProperty (DefaultEditorKit.EndOfLineStringProperty,
-                              "\n");
-
-        this.sectionBreakStyle = this.doc.addStyle ("section-break",
-                                                    null);
-        StyleConstants.setAlignment (this.sectionBreakStyle,
-                                     StyleConstants.ALIGN_CENTER);
-
-        this.undoManager = new CompoundUndoManager (this);
-
-        // this.undoManager = new UndoManager ();
-
-        this.doc.addUndoableEditListener (this.undoManager);
-        this.doc.setParagraphAttributes (0,
-                                         0,
-                                         this.styles,
-                                         true);
-        this.doc.setCharacterAttributes (0,
-                                         0,
-                                         this.styles,
-                                         true);
-        this.setDocument (this.doc);
+  */      
+        this.initDocument ();
+                
         this.setMargin (new Insets (5,
                                     5,
                                     0,
@@ -445,6 +427,34 @@ public class QTextEditor extends JTextPane implements TextStylable
                 
     }
 
+    public void initDocument ()
+    {
+
+        this.doc = new DefaultStyledDocument ();
+        
+        this.doc.putProperty (DefaultEditorKit.EndOfLineStringProperty,
+                              "\n");
+
+        this.sectionBreakStyle = this.doc.addStyle ("section-break",
+                                                    null);
+        StyleConstants.setAlignment (this.sectionBreakStyle,
+                                     StyleConstants.ALIGN_CENTER);
+        
+        this.doc.addUndoableEditListener (this.undoManager);
+        
+        this.doc.setParagraphAttributes (0,
+                                         0,
+                                         this.styles,
+                                         true);
+        this.doc.setCharacterAttributes (0,
+                                         0,
+                                         this.styles,
+                                         true);
+                                         
+        this.setDocument (this.doc);
+        
+    }
+    
     public void setCanFormat (boolean c)
     {
         
@@ -1576,5 +1586,5 @@ public class QTextEditor extends JTextPane implements TextStylable
         return p >= cl;
         
     }    
-    
+
 }

@@ -573,7 +573,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     
             edPanel.restoreFontColor ();
     
-            edPanel.reflowText ();
+            //edPanel.reflowText ();
     
             edPanel.setIgnoreDocumentChanges (false);
 
@@ -2695,7 +2695,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
             
-            edPanel.reflowText ();
+            //edPanel.reflowText ();
                         
             // Ensure the caret is visible.
             edPanel.scrollCaretIntoView ();

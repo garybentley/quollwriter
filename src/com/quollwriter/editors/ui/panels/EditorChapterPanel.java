@@ -211,30 +211,6 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         this.highlight = new BlockPainter (Environment.getHighlightColor ());        
                 
     }
-
-   @Override
-   public void reflowText ()
-   {
-     
-      try
-      {
-      
-         super.reflowText ();
-         
-         this.iconColumn.init ();
-         
-      } catch (Exception e) {
-         
-         Environment.logError ("Unable to reflow text: " +
-                               this.getChapter (),
-                               e);
-         
-         UIUtils.showErrorMessage (this.projectViewer,
-                                   "Unable to reflow the {chapter} text, please contact Quoll Writer support for assistance.");
-         
-      }
-     
-   }
     
     public void setChapterItemEditVisible (boolean v)
     {

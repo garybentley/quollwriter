@@ -50,7 +50,7 @@ public class EditorsUtils
         }
         
         // Decode.
-        byte[] bytes = Base64.decode (s);		
+        byte[] bytes = com.quollwriter.Base64.decode (s);		
 		
 		return UIUtils.getImage (bytes);
         
@@ -69,7 +69,7 @@ public class EditorsUtils
 		
 		byte[] bytes = UIUtils.getImageBytes (im);
 		        
-        return Base64.encodeBytes (bytes);
+        return com.quollwriter.Base64.encodeBytes (bytes);
         
     }
 
@@ -105,7 +105,7 @@ public class EditorsUtils
 		
         RSAPublicBCPGKey pubKey = (RSAPublicBCPGKey) k.getPublicKeyPacket ().getKey ();
 
-		return Base64.encodeBytes (pubKey.getEncoded ());
+		return com.quollwriter.Base64.encodeBytes (pubKey.getEncoded ());
 		
 	}
 	

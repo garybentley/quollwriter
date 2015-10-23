@@ -70,7 +70,7 @@ public class PublicKeyMessage extends EditorMessage
         RSAPublicBCPGKey pubKey = (RSAPublicBCPGKey) this.publicKey.getPublicKeyPacket ().getKey ();
                         
         data.put ("publickey",
-                  Base64.encodeBytes (pubKey.getEncoded ()));
+                  com.quollwriter.Base64.encodeBytes (pubKey.getEncoded ()));
         
     }
     
@@ -89,7 +89,7 @@ public class PublicKeyMessage extends EditorMessage
             
         }
         
-        byte[] pubkeybytes = Base64.decode (pubkey);
+        byte[] pubkeybytes = com.quollwriter.Base64.decode (pubkey);
                                                     
         try
         {
