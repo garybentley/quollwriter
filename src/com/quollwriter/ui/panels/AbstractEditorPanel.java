@@ -271,29 +271,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
     }
 
     public abstract JComponent getEditorWrapper (QTextEditor editor);    
-    
-    // This is used to completely reflow the text in the editor to get around issues when
-    // we change parent.
-    public void reflowText ()
-    {
         
-        this.setIgnoreDocumentChanges (true);
-        
-        int c = this.editor.getCaret ().getDot ();
-        
-        StringWithMarkup t = this.editor.getTextWithMarkup ();
-                    
-        StringWithMarkup b = new StringWithMarkup ("");
-                    
-        this.editor.setTextWithMarkup (b);
-        this.editor.setTextWithMarkup (t);
-        
-        this.editor.getCaret ().setDot (c);
-
-        this.setIgnoreDocumentChanges (false);
-        
-    }
-    
     public void setWritingLineColor (Color c)
     {
         

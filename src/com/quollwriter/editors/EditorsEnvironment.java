@@ -1356,6 +1356,13 @@ public class EditorsEnvironment
         
         final AbstractViewer viewer = Environment.getFocusedViewer ();
 
+        if (viewer == null)
+        {
+            
+            return;
+            
+        }
+        
         if (!viewer.isEditorsVisible ())
         {
         

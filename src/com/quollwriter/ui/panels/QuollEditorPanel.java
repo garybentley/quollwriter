@@ -465,35 +465,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         this.editor.setTransferHandler (QuollEditorPanel.cnpTransferHandler);
                 
     }
-
-    // This is used to completely reflow the text in the editor to get around issues when
-    // we change parent.
-   @Override   
-   public void reflowText ()
-   {
-    
-      try
-      {
-      
-         // Need to remove first
-         this.iconColumn.removeAllItems ();
-      
-         super.reflowText ();
-         
-         this.iconColumn.init ();
-         
-      } catch (Exception e) {
-         
-         Environment.logError ("Unable to reflow text: " +
-                               this.getChapter (),
-                               e);
-         
-         UIUtils.showErrorMessage (this.projectViewer,
-                                   "Unable to reflow the {chapter} text, please contact Quoll Writer support for assistance.");
-         
-      }
-    
-   }
    
     public int getTextPositionForMousePosition (Point p)
     {

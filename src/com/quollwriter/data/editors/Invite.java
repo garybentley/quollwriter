@@ -210,8 +210,8 @@ public class Invite
         inv.setFromEmail ((String) m.get ("from"));
         inv.setToEmail ((String) m.get ("to"));
         
-        inv.setFromPublicKey (EditorsUtils.convertToPGPPublicKey (Base64.decode ((String) m.get ("fromPublicKey"))));
-        inv.setToPublicKey (EditorsUtils.convertToPGPPublicKey (Base64.decode ((String) m.get ("toPublicKey"))));
+        inv.setFromPublicKey (EditorsUtils.convertToPGPPublicKey (com.quollwriter.Base64.decode ((String) m.get ("fromPublicKey"))));
+        inv.setToPublicKey (EditorsUtils.convertToPGPPublicKey (com.quollwriter.Base64.decode ((String) m.get ("toPublicKey"))));
         
         try
         {

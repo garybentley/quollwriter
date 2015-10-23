@@ -1420,7 +1420,7 @@ public class EditorsWebServiceHandler
                            Utils.getFileType (avatarImage),
                            bout);
             
-            String s = Base64.encodeBytes (bout.toByteArray ());
+            String s = com.quollwriter.Base64.encodeBytes (bout.toByteArray ());
             
             if (s.length () > MAX_IMAGE_SIZE)
             {
@@ -1536,7 +1536,7 @@ public class EditorsWebServiceHandler
                            Utils.getFileType (avatarImage),
                            bout);
             
-            String s = Base64.encodeBytes (bout.toByteArray ());
+            String s =com.quollwriter.Base64.encodeBytes (bout.toByteArray ());
             
             if (s.length () > MAX_IMAGE_SIZE)
             {
