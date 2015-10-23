@@ -1,5 +1,12 @@
 <whatsnew>
 
+  <version id="2.4.1">        
+    <item onlyIfCurrentVersion="true">
+      <title>Bug squashing</title>
+      <description><![CDATA[A number of minor bugs have been fixed and one major one relating to words getting chopped up in a chapter when moving from normal mode to full screen or when resizing the window.]]></description>
+    </item>
+  </version>
+
   <version id="2.4">        
     <item>
       <title>Projects window</title>

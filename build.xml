@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.3.1" />
+  <property name="currVersion" value="2.4.1" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -70,9 +70,7 @@
         <!--
         Uncomment if you want to access the jvm via jdb -attach jdbconn
         -->
-        <!--
         <jvmarg value="-Xrunjdwp:transport=dt_shmem,server=y,suspend=n,address=jdbconn" />
-        -->
         <!--
         <arg value="-Dlog4j.configuration=log4j.xml" />
         -->
