@@ -353,7 +353,8 @@
            destdir="${buildDir}"
            debug="on"
            deprecation="on"
-           nowarn="on"           
+           nowarn="on"
+           source="1.7"
            excludes="**/svn/**">
       <classpath>
         <fileset dir="./3rd-party-jars/"
