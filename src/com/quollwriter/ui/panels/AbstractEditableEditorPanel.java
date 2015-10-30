@@ -179,7 +179,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         super.init ();
     
         final AbstractEditableEditorPanel _this = this;
-
+        
         this.chapterInfo = new javax.swing.Timer (2000,
                                       new ActionAdapter ()
         {
@@ -192,12 +192,12 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                     
                     public void run ()
                     {
-                        
+
                         try
                         {
                             
                             Thread t = Thread.currentThread ();
-                            t.setName ("Chapter counts for: " + _this.chapter);
+                            t.setName ("Chapter counts for: " + _this.chapter.getName ());
                             t.setPriority (Thread.MIN_PRIORITY);
                 
                         } catch (Exception e) {
