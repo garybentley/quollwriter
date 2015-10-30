@@ -1617,11 +1617,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             
             this.fsf.showSideBar ();
                         
-            return;
-                    
-        }
+        } else {
                 
-        this.setUILayout (this.layout);
+			this.setUILayout (this.layout);
+			
+		}
 
         try
         {
@@ -1639,14 +1639,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         }
         
         this.fireSideBarShownEvent (b);
-        
-        if (this.fsf != null)
-        {
-            
-            this.fsf.showSideBar ();
-            
-        }
-        
+                
     }
     /*
     public Map getTempOptions ()
@@ -5848,7 +5841,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                    afterClose);
                             
     }
-
+	
     public FullScreenFrame getFullScreenFrame ()
     {
         
