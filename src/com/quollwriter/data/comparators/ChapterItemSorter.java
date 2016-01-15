@@ -68,8 +68,18 @@ public class ChapterItemSorter implements Comparator<ChapterItem>
                 return 1;
                         
             }
+                        
+            int nc = o1.getName ().compareTo (o2.getName ());
             
-            return o1.getName ().compareTo (o2.getName ());
+            if (nc == 0)
+            {
+                
+                // Return the one created first.
+                return o1.getDateCreated ().compareTo (o2.getDateCreated ());
+                    
+            } 
+                
+            return nc;
             
             //return (int) (o1.getKey () - o2.getKey ());
             
