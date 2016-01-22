@@ -7942,6 +7942,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     public int getSessionWordCount ()
     {
         
+		if (this.startWordCounts == null)
+		{
+			
+			return 0;
+			
+		}
+		
         ChapterCounts achc = this.getAllChapterCounts (false);
         
         return achc.wordCount - this.startWordCounts.wordCount;
