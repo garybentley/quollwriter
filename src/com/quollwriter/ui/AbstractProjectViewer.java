@@ -7431,6 +7431,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                      throws GeneralException
     {
 
+		if (o == null)
+		{
+			
+			return;
+			
+		}
+	
         java.util.Set<NamedObject> otherObjects = o.getOtherObjectsInLinks ();
 
         this.dBMan.saveObject (o,
