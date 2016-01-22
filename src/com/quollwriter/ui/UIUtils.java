@@ -3578,8 +3578,8 @@ public class UIUtils
 
                     }
 
-                }
-
+                }                
+                
                 // Find the first whitespace char after...                
                 char[] chars = s.toCharArray ();
 
@@ -3588,7 +3588,10 @@ public class UIUtils
                 for (int i = ind + urlPrefix.length (); i < chars.length; i++)
                 {
 
-                    if (!Character.isWhitespace (chars[i]))
+                    if ((!Character.isWhitespace (chars[i]))
+                        &&
+                        (chars[i] != '<')
+                       )
                     {
                         
                         b.append (chars[i]);
