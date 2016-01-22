@@ -6,6 +6,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.*;
+import com.quollwriter.ui.components.*;
 
 public class TypeEncoder
 {
@@ -90,7 +91,15 @@ public class TypeEncoder
         {
             
             t = ct.getText ();
-            m = ct.getMarkup ().toString ();
+
+            Markup mt = ct.getMarkup ();
+            
+            if (mt != null)
+            {
+                
+                m = mt.toString ();
+                
+            }
             
         }
         

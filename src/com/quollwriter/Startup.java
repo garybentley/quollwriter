@@ -11,7 +11,6 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 
-
 public class Startup
 {
 
@@ -30,7 +29,7 @@ public class Startup
             }
 
         }
-        
+
         SplashScreen ss = null;
         
         try

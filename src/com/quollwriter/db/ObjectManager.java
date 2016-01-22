@@ -503,6 +503,9 @@ public class ObjectManager
                              throws GeneralException
     {
 
+        // Hardcoding the name since it's possible to have more than 1 sequence.
+        //return "KEY_SEQUENCE";
+    
         Connection c = null;
 
         try
