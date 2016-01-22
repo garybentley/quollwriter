@@ -2173,7 +2173,7 @@ public class UIUtils
         UIUtils.showErrorMessage (message);
         
     }
-
+/*
     private static void showErrorMessage (final AbstractProjectViewer pv,
                                           final String                message)
     {
@@ -2201,7 +2201,7 @@ public class UIUtils
         });
 
     }
-    
+  */  
     private static void showErrorMessage (final PopupWindow p,
                                           final String      message)
     {
@@ -7141,6 +7141,8 @@ public class UIUtils
                                                  final String         actionTypeName)
     {
         
+        final Exception pe = new Exception ();
+        
         final javax.swing.Timer t = new javax.swing.Timer (100,
                                                            null);   
         
@@ -7168,10 +7170,12 @@ public class UIUtils
                         
                     } catch (Exception e) {
                         
-                        Environment.logError ("Unable to perform action",
+                        Environment.logError ("Unable to perform action: " + action + "\nCause: " +
+                                              Utils.getStackTrace (pe),
                                               e);
             
-                        UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
+                        UIUtils.showErrorMessage (p.getProjectViewer (),
+                                                  "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
                                                 
                     }
                                                             
@@ -7183,10 +7187,12 @@ public class UIUtils
                 if (count > 50)
                 {
                     
-                    Environment.logError ("Unable to perform action",
-                                          new Exception ("Unable to perform action for panel: " + p.getPanelId ()));
+                    Environment.logError ("Unable to perform action: " + action,
+                                          new Exception ("Unable to perform action for panel: " + p.getPanelId (),
+                                                         pe));
         
-                    UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
+                    UIUtils.showErrorMessage (p.getProjectViewer (),
+                                              "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
                     
                     t.setRepeats (false);
                     t.stop ();
