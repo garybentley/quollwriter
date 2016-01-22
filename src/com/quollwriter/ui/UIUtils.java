@@ -2055,7 +2055,10 @@ public class UIUtils
                     
                 }
         
-                JTextPane m = UIUtils.createHelpTextPane (message + "<br /><br /><a href='qw:/report-a-bug'>Click here to contact Quoll Writer support about this problem.</a>",
+                JTextPane m = UIUtils.createHelpTextPane (String.format ("%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
+                                                                         message,
+                                                                         Constants.ACTION_PROTOCOL,
+                                                                         "reportbug"),
                                                           pv);
                 m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                           m.getPreferredSize ().height));
