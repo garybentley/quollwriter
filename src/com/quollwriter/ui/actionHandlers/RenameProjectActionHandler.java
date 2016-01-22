@@ -224,8 +224,15 @@ public class RenameProjectActionHandler extends TextInputActionHandler
                                               
                     }
         
-                    Environment.getProjectViewer (proj).fireProjectEventLater (proj.getObjectType (),
-                                                                               ProjectEvent.RENAME);
+                    AbstractProjectViewer apv = Environment.getProjectViewer (proj);
+                    
+                    if (apv != null)
+                    {
+                        
+                        apv.fireProjectEventLater (proj.getObjectType (),
+                                                   ProjectEvent.RENAME);
+                        
+                    }
 
                 }
                 
