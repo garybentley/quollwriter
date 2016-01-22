@@ -1891,6 +1891,25 @@ if (viewer == null)
                                                   _this);
   */              
                     
+                if (_this.editor.isPending ())
+                {
+                    
+                    m.add (UIUtils.createMenuItem ("Resend Invite",
+                                                   Constants.NOTIFY_ICON_NAME,
+                                                   new ActionListener ()
+                                                   {
+                                                          
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                            
+                                                            EditorsEnvironment.sendInvite (_this.editor.getEmail ());
+                                                                                                                          
+                                                        }
+                                                          
+                                                    }));
+                    
+                }
+                            
                 _this.addShowAllMessagesMenuItem (m);
                 
                 _this.addUpdateEditorInfoMenuItem (m);
