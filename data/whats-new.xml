@@ -1,5 +1,12 @@
 <whatsnew>
 
+  <version id="2.4.2">        
+    <item onlyIfCurrentVersion="true">
+      <title>Bug fixes and a change to Editors service invites</title>
+      <description><![CDATA[A number of minor bugs have been fixed, please see the release notes for full details.<br /><br />Also, you can now resend invites to your contacts in the Editors service, right click on a pending contact and select <b>Resend Invite</b>.]]></description>
+    </item>
+  </version>
+
   <version id="2.4.1">        
     <item onlyIfCurrentVersion="true">
       <title>Bug squashing</title>
