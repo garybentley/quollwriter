@@ -85,6 +85,46 @@ public class Word implements TextBlock<Sentence, Word, NoTextBlock>
         
     }
     
+    public boolean isDialogueStart ()
+    {
+                
+        if ((TextUtilities.isOpenQ (this))
+            &&
+            ((this.previous == null)
+             ||
+             (!this.previous.isInDialogue ())
+            )
+           )
+        {
+            
+            return true;
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public boolean isDialogueEnd ()
+    {
+                
+        if ((TextUtilities.isCloseQ (this))
+            &&
+            ((this.next == null)
+             ||
+             (!this.next.isInDialogue ())
+            )
+           )
+        {
+            
+            return true;
+            
+        }
+        
+        return false;
+        
+    }
+
     public boolean isInDialogue ()
     {
         
