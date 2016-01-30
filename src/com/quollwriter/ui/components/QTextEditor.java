@@ -3,6 +3,8 @@ package com.quollwriter.ui.components;
 import java.awt.*;
 import java.awt.event.*;
 
+import java.awt.datatransfer.*;
+
 import java.io.*;
 
 import java.util.ArrayList;
@@ -495,6 +497,46 @@ public class QTextEditor extends JTextPane implements TextStylable
         }
                 
         super.copy ();
+        
+    }
+    
+    @Override
+    public void paste ()
+    {
+        
+        if (!this.canCopy)
+        {
+            
+            return;
+            
+        }
+        
+        Transferable trans = Toolkit.getDefaultToolkit().getSystemClipboard().getContents (null);
+        
+        if ((trans != null)
+            &&
+            (trans.isDataFlavorSupported (DataFlavor.stringFlavor))
+           )
+        {
+                
+            try
+            {
+                
+                String s = (String) trans.getTransferData (DataFlavor.stringFlavor);
+
+                s = com.quollwriter.text.TextUtilities.sanitizeText (s);
+                                
+                TransferHandler transferHandler = this.getTransferHandler();
+                transferHandler.importData (this,
+                                            new StringSelection (s));        
+
+            } catch (Exception e) {
+             
+                super.paste ();
+                
+            }
+            
+        }
         
     }
     

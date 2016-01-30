@@ -910,10 +910,12 @@ public class Chapter extends NamedObject
             if (_t != null)
             {
         
+                _t = com.quollwriter.text.TextUtilities.sanitizeText (_t);
+/*        
                 _t = StringUtils.replaceString (_t,
                                                 String.valueOf ('\r'),
                                                 "");
-        
+  */      
                 t.update (_t,
                           t.getMarkup ());
 

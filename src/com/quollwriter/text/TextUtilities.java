@@ -4,6 +4,8 @@ import java.text.*;
 
 import java.util.*;
 
+import com.gentlyweb.utils.*;
+
 import com.quollwriter.*;
 import com.quollwriter.ui.components.Markup;
 
@@ -12,6 +14,10 @@ public class TextUtilities
 
     public static final String ANY_WORD = "*";
 
+    public static String DEFAULT_OPEN_Q = "\"";
+    public static String DEFAULT_CLOSE_Q = "\"";
+    public static String DEFAULT_APOS = "'";
+    
     private static Map<String, Integer> wordSyllableCounts = null;
     private static Map<String, String>  contractionEnds = new HashMap ();
     private static Map<Character, Set<Character>> openCloseQs = new HashMap ();
@@ -166,7 +172,60 @@ public class TextUtilities
         
     }
     
+    public static boolean isOpenQ (Word w)
+    {
+        
+        if (!w.isPunctuation ())
+        {
+            
+            return false;
+            
+        }
+        
+        String t = w.getText ();
+        
+        if (t.length () != 1)
+        {
+            
+            return false;
+            
+        }
+        
+        return TextUtilities.isOpenQ (t.charAt (0));
+        
+    }
+    
     public static boolean isOpenQ (char c)
+    {
+
+        return TextUtilities.openCloseQs.containsKey (c);
+
+    }
+
+    public static boolean isCloseQ (Word w)
+    {
+        
+        if (!w.isPunctuation ())
+        {
+            
+            return false;
+            
+        }
+        
+        String t = w.getText ();
+        
+        if (t.length () != 1)
+        {
+            
+            return false;
+            
+        }
+        
+        return TextUtilities.isCloseQ (t.charAt (0));
+        
+    }
+    
+    public static boolean isCloseQ (char c)
     {
 
         return TextUtilities.openCloseQs.containsKey (c);
@@ -634,5 +693,33 @@ public class TextUtilities
         return out.toString ();
     
     }       
+
+    public static String sanitizeText (String t)
+    {
+        
+        if (t == null)
+        {
+            
+            return t;
+            
+        }
+
+        t = StringUtils.replaceString (t,
+                                       String.valueOf ('\r'),
+                                       "");
+        
+        t = StringUtils.replaceString (t,
+                                       String.valueOf ('\u201c'),
+                                       DEFAULT_OPEN_Q);
+        t = StringUtils.replaceString (t,
+                                       String.valueOf ('\u201d'),
+                                       DEFAULT_CLOSE_Q);
+        t = StringUtils.replaceString (t,
+                                       String.valueOf ('\u2019'),
+                                       DEFAULT_APOS);
+        
+        return t.replaceAll ("[\\p{Cntrl}&&[^\r\n\t]]", "");
+        
+    }
     
 }

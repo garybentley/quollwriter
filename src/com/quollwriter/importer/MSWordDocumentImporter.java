@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.text.TextUtilities;
 import com.quollwriter.data.*;
 
 import org.apache.poi.hwpf.*;
@@ -316,6 +316,8 @@ public class MSWordDocumentImporter implements DocumentImporter
 
         }
 
+        text = TextUtilities.sanitizeText (text);
+        
         if (style != null)
         {
 
