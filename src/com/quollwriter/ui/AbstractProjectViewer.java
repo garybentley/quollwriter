@@ -4134,12 +4134,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 		
 		final AbstractProjectViewer _this = this;
 		
+/*
 		// TODO: Change to use a thread pool executor, although that requires creating
 		// our own threadpoolfactory which is overkill for our needs.		
 		this.autoBackupsTimer = new java.util.Timer ("auto-backups-" + this.proj.getName (),
 													 true);
-		
-		this.autoBackupsTimer.schedule (new TimerTask ()
+	*/	
+		this.schedule (new TimerTask ()
 		{
 			
 			public void run ()
