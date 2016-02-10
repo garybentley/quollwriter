@@ -2483,7 +2483,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     }
 */
     public void doForPanels (final Class            type,
-                             final QuollPanelAction act)
+                             final QuollPanelAction act,
+							 final boolean          doOnEventThread)
     {
         
         for (QuollPanel p : this.panels.values ())
@@ -2494,18 +2495,38 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                 
 				final QuollPanel _p = p;
 				
-				UIUtils.doLater (new ActionListener ()
+				if (doOnEventThread)
 				{
 				
-					@Override
-					public void actionPerformed (ActionEvent ev)
+					UIUtils.doLater (new ActionListener ()
+					{
+					
+						@Override
+						public void actionPerformed (ActionEvent ev)
+						{
+							
+							act.doAction (_p);
+							
+						}
+						
+					});
+					
+				} else {
+					
+					try
 					{
 						
-						act.doAction (_p);
+						act.doAction (p);
+						
+					} catch (Exception e) {
+						
+						Environment.logError ("Unable to perform action: " +
+											  act,
+											  e);
 						
 					}
 					
-				});
+				}
                 
             }
             
@@ -2513,6 +2534,16 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         
     }
         
+    public void doForPanels (final Class            type,
+                             final QuollPanelAction act)
+    {
+        
+		this.doForPanels (type,
+						  act,
+						  true);
+        
+    }
+
     public boolean isHighlightWritingLine ()
     {
         
