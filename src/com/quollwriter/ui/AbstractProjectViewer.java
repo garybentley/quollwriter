@@ -168,6 +168,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 	private CardLayout            cardsLayout = null;
 	
 	private java.util.Timer autoBackupsTimer = null;
+	private TimerTask autoSaveTask = null;
 
     public AbstractProjectViewer()
     {
@@ -4011,6 +4012,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         Environment.incrStartupProgress ();
 
 		this.startAutoBackups ();
+		
+		this.scheduleAutoSaveForAllEditors ();	
 		
 		/*
         // See if the properties say that we should produce a snapshot.
@@ -8563,5 +8566,82 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 		return ids;
 		
 	}
+
+    public void scheduleAutoSaveForAllEditors ()
+    {
+
+		if (this.autoSaveTask != null)
+		{
+	
+			this.autoSaveTask.cancel ();
+			
+			this.autoSaveTask = null;
+			
+		}
+	
+        if (this.proj.getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME))
+        {
+        
+            long autoSaveInt = Utils.getTimeAsMillis (this.proj.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+    
+            if (autoSaveInt > 0)
+            {
+        
+				final AbstractProjectViewer _this = this;
+		
+                // Create our auto save
+                this.autoSaveTask = new BlankTimerTask ()
+                {
+
+					@Override
+                    public void run ()
+                    {
+
+						_this.doForPanels (AbstractEditableEditorPanel.class,
+										  new QuollPanelAction<AbstractEditableEditorPanel> ()
+										  {
+											
+											  @Override
+											  public void doAction (AbstractEditableEditorPanel p)
+											  {
+												
+												if (!p.hasUnsavedChanges ())
+												{
+						
+													return;
+						
+												}
+						
+												try
+												{
+						
+													p.saveChapter ();
+						
+												} catch (Exception e)
+												{
+						
+													Environment.logError ("Unable to auto save chapter: " +
+																		  p.getChapter (),
+																		  e);
+						
+												}
+												
+											  }
+											
+										  });
+					
+                    }
+
+                };
+				
+				this.schedule (this.autoSaveTask,
+							   autoSaveInt,
+							   autoSaveInt);
+    
+            }
+
+        }				
+
+    }
     
 }

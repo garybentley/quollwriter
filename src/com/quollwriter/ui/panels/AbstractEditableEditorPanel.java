@@ -53,7 +53,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
     public static final String INSERT_SECTION_BREAK_ACTION_NAME = "insert-section-break";
     public static final String DELETE_CHAPTER_ACTION_NAME = "delete-chapter";
     
-    protected Timer          autoSave = new Timer (true);
     protected javax.swing.Timer          chapterInfo = null;
     private   long chapterInfoTimerLastRun = -1;
     //protected java.util.List actionListeners = new ArrayList ();
@@ -161,14 +160,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             this.chapterInfo.stop ();
             
         }
-                
-        if (this.autoSave != null)
-        {
-            
-            this.autoSave.cancel ();
-            
-        }
-                
+                                
     }
     
     @Override
@@ -454,8 +446,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
         });
 
-        this.scheduleAutoSave ();
-
         this.editor.getDocument ().addDocumentListener (new DocumentAdapter ()
         {
 
@@ -525,63 +515,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         
     }
 
-    public void scheduleAutoSave ()
-    {
-
-        this.autoSave.cancel ();
-
-        this.autoSave = new Timer (true);
-
-        if (this.chapter.getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME))
-        {
-        
-            long autoSaveInt = Utils.getTimeAsMillis (this.chapter.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
-    
-            if (autoSaveInt > 0)
-            {
-    
-                final AbstractEditableEditorPanel _this = this;
-    
-                // Create our auto save
-                this.autoSave.schedule (new BlankTimerTask ()
-                {
-
-                    public void run ()
-                    {
-
-                        if (!_this.hasUnsavedChanges ())
-                        {
-
-                            return;
-
-                        }
-
-                        try
-                        {
-
-                            _this.saveChapter ();
-
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to auto save chapter: " +
-                                                  _this.getChapter (),
-                                                  e);
-
-                        }
-
-                    }
-
-                },
-                (autoSaveInt + (new Random ().nextInt (10) * 1000)),
-                autoSaveInt);
-    
-            }
-
-        }
-                
-    }
-
     public void insertSectionBreak ()
     {
 
@@ -626,13 +559,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             }
 
         });
-
-    }
-
-    public void stopAutoSave ()
-    {
-
-        this.autoSave.cancel ();
 
     }
 
