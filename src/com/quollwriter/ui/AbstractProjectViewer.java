@@ -2481,8 +2481,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                       
     }
 */
-    public void doForPanels (Class            type,
-                             QuollPanelAction act)
+    public void doForPanels (final Class            type,
+                             final QuollPanelAction act)
     {
         
         for (QuollPanel p : this.panels.values ())
@@ -2491,7 +2491,20 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             if (type.isAssignableFrom (p.getClass ()))
             {
                 
-                act.doAction (p);
+				final QuollPanel _p = p;
+				
+				UIUtils.doLater (new ActionListener ()
+				{
+				
+					@Override
+					public void actionPerformed (ActionEvent ev)
+					{
+						
+						act.doAction (_p);
+						
+					}
+					
+				});
                 
             }
             
