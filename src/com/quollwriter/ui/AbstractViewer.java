@@ -25,6 +25,7 @@ import java.util.WeakHashMap;
 import java.util.Collections;
 import java.util.Stack;
 import java.util.SortedSet;
+import java.util.TimerTask;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -94,6 +95,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     private QPopup                achievementsPopup = null;
     private Map<String, QPopup> popups = new HashMap ();
 
+    private java.util.Timer generalTimer = null;
+    
     private Timer achievementsHideTimer = null;
 
     private Tips tips = null;
@@ -108,6 +111,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
+        this.generalTimer = new java.util.Timer (true);
+        
         this.addWindowListener (new WindowAdapter ()
             {
 
@@ -3154,6 +3159,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.fireProjectEvent (ProjectEvent.ITEM_TYPES,
                                ProjectEvent.SHOW);
+        
+    }
+
+    public void schedule (TimerTask t,
+                          long      delay,
+                          long      repeat)
+    {
+        
+        this.generalTimer.schedule (t,
+                                    delay,
+                                    repeat);
         
     }
     
