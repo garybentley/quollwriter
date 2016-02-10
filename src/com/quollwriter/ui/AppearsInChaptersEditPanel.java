@@ -32,7 +32,6 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     private JTree          chapterTree = null;
     private AbstractProjectViewer viewer = null;
     private NamedObject obj = null;
-    private java.util.Timer refreshTimer = null;
     private AppearsInChaptersSideBar sideBar = null;
     private QTextEditor editor = null;
     private Object highlightId = null;
@@ -48,66 +47,10 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         this.viewer = viewer;
         
         this.sideBarId = SIDEBAR_PANEL_ID + this.obj.getObjectReference ().asString ();
-        
-        final AppearsInChaptersEditPanel _this = this;
-        
-        this.refreshTimer = new java.util.Timer (true);
-        
-        this.refreshTimer.schedule (new TimerTask ()
-        {
-            
-            public void run ()
-            {
-                
-                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
-                
-                try
-                {
-                    
-                    final Map<Chapter, List<Segment>> snippets = UIUtils.getObjectSnippets (_this.obj,
-                                                                                            _this.viewer);
-                    
-                    UIUtils.doLater (new ActionListener ()
-                    {
-                       
-                        @Override
-                        public void actionPerformed (ActionEvent ev)
-                        {
-                            
-                            try
-                            {
-                            
-                                _this.updateChapterTree (snippets);
-                                
-                            } catch (Exception e) {
-                                
-                                Environment.logError ("Unable to update appears in chapters tree(2) for object: " +
-                                                      _this.obj,
-                                                      e);
-                                
-                            }
-                                                     
-                        }
-                        
-                    });
-                    
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to update appears in chapters tree for object: " +
-                                          _this.obj,
-                                          e);
-                    
-                }
-                
-            }
-            
-        },
-        10 * 1000,
-        5 * 1000);
-        
+
     }
 
-    private void updateChapterTree (Map<Chapter, List<Segment>> snippets)
+    public void updateChapterTree (Map<Chapter, List<Segment>> snippets)
     {
         
         DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.viewer.getProject ());
@@ -463,9 +406,7 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
 
     public void close ()
     {
-        
-        this.refreshTimer.cancel ();
-        
+                
     }
     
 }

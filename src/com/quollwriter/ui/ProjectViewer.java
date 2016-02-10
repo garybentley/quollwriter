@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
+import java.util.TimerTask;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -61,6 +62,9 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.ui.panels.*;
 import com.quollwriter.editors.ui.sidebars.*;
 
+import com.quollwriter.texttidy.rules.*;
+import com.quollwriter.text.*;
+
 public class ProjectViewer extends AbstractProjectViewer
 {
 
@@ -87,6 +91,7 @@ public class ProjectViewer extends AbstractProjectViewer
     public static final int NEW_NOTE_TYPE_ACTION = 127; // "newNoteType"
     public static final int MANAGE_ITEM_TYPES_ACTION = 128; // "manageItemTypes"
     public static final int NEW_ITEM_TYPE_ACTION = 129; // "newItemType"
+	public static final int SHOW_TARGETS_ACTION = 130;
 
     private Date            sessionStart = new Date ();
     private ProjectSideBar  sideBar = null;
@@ -237,7 +242,7 @@ public class ProjectViewer extends AbstractProjectViewer
 		}));                  
 
         this.importOverlay.setTransferHandler (this.getTransferHandler ());
-        
+        						
     }
     
     public IconProvider getIconProvider ()
@@ -440,24 +445,30 @@ public class ProjectViewer extends AbstractProjectViewer
 
         JMenuItem mi = null;
 
-        titlePopup.add (this.createMenuItem ("New {Project}",
-                                             Constants.NEW_ICON_NAME,
-                                             ProjectViewer.NEW_PROJECT_ACTION));
-
-        // Rename project
-        titlePopup.add (this.createMenuItem ("Rename this {Project}",
-                                             Constants.RENAME_ICON_NAME,
-                                             ProjectViewer.RENAME_PROJECT_ACTION));
-
         // Open project.
         titlePopup.add (this.createMenuItem ("Open {Project}",
                                              Constants.OPEN_PROJECT_ICON_NAME,
                                              ProjectViewer.OPEN_PROJECT_ACTION));
 
+        titlePopup.add (this.createMenuItem ("New {Project}",
+                                             Constants.NEW_ICON_NAME,
+                                             ProjectViewer.NEW_PROJECT_ACTION));
+
+		titlePopup.addSeparator ();
+											 
+        // Rename project
+        titlePopup.add (this.createMenuItem ("Rename this {Project}",
+                                             Constants.RENAME_ICON_NAME,
+                                             ProjectViewer.RENAME_PROJECT_ACTION));
+
         titlePopup.add (this.createMenuItem ("Statistics",
                                              Constants.CHART_ICON_NAME,
                                              AbstractProjectViewer.SHOW_STATISTICS_ACTION));
-                                                     
+/*                                                     
+        titlePopup.add (this.createMenuItem ("Targets",
+                                             Constants.CHART_ICON_NAME,
+                                             ProjectViewer.SHOW_TARGETS_ACTION));
+*/
         // Create Project Snapshot
         titlePopup.add (this.createMenuItem ("Create a Backup",
                                              Constants.SNAPSHOT_ICON_NAME,
@@ -683,7 +694,38 @@ public class ProjectViewer extends AbstractProjectViewer
             };
 
         }
+/*
+        if (name == ProjectViewer.SHOW_TARGETS_ACTION)
+        {
 
+            return new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    try
+                    {
+                
+                        pv.viewTargets ();
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to view targets",
+                                              e);
+                        
+                        UIUtils.showErrorMessage (pv,
+                                                  "Unable to view targets.");
+                        
+                    }
+
+                }
+
+            };
+
+        }
+	*/	
+		
         if (name == ProjectViewer.NEW_NOTE_TYPE_ACTION)
         {
             
@@ -1372,7 +1414,9 @@ public class ProjectViewer extends AbstractProjectViewer
 		};
 		
 		Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addPropertyChangedListener (this.noteTypePropChangedListener);
-
+		
+		this.scheduleUpdateAppearsInChaptersTree ();		
+		
     }
 
     private void initProjectItemBoxes ()
@@ -1638,7 +1682,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                                   "afterview");
                                 
             }
-        
+        						
             return true;
 
         }
@@ -2246,6 +2290,24 @@ public class ProjectViewer extends AbstractProjectViewer
         
     }
         
+	/**
+	 * Display the targets for the project.
+	 *
+	 */
+	/*
+	public void viewTargets ()
+                      throws GeneralException
+	{
+		
+        TargetsSideBar t = new TargetsSideBar (this);
+        
+        this.addSideBar ("targets",
+                         t);
+        
+        this.showSideBar ("targets");
+
+	}
+*/	
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter information is viewed.
@@ -2956,24 +3018,6 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    public void scheduleAutoSaveForAllEditors ()
-    {
-
-        this.doForPanels (AbstractEditableEditorPanel.class,
-                          new DefaultQuollPanelAction ()
-                          {
-                            
-                              public void doAction (QuollPanel p)
-                              {
-
-                                  ((AbstractEditableEditorPanel) p).scheduleAutoSave ();
-                                
-                              }
-                            
-                          });
-
-    }
-
     public Set<FindResultsBox> findText (String t)
     {
         
@@ -3075,7 +3119,7 @@ public class ProjectViewer extends AbstractProjectViewer
 		Set<String> ids = new LinkedHashSet ();
 
 		ids.add (IDEA_BOARD_HEADER_CONTROL_ID);
-        
+		
         ids.addAll (super.getTitleHeaderControlIds ());
 				
 		return ids;
@@ -3187,5 +3231,84 @@ public class ProjectViewer extends AbstractProjectViewer
         return ret;
         
     }
+
+	private void scheduleUpdateAppearsInChaptersTree ()
+	{
+		
+		final ProjectViewer _this = this;
+		
+        this.schedule (new TimerTask ()
+        {
+            
+			@Override
+            public void run ()
+            {
+
+                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+                
+				_this.doForPanels (AssetViewPanel.class,
+								   new QuollPanelAction<AssetViewPanel> ()
+								   {
+                                
+									public void doAction (final AssetViewPanel vp)
+									{
+										 
+										final NamedObject n = vp.getForObject ();
+										
+										final AppearsInChaptersEditPanel p = vp.getAppearsInChaptersEditPanel ();
+										
+										try
+										{
+											
+											final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
+																													_this);
+											
+											UIUtils.doLater (new ActionListener ()
+											{
+											   
+												@Override
+												public void actionPerformed (ActionEvent ev)
+												{
+													
+													try
+													{
+													
+														p.updateChapterTree (snippets);
+														
+													} catch (Exception e) {
+														
+														Environment.logError ("Unable to update appears in chapters tree(2) for object: " +
+																			  n,
+																			  e);
+														
+													}
+																			 
+												}
+												
+											});
+											
+										} catch (Exception e) {
+											
+											Environment.logError ("Unable to update appears in chapters tree for object: " +
+																  n,
+																  e);
+											
+										}
+										
+										 
+									}
+                                
+								   },
+								   false);
+                				
+            }
+            
+        },
+		// Start in 5s.
+        5 * 1000,
+		// Run every 30s.
+        30 * 1000);
+		
         
+	}
 }
