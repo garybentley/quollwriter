@@ -1197,6 +1197,9 @@ public class Options extends Box
                     
                 }
 
+                _this.updateDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME,
+                                                    (String) autosaveAmount.getSelectedItem ());
+
                 // For all the ProjectViewers (where text is editable) update the auto save settings.
                 Environment.doForOpenProjects (Project.NORMAL_PROJECT_TYPE,
                                                new ProjectViewerAction<ProjectViewer> ()
@@ -1210,9 +1213,6 @@ public class Options extends Box
                                                     }
                                                 
                                                });
-
-                _this.updateDefaultProjectProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME,
-                                                    (String) autosaveAmount.getSelectedItem ());
                                 
             }
             
