@@ -147,7 +147,7 @@ public class OptionsBox extends Box
            )
         {
 
-            c.setMaximumSize (c.getPreferredSize ());
+            //c.setMaximumSize (c.getPreferredSize ());
 
         }
 
@@ -158,7 +158,7 @@ public class OptionsBox extends Box
         {
 
             Box _b = new Box (BoxLayout.X_AXIS);
-            _b.add (Box.createHorizontalStrut (5));
+            //_b.add (Box.createHorizontalStrut (5));
             _b.add (c);
             _b.add (Box.createHorizontalGlue ());
             _b.setAlignmentX (Component.LEFT_ALIGNMENT);
