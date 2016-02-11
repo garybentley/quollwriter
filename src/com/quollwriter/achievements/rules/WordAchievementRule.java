@@ -103,7 +103,7 @@ public class WordAchievementRule extends AbstractAchievementRule
         if (this.chaptersOnly)
         {
             
-            Set<ChapterCounts> counts = viewer.getAllChapterCounts2 (false);
+            Set<ChapterCounts> counts = viewer.getAllChapterCountsAsSet ();
                    
             for (ChapterCounts cc : counts)
             {

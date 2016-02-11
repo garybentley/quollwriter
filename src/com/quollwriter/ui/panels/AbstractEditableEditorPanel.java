@@ -52,11 +52,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
     public static final String SAVE_ACTION_NAME = "save";
     public static final String INSERT_SECTION_BREAK_ACTION_NAME = "insert-section-break";
     public static final String DELETE_CHAPTER_ACTION_NAME = "delete-chapter";
-    
-    protected javax.swing.Timer          chapterInfo = null;
-    private   long chapterInfoTimerLastRun = -1;
-    //protected java.util.List actionListeners = new ArrayList ();
-    
+        
     public AbstractEditableEditorPanel (AbstractProjectViewer pv,
                                         Chapter               c)
                                  throws GeneralException
@@ -153,14 +149,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
     {
         
         super.close ();
-        
-        if (this.chapterInfo != null)
-        {
-        
-            this.chapterInfo.stop ();
-            
-        }
-                                
+                                        
     }
     
     @Override
@@ -171,64 +160,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         super.init ();
     
         final AbstractEditableEditorPanel _this = this;
-
-        this.chapterInfo = new javax.swing.Timer (2000,
-                                      new ActionAdapter ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                new Thread (new Runnable ()
-                {
-                    
-                    public void run ()
-                    {
-                        
-                        try
-                        {
-                            
-                            Thread t = Thread.currentThread ();
-                            t.setName ("Chapter counts for: " + _this.chapter);
-                            t.setPriority (Thread.MIN_PRIORITY);
-                
-                        } catch (Exception e) {
-                            
-                            // Ignore.
-                            
-                        }
-                        
-                        try
-                        {
-                
-                            ChapterCounts cc = new ChapterCounts (_this.editor.getText ());
-                            cc.a4PageCount = UIUtils.getA4PageCountForChapter (_this.chapter,
-                                                                               _this.editor.getText ());
-                
-                            _this.setChapterCounts (cc);
-                
-                            _this.setReadabilityIndices (_this.projectViewer.getReadabilityIndices (_this.editor.getText ()));
-                
-                            _this.chapterInfoTimerLastRun = System.currentTimeMillis ();
-                                                        
-                        } catch (Exception e) {
-                            
-                            Environment.logError ("Unable to get chapter counts/readability for chapter: " +
-                                                  _this.chapter,
-                                                  e);
-                            
-                        }
-                        
-                    }
-                    
-                }).start ();
-            
-            }
-            
-        });
-        
-        this.chapterInfo.setRepeats (false);
-        this.chapterInfo.start ();
         
         final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
         
@@ -242,9 +173,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                 if (ev.getLength () > 0)
                 {
-                    
-                    _this.restartChapterInfoTimer ();
-    
+                        
                     _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                           ProjectEvent.EDIT,
                                                           _this.chapter);
@@ -403,9 +332,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                 if (ev.getLength () > 0)
                 {
-                    
-                    _this.restartChapterInfoTimer ();
-    
+                        
                     _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                           ProjectEvent.EDIT,
                                                           _this.chapter);
@@ -495,26 +422,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 
     }
         
-    private void restartChapterInfoTimer ()
-    {
-        
-        if ((System.currentTimeMillis () - this.chapterInfoTimerLastRun) > 10000)
-        {
-            
-            // Been more than 10s, so force run.
-            this.chapterInfo.start ();
-            
-            return;
-            
-        } else {
-            
-            this.chapterInfo.stop ();
-            this.chapterInfo.start ();
-            
-        }
-        
-    }
-
     public void insertSectionBreak ()
     {
 

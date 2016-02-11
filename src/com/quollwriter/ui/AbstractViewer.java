@@ -3162,14 +3162,31 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         
     }
 
+    /**
+     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
+     *
+     * @param t The task to run.
+     * @param delay The delay, in millis.
+     * @param repeat The repeat time, in millis.
+     */
     public void schedule (TimerTask t,
                           long      delay,
                           long      repeat)
     {
+       
+        if (repeat < 1)
+        {
+            
+            this.generalTimer.schedule (t,
+                                        delay);
+            
+        } else {
         
-        this.generalTimer.schedule (t,
-                                    delay,
-                                    repeat);
+            this.generalTimer.schedule (t,
+                                        delay,
+                                        repeat);
+
+        }
         
     }
     

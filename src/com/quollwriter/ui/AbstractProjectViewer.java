@@ -120,9 +120,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     private Clip                  keyStrokeSound = null;
     //private QPopup                achievementsPopup = null;
     private ChapterCounts         startWordCounts = new ChapterCounts (null);
-    private Map<Chapter, ChapterCounts> noEditorChapterCounts = new WeakHashMap ();
     private Map<Chapter, ReadabilityIndices> noEditorReadabilityIndices = new WeakHashMap ();
-    //private Box                   itemsBox = null;
+    private Map<Chapter, ChapterCounts> chapterCounts = new WeakHashMap ();
+	//private Box                   itemsBox = null;
     private Box                   sideBar = null;
     private Box                   sideBarWrapper = null;
     private Map<String, AbstractSideBar> sideBars = new HashMap ();
@@ -2487,7 +2487,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 							 final boolean          doOnEventThread)
     {
         
-        for (QuollPanel p : this.panels.values ())
+		Set<QuollPanel> ps = new LinkedHashSet (this.panels.values ());
+		
+        for (QuollPanel p : ps)
         {
             
             if (type.isAssignableFrom (p.getClass ()))
@@ -3970,6 +3972,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             
         }
 
+		this.initChapterCounts ();
+		
         Environment.incrStartupProgress ();
 
 		this.proj.setFilePassword (filePassword);
@@ -4095,6 +4099,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         final AbstractProjectViewer _this = this;
 
+/*		
         UIUtils.doLater (new ActionListener ()
         {
 
@@ -4103,11 +4108,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
                 // Get the word counts, don't calc the a4 pages count.
                 _this.startWordCounts = _this.getAllChapterCounts (false);
-
+xxx
             }
 
         });
-
+*/
         // Check the font used for the project and inform the user if we don't have it.
         // We do it here so it's done once.
         String f = this.proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME);
@@ -7681,75 +7686,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         
     }
     
-    public ChapterCounts getChapterCounts (Chapter c,
-                                           boolean calcA4PagesCount)
+    public ChapterCounts getChapterCounts (Chapter c)
     {
                 
-        AbstractEditorPanel qep = this.getEditorForChapter (c);
-
-        ChapterCounts qcc = null;
-
-        if (qep != null)
-        {
-
-            qcc = qep.getChapterCounts ();
-            
-            if (qcc != null)
-            {
-
-                this.noEditorChapterCounts.remove (c);
-
-                return qcc;
-                
-            }
-        
-        } 
-            
-        qcc = this.noEditorChapterCounts.get (c);
-        
-        if (qcc == null)
-        {
-            
-            String ct = (c.getText () != null ? c.getText ().getText () : null);
-            
-            // Cache the value.
-            qcc = new ChapterCounts (ct);
-        
-            if (calcA4PagesCount)
-            {
-                
-                qcc.a4PageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                    ct);
-                
-            }
-        
-            this.noEditorChapterCounts.put (c,
-                                            qcc);
-
-        }
-        
-        return qcc;
-        
-    }
-
-    public Set<ChapterCounts> getAllChapterCounts2 (boolean calcA4PagesCount)
-    {
-
-        Set<ChapterCounts> ccs = new LinkedHashSet ();
-        
-        Book b = this.proj.getBooks ().get (0);
-
-        java.util.List<Chapter> chapters = b.getChapters ();
-
-        for (Chapter c : chapters)
-        {
-
-            ccs.add (this.getChapterCounts (c,
-                                            calcA4PagesCount));
-
-        }        
-        
-        return ccs;
+		return this.chapterCounts.get (c);
         
     }
         
@@ -7780,23 +7720,85 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         
     }
     
-    public ChapterCounts getAllChapterCounts (boolean calcA4PagesCount)
-    {
-
-        if (this.proj == null)
-        {
-            
-            return null;
-            
-        }
-    
+	private void initChapterCounts ()
+	{
+		
+		if (this.proj == null)
+		{
+			
+			return;
+			
+		}
+		
         if (this.proj.getBooks ().size () == 0)
         {
             
-            return null;
+            return;
             
         }
     
+        Book b = this.proj.getBooks ().get (0);
+        
+        java.util.List<Chapter> chapters = b.getChapters ();
+
+		for (Chapter c : chapters)
+		{
+			
+			this.updateChapterCounts (c);
+			
+		}
+		
+		this.startWordCounts = this.getAllChapterCounts ();
+		
+	}
+	
+	public String getCurrentChapterText (Chapter c)
+	{
+		
+        AbstractEditorPanel qep = this.getEditorForChapter (c);
+
+		String t = null;
+		
+        if (qep != null)
+        {
+
+			t = qep.getEditor ().getText ();
+		        
+        } else {
+			
+			t = (c.getText () != null ? c.getText ().getText () : null);
+            
+        }
+		
+		return t;
+
+	}
+	
+	public void updateChapterCounts (Chapter c)
+	{
+		
+		String t = this.getCurrentChapterText (c);
+		
+		ChapterCounts cc = new ChapterCounts (t);
+        
+		this.chapterCounts.put (c,
+								cc);		
+		
+	}
+	
+	public int getChapterA4PageCount (Chapter c)
+	{
+		
+		return UIUtils.getA4PageCountForChapter (c,
+												 this.getCurrentChapterText (c));
+	
+	}
+	
+	public int getAllChaptersA4PageCount ()
+	{
+
+		int a = 0;
+		
         Book b = this.proj.getBooks ().get (0);
         
         java.util.List<Chapter> chapters = b.getChapters ();
@@ -7806,15 +7808,37 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         for (Chapter c : chapters)
         {
 
-            achc.add (this.getChapterCounts (c,
-                                             calcA4PagesCount));
+			a += this.getChapterA4PageCount (c);
         
         }
+		
+		return a;
+		
+	}
+	
+    public ChapterCounts getAllChapterCounts ()
+    {
 
-        return achc;
+		ChapterCounts all = new ChapterCounts ();
+	
+		for (ChapterCounts cc : this.chapterCounts.values ())
+		{
+			
+			all.add (cc);
+			
+		}
+	
+        return all;
 
     }
 
+	public Set<ChapterCounts> getAllChapterCountsAsSet ()
+	{
+		
+		return new LinkedHashSet<ChapterCounts> (this.chapterCounts.values ());
+		
+	}
+	
     private Book getBookCurrentlyEdited ()
     {
 
@@ -7990,7 +8014,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     public int getSessionWordCount ()
     {
         
-        ChapterCounts achc = this.getAllChapterCounts (false);
+        ChapterCounts achc = this.getAllChapterCounts ();
         
         return achc.wordCount - this.startWordCounts.wordCount;
         

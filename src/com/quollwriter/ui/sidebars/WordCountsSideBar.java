@@ -188,7 +188,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             
         }
         
-        ChapterCounts achc = this.viewer.getAllChapterCounts (true);
+        ChapterCounts achc = this.viewer.getAllChapterCounts ();
         
         // When shutting down we may get a null back, just return.
         if (achc == null)
@@ -247,9 +247,10 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                 }
                 
             } 
-
-            ChapterCounts chc = this.viewer.getChapterCounts (c,
-                                                              true);
+            
+            int a4Count = this.viewer.getChapterA4PageCount (c);
+            
+            ChapterCounts chc = this.viewer.getChapterCounts (c);
             
             this.chapterEditPointBox.setVisible (false);
 
@@ -274,7 +275,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                         
             this.chapterWordCount.setText (Environment.formatNumber (chc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount)) + "%");
             
-            this.chapterPages.setText (Environment.formatNumber (chc.a4PageCount));
+            this.chapterPages.setText (Environment.formatNumber (a4Count));
             
             this.chapterReadability.setVisible (false);
             this.chapterReadabilityHeader.setVisible (false);
@@ -447,7 +448,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         
         this.allChaptersWordCount.setText (Environment.formatNumber (achc.wordCount));
 
-        this.allChaptersPages.setText (Environment.formatNumber (achc.a4PageCount));
+        this.allChaptersPages.setText (Environment.formatNumber (this.viewer.getAllChaptersA4PageCount ()));
 
         this.allChaptersEditPointBox.setVisible (false);
                 

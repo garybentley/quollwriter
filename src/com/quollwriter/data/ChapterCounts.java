@@ -10,7 +10,6 @@ public class ChapterCounts
     //public Chapter chapter = null;
     public int     wordCount = 0;
     public int     sentenceCount = 0;
-    public int     a4PageCount = 0;
     //public int     standardPageCount = 0;
     public Map<String, Integer> wordFrequency = null;
 
@@ -42,7 +41,6 @@ public class ChapterCounts
         //this.chapter = null;
         this.wordCount += c.wordCount;
         this.sentenceCount += c.sentenceCount;
-        this.a4PageCount += c.a4PageCount;
         //this.standardPageCount += c.standardPageCount;
      
         if (this.wordFrequency == null)

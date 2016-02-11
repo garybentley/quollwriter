@@ -90,39 +90,7 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
     {
 
         super.init ();
-            
-        final AbstractViewOnlyEditorPanel _this = this;
-           
-        // Get the chapter counts/readability but only do it once since the text won't/shouldn't change. 
-        UIUtils.doLater (new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-            
-                try
-                {
-        
-                    ChapterCounts cc = new ChapterCounts (_this.editor.getText ());
-                    cc.a4PageCount = UIUtils.getA4PageCountForChapter (_this.chapter,
-                                                                       _this.editor.getText ());
-        
-                    _this.setChapterCounts (cc);
-        
-                    _this.setReadabilityIndices (_this.projectViewer.getReadabilityIndices (_this.editor.getText ()));
-                                    
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to get chapter counts/readability for chapter: " +
-                                          _this.chapter,
-                                          e);
-                    
-                }
-
-            }            
-            
-        });
-            
+                                   
     }
                 
     public void fillToolBar (JToolBar acts,

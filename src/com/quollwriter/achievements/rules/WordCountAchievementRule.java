@@ -87,7 +87,7 @@ public class WordCountAchievementRule extends AbstractAchievementRule
             
             int c = 0;
                
-            Set<ChapterCounts> counts = viewer.getAllChapterCounts2 (false);
+            Set<ChapterCounts> counts = viewer.getAllChapterCountsAsSet ();
             
             for (ChapterCounts cc : counts)
             {
@@ -110,7 +110,7 @@ public class WordCountAchievementRule extends AbstractAchievementRule
             
         }
         
-        if (viewer.getAllChapterCounts (false).wordCount >= this.wordCount)
+        if (viewer.getAllChapterCounts ().wordCount >= this.wordCount)
         {
             
             return true;

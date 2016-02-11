@@ -83,7 +83,7 @@ public class WordCountTimer
                                                     {
 
                                                         // Get the word count.
-                                                        ChapterCounts cc = _this.projectViewer.getAllChapterCounts (false);
+                                                        ChapterCounts cc = _this.projectViewer.getAllChapterCounts ();
                                                         
                                                         // Can happen if shutting down.
                                                         if (cc == null)
@@ -235,7 +235,7 @@ public class WordCountTimer
         this.wordsRemaining = this.wordCount;
         this.minsRemaining = this.minsCount;
         
-        this.initWordCount = this.projectViewer.getAllChapterCounts (false).wordCount;
+        this.initWordCount = this.projectViewer.getAllChapterCounts ().wordCount;
         
         this.startTime = System.currentTimeMillis ();
 

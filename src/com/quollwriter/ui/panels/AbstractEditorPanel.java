@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.Set;
+import java.util.TimerTask;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -56,20 +57,20 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
     protected QTextEditor    editor = null;
     protected ActionMap      actions = null;
     protected Chapter        chapter = null;
-    private ChapterCounts  chapterCounts = null;
     protected Point             lastMousePosition = null;
     protected JScrollPane    scrollPane = null;
     private boolean          ignoreDocumentChange = false;
     private boolean          useTypewriterScrolling = false;
     private ReadabilityIndices readability = null;
-    //private int a4PageCount = 0;
     private ActionListener performAction = null;
     private int scrollOffset = 0;
     private Insets origEditorMargin = null;    
     private int softCaret = -1;
+    private TimerTask wordCountUpdate = null;
+    private long lastWordCountUpdateTime = 0;
     
-    public AbstractEditorPanel(AbstractProjectViewer pv,
-                               Chapter               c)
+    public AbstractEditorPanel(final AbstractProjectViewer pv,
+                               final Chapter               c)
                         throws GeneralException
     {
 
@@ -114,6 +115,37 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                                        pv.isSpellCheckingEnabled ());
 
         this.editor.setSynonymProvider (sp);//Environment.getSynonymProvider ());
+        
+        this.editor.getDocument ().addDocumentListener (new DocumentListener ()
+        {
+            
+            @Override
+            public void insertUpdate (DocumentEvent ev)
+            {
+                
+                _this.scheduleWordCountUpdate ();
+                                
+            }
+            
+            @Override
+            public void changedUpdate (DocumentEvent ev)
+            {
+        
+                _this.scheduleWordCountUpdate ();
+        
+            }
+        
+            @Override
+            public void removeUpdate (DocumentEvent ev)
+            {
+                
+                _this.scheduleWordCountUpdate ();
+                
+            }
+            
+            
+        });
+        
         
         // This ensures that the viewport is always in sync with the text area size.
         this.editor.addKeyListener (new KeyAdapter ()
@@ -266,6 +298,57 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
 
+    private void scheduleWordCountUpdate ()
+    {
+        
+        final AbstractEditorPanel _this = this;
+        
+        if (this.wordCountUpdate != null)
+        {
+                                
+            return;
+            
+        }
+                        
+        this.wordCountUpdate = new TimerTask ()
+        {
+            
+            @Override
+            public void run ()
+            {
+                
+                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+                
+                try
+                {
+                    
+                    long t = System.currentTimeMillis ();
+                    
+                    System.out.println ("CALLED");
+                    
+                    _this.projectViewer.updateChapterCounts (_this.chapter);
+                    
+                    System.out.println ("T: " + (System.currentTimeMillis () - t));
+                    
+                    _this.wordCountUpdate = null;
+                                                
+                } catch (Exception e) {
+                    
+                    e.printStackTrace ();
+                    
+                }
+                
+            }
+            
+        };
+        
+        this.projectViewer.schedule (this.wordCountUpdate,
+                                     1 * 1000,
+                                     -1);
+        
+        
+    }
+    
     public abstract JComponent getEditorWrapper (QTextEditor editor);    
         
     public void setWritingLineColor (Color c)
@@ -410,21 +493,6 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
     
-/*
-    public int getA4PageCount ()
-    {
-        
-        return this.a4PageCount;
-        
-    }
-  */  
-    protected void setChapterCounts (ChapterCounts c)
-    {
-        
-        this.chapterCounts = c;
-        
-    }
-    
     protected void setReadabilityIndices (ReadabilityIndices r)
     {
         
@@ -439,13 +507,6 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
     }
     
-    public ChapterCounts getChapterCounts ()
-    {
-        
-        return this.chapterCounts;
-        
-    }
-
     public void setIgnoreDocumentChanges (boolean v)
     {
         

@@ -84,8 +84,7 @@ public class SentenceAchievementRule extends AbstractAchievementRule
         for (NamedObject c : chapters)
         {
             
-            ChapterCounts cc = viewer.getChapterCounts ((Chapter) c,
-                                                        false);
+            ChapterCounts cc = viewer.getChapterCounts ((Chapter) c);
             
             if (cc.sentenceCount >= this.sentenceCount)
             {
