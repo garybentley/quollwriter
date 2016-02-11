@@ -56,42 +56,180 @@ public class TextBlockIterator implements Iterator<TextBlock>
     public boolean hasNext ()
     {
         
-        return this.next () != null;
+        if (this.current == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.current instanceof Sentence)
+        {
+            
+            Sentence n = (Sentence) this.current.getNext ();
+            
+            if (n == null)
+            {
+                
+                n = (Sentence) this.current;
+                
+                return (Paragraph) n.getParagraph ().getNext () != null;
+                                
+            } 
+                        
+        }
+                
+        return true;
                 
     }
     
     public boolean hasPrevious ()
     {
         
-        return this.previous () != null;
+        if (this.current == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.current instanceof Sentence)
+        {
+            
+            Sentence n = (Sentence) this.current.getPrevious ();
+            
+            if (n == null)
+            {
+                
+                n = (Sentence) this.current;
+                
+                return (Paragraph) n.getParagraph ().getPrevious () != null;
+                                
+            } 
+                        
+        }
+                
+        return true;
         
     }
     
     public boolean hasNextSentence ()
     {
         
-        return this.nextSentence () != null;
+        if (this.current == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.current instanceof Sentence)
+        {
+            
+            Sentence n = (Sentence) this.current.getNext ();
+            
+            if (n == null)
+            {
+                
+                n = (Sentence) this.current;
+                
+                return (Paragraph) n.getParagraph ().getNext () != null;
+                                
+            } 
+                        
+        }
+                
+        return true;
         
     }
     
     public boolean hasPreviousSentence ()
     {
         
-        return this.previousSentence () != null;
+        if (this.current == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.current instanceof Sentence)
+        {
+            
+            Sentence n = (Sentence) this.current.getPrevious ();
+            
+            if (n == null)
+            {
+                
+                n = (Sentence) this.current;
+                
+                return (Paragraph) n.getParagraph ().getPrevious () != null;
+                                
+            } 
+                        
+        }
+                
+        return true;
         
     }
 
     public boolean hasNextParagraph ()
     {
         
-        return this.nextParagraph () != null;
+        if (this.current == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.current instanceof Sentence)
+        {
+            
+            Sentence n = (Sentence) this.current;
+            
+            return (Paragraph) n.getParagraph ().getNext () != null;
+                        
+        }
+            
+        if (this.current instanceof Paragraph)
+        {
+            
+            return ((Paragraph) this.current).getNext () != null;
+            
+        }
+        
+        return false;
         
     }
     
     public boolean hasPreviousParagraph ()
     {
         
-        return this.previousParagraph () != null;
+        if (this.current == null)
+        {
+            
+            return false;
+            
+        }
+        
+        if (this.current instanceof Sentence)
+        {
+            
+            Sentence n = (Sentence) this.current;
+                
+            return (Paragraph) n.getParagraph ().getPrevious () != null;
+                        
+        }
+            
+        if (this.current instanceof Paragraph)
+        {
+            
+            return ((Paragraph) this.current).getPrevious () != null;
+            
+        }
+        
+        return false;
         
     }
     
