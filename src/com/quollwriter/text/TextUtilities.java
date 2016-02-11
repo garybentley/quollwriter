@@ -175,6 +175,13 @@ public class TextUtilities
     public static boolean isOpenQ (Word w)
     {
         
+        if (w == null)
+        {
+            
+            return false;
+            
+        }
+        
         if (!w.isPunctuation ())
         {
             
@@ -204,6 +211,13 @@ public class TextUtilities
 
     public static boolean isCloseQ (Word w)
     {
+        
+        if (w == null)
+        {
+            
+            return false;
+            
+        }
         
         if (!w.isPunctuation ())
         {
