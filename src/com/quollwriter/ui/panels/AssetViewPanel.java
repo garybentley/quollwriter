@@ -304,6 +304,13 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
 
+    public AppearsInChaptersEditPanel getAppearsInChaptersEditPanel ()
+    {
+        
+        return this.appearsInPanel;
+        
+    }
+    
     private EditPanel createAppearsInChaptersPanel ()
     {
 
