@@ -321,20 +321,16 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
                 
                 try
                 {
-                    
-                    long t = System.currentTimeMillis ();
-                    
-                    System.out.println ("CALLED");
-                    
+                                                            
                     _this.projectViewer.updateChapterCounts (_this.chapter);
-                    
-                    System.out.println ("T: " + (System.currentTimeMillis () - t));
                     
                     _this.wordCountUpdate = null;
                                                 
                 } catch (Exception e) {
                     
-                    e.printStackTrace ();
+                    Environment.logError ("Unable to determine word count for chapter: " +
+                                          _this.chapter,
+                                          e);
                     
                 }
                 

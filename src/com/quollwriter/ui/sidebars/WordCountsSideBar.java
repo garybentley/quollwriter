@@ -35,7 +35,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
     private final String COL_SPEC = "right:max(80px;p), 6px, p:grow";
 
-    private JLabel sessionWordCount = null;
+    private JLabel projectSessionWordCount = null;
+    private JLabel totalSessionWordCount = null;
     private JLabel chapterWordCount = null;
     private JLabel chapterPages = null;
     private JLabel allChaptersWordCount = null;
@@ -202,7 +203,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             
         }
         
-        this.sessionWordCount.setText (Environment.formatNumber ((achc.wordCount - this.viewer.getStartWordCounts ().wordCount)));
+        this.projectSessionWordCount.setText (Environment.formatNumber (this.viewer.getSessionWordCount ()));
+        this.totalSessionWordCount.setText (Environment.formatNumber ((Environment.getSessionWordCount ())));//achc.wordCount - this.viewer.getStartWordCounts ().wordCount)));
         
         final Chapter c = this.viewer.getChapterCurrentlyEdited ();
         
@@ -690,7 +692,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                 
         final Chapter c = this.viewer.getChapterCurrentlyEdited ();
 
-        this.sessionWordCount = UIUtils.createInformationLabel (null);
+        this.projectSessionWordCount = UIUtils.createInformationLabel (null);
+        this.totalSessionWordCount = UIUtils.createInformationLabel (null);
         this.chapterWordCount = UIUtils.createInformationLabel (null);
         this.chapterPages = UIUtils.createInformationLabel (null);
         this.allChaptersWordCount = UIUtils.createInformationLabel (null);
@@ -730,10 +733,14 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         box.add (this.selectedItems);                          
         
         items = new ArrayList ();
-
-        items.add (this.getItem ("words",
-                                 this.sessionWordCount));
                 
+        items.add (this.getItem (Environment.replaceObjectNames (String.format ("words, this {%s}",
+                                                                                Project.OBJECT_TYPE)),
+                                 this.projectSessionWordCount));
+
+        items.add (this.getItem ("words, total",
+                                 this.totalSessionWordCount));
+
         AccordionItem it = this.getItems ("This session",
                                           Constants.CLOCK_ICON_NAME,
                                           items);

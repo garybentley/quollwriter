@@ -150,6 +150,8 @@ public class Environment
     private static boolean playSoundOnKeyStroke = false;
     private static Clip keyStrokeSound = null;
         
+    private static Session userSession = null;
+        
     static
     {
         
@@ -889,7 +891,7 @@ public class Environment
 
     }
 
-    public static Map getOpenProjects ()
+    public static Map<ProjectInfo, AbstractProjectViewer> getOpenProjects ()
     {
 
         return new HashMap (Environment.openProjects);
@@ -1221,6 +1223,8 @@ public class Environment
             Object r = Environment.openProjects.remove (p);
 
         }
+        
+        Environment.userSession.updateSessionWordCount (pv.getSessionWordCount ());
         
         if (Environment.userProperties.getPropertyAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
         {
@@ -3839,6 +3843,10 @@ public class Environment
                 if (Environment.isStartupComplete ())
                 {
 
+                    Environment.userSession = new Session ();
+                    
+                    Environment.userSession.start (new Date ());
+                
                     // See if we should be doing a warmup exercise.
                     if (Environment.userProperties.getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME))
                     {
@@ -6178,6 +6186,20 @@ public class Environment
                                           ProjectEvent.TYPE_WRITER_SOUND,
                                           (v ? ProjectEvent.ON : ProjectEvent.OFF));
         
+        
+    }
+    
+    public static String getI18nString (String k)
+    {
+        
+        return k;
+        
+    }
+
+    public static int getSessionWordCount ()
+    {
+        
+        return Environment.userSession.getSessionWordCount ();
         
     }
     

@@ -8004,6 +8004,18 @@ xxx
 
     }
 
+	/**
+	 * Determine the number of words written for this project during this session.
+	 *
+	 * @return The current word count - the start word count.
+	 */
+	public int getSessionWordCount ()
+	{
+		
+		return this.getAllChapterCounts ().wordCount - this.startWordCounts.wordCount;
+		
+	}
+	
     public ChapterCounts getStartWordCounts ()
     {
         
@@ -8011,98 +8023,6 @@ xxx
         
     }
     
-    public int getSessionWordCount ()
-    {
-        
-        ChapterCounts achc = this.getAllChapterCounts ();
-        
-        return achc.wordCount - this.startWordCounts.wordCount;
-        
-    }
-/*
-    public void removeProjectEventListener (ProjectEventListener l)
-    {
-        
-        this.projectEventListeners.remove (l);
-        
-    }
-
-    public void addProjectEventListener (ProjectEventListener l)
-    {
-        
-        this.projectEventListeners.add (l);
-        
-    }
-
-    public void fireProjectEventLater (final String type,
-                                       final String action)
-    {
-        
-        final AbstractProjectViewer _this = this;
-        
-        UIUtils.doLater (new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                _this.fireProjectEvent (type,
-                                        action);
-                
-            }
-            
-        });
-        
-    }
-
-    public void fireProjectEvent (String type,
-                                  String action,
-                                  Object contextObject)
-    {
-
-        this.fireProjectEvent (new ProjectEvent (this,
-                                                 type,
-                                                 action,
-                                                 contextObject));
-
-    }
-
-    public void fireProjectEvent (String type,
-                                  String action)
-    {
-        
-        this.fireProjectEvent (new ProjectEvent (this,
-                                                 type,
-                                                 action));
-        
-    }
-
-    public void setIgnoreProjectEvents (boolean v)
-    {
-        
-        this.ignoreProjectEvents = v;
-        
-    }
-
-    public void fireProjectEvent (ProjectEvent ev)
-    {
-        
-        if (this.ignoreProjectEvents)
-        {
-            
-            return;
-            
-        }
-        
-        for (ProjectEventListener l : this.projectEventListeners)
-        {
-            
-            l.eventOccurred (ev);
-            
-        }
-        
-    }
-*/
     public Set<Chapter> snapshotChapters (Set<Chapter>   chapters,
                                           ProjectVersion pv)
                                    throws Exception
