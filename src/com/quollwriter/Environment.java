@@ -1278,7 +1278,7 @@ public class Environment
                 } else {
                     
                     if ((Environment.landingViewer == null)
-                        &&
+                        ||
                         (!Environment.landingViewer.isShowing ())
                        )
                     {
