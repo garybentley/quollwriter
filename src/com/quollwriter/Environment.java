@@ -1158,14 +1158,30 @@ public class Environment
         
     }
     
-    public static void landingClosed ()
+    private static void closeDown ()
     {
-        
+
         if (Environment.openProjects.size () == 0)
         {
 
             // Go offline from the editors service (if logged in).
             EditorsEnvironment.goOffline ();                            
+        
+            Environment.userSession.end (new Date ());
+        
+            try
+            {
+                
+                Environment.projectInfoManager.addSession (Environment.userSession);
+                
+            } catch (Exception e) {
+                e.printStackTrace ();
+                Environment.logError ("Unable to add session",
+                                      e);
+                
+            }
+        
+            Environment.projectInfoManager.closeConnectionPool ();
         
             if (Environment.isWindows)
             {
@@ -1205,6 +1221,13 @@ public class Environment
             }
 
         }        
+        
+    }
+    
+    public static void landingClosed ()
+    {
+        
+        Environment.closeDown ();
         
     }
     
@@ -1252,11 +1275,25 @@ public class Environment
                     Environment.landingViewer.close (false,
                                                      null);
 
+                } else {
+                    
+                    if ((Environment.landingViewer == null)
+                        &&
+                        (!Environment.landingViewer.isShowing ())
+                       )
+                    {
+                    
+                        // Only call the close down if there are no open projects
+                        // and the landing is not being shown or null.
+                        Environment.closeDown ();
+                        
+                    }
+                    
                 }
                 
-            }
-                
+            } 
         }
+        
     }
 
     public static void addOpenedProject (AbstractProjectViewer pv)
@@ -3805,7 +3842,7 @@ public class Environment
         {
         
             EditorsEnvironment.init ();
-            
+                        
         } catch (Exception e) {
             
             Environment.logError ("Unable to init editors environment",
@@ -6201,6 +6238,14 @@ public class Environment
         
         return Environment.userSession.getSessionWordCount ();
         
+    }
+
+    public List<Session> getSessions (int daysPast)
+                                          throws GeneralException
+    {
+
+        return Environment.projectInfoManager.getSessions (daysPast);
+
     }
     
 }

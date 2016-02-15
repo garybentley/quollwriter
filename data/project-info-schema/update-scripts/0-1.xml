@@ -85,6 +85,18 @@ CREATE TABLE info
   </item>
   
   <item>
+    <log>Create the session table.</log>
+    <sql>
+CREATE TABLE session
+(
+    start TIMESTAMP NOT NULL,
+    end TIMESTAMP NOT NULL,
+    wordcount INT DEFAULT 0
+)
+    </sql>
+  </item>
+  
+  <item>
     <log>Create foreign key constraint for namedobject/dataobject.</log>
     <sql>
 ALTER TABLE namedobject ADD CONSTRAINT namedobject_dataobject_fk FOREIGN KEY(dbkey) REFERENCES dataobject(dbkey)

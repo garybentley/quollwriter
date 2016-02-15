@@ -142,5 +142,125 @@ public class ProjectInfoObjectManager extends ObjectManager
         return Constants.PROJECT_INFO_UPDATE_SCRIPTS_DIR + "/" + oldVersion + "-" + newVersion + ".xml";
         
     }
+ 
+    public void addSession (Session s)
+                     throws GeneralException
+    {
+    
+        Connection conn = null;
+    
+        try
+        {
+
+            conn = this.getConnection ();
+
+        } catch (Exception e) {
+            
+            this.throwException (null,
+                                 "Unable to get connection",
+                                 e);
+            
+        }
+
+        try
+        {
+        
+            List params = new ArrayList ();
+            params.add (s.getStart ());
+            params.add (s.getEnd ());
+            params.add (s.getCurrentSessionWordCount ());
+    
+            this.executeStatement ("INSERT INTO session (start, end, wordcount) VALUES (?, ?, ?)",
+                                   params,
+                                   conn);
+
+        } catch (Exception e)
+        {
+
+            this.throwException (conn,
+                                 "Unable to save session: " +
+                                 s,
+                                 e);
+
+        } finally {
+            
+            this.releaseConnection (conn);
+            
+        }
+        
+    }
+ 
+    public List<Session> getSessions (int     daysPast)
+                               throws GeneralException
+    {
+
+        Connection conn = null;
+    
+        try
+        {
+
+            conn = this.getConnection ();
+
+        } catch (Exception e) {
+            
+            this.throwException (null,
+                                 "Unable to get connection",
+                                 e);
+            
+        }
+                        
+        try
+        {
+            
+            List params = new ArrayList ();
+
+            String whereDays = "";
+
+            if (daysPast != 0)
+            {
+
+                whereDays = " AND start > DATEADD ('DAY', ?, CURRENT_DATE) ";
+                params.add (daysPast);
+
+            }
+
+            ResultSet rs = this.executeQuery (String.format ("SELECT start, end, wordcount FROM session WHERE 1 = 1 %s ORDER BY start",
+                                                             whereDays),
+                                              params,
+                                              conn);
+
+            List<Session> ret = new ArrayList ();
+
+            while (rs.next ())
+            {
+
+                int ind = 1;
+
+                Session s = new Session (rs.getTimestamp (ind++), // start
+                                         rs.getTimestamp (ind++), // end
+                                         rs.getInt (ind++)); // word count
+
+                ret.add (s);
+
+            }
+
+            return ret;
+
+        } catch (Exception e)
+        {
+
+            this.throwException (conn,
+                                 "Unable to load sessions",
+                                 e);
+
+        } finally {
+            
+            this.releaseConnection (conn);
+            
+        }
+        
+        return null;
+
+    }
     
 }

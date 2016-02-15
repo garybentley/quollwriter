@@ -1,0 +1,14 @@
+<update-script from="1" to="2">
+  <item canFail="true">
+    <log>Create the session table.</log>
+    <sql>
+CREATE TABLE session
+(
+    start TIMESTAMP NOT NULL,
+    end TIMESTAMP NOT NULL,
+    wordcount INT DEFAULT 0
+)
+    </sql>
+  </item>
+  
+</update-script>

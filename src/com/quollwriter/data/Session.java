@@ -19,6 +19,46 @@ public class Session
                 
     }
     
+    public Session (Date start,
+                    Date end,
+                    int  wc)
+    {
+        
+        this.startTime = start;
+        this.endTime = end;
+        this.currentSessionWordCount = wc;
+        
+    }
+    
+    public int getCurrentSessionWordCount ()
+    {
+        
+        return this.currentSessionWordCount;
+        
+    }
+    
+    @Override     
+    public String toString ()
+    {
+        
+        return "start: " + this.startTime + ", end: " + this.endTime + ", wordcount: " + this.currentSessionWordCount;
+        
+    }
+    
+    public Date getEnd ()
+    {
+        
+        return this.endTime;
+        
+    }
+    
+    public Date getStart ()
+    {
+        
+        return this.startTime;
+        
+    }
+    
     public int getSessionWordCount ()
     {
         
@@ -44,11 +84,9 @@ public class Session
         
     }
 
-    public void end (ChapterCounts endWordCount,
-                     Date          endTime)
+    public void end (Date endTime)
     {
         
-        this.endWordCount = endWordCount;
         this.endTime = endTime;
         
     }
