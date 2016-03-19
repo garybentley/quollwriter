@@ -70,21 +70,7 @@ public class Session
     {
         
         return this.wordCount;
-        /*
-        //new Exception ().printStackTrace ();
-        Map<ProjectInfo, AbstractProjectViewer> pvs = Environment.getOpenProjects ();
-        System.out.println ("CURRENT: " + this.currentSessionWordCount);
-        int c = this.currentSessionWordCount;
-        
-        for (AbstractProjectViewer pv : pvs.values ())
-        {
-            System.out.println ("ADDING: " + pv.getSessionWordCount ());
-            c += pv.getSessionWordCount ();
-            
-        }
-        
-        return c;
-        */
+
     }
     
     public void start (Date startTime)
