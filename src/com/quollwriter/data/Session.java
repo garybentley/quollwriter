@@ -8,11 +8,9 @@ import com.quollwriter.ui.*;
 public class Session
 {
     
-    private int currentSessionWordCount = 0;
-    private ChapterCounts endWordCount = null;
     private Date startTime = null;
     private Date endTime = null;
-    private int endOfHourWordCount = 0;
+    private int wordCount = 0;
     
     public Session ()
     {
@@ -26,22 +24,31 @@ public class Session
         
         this.startTime = start;
         this.endTime = end;
-        this.currentSessionWordCount = wc;
+        this.wordCount = wc;
         
     }
-    
-    public int getCurrentSessionWordCount ()
-    {
-        
-        return this.currentSessionWordCount;
-        
-    }
-    
+            
     @Override     
     public String toString ()
     {
         
-        return "start: " + this.startTime + ", end: " + this.endTime + ", wordcount: " + this.currentSessionWordCount;
+        return "start: " + this.startTime + ", end: " + this.endTime + ", wordcount: " + this.wordCount;
+        
+    }
+    
+    public long getSessionDuration ()
+    {
+        
+        if (this.startTime == null)
+        {
+            
+            return 0;
+            
+        }
+        
+        Date e = (this.endTime != null ? this.endTime : new Date ());
+        
+        return e.getTime () - this.startTime.getTime ();
         
     }
     
@@ -59,22 +66,25 @@ public class Session
         
     }
     
-    public int getSessionWordCount ()
+    public int getWordCount ()
     {
         
+        return this.wordCount;
+        /*
+        //new Exception ().printStackTrace ();
         Map<ProjectInfo, AbstractProjectViewer> pvs = Environment.getOpenProjects ();
-        
+        System.out.println ("CURRENT: " + this.currentSessionWordCount);
         int c = this.currentSessionWordCount;
         
         for (AbstractProjectViewer pv : pvs.values ())
         {
-            
+            System.out.println ("ADDING: " + pv.getSessionWordCount ());
             c += pv.getSessionWordCount ();
             
         }
         
         return c;
-        
+        */
     }
     
     public void start (Date startTime)
@@ -90,12 +100,5 @@ public class Session
         this.endTime = endTime;
         
     }
-    
-    public void updateSessionWordCount (int wordCount)
-    {
         
-        this.currentSessionWordCount += wordCount;
-        
-    }
-    
 }

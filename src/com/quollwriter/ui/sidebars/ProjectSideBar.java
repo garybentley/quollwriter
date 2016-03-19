@@ -141,7 +141,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
     public void panelShown (MainPanelEvent ev)
     {
 
-        this.setObjectSelectedInSidebar (ev.getPanel ().getForObject ());
+        this.setObjectSelectedInSidebar (ev.getForObject ());
     
     }    
     

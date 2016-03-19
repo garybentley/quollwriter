@@ -31,7 +31,8 @@ public class ProjectTextProperties extends TextProperties
                            Color.black,
                            UIUtils.getComponentColor (),
                            UIUtils.getColor (props.getProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
-                           props.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
+                           props.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
+                           props.getPropertyAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
         
     }
 
@@ -199,6 +200,16 @@ public class ProjectTextProperties extends TextProperties
     
     }
     
+    public void setTextBorder (int v)
+    {
+    
+        super.setTextBorder (v);
+     
+        this.setProperty (new IntegerProperty (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME,
+                                              this.getTextBorder ()));
+    
+    }
+
     private void setProperty (AbstractProperty prop)
     {
         

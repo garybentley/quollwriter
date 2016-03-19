@@ -1364,5 +1364,72 @@ public class Utils
         return gc.getTime ();
         
     }
+
+    public static String formatAsDuration (double duration)
+    {
+        
+        long millis = (long) duration;
+        
+        long days = 0;
+        long hours = 0;
+        long mins = 0;
+        
+        long min = 60 * 1000;
+        long hour = 60 * min;
+        long day = 24 * hour;
+        
+        days = millis / day;
+        
+        millis = millis - (day * days);
+        
+        hours = millis / hour;
+        
+        millis = millis - (hour * hours);
+        
+        mins = millis / min;
+        
+        StringBuilder b = new StringBuilder ();
+        
+        if (days > 0)
+        {
+            
+            b.append (days);
+            b.append ("d");
+            
+        }
+        
+        if (hours > 0)
+        {
+            
+            if (b.length () > 0)
+            {
+                
+                b.append (" ");
+                
+            }
+            
+            b.append (hours);
+            b.append ("h");
+            
+        }
+        
+        if (mins > 0)
+        {
+            
+            if (b.length () > 0)
+            {
+                
+                b.append (" ");
+                
+            }
+            
+            b.append (mins);
+            b.append ("m");            
+            
+        }
+        
+        return b.toString ();
+        
+    }
     
 }

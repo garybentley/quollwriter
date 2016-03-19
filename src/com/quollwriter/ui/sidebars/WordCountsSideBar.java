@@ -154,6 +154,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
     
+    @Override
     public void panelShown (MainPanelEvent ev)
     {
                 
@@ -640,7 +641,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                
         JPanel p = b.getPanel ();
         p.setOpaque (false);
-        p.setBorder (new EmptyBorder (10, 10, 10, 10));
+        p.setBorder (UIUtils.createPadding (10, 10, 10, 10));
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return p;
@@ -663,7 +664,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                                 
-                                                    _this.viewer.viewWordCountHistory ();
+                                                    _this.viewer.viewStatistics ();
                                                 
                                               }
                                             
@@ -675,6 +676,14 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
 
+    @Override
+    public Dimension getMinimumSize ()
+    {
+        
+        return new Dimension (260,
+                              250);        
+    }
+    
     public JComponent getContent ()
     {
 
@@ -682,14 +691,6 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     
         Box box = new Box (BoxLayout.Y_AXIS);
 
-        box.setMinimumSize (new Dimension (238,
-                                           250));
-        box.setPreferredSize (new Dimension (238,
-                                             250));
-
-        box.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                           Short.MAX_VALUE));
-                
         final Chapter c = this.viewer.getChapterCurrentlyEdited ();
 
         this.projectSessionWordCount = UIUtils.createInformationLabel (null);
@@ -934,7 +935,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             public void handlePress (MouseEvent ev)
             {
 
-                _this.viewer.viewWordCountHistory ();
+                _this.viewer.viewStatistics ();
 
             }
 
@@ -964,6 +965,19 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
         box.add (Box.createVerticalGlue ());
             
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.update ();
+                
+            }
+            
+        });
+        
         return this.wrapInScrollPane (box);
                     
     }
@@ -1068,7 +1082,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     
         final WordCountsSideBar _this = this;
                 
-        this.timer = new Timer (2000,
+        this.timer = new Timer (2 * Constants.SEC_IN_MILLIS,
                                 new ActionAdapter ()
                                 {
                                    

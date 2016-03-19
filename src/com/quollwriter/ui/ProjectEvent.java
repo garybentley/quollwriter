@@ -36,6 +36,7 @@ public class ProjectEvent extends EventObject
     public static final String TIPS = "tips";
     public static final String TABS = "tabs";
     public static final String WHATS_NEW = "whatsnew";
+    public static final String STATISTICS = "statistics";
     
     public static final String CHANGE_BACKGROUND = "changebackground";
     public static final String CHANGE_LANGUAGE = "changelanguage";
@@ -83,6 +84,7 @@ public class ProjectEvent extends EventObject
     public static final String CHANGE_BG_OPACITY = "changebgopacity";
     public static final String CHANGE_LINE_INDENT = "changelineindent";
     public static final String CHANGE_HIGHLIGHT_WRITING_LINE = "changehighlightwritingline";
+    public static final String CHANGE_TEXT_BORDER = "changetextborder";
     
     private String type = null;
     private String action = null;

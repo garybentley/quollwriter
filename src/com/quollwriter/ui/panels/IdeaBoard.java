@@ -49,7 +49,7 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.VerticalLayout;
 
 
-public class IdeaBoard extends QuollPanel
+public class IdeaBoard extends ProjectObjectQuollPanel
 {
 
     public static final String PANEL_ID = "ideaboard";
@@ -117,19 +117,27 @@ public class IdeaBoard extends QuollPanel
             this.add (this.viewBox);
             this.viewBox.setAlignmentX (Component.LEFT_ALIGNMENT);
 
+            this.shortDesc = UIUtils.createHelpTextPane ((String) null,
+                                                         this.typeBox.ideaBoard.getProjectViewer ());
+            /*
             this.shortDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                       this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                       this.typeBox.ideaBoard.getProjectViewer (),
                                                                       this.typeBox.ideaBoard);
-            this.shortDesc.setBorder (new EmptyBorder (3, 5, 0, 5));
+                                                                      */
+            this.shortDesc.setBorder (UIUtils.createPadding (3, 5, 0, 5));
             this.viewBox.add (this.shortDesc);
             this.shortDesc.setAlignmentX (Component.LEFT_ALIGNMENT);
 
+            this.fullDesc = UIUtils.createHelpTextPane ((String) null,
+                                                        this.typeBox.ideaBoard.getProjectViewer ());
+/*
             this.fullDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                      this.typeBox.ideaBoard.getProjectViewer ().getProject (),
                                                                      this.typeBox.ideaBoard.getProjectViewer (),
                                                                      this.typeBox.ideaBoard);
-            this.fullDesc.setBorder (new EmptyBorder (3, 5, 0, 5));
+                                                                     */
+            this.fullDesc.setBorder (UIUtils.createPadding (3, 5, 0, 5));
             this.updateViewText ();
 
             this.viewBox.add (this.fullDesc);
@@ -452,18 +460,16 @@ public class IdeaBoard extends QuollPanel
                 }
                 
             }
-                    
-            this.shortDesc.setText (UIUtils.getWithHTMLStyleSheet (this.shortDesc,
-                                                                   UIUtils.markupStringForAssets (firstSent,
-                                                                                                  this.typeBox.ideaBoard.getProjectViewer ().getProject (),
-                                                                                                  null)));
+            
+            this.shortDesc.setText (UIUtils.markupStringForAssets (firstSent,
+                                                                   this.typeBox.ideaBoard.getProjectViewer ().getProject (),
+                                                                   null));
 
             this.shortDesc.setToolTipText ("Click to show the full text");
-                                                                                                  
-            this.fullDesc.setText (UIUtils.getWithHTMLStyleSheet (this.fullDesc,
-                                                                  UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
-                                                                                                 this.typeBox.ideaBoard.getProjectViewer ().getProject (),
-                                                                                                 null)));
+                                                                         
+            this.fullDesc.setText (UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
+                                                                  this.typeBox.ideaBoard.getProjectViewer ().getProject (),
+                                                                  null));
 
         }
 
@@ -943,7 +949,7 @@ public class IdeaBoard extends QuollPanel
             this.ideaBox.setOpaque (false);//true);
             this.setContent (content);//this.ideaBox);
 
-            this.helpText = UIUtils.createHelpTextPane ("You currently have no <b>" + this.getIdeaTypeName () + "</b> ideas recorded.  To add a new Idea perform one of the actions below:<ul><li>Use the green plus button on the header.</li><li>Click anywhere in this box.</li><li>Right click on the header and select <b>Add new Idea</b>.</li></ul>",
+            this.helpText = UIUtils.createHelpTextPane ("You currently have no <b>" + this.getIdeaTypeName () + "</b> ideas recorded.  To add a new Idea perform one of the actions below:<ul><li>Use the plus button on the header.</li><li>Click anywhere in this box.</li><li>Right click on the header and select <b>Add new Idea</b>.</li></ul>",
                                                         IdeaBoard.this.projectViewer);
 
             this.helpText.addMouseListener (new MouseAdapter ()

@@ -52,7 +52,7 @@ import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 
-public class RegisterAsAnEditorPanel extends QuollPanel 
+public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
 {
 
     public static final String PANEL_ID = "registerasaneditor";
@@ -69,12 +69,11 @@ public class RegisterAsAnEditorPanel extends QuollPanel
     
     private Map<String, FormItem> formItems = new LinkedHashMap ();
     
-    public RegisterAsAnEditorPanel (AbstractProjectViewer pv)
+    public RegisterAsAnEditorPanel (AbstractViewer pv)
                              throws GeneralException
     {
 
-        super (pv,
-               pv.getProject ());
+        super (pv);
         
     }
         
@@ -582,7 +581,7 @@ System.out.println ("AV FILE: " + _this.avatarF.getValue ());
     {
 
         JTextPane t = UIUtils.createHelpTextPane (text,
-                                                  this.projectViewer);
+                                                  this.viewer);
         t.setBorder (new EmptyBorder (0,
                                       5,
                                       10,

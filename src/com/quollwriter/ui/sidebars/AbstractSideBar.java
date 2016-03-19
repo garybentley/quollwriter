@@ -192,7 +192,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
         if (c.getBorder () == null)
         {
             
-            c.setBorder (new EmptyBorder (0, 5, 0, 0));
+            c.setBorder (UIUtils.createPadding (0, 5, 0, 0));
             
         }
 
@@ -251,10 +251,13 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
                       
         }
     
+        JComponent _buts = UIUtils.createButtonBar (buts);
+        _buts.setBorder (UIUtils.createPadding (0, 0, 0, 3));
+    
         Header h = UIUtils.createHeader (t,
                                          Constants.SUB_PANEL_TITLE,
                                          this.getIconType (),
-                                         UIUtils.createButtonBar (buts));
+                                         _buts);
 
         this.header = h;        
 
@@ -278,7 +281,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
         if (c.getBorder () == null)
         {
         
-            c.setBorder (new EmptyBorder (0, 0, 0, 5));
+            c.setBorder (UIUtils.createPadding (0, 0, 0, 5));
             
         }
 
@@ -286,7 +289,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
         
         sp.setOpaque (false);
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        sp.setBorder (new EmptyBorder (0, 5, 0, 0));
+        sp.setBorder (UIUtils.createPadding (0, 5, 0, 0));
         sp.getViewport ().setOpaque (false);
         sp.getVerticalScrollBar ().setUnitIncrement (20);
 

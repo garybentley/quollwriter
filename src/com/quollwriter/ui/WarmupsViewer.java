@@ -765,9 +765,9 @@ public class WarmupsViewer extends AbstractProjectViewer
 
         });
             
-        final QuollPanel qpp = wep;
+        final QuollPanel _wep = wep;
 
-        qpp.addObjectPropertyChangedListener (new PropertyChangedListener ()
+        wep.addObjectPropertyChangedListener (new PropertyChangedListener ()
         {
 
             @Override
@@ -777,36 +777,18 @@ public class WarmupsViewer extends AbstractProjectViewer
                 if (ev.getChangeType ().equals (NamedObject.NAME))
                 {
             
-                    _this.setTabHeaderTitle (qpp,
-                                             qpp.getTitle ());
+                    _this.setTabHeaderTitle (_wep,
+                                             _wep.getTitle ());
                 
                     _this.informTreeOfNodeChange (c,
-                                                  _this.getWarmupsTree ());//c.getObjectType ()));
+                                                  _this.getWarmupsTree ());
 
                 }
                                                   
             }
 
         });
-            /*
-        c.addPropertyChangedListener (new PropertyChangedListener ()
-        {
 
-            public void propertyChanged (PropertyChangedEvent ev)
-            {
-
-                if (ev.getChangeType ().equals (NamedObject.NAME))
-                {
-                    
-                    th.setTitle (qpp.getTitle ());
-                    _this.getWarmupsTree ().repaint ();
-
-                }
-                    
-            }
-
-        });
-*/
         // Open the tab :)
         return this.editWarmup (w);
 

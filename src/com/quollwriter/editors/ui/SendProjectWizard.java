@@ -25,6 +25,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.panels.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.editors.messages.*;
 
@@ -121,11 +122,11 @@ public class SendProjectWizard extends Wizard<AbstractProjectViewer>
             err = "Please select at least 1 {chapter}.";
             
         }
-        
+                
         for (Chapter c : chapters)
         {
             
-            QuollPanel qp = this.viewer.getQuollPanelForObject (c);
+            AbstractEditorPanel qp = this.viewer.getEditorForChapter (c);
             
             if (qp != null)
             {

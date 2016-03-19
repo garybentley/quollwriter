@@ -3,6 +3,8 @@ package com.quollwriter.events;
 import java.util.EventObject;
 
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.panels.*;
+import com.quollwriter.data.*;
 
 public class MainPanelEvent extends EventObject
 {
@@ -23,6 +25,22 @@ public class MainPanelEvent extends EventObject
     {
         
         return this.panel;
+        
+    }
+    
+    public DataObject getForObject ()
+    {
+        
+        if (this.panel instanceof ProjectObjectQuollPanel)
+        {
+            
+            ProjectObjectQuollPanel p = (ProjectObjectQuollPanel) this.panel;
+            
+            return p.getForObject ();
+            
+        }
+        
+        return null;
         
     }
     

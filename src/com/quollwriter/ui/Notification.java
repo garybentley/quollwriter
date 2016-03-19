@@ -23,6 +23,7 @@ public class Notification extends Box implements ActionListener
     private JButton cancel = null;
     private JComponent content = null;
     private ActionListener onRemove = null;
+    private JComponent contentBox = null;
 
     public Notification (JComponent              comp,
                          String                  iconType,
@@ -58,8 +59,14 @@ public class Notification extends Box implements ActionListener
         b.add (ip);
         b.add (Box.createHorizontalStrut (10));
 
-        b.add (comp);
-
+        this.contentBox = new Box (BoxLayout.X_AXIS);
+        this.contentBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.contentBox.setAlignmentY (Component.TOP_ALIGNMENT);
+        
+        b.add (this.contentBox);
+        
+        this.contentBox.add (comp);
+        
         final ActionAdapter removeNotification = new ActionAdapter ()
         {
 
@@ -104,6 +111,16 @@ public class Notification extends Box implements ActionListener
     {
         
         this.onRemove = onRemove;        
+        
+    }
+    
+    public void setContent (JComponent c)
+    {
+        
+        this.contentBox.removeAll ();
+        this.contentBox.add (c);
+        
+        this.content = c;
         
     }
     
@@ -167,7 +184,6 @@ public class Notification extends Box implements ActionListener
                                  onRemove);
         
     }
-
     
     public static Notification createMessageNotification (AbstractProjectViewer viewer,
                                                           String                message,

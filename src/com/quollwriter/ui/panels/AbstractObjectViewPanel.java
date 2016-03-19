@@ -46,7 +46,7 @@ import com.quollwriter.ui.components.IconProvider;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.Runner;
 
-public abstract class AbstractObjectViewPanel extends QuollPanel
+public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 {
 
     private ActionMap              actions = null;

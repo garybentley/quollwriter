@@ -24,17 +24,16 @@ import com.quollwriter.ui.whatsnewcomps.*;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class WordCloudPanel extends QuollPanel
+public class WordCloudPanel extends QuollPanel<AbstractViewer>
 {
     
     public static final String PANEL_ID = "wordcloud";
     
-    public WordCloudPanel (AbstractProjectViewer pv)
-                           throws                Exception
+    public WordCloudPanel (AbstractViewer pv)
+                    throws Exception
     {
         
-        super (pv,
-               null);
+        super (pv);
 /*
  *For a future version
         Header h = UIUtils.createHeader ("Your Word Cloud",

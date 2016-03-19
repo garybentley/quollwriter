@@ -1343,8 +1343,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
 
     }
     
-    protected void addNameChangeListener (final NamedObject n,
-                                          final QuollPanel  qp)
+    protected void addNameChangeListener (final NamedObject             n,
+                                          final ProjectObjectQuollPanel qp)
     {
         
         final EditorProjectViewer _this = this;

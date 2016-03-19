@@ -23,6 +23,8 @@ public interface TextStylable
     
     public void setHighlightWritingLine (boolean v);
     
+    public void setTextBorder (int v);
+    
     //public void resetToDefaults ();
     
 }

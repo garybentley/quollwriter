@@ -26,6 +26,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.panels.*;
 import com.quollwriter.text.*;
 import com.quollwriter.db.*;
 import com.quollwriter.ui.sidebars.*;
@@ -33,6 +34,7 @@ import com.quollwriter.editors.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.achievements.ui.*;
+import com.quollwriter.ui.charts.*;
 
 // TODO: Create a PopupFrame that supports popups.
 
@@ -45,6 +47,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	
 	public static final String MAIN_CARD = "main";
 	public static final String OPTIONS_CARD = "options";
+	public static final String STATS_CARD = "stats";
 	public static final String NO_PROJECTS_CARD = "noprojects";
 	public static final String ACHIEVEMENTS_CARD = "achievements";
 	
@@ -78,6 +81,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
     private ImportTransferHandlerOverlay   importOverlay = null;
 	private Notification findProjectsNotification = null;
 	private Options options = null;
+	private StatisticsPanel statsPanel = null;
 	private String currentCard = null;
 	private PropertyChangedListener statusesChangedListener = null;
     
@@ -3316,7 +3320,17 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                             }));
 
 		popup.addSeparator ();
-		
+
+        popup.add (this.createMenuItem ("Statistics",
+                                        Constants.CHART_ICON_NAME,
+                                        AbstractProjectViewer.SHOW_STATISTICS_ACTION));
+		  
+        popup.add (this.createMenuItem ("Targets",
+										Constants.TARGET_ICON_NAME,
+										ProjectViewer.SHOW_TARGETS_ACTION));
+
+		popup.addSeparator ();
+										
 		JMenu m = new JMenu (Environment.replaceObjectNames ("Sort {Projects} by"));
 		m.setIcon (Environment.getIcon (Constants.SORT_ICON_NAME,
 										Constants.ICON_MENU));
@@ -3437,10 +3451,132 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	}
 
 	@Override
+	public boolean viewStatistics ()
+							throws GeneralException
+	{
+		
+		final Landing _this = this;
+		
+		if (this.statsPanel != null)
+		{
+			
+			this.showCard (STATS_CARD);
+
+			return true;			
+			
+		}
+		
+		try
+		{
+		
+			this.statsPanel = new StatisticsPanel (this,
+												   new SessionWordCountChart (this),
+												   new SessionTimeChart (this));
+			
+			this.statsPanel.init ();
+			
+			JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
+												  Constants.ICON_MENU,
+												  "Click to close",
+												  new ActionAdapter ()
+			{
+	
+				public void actionPerformed (ActionEvent ev)
+				{
+	
+					try
+					{
+	
+						_this.statsPanel = null;
+						
+						_this.showProjects ();
+						
+					} catch (Exception e) {
+						
+						Environment.logError ("Unable to show projects",
+											  e);
+						
+						_this.showMainCard ();
+						
+					}
+					
+				}
+				
+			});
+			
+			java.util.List<JButton> buts = new ArrayList ();
+			buts.add (close);
+			
+			this.statsPanel.getHeader ().setControls (UIUtils.createButtonBar (buts));
+						
+			this.cards.add (this.statsPanel, STATS_CARD);
+			
+			this.statsPanel.showChart (SessionWordCountChart.CHART_TYPE);               			
+			
+			return this.viewStatistics ();
+			
+		} catch (Exception e) {
+
+			Environment.logError ("Unable to view the statistics",
+								  e);
+
+			UIUtils.showErrorMessage (this,
+									  "Unable to view the statistics");
+
+			return false;
+			
+		}		
+		
+	}
+	
+	@Override
+	public boolean showChart (String chartType)
+					   throws GeneralException
+	{
+		
+		try
+		{
+		
+			if (this.viewStatistics ())
+			{
+			
+				this.statsPanel.showChart (chartType);
+			
+				return true;
+			
+			}
+		
+		} catch (Exception e) {
+
+			Environment.logError ("Unable to view the chart: " +
+								  chartType,
+								  e);
+
+			UIUtils.showErrorMessage (this,
+									  "Unable to view the chart");
+			
+		}		
+
+		return false;
+		
+	}
+	
+	@Override
 	public boolean showOptions (String section)
 	{
 		
 		final Landing _this = this;
+		
+		if (this.options != null)
+		{
+			
+			this.showCard (OPTIONS_CARD);
+
+			this.options.showSection (section);
+
+			return true;			
+			
+		}
 		
 		try
 		{
@@ -3504,9 +3640,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 						
 			this.cards.add (this.options, OPTIONS_CARD);
 			
-			this.showCard (OPTIONS_CARD);
-
-			this.options.showSection (section);
+			return this.showOptions (section);
 			
 		} catch (Exception e) {
 
@@ -3519,8 +3653,6 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			return false;
 			
 		}
-								
-		return true;
 	 	    
 	}
 
@@ -3617,7 +3749,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 							pi.setNoCredentials (true);
 																	  
 						} catch (Exception ee) {
-												
+											
 							if (ObjectManager.isEncryptionException (ee))
 							{
 	
@@ -4215,6 +4347,23 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		
 		super.handleHTMLPanelAction (v);
 		
+	}
+
+	/**
+	 * Display the targets for the project.
+	 *
+	 */
+	public void viewTargets ()
+                      throws GeneralException
+	{
+		
+        TargetsSideBar t = new TargetsSideBar (this);
+        
+        this.addSideBar ("targets",
+                         t);
+        
+        this.showSideBar ("targets");
+
 	}
 	
 }

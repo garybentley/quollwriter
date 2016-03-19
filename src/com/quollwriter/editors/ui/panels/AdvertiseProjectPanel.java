@@ -53,7 +53,7 @@ import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 
-public class AdvertiseProjectPanel extends QuollPanel 
+public class AdvertiseProjectPanel extends QuollPanel<AbstractViewer>
 {
 
     public static final String PANEL_ID = "advertiseproject";
@@ -73,12 +73,11 @@ public class AdvertiseProjectPanel extends QuollPanel
     
     private Map<String, FormItem> formItems = new LinkedHashMap ();
     
-    public AdvertiseProjectPanel (AbstractProjectViewer pv)
+    public AdvertiseProjectPanel (AbstractViewer pv)
                            throws GeneralException
     {
 
-        super (pv,
-               pv.getProject ());
+        super (pv);
         
     }
         
@@ -135,7 +134,7 @@ public class AdvertiseProjectPanel extends QuollPanel
         
         EditorProject proj = null; //this.projectViewer.getProject ().getEditorProject ();
         
-        String title = this.projectViewer.getProject ().getName ();
+        String title = ""; //this.projectViewer.getProject ().getName ();
         String desc = null;
         Set<String> selectedGenres = null;
         String wcLength = null;
@@ -650,7 +649,7 @@ System.out.println ("CREATED/SAVED PROJECT");
     {
 
         JTextPane t = UIUtils.createHelpTextPane (text,
-                                                  this.projectViewer);
+                                                  this.viewer);
         t.setBorder (new EmptyBorder (0,
                                       5,
                                       10,

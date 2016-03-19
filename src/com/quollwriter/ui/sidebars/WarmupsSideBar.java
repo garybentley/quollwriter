@@ -148,7 +148,7 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
     public void panelShown (MainPanelEvent ev)
     {
 
-        this.setObjectSelectedInSidebar (ev.getPanel ().getForObject ());
+        this.setObjectSelectedInSidebar (ev.getForObject ());
     
     }    
     

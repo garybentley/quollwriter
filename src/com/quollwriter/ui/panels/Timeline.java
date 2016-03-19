@@ -44,7 +44,7 @@ import com.quollwriter.ui.components.DragEvent;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class Timeline extends QuollPanel
+public class Timeline extends QuollPanel<AbstractViewer>
 {
 
     public static final String SCALE_WEEKLY = "weekly";
@@ -76,12 +76,11 @@ public class Timeline extends QuollPanel
     private String superFormat = null;
     private boolean dragInProgress = false;
 
-    public Timeline (AbstractProjectViewer pv)
-                     throws                GeneralException
+    public Timeline (AbstractViewer pv)
+              throws GeneralException
     {
         
-        super (pv,
-               null);
+        super (pv);
         
         String df = "";
         
@@ -766,27 +765,30 @@ public class Timeline extends QuollPanel
         this.main.addMouseMotionListener (mouseA);
         this.main.addMouseListener (mouseA);        
                                                         
-        this.scrollPane = new JScrollPane (this.main);
-        this.scrollPane.setBorder (null);
-        this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
+        //this.scrollPane = new JScrollPane (this.main);
+        //this.scrollPane.setBorder (null);
+        //this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
         //this.scrollPane.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
                 
-        this.add (this.scrollPane);
-/*
-        JViewport vp = this.scrollPane.getViewport ();
-        
-        ViewportDragScrollListener vl = new ViewportDragScrollListener (this.main);
+        //this.add (this.scrollPane);
 
-        vp.addMouseMotionListener (vl);
-        vp.addMouseListener (vl);
-        vp.addHierarchyListener (vl);
-*/
-/*
+        JViewport vp = new JViewport (); //this.scrollPane.getViewport ();
+        
+        //ViewportDragScrollListener vl = new ViewportDragScrollListener (this.main);
+
+        //vp.addMouseMotionListener (vl);
+        //vp.addMouseListener (vl);
+        //vp.addHierarchyListener (vl);
+
+        vp.setView (this.main);
+
         ComponentDragScrollListener cl = new ComponentDragScrollListener (this.main);
         main.addMouseMotionListener (cl);
         main.addMouseListener (cl);
         main.addHierarchyListener (cl);
-*/
+
+        this.add (vp);
+        
         TimelineThread tt1 = new TimelineThread ("Ben and Sam to out", this.getDate ("03 Apr 2012"), this.getDate ("08 Apr 2012"), this);
         TimelineThread tt2 = new TimelineThread ("Sam gets beaten up", this.getDate ("10 Apr 2012"), this.getDate ("12 Apr 2012"), this);
         
@@ -904,7 +906,7 @@ public class Timeline extends QuollPanel
 
         subBox.add (Box.createHorizontalGlue ());
                
-        this.scrollPane.setColumnHeaderView (headerBox);
+        //this.scrollPane.setColumnHeaderView (headerBox);
        
     }
 
@@ -1046,14 +1048,6 @@ System.out.println ("DX: " + sd);
         
     }
 
-    public boolean saveUnsavedChanges ()
-                                       throws Exception
-    {
-        
-        return false;
-        
-    }
-
     public String getTitle ()
     {
         
@@ -1178,7 +1172,7 @@ System.out.println ("DX: " + sd);
             SimpleDateFormat sdf = new SimpleDateFormat ("HH:mm:ss dd MMM yyyy");
                                     
             this.setContent (UIUtils.createHelpTextPane ((this.startDate != null ? sdf.format (this.startDate) : "") + " : " + (this.endDate != null ? sdf.format (this.endDate) : ""),
-                                                         Timeline.this.projectViewer));
+                                                         Timeline.this.viewer));
             
         }
         

@@ -41,7 +41,9 @@ public class FullScreenTextProperties extends TextProperties
                            UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
                                                                Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
                            proj.getPropertyAsBoolean (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
-                                                      Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
+                                                      Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
+                           proj.getPropertyAsInt (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
+                                                  Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
 
     }
 
@@ -197,6 +199,16 @@ public class FullScreenTextProperties extends TextProperties
                 
     }
     
+    public void setTextBorder (int v)
+    {
+        
+        super.setTextBorder (v);
+        
+        this.setProperty (new IntegerProperty (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
+                                               this.getTextBorder ()));
+                
+    }
+
     public void setFontFamily (String f)
     {
     

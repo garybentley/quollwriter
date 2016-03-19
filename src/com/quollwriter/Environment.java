@@ -119,7 +119,7 @@ public class Environment
     private static boolean upgradeRequired = false;
     
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
-    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.0");
+    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,##0.0");
 
     private static Map<String, Image> backgroundImages = new HashMap ();
 
@@ -150,7 +150,10 @@ public class Environment
     private static boolean playSoundOnKeyStroke = false;
     private static Clip keyStrokeSound = null;
         
-    private static Session userSession = null;
+    private static UserSession userSession = null;
+    private static TargetsData targets = null;
+        
+    private static java.util.Timer generalTimer = null;
         
     static
     {
@@ -1161,6 +1164,18 @@ public class Environment
     private static void closeDown ()
     {
 
+        Environment.generalTimer.cancel ();
+        Environment.generalTimer.purge ();
+        
+        Environment.generalTimer = null;
+    
+        if (Environment.landingViewer != null)
+        {
+            
+            Environment.removeProjectInfoChangedListener (Environment.landingViewer);
+            
+        }
+    
         if (Environment.openProjects.size () == 0)
         {
 
@@ -1175,7 +1190,7 @@ public class Environment
                 Environment.projectInfoManager.addSession (Environment.userSession);
                 
             } catch (Exception e) {
-                e.printStackTrace ();
+                
                 Environment.logError ("Unable to add session",
                                       e);
                 
@@ -1247,7 +1262,7 @@ public class Environment
 
         }
         
-        Environment.userSession.updateSessionWordCount (pv.getSessionWordCount ());
+        Environment.userSession.updateCurrentSessionWordCount (pv.getSessionWordCount ());
         
         if (Environment.userProperties.getPropertyAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
         {
@@ -3546,6 +3561,10 @@ public class Environment
         Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
                                                  sysDefProjProps);        
         
+        // Start the timer, it is done here so that any other code that needs it can start running things
+        // straightaway.
+        Environment.generalTimer = new java.util.Timer (true);
+        
         // Load the default object type names.
         try
         {
@@ -3753,26 +3772,22 @@ public class Environment
             
         }
 
-        // Set up the importers in the background.
-        Thread t = new Thread (new Runner ()
+        Environment.schedule (new TimerTask ()
         {
-
+            
+            @Override
             public void run ()
             {
+                
+                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
 
                 Importer.init ();
-/*
-                UIUtils.getFontsComboBox (null,
-                                          null);
-*/
+
             }
 
-        });
-
-        t.setDaemon (true);
-        t.setPriority (Thread.MIN_PRIORITY);
-
-        t.start ();
+        },
+        1 * Constants.SEC_IN_MILLIS,
+        -1);
 
         Environment.incrStartupProgress ();
         
@@ -3842,6 +3857,8 @@ public class Environment
         {
         
             EditorsEnvironment.init ();
+                       
+            Environment.logMessage (Environment.projectInfoManager.getSessions (0) + "");
                         
         } catch (Exception e) {
             
@@ -3871,6 +3888,8 @@ public class Environment
             
         }
         
+        Environment.targets = new TargetsData (Environment.userProperties);
+                
         Environment.addStartupProgressListener (new PropertyChangedListener ()
         {
            
@@ -3880,7 +3899,7 @@ public class Environment
                 if (Environment.isStartupComplete ())
                 {
 
-                    Environment.userSession = new Session ();
+                    Environment.userSession = new UserSession ();
                     
                     Environment.userSession.start (new Date ());
                 
@@ -3912,6 +3931,190 @@ public class Environment
             
                     }        
                 
+                    Date d = new Date (System.currentTimeMillis () + (Constants.DAY_IN_MILLIS));
+                    
+                    d = Utils.zeroTimeFields (d);
+                
+                    Environment.generalTimer.schedule (new TimerTask ()
+                    {
+                       
+                        @Override
+                        public void run ()
+                        {
+                            
+                            try
+                            {
+                            
+                                Environment.projectInfoManager.addSession (Environment.userSession.createSnapshot ());
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to take session snapshot",
+                                                      e);
+                                
+                            }
+                            
+                        }
+                        
+                    },
+                    d,
+                    // Run every 24 hours.  It will drift over the days but not by much.
+                    Constants.DAY_IN_MILLIS);
+                
+                    Environment.schedule (new TimerTask ()
+                    {
+                       
+                        @Override
+                        public void run ()
+                        {
+                            
+                            Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+
+                            if (!Environment.targets.isShowMessageWhenSessionTargetReached ())
+                            {
+                                
+                                return;
+                                                
+                            }
+                            
+                            int sessWC = Environment.userSession.getCurrentSessionWordCount ();
+
+                            // See if the user session has exceeded the session count.
+                            if ((sessWC > Environment.targets.getMySessionWriting ())
+                                &&
+                                (Environment.userSession.shouldShowSessionTargetReachedPopup ())
+                               )
+                            {
+                                
+                                AbstractViewer viewer = Environment.getFocusedViewer ();
+                                
+                                UIUtils.showMessage ((PopupsSupported) viewer,
+                                                     "Session writing target reached",
+                                                     String.format ("You have reached your target of writing <b>%s</b> words in the current session.<br /><br />Well done!",
+                                                                    Environment.formatNumber (sessWC)),
+                                                     UIUtils.defaultLeftCornerShowPopupAt);
+
+                                Environment.userSession.shownSessionTargetReachedPopup ();
+                                                     
+                            }
+                            
+                            // Check for the daily count.
+                            // Get all sessions for today.
+                            try
+                            {
+                                
+                                if ((Environment.getPastSessionsWordCount (1) > Environment.targets.getMyDailyWriting ())
+                                    &&
+                                    (Environment.userSession.shouldShowDailyTargetReachedPopup ())
+                                   )
+                                {
+
+                                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                                    
+                                    UIUtils.showMessage ((PopupsSupported) viewer,
+                                                         "Daily writing target reached",
+                                                         String.format ("You have reached your daily target by writing <b>%s</b> words.<br /><br />Well done!",
+                                                                        Environment.formatNumber (sessWC)),
+                                                         UIUtils.defaultLeftCornerShowPopupAt);
+    
+                                    Environment.userSession.shownDailyTargetReachedPopup ();
+                                    
+                                }
+            
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to get past session word counts",
+                                                      e);
+                                
+                            }
+                                
+                            // Get all sessions for this week.
+                            try
+                            {
+                                
+                                GregorianCalendar gc = new GregorianCalendar ();
+                                
+                                int fd = gc.getFirstDayOfWeek ();
+                                
+                                int cd = gc.get (Calendar.DAY_OF_WEEK);
+                                
+                                int diff = cd - fd;
+                                
+                                if (diff < 0)
+                                {
+                                    
+                                    diff += 7;
+                                    
+                                }
+                                                                
+                                if ((Environment.getPastSessionsWordCount (diff) > Environment.targets.getMyWeeklyWriting ())
+                                    &&
+                                    (Environment.userSession.shouldShowWeeklyTargetReachedPopup ())
+                                   )
+                                {
+
+                                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                                    
+                                    UIUtils.showMessage ((PopupsSupported) viewer,
+                                                         "Weekly writing target reached",
+                                                         String.format ("You have reached your weekly target by writing <b>%s</b> words.<br /><br />Well done!",
+                                                                        Environment.formatNumber (sessWC)),
+                                                         UIUtils.defaultLeftCornerShowPopupAt);
+    
+                                    Environment.userSession.shownWeeklyTargetReachedPopup ();
+                                    
+                                }
+            
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to get past session word counts",
+                                                      e);
+                                
+                            }
+                            
+                            // Get all sessions for this month.
+                            try
+                            {
+                                
+                                GregorianCalendar gc = new GregorianCalendar ();
+                                
+                                int fd = gc.getFirstDayOfWeek ();
+                                
+                                int cd = gc.get (Calendar.DAY_OF_MONTH);
+                                
+                                int diff = cd - fd;
+                                                                                                
+                                if ((Environment.getPastSessionsWordCount (diff) > Environment.targets.getMyMonthlyWriting ())
+                                    &&
+                                    (Environment.userSession.shouldShowMonthlyTargetReachedPopup ())
+                                   )
+                                {
+
+                                    AbstractViewer viewer = Environment.getFocusedViewer ();
+                                    
+                                    UIUtils.showMessage ((PopupsSupported) viewer,
+                                                         "Monthly writing target reached",
+                                                         String.format ("You have reached your monthly target by writing <b>%s</b> words.<br /><br />Well done!",
+                                                                        Environment.formatNumber (sessWC)),
+                                                         UIUtils.defaultLeftCornerShowPopupAt);
+    
+                                    Environment.userSession.shownMonthlyTargetReachedPopup ();
+                                    
+                                }
+            
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to get past session word counts",
+                                                      e);
+                                
+                            }
+                            
+                        }
+                        
+                    },
+                    5 * Constants.SEC_IN_MILLIS,
+                    Constants.MIN_IN_MILLIS);
+                
                 }
                 
             }
@@ -3920,6 +4123,31 @@ public class Environment
         
     }
 
+    private static int getPastSessionsWordCount (int daysPast)
+                                          throws GeneralException
+    {
+        
+        List<Session> sess = Environment.projectInfoManager.getSessions (daysPast);
+        
+        int c = 0;
+        
+        Session last = null;
+        
+        for (Session s : sess)
+        {
+                        
+            c += s.getWordCount ();
+
+            last = s;
+            
+        }
+
+        c += Environment.userSession.getCurrentSessionWordCount ();
+        
+        return c;
+        
+    }
+    
     public static UserPropertyHandler getUserPropertyHandler (String userProp)
     {
         
@@ -6236,16 +6464,84 @@ public class Environment
     public static int getSessionWordCount ()
     {
         
-        return Environment.userSession.getSessionWordCount ();
+        return Environment.userSession.getCurrentSessionWordCount ();
         
     }
 
-    public List<Session> getSessions (int daysPast)
-                                          throws GeneralException
+    public static List<Session> getSessions (int daysPast)
+                                      throws GeneralException
     {
 
         return Environment.projectInfoManager.getSessions (daysPast);
 
+    }
+
+    public static TargetsData getUserTargets ()
+    {
+        
+        return Environment.targets;
+        
+    }
+    
+    public static void saveUserTargets ()
+    {
+        
+        try
+        {
+            
+            Environment.saveUserProperties (Environment.userProperties);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to update user properties",
+                                  e);
+            
+        }
+        
+    }
+
+    public static TargetsData getDefaultUserTargets ()
+    {
+
+        TargetsData td = new TargetsData (Environment.userProperties.getParentProperties ());
+
+        return td;
+        
+    }
+
+    /**
+     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
+     *
+     * @param t The task to run.
+     * @param delay The delay, in millis.
+     * @param repeat The repeat time, in millis.
+     */
+    public static void schedule (TimerTask t,
+                                 long      delay,
+                                 long      repeat)
+    {
+       
+        if (Environment.generalTimer == null)
+        {
+            
+            Environment.generalTimer = new java.util.Timer (true);
+            
+        }
+       
+        if (repeat < 1)
+        {
+            
+            Environment.generalTimer.schedule (t,
+                                               delay);
+            
+        } else {
+        
+            Environment.generalTimer.schedule (t,
+                                               delay,
+                                               repeat);
+
+        }
+        
     }
     
 }

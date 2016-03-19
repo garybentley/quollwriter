@@ -1,0 +1,755 @@
+package com.quollwriter.ui.charts;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.BasicStroke;
+import java.awt.event.*;
+
+import java.util.*;
+
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.tree.*;
+import javax.swing.event.*;
+
+import org.jfree.chart.*;
+import org.jfree.ui.*;
+import org.jfree.data.time.*;
+import org.jfree.data.category.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.plot.*;
+
+import com.quollwriter.*;
+import com.quollwriter.data.*;
+import com.quollwriter.ui.events.*;
+import com.quollwriter.ui.*;
+import com.quollwriter.ui.panels.*;
+import com.quollwriter.db.*;
+import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.components.Header;
+import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.components.FormItem;
+
+public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectViewer>
+{
+
+    public static final String CHART_TYPE = "readability-index";
+    public static final String CHART_TITLE = "Readability";
+        
+    private JFreeChart chart = null;
+    private JComponent detail = null;
+    private JComponent controls = null;
+    private JCheckBox showGF = null;
+    private JCheckBox showFK = null;
+    private JTree          chapters = null;
+    private JCheckBox          showAvg = null;
+    private JCheckBox          showTargets = null;
+    
+    public ReadabilityIndicesChart (AbstractProjectViewer pv)
+    {
+        
+        super (pv);
+        
+    }
+
+    public void init (StatisticsPanel wcp)
+               throws GeneralException
+    {
+        
+        super.init (wcp);
+        
+        this.createControls ();
+                
+    }
+    
+    private void createControls ()
+    {
+        
+        final ReadabilityIndicesChart _this = this;
+
+        Box b = new Box (BoxLayout.Y_AXIS);
+        b.setOpaque (false);
+        
+        this.showGF = UIUtils.createCheckBox ("Show Gunning Fog",
+                                               new ActionListener ()
+                                               {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _this.updateChart ();                                                        
+                                                        
+                                                    }
+                                                
+                                               });
+
+        this.showGF.setSelected (true);
+                           
+        this.showGF.addActionListener (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (!_this.showGF.isSelected ())
+                {
+                    
+                    _this.showFK.setSelected (true);
+                                               
+                }
+            }
+            
+        });
+
+        this.showFK = UIUtils.createCheckBox ("Show Flesch-Kincaid",
+                                               new ActionListener ()
+                                               {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _this.updateChart ();                                                        
+                                                        
+                                                    }
+                                                
+                                               });
+
+        this.showFK.setSelected (true);
+               
+        this.showFK.addActionListener (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (!_this.showFK.isSelected ())
+                {
+                    
+                    _this.showGF.setSelected (true);
+                                               
+                }
+            }
+            
+        });
+                                              
+        this.showAvg = UIUtils.createCheckBox ("Show Average",
+                                               new ActionListener ()
+                                               {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _this.updateChart ();                                                        
+                                                        
+                                                    }
+                                                
+                                               });
+        
+        this.showTargets = UIUtils.createCheckBox ("Show Targets",
+                                                  new ActionListener ()
+                                                  {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        TargetsData targets = _this.viewer.getProjectTargets ();
+                                                        
+                                                        if ((targets.getReadabilityGF () == 0)
+                                                            &&
+                                                            (targets.getReadabilityFK () == 0)
+                                                           )
+                                                        {
+                                                            
+                                                            UIUtils.createQuestionPopup (_this.viewer,
+                                                                                         "Set up Targets",
+                                                                                         Constants.TARGET_ICON_NAME,
+                                                                                         "You currently have no readability targets set up.<br /><br />Would you like to set the targets now?<br /><br />Note: Targets can be accessed at any time from the {Project} menu.",
+                                                                                         "Yes, show me",
+                                                                                         "No, not now",
+                                                                                         new ActionListener ()
+                                                                                         {
+                                                                                            
+                                                                                            @Override public void actionPerformed (ActionEvent ev)
+                                                                                            {
+                                                                                                
+                                                                                                try
+                                                                                                {
+                                                                                                
+                                                                                                    _this.viewer.viewTargets ();
+                                                                                                    
+                                                                                                } catch (Exception e) {
+                                                                                                    
+                                                                                                    UIUtils.showErrorMessage (_this.viewer,
+                                                                                                                              "Unable to show targets.");
+                                                                                                    
+                                                                                                    Environment.logError ("Unable to show targets",
+                                                                                                                          e);
+                                                                                                    
+                                                                                                }
+                                                                                                
+                                                                                            }
+                                                                                            
+                                                                                         },
+                                                                                         null,
+                                                                                         null,
+                                                                                         null);
+                                                            
+                                                            _this.showTargets.setSelected (false);
+                                                                                         
+                                                            return;                                                            
+                                                            
+                                                        }
+                                                        
+                                                        _this.updateChart ();                                                                                                                
+                                                        
+                                                    }
+                                                
+                                                  });
+
+        Box opts = new Box (BoxLayout.Y_AXIS);
+            
+        b.add (opts);
+                            
+        opts.setBorder (UIUtils.createPadding (0, 10, 0, 0));                            
+                                
+        opts.add (this.showFK);
+        opts.add (this.showGF);
+        opts.add (this.showAvg);
+        opts.add (this.showTargets);        
+        
+        b.add (Box.createVerticalStrut (10));
+
+        Header h = UIUtils.createBoldSubHeader (Environment.replaceObjectNames ("For these {Chapters}"),
+                                                null);
+        h.setOpaque (false);
+        h.setAlignmentY (Component.TOP_ALIGNMENT);
+
+        b.add (h);
+
+        this.chapters = new JTree (UIUtils.createTree (this.viewer.getProject ().getBook (0),
+                                                       new ArrayList (), /* exclude */
+                                                       this.viewer.getProject ().getBook (0).getChapters (), /* init */
+                                                       true));
+
+        this.chapters.setOpaque (false);
+                                                       
+        this.chapters.getModel ().addTreeModelListener (new TreeModelAdapter ()
+        {
+
+            public void treeNodesChanged (TreeModelEvent ev)
+            {
+
+                // Don't care what has changed, just trigger an update to the
+                // chart.
+                _this.updateChart ();
+
+            }
+
+        });
+
+        SelectableProjectTreeCellRenderer rend = new SelectableProjectTreeCellRenderer ();
+        
+        rend.setShowIcons (false);
+        
+        this.chapters.setCellRenderer (rend);
+        UIUtils.addSelectableListener (this.chapters);
+
+        this.chapters.setRootVisible (false);
+        this.chapters.setShowsRootHandles (false);
+        this.chapters.setScrollsOnExpand (true);
+        this.chapters.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+                                                     
+        // Never toggle.
+        this.chapters.setToggleClickCount (-1);
+
+        this.chapters.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        b.add (this.chapters);
+        
+        this.controls = b;
+        
+    }
+    
+    private void createChart ()
+                       throws GeneralException
+    {
+        
+        final ReadabilityIndicesChart _this = this;
+        
+        ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
+
+        Set<Chapter> selected = new HashSet ();
+
+        UIUtils.getSelectedObjects ((DefaultMutableTreeNode) this.chapters.getModel ().getRoot (),
+                                    selected);
+
+        int chapterCount = 0;
+        float totalFK = 0;
+        float totalGF = 0;
+        float maxFK = 0;
+        float maxGF = 0;
+        float showMax = 0;
+                                    
+        final DefaultCategoryDataset ds = new DefaultCategoryDataset ();
+                                    
+        try
+        {
+
+            for (Book book : this.viewer.getProject ().getBooks ())
+            {
+
+                for (Chapter c : book.getChapters ())
+                {
+
+                    if (!selected.contains (c))
+                    {
+
+                        continue;
+
+                    }
+
+                    ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
+                    
+                    float fk = ri.getFleschKincaidGradeLevel ();
+                    float gf = ri.getGunningFogIndex ();
+                    
+                    chapterCount++;
+                    totalFK += fk;
+                    totalGF += gf;
+                    
+                    maxFK = Math.max (maxFK, fk);
+                    maxGF = Math.max (maxGF, gf);
+                    
+                    if (this.showFK.isSelected ())
+                    {                                        
+                
+                        ds.addValue (fk,
+                                     "Flesch-Kincaid",
+                                     c.getName ());
+
+                    }
+                    
+                    if (this.showGF.isSelected ())
+                    {
+                        
+                        ds.addValue (gf,
+                                     "Gunning Fog",
+                                     c.getName ());
+
+                    }
+                    
+                }
+
+            }
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to get word counts",
+                                  e);
+
+            UIUtils.showErrorMessage (this.parent,
+                                      "Unable to word counts");
+
+            return;
+
+        }
+        
+        this.chart = QuollChartUtils.createBarChart (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+                                                     "Reading Level",
+                                                     ds);
+            
+        this.chart.setBackgroundPaint (UIUtils.getComponentColor ());               
+                
+        CategoryPlot plot = (CategoryPlot) this.chart.getPlot ();
+        
+        QuollChartUtils.customizePlot (plot);
+            
+        final CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryLabelPositions (CategoryLabelPositions.STANDARD);//CategoryLabelPositions.createUpRotationLabelPositions (Math.PI / 0.5));        
+        
+        plot.setOrientation (PlotOrientation.HORIZONTAL);            
+        plot.setRangeAxisLocation (AxisLocation.BOTTOM_OR_LEFT);
+            
+        TargetsData ptargs = this.viewer.getProjectTargets ();
+    
+        int targetGF = ptargs.getReadabilityGF ();
+        int targetFK = ptargs.getReadabilityFK ();
+
+        double avgGF = totalGF / chapterCount;
+        double avgFK = totalFK / chapterCount;
+
+        double diffAvgGF = avgGF - targetGF;        
+        
+        boolean showGF = this.showGF.isSelected ();
+        boolean showFK = this.showFK.isSelected ();
+        
+        if (this.showAvg.isSelected ())
+        {
+        
+            String tgf = "";
+        
+            if ((targetGF > 0)
+                &&
+                (showGF)
+               )
+            {
+                                
+                tgf = String.format (", %s%s target",
+                                     (diffAvgGF < 0 ? "" : "+"),
+                                     Environment.formatNumber (diffAvgGF));
+                
+            }
+        
+            RectangleAnchor anch = RectangleAnchor.TOP_LEFT;
+        
+            if (avgGF > avgFK)
+            {
+                
+                anch = RectangleAnchor.TOP_RIGHT;
+                
+            }
+        
+            plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("Avg GF %s%s",
+                                                                              Environment.formatNumber (avgGF),
+                                                                              tgf),
+                                                               avgGF,
+                                                               1,
+                                                               anch));
+                    
+            String tfk = "";
+        
+            if ((targetFK > 0)
+                &&
+                (showFK)
+               )
+            {
+                
+                double diffAvgFK = avgFK - targetFK;
+                
+                tfk = String.format (", %s%s target",
+                                     (diffAvgFK < 0 ? "" : "+"),
+                                     Environment.formatNumber (diffAvgFK));
+                
+            }
+
+            anch = RectangleAnchor.TOP_LEFT;
+            
+            if (avgFK > avgGF)
+            {
+                
+                anch = RectangleAnchor.TOP_RIGHT;
+                
+            }
+            
+            plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("Avg FK %s%s",
+                                                                              Environment.formatNumber (avgFK),
+                                                                              tfk),
+                                                               avgFK,
+                                                               0,
+                                                               anch));
+
+        }
+            
+        if (this.showTargets.isSelected ())
+        {
+                    
+            RectangleAnchor anch = RectangleAnchor.BOTTOM_LEFT;
+        
+            if (targetGF > targetFK)
+            {
+                
+                anch = RectangleAnchor.BOTTOM_RIGHT;
+                
+            }                    
+                        
+            if ((targetGF > 0)
+                &&
+                (showGF)
+               )
+            {
+        
+                plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("GF Target %s",
+                                                                                  Environment.formatNumber (targetGF)),
+                                                                   targetGF,
+                                                                   1,
+                                                                   anch));
+
+            }
+                        
+            anch = RectangleAnchor.BOTTOM_LEFT;
+        
+            if (targetFK > targetGF)
+            {
+                
+                anch = RectangleAnchor.BOTTOM_RIGHT;
+                
+            }                    
+                        
+            if (targetGF > maxGF)
+            {
+            
+                showMax = targetGF + 1;
+                                                                   
+            } 
+
+            if ((targetFK > 0)
+                &&
+                (showFK)
+               )
+            {
+                
+                plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("FK Target %s",
+                                                                                  Environment.formatNumber (targetFK)),
+                                                                   targetFK,
+                                                                   0,
+                                                                   anch));
+
+            }
+            
+            if ((targetFK > maxFK)
+                &&
+                (targetFK > showMax)
+               )
+            {
+            
+                showMax = targetFK + 1;
+                                                                   
+            }
+            
+            if (showMax > 0)
+            {
+            
+                ((NumberAxis) plot.getRangeAxis()).setUpperBound (showMax);
+                
+            }
+            
+        }
+
+        int overGF = 0;
+        int overFK = 0;
+        
+        for (Chapter c : selected)
+        {
+
+            ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
+            
+            float fk = ri.getFleschKincaidGradeLevel ();
+            float gf = ri.getGunningFogIndex ();
+
+            if (fk > targetFK)
+            {
+                
+                overFK++;
+                
+            }
+            
+            if (gf > targetGF)
+            {
+                
+                overGF++;
+                
+            }
+
+        }
+                
+        ((NumberAxis) plot.getRangeAxis ()).setAutoRangeIncludesZero (true);
+                
+        Set<JComponent> items = new LinkedHashSet ();
+                                             
+        if ((targetFK > 0)
+            &&
+            (overFK > 0)
+            &&
+            (showFK)
+           )
+        {
+
+            String t = String.format ("%s {Chapter%s} over target Flesch-Kincaid",
+                                      Environment.formatNumber (overFK),
+                                      (overFK == 1 ? "" : "s"));
+        
+            // TODO: Fix this nonsense.
+            ActionListener _null = null;
+        
+            final JLabel l = this.createWarningLabel (UIUtils.createClickableLabel (t,
+                                                                                    null,
+                                                                                    _null));
+            
+            UIUtils.makeClickable (l,
+                                    new ActionListener ()
+                                    {
+                                       
+                                       @Override
+                                       public void actionPerformed (ActionEvent ev)
+                                       {
+                                           
+                                           Targets.showChaptersOverReadabilityTarget (_this.viewer,
+                                                                                      l);
+                                           
+                                       }
+                                       
+                                    });
+            
+            l.setToolTipText ("Click to view the " + t);
+                            
+            items.add (l);
+                            
+        }
+        
+        if ((targetGF > 0)
+            &&
+            (overGF > 0)
+            &&
+            (showGF)
+           )
+        {
+
+            String t = String.format ("%s {Chapter%s} over target Gunning Fog",
+                                      Environment.formatNumber (overGF),
+                                      (overGF == 1 ? "" : "s"));
+
+            // TODO: Fix this nonsense.
+            ActionListener _null = null;
+        
+            final JLabel l = this.createDetailLabel (UIUtils.createClickableLabel (t,
+                                                                                   null,
+                                                                                   _null));
+
+            l.setIcon (Environment.getIcon (Constants.ERROR_ICON_NAME,
+                                            Constants.ICON_MENU));
+            
+            UIUtils.makeClickable (l,
+                                    new ActionListener ()
+                                    {
+                                       
+                                       @Override
+                                       public void actionPerformed (ActionEvent ev)
+                                       {
+                                           
+                                           Targets.showChaptersOverReadabilityTarget (_this.viewer,
+                                                                                      l);
+                                           
+                                       }
+                                       
+                                    });
+            
+            l.setToolTipText ("Click to view the " + t);
+            
+            items.add (l);
+            
+        }
+
+        if (showFK)
+        {
+        
+            items.add (this.createDetailLabel (String.format ("%s - Average Flesch-Kincaid",
+                                                              Environment.formatNumber (avgFK))));
+
+        }
+        
+        if (showGF)
+        {
+
+            items.add (this.createDetailLabel (String.format ("%s - Average Gunning Fog",
+                                                              Environment.formatNumber (avgGF))));
+
+        }
+        
+        this.detail = QuollChartUtils.createDetailPanel (items);
+                
+    }
+    
+    public String getTitle ()
+    {
+        
+        return CHART_TITLE;
+        
+    }
+    
+    public String getType ()
+    {
+        
+        return CHART_TYPE;
+        
+    }
+    
+    public JComponent getControls (boolean update)
+    {
+        
+        if (update)
+        {
+            
+            this.controls = null;
+            
+        }
+        
+        if (this.controls == null)
+        {
+            
+            this.createControls ();
+            
+        }
+        
+        return this.controls;
+        
+    }
+    
+    public JFreeChart getChart (boolean update)
+                         throws GeneralException
+    {
+
+        if (update)
+        {
+            
+            this.chart = null;
+            
+        }
+    
+        if (this.chart == null)
+        {
+            
+            this.createChart ();
+            
+        }
+        
+        return this.chart;
+        
+    }
+    
+    public JComponent getDetail (boolean update)
+                          throws GeneralException
+    {
+        
+        if (update)
+        {
+            
+            this.detail = null;
+            
+        }
+        
+        if (this.detail == null)
+        {
+            
+            this.createChart ();
+            
+        }
+        
+        return this.detail;
+        
+    }
+    
+    public String toString ()
+    {
+        
+        return Environment.replaceObjectNames (this.getTitle ());
+        
+    }
+    
+}

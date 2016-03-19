@@ -3,6 +3,14 @@ package com.quollwriter;
 public class Constants
 {
 
+    public static final int SEC_IN_MILLIS = 1000;
+
+    public static final int MIN_IN_MILLIS = 60 * SEC_IN_MILLIS;
+
+    public static final int HOUR_IN_MILLIS = 60 * MIN_IN_MILLIS;
+
+    public static final long DAY_IN_MILLIS = 24 * HOUR_IN_MILLIS;
+    
     public static final int ICON_MENU = 1;
     
     public static final int ICON_TOOLBAR = 2;
@@ -185,6 +193,8 @@ public class Constants
 
     public static final String EDITOR_ALIGNMENT_PROPERTY_NAME = "editorAlignment";
 
+    public static final String EDITOR_TEXT_BORDER_PROPERTY_NAME = "editorTextBorder";
+    
     public static final String OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME = "openLastEditedProject";
 
     public static final String SHOW_LANDING_ON_START_PROPERY_NAME = "showLandingOnStart";
@@ -277,6 +287,10 @@ public class Constants
 
     public static final String FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME = "fullScreenEditorAlignment";
         
+    public static final String FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME = "fullScreenEditorTextBorder";
+        
+    public static final String FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME = "fullScreenShowTimeWordCount";
+
     public static final String PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME = "playSoundOnKeyStroke";
 
     public static final String KEY_STROKE_SOUND_FILE_PROPERTY_NAME = "keyStrokeSoundFile";
@@ -379,6 +393,19 @@ public class Constants
     public static final String AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME = "autoSendErrorsToSupport";
     
     public static final String BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME = "backupsToKeepCount";
+    
+    public static final String TARGET_SESSION_WRITING_PROPERTY_NAME = "targetSessionWriting";
+    public static final String TARGET_DAILY_WRITING_PROPERTY_NAME = "targetDailyWriting";
+    public static final String TARGET_WEEKLY_WRITING_PROPERTY_NAME = "targetWeeklyWriting";
+    public static final String TARGET_MONTHLY_WRITING_PROPERTY_NAME = "targetMonthlyWriting";
+    public static final String TARGET_READABILITY_GF_PROPERTY_NAME = "targetReadabilityGF";
+    public static final String TARGET_READABILITY_FK_PROPERTY_NAME = "targetReadabilityFK";
+    public static final String TARGET_MAX_CHAPTER_COUNT_PROPERTY_NAME = "targetMaxChapterCount";
+    public static final String TARGET_SHOW_MESSAGE_WHEN_MAX_CHAPTER_COUNT_EXCEEDED_PROPERTY_NAME = "targetShowMessageWhenMaxChapterCountExceeded";
+    public static final String TARGET_SHOW_MESSAGE_WHEN_SESSION_TARGET_REACHED_PROPERTY_NAME = "targetShowMessageWhenSessionTargetReached";
+    public static final String TARGET_DAILY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetDailyTargetReachedPopupShownDate";
+    public static final String TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetWeeklyTargetReachedPopupShownDate";
+    public static final String TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetMonthlyTargetReachedPopupShownDate";
     
     public static final String PROMPTS_EXCLUDE_FILE = "prompts-exclude.txt";
     public static final String USER_PROMPTS_FILE = "own-prompts.xml";
@@ -596,6 +623,7 @@ public class Constants
     public static final String DATE_ICON_NAME = "date";
     public static final String STAR_ICON_NAME = "star";
     public static final String SORT_ICON_NAME = "sort";
+    public static final String TARGET_ICON_NAME = "goals";
     
     public static final String SHOW_FIND_ACTION = "find-show";
 

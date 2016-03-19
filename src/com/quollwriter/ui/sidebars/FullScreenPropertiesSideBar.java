@@ -47,6 +47,7 @@ import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
+import com.quollwriter.ui.components.Accordion;
 
 public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer> implements MainPanelListener
 {
@@ -72,14 +73,13 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
     private int                  sblastX = -1;
     private int                  sblastY = -1;
     
-    private AccordionItem        textProps = null;
     private TextPropertiesEditPanel textPropsEditPanel = null;
     
     public FullScreenPropertiesSideBar (FullScreenFrame             fsf,
                                         FullScreenTextProperties    props)
     {
         
-        super (fsf.getPanel ().getProjectViewer ());
+        super (fsf.getProjectViewer ());
         
         this.fsf = fsf;
 
@@ -187,7 +187,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
             
             p.initEditor (this.fullScreenTextProperties);
 
-            this.textProps.setVisible (true);
+            this.textPropsEditPanel.setVisible (true);
             
             this.validate ();
             
@@ -195,7 +195,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
             
         } else {
             
-            this.textProps.setVisible (false);
+            this.textPropsEditPanel.setVisible (false);
             
         }
         
@@ -206,7 +206,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
 
         final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
         
-        Box cp = this.createPropertiesPanel ();
+        JComponent cp = this.createPropertiesPanel ();
                 
         this.setSizeBoxSize ();
 
@@ -216,20 +216,22 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
     
     }
 
-    private Box createPropertiesPanel ()
+    private JComponent createPropertiesPanel ()
     {
         
         final FullScreenPropertiesSideBar _this = this;
                 
         final Project proj = this.viewer.getProject ();
         
+        Accordion acc = new Accordion (BoxLayout.Y_AXIS);
+                        
         // Create a box that will be the container for the chapters/properties.
         Box b = new Box (BoxLayout.Y_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.setBorder (new EmptyBorder (5, 5, 0, 0));
 
-        JLabel l = new JLabel ("Background image/color");
-        l.setBorder (new EmptyBorder (5, 10, 0, 0));
+        JLabel l = UIUtils.createLabel ("Background image/color");
+        l.setBorder (UIUtils.createPadding (5, 10, 0, 0));
         
         l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         
@@ -719,15 +721,49 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
         sizeBoxW.add (sizeBoxW2);
         sizeBoxW.add (Box.createVerticalGlue ());
         sizeBoxW.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        sizeBoxW.setBorder (new EmptyBorder (0, 20, 0, 0));
+        sizeBoxW.setBorder (UIUtils.createPadding (0, 20, 0, 0));
         sizeBoxW.setMaximumSize (new Dimension (sizeBoxW.getPreferredSize ().width + 20,
                                                 sizeBoxW.getPreferredSize ().height));        
         b.add (sizeBoxW);
         
-        b.add (Box.createVerticalStrut (20));
+        b.add (Box.createVerticalStrut (10));
+
+        final JCheckBox s = UIUtils.createCheckBox ("Always show the time and word count",
+                                                    null);
+
+        s.setBorder (UIUtils.createPadding (5, 10, 0, 0));
         
-        this.textProps = new AccordionItem ("Text Properties",
-                                            null);
+        s.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+                                                               
+        s.addActionListener (new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                // TODO: Create a property wrapper or property that allows for this.
+                try
+                {
+                    
+                    Environment.setUserProperty (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME,
+                                 new BooleanProperty (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME,
+                                                      s.isSelected ()));
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to update user property",
+                                          e);
+                    
+                }
+                
+            }
+            
+        });
+                                                               
+        b.add (s);        
+        
+        b.add (Box.createVerticalStrut (10));
 
         this.textPropsEditPanel = new TextPropertiesEditPanel (this.fsf.getProjectViewer (),
                                                                this.fullScreenTextProperties,
@@ -748,12 +784,10 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
         };
         
         this.textPropsEditPanel.init ();
+                                            
+        this.textPropsEditPanel.setVisible ((this.fsf.getPanel ().getChild () instanceof AbstractEditorPanel));
         
-        this.textProps.setContent (this.textPropsEditPanel);
-                                    
-        this.textProps.setVisible ((this.fsf.getPanel ().getChild () instanceof AbstractEditorPanel));
-        
-        b.add (this.textProps);
+        b.add (this.textPropsEditPanel);
 
         b.add (Box.createVerticalGlue ());
         
@@ -806,8 +840,8 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
         
         this.backgroundOpacity.setValue ((int) (this.fsf.getBorderOpacity () * 100));
         
-        
     }
+    
     public void displayAreaSizeChanged ()
     {
         

@@ -168,7 +168,7 @@ public class ProjectInfoObjectManager extends ObjectManager
             List params = new ArrayList ();
             params.add (s.getStart ());
             params.add (s.getEnd ());
-            params.add (s.getCurrentSessionWordCount ());
+            params.add (s.getWordCount ());
     
             this.executeStatement ("INSERT INTO session (start, end, wordcount) VALUES (?, ?, ?)",
                                    params,
@@ -216,11 +216,14 @@ public class ProjectInfoObjectManager extends ObjectManager
 
             String whereDays = "";
 
-            if (daysPast != 0)
+            // 0 means today.
+            // -1 means all time
+            // 1 means yesterday
+            if (daysPast > -1)
             {
 
-                whereDays = " AND start > DATEADD ('DAY', ?, CURRENT_DATE) ";
-                params.add (daysPast);
+                whereDays = " AND start >= DATEADD ('DAY', ?, CURRENT_DATE) ";
+                params.add (-1 * daysPast);
 
             }
 
@@ -231,6 +234,8 @@ public class ProjectInfoObjectManager extends ObjectManager
 
             List<Session> ret = new ArrayList ();
 
+            Session last = null;
+            
             while (rs.next ())
             {
 
@@ -240,6 +245,28 @@ public class ProjectInfoObjectManager extends ObjectManager
                                          rs.getTimestamp (ind++), // end
                                          rs.getInt (ind++)); // word count
 
+                if (last != null)
+                {
+                    
+                    // If the time difference less than 2s?
+                    if ((s.getStart ().getTime () - last.getEnd ().getTime ()) < 2 * Constants.SEC_IN_MILLIS)
+                    {
+                        
+                        Session _s = new Session (last.getStart (),
+                                                  s.getEnd (),
+                                                  s.getWordCount () + last.getWordCount ());
+                        
+                        // Merge the two together.
+                        ret.remove (last);
+
+                        s = _s;
+                                                                 
+                    }
+                    
+                }
+                
+                last = s;
+                                         
                 ret.add (s);
 
             }

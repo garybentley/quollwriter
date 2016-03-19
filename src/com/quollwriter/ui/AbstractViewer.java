@@ -81,6 +81,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     public static final int DELETE_PROJECT_ACTION = 13; // "deleteProject";
     public static final int WARMUP_EXERCISE_ACTION = 26;
     public static final int CONTACT_SUPPORT_ACTION = 28;
+	public static final int SHOW_TARGETS_ACTION = 29;
+    public static final int SHOW_STATISTICS_ACTION = 27;    
 
     public static final String REPORT_BUG_HEADER_CONTROL_ID = "reportBug";
     public static final String CONTACTS_HEADER_CONTROL_ID = "contacts";
@@ -675,6 +677,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
              
     public abstract boolean isEditorsVisible ();
                     
+    public abstract void viewTargets ()
+                               throws GeneralException;
+
     public abstract void viewEditor (EditorEditor ed)
                               throws GeneralException; 
 
@@ -684,6 +689,12 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     public abstract void sendMessageToEditor (EditorEditor ed)
                                        throws GeneralException;    
     
+    public abstract boolean showChart (String chartType)
+                                throws GeneralException;
+    
+    public abstract boolean viewStatistics ()
+                                     throws GeneralException;
+
     public void setContent (JComponent content)
     {
         
@@ -1595,6 +1606,36 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
         
+        if (name == AbstractViewer.SHOW_STATISTICS_ACTION)
+        {
+            
+            return new ActionAdapter ()
+            {            
+
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    try
+                    {
+                    
+                        _this.viewStatistics ();
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to view the statistics",
+                                              e);
+                        
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to view the statistics");
+                        
+                    }
+                    
+                }
+                
+            };
+            
+        }
+        
         if (name == AbstractViewer.WARMUP_EXERCISE_ACTION)
         {
 
@@ -1663,6 +1704,36 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         }
 
+        if (name == AbstractViewer.SHOW_TARGETS_ACTION)
+        {
+
+            return new ActionAdapter ()
+            {
+
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    try
+                    {
+                
+                        _this.viewTargets ();
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to view targets",
+                                              e);
+                        
+                        UIUtils.showErrorMessage (_this,
+                                                  "Unable to view targets.");
+                        
+                    }
+
+                }
+
+            };
+
+        }        
+        
         return null;
 
     }
@@ -2385,6 +2456,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                          "closed"));
             
         }
+        
+        this.generalTimer.cancel ();
+        this.generalTimer.purge ();
+        
+        this.generalTimer = null;
         
         return true;
         

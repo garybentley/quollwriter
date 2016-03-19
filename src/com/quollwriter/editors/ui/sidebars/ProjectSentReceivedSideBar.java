@@ -198,7 +198,7 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
     public void panelShown (MainPanelEvent ev)
     {
 
-        this.chapters.setObjectSelectedInTree (ev.getPanel ().getForObject ());
+        this.chapters.setObjectSelectedInTree (ev.getForObject ());
         
     }        
     

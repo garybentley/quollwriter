@@ -30,6 +30,7 @@ import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ImagePanel;
@@ -1512,7 +1513,7 @@ public class EditorsUIUtils
                 for (Chapter c : chapters)
                 {
                     
-                    QuollPanel qp = viewer.getQuollPanelForObject (c);
+                    AbstractEditorPanel qp = viewer.getEditorForChapter (c);
                     
                     if (qp != null)
                     {

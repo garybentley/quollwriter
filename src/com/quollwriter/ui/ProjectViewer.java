@@ -91,7 +91,6 @@ public class ProjectViewer extends AbstractProjectViewer
     public static final int NEW_NOTE_TYPE_ACTION = 127; // "newNoteType"
     public static final int MANAGE_ITEM_TYPES_ACTION = 128; // "manageItemTypes"
     public static final int NEW_ITEM_TYPE_ACTION = 129; // "newItemType"
-	public static final int SHOW_TARGETS_ACTION = 130;
 
     private Date            sessionStart = new Date ();
     private ProjectSideBar  sideBar = null;
@@ -148,19 +147,24 @@ public class ProjectViewer extends AbstractProjectViewer
 			public void actionPerformed (ActionEvent ev)
 			{
 
+				_this.importOverlay.setDisplayText ("Drop the file to begin the import");
+
 				File f = (File) ev.getSource ();
                 
                 QuollPanel qp = _this.getCurrentlyVisibleTab ();
 
-				if (qp.getForObject () instanceof Asset)
+				if (qp instanceof ProjectObjectQuollPanel)
 				{
 					
-					_this.importOverlay.setDisplayText (String.format ("Drop the file to add it to %s's {documents}.",
-																	   qp.getForObject ().getName ()));
-												
-				} else {
+					ProjectObjectQuollPanel pqp = (ProjectObjectQuollPanel) qp;
 					
-					_this.importOverlay.setDisplayText ("Drop the file to begin the import");
+					if (pqp.getForObject () instanceof Asset)
+					{
+						
+						_this.importOverlay.setDisplayText (String.format ("Drop the file to add it to %s's {documents}.",
+																		   pqp.getForObject ().getName ()));
+
+					}
 					
 				}
 				
@@ -228,11 +232,18 @@ public class ProjectViewer extends AbstractProjectViewer
 				                
                 QuollPanel qp = _this.getCurrentlyVisibleTab ();
                                 
-				if (qp.getForObject () instanceof Asset)
-				{
-					
-					return true;
-					
+				if (qp instanceof ProjectObjectQuollPanel)
+				{								
+				
+					ProjectObjectQuollPanel pqp = (ProjectObjectQuollPanel) qp;
+				
+					if (pqp.getForObject () instanceof Asset)
+					{
+						
+						return true;
+						
+					}
+
 				}
 				
                 return ImportProject.isSupportedFileType (f);				
@@ -360,11 +371,11 @@ public class ProjectViewer extends AbstractProjectViewer
             
         }
         
-        if (parent instanceof QuollPanel)
+        if (parent instanceof ProjectObjectQuollPanel)
         {
             
             // Holy moly!
-            pv = (ProjectViewer) ((QuollPanel) parent).getProjectViewer ();
+            pv = (ProjectViewer) ((ProjectObjectQuollPanel) parent).getProjectViewer ();
             
         }
 
@@ -464,11 +475,11 @@ public class ProjectViewer extends AbstractProjectViewer
         titlePopup.add (this.createMenuItem ("Statistics",
                                              Constants.CHART_ICON_NAME,
                                              AbstractProjectViewer.SHOW_STATISTICS_ACTION));
-/*                                                     
+  
         titlePopup.add (this.createMenuItem ("Targets",
-                                             Constants.CHART_ICON_NAME,
+                                             Constants.TARGET_ICON_NAME,
                                              ProjectViewer.SHOW_TARGETS_ACTION));
-*/
+
         // Create Project Snapshot
         titlePopup.add (this.createMenuItem ("Create a Backup",
                                              Constants.SNAPSHOT_ICON_NAME,
@@ -694,37 +705,6 @@ public class ProjectViewer extends AbstractProjectViewer
             };
 
         }
-/*
-        if (name == ProjectViewer.SHOW_TARGETS_ACTION)
-        {
-
-            return new ActionAdapter ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    try
-                    {
-                
-                        pv.viewTargets ();
-                        
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to view targets",
-                                              e);
-                        
-                        UIUtils.showErrorMessage (pv,
-                                                  "Unable to view targets.");
-                        
-                    }
-
-                }
-
-            };
-
-        }
-	*/	
 		
         if (name == ProjectViewer.NEW_NOTE_TYPE_ACTION)
         {
@@ -1696,7 +1676,7 @@ public class ProjectViewer extends AbstractProjectViewer
                                         c);
 
             qep.init ();
-
+			
         } catch (Exception e)
         {
 
@@ -1866,10 +1846,10 @@ public class ProjectViewer extends AbstractProjectViewer
 
         }
 
-        if (d.getObjectType ().equals (Project.WORDCOUNTS_OBJECT_TYPE))
+        if (d.getObjectType ().equals (StatisticsPanel.OLD_WORD_COUNT_PANEL_ID))
         {
 
-            return this.viewWordCountHistory ();
+            return this.viewStatistics ();
 
         }
 
@@ -2219,8 +2199,8 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    protected void addNameChangeListener (final NamedObject n,
-                                          final QuollPanel  qp)
+    protected void addNameChangeListener (final NamedObject             n,
+                                          final ProjectObjectQuollPanel qp)
     {
         
         final ProjectViewer _this = this;
@@ -2289,25 +2269,7 @@ public class ProjectViewer extends AbstractProjectViewer
         this.viewWordCloud ();        
         
     }
-        
-	/**
-	 * Display the targets for the project.
-	 *
-	 */
-	/*
-	public void viewTargets ()
-                      throws GeneralException
-	{
-		
-        TargetsSideBar t = new TargetsSideBar (this);
-        
-        this.addSideBar ("targets",
-                         t);
-        
-        this.showSideBar ("targets");
-
-	}
-*/	
+        	
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter information is viewed.

@@ -29,9 +29,9 @@ import com.quollwriter.events.*;
 
 import com.quollwriter.ui.actionHandlers.*;
 
-public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
-                                                                      MouseListener,
-                                                                      PopupsSupported
+public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*Box*/ implements Stateful,
+                                                                                                MouseListener,
+                                                                                                PopupsSupported
 {
 
     public static final int UNSAVED_CHANGES_ACTION_EVENT = 0;
@@ -41,24 +41,24 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
     public static final String HAS_CHANGES_COMMAND = "hasChanges";
     public static final String NO_CHANGES_COMMAND = "noChanges";
 
-    protected AbstractProjectViewer projectViewer = null;
+    protected E viewer = null;
 
     protected Box                                   content = null;
-    protected NamedObject                           obj = null;
+    //protected NamedObject                           obj = null;
     private java.util.List                          actionListeners = new ArrayList ();
     private java.util.List<PropertyChangedListener> propertyChangedListeners = new ArrayList ();
     private boolean                                 hasUnsavedChanges = false;
     private JToolBar                                toolBar = null;
     private boolean                                 readyForUse = false;
     
-    public QuollPanel(AbstractProjectViewer pv,
-                      NamedObject           obj)
+    public QuollPanel (E viewer)
+                      //NamedObject           obj)
     {
 
         // super (BoxLayout.PAGE_AXIS);
 
-        this.projectViewer = pv;
-        this.obj = obj;
+        this.viewer = viewer;
+        //this.obj = obj;
 
         this.setOpaque (false);
         this.setBackground (null);
@@ -72,6 +72,13 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
                 
     }
 
+    public E getViewer ()
+    {
+        
+        return this.viewer;
+        
+    }
+    
     public boolean isReadyForUse ()
     {
         
@@ -86,6 +93,8 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
         
     }
     
+    public abstract String getPanelId ();
+    
     public abstract void close ();
 
     public abstract void init ()
@@ -95,9 +104,6 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     public abstract void setState (Map<String, String> s,
                                    boolean             hasFocus);
-
-    public abstract boolean saveUnsavedChanges ()
-                                         throws Exception;
 
     public abstract String getIconType ();
 
@@ -111,7 +117,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
 
     public abstract List<Component> getTopLevelComponents ();
 
-    public abstract <T extends NamedObject> void refresh (T n);
+    //public abstract <T extends NamedObject> void refresh (T n);
 
     @Override
     public void remove (Component c)
@@ -190,7 +196,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
         }
 
     }
-
+/*
     public java.util.List<PropertyChangedListener> getObjectPropertyChangedListeners ()
     {
 
@@ -238,7 +244,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
                                                "chapterSaved"));
 
     }
-
+*/
     public void removeActionListener (ActionListener a)
     {
 
@@ -335,14 +341,14 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
         return tb;
 
     }
-
+    /*
     public String getPanelId ()
     {
 
         return this.obj.getObjectReference ().asString ();
 
     }
-
+*/
     public void setToolBarButtonIcon (String actionCommand,
                                       String toolTipText,
                                       String icon)
@@ -396,7 +402,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
         return null;
 
     }
-
+/*
     public boolean hasUnsavedChanges ()
     {
 
@@ -414,7 +420,7 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
                                                (hasChanges ? QuollPanel.HAS_CHANGES_COMMAND : QuollPanel.NO_CHANGES_COMMAND)));
 
     }
-
+*/
     @Override
     public void removePopup (Component c)
     {
@@ -702,12 +708,12 @@ public abstract class QuollPanel extends JRootPane /*Box*/ implements Stateful,
         }
 
     }
-
+/*
     public AbstractProjectViewer getProjectViewer ()
     {
 
         return this.projectViewer;
 
     }
-
+*/
 }

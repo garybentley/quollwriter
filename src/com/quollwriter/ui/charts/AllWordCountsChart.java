@@ -1,6 +1,7 @@
 package com.quollwriter.ui.charts;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.*;
 
 import java.util.*;
@@ -10,6 +11,9 @@ import javax.swing.*;
 import org.jfree.chart.*;
 import org.jfree.ui.*;
 import org.jfree.data.time.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.labels.*;
+import org.jfree.chart.axis.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
@@ -19,38 +23,33 @@ import com.quollwriter.db.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
 
-public class AllWordCountsChart implements QuollChart
+public class AllWordCountsChart extends AbstractQuollChart<AbstractProjectViewer>
 {
 
     public static final String CHART_TYPE = "all-word-count";
     public static final String CHART_TITLE = "Total Word Count";
     
-    private AbstractProjectViewer projectViewer = null;
-    private WordCountPanel wcp = null;
-
     private JComboBox      displayB = null;
     
     private JFreeChart chart = null;
     private JComponent controls = null;
     
-    public AllWordCountsChart ()
+    public AllWordCountsChart (AbstractProjectViewer pv)
     {
+        
+        super (pv);
         
     }
-
-    public void init (AbstractProjectViewer pv,
-                      WordCountPanel        wcp)
-                      throws                GeneralException
+    
+    public void init (StatisticsPanel wcp)
+               throws GeneralException
     {
         
-        this.projectViewer = pv;
-        this.wcp = wcp;
-
+        super.init (wcp);
+        
         this.createControls ();
         
-        this.createChart ();
-                
-    }
+    }    
     
     private void createControls ()
     {
@@ -66,10 +65,11 @@ public class AllWordCountsChart implements QuollChart
         b.add (h);
 
         Vector displayItems = new Vector ();
-        displayItems.add ("Past 7 days");
-        displayItems.add ("Past 30 days");
-        displayItems.add ("Past 3 months");
-        displayItems.add ("All time");
+        displayItems.add ("This week");
+        displayItems.add ("Last week");
+        displayItems.add ("This month");
+        displayItems.add ("Last month");
+        displayItems.add ("All time");        
 
         b.add (Box.createVerticalStrut (5));
 
@@ -78,21 +78,19 @@ public class AllWordCountsChart implements QuollChart
         this.displayB.setMaximumSize (displayB.getPreferredSize ());
         this.displayB.setAlignmentY (Component.TOP_ALIGNMENT);
 
+        this.displayB.setSelectedIndex (0);
+
         this.displayB.addActionListener (new ActionAdapter ()
         {
 
             public void actionPerformed (ActionEvent ev)
             {
-
-                _this.createChart ();
                 
-                _this.wcp.updateChart (_this.chart);
+                _this.updateChart ();
             
             }
 
         });
-
-        this.displayB.setSelectedIndex (0);
 
         Box db = new Box (BoxLayout.X_AXIS);
         db.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -117,29 +115,117 @@ public class AllWordCountsChart implements QuollChart
     private void createChart ()
     {
         
-        int days = 0;
+        int days = -1;
 
-        if (displayB.getSelectedIndex () == 0)
+        Date minDate = null;
+        Date maxDate = new Date ();
+        
+        // This week.
+        if (this.displayB.getSelectedIndex () == 0)
         {
 
-            days = -7;
-
+            // Work out how many days there have been this week.
+            GregorianCalendar gc = new GregorianCalendar ();
+            
+            days = gc.get (Calendar.DAY_OF_WEEK) - gc.getFirstDayOfWeek ();
+            
+            if (days < 0)
+            {
+                
+                days -= 7;
+                
+            }
+        
+            gc.add (Calendar.DATE,
+                    -1 * days);
+            
+            minDate = gc.getTime ();
+                
+            days++;
+                
         }
 
-        if (displayB.getSelectedIndex () == 1)
+        // Last week
+        if (this.displayB.getSelectedIndex () == 1)
         {
 
-            days = -30;
-
+            GregorianCalendar gc = new GregorianCalendar ();
+            
+            days = gc.get (Calendar.DAY_OF_WEEK) - gc.getFirstDayOfWeek ();
+            
+            if (days < 0)
+            {
+                
+                days -= 7;
+                
+            }
+        
+            gc.add (Calendar.DATE,
+                    (-1 * days) - 1);
+            
+            maxDate = gc.getTime ();
+        
+            days += 7;
+                
+            gc.add (Calendar.DATE,
+                    -6);
+            
+            minDate = gc.getTime ();
+        
+            days++;
+        
         }
 
-        if (displayB.getSelectedIndex () == 2)
+        // This month.
+        if (this.displayB.getSelectedIndex () == 2)
         {
 
-            days = -90;
+            GregorianCalendar gc = new GregorianCalendar ();
+                    
+            days = gc.get (Calendar.DATE);
+                    
+            gc.set (Calendar.DATE,
+                    1);
+            
+            minDate = gc.getTime ();
 
+            days++;
+            
         }
 
+        // Last month.
+        if (this.displayB.getSelectedIndex () == 3)
+        {
+
+            GregorianCalendar gc = new GregorianCalendar ();
+               
+            gc.add (Calendar.MONTH,
+                    -1);
+            
+            days = gc.getActualMaximum (Calendar.DATE);
+            
+            gc.set (Calendar.DATE,
+                    days);
+            
+            maxDate = gc.getTime ();
+            
+            gc.set (Calendar.DATE,
+                    1);
+            
+            minDate = gc.getTime ();
+
+            days++;
+            
+        }
+
+        // All time
+        if (this.displayB.getSelectedIndex () == 4)
+        {
+            
+            days = 1;
+
+        }
+        
         final TimeSeriesCollection tsc = new TimeSeriesCollection ();
 
         try
@@ -147,11 +233,11 @@ public class AllWordCountsChart implements QuollChart
 
             TimeSeries ts = new TimeSeries ("Date");
 
-            ProjectDataHandler pdh = (ProjectDataHandler) this.projectViewer.getDataHandler (Project.class);
+            ProjectDataHandler pdh = (ProjectDataHandler) this.viewer.getDataHandler (Project.class);
 
             // Get all the word counts for the project.
-            List<WordCount> wordCounts = pdh.getWordCounts (this.projectViewer.getProject (),
-                                                            days);
+            List<WordCount> wordCounts = pdh.getWordCounts (this.viewer.getProject (),
+                                                            0);
 
             for (WordCount wc : wordCounts)
             {
@@ -175,7 +261,7 @@ public class AllWordCountsChart implements QuollChart
             Environment.logError ("Unable to get word counts",
                                   e);
 
-            UIUtils.showErrorMessage (this.wcp,
+            UIUtils.showErrorMessage (this.parent,
                                       "Unable to word counts");
 
             return;
@@ -185,6 +271,42 @@ public class AllWordCountsChart implements QuollChart
         this.chart = QuollChartUtils.createTimeSeriesChart ("Date",
                                                             "Word Count",
                                                             tsc);
+
+        this.chart.setBackgroundPaint (UIUtils.getComponentColor ());               
+                
+        XYPlot plot = (XYPlot) this.chart.getPlot ();
+        
+        PeriodAxis axis = (PeriodAxis) plot.getDomainAxis ();
+        
+        if (minDate != null)
+        {
+            
+            axis.setLowerBound (minDate.getTime ());
+        
+            axis.setUpperBound (maxDate.getTime ());
+
+        }
+        
+        plot.setBackgroundPaint (UIUtils.getComponentColor ());        
+        plot.setDomainGridlinePaint (Environment.getBorderColor ());
+        plot.setRangeGridlinePaint (Environment.getBorderColor ());
+        plot.setAxisOffset (new RectangleInsets (5D,
+                                                 5D,
+                                                 5D,
+                                                 5D));
+
+        Font f = QuollChartUtils.getLabelFont ();
+                                                 
+        plot.setDomainCrosshairVisible (true);
+        plot.setRangeCrosshairVisible (true);
+        plot.setDomainGridlinePaint (UIUtils.getColor ("#cfcfcf"));
+        plot.setRangeGridlinePaint (UIUtils.getColor ("#cfcfcf"));
+        plot.getDomainAxis ().setLabelFont (f);
+        plot.getDomainAxis ().setTickLabelFont (f);
+        plot.getRangeAxis ().setLabelFont (f);
+        plot.getRangeAxis ().setTickLabelFont (f);
+                                                            
+        this.chart.removeLegend ();
                 
     }
     
@@ -202,17 +324,52 @@ public class AllWordCountsChart implements QuollChart
         
     }
     
-    public JComponent getControls ()
+    public JComponent getControls (boolean update)
     {
+        
+        if (update)
+        {
+            
+            this.controls = null;
+            
+        }
+        
+        if (this.controls == null)
+        {
+        
+            this.createControls ();
+        
+        }
         
         return this.controls;
         
     }
     
-    public JFreeChart getChart ()
+    public JFreeChart getChart (boolean update)
     {
         
+        if (update)
+        {
+            
+            this.chart = null;
+            
+        }
+        
+        if (this.chart == null)
+        {
+            
+            this.createChart ();
+            
+        }
+        
         return this.chart;
+        
+    }
+    
+    public JComponent getDetail (boolean update)
+    {
+        
+        return null;
         
     }
     

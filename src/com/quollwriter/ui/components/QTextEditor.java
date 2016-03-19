@@ -1110,7 +1110,19 @@ public class QTextEditor extends JTextPane implements TextStylable
         this.applyStyles ();
 
     }
-
+    
+    /**
+     * Note: is here for compatibility, but will do nothing, parent components need to
+     * implement TextStyleable.setTextBorder with their own behaviour.
+     */
+    @Override
+    public void setTextBorder (int v)
+    {
+       
+        // Do nothing.
+        
+    }
+    
     public int getFontSize ()
     {
 

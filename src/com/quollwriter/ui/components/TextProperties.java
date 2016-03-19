@@ -15,6 +15,7 @@ public class TextProperties implements TextStylable
     private Color bgColor = null;
     private Color writingLineColor = null;
     private boolean highlightWritingLine = false;
+    private int textBorder = 0;
     
     protected TextProperties ()
     {
@@ -40,7 +41,8 @@ public class TextProperties implements TextStylable
               props.textColor,
               props.bgColor,
               props.writingLineColor,
-              props.highlightWritingLine);
+              props.highlightWritingLine,
+              props.textBorder);
         
     }
     
@@ -51,7 +53,8 @@ public class TextProperties implements TextStylable
                            boolean      firstLineIndent,
                            float        lineSpacing,
                            Color        writingLineColor,
-                           boolean      highlightWritingLine)
+                           boolean      highlightWritingLine,
+                           int          textBorder)
     {    
 
         this (setOn,
@@ -63,7 +66,8 @@ public class TextProperties implements TextStylable
               null,
               null,
               writingLineColor,
-              highlightWritingLine);
+              highlightWritingLine,
+              textBorder);
     
     }
     
@@ -76,7 +80,8 @@ public class TextProperties implements TextStylable
                            Color        textColor,
                            Color        bgColor,
                            Color        writingLineColor,
-                           boolean      highlightWritingLine)
+                           boolean      highlightWritingLine,
+                           int          textBorder)
     {
         
         this (setOn);
@@ -89,7 +94,8 @@ public class TextProperties implements TextStylable
                            textColor,
                            bgColor,
                            writingLineColor,
-                           highlightWritingLine);
+                           highlightWritingLine,
+                           textBorder);
         
     }
 
@@ -106,7 +112,8 @@ public class TextProperties implements TextStylable
                            props.textColor,
                            props.bgColor,
                            props.writingLineColor,
-                           props.highlightWritingLine);                
+                           props.highlightWritingLine,
+                           props.textBorder);                
         
     }
     
@@ -118,7 +125,8 @@ public class TextProperties implements TextStylable
                                   Color        textColor,
                                   Color        bgColor,
                                   Color        writingLineColor,
-                                  boolean      highlightWritingLine)
+                                  boolean      highlightWritingLine,
+                                  int          textBorder)
     {
         
         this.fontFamily = fontFamily;
@@ -130,6 +138,7 @@ public class TextProperties implements TextStylable
         this.bgColor = bgColor;
         this.writingLineColor = writingLineColor;
         this.highlightWritingLine = highlightWritingLine;
+        this.textBorder = textBorder;
         
     }
     
@@ -151,6 +160,7 @@ public class TextProperties implements TextStylable
             this.setBackgroundColor (this.bgColor);
             this.setWritingLineColor (this.writingLineColor);
             this.setHighlightWritingLine (this.highlightWritingLine);
+            this.setTextBorder (this.textBorder);
 
         }
         
@@ -177,6 +187,27 @@ public class TextProperties implements TextStylable
         
     }
     
+    public int getTextBorder ()
+    {
+        
+        return this.textBorder;
+        
+    }
+    
+    public void setTextBorder (int v)
+    {
+        
+        this.textBorder = v;
+        
+        if (this.setOn != null)
+        {
+            
+            this.setOn.setTextBorder (v);
+            
+        }
+        
+    }
+
     public void setWritingLineColor (Color c)
     {
         

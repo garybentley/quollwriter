@@ -47,7 +47,7 @@ import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
 
-public abstract class AbstractEditorPanel extends QuollPanel implements SpellCheckSupported, TextStylable
+public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implements SpellCheckSupported, TextStylable
 {
 
     public static final String TOGGLE_SPELLCHECK_ACTION_NAME = "toggle-spellcheck";
@@ -55,6 +55,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
     public static final String EDIT_TEXT_PROPERTIES_ACTION_NAME = "edit-text-properties";
 
     protected QTextEditor    editor = null;
+    private Border origEditorBorder = null;
     protected ActionMap      actions = null;
     protected Chapter        chapter = null;
     protected Point             lastMousePosition = null;
@@ -113,7 +114,9 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
 
         this.editor = new QTextEditor (dp,
                                        pv.isSpellCheckingEnabled ());
-
+        
+        this.origEditorBorder = this.editor.getBorder ();
+        
         this.editor.setSynonymProvider (sp);//Environment.getSynonymProvider ());
         
         this.editor.getDocument ().addDocumentListener (new DocumentListener ()
@@ -542,7 +545,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
             }
             
         });
-
+        
         JComponent p = this.getEditorWrapper (this.editor);
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -763,7 +766,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         });
         */
     }
-        
+            
     public void setSoftCaret (int c)
     {
         
@@ -1075,6 +1078,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.setTextColor (props.getTextColor ());
         this.setWritingLineColor (props.getWritingLineColor ());
         this.setHighlightWritingLine (props.isHighlightWritingLine ());
+        this.setTextBorder (props.getTextBorder ());
         
         this.ignoreDocumentChange = false;
         
@@ -1095,6 +1099,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         this.setFirstLineIndent (props.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
         this.setWritingLineColor (UIUtils.getColor (props.getProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
         this.setHighlightWritingLine (props.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
+        this.setTextBorder (props.getPropertyAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
         
         this.restoreBackgroundColor ();
         this.restoreFontColor ();
@@ -1303,7 +1308,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
         this.ignoreDocumentChange = false;
 
-        this.scrollCaretIntoView ();
+        //this.scrollCaretIntoView ();
         
     }
 
@@ -1316,7 +1321,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
         this.ignoreDocumentChange = false;
 
-        this.scrollCaretIntoView ();
+        //this.scrollCaretIntoView ();
         
     }
 
@@ -1329,7 +1334,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
         this.ignoreDocumentChange = false;        
         
-        this.scrollCaretIntoView ();
+        //this.scrollCaretIntoView ();
         
     }
 
@@ -1342,10 +1347,25 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
         this.ignoreDocumentChange = false;        
         
-        this.scrollCaretIntoView ();
+        //this.scrollCaretIntoView ();
         
     }
 
+    @Override
+    public void setTextBorder (int v)
+    {
+
+        this.ignoreDocumentChange = true;
+        
+        this.editor.setBorder (new CompoundBorder (this.origEditorBorder,
+                                                   UIUtils.createPadding (0, v, 0, v)));
+        
+        this.ignoreDocumentChange = false;        
+        
+        //this.scrollCaretIntoView ();
+        
+    }
+    
     public void setLineSpacing (float v)
     {
         
@@ -1355,7 +1375,7 @@ public abstract class AbstractEditorPanel extends QuollPanel implements SpellChe
         
         this.ignoreDocumentChange = false;        
         
-        this.scrollCaretIntoView ();
+        //this.scrollCaretIntoView ();
         
     }
 

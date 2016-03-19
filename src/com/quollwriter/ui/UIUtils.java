@@ -100,6 +100,11 @@ public class UIUtils
     private static int DEFAULT_POPUP_WIDTH = 450;
     public static int DEFAULT_SCROLL_BY_AMOUNT = 20;
     
+    public static final Point defaultLeftCornerShowPopupAt = new Point (10, 10);
+    
+    // Deliberately null so that the center of the window is found when the popup is shown.
+    public static final Point defaultCenterShowPopupAt = null;
+    
     public static Font headerFont = null; 
 
     public static final Border textFieldSpacing = new EmptyBorder (3,
@@ -1193,6 +1198,15 @@ public class UIUtils
     public static JCheckBox createCheckBox (String text)
     {
         
+        return UIUtils.createCheckBox (text,
+                                       null);
+        
+    }
+    
+    public static JCheckBox createCheckBox (String         text,
+                                            ActionListener onClick)
+    {
+        
         JCheckBox b = new JCheckBox ()
         {
           
@@ -1210,6 +1224,16 @@ public class UIUtils
         b.setText (text);
         b.setBackground (null);
         b.setOpaque (false);
+        
+        if (onClick != null)
+        {
+            
+            b.addActionListener (onClick);
+            
+        }
+        
+        b.setVerticalTextPosition (SwingConstants.TOP);
+        b.setVerticalAlignment (SwingConstants.TOP);
         
         return b;
         
@@ -2160,7 +2184,7 @@ public class UIUtils
         if (parent instanceof QuollPanel)
         {
             
-            UIUtils.showErrorMessage ((PopupsSupported) ((QuollPanel) parent).getProjectViewer (),
+            UIUtils.showErrorMessage ((PopupsSupported) ((QuollPanel) parent).getViewer (),
                                       message);
             
             return;
@@ -2259,12 +2283,29 @@ public class UIUtils
         });
 
     }
-        
+    
     public static void showMessage (final PopupsSupported parent,
                                     final String          title,
                                     final Component       message,
                                     final String          confirmButtonLabel,
                                     final ActionListener  onConfirm)
+    {
+
+        UIUtils.showMessage (parent,
+                             title,
+                             message,
+                             confirmButtonLabel,
+                             onConfirm,
+                             null);
+    
+    }    
+        
+    public static void showMessage (final PopupsSupported parent,
+                                    final String          title,
+                                    final Component       message,
+                                    final String          confirmButtonLabel,
+                                    final ActionListener  onConfirm,
+                                    final Point           showAt)
     {
 
         if (parent == null)
@@ -2319,8 +2360,8 @@ public class UIUtils
                                                     content.getPreferredSize ().height));
                                                     
                 parent.showPopupAt (ep,
-                                    UIUtils.getCenterShowPosition ((Component) parent,
-                                                                   ep),
+                                    (showAt != null ? showAt : UIUtils.getCenterShowPosition ((Component) parent,
+                                                                                              ep)),
                                     false);
                 ep.setDraggable ((Component) parent);
                 
@@ -2335,6 +2376,23 @@ public class UIUtils
                                     final String          message,
                                     final String          confirmButtonLabel,
                                     final ActionListener  onConfirm)
+    {
+
+        UIUtils.showMessage (parent,
+                             title,
+                             message,
+                             confirmButtonLabel,
+                             onConfirm,
+                             null);
+    
+    }
+    
+    public static void showMessage (final PopupsSupported parent,
+                                    final String          title,
+                                    final String          message,
+                                    final String          confirmButtonLabel,
+                                    final ActionListener  onConfirm,
+                                    final Point           showAt)
     {
 
         AbstractProjectViewer pv = null;
@@ -2357,7 +2415,8 @@ public class UIUtils
                              title,
                              m,
                              confirmButtonLabel,
-                             onConfirm);
+                             onConfirm,
+                             showAt);
 
     }
 
@@ -2369,8 +2428,22 @@ public class UIUtils
         UIUtils.showMessage (parent,
                              title,
                              message,
-                             null,
                              null);
+        
+    }
+        
+    public static void showMessage (PopupsSupported parent,
+                                    String          title,
+                                    String          message,
+                                    Point           showAt)
+    {
+
+        UIUtils.showMessage (parent,
+                             title,
+                             message,
+                             null,
+                             null,
+                             showAt);
         
     }                                
      
@@ -2423,7 +2496,7 @@ public class UIUtils
         if (parent instanceof QuollPanel)
         {
             
-            UIUtils.showMessage ((PopupsSupported) ((QuollPanel) parent).getProjectViewer (),
+            UIUtils.showMessage ((PopupsSupported) ((QuollPanel) parent).getViewer (),
                                  title,
                                  message,
                                  confirmButtonLabel,
@@ -2573,6 +2646,15 @@ public class UIUtils
             public void setText (String t)
             {
                 
+                if (t == null)
+                {
+                    
+                    super.setText ("");
+                    
+                    return;
+                    
+                }
+                
                 super.setText (String.format ("<html><i>%s</i></html>",
                                               Environment.replaceObjectNames (t)));
                                 
@@ -2628,6 +2710,15 @@ public class UIUtils
                 
             }
             
+            @Override 
+            public void setToolTipText (String t)
+            {
+                
+                super.setText (String.format ("%s",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+
         };
         
         err.setText (message);
@@ -2642,6 +2733,38 @@ public class UIUtils
         
     }
     
+    public static JLabel createLabel (String message)
+    {
+        
+        JLabel err = new JLabel ()
+        {
+        
+            @Override 
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+            
+            @Override 
+            public void setToolTipText (String t)
+            {
+                
+                super.setToolTipText (Environment.replaceObjectNames (t));
+                
+            }
+
+        };
+        
+        err.setText (message);
+        err.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        return err;
+        
+    }
+
     public static void createPopupMenuLabels (Map labels)
     {
 
@@ -4634,7 +4757,7 @@ public class UIUtils
         if (parent instanceof QuollPanel)
         {
             
-            return ((QuollPanel) parent).getProjectViewer ();
+            return ((QuollPanel) parent).getViewer ();
             
         }
         
@@ -4964,10 +5087,10 @@ public class UIUtils
 
     }
 
-    public static JTextPane createObjectDescriptionViewPane (final StringWithMarkup      description,
-                                                             final NamedObject           n,
-                                                             final AbstractProjectViewer pv,
-                                                             final QuollPanel            qp)
+    public static JTextPane createObjectDescriptionViewPane (final StringWithMarkup        description,
+                                                             final NamedObject             n,
+                                                             final AbstractProjectViewer   pv,
+                                                             final ProjectObjectQuollPanel qp)
     {
 
         // TODO: Markup to html?
@@ -4978,10 +5101,10 @@ public class UIUtils
         
     }
     
-    public static JTextPane createObjectDescriptionViewPane (final String                description,
-                                                             final NamedObject           n,
-                                                             final AbstractProjectViewer pv,
-                                                             final QuollPanel            qp)
+    public static JTextPane createObjectDescriptionViewPane (final String                  description,
+                                                             final NamedObject             n,
+                                                             final AbstractProjectViewer   pv,
+                                                             final ProjectObjectQuollPanel qp)
     {
             
         HTMLEditorKit kit = new HTMLEditorKit ();
@@ -5601,39 +5724,17 @@ public class UIUtils
         
     }
     
-    public static JLabel createClickableLabel (final String         title,
-                                               final Icon           icon,
-                                               final ActionListener onClick)
+    public static void makeClickable (final JLabel l,
+                                      final ActionListener onClick)
     {
 
-        final JLabel l = new JLabel (null,
-                                     icon,
-                                     SwingConstants.LEFT)
-        {
-          
-            @Override
-            public void setText (String t)
-            {
-                
-                super.setText (String.format ("<html>%s</html>",
-                                              Environment.replaceObjectNames (t)));
-                
-            }
-            
-        };
-        
-        l.setText (title);
-        l.setForeground (UIUtils.getColor (Constants.HTML_LINK_COLOR));
-        l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
-        l.setVerticalAlignment (SwingConstants.TOP);
-        l.setVerticalTextPosition (SwingConstants.TOP);
         l.addMouseListener (new MouseEventHandler ()
         {
 
             @Override
             public void handlePress (MouseEvent ev)
             {
-                
+
                 if (onClick != null)
                 {
                     
@@ -5678,7 +5779,97 @@ public class UIUtils
             }
 */
         });
+        
+        l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));        
+        
+    }
+    
+    public static JLabel createClickableLabel (final String         title,
+                                               final Icon           icon,
+                                               final ActionListener onClick)
+    {
 
+        final JLabel l = new JLabel (null,
+                                     icon,
+                                     SwingConstants.LEFT)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+            
+            @Override
+            public void setToolTipText (String t)
+            {
+
+                super.setToolTipText (String.format ("%s",
+                                                     Environment.replaceObjectNames (t)));
+                
+            }
+            
+        };
+        
+        l.setText (title);
+        l.setForeground (UIUtils.getColor (Constants.HTML_LINK_COLOR));
+        l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+        l.setVerticalAlignment (SwingConstants.TOP);
+        l.setVerticalTextPosition (SwingConstants.TOP);
+        UIUtils.makeClickable (l,
+                               onClick);
+        
+        return l;
+
+    }
+
+    public static JLabel createLabel (final String         title,
+                                      final Icon           icon,
+                                      final ActionListener onClick)
+    {
+
+        final JLabel l = new JLabel (null,
+                                     icon,
+                                     SwingConstants.LEFT)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+                
+            }
+            
+            @Override
+            public void setToolTipText (String t)
+            {
+
+                super.setToolTipText (String.format ("%s",
+                                                     Environment.replaceObjectNames (t)));
+                
+            }
+            
+        };
+        
+        l.setText (title);
+
+        if (onClick != null)
+        {
+            
+            l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+            UIUtils.makeClickable (l,
+                                   onClick);
+            
+        }
+        
+        l.setVerticalAlignment (SwingConstants.TOP);
+        l.setVerticalTextPosition (SwingConstants.TOP);
+        
         return l;
 
     }
@@ -6438,7 +6629,7 @@ public class UIUtils
     public static int getSplitPaneDividerSize ()
     {
         
-        return 7;
+        return 2;
         
     }
     

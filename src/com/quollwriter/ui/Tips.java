@@ -241,7 +241,7 @@ public class Tips
                             if (c.equals ("chaptertab"))
                             {
                                 
-                                v = (qp.getForObject () instanceof Chapter);
+                                v = (((ProjectObjectQuollPanel) qp).getForObject () instanceof Chapter);
                                 
                             }
         

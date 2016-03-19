@@ -269,4 +269,20 @@ public class NamedObjectPreviewPopup extends Box
                                 
     }
     
+    public static JComponent getObjectPreviewPanel (NamedObject obj)
+    {
+        
+        if (obj instanceof Chapter)
+        {
+            
+            Chapter c = (Chapter) obj;
+            
+            
+            
+        }
+        
+        return null;
+        
+    }
+    
 }

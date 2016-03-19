@@ -14,23 +14,25 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.components.Header;
 
-public class BlankQuollPanel extends QuollPanel
+public class BlankQuollPanel extends QuollPanel<AbstractViewer>
 {
+        
+    private String panelId = null;
     
-    public static final String PANEL_ID = "blank";
-    
-    public BlankQuollPanel (AbstractProjectViewer pv)
+    public BlankQuollPanel (AbstractViewer pv,
+                            String         panelId)
     {
         
-        super (pv,
-               null);
+        super (pv);
+        
+        this.panelId = panelId;
         
     }
 
     public String getPanelId ()
     {
 
-        return PANEL_ID;
+        return this.panelId;
     
     }
     
@@ -56,7 +58,7 @@ public class BlankQuollPanel extends QuollPanel
         this.add (header);
         
         JComponent help = UIUtils.createHelpTextPane ("<p>You are seeing this because no {chapter}/{asset}/panel has been selected.</p><p>This usually happens when you have just deleted the item you were viewing.</p><p>To continue, just <a href='action:projectsidebar'>select an item from the sidebar</a>.</p>",
-                                                      this.projectViewer);
+                                                      this.viewer);
 
         help.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));
@@ -75,14 +77,6 @@ public class BlankQuollPanel extends QuollPanel
     public void setState (Map<String, String> s,
                           boolean             hasFocus)
     {
-        
-    }
-
-    public boolean saveUnsavedChanges ()
-                                       throws Exception
-    {
-        
-        return false;
         
     }
 
@@ -116,11 +110,6 @@ public class BlankQuollPanel extends QuollPanel
     {
         
         return new ArrayList ();
-        
-    }
-
-    public <T extends NamedObject> void refresh (T n)
-    {
         
     }
     

@@ -433,7 +433,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
             PanelBuilder pb = new PanelBuilder (fl);
     
             CellConstraints cc = new CellConstraints ();
-        
+                
             JTextPane tp = UIUtils.createObjectDescriptionViewPane (v,
                                                                     this.chapter,
                                                                     this.projectViewer,

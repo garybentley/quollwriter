@@ -15,6 +15,15 @@ public class BackgroundImagePanel extends JPanel implements MouseWheelListener
     private float opacity = 0f;
     
     private Object backgroundObject = null;
+        
+    public BackgroundImagePanel ()
+    {
+        
+        this.setLayout (new BoxLayout (this, BoxLayout.Y_AXIS));
+        
+        this.addMouseWheelListener (this);
+        
+    }
     
     public BackgroundImagePanel (LayoutManager layout)
     {

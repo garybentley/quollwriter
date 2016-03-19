@@ -15,7 +15,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.Header;
 
-public class HelpTextPanel extends QuollPanel
+public class HelpTextPanel extends QuollPanel<AbstractViewer>
 {
     
     private String panelId = null;
@@ -23,15 +23,14 @@ public class HelpTextPanel extends QuollPanel
     private String iconType = null;
     private String title = null;
     
-    public HelpTextPanel (AbstractProjectViewer pv,
-                          String                title,
-                          String                text,
-                          String                iconType,
-                          String                panelId)
+    public HelpTextPanel (AbstractViewer pv,
+                          String         title,
+                          String         text,
+                          String         iconType,
+                          String         panelId)
     {
         
-        super (pv,
-               null);
+        super (pv);
         
         this.title = title;
         this.panelId = panelId;
@@ -73,7 +72,7 @@ public class HelpTextPanel extends QuollPanel
         edBox.setBorder (UIUtils.createPadding (0, 10, 5, 5));
         
         JTextPane help = UIUtils.createHelpTextPane (this.text,
-                                                     this.projectViewer);
+                                                     this.viewer);
         
         help.setBorder (null);
         
@@ -109,14 +108,6 @@ public class HelpTextPanel extends QuollPanel
         
     }
 
-    public boolean saveUnsavedChanges ()
-                                       throws Exception
-    {
-        
-        return false;
-        
-    }
-
     public String getIconType ()
     {
         
@@ -147,11 +138,6 @@ public class HelpTextPanel extends QuollPanel
     {
         
         return new ArrayList ();
-        
-    }
-
-    public <T extends NamedObject> void refresh (T n)
-    {
         
     }
     

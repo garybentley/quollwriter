@@ -10,20 +10,19 @@ import javax.swing.border.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.panels.*;
 import com.quollwriter.data.*;
 
-
-public class FullScreenQuollPanel extends QuollPanel
+public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
 {
 
     private QuollPanel child = null;
     private Border     childBorder = null;
 
-    public FullScreenQuollPanel(QuollPanel child)
+    public FullScreenQuollPanel (QuollPanel child)
     {
 
-        super (child.getProjectViewer (),
-               child.getForObject ());
+        super (child.getViewer ());
 
         this.child = child;
 
@@ -59,6 +58,14 @@ public class FullScreenQuollPanel extends QuollPanel
 
     }
 
+    @Override
+    public String getPanelId ()
+    {
+        
+        return this.child.getPanelId ();
+        
+    }
+    
     public QuollPanel getChild ()
     {
 
@@ -95,7 +102,16 @@ public class FullScreenQuollPanel extends QuollPanel
                                 throws Exception
     {
 
-        return this.child.saveUnsavedChanges ();
+        if (this.child instanceof ProjectObjectQuollPanel)
+        {
+            
+            ProjectObjectQuollPanel pc = (ProjectObjectQuollPanel) this.child;
+    
+            return pc.saveUnsavedChanges ();
+        
+        }
+        
+        return false;
 
     }
 
@@ -127,8 +143,15 @@ public class FullScreenQuollPanel extends QuollPanel
     public void refresh (NamedObject n)
     {
 
-        this.child.refresh (n);
+        if (this.child instanceof ProjectObjectQuollPanel)
+        {
+            
+            ProjectObjectQuollPanel pc = (ProjectObjectQuollPanel) this.child;
+            
+            pc.refresh (n);
 
+        }
+            
     }
 
 }

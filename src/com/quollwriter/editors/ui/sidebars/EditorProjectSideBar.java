@@ -547,7 +547,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
     public void panelShown (MainPanelEvent ev)
     {
 
-        this.chapters.setObjectSelectedInTree (ev.getPanel ().getForObject ());
+        this.chapters.setObjectSelectedInTree (ev.getForObject ());
         
     }            
     

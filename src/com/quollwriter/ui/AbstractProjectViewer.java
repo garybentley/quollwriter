@@ -59,6 +59,7 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.charts.*;
 
 import com.quollwriter.data.editors.*;
 import com.quollwriter.editors.*;
@@ -97,7 +98,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     public static final int RENAME_PROJECT_ACTION = 14; // "renameProject";
     public static final int EDIT_PROJECT_PROPERTIES_ACTION = 15; // "editProjectProperties";
     public static final int WARMUP_EXERCISE_ACTION = 26;
-    public static final int SHOW_STATISTICS_ACTION = 27;
     public static final int CONTACT_SUPPORT_ACTION = 28;
 
     public static final String NAME_CHANGED = "nameChanged";
@@ -169,7 +169,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 	
 	private java.util.Timer autoBackupsTimer = null;
 	private TimerTask autoSaveTask = null;
-
+	private TargetsData targets = null;
+	private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
+	
     public AbstractProjectViewer()
     {
 
@@ -1618,11 +1620,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             
             this.fsf.showSideBar ();
                         
-            return;
-                    
-        }
+        } else {
                 
-        this.setUILayout (this.layout);
+			this.setUILayout (this.layout);
+			
+		}
 
         try
         {
@@ -1640,14 +1642,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         }
         
         this.fireSideBarShownEvent (b);
-        
-        if (this.fsf != null)
-        {
-            
-            this.fsf.showSideBar ();
-            
-        }
-        
+                
     }
     /*
     public Map getTempOptions ()
@@ -2113,23 +2108,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
             };
 
-        }
-
-        if (name == AbstractProjectViewer.SHOW_STATISTICS_ACTION)
-        {
-            
-            return new ActionAdapter ()
-            {            
-
-                public void actionPerformed (ActionEvent ev)
-                {
-                    
-                    pv.viewWordCountHistory ();
-                    
-                }
-                
-            };
-            
         }
         
         if (name == AbstractProjectViewer.RENAME_CHAPTER_ACTION)
@@ -3974,6 +3952,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
 		this.initChapterCounts ();
 		
+		this.targets = new TargetsData (this.proj.getProperties ());		
+		
         Environment.incrStartupProgress ();
 
 		this.proj.setFilePassword (filePassword);
@@ -4145,7 +4125,7 @@ xxx
                                ProjectEvent.OPEN);
                        
         this.showViewer ();
-        
+        		
         // Register ourselves with the environment.
         try
         {
@@ -4163,8 +4143,312 @@ xxx
 		
 		UIUtils.doLater (onOpen);
 		
+		// Check to see if any chapters have overrun the target.
+		UIUtils.doLater (new ActionListener ()
+		{
+			
+			@Override
+			public void actionPerformed (ActionEvent ev)
+			{
+				
+				try
+				{
+					
+					int wc = _this.getProjectTargets ().getMaxChapterCount ();
+					
+					if ((wc > 0)
+						&&
+						(_this.getProjectTargets ().isShowMessageWhenMaxChapterCountExceeded ())
+					   )
+					{
+						
+						Book b = _this.proj.getBooks ().get (0);
+				
+						Set<Chapter> over = new LinkedHashSet ();
+				
+						java.util.List<Chapter> chapters = b.getChapters ();
+								
+						Date d = new Date ();
+								
+						for (Chapter c : chapters)
+						{
+						
+						    ChapterCounts cc = _this.getChapterCounts (c);
+						
+							if (cc.wordCount > wc)
+							{
+								
+								over.add (c);
+								
+								_this.chapterWordCountTargetWarned.put (c,
+																	    d);
+								
+							}
+						
+						}
+						
+						int s = over.size ();
+												
+						if (s > 0)
+						{
+							
+							final JLabel l = UIUtils.createLabel (null,
+																  null,
+																  null);
+							
+							final Notification n = _this.addNotification (l,
+																		  Constants.WORDCOUNT_ICON_NAME,
+																		  -1);
+
+							String text = String.format ("%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
+														 Environment.formatNumber (s),
+														 (s == 1 ? " is" : "s are"),
+														 Environment.formatNumber (wc),
+														 (s == 1 ? "" : "s"));
+													
+							l.setText (text);
+													
+							UIUtils.makeClickable (l,
+												   new ActionListener ()
+												   {
+													
+														@Override
+														public void actionPerformed (ActionEvent ev)
+														{
+														
+															Targets.showChaptersOverWordTarget (_this,
+																								null);
+															
+															n.removeNotification ();
+															
+														}
+														
+												   });
+																
+						} 
+						
+					}
+					
+				} catch (Exception e) {
+					
+					Environment.logError ("Unable to display chapters over target notification",
+										  e);
+					
+				}
+				
+			}
+			
+		});
+		
+		this.schedule (new TimerTask ()
+		{
+			
+			@Override
+			public void run ()
+			{
+				
+				try
+				{
+										
+					int wc = _this.getProjectTargets ().getMaxChapterCount ();
+					
+					if ((wc > 0)
+						&&
+						(_this.getProjectTargets ().isShowMessageWhenMaxChapterCountExceeded ())
+					   )
+					{
+						
+						Book b = _this.proj.getBooks ().get (0);
+				
+						final Set<Chapter> over = new LinkedHashSet ();
+				
+						java.util.List<Chapter> chapters = b.getChapters ();
+								
+						Date d = new Date ();
+						
+						// 15 minutes ago.
+						long last = System.currentTimeMillis () - 15 * 60 * 1000;
+																
+						for (Chapter c : chapters)
+						{
+						
+						    ChapterCounts cc = _this.getChapterCounts (c);
+						
+							final Chapter _c = c;
+						
+							if (cc.wordCount > wc)
+							{
+								
+								if (!_this.chapterWordCountTargetWarned.containsKey (c))
+								{
+									
+									_this.chapterWordCountTargetWarned.put (c,
+																			new Date ());
+									
+									over.add (c);
+							
+								}
+																									
+							} else {
+								
+								Date od = _this.chapterWordCountTargetWarned.get (c);
+
+								// Only remove if it's been 15 minutes since we last warned the user.
+								// This provides a buffer so that they aren't constantly nagged about
+								// it going over, for example if they've deleted/edited a sentence, removed
+								// a word or two to go below the target then added some back in.
+								if ((od != null)
+									&&
+									(od.getTime () < last)
+								   )
+								{
+
+									_this.chapterWordCountTargetWarned.remove (c);
+									
+								}
+								
+							}
+						
+						}
+						
+						if (over.size () > 0)
+						{
+							
+							// Show a message.
+							UIUtils.doLater (new ActionListener ()
+							{
+								
+								@Override
+								public void actionPerformed (ActionEvent ev)
+								{
+									
+									final int s = over.size ();
+									
+									final QPopup popup = UIUtils.createClosablePopup (String.format ("{Chapter}%s over word count target",
+																									 (s == 1 ? "" : "s")),
+																					  Environment.getIcon (Constants.WORDCOUNT_ICON_NAME,
+																										   Constants.ICON_POPUP),
+																					  null);
+									
+									String text = String.format ("%s {chapter}%s over the target word count, click to view them.",
+																 Environment.formatNumber (s),
+																 (s == 1 ? " is" : "s are"));
+									
+									if (s == 1)
+									{
+										
+										Chapter c = over.iterator ().next ();
+										
+										text = String.format ("{Chapter} <b>%s</b> is over the target word count, click to view it.",
+															  c.getName ());
+										
+									}
+									
+									Box content = new Box (BoxLayout.Y_AXIS);
+									
+									ActionListener showChapter = new ActionListener ()
+									{
+										
+										@Override
+										public void actionPerformed (ActionEvent ev)
+										{
+											
+											Targets.showChaptersOverWordTarget (_this,
+																				null);
+											
+											popup.removeFromParent ();
+											
+										}
+										
+									};
+									
+									JLabel l = UIUtils.createLabel (text,
+																	null,
+																	showChapter);
+									
+									l.setBorder (UIUtils.createPadding (0, 0, 10, 0));
+
+									content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+									
+									content.add (l);
+									
+									JButton cb = UIUtils.createButton ("Close",
+																	   null);
+													
+									JButton sb = UIUtils.createButton ("Show detail",
+																	   null);
+
+									sb.addActionListener (showChapter);
+																	   
+									JButton[] buts = { sb, cb };
+													
+									JComponent bs = UIUtils.createButtonBar2 (buts,
+																			  Component.CENTER_ALIGNMENT); 
+									bs.setAlignmentX (Component.LEFT_ALIGNMENT);                
+									
+									content.add (bs);
+									
+									cb.addActionListener (popup.getCloseAction ());
+									popup.setRemoveOnClose (true);
+									
+									popup.setContent (content);
+									
+									popup.setDraggable (_this);
+													  
+									popup.resize ();
+							
+									_this.showPopupAt (popup,
+													   new Point (10, 10),
+													   false);
+															
+								}
+								
+							});							
+							
+						}
+						
+					}					
+					
+				} catch (Exception e) {
+					
+					Environment.logError ("Unable to determine chapters that are over target",
+										  e);
+					
+				}
+				
+			}
+			
+		},
+		30 * 1000,
+		5 * 1000);
+		
     }
     
+	public void saveProjectTargets ()
+	{
+		
+		try
+		{
+		
+			this.saveObject (this.proj,
+							 false);
+			
+		} catch (Exception e) {
+			
+			Environment.logError ("Unable to update project targets",
+								  e);
+			
+		}
+		
+	}
+	
+	public TargetsData getProjectTargets ()
+	{
+		
+		return this.targets;
+		
+	}
+	
 	private void startAutoBackups ()
 	{
 		
@@ -5365,7 +5649,7 @@ xxx
             if (v.equals ("statistics"))
             {
                 
-                this.viewWordCountHistory ();
+                this.viewStatistics ();
                 
                 return;
                 
@@ -5383,7 +5667,7 @@ xxx
             if (v.equals ("wordcounthistory"))
             {
 
-                this.viewWordCountHistory ();
+                this.viewStatistics ();
                 
                 return;
                                 
@@ -5548,8 +5832,7 @@ xxx
         try
         {
 
-            ap = new AchievementsPanel (this,
-                                        this.proj);
+            ap = new AchievementsPanel (this);
 
             ap.init ();
 
@@ -5584,10 +5867,17 @@ xxx
             
         }    
     
-        if (id.equals (WordCountPanel.PANEL_ID))
+        if (id.equals (StatisticsPanel.PANEL_ID))
         {
 
-            return this.viewWordCountHistory ();
+            return this.viewStatistics ();
+            
+        }
+
+        if (id.equals (StatisticsPanel.OLD_WORD_COUNT_PANEL_ID))
+        {
+
+            return this.viewStatistics ();
             
         }
 
@@ -5670,41 +5960,48 @@ xxx
             for (QuollPanel qp : this.panels.values ())
             {
 
-                if (qp.hasUnsavedChanges ())
-                {
-
-                    boolean showError = true;
-
-                    try
-                    {
-
-                        showError = !qp.saveUnsavedChanges ();
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save unsaved changes for: " +
-                                              qp.getForObject (),
-                                              e);
-
-                    }
-
-                    if (showError)
-                    {
-
-                        UIUtils.showErrorMessage (this,
-                                                  "Unable to save: " +
-                                                  qp.getForObject ().getName () +
-                                                  ", aborting exit.");
-
-                        // Switch to the tab.
-                        this.viewObject (qp.getForObject ());
-
-                        return false;
-
-                    }
-
-                }
+				if (qp instanceof ProjectObjectQuollPanel)
+				{
+					
+					ProjectObjectQuollPanel pqp = (ProjectObjectQuollPanel) qp;
+			
+					if (pqp.hasUnsavedChanges ())
+					{
+	
+						boolean showError = true;
+	
+						try
+						{
+	
+							showError = !pqp.saveUnsavedChanges ();
+	
+						} catch (Exception e)
+						{
+	
+							Environment.logError ("Unable to save unsaved changes for: " +
+												  pqp.getForObject (),
+												  e);
+	
+						}
+	
+						if (showError)
+						{
+	
+							UIUtils.showErrorMessage (this,
+													  "Unable to save: " +
+													  pqp.getForObject ().getName () +
+													  ", aborting exit.");
+	
+							// Switch to the tab.
+							this.viewObject (pqp.getForObject ());
+	
+							return false;
+	
+						}
+	
+					}
+					
+				}
 
             }            
 
@@ -5780,24 +6077,14 @@ xxx
                                   
         }
 
-        this.dispose ();
-
 		this.autoBackupsTimer = null;
 		
         this.proj = null;
 
         this.dBMan = null;
-
-        if (afterClose != null)
-        {
-
-            afterClose.actionPerformed (new ActionEvent (this,
-                                                         0,
-                                                         "closed"));
-            
-        }
         
-        return true;
+		return super.close (false,
+							afterClose);
         
     }
     
@@ -5827,19 +6114,26 @@ xxx
             for (QuollPanel qp : this.panels.values ())
             {
                 
-                if (qp.hasUnsavedChanges ())
-                {
-    
-                    hasChanges = true;
-        
-                    if (qp.getForObject () instanceof NamedObject)
-                    {
-        
-                        b.append ("<li>" + UIUtils.getObjectALink ((NamedObject) qp.getForObject ()) + "</li>");
-                        
-                    }
-    
-                }                                  
+				if (qp instanceof ProjectObjectQuollPanel)
+				{
+					
+					ProjectObjectQuollPanel pqp = (ProjectObjectQuollPanel) qp;
+				
+					if (pqp.hasUnsavedChanges ())
+					{
+		
+						hasChanges = true;
+			
+						if (pqp.getForObject () instanceof NamedObject)
+						{
+			
+							b.append ("<li>" + UIUtils.getObjectALink ((NamedObject) pqp.getForObject ()) + "</li>");
+							
+						}
+		
+					}
+					
+				}
                                     
             }
         
@@ -6390,7 +6684,8 @@ xxx
         if (qep == null)
         {
             
-            qep = new BlankQuollPanel (this);
+            qep = new BlankQuollPanel (this,
+									   "fullscreen-blank");
             
             qep.init ();
             
@@ -6431,7 +6726,8 @@ xxx
         } else
         {
         
-            this.fsf = new FullScreenFrame (fs);
+            this.fsf = new FullScreenFrame (fs,
+											this);
 
             this.fsf.init ();
 
@@ -6478,7 +6774,7 @@ xxx
         if (this.fsf != null)
         {
 
-            if (this.fsf.getPanel ().getChild ().getForObject () == n)
+            if (this.fsf.getCurrentForObject () == n)
             {
 
                 // Nothing to do, it's already showing, maybe bring to front.
@@ -6527,7 +6823,8 @@ xxx
             } else
             {
 
-                this.fsf = new FullScreenFrame (fs);
+                this.fsf = new FullScreenFrame (fs,
+												this);
 
                 this.fsf.init ();
 
@@ -6544,78 +6841,74 @@ xxx
 
     }
 
-    public QuollPanel getQuollPanelForObject (DataObject n)
+    public ProjectObjectQuollPanel getQuollPanelForObject (DataObject n)
     {
 
         for (QuollPanel qp : this.panels.values ())
         {
             
-            if (qp.getForObject () == n)
-            {
+			ProjectObjectQuollPanel pqp = null;
+			
+			if (qp instanceof FullScreenQuollPanel)
+			{
+				
+				FullScreenQuollPanel fqp = (FullScreenQuollPanel) qp;
+				
+				if (fqp.getChild () instanceof ProjectObjectQuollPanel)
+				{
+					
+					pqp = (ProjectObjectQuollPanel) fqp.getChild ();
+					
+				}
 
-                if (qp instanceof FullScreenQuollPanel)
-                {
-                    
-                    return ((FullScreenQuollPanel) qp).getChild ();
-                    
-                } else {
-
-                    return qp;
-                
-                }
-
-            }
-            
+			}
+				
+			// This is getting silly...
+			// TODO: Fix this up.
+			if (qp instanceof ProjectObjectQuollPanel)
+			{
+				
+				pqp = (ProjectObjectQuollPanel) qp;
+				
+			}
+			
+			if ((pqp != null)
+				&&
+				(pqp.getForObject () == n)
+			   )
+			{
+	
+				return pqp;
+				
+			}
+	
         }
-/*
-        for (int i = 0; i < this.tabs.getTabCount (); i++)
-        {
 
-            Component comp = this.tabs.getComponentAt (i);
-
-            if (comp instanceof QuollPanel)
-            {
-
-                QuollPanel qp = (QuollPanel) comp;
-
-                if (qp.getForObject () == n)
-                {
-
-                    if (qp instanceof FullScreenQuollPanel)
-                    {
-                        
-                        return ((FullScreenQuollPanel) qp).getChild ();
-                        
-                    } else {
-
-                        return qp;
-                    
-                    }
-
-                }
-
-            }
-
-        }
-*/
         return null;
 
     }
 
-    public java.util.List<QuollPanel> getAllQuollPanelsForObject (DataObject n)
+    public java.util.List<ProjectObjectQuollPanel> getAllQuollPanelsForObject (DataObject n)
     {
 
-        java.util.List<QuollPanel> ret = new ArrayList ();
+        java.util.List<ProjectObjectQuollPanel> ret = new ArrayList ();
 
         for (QuollPanel qp : this.panels.values ())
         {
             
-            if (qp.getForObject () == n)
-            {
+			if (qp instanceof ProjectObjectQuollPanel)
+			{
+				
+				ProjectObjectQuollPanel pqp = (ProjectObjectQuollPanel) qp;
 
-                ret.add (qp);
-
-            }            
+				if (pqp.getForObject () == n)
+				{
+	
+					ret.add (pqp);
+	
+				}
+				
+			}
             
         }
 
@@ -6651,7 +6944,7 @@ xxx
                 
             } catch (Exception e) {
                 
-                Environment.logError ("Unable to show: " + qp.getForObject () +
+                Environment.logError ("Unable to show panel: " + qp +
                                       " in full screen",
                                       e);
                 
@@ -7195,12 +7488,10 @@ xxx
     public void removeAllPanelsForObject (NamedObject n)
     {
 
-        java.util.List<QuollPanel> panels = this.getAllQuollPanelsForObject (n);
-
-        for (QuollPanel p : panels)
+        for (ProjectObjectQuollPanel p : this.getAllQuollPanelsForObject (n))
         {
 
-            this.removePanel (p.getPanelId ());
+            this.removePanel (p);
 
         }
 
@@ -7218,11 +7509,41 @@ xxx
 
         }
         
+		// Not sure if this will auto pick the correct method, force it to be sure.
+		if (p instanceof ProjectObjectQuollPanel)
+		{
+			
+			return this.removePanel ((ProjectObjectQuollPanel) p);
+			
+		}
+		
         return this.removePanel (p);
         
     }
     
     private boolean removePanel (final QuollPanel p)
+    {
+
+		p.close ();
+
+		String panelId = p.getPanelId ();
+		
+		int tInd = this.getTabIndexForPanelId (panelId);
+		
+		if (tInd > -1)
+		{
+
+			this.tabs.removeTabAt (tInd);
+
+		}
+
+		this.panels.remove (panelId);	
+	
+		return true;
+	
+	}
+	
+    private boolean removePanel (final ProjectObjectQuollPanel p)
     {
         
         final AbstractProjectViewer _this = this;
@@ -7252,21 +7573,8 @@ xxx
                         
                     }        
         
-                    p.close ();
-        
-                    String panelId = p.getPanelId ();
-                    
-                    int tInd = _this.getTabIndexForPanelId (panelId);
-                    
-                    if (tInd > -1)
-                    {
-        
-                        _this.tabs.removeTabAt (tInd);
-        
-                    }
-        
-                    _this.panels.remove (panelId);
-        
+					_this.removePanel ((QuollPanel) p);
+		        
                     // Remove all the property changed listeners.
                     java.util.List<PropertyChangedListener> l = p.getObjectPropertyChangedListeners ();
         
@@ -7405,7 +7713,7 @@ xxx
     public void refreshViewPanel (NamedObject n)
     {
 
-        QuollPanel p = this.getQuollPanelForObject (n);
+        ProjectObjectQuollPanel p = this.getQuollPanelForObject (n);
 
         if (p != null)
         {
@@ -7425,30 +7733,31 @@ xxx
             (objs.size () > 0))
         {
 
-            SwingUtilities.invokeLater (new Runner ()
-                {
+			UIUtils.doLater (new ActionListener ()
+			{
 
-                    public void run ()
-                    {
+                @Override
+				public void actionPerformed (ActionEvent ev)
+				{
 
-                        // For each one determine if it is visible.
-                        for (NamedObject n : objs)
-                        {
+					// For each one determine if it is visible.
+					for (NamedObject n : objs)
+					{
 
-                            QuollPanel qp = _this.getQuollPanelForObject (n);
+						ProjectObjectQuollPanel qp = _this.getQuollPanelForObject (n);
 
-                            if (qp != null)
-                            {
+						if (qp != null)
+						{
 
-                                qp.refresh (n);
+							qp.refresh (n);
 
-                            }
+						}
 
-                        }
+					}
 
-                    }
+				}
 
-                });
+            });
 
         }
 
@@ -7953,22 +8262,42 @@ xxx
 
     }    
 
+	@Override
+	public boolean showChart (String chartType)
+					   throws GeneralException
+	{
+		
+		if (this.viewStatistics ())
+		{
+			
+			StatisticsPanel sp = (StatisticsPanel) this.getQuollPanel (StatisticsPanel.PANEL_ID);
+			
+			sp.showChart (chartType);
+			
+			return true;
+			
+		}
+		
+		return false;
+		
+	}
+	
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the word count history is viewed.
      */
-    public boolean viewWordCountHistory ()
+    public boolean viewStatistics ()
     {
 
         // Check our tabs to see if we are already viewing the word counts, if so then just switch to it instead.
-        WordCountPanel wcp = (WordCountPanel) this.getQuollPanel (WordCountPanel.PANEL_ID);
+        StatisticsPanel wcp = (StatisticsPanel) this.getQuollPanel (StatisticsPanel.PANEL_ID);
 
         if (wcp != null)
         {
 
             this.setPanelVisible (wcp);
 
-            this.fireProjectEvent (ProjectEvent.WORD_COUNT_HISTORY,
+            this.fireProjectEvent (ProjectEvent.STATISTICS,
                                    ProjectEvent.SHOW);
 
             return true;
@@ -7977,12 +8306,18 @@ xxx
 
         try
         {
-
-            wcp = new WordCountPanel (this,
-                                      this.proj);
+		
+            wcp = new StatisticsPanel (this,
+									   new PerChapterWordCountsChart (this),
+									   new AllWordCountsChart (this),
+									   new ReadabilityIndicesChart (this),
+									   new SessionWordCountChart (this),
+									   new SessionTimeChart (this));
 
             wcp.init ();
 
+			wcp.showChart (PerChapterWordCountsChart.CHART_TYPE);                
+			
         } catch (Exception e)
         {
 
@@ -8000,7 +8335,7 @@ xxx
         this.addPanel (wcp);
 
         // Open the tab :)
-        return this.viewWordCountHistory ();
+        return this.viewStatistics ();
 
     }
 
@@ -8619,5 +8954,48 @@ xxx
         }				
 
     }
+
+	/**
+	 * Display the targets for the project.
+	 *
+	 */
+	public void viewTargets ()
+                      throws GeneralException
+	{
+		
+        TargetsSideBar t = new TargetsSideBar (this);
+        
+        this.addSideBar ("targets",
+                         t);
+        
+        this.showSideBar ("targets");
+
+	}
+
+	public boolean hasUnsavedChapters ()
+	{
+		
+        for (QuollPanel qp : this.panels.values ())
+        {
+
+			if (qp instanceof AbstractEditorPanel)
+			{
+				
+				AbstractEditorPanel ep = (AbstractEditorPanel) qp;
+				
+				if (ep.hasUnsavedChanges ())
+				{
+					
+					return true;
+					
+				}
+				
+			}
+		
+		}
+		
+		return false;
+		
+	}
     
 }

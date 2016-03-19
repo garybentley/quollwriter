@@ -98,19 +98,17 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private boolean              distractionFreeModeEnabled = false;
     private Timer achievementsHideTimer = null;
     private QPopup                achievementsPopup = null;
+    private Timer updateTimer = null;
     
-    public FullScreenFrame (FullScreenQuollPanel qp)
+    public FullScreenFrame (FullScreenQuollPanel  qp,
+                            AbstractProjectViewer viewer)
     {
 
         this.panel = qp;
 
-        this.projectViewer = this.panel.getProjectViewer ();
-        
-        //com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
+        this.projectViewer = viewer;
         
         Project proj = this.projectViewer.getProject ();
-
-        //this.projectViewer.setVisible (false);
         
         this.fullScreenTextProperties = new FullScreenTextProperties (this);
         
@@ -172,7 +170,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     public void showBlankPanel ()
     {
         
-        BlankQuollPanel bqp = new BlankQuollPanel (this.projectViewer);
+        BlankQuollPanel bqp = new BlankQuollPanel (this.projectViewer,
+                                                   "fullscreen-blank");
         
         bqp.init ();
         
@@ -276,6 +275,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         this.clockTimer.stop ();
         
+        this.updateTimer.stop ();
+
         this.restorePanel ();
 
         this.projectViewer.doForPanels (QuollEditorPanel.class,
@@ -847,6 +848,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         };
 */
+
+        //this.createHeader ();
+
+        this.createInfo ();
+        
         this.closeAction = new ActionAdapter ()
         {
 
@@ -1583,6 +1589,188 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
     }
     
+    private void createInfo ()
+    {
+    
+        final Box info = new Box (BoxLayout.X_AXIS);
+        
+        Box cp = new Box (BoxLayout.Y_AXIS);
+        
+        cp.setOpaque (true);
+        cp.setBackground (UIUtils.getComponentColor ());
+        cp.setBorder (UIUtils.createPadding (5, 10, 5, 10));
+        
+        info.add (cp);
+        info.setOpaque (false);
+
+        info.setBorder (new com.quollwriter.ui.components.DropShadowBorderX (UIManager.getColor ("Control"),
+                                                                                                        Color.BLACK,
+                                                                                                  1,
+                                                                                                  12,
+                                                                                                  0.5f,
+                                                                                                  12,
+                                                                                                  true,
+                                                                                                  true,
+                                                                                                  false,
+                                                                                                  true));
+
+        JToolBar titleC = new JToolBar ();
+        titleC.setFloatable (false);
+        titleC.setOpaque (false);
+        titleC.setRollover (true);
+        titleC.setBorderPainted (false);
+        
+        Box ib = new Box (BoxLayout.X_AXIS);
+        
+        final JLabel time = UIUtils.createLabel ("");
+                
+        //time.setBorder (UIUtils.createPadding (0, 0, 0, 15));
+                
+        ib.add (time);
+                /*
+        l.setIcon (Environment.getIcon (Constants.CLOCK_ICON_NAME,
+                                        Constants.ICON_MENU));
+                */
+        time.setFont (time.getFont ().deriveFont (16f));
+        
+        titleC.add (ib);
+
+        final JLabel sessWords = UIUtils.createLabel ("");
+         
+        ib.add (sessWords);
+         
+        sessWords.setBorder (UIUtils.createPadding (0, 15, 0, 15));         
+                                
+        sessWords.setIcon (Environment.getIcon (Constants.CLOCK_ICON_NAME,
+                                        Constants.ICON_MENU));
+                
+        sessWords.setFont (sessWords.getFont ().deriveFont (16f));
+        
+        titleC.add (ib);
+        
+        final JLabel chapWords = UIUtils.createLabel ("");
+                
+        ib.add (chapWords);
+                
+        chapWords.setIcon (Environment.getIcon (Chapter.OBJECT_TYPE,
+                                                Constants.ICON_MENU));
+                
+        chapWords.setFont (chapWords.getFont ().deriveFont (16f));
+        
+        titleC.add (ib);
+                        
+        cp.add (titleC);
+        
+        this.getLayeredPane ().add (info,
+                                    1,
+                                    2);                
+                
+        this.getLayeredPane ().moveToFront (info);
+        this.getLayeredPane ().validate ();
+        
+        final FullScreenFrame _this = this;
+        
+        ActionListener l = new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+               info.setVisible (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+            
+               time.setText (_this.clockFormat.format (new Date ()));
+               
+               QuollPanel qp = _this.panel.getChild ();
+
+               if (qp instanceof AbstractEditorPanel)
+               {
+               
+                   sessWords.setVisible (true);
+                   chapWords.setVisible (true);
+
+                   AbstractEditorPanel aep = (AbstractEditorPanel) qp;
+               
+                   ChapterCounts cc = _this.projectViewer.getChapterCounts (aep.getChapter ());
+               
+                   String t = "";
+                   
+                   TargetsData td = Environment.getUserTargets ();
+                   
+                   if ((td.getMySessionWriting () > 0)
+                       &&
+                       (Environment.getSessionWordCount () != 0)
+                      )
+                   {
+                       
+                       t = String.format (", %s",
+                                          Environment.getSessionWordCount () - td.getMySessionWriting ());
+                       
+                   }
+               
+                   sessWords.setToolTipText ("Session word count");
+               
+                   sessWords.setText (String.format ("%s words%s",
+                                                     Environment.formatNumber (Environment.getSessionWordCount ()),
+                                                     t));
+                   
+                   int maxChapWC = aep.getViewer ().getProjectTargets ().getMaxChapterCount ();
+
+                   t = "";
+                   
+                   if ((maxChapWC > 0)
+                       &&
+                       (cc.wordCount > maxChapWC)
+                      )
+                   {                                                                                  
+                   
+                       t = String.format (", %s",
+                                          Environment.formatNumber (cc.wordCount - maxChapWC));
+                       
+                   }
+                   
+                   chapWords.setToolTipText ("{Chapter} word count");
+
+                   chapWords.setText (String.format ("%s words%s",
+                                                     Environment.formatNumber (cc.wordCount),
+                                                     t));                                            
+               
+               } else {
+                   
+                   sessWords.setVisible (false);
+                   chapWords.setVisible (false);
+                
+               }
+               
+               final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
+                                                           
+               info.setBounds ((int) 10,
+                                      d.height - info.getPreferredSize ().height,
+                                      info.getPreferredSize ().width,
+                                      info.getPreferredSize ().height);                                            
+            
+            }
+            
+        };
+        
+        l.actionPerformed (new ActionEvent (this, 0, "0"));
+        
+        info.setVisible (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+        
+        this.updateTimer = new Timer (500,
+                                      l);
+
+        final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
+                                                    
+        info.setBounds ((int) 10,
+                               d.height - info.getPreferredSize ().height,
+                               info.getPreferredSize ().width,
+                               info.getPreferredSize ().height);                                     
+                                     
+        this.updateTimer.start ();        
+        
+    }
+    
     private void createHeader ()
     {
         
@@ -1688,7 +1876,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                          {
 
                                              _this.clockLabel.setText (_this.clockFormat.format (new Date ()));
-
+                                             
                                          }
 
                                      });
@@ -1727,7 +1915,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         titleC.add (this.distModeButton);
         
-        this.panel.projectViewer.fillFullScreenTitleToolbar (titleC);
+        this.projectViewer.fillFullScreenTitleToolbar (titleC);
 
         if (EditorsEnvironment.isEditorsServiceAvailable ())
         {
@@ -1746,7 +1934,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                         try
                                                         {
                                                         
-                                                            _this.panel.getProjectViewer ().viewEditors ();
+                                                            _this.projectViewer.viewEditors ();
                                                             
                                                         } catch (Exception e) {
                                                             
@@ -1773,7 +1961,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
                                                     
-                                                    _this.panel.getProjectViewer ().showFind (null);
+                                                    _this.projectViewer.showFind (null);
                                                     
                                                     _this.showSideBar (Constants.LEFT);
                                                     
@@ -2232,8 +2420,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 
         this.setFullScreenBackgroundProperty (f);
         
-        this.panel.getProjectViewer ().fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                                          ProjectEvent.CHANGE_BG_IMAGE);            
+        this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
+                                             ProjectEvent.CHANGE_BG_IMAGE);            
     
     }
 
@@ -2468,14 +2656,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     public void showProperties ()
     {
         
-        this.panel.getProjectViewer ().showSideBar ("fullscreenproperties");
-
-        if (true)
-        {
-            
-            return;
-            
-        }
+        this.projectViewer.showSideBar ("fullscreenproperties");
 
     }
         
@@ -2643,7 +2824,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         final QuollPanel child = this.panel.getChild ();
 
-        if (child.getProjectViewer () instanceof ProjectViewer)
+        if (child.getViewer () instanceof ProjectViewer)
         {
         
             ProjectViewer.addAssetActionMappings (child,
@@ -3013,6 +3194,20 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     {
         
         return this.projectViewer;
+        
+    }
+
+    public DataObject getCurrentForObject ()
+    {
+        
+        if (this.panel.getChild () instanceof ProjectObjectQuollPanel)
+        {
+            
+            return ((ProjectObjectQuollPanel) this.panel.getChild ()).getForObject ();
+            
+        }
+        
+        return null;
         
     }
     

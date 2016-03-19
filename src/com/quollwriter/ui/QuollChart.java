@@ -14,12 +14,16 @@ public interface QuollChart
     
     public String getType ();
     
-    public JComponent getControls ();
+    public JComponent getControls (boolean update)
+                            throws GeneralException;
     
-    public JFreeChart getChart ();
+    public JFreeChart getChart (boolean update)
+                         throws GeneralException;
     
-    public void init (AbstractProjectViewer pv,
-                      WordCountPanel        wcp)
-                      throws                GeneralException;
+    public JComponent getDetail (boolean update)
+                          throws GeneralException;
+    
+    public void init (StatisticsPanel wcp)
+               throws GeneralException;
     
 }
