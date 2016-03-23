@@ -73,7 +73,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
                                        t,
                                        st,
                                        this.inDialogue);
-                        
+                                    
             this.sentences.add (s);
             
             if (last != null)

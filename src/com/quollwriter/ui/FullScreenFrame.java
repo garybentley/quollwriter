@@ -1639,7 +1639,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
          
         ib.add (sessWords);
          
-        sessWords.setBorder (UIUtils.createPadding (0, 15, 0, 15));         
+        sessWords.setBorder (UIUtils.createPadding (0, 15, 0, 0));         
                                 
         sessWords.setIcon (Environment.getIcon (Constants.CLOCK_ICON_NAME,
                                         Constants.ICON_MENU));
@@ -1656,6 +1656,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                 Constants.ICON_MENU));
                 
         chapWords.setFont (chapWords.getFont ().deriveFont (16f));
+        
+        chapWords.setBorder (UIUtils.createPadding (0, 15, 0, 0));                 
         
         titleC.add (ib);
                         
@@ -1677,77 +1679,81 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             public void actionPerformed (ActionEvent ev)
             {
 
-               info.setVisible (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
-            
-               time.setText (_this.clockFormat.format (new Date ()));
+                info.setVisible (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+             
+                time.setText (_this.clockFormat.format (new Date ()));
                
-               QuollPanel qp = _this.panel.getChild ();
-
-               if (qp instanceof AbstractEditorPanel)
-               {
-               
-                   sessWords.setVisible (true);
-                   chapWords.setVisible (true);
-
-                   AbstractEditorPanel aep = (AbstractEditorPanel) qp;
-               
-                   ChapterCounts cc = _this.projectViewer.getChapterCounts (aep.getChapter ());
-               
-                   String t = "";
-                   
-                   TargetsData td = Environment.getUserTargets ();
-                   
-                   if ((td.getMySessionWriting () > 0)
-                       &&
-                       (Environment.getSessionWordCount () != 0)
-                      )
-                   {
-                       
-                       t = String.format (", %s",
-                                          Environment.getSessionWordCount () - td.getMySessionWriting ());
-                       
-                   }
-               
-                   sessWords.setToolTipText ("Session word count");
-               
-                   sessWords.setText (String.format ("%s words%s",
-                                                     Environment.formatNumber (Environment.getSessionWordCount ()),
-                                                     t));
-                   
-                   int maxChapWC = aep.getViewer ().getProjectTargets ().getMaxChapterCount ();
-
-                   t = "";
-                   
-                   if ((maxChapWC > 0)
-                       &&
-                       (cc.wordCount > maxChapWC)
-                      )
-                   {                                                                                  
-                   
-                       t = String.format (", %s",
-                                          Environment.formatNumber (cc.wordCount - maxChapWC));
-                       
-                   }
-                   
-                   chapWords.setToolTipText ("{Chapter} word count");
-
-                   chapWords.setText (String.format ("%s words%s",
-                                                     Environment.formatNumber (cc.wordCount),
-                                                     t));                                            
-               
-               } else {
-                   
-                   sessWords.setVisible (false);
-                   chapWords.setVisible (false);
+                String t = "";
                 
-               }
+                TargetsData td = Environment.getUserTargets ();
+                
+                int sessWC = Environment.getSessionWordCount ();
+                
+                if ((td.getMySessionWriting () > 0)
+                    &&
+                    (sessWC != 0)
+                   )
+                {
+                    
+                    int diff = sessWC - td.getMySessionWriting ();
+                    
+                    t = String.format (", %s%s",
+                                       (diff == 0 ? "" : (diff > 0 ? "+" : "")),
+                                       diff);
+                    
+                }
+            
+                sessWords.setToolTipText ("Session word count");
+            
+                sessWords.setText (String.format ("%s word%s%s",
+                                                  Environment.formatNumber (sessWC),
+                                                  (sessWC == 1 ? "" : "s"),
+                                                  t));               
                
-               final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-                                                           
-               info.setBounds ((int) 10,
-                                      d.height - info.getPreferredSize ().height,
-                                      info.getPreferredSize ().width,
-                                      info.getPreferredSize ().height);                                            
+                QuollPanel qp = _this.panel.getChild ();
+ 
+                if (qp instanceof AbstractEditorPanel)
+                {
+                
+                    chapWords.setVisible (true);
+ 
+                    AbstractEditorPanel aep = (AbstractEditorPanel) qp;
+                
+                    ChapterCounts cc = _this.projectViewer.getChapterCounts (aep.getChapter ());
+                                   
+                    int maxChapWC = aep.getViewer ().getProjectTargets ().getMaxChapterCount ();
+ 
+                    t = "";
+                    
+                    if ((maxChapWC > 0)
+                        &&
+                        (cc.wordCount > maxChapWC)
+                       )
+                    {                                                                                  
+                    
+                        t = String.format (", %s",
+                                           Environment.formatNumber (cc.wordCount - maxChapWC));
+                        
+                    }
+                    
+                    chapWords.setToolTipText ("{Chapter} word count");
+ 
+                    chapWords.setText (String.format ("%s words%s",
+                                                      Environment.formatNumber (cc.wordCount),
+                                                      t));                                            
+                
+                } else {
+                    
+                    chapWords.setVisible (false);
+                 
+                }
+               
+                final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
+                                                            
+                info.setBounds ((int) 10,
+                                       d.height - info.getPreferredSize ().height,
+                                       info.getPreferredSize ().width,
+                                       info.getPreferredSize ().height);                                            
             
             }
             

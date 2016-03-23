@@ -4156,79 +4156,100 @@ xxx
 					
 					int wc = _this.getProjectTargets ().getMaxChapterCount ();
 					
+					Set<Chapter> chaps = _this.getChaptersOverWordTarget ();
+					
+					int s = chaps.size ();
+					
 					if ((wc > 0)
 						&&
-						(_this.getProjectTargets ().isShowMessageWhenMaxChapterCountExceeded ())
+						(s > 0)
 					   )
 					{
-						
-						Book b = _this.proj.getBooks ().get (0);
-				
-						Set<Chapter> over = new LinkedHashSet ();
-				
-						java.util.List<Chapter> chapters = b.getChapters ();
-								
-						Date d = new Date ();
-								
-						for (Chapter c : chapters)
-						{
-						
-						    ChapterCounts cc = _this.getChapterCounts (c);
-						
-							if (cc.wordCount > wc)
-							{
-								
-								over.add (c);
-								
-								_this.chapterWordCountTargetWarned.put (c,
-																	    d);
-								
-							}
-						
-						}
-						
-						int s = over.size ();
-												
-						if (s > 0)
+							
+						for (Chapter c : chaps)
 						{
 							
-							final JLabel l = UIUtils.createLabel (null,
-																  null,
-																  null);
+							_this.chapterWordCountTargetWarned.put (c,
+																	new Date ());
 							
-							final Notification n = _this.addNotification (l,
-																		  Constants.WORDCOUNT_ICON_NAME,
-																		  -1);
+						}							
+							
+						final JLabel l = UIUtils.createLabel (null,
+															  null,
+															  null);
+						
+						final Notification n = _this.addNotification (l,
+																	  Constants.WORDCOUNT_ICON_NAME,
+																	  90);
 
-							String text = String.format ("%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
-														 Environment.formatNumber (s),
-														 (s == 1 ? " is" : "s are"),
-														 Environment.formatNumber (wc),
-														 (s == 1 ? "" : "s"));
+						String text = String.format ("%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
+													 Environment.formatNumber (chaps.size ()),
+													 (s == 1 ? " is" : "s are"),
+													 Environment.formatNumber (wc),
+													 (s == 1 ? "" : "s"));
+												
+						l.setText (text);
+												
+						UIUtils.makeClickable (l,
+											   new ActionListener ()
+											   {
+												
+													@Override
+													public void actionPerformed (ActionEvent ev)
+													{
 													
-							l.setText (text);
-													
-							UIUtils.makeClickable (l,
-												   new ActionListener ()
-												   {
-													
-														@Override
-														public void actionPerformed (ActionEvent ev)
-														{
+														Targets.showChaptersOverWordTarget (_this,
+																							n);
 														
-															Targets.showChaptersOverWordTarget (_this,
-																								null);
-															
-															n.removeNotification ();
-															
-														}
+														n.removeNotification ();
 														
-												   });
-																
-						} 
-						
+													}
+													
+											   });
+																						
 					}
 					
+					chaps = _this.getChaptersOverReadabilityTarget ();
+					
+					s = chaps.size ();
+					
+					if (s > 0)
+					{
+							
+						final JLabel l = UIUtils.createLabel (null,
+															  null,
+															  null);
+						
+						final Notification n = _this.addNotification (l,
+																	  Constants.READABILITY_ICON_NAME,
+																	  90);
+
+						String text = String.format ("%s {chapter}%s over one of the readability targets, click to view the {chapter}%s.",
+													 Environment.formatNumber (chaps.size ()),
+													 (s == 1 ? " is" : "s are"),
+													 (s == 1 ? "" : "s"));
+												
+						l.setText (text);
+												
+						UIUtils.makeClickable (l,
+											   new ActionListener ()
+											   {
+												
+													@Override
+													public void actionPerformed (ActionEvent ev)
+													{
+													
+														Targets.showChaptersOverReadabilityTarget (_this,
+																								   n);
+														
+														n.removeNotification ();
+														
+													}
+													
+											   });
+																						
+					}
+
 				} catch (Exception e) {
 					
 					Environment.logError ("Unable to display chapters over target notification",
@@ -8997,5 +9018,119 @@ xxx
 		return false;
 		
 	}
+
+    public Set<Chapter> getChaptersOverReadabilityTarget ()
+    {
+        
+        Set<Chapter> chaps = new LinkedHashSet ();
+            
+        if (this.getProject () == null)
+        {
+            
+            // Closing down.
+            return chaps;
+            
+        }
+    
+        TargetsData projTargets = this.getProjectTargets ();
+
+        int tFK = projTargets.getReadabilityFK ();
+        int tGF = projTargets.getReadabilityGF ();
+                
+        if ((tFK > 0)
+            ||
+            (tGF > 0)
+           )
+        {
+        
+            for (Book book : this.getProject ().getBooks ())
+            {
+    
+                for (Chapter c : book.getChapters ())
+                {
+            
+                    ReadabilityIndices ri = this.getReadabilityIndices (c);
+                    
+                    float fk = ri.getFleschKincaidGradeLevel ();
+                    float gf = ri.getGunningFogIndex ();
+                    
+                    if ((tFK > 0)
+                        &&
+                        (ri.getFleschKincaidGradeLevel () > tFK)
+                       )
+                    {
+                        
+                        chaps.add (c);
+                        
+                        continue;
+                        
+                    }
+                                          
+                    if ((tGF > 0)
+                        &&
+                        (ri.getGunningFogIndex () > tGF)
+                       )
+                    {
+                        
+                        chaps.add (c);
+                        
+                        continue;
+                        
+                    }
+                                
+                }
+                
+            }
+
+        }
+        
+        return chaps;
+        
+    }
+
+    public Set<Chapter> getChaptersOverWordTarget ()
+    {
+        
+        Set<Chapter> chaps = new LinkedHashSet ();
+            
+        if (this.getProject () == null)
+        {
+            
+            // Closing down.
+            return chaps;
+            
+        }
+    
+        TargetsData projTargets = this.getProjectTargets ();
+
+        int tcc = projTargets.getMaxChapterCount ();
+        
+        if (tcc > 0)
+        {
+        
+            for (Book book : this.getProject ().getBooks ())
+            {
+    
+                for (Chapter c : book.getChapters ())
+                {
+            
+                    ChapterCounts count = this.getChapterCounts (c);
+                        
+                    if (count.wordCount > tcc)
+                    {
+                        
+                        chaps.add (c);
+                        
+                    }
+                    
+                }
+                
+            }
+
+        }
+        
+        return chaps;
+        
+    }
     
 }

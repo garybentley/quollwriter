@@ -603,6 +603,7 @@ public class Constants
     public static final String MOVE_ICON_NAME = "move";
     public static final String NEXT_ICON_NAME = "next";
     public static final String PROBLEM_FINDER_ICON_NAME = "eye";
+    public static final String READABILITY_ICON_NAME = "eye";
     public static final String CHAPTER_SPLIT_ICON_NAME = "chapter-split";
     public static final String PASTE_ICON_NAME = "paste";
     public static final String COPY_ICON_NAME = "copy";

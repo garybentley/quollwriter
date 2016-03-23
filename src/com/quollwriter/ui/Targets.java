@@ -601,7 +601,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                                    final JComponent            showPopupAt)
     {
         
-        Set<Chapter> chaps = Targets.getChaptersOverWordTarget (viewer);
+        Set<Chapter> chaps = viewer.getChaptersOverWordTarget ();
         
         if (chaps.size () == 0)
         {
@@ -614,7 +614,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         int tcc = projTargets.getMaxChapterCount ();
         
-        String cols = "right:max(40px;p), 6px, right:max(40px;p), 6px, p:grow";
+        String cols = "max(150px;p), 6px, right:max(40px;p), 6px, right:max(40px;p)";
 
         StringBuilder rb = new StringBuilder ();
         
@@ -714,6 +714,12 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         Box bb = new Box (BoxLayout.Y_AXIS);
         
+        JTextPane t = UIUtils.createHelpTextPane (String.format ("Current maximum {chapter} word count <b>%s words</b>.",
+                                                                 Environment.formatNumber (tcc)),
+                                                  viewer);
+
+        bb.add (t);
+                                                  
         if (hasOver25)
         {
             
@@ -737,7 +743,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
         
         bb.add (bs);
         
-        bb.setBorder (UIUtils.createPadding (10, 5, 10, 5));
+        bb.setBorder (UIUtils.createPadding (10, 10, 10, 5));
         
         QPopup popup = UIUtils.createPopup ("{Chapters} over target word count",
                                             Constants.WORDCOUNT_ICON_NAME,
@@ -760,7 +766,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                                           final JComponent            showPopupAt)
     {
                 
-        Set<Chapter> chaps = Targets.getChaptersOverReadabilityTarget (viewer);
+        Set<Chapter> chaps = viewer.getChaptersOverReadabilityTarget ();
         
         if (chaps.size () == 0)
         {
@@ -915,7 +921,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
         
         bb.add (bs);
         
-        bb.setBorder (UIUtils.createPadding (10, 5, 10, 5));
+        bb.setBorder (UIUtils.createPadding (10, 10, 10, 5));
         
         QPopup popup = UIUtils.createPopup ("{Chapters} over readability target",
                                             Constants.PROBLEM_FINDER_ICON_NAME,
@@ -1040,121 +1046,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
         });
         
     }
-    
-    public static Set<Chapter> getChaptersOverWordTarget (AbstractProjectViewer viewer)
-    {
         
-        Set<Chapter> chaps = new LinkedHashSet ();
-            
-        if (viewer.getProject () == null)
-        {
-            
-            // Closing down.
-            return chaps;
-            
-        }
-    
-        TargetsData projTargets = viewer.getProjectTargets ();
-
-        int tcc = projTargets.getMaxChapterCount ();
-        
-        if (tcc > 0)
-        {
-        
-            for (Book book : viewer.getProject ().getBooks ())
-            {
-    
-                for (Chapter c : book.getChapters ())
-                {
-            
-                    ChapterCounts count = viewer.getChapterCounts (c);
-                        
-                    if (count.wordCount > tcc)
-                    {
-                        
-                        chaps.add (c);
-                        
-                    }
-                    
-                }
-                
-            }
-
-        }
-        
-        return chaps;
-        
-    }
-    
-    public static Set<Chapter> getChaptersOverReadabilityTarget (AbstractProjectViewer viewer)
-    {
-        
-        Set<Chapter> chaps = new LinkedHashSet ();
-            
-        if (viewer.getProject () == null)
-        {
-            
-            // Closing down.
-            return chaps;
-            
-        }
-    
-        TargetsData projTargets = viewer.getProjectTargets ();
-
-        int tFK = projTargets.getReadabilityFK ();
-        int tGF = projTargets.getReadabilityGF ();
-                
-        if ((tFK > 0)
-            ||
-            (tGF > 0)
-           )
-        {
-        
-            for (Book book : viewer.getProject ().getBooks ())
-            {
-    
-                for (Chapter c : book.getChapters ())
-                {
-            
-                    ReadabilityIndices ri = viewer.getReadabilityIndices (c);
-                    
-                    float fk = ri.getFleschKincaidGradeLevel ();
-                    float gf = ri.getGunningFogIndex ();
-                    
-                    if ((tFK > 0)
-                        &&
-                        (ri.getFleschKincaidGradeLevel () > tFK)
-                       )
-                    {
-                        
-                        chaps.add (c);
-                        
-                        continue;
-                        
-                    }
-                                          
-                    if ((tGF > 0)
-                        &&
-                        (ri.getGunningFogIndex () > tGF)
-                       )
-                    {
-                        
-                        chaps.add (c);
-                        
-                        continue;
-                        
-                    }
-                                
-                }
-                
-            }
-
-        }
-        
-        return chaps;
-        
-    }
-
     private void checkChapters ()
     {
         
@@ -1171,7 +1063,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
         
         final Targets _this = this;
                 
-        final int cc = Targets.getChaptersOverWordTarget (pv).size ();
+        final int cc = pv.getChaptersOverWordTarget ().size ();
                 
         UIUtils.doLater (new ActionListener ()
         {

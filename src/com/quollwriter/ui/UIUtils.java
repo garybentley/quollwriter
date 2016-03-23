@@ -2342,7 +2342,7 @@ public class UIUtils
                 JButton[] buts = new JButton[] { close };
                 
                 JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                               Component.LEFT_ALIGNMENT); 
+                                                               Component.CENTER_ALIGNMENT); 
                 buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
@@ -8164,7 +8164,7 @@ public class UIUtils
                                                        Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
         buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
         content.add (buttons);
-        content.setBorder (new EmptyBorder (10, 10, 10, 10));
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
         qp.setContent (content);
                         
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),

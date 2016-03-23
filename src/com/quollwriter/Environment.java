@@ -3977,6 +3977,8 @@ public class Environment
                                                 
                             }
                             
+                            Set<String> met = new LinkedHashSet ();
+                            
                             int sessWC = Environment.userSession.getCurrentSessionWordCount ();
 
                             // See if the user session has exceeded the session count.
@@ -3985,15 +3987,9 @@ public class Environment
                                 (Environment.userSession.shouldShowSessionTargetReachedPopup ())
                                )
                             {
+                                                                
+                                met.add ("Session");
                                 
-                                AbstractViewer viewer = Environment.getFocusedViewer ();
-                                
-                                UIUtils.showMessage ((PopupsSupported) viewer,
-                                                     "Session writing target reached",
-                                                     String.format ("You have reached your target of writing <b>%s</b> words in the current session.<br /><br />Well done!",
-                                                                    Environment.formatNumber (sessWC)),
-                                                     UIUtils.defaultLeftCornerShowPopupAt);
-
                                 Environment.userSession.shownSessionTargetReachedPopup ();
                                                      
                             }
@@ -4008,15 +4004,9 @@ public class Environment
                                     (Environment.userSession.shouldShowDailyTargetReachedPopup ())
                                    )
                                 {
-
-                                    AbstractViewer viewer = Environment.getFocusedViewer ();
                                     
-                                    UIUtils.showMessage ((PopupsSupported) viewer,
-                                                         "Daily writing target reached",
-                                                         String.format ("You have reached your daily target by writing <b>%s</b> words.<br /><br />Well done!",
-                                                                        Environment.formatNumber (sessWC)),
-                                                         UIUtils.defaultLeftCornerShowPopupAt);
-    
+                                    met.add ("Daily");
+                                        
                                     Environment.userSession.shownDailyTargetReachedPopup ();
                                     
                                 }
@@ -4052,15 +4042,9 @@ public class Environment
                                     (Environment.userSession.shouldShowWeeklyTargetReachedPopup ())
                                    )
                                 {
-
-                                    AbstractViewer viewer = Environment.getFocusedViewer ();
                                     
-                                    UIUtils.showMessage ((PopupsSupported) viewer,
-                                                         "Weekly writing target reached",
-                                                         String.format ("You have reached your weekly target by writing <b>%s</b> words.<br /><br />Well done!",
-                                                                        Environment.formatNumber (sessWC)),
-                                                         UIUtils.defaultLeftCornerShowPopupAt);
-    
+                                    met.add ("Weekly");
+                                        
                                     Environment.userSession.shownWeeklyTargetReachedPopup ();
                                     
                                 }
@@ -4092,12 +4076,8 @@ public class Environment
 
                                     AbstractViewer viewer = Environment.getFocusedViewer ();
                                     
-                                    UIUtils.showMessage ((PopupsSupported) viewer,
-                                                         "Monthly writing target reached",
-                                                         String.format ("You have reached your monthly target by writing <b>%s</b> words.<br /><br />Well done!",
-                                                                        Environment.formatNumber (sessWC)),
-                                                         UIUtils.defaultLeftCornerShowPopupAt);
-    
+                                    met.add ("Monthly");
+                                        
                                     Environment.userSession.shownMonthlyTargetReachedPopup ();
                                     
                                 }
@@ -4109,11 +4089,36 @@ public class Environment
                                 
                             }
                             
+                            if (met.size () > 0)
+                            {
+                                                                                                
+                                StringBuilder b = new StringBuilder ();
+                                
+                                for (String m : met)
+                                {
+                                    
+                                    b.append (String.format ("<li>%s</li>",
+                                                             m));
+                                    
+                                }
+                                
+                                AbstractViewer viewer = Environment.getFocusedViewer ();
+                                
+                                UIUtils.showMessage ((PopupsSupported) viewer,
+                                                     "Writing targets reached",
+                                                     String.format ("You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
+                                                                    Environment.formatNumber (sessWC),
+                                                                    b.toString ()),
+                                                     UIUtils.defaultLeftCornerShowPopupAt);
+                                
+                                
+                            }
+                            
                         }
                         
                     },
                     5 * Constants.SEC_IN_MILLIS,
-                    Constants.MIN_IN_MILLIS);
+                    5 * Constants.SEC_IN_MILLIS);
                 
                 }
                 
