@@ -263,7 +263,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             book.getResources ().add (new Resource (new ByteArrayInputStream (css.getBytes ()),
                                                     "main.css"));        
             
-            Book b = this.proj.getBook (0);
+            Book b = p.getBook (0);
 
             String cTemp = Environment.getResourceFileAsString ("/data/export/epub/chapter-template.xml");
     
@@ -310,7 +310,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             String appendixTemp = Environment.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
 
             // Get the characters.
-            List<QCharacter> characters = this.proj.getCharacters ();
+            List<QCharacter> characters = p.getCharacters ();
 
             if (characters.size () > 0)
             {
@@ -333,7 +333,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             }
 
             // Get the locations.
-            List<Location> locs = this.proj.getLocations ();
+            List<Location> locs = p.getLocations ();
 
             if (locs.size () > 0)
             {
@@ -356,7 +356,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             }
 
             // Get the objects.
-            List<QObject> objs = this.proj.getQObjects ();
+            List<QObject> objs = p.getQObjects ();
 
             if (objs.size () > 0)
             {
@@ -379,7 +379,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             }
 
             // Get the research items.
-            List<ResearchItem> res = this.proj.getResearchItems ();
+            List<ResearchItem> res = p.getResearchItems ();
 
             if (res.size () > 0)
             {
