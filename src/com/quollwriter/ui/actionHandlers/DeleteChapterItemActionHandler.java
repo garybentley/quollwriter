@@ -35,16 +35,16 @@ public class DeleteChapterItemActionHandler extends ActionAdapter
     {
 
         final DeleteChapterItemActionHandler _this = this;
-        
+                
         Point showAt = null;
         
         // Sigh...
         if (this.showAtItem)
         {
-            
+                        
             // Get the editor panel.
             AbstractEditorPanel p = this.projectViewer.getEditorForChapter (this.item.getChapter ());
-            
+        
             if ((p != null)
                 &&
                 (p instanceof QuollEditorPanel)
@@ -54,11 +54,10 @@ public class DeleteChapterItemActionHandler extends ActionAdapter
                 QuollEditorPanel qep = (QuollEditorPanel) p;
                 
                 showAt = qep.getIconColumn ().getLocation (this.item);
-                
+
                 showAt = SwingUtilities.convertPoint (qep,
                                                       showAt,
-                                                      this.projectViewer);
-                
+                                                      (this.projectViewer.getFullScreenFrame () != null ? this.projectViewer.getFullScreenFrame () : this.projectViewer));
                 
                 showAt.y -= qep.getScrollOffset ();
 

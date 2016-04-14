@@ -1735,7 +1735,17 @@ public class EditorsEnvironment
 
                 final AbstractViewer viewer = Environment.getFocusedViewer ();
                 
-                final EditorEditor ed = new EditorEditor ();
+                // See if we already have this editor and this is a resend.
+                EditorEditor fed = EditorsEnvironment.getEditorByEmail (toEmail);
+                
+                if (fed == null)
+                {
+                    
+                    fed = new EditorEditor ();
+                    
+                }                
+                
+                final EditorEditor ed = fed;
 
                 // Add the invite to our local editors.
                 try
@@ -1763,11 +1773,18 @@ public class EditorsEnvironment
                     }
                     */
                     
+                    
                     ed.setTheirPublicKey (inv.getToPublicKey ());
                     ed.setMessagingUsername (inv.getToMessagingUsername ());
                     ed.setServiceName (inv.getToServiceName ());
                     
-                    EditorsEnvironment.addNewEditor (ed);
+                    if (fed == null)
+                    {
+                    
+                        // Add as new.
+                        EditorsEnvironment.addNewEditor (ed);
+                        
+                    }
 
                     // If they have a public key then send an invite message.
                     if (ed.getTheirPublicKey () != null)

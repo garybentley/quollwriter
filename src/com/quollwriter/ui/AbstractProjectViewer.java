@@ -6204,7 +6204,7 @@ xxx
                                    afterClose);
                             
     }
-
+	
     public FullScreenFrame getFullScreenFrame ()
     {
         
@@ -7809,6 +7809,13 @@ xxx
                      throws GeneralException
     {
 
+		if (o == null)
+		{
+			
+			return;
+			
+		}
+	
         java.util.Set<NamedObject> otherObjects = o.getOtherObjectsInLinks ();
 
         this.dBMan.saveObject (o,
@@ -8246,7 +8253,7 @@ xxx
         this.setPanelVisible (p);
 
         final OptionsPanel pp = p;
-                
+           
         if (section != null)
         {
             
@@ -8366,7 +8373,27 @@ xxx
         return this.startWordCounts;
         
     }
-    
+    /* TODO: Removed merged.
+<<<<<<< HEAD
+=======
+    public int getSessionWordCount ()
+    {
+        
+		if (this.startWordCounts == null)
+		{
+			
+			return 0;
+			
+		}
+		
+        ChapterCounts achc = this.getAllChapterCounts (false);
+        
+        return achc.wordCount - this.startWordCounts.wordCount;
+        
+    }
+
+>>>>>>> refs/remotes/origin/master
+*/
     public Set<Chapter> snapshotChapters (Set<Chapter>   chapters,
                                           ProjectVersion pv)
                                    throws Exception

@@ -160,7 +160,69 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         super.init ();
     
         final AbstractEditableEditorPanel _this = this;
+        /* TODO: Remove merged.
+<<<<<<< HEAD
+=======
         
+        this.chapterInfo = new javax.swing.Timer (2000,
+                                      new ActionAdapter ()
+        {
+            
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                new Thread (new Runnable ()
+                {
+                    
+                    public void run ()
+                    {
+
+                        try
+                        {
+                            
+                            Thread t = Thread.currentThread ();
+                            t.setName ("Chapter counts for: " + _this.chapter.getName ());
+                            t.setPriority (Thread.MIN_PRIORITY);
+                
+                        } catch (Exception e) {
+                            
+                            // Ignore.
+                            
+                        }
+                        
+                        try
+                        {
+                
+                            ChapterCounts cc = new ChapterCounts (_this.editor.getText ());
+                            cc.a4PageCount = UIUtils.getA4PageCountForChapter (_this.chapter,
+                                                                               _this.editor.getText ());
+                
+                            _this.setChapterCounts (cc);
+                
+                            _this.setReadabilityIndices (_this.projectViewer.getReadabilityIndices (_this.editor.getText ()));
+                
+                            _this.chapterInfoTimerLastRun = System.currentTimeMillis ();
+                                                        
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to get chapter counts/readability for chapter: " +
+                                                  _this.chapter,
+                                                  e);
+                            
+                        }
+                        
+                    }
+                    
+                }).start ();
+            
+            }
+            
+        });
+        
+        this.chapterInfo.setRepeats (false);
+        this.chapterInfo.start ();
+>>>>>>> refs/remotes/origin/master
+        */
         final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
         
         doc.addDocumentListener (new DocumentAdapter ()

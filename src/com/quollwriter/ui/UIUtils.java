@@ -2079,7 +2079,10 @@ public class UIUtils
                     
                 }
         
-                JTextPane m = UIUtils.createHelpTextPane (message + "<br /><br /><a href='qw:/report-a-bug'>Click here to contact Quoll Writer support about this problem.</a>",
+                JTextPane m = UIUtils.createHelpTextPane (String.format ("%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
+                                                                         message,
+                                                                         Constants.ACTION_PROTOCOL,
+                                                                         "reportbug"),
                                                           pv);
                 m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                           m.getPreferredSize ().height));
@@ -2194,7 +2197,7 @@ public class UIUtils
         UIUtils.showErrorMessage (message);
         
     }
-
+/*
     private static void showErrorMessage (final AbstractProjectViewer pv,
                                           final String                message)
     {
@@ -2222,7 +2225,7 @@ public class UIUtils
         });
 
     }
-    
+  */  
     private static void showErrorMessage (final PopupWindow p,
                                           final String      message)
     {
@@ -3707,8 +3710,8 @@ public class UIUtils
 
                     }
 
-                }
-
+                }                
+                
                 // Find the first whitespace char after...                
                 char[] chars = s.toCharArray ();
 
@@ -3717,7 +3720,10 @@ public class UIUtils
                 for (int i = ind + urlPrefix.length (); i < chars.length; i++)
                 {
 
-                    if (!Character.isWhitespace (chars[i]))
+                    if ((!Character.isWhitespace (chars[i]))
+                        &&
+                        (chars[i] != '<')
+                       )
                     {
                         
                         b.append (chars[i]);
@@ -7354,6 +7360,8 @@ public class UIUtils
                                                  final String         actionTypeName)
     {
         
+        final Exception pe = new Exception ();
+        
         final javax.swing.Timer t = new javax.swing.Timer (100,
                                                            null);   
         
@@ -7381,10 +7389,12 @@ public class UIUtils
                         
                     } catch (Exception e) {
                         
-                        Environment.logError ("Unable to perform action",
+                        Environment.logError ("Unable to perform action: " + action + "\nCause: " +
+                                              Utils.getStackTrace (pe),
                                               e);
             
-                        UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
+                        UIUtils.showErrorMessage (p.getProjectViewer (),
+                                                  "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
                                                 
                     }
                                                             
@@ -7396,10 +7406,12 @@ public class UIUtils
                 if (count > 50)
                 {
                     
-                    Environment.logError ("Unable to perform action",
-                                          new Exception ("Unable to perform action for panel: " + p.getPanelId ()));
+                    Environment.logError ("Unable to perform action: " + action,
+                                          new Exception ("Unable to perform action for panel: " + p.getPanelId (),
+                                                         pe));
         
-                    UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
+                    UIUtils.showErrorMessage (p.getProjectViewer (),
+                                              "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
                     
                     t.setRepeats (false);
                     t.stop ();

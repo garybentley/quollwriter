@@ -82,6 +82,13 @@ public class WordCountAchievementRule extends AbstractAchievementRule
     public boolean achieved (AbstractProjectViewer viewer)
     {
         
+        if (viewer == null)
+        {
+            
+            return false;
+            
+        }
+        
         if (this.chaptersOnly)
         {
             

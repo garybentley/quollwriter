@@ -456,10 +456,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                              boolean   hideOnParentClick)
     {
 
-        Insets ins = this.getInsets ();
+        Insets ins = this.panel.getChild ().getInsets (); // this.getInsets ();
 
-        // p.x -= ins.right;
-        // p.y -= ins.top;
+        p.x += ins.left;
+        p.y += ins.top;
+        
         try
         {
 
