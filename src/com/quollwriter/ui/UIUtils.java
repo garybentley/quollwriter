@@ -7393,7 +7393,7 @@ public class UIUtils
                                               Utils.getStackTrace (pe),
                                               e);
             
-                        UIUtils.showErrorMessage (p.getProjectViewer (),
+                        UIUtils.showErrorMessage (p.getViewer (),
                                                   "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
                                                 
                     }
@@ -7410,7 +7410,7 @@ public class UIUtils
                                           new Exception ("Unable to perform action for panel: " + p.getPanelId (),
                                                          pe));
         
-                    UIUtils.showErrorMessage (p.getProjectViewer (),
+                    UIUtils.showErrorMessage (p.getViewer (),
                                               "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
                     
                     t.setRepeats (false);

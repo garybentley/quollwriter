@@ -62,7 +62,6 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.ui.panels.*;
 import com.quollwriter.editors.ui.sidebars.*;
 
-import com.quollwriter.texttidy.rules.*;
 import com.quollwriter.text.*;
 
 public class ProjectViewer extends AbstractProjectViewer
