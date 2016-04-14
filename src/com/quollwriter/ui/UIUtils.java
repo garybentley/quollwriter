@@ -1041,7 +1041,7 @@ public class UIUtils
     public static DefaultMutableTreeNode createChapterNotesNode (Chapter c)
     {
 
-        if (!Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME))
+        if (!UserProperties.getAsBoolean (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME))
         {
             
             return null;
@@ -2897,6 +2897,41 @@ public class UIUtils
 
     }
 
+    public static JComboBox createNumberComboBox (Vector<Integer> vals,
+                                                  int             def)
+    {
+        
+        final JComboBox cb = new JComboBox (vals);
+
+        cb.setEditor (new javax.swing.plaf.basic.BasicComboBoxEditor ()
+        {
+
+            protected JTextField createEditorComponent ()
+            {
+
+                return new FormattedTextField ("[0-9]");
+
+            }
+
+        });
+
+        cb.setEditable (true);
+
+        cb.setMaximumSize (cb.getPreferredSize ());        
+        
+        if (def > 0)
+        {
+
+            cb.setSelectedItem (def);
+
+        }
+
+        cb.setToolTipText ("Enter a value to set a size that is not already in the list");
+
+        return cb;
+        
+    }
+    
     public static JComboBox getFontSizesComboBox (final int          sizeDef,
                                                   final TextStylable editor)
     {
@@ -2932,22 +2967,9 @@ public class UIUtils
             sizeV.addElement (sizeDef);
 
         }
-
-        final JComboBox sizes = new JComboBox (sizeV);
-
-        sizes.setEditor (new javax.swing.plaf.basic.BasicComboBoxEditor ()
-            {
-
-                protected JTextField createEditorComponent ()
-                {
-
-                    return new FormattedTextField ("[0-9]");
-
-                }
-
-            });
-
-        sizes.setEditable (true);
+        
+        final JComboBox sizes = UIUtils.createNumberComboBox (sizeV,
+                                                              sizeDef);
 
         if (editor != null)
         {
@@ -2977,19 +2999,6 @@ public class UIUtils
                 });
 
         }
-
-        sizes.setMaximumSize (sizes.getPreferredSize ());        
-        
-        if (sizeDef > 0)
-        {
-
-            sizes.setSelectedItem (sizeDef);
-
-        }
-
-        sizes.setMaximumSize (sizes.getPreferredSize ());
-
-        sizes.setToolTipText ("Enter a value to set a size that is not already in the list");
 
         return sizes;
 
@@ -7011,6 +7020,25 @@ public class UIUtils
     
     }
     
+    public static BufferedImage createBufferedImage (int width,
+                                                     int height)
+    {
+        
+        BufferedImage im = new BufferedImage (width,
+                                              height,
+                                              BufferedImage.TYPE_INT_ARGB);
+        
+        Graphics2D g = im.createGraphics ();
+        
+        g.setBackground (new Color (0, true));
+        g.clearRect (0, 0, width, height);
+        
+        g.dispose ();
+        
+        return im;
+        
+    }
+    
     public static Graphics2D createThrowawayGraphicsInstance ()
     {
         
@@ -9624,5 +9652,53 @@ public class UIUtils
         });
         
     }    
+
+    public static JComponent createForm (Set<FormItem> items)
+    {
+        
+        Box addTo = new Box (BoxLayout.Y_AXIS);
+        addTo.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+        
+        for (FormItem it : items)
+        {
+                
+            if (it.label != null)
+            {
+            
+                if (it.label instanceof String)
+                {
+            
+                    addTo.add (UIUtils.createLabel ((String) it.label));
+                    
+                } else {
+                    
+                    addTo.add ((JComponent) it.label);
+                    
+                }
+            
+            }
+        
+            if (it.component != null)
+            {
+            
+                Box b = new Box (BoxLayout.X_AXIS);
+    
+                b.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+                
+                b.setBorder (UIUtils.createPadding ((it.label != null ? 5 : 0), 10, 10, 0));
+                
+                it.component.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+                
+                b.add (it.component);
+               
+                addTo.add (b);
+                
+            }
+
+        }
+        
+        return addTo;
+        
+    }
     
 }

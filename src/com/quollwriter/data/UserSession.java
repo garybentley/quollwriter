@@ -12,6 +12,7 @@ public class UserSession extends Session
 {
     
     public boolean sessionTargetReachedPopupShown = false;
+    public boolean dailyTargetReachedPopupShown = false;
     private int lastSnapshotSessionWordCount = 0;
     private Date lastSnapshotSessionEnd = null;
     private int currentSessionWordCount = 0;
@@ -42,7 +43,9 @@ public class UserSession extends Session
     private void init ()
     {
         
-        String dv = Environment.getUserProperties ().getProperty (Constants.TARGET_DAILY_TARGET_REACHED_POPUP_SHOWN_DATE);
+        String dv = UserProperties.get (Constants.TARGET_DAILY_TARGET_REACHED_POPUP_SHOWN_DATE);
+        
+        Date currDate = Utils.zeroTimeFields (new Date ());
         
         if (dv != null)
         {
@@ -50,7 +53,9 @@ public class UserSession extends Session
             try
             {
             
-                this.dailyTargetReachedPopupShownDate = new Date (Long.parseLong (dv));
+                this.dailyTargetReachedPopupShownDate = Utils.zeroTimeFields (new Date (Long.parseLong (dv)));
+                
+                this.dailyTargetReachedPopupShown = (currDate == this.dailyTargetReachedPopupShownDate);
                 
             } catch (Exception e) {
                 
@@ -61,7 +66,7 @@ public class UserSession extends Session
             
         }
         
-        dv = Environment.getUserProperties ().getProperty (Constants.TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE);
+        dv = UserProperties.get (Constants.TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE);
         
         if (dv != null)
         {
@@ -80,7 +85,7 @@ public class UserSession extends Session
             
         }
 
-        dv = Environment.getUserProperties ().getProperty (Constants.TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE);
+        dv = UserProperties.get (Constants.TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE);
         
         if (dv != null)
         {
@@ -107,27 +112,21 @@ public class UserSession extends Session
         Date d = Utils.zeroTimeFields (new Date ());
 
         this.dailyTargetReachedPopupShownDate = d;
+        this.dailyTargetReachedPopupShown = true;
         
-        try
-        {
-        
-            // Set a user property.
-            Environment.setUserProperty (Constants.TARGET_DAILY_TARGET_REACHED_POPUP_SHOWN_DATE,
-                                         String.valueOf (d.getTime ()));                        
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set daily target reached popup shown date",
-                                  e);
-            
-        }
+        // Set a user property.
+        UserProperties.set (Constants.TARGET_DAILY_TARGET_REACHED_POPUP_SHOWN_DATE,
+                            String.valueOf (d.getTime ()));                        
         
     }
     
     public boolean shouldShowDailyTargetReachedPopup ()
     {
 
-        if (this.dailyTargetReachedPopupShownDate != null)
+        if ((this.dailyTargetReachedPopupShownDate != null)
+            &&
+            (!this.dailyTargetReachedPopupShown)
+           )
         {
 
             Date d = Utils.zeroTimeFields (new Date ());
@@ -161,19 +160,9 @@ public class UserSession extends Session
         
         this.weeklyTargetReachedPopupShownDate = d;
         
-        try
-        {
-        
-            // Set a user property.
-            Environment.setUserProperty (Constants.TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE,
-                                         String.valueOf (d.getTime ()));                        
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set weekly target reached popup shown date",
-                                  e);
-            
-        }
+        // Set a user property.
+        UserProperties.set (Constants.TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE,
+                            String.valueOf (d.getTime ()));                        
         
     }
     
@@ -214,19 +203,9 @@ public class UserSession extends Session
         
         this.monthlyTargetReachedPopupShownDate = d;
         
-        try
-        {
-        
-            // Set a user property.
-            Environment.setUserProperty (Constants.TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE,
-                                         String.valueOf (d.getTime ()));                        
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set monthly target reached popup shown date",
-                                  e);
-            
-        }
+        // Set a user property.
+        UserProperties.set (Constants.TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE,
+                            String.valueOf (d.getTime ()));                        
         
     }
     
@@ -277,7 +256,6 @@ public class UserSession extends Session
     public int getCurrentSessionWordCount ()
     {
         
-        //new Exception ().printStackTrace ();
         Map<ProjectInfo, AbstractProjectViewer> pvs = Environment.getOpenProjects ();
         
         int c = this.currentSessionWordCount;

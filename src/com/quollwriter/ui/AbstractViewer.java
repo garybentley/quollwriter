@@ -1225,20 +1225,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        try
-                        {
-                    
-                            Environment.setUserProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                                         new StringProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                                                             "0"));
-                
-                        } catch (Exception e) {
-                            
-                            Environment.logError ("Unable to set the whats new version viewed property",
-                                                  e);
-                            
-                        }
-                    
+						UserProperties.set (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
+											"0");
+                                    
                         _this.showWhatsNew (true);
 
                     }
@@ -2112,7 +2101,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         
         if ((this.tips != null)
             &&
-            (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME))
+            (UserProperties.getAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME))
            )
         {
 
@@ -2211,20 +2200,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                             _this.fireProjectEvent (ProjectEvent.TIPS,
                                                                                     ProjectEvent.OFF);
                                                         
-                                                            try
-                                                            {
-                                                        
-                                                                Environment.setUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                                             new BooleanProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                                                                  false));
-                                
-                                                            } catch (Exception e) {
+															UserProperties.set (Constants.SHOW_TIPS_PROPERTY_NAME,
+																				false);
                                                                 
-                                                                Environment.logError ("Unable to turn off tips",
-                                                                                      e);
-                                                                
-                                                            }
-                                
                                                             n.removeNotification ();
                                                             
                                                         }

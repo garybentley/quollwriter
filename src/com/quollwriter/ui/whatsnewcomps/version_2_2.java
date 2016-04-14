@@ -34,21 +34,9 @@ public class version_2_2 implements WhatsNewComponentProvider
                                   boolean value)
     {
         
-        try
-        {
-    
-            Environment.setUserProperty (name,
-                                         new BooleanProperty (name,
-                                                              value));
-    
-        } catch (Exception e)
-        {
-    
-            Environment.logError ("Unable to save user properties",
-                                  e);
-                    
-        }
-        
+        UserProperties.set (name,
+                            value);
+            
     }
     
     public JComponent getComponent (final AbstractViewer pv,

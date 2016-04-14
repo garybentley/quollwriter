@@ -41,7 +41,7 @@ public class UserPropertyHandler implements TypesHandler
     
         this.listeners = Collections.synchronizedMap (new WeakHashMap ());        
         
-        String nt = Environment.getUserProperties ().getProperty (this.propName);
+        String nt = UserProperties.get (this.propName);
 
         if (nt != null)
         {
@@ -219,30 +219,8 @@ public class UserPropertyHandler implements TypesHandler
 
         }
 
-        com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
-
-        StringProperty p = new StringProperty (this.propName,
-                                               sb.toString ());
-        p.setDescription ("N/A");
-
-        props.setProperty (this.propName,
-                           p);
-
-        try
-        {
-
-            Environment.saveUserProperties (props);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to save user properties for: " +
-                                  this.propName +
-                                  " property with value: " +
-                                  sb.toString (),
-                                  e);
-
-        }
+        UserProperties.set (this.propName,
+                            sb.toString ());
 
     }
 

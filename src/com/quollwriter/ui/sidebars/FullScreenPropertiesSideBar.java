@@ -733,7 +733,7 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
 
         s.setBorder (UIUtils.createPadding (5, 10, 0, 0));
         
-        s.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+        s.setSelected (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
                                                                
         s.addActionListener (new ActionListener ()
         {
@@ -742,21 +742,9 @@ public class FullScreenPropertiesSideBar extends AbstractSideBar<AbstractProject
             public void actionPerformed (ActionEvent ev)
             {
                 
-                // TODO: Create a property wrapper or property that allows for this.
-                try
-                {
-                    
-                    Environment.setUserProperty (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME,
-                                 new BooleanProperty (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME,
-                                                      s.isSelected ()));
-                    
-                } catch (Exception e) {
-                    
-                    Environment.logError ("Unable to update user property",
-                                          e);
-                    
-                }
-                
+                UserProperties.set (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME,
+                                    s.isSelected ());
+                                    
             }
             
         });

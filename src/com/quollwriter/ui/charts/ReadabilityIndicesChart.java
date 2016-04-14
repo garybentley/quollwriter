@@ -478,7 +478,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
                 plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("GF Target %s",
                                                                                   Environment.formatNumber (targetGF)),
                                                                    targetGF,
-                                                                   1,
+                                                                   -1,
                                                                    anch));
 
             }
@@ -508,7 +508,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
                 plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("FK Target %s",
                                                                                   Environment.formatNumber (targetFK)),
                                                                    targetFK,
-                                                                   0,
+                                                                   -1,
                                                                    anch));
 
             }

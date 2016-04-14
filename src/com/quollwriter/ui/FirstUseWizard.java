@@ -914,24 +914,13 @@ public class FirstUseWizard extends PopupWizard
                                                                             // Set the property.
                                                                             String lang = ev.getActionCommand ();
                                                                             
-                                                                            try
-                                                                            {
-                                                                            
-                                                                                Environment.setUserProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME,
-                                                                                                             lang);
-                                                                                
-                                                                            } catch (Exception e) {
-                                                                                
-                                                                                Environment.logError ("Unable to set spell check language to: " +
-                                                                                                      lang,
-                                                                                                      e);
-                                                                                
-                                                                            }
-                                                                                                                                                        
+																			UserProperties.set (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME,
+																								lang);
+                                                                                                                                                                                                                                        
                                                                         }
                                                                     
                                                                    },
-                                                                   Environment.getUserProperties ().getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME));
+                                                                   UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME));
 
             lb.setMaximumSize (lb.getPreferredSize ());
                                                                                                                                       

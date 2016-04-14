@@ -360,7 +360,12 @@ public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
 
         }
         
-        avg = total / sessions;
+        if (sessions > 0)
+        {
+        
+            avg = total / sessions;
+            
+        }
         
         this.chart = QuollChartUtils.createTimeSeriesChart ("Date",
                                                             "Duration",
@@ -552,12 +557,17 @@ public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
                                                           Utils.formatAsDuration (total))));
 
         items.add (this.createDetailLabel (String.format ("%s - Average session length",
-                                                          Utils.formatAsDuration (total / sessions))));
+                                                          Utils.formatAsDuration (avg))));
                                  
-        items.add (this.createDetailLabel (String.format ("%s, %s - Longest session",
-                                                          Utils.formatAsDuration (max),
-                                                          Environment.formatDateTime (maxSessStart))));
+        if (maxSessStart != null)
+        {
+            
+            items.add (this.createDetailLabel (String.format ("%s, %s - Longest session",
+                                                              Utils.formatAsDuration (max),
+                                                              Environment.formatDateTime (maxSessStart))));
 
+        }
+                                                              
         if (this.showZeroWordCount.isSelected ())
         {
             

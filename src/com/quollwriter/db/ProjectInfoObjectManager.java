@@ -13,6 +13,8 @@ import org.bouncycastle.crypto.generators.*;
 import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.openpgp.operator.bc.*;
 
+import com.gentlyweb.xml.*;
+
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.db.*;
@@ -22,6 +24,8 @@ import com.quollwriter.editors.messages.*;
 
 public class ProjectInfoObjectManager extends ObjectManager
 {
+
+    public static final String USER_PROPERTIES_OBJTYPE = "user-properties";
 
     public ProjectInfoObjectManager ()
     {
@@ -288,6 +292,135 @@ public class ProjectInfoObjectManager extends ObjectManager
         
         return null;
 
+    }
+ 
+    public com.gentlyweb.properties.Properties getUserProperties ()
+                                  throws GeneralException
+    {
+        
+        Connection conn = null;
+    
+        try
+        {
+
+            conn = this.getConnection ();
+
+        } catch (Exception e) {
+            
+            this.throwException (null,
+                                 "Unable to get connection",
+                                 e);
+            
+        }
+                        
+        try
+        {
+            
+            ResultSet rs = this.executeQuery ("SELECT properties FROM dataobject WHERE objecttype = 'user-properties'",
+                                              null,
+                                              conn);
+
+            if (rs.next ())
+            {
+
+                int ind = 1;
+            
+                String p = rs.getString (ind++);
+            
+                com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties (new ByteArrayInputStream (p.getBytes ()),
+                                                                                                     null);
+            
+                props.setId ("user");
+            
+                return props;
+            
+            }
+
+        } catch (Exception e)
+        {
+
+            this.throwException (conn,
+                                 "Unable to load user properties",
+                                 e);
+
+        } finally {
+            
+            this.releaseConnection (conn);
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public void setUserProperties (com.gentlyweb.properties.Properties props)
+                            throws GeneralException
+    {
+        
+        Connection conn = null;
+    
+        try
+        {
+
+            conn = this.getConnection ();
+
+        } catch (Exception e) {
+            
+            this.throwException (null,
+                                 "Unable to get connection",
+                                 e);
+            
+        }
+                        
+        try
+        {
+            
+            List params = new ArrayList ();
+            params.add (USER_PROPERTIES_OBJTYPE);
+            
+            ResultSet rs = this.executeQuery ("SELECT dbkey FROM dataobject WHERE objecttype = ?",
+                                              params,
+                                              conn);
+
+            params = new ArrayList ();
+                                              
+            String t = JDOMUtils.getElementAsString (props.getAsJDOMElement ());
+            
+            if (rs.next ())
+            {
+
+                params.add (t);
+                params.add (USER_PROPERTIES_OBJTYPE);
+
+                this.executeStatement ("UPDATE dataobject SET properties = ? WHERE objecttype = ?",
+                                       params,
+                                       conn);                
+            
+            } else {
+                
+                params.add (this.getNewKey (conn));
+                params.add (USER_PROPERTIES_OBJTYPE);
+                params.add (new java.util.Date ());
+                params.add (t);
+
+                this.executeStatement ("INSERT INTO dataobject (dbkey, objecttype, datecreated, properties) VALUES (?, ?, ?, ?)",
+                                       params,
+                                       conn);
+                                
+            }
+        } catch (Exception e)
+        {
+
+            this.throwException (conn,
+                                 "Unable to save user properties",
+                                 e);
+
+        } finally {
+            
+            this.releaseConnection (conn);
+            
+        }        
+        
     }
     
 }

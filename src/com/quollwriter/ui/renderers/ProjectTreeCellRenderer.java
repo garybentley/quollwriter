@@ -337,14 +337,14 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
     protected boolean showEditPositionIcon ()
     {
         
-        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
+        return UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
         
     }
     
     protected boolean showEditCompleteIcon ()
     {
         
-        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
+        return UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
         
     }
     

@@ -86,8 +86,8 @@ public class Environment
     private static Map<ProjectInfo, AbstractProjectViewer> openProjects = new HashMap ();
 
     public static Map defaultObjectProperties = new HashMap ();
-
-    public static com.gentlyweb.properties.Properties userProperties = new com.gentlyweb.properties.Properties ();
+    
+    //public static com.gentlyweb.properties.Properties userProperties = new com.gentlyweb.properties.Properties ();
 
     private static Logger generalLog = null;
     private static Logger errorLog = null;
@@ -1264,7 +1264,7 @@ public class Environment
         
         Environment.userSession.updateCurrentSessionWordCount (pv.getSessionWordCount ());
         
-        if (Environment.userProperties.getPropertyAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+        if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
         {
             
             if (Environment.getOpenProjects ().size () == 0)
@@ -2736,7 +2736,7 @@ public class Environment
 
         if ((!Environment.isDebugModeEnabled ())
             &&
-            (Environment.getUserProperties ().getPropertyAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME))
+            (UserProperties.getAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME))
            )
         {
 
@@ -2810,7 +2810,7 @@ public class Environment
         if (props.getParentProperties () == null)
         {
 
-            props.setParentProperties (Environment.userProperties);
+            props.setParentProperties (UserProperties.getProperties ());
 
         }
 
@@ -3137,14 +3137,16 @@ public class Environment
     public static boolean getPropertyAsBoolean (String name)
     {
         
-        return Environment.userProperties.getPropertyAsBoolean (name);
+        return UserProperties.getAsBoolean (name);
+        //return Environment.userProperties.getPropertyAsBoolean (name);
         
     }
     
     public static String getProperty (String name)
     {
 
-        return Environment.userProperties.getProperty (name);
+        return UserProperties.get (name);
+        //return Environment.userProperties.getProperty (name);
 
     }
 
@@ -3207,88 +3209,23 @@ public class Environment
 
     }
     
-    public static File getUserPropertiesFile ()
+    /**
+     * No longer used, since properties now stored in projects db.
+     * This is only used for legacy versions that need to port the properties over
+     * to the new storage method.
+     */
+    private static File getUserPropertiesFile ()
     {
 
         return Environment.getUserFile (Constants.PROPERTIES_FILE_NAME);
 
     }
-    
-    public static com.gentlyweb.properties.Properties getUserProperties ()
-    {
-
-        return Environment.userProperties;
-
-    }
-
-    public static void setUserProperty (String           name,
-                                        AbstractProperty prop)
-                                 throws Exception
-    {
         
-        Environment.userProperties.setProperty (name,
-                                                prop);
-        
-        Environment.saveUserProperties (Environment.userProperties);
-        
-    }
-
-    public static void setUserProperty (String name,
-                                        String value)
-                                 throws Exception
-    {
-        
-        Environment.userProperties.setProperty (name,
-                                                new StringProperty (name,
-                                                                    value));
-        
-        Environment.saveUserProperties (Environment.userProperties);
-        
-    }
-
-    public static void setUserProperty (String  name,
-                                        boolean value)
-                                 throws Exception
-    {
-        
-        Environment.userProperties.setProperty (name,
-                                                new BooleanProperty (name,
-                                                                     value));
-        
-        Environment.saveUserProperties (Environment.userProperties);
-        
-    }
-
-    public static void setUserProperty (String  name,
-                                        int     value)
-                                 throws Exception
-    {
-        
-        Environment.userProperties.setProperty (name,
-                                                new IntegerProperty (name,
-                                                                     value));
-        
-        Environment.saveUserProperties (Environment.userProperties);
-        
-    }
-
-    public static void saveUserProperties (com.gentlyweb.properties.Properties props)
+    public static void saveUserProperties ()
                                     throws Exception
     {
 
-        if (props == null)
-        {
-            
-            props = Environment.userProperties;
-            
-        }
-
-        // Load the per user properties.
-        File pf = Environment.getUserPropertiesFile ();
-
-        JDOMUtils.writeElementToFile (props.getAsJDOMElement (),
-                                      pf,
-                                      true);
+        Environment.projectInfoManager.setUserProperties (UserProperties.getProperties ());//Environment.userProperties);
 
     }
     
@@ -3499,49 +3436,115 @@ public class Environment
         com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROPERTIES_FILE),
                                                                                                 null);
 
-        Environment.incrStartupProgress ();
-
         sysProps.setId ("system");
 
-        // Load the per user properties.
-        File pf = Environment.getUserPropertiesFile ();
+        // Temporarily set the user properties to the system properties.
+        UserProperties.init (sysProps);
+        //Environment.userProperties = sysProps;
+        
+        com.gentlyweb.properties.Properties userProps = sysProps;
+                                                                                                
+        Environment.incrStartupProgress ();
 
-        if (pf.exists ())
+        // See if this is first use.
+        Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
+        
+        // Get the username and password.
+        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
+        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
+        
+        Environment.projectInfoManager = new ProjectInfoObjectManager ();
+        
+        Environment.projectInfoManager.init (Environment.getProjectInfoDBFile (),
+                                             username,
+                                             password, 
+                                             null,
+                                             Environment.getProjectInfoSchemaVersion ());        
+        
+        try
+        {
+            
+            userProps = Environment.projectInfoManager.getUserProperties (); 
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to load user properties",
+                                  e);
+            
+        }
+        
+        if (userProps == null)
+        {
+            
+            // Check for legacy properties.xml.  Pre v2.5.
+            File pf = Environment.getUserPropertiesFile ();
+    
+            if (pf.exists ())
+            {
+                
+                try
+                {
+    
+                    userProps = new com.gentlyweb.properties.Properties (pf,
+                                                                         Environment.GZIP_EXTENSION);
+            
+                } catch (Exception e)
+                {
+    
+                    Environment.logError ("Unable to load user properties from file: " +
+                                          pf,
+                                          e);
+    
+                }                
+                
+            } 
+            
+        }
+        
+        if (userProps != sysProps)
+        {
+    
+            userProps.setId ("user");
+            
+            userProps.setParentProperties (sysProps);
+            
+        }
+        
+        if (userProps == null)
+        {
+            
+            // If this is legacy and we can't load the properties file (is corrupted) then
+            // use the system properties as the properties.
+            userProps = sysProps;
+            
+        }
+        
+        UserProperties.init (userProps);
+        
+        // Do a save here so that if we are loading for the first time they will be saved.
+        try
+        {
+            
+            Environment.saveUserProperties ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to save user properties",
+                                  e);
+            
+        }
+        
+        // Override the debug mode.
+        if (UserProperties.get (Constants.DEBUG_MODE_PROPERTY_NAME) != null)
         {
 
-            try
-            {
+            Environment.setDebugModeEnabled (UserProperties.getAsBoolean (Constants.DEBUG_MODE_PROPERTY_NAME));
 
-                Environment.userProperties = new com.gentlyweb.properties.Properties (pf,
-                                                                                      Environment.GZIP_EXTENSION);
-
-            } catch (Exception e)
-            {
-
-                throw new GeneralException ("Unable to load user properties: " +
-                                            pf,
-                                            e);
-
-            }
-
-            Environment.userProperties.setId ("user");
-
-            // Override the debug mode.
-            if (Environment.userProperties.getProperty (Constants.DEBUG_MODE_PROPERTY_NAME) != null)
-            {
-
-                Environment.setDebugModeEnabled (Environment.userProperties.getPropertyAsBoolean (Constants.DEBUG_MODE_PROPERTY_NAME));
-
-            }
-                
         }
-
-        // Load the "system" properties.
-        Environment.userProperties.setParentProperties (sysProps);
 
         // Get the system default project properties.
         com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
-                                                                              Environment.userProperties);
+                                                                              UserProperties.getProperties ());
         
         File defUserPropsFile = Environment.getUserDefaultProjectPropertiesFile ();
         
@@ -3599,106 +3602,10 @@ public class Environment
             }
             
         }
-        /*
-        com.gentlyweb.properties.Properties sysProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROPERTIES_FILE),
-                                                                                                null);
 
-        Environment.incrStartupProgress ();
-
-        sysProps.setId ("system");
-
-        // Load the per user properties.
-        File pf = Environment.getUserPropertiesFile ();
-
-        if (pf.exists ())
-        {
-
-            try
-            {
-
-                Environment.userProperties = new com.gentlyweb.properties.Properties (pf,
-                                                                                      Environment.GZIP_EXTENSION);
-
-            } catch (Exception e)
-            {
-
-                throw new GeneralException ("Unable to load user properties: " +
-                                            pf,
-                                            e);
-
-            }
-
-            Environment.userProperties.setId ("user");
-
-            // Override the debug mode.
-            if (Environment.userProperties.getProperty ("debugMode") != null)
-            {
-
-                Environment.debugMode = Environment.userProperties.getPropertyAsBoolean ("debugMode");
-
-            }
-                
-        }
-
-        // Load the "system" properties.
-        Environment.userProperties.setParentProperties (sysProps);
-
-        // Get the system default project properties.
-        com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),
-                                                                              Environment.userProperties);
+        Environment.playSoundOnKeyStroke = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
         
-        File defUserPropsFile = Environment.getUserDefaultProjectPropertiesFile ();
-        
-        if (defUserPropsFile.exists ())
-        {
-        
-            com.gentlyweb.properties.Properties userDefProjProps = new com.gentlyweb.properties.Properties (defUserPropsFile,
-                                                                                                            Environment.GZIP_EXTENSION);
-            
-            userDefProjProps.setParentProperties (sysDefProjProps);
-
-            sysDefProjProps = userDefProjProps;
-            
-        }
-        
-        // Load the default project properties.
-        Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
-                                                 sysDefProjProps);
-
-        Environment.incrStartupProgress ();
-*/
-        /*
-        if (Environment.isWindows)
-        {
-
-            try
-            {
-
-                Options.setUseSystemFonts (true);
-
-                UIManager.setLookAndFeel (new WindowsLookAndFeel ());
- 
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to set laf to: " +
-                                      WindowsLookAndFeel.class.getName (),
-                                      e);
-
-            }
-
-        }
-
-        System.setProperty ("swing.aatext",
-                            "true");
-
-        System.setProperty ("aawt.useSystemAAFontSettings",
-                            "true");
-*/
-
-        Environment.playSoundOnKeyStroke = Environment.userProperties.getPropertyAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
-        
-        String sf = Environment.userProperties.getProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);				
+        String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);				
 
         try
         {
@@ -3807,52 +3714,12 @@ public class Environment
                 final JComponent focused = (JComponent) ev.getSource ();
                                 
                 Environment.scrollIntoView (focused);
-/*                                        
-                if (!(focused.getParent () instanceof JComponent))
-                {
-                    
-                    return true;
-                                                    
-                }
-                
-                JComponent parent = (JComponent) focused.getParent ();
-                
-                if (parent == null)
-                {
-                    
-                    return true;
-                    
-                }
-                
-                if (parent instanceof JViewport)
-                {
 
-                    parent = (JComponent) parent.getParent ();
-                    
-                }
-                                
-                parent.scrollRectToVisible (focused.getBounds ());
-                */
                 return true;
                 
             }
         });
-
-        // See if this is first use.
-        Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
-        
-        // Get the username and password.
-        String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
-        String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
-        
-        Environment.projectInfoManager = new ProjectInfoObjectManager ();
-        
-        Environment.projectInfoManager.init (Environment.getProjectInfoDBFile (),
-                                             username,
-                                             password, 
-                                             null,
-                                             Environment.getProjectInfoSchemaVersion ());
-                
+                        
         try
         {
         
@@ -3888,7 +3755,7 @@ public class Environment
             
         }
         
-        Environment.targets = new TargetsData (Environment.userProperties);
+        Environment.targets = new TargetsData (UserProperties.getProperties ());
                 
         Environment.addStartupProgressListener (new PropertyChangedListener ()
         {
@@ -3904,7 +3771,7 @@ public class Environment
                     Environment.userSession.start (new Date ());
                 
                     // See if we should be doing a warmup exercise.
-                    if (Environment.userProperties.getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME))
+                    if (UserProperties.getAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME))
                     {
             
                         UIUtils.doLater (new ActionListener ()
@@ -3982,12 +3849,12 @@ public class Environment
                             int sessWC = Environment.userSession.getCurrentSessionWordCount ();
 
                             // See if the user session has exceeded the session count.
-                            if ((sessWC > Environment.targets.getMySessionWriting ())
+                            if ((sessWC >= Environment.targets.getMySessionWriting ())
                                 &&
                                 (Environment.userSession.shouldShowSessionTargetReachedPopup ())
                                )
                             {
-                                                                
+
                                 met.add ("Session");
                                 
                                 Environment.userSession.shownSessionTargetReachedPopup ();
@@ -3998,10 +3865,12 @@ public class Environment
                             // Get all sessions for today.
                             try
                             {
-                                
-                                if ((Environment.getPastSessionsWordCount (1) > Environment.targets.getMyDailyWriting ())
+
+                                // The order is important here, the userSession check is cheaper
+                                // than the past sessions check since it doesn't require a db lookup.
+                                if ((Environment.userSession.shouldShowDailyTargetReachedPopup ())
                                     &&
-                                    (Environment.userSession.shouldShowDailyTargetReachedPopup ())
+                                    (Environment.getPastSessionsWordCount (0) >= Environment.targets.getMyDailyWriting ())
                                    )
                                 {
                                     
@@ -4022,30 +3891,34 @@ public class Environment
                             try
                             {
                                 
-                                GregorianCalendar gc = new GregorianCalendar ();
-                                
-                                int fd = gc.getFirstDayOfWeek ();
-                                
-                                int cd = gc.get (Calendar.DAY_OF_WEEK);
-                                
-                                int diff = cd - fd;
-                                
-                                if (diff < 0)
+                                // We perform the cheap check here since it will prevent the extra work
+                                // with the calendar and db from having to be performed.
+                                if (Environment.userSession.shouldShowWeeklyTargetReachedPopup ())
                                 {
                                     
-                                    diff += 7;
+                                    GregorianCalendar gc = new GregorianCalendar ();
                                     
-                                }
-                                                                
-                                if ((Environment.getPastSessionsWordCount (diff) > Environment.targets.getMyWeeklyWriting ())
-                                    &&
-                                    (Environment.userSession.shouldShowWeeklyTargetReachedPopup ())
-                                   )
-                                {
+                                    int fd = gc.getFirstDayOfWeek ();
                                     
-                                    met.add ("Weekly");
+                                    int cd = gc.get (Calendar.DAY_OF_WEEK);
+                                    
+                                    int diff = cd - fd;
+                                    
+                                    if (diff < 0)
+                                    {
                                         
-                                    Environment.userSession.shownWeeklyTargetReachedPopup ();
+                                        diff += 7;
+                                        
+                                    }
+                                    
+                                    if (Environment.getPastSessionsWordCount (diff) >= Environment.targets.getMyWeeklyWriting ())
+                                    {
+                                    
+                                        met.add ("Weekly");
+                                            
+                                        Environment.userSession.shownWeeklyTargetReachedPopup ();
+                                    
+                                    }
                                     
                                 }
             
@@ -4059,26 +3932,30 @@ public class Environment
                             // Get all sessions for this month.
                             try
                             {
-                                
-                                GregorianCalendar gc = new GregorianCalendar ();
-                                
-                                int fd = gc.getFirstDayOfWeek ();
-                                
-                                int cd = gc.get (Calendar.DAY_OF_MONTH);
-                                
-                                int diff = cd - fd;
-                                                                                                
-                                if ((Environment.getPastSessionsWordCount (diff) > Environment.targets.getMyMonthlyWriting ())
-                                    &&
-                                    (Environment.userSession.shouldShowMonthlyTargetReachedPopup ())
-                                   )
-                                {
-
-                                    AbstractViewer viewer = Environment.getFocusedViewer ();
-                                    
-                                    met.add ("Monthly");
                                         
-                                    Environment.userSession.shownMonthlyTargetReachedPopup ();
+                                // As above, do the cheap check first to prevent the extra work from
+                                // being done.
+                                if (Environment.userSession.shouldShowMonthlyTargetReachedPopup ())
+                                {
+                                
+                                    GregorianCalendar gc = new GregorianCalendar ();
+                                
+                                    int fd = gc.getFirstDayOfWeek ();
+                                    
+                                    int cd = gc.get (Calendar.DAY_OF_MONTH);
+                                    
+                                    int diff = cd - fd;
+
+                                    if (Environment.getPastSessionsWordCount (diff) >= Environment.targets.getMyMonthlyWriting ())
+                                    {
+
+                                        AbstractViewer viewer = Environment.getFocusedViewer ();
+                                        
+                                        met.add ("Monthly");
+                                            
+                                        Environment.userSession.shownMonthlyTargetReachedPopup ();
+                                        
+                                    }
                                     
                                 }
             
@@ -4250,7 +4127,7 @@ public class Environment
         if (Environment.defaultDictProv == null)
         {
             
-            String lang = Environment.getUserProperties ().getProperty (Constants.DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+            String lang = UserProperties.get (Constants.DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
             
             if (lang == null)
             {
@@ -5221,7 +5098,7 @@ public class Environment
         
         File dir = null;
         
-        String dv = Environment.getUserProperties ().getProperty (Constants.PROJECT_INFO_DB_DIR_PROPERTY_NAME);
+        String dv = UserProperties.get (Constants.PROJECT_INFO_DB_DIR_PROPERTY_NAME);
         
         if (dv != null)
         {
@@ -5300,14 +5177,14 @@ public class Environment
 
         String parms = "?";
         
-        if (Environment.userProperties.getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME))
+        if (UserProperties.getAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME))
         {
             
             parms += "beta=true&";
             
         }
     
-        String lastVersionCheckTime = Environment.userProperties.getProperty (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME);
+        String lastVersionCheckTime = UserProperties.get (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME);
         
         if (lastVersionCheckTime != null)
         {
@@ -5331,7 +5208,7 @@ public class Environment
 
         }
 
-        if (Environment.userProperties.getPropertyAsBoolean (Constants.DO_AUTO_UPDATE_CHECK_PROPERTY_NAME))
+        if (UserProperties.getAsBoolean (Constants.DO_AUTO_UPDATE_CHECK_PROPERTY_NAME))
         {
 
             Environment.doneVersionCheck = true;
@@ -5362,8 +5239,8 @@ public class Environment
                                           bout,
                                           8192);
                         
-                        Environment.setUserProperty (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME,
-                                                     String.valueOf (System.currentTimeMillis ()));                        
+                        UserProperties.set (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME,
+                                            String.valueOf (System.currentTimeMillis ()));                        
                         
                         String info = new String (bout.toByteArray (),
                                                   "utf-8");
@@ -5460,7 +5337,7 @@ public class Environment
                             
                             final Set<String> seenIds = new HashSet ();
                             
-                            String seenNewsIds = Environment.userProperties.getProperty (Constants.SEEN_NEWS_IDS_PROPERTY_NAME);
+                            String seenNewsIds = UserProperties.get (Constants.SEEN_NEWS_IDS_PROPERTY_NAME);
                             
                             if (seenNewsIds == null)
                             {
@@ -5546,19 +5423,8 @@ public class Environment
                                             
                                         }
                                     
-                                        try
-                                        {
-                                    
-                                            Environment.setUserProperty (Constants.SEEN_NEWS_IDS_PROPERTY_NAME,
-                                                                         sb.toString ());
-                                            
-                                        } catch (Exception e) {
-                                            
-                                            Environment.logError ("Unable to update seen news ids to: " +
-                                                                  sb,
-                                                                  e);
-                                            
-                                        }
+                                        UserProperties.set (Constants.SEEN_NEWS_IDS_PROPERTY_NAME,
+                                                            sb.toString ());
                                     
                                         removeNot.actionPerformed (ev);
 
@@ -6390,21 +6256,8 @@ public class Environment
             
             Environment.logError ("Unable to set key stroke sound file",
                                   e);
-            
-            Environment.userProperties.removeProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
-            
-            try
-            {
-                
-                Environment.saveUserProperties (Environment.userProperties);
-                
-            } catch (Exception ee) {
-                
-                // Sigh...
-                Environment.logError ("Unable to save user properties",
-                                      ee);
-                
-            }
+                        
+            UserProperties.remove (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
             
             return;
             
@@ -6413,21 +6266,9 @@ public class Environment
         if (f != null)
         {
         
-            try
-            {
+            UserProperties.set (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
+                                f.getPath ());
         
-                Environment.setUserProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
-                                             new StringProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME,
-                                                                 f.getPath ()));
-        
-            } catch (Exception e)
-            {
-        
-                Environment.logError ("Unable to save user properties",
-                                      e);
-            
-            }
-
         }
         
     }
@@ -6437,21 +6278,9 @@ public class Environment
         
         Environment.playSoundOnKeyStroke = v;
         
-        try
-        {
-    
-            Environment.setUserProperty (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
-                                         new BooleanProperty (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
-                                                              v));
-    
-        } catch (Exception e)
-        {
-    
-            Environment.logError ("Unable to save user properties",
-                                  e);
-        
-        }
-        
+        UserProperties.set (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME,
+                            v);
+            
         Environment.fireUserProjectEvent (new Object (),
                                           ProjectEvent.TYPE_WRITER_SOUND,
                                           (v ? ProjectEvent.ON : ProjectEvent.OFF));
@@ -6494,7 +6323,7 @@ public class Environment
         try
         {
             
-            Environment.saveUserProperties (Environment.userProperties);
+            Environment.saveUserProperties ();
             
         } catch (Exception e) {
             
@@ -6508,8 +6337,10 @@ public class Environment
     public static TargetsData getDefaultUserTargets ()
     {
 
-        TargetsData td = new TargetsData (Environment.userProperties.getParentProperties ());
+        //TargetsData td = new TargetsData (Environment.userProperties.getParentProperties ());
 
+        // XXX
+        TargetsData td = new TargetsData (UserProperties.getProperties ().getParentProperties ());
         return td;
         
     }

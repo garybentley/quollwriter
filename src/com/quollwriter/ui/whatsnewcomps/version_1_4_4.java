@@ -181,19 +181,8 @@ public class version_1_4_4 implements WhatsNewComponentProvider
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    try
-                    {
-                
-                        Environment.setUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                     new BooleanProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                          tips.isSelected ()));
-
-                    } catch (Exception e) {
-                        
-                        Environment.logError ("Unable to set the tips property",
-                                              e);
-                        
-                    }
+                    UserProperties.set (Constants.SHOW_TIPS_PROPERTY_NAME,
+                                        tips.isSelected ());
                     
                 }
                 

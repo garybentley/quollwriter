@@ -177,7 +177,7 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
 
         JMenuItem mi = null;
 
-        boolean compress = Environment.getUserProperties ().getPropertyAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
                                 
         this.doFillPopupMenu (ev,
                               popup,

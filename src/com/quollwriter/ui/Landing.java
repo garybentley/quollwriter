@@ -545,25 +545,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
             public void actionPerformed (ActionEvent ev)
             {
 
-				try
-				{
-				
-					Environment.setUserProperty (Constants.PROJECT_INFO_FORMAT,
-												 status.getText ());
-				
-				} catch (Exception e) {
-					
-					Environment.logError ("Unable to save project info format: " +
-										  status.getText (),
-										  e);
-					
-					UIUtils.showErrorMessage (_this,
-											  "Unable to save format");
-				
-					return;
-					
-				}
-				
+				UserProperties.set (Constants.PROJECT_INFO_FORMAT,
+									status.getText ());
+								
 				try
 				{
 				
@@ -609,30 +593,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
             public void actionPerformed (ActionEvent ev)
             {
 
-				status.setText (Environment.getUserProperties ().getProperty (Constants.DEFAULT_PROJECT_INFO_FORMAT));
+				status.setText (UserProperties.get (Constants.DEFAULT_PROJECT_INFO_FORMAT));
 			
 				pb.setProjectInfoFormat (status.getText ());
 				
 				popup.resize ();			
 			
-				try
-				{
-				
-					Environment.setUserProperty (Constants.PROJECT_INFO_FORMAT,
-												 status.getText ());
-				
-				} catch (Exception e) {
-					
-					Environment.logError ("Unable to save project info format: " +
-										  status.getText (),
-										  e);
-					
-					UIUtils.showErrorMessage (_this,
-											  "Unable to save format");
-				
-					return;
-					
-				}
+				UserProperties.set (Constants.PROJECT_INFO_FORMAT,
+									status.getText ());
 				
 				try
 				{
@@ -1420,7 +1388,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			public void actionPerformed (ActionEvent ev)
 			{
 				
-				if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME))
+				if (UserProperties.getAsBoolean (Constants.CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME))
 				{
 					
 					_this.setVisible (false);
@@ -1705,7 +1673,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		try
 		{
 		
-			String bgs = Environment.getUserProperties ().getProperty ("landing-background-state");
+			String bgs = UserProperties.get ("landing-background-state");
 
 			if (bgs != null)
 			{
@@ -1764,9 +1732,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		try
 		{
 
-			width = Environment.getUserProperties ().getPropertyAsInt ("landing-window-width");
+			width = UserProperties.getAsInt ("landing-window-width");
 			
-			height = Environment.getUserProperties ().getPropertyAsInt ("landing-window-height");
+			height = UserProperties.getAsInt ("landing-window-height");
 			
 		} catch (Exception e) {
 			
@@ -1835,21 +1803,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	
 	private void sortProjects (String sortBy)
 	{
-		
-		try
-		{
-			
-			Environment.setUserProperty (Constants.SORT_PROJECTS_BY_PROPERTY_NAME,
-										 sortBy);
+					
+		UserProperties.set (Constants.SORT_PROJECTS_BY_PROPERTY_NAME,
+							sortBy);
 
-			this.fillProjects ();
-										 
-		} catch (Exception e) {
-			
-			Environment.logError ("Unable to update user property for sorting projects",
-								  e);
-			
-		}
+		this.fillProjects ();
 				
 	}
 	
@@ -1865,7 +1823,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	{
 		
 		// Get how we should sort.
-		String sortBy = Environment.getUserProperties ().getProperty (Constants.SORT_PROJECTS_BY_PROPERTY_NAME);
+		String sortBy = UserProperties.get (Constants.SORT_PROJECTS_BY_PROPERTY_NAME);
 		
 		if (sortBy == null)
 		{
@@ -1999,12 +1957,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	public String getProjectInfoFormat ()
 	{
 		
-		String f = Environment.getUserProperties ().getProperty (Constants.PROJECT_INFO_FORMAT);
+		String f = UserProperties.get (Constants.PROJECT_INFO_FORMAT);
 		
 		if (f == null)
 		{
 			
-			f = Environment.getUserProperties ().getProperty (Constants.DEFAULT_PROJECT_INFO_FORMAT);
+			f = UserProperties.get (Constants.DEFAULT_PROJECT_INFO_FORMAT);
 
 		}
 
@@ -3595,7 +3553,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			this.options.init ();
 						
-			String state = Environment.getUserProperties ().getProperty ("landing-options-state");
+			String state = UserProperties.get ("landing-options-state");
 			
 			if (state != null)
 			{
@@ -4145,20 +4103,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			if (m.size () > 0)
 			{
 			
-				try
-				{
-	
-	
-					Environment.setUserProperty ("landing-options-state",
-										   UIUtils.createState (m));
-	
-				} catch (Exception e)
-				{
-	
-					Environment.logError ("Unable to save state for options",
-										  e);
-	
-				}
+				UserProperties.set ("landing-options-state",
+									UIUtils.createState (m));
 	
 			}
 
@@ -4174,36 +4120,17 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         m.put ("opacity",
                String.valueOf (this.backgroundPanel.getBackgroundOpacity ()));
 		
-		try
-		{
+		// TODO: Have Constants for these.
 
-			Environment.setUserProperty ("landing-background-state",
-										 UIUtils.createState (m));
+		UserProperties.set ("landing-background-state",
+							UIUtils.createState (m));
 
-		} catch (Exception e)
-		{
+		UserProperties.set ("landing-window-height",
+							this.splitPane.getSize ().height);
 
-			Environment.logError ("Unable to save state for background",
-								  e);
-
-		}
-
-		try
-		{
-
-			Environment.setUserProperty ("landing-window-height",
-										 this.splitPane.getSize ().height);
-
-			Environment.setUserProperty ("landing-window-width",
-										 this.splitPane.getSize ().width);
+		UserProperties.set ("landing-window-width",
+							this.splitPane.getSize ().width);
 		
-		} catch (Exception e) {
-			
-			Environment.logError ("Unable to save window size state",
-								  e);
-			
-		}
-
 		this.dispose ();
 
 		if (afterClose != null)

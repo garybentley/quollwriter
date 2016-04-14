@@ -573,7 +573,8 @@ public class Targets<E extends AbstractViewer> extends Accordion
                                                             Constants.PROBLEM_FINDER_ICON_NAME),
                                           null,
                                           rb,
-                                          null);
+                                          UIUtils.createHelpTextPane ("Specify the maximum readability {chapters} should have.",
+                                                                      this.viewer));
 
             this.checkReadability ();
             this.checkChapters ();

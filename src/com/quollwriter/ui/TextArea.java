@@ -58,7 +58,7 @@ public class TextArea extends Box
         if (rows > 0)
         {                       
         
-            this.text.setPreferredSize (new Dimension (250, (int) (this.text.getLineHeight () * (rows + 0.8))));
+            this.text.setPreferredSize (new Dimension (0, (int) (this.text.getLineHeight () * (rows + 0.8))));
 
         } else {
             
@@ -631,7 +631,7 @@ public class TextArea extends Box
     
         String sel = this.text.getSelectedText ();
     
-        boolean compress = Environment.getUserProperties ().getPropertyAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+        boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
             
         if (this.text.isCanFormat ())
         {

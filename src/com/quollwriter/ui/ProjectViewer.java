@@ -3080,6 +3080,8 @@ public class ProjectViewer extends AbstractProjectViewer
 		
 		Set<String> ids = new LinkedHashSet ();
 
+		//ids.add ("wordcloud");
+
 		ids.add (IDEA_BOARD_HEADER_CONTROL_ID);
 		
         ids.addAll (super.getTitleHeaderControlIds ());
@@ -3103,6 +3105,26 @@ public class ProjectViewer extends AbstractProjectViewer
 		
 		JComponent c = null;
 		
+		if (id.equals ("wordcloud"))
+		{
+			
+            return UIUtils.createButton (Constants.IDEA_ICON_NAME,
+                                               Constants.ICON_TITLE_ACTION,
+                                               "Click to open the Idea Board",
+                                               new ActionAdapter ()
+                                               {
+                                                    
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _this.viewWordCloud ();
+                                                        
+                                                    }
+                                                    
+                                               });
+										  
+		}
+
 		if (id.equals (IDEA_BOARD_HEADER_CONTROL_ID))
 		{
 			

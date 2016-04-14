@@ -134,8 +134,8 @@ public class FullScreenTextProperties extends TextProperties
 
         }
         
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
-                                              UIUtils.colorToHex (this.getTextColor ())));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
+                            UIUtils.colorToHex (this.getTextColor ()));
         
     }
     
@@ -144,8 +144,8 @@ public class FullScreenTextProperties extends TextProperties
 
         super.setWritingLineColor (c);
 
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
-                                              UIUtils.colorToHex (this.getWritingLineColor ())));    
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                            UIUtils.colorToHex (this.getWritingLineColor ()));    
     
     }    
  
@@ -154,8 +154,8 @@ public class FullScreenTextProperties extends TextProperties
 
         super.setHighlightWritingLine (v);
 
-        this.setProperty (new BooleanProperty (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
-                                               this.isHighlightWritingLine ()));    
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
+                            this.isHighlightWritingLine ());    
     
     }
     
@@ -164,8 +164,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setLineSpacing (v);
         
-        this.setProperty (new FloatProperty (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
-                                             this.getLineSpacing ()));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
+                            this.getLineSpacing ());
             
     }
     
@@ -174,8 +174,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setFirstLineIndent (v);
         
-        this.setProperty (new BooleanProperty (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
-                                               this.getFirstLineIndent ()));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
+                            this.getFirstLineIndent ());
         
     }
     
@@ -184,8 +184,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setAlignment (v);
 
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
-                                              this.getAlignment ()));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
+                            this.getAlignment ());
         
     }
     
@@ -194,8 +194,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setFontSize (v);
         
-        this.setProperty (new IntegerProperty (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
-                                               this.getFontSize ()));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
+                            this.getFontSize ());
                 
     }
     
@@ -204,8 +204,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setTextBorder (v);
         
-        this.setProperty (new IntegerProperty (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
-                                               this.getTextBorder ()));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
+                            this.getTextBorder ());
                 
     }
 
@@ -214,32 +214,16 @@ public class FullScreenTextProperties extends TextProperties
     
         super.setFontFamily (f);
         
-        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
-                                              this.getFontFamily ()));
+        UserProperties.set (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
+                            this.getFontFamily ());
         
     }
     
     private void setProperty (AbstractProperty prop)
     {
 
-        com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
-
-        prop.setDescription ("N/A");
-        
-        props.setProperty (prop.getID (),
-                           prop);
-
-        try
-        {
-        
-            Environment.saveUserProperties (props);
-        
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to save user properties",
-                                  e);            
-            
-        }
+        UserProperties.set (prop.getID (),
+                            prop);
     
     }
 

@@ -51,7 +51,7 @@ public class WhatsNew extends Wizard //PopupWizard
         
         super (viewer);
 
-        String wn = Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
+        String wn = UserProperties.get (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
         
         if (wn == null)
         {
@@ -63,7 +63,7 @@ public class WhatsNew extends Wizard //PopupWizard
         // Get the current whats new version (i.e. old).
         Version lastWhatsNewVersion = new Version (wn);
         
-        boolean betasAllowed = Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME);
+        boolean betasAllowed = UserProperties.getAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME);
         
         try
         {
@@ -498,20 +498,9 @@ public class WhatsNew extends Wizard //PopupWizard
                 
         super.init ();
         
-        try
-        {
-    
-            Environment.setUserProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                         new StringProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                                             Environment.getQuollWriterVersion ().getVersion ()));
+        UserProperties.set (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
+                            Environment.getQuollWriterVersion ().getVersion ());
 
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set the whats new version viewed property",
-                                  e);
-            
-        }
-        
     }
     
     private class WhatsNewInit

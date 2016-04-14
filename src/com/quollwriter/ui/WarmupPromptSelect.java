@@ -636,12 +636,10 @@ public class WarmupPromptSelect extends Box
 
         final JComboBox mins = new JComboBox (minsV);
 
-        com.gentlyweb.properties.Properties userProps = Environment.getUserProperties ();
-
         if (minsC == -1)
         {
 
-            String minsDef = userProps.getProperty (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
 
             if (minsDef == null)
             {
@@ -685,29 +683,9 @@ public class WarmupPromptSelect extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                try
-                {
-
-                    StringProperty prop = new StringProperty (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME,
-                                                              String.valueOf (WarmupPromptSelect.getMinsCount (mins)));
-                    prop.setDescription ("N/A");
-            
-                    com.gentlyweb.properties.Properties props = Environment.getUserProperties ();                    
-            
-                    props.setProperty (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME,
-                                       prop);
-                    
-                    Environment.saveUserProperties (props);
+                UserProperties.set (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME,
+                                    String.valueOf (WarmupPromptSelect.getMinsCount (mins)));
                                     
-                } catch (Exception e)
-                {
-
-                    // Not good but not the end of the world, record the error but don't tell the user.
-                    Environment.logError ("Unable to save user properties",
-                                          e);
-
-                }
-
             }
 
         });        
@@ -719,14 +697,12 @@ public class WarmupPromptSelect extends Box
     public static JComboBox getTimeOptions ()
     {
 
-        com.gentlyweb.properties.Properties userProps = Environment.getUserProperties ();
-        
         int wc = -1;
         
         try
         {
             
-            wc = Integer.parseInt (userProps.getProperty (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME));
+            wc = Integer.parseInt (UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME));
             
         } catch (Exception e) {
             
@@ -741,14 +717,12 @@ public class WarmupPromptSelect extends Box
     public static JComboBox getWordsOptions ()
     {
 
-        com.gentlyweb.properties.Properties userProps = Environment.getUserProperties ();
-        
         int wc = -1;
         
         try
         {
             
-            wc = Integer.parseInt (userProps.getProperty (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME));
+            wc = Integer.parseInt (UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME));
             
         } catch (Exception e) {
             
@@ -772,12 +746,10 @@ public class WarmupPromptSelect extends Box
 
         final JComboBox words = new JComboBox (wordsV);
 
-        com.gentlyweb.properties.Properties userProps = Environment.getUserProperties ();
-
         if (wordsC == -1)
         {
 
-            String wordsDef = userProps.getProperty (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+            String wordsDef = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
 
             if (wordsDef == null)
             {
@@ -811,29 +783,9 @@ public class WarmupPromptSelect extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                try
-                {
-
-                    StringProperty prop = new StringProperty (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME,
-                                                              String.valueOf (WarmupPromptSelect.getWordCount (words)));
-                    prop.setDescription ("N/A");
-
-                    com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
-            
-                    props.setProperty (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME,
-                                       prop);
-                    
-                    Environment.saveUserProperties (props);
+                UserProperties.set (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME,
+                                    String.valueOf (WarmupPromptSelect.getWordCount (words)));
                                     
-                } catch (Exception e)
-                {
-
-                    // Not good but not the end of the world, record the error but don't tell the user.
-                    Environment.logError ("Unable to save user properties",
-                                          e);
-
-                }
-
             }
 
         });        
@@ -848,7 +800,7 @@ public class WarmupPromptSelect extends Box
         final JCheckBox doOnStartup = new JCheckBox (Environment.replaceObjectNames ("Do a {warmup} everytime Quoll Writer starts"));
         doOnStartup.setOpaque (false);
         
-        doOnStartup.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME));
+        doOnStartup.setSelected (UserProperties.getAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME));
 
         doOnStartup.addActionListener (new ActionAdapter ()
         {
@@ -856,29 +808,9 @@ public class WarmupPromptSelect extends Box
             public void actionPerformed (ActionEvent ev)
             {
               
-                try
-                {
-
-                    BooleanProperty prop = new BooleanProperty (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME,
-                                                                doOnStartup.isSelected ());
-                    prop.setDescription ("N/A");
-
-                    com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
-            
-                    props.setProperty (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME,
-                                       prop);
-                
-                    Environment.saveUserProperties (props);
-                                    
-                } catch (Exception e)
-                {
-
-                    // Not good but not the end of the world, record the error but don't tell the user.
-                    Environment.logError ("Unable to save user properties",
-                                          e);
-
-                }
-                                    
+                UserProperties.set (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME,
+                                    doOnStartup.isSelected ());
+                                                                        
             }
             
         });
@@ -976,7 +908,7 @@ public class WarmupPromptSelect extends Box
     public static int getDefaultWarmupWords ()
     {
 
-        String v = Environment.getProperty (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+        String v = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
 
         try
         {
@@ -996,7 +928,7 @@ public class WarmupPromptSelect extends Box
     public static int getDefaultWarmupMins ()
     {
 
-        String v = Environment.getProperty (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+        String v = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
 
         try
         {

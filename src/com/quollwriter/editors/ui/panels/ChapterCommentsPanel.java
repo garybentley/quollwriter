@@ -285,7 +285,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
                                final JPopupMenu popup)
     {
 
-      boolean compress = Environment.getUserProperties ().getPropertyAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);    
+      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);    
       
       this.doFillPopupMenu (ev,
                             popup,

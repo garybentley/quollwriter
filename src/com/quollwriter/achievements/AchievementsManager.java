@@ -437,8 +437,8 @@ public class AchievementsManager implements ProjectEventListener
             
         }
         
-        Environment.setUserProperty (Constants.USER_ACHIEVEMENTS_STATE_PROPERTY_NAME,
-                                     this.getState (new HashSet (this.userRules.values ())));                                     
+        UserProperties.set (Constants.USER_ACHIEVEMENTS_STATE_PROPERTY_NAME,
+                            this.getState (new HashSet (this.userRules.values ())));                                     
         
     }
     
@@ -448,7 +448,7 @@ public class AchievementsManager implements ProjectEventListener
         Map<String, Set<String>> achieved = new HashMap ();
         
         achieved.put (USER,
-                      this.getAchievedIds (Environment.getProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
+                      this.getAchievedIds (UserProperties.get (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME)));
         
         if ((viewer != null)
             &&
@@ -798,8 +798,8 @@ public class AchievementsManager implements ProjectEventListener
             
             achieved.add (ar.getId ());
             
-            Environment.setUserProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
-                                         this.getAsString (achieved));
+            UserProperties.set (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                this.getAsString (achieved));
 
             this.fireAchievementReachedEvent (ar);
                         
@@ -821,26 +821,15 @@ public class AchievementsManager implements ProjectEventListener
     public void setAchievementsEnabled (boolean v)
     {
         
-        try
-        {
-
-            Environment.setUserProperty (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME,
-                                         new BooleanProperty (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME,
-                                                              v));
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set achievements enabled property",
-                                  e);
-                            
-        }        
+        UserProperties.set (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME,
+                            v);
         
     }
 
     public boolean isAchievementsEnabled ()
     {
         
-        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME)
+        return UserProperties.getAsBoolean (Constants.ACHIEVEMENTS_ENABLED_PROPERTY_NAME)
                 &&
                 !Environment.isDistractionFreeModeEnabled ();
         
@@ -849,52 +838,30 @@ public class AchievementsManager implements ProjectEventListener
     public boolean isSoundsInFullScreenEnabled ()
     {
         
-        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.ACHIEVEMENTS_SOUND_IN_FULL_SCREEN_ENABLED_PROPERTY_NAME);
+        return UserProperties.getAsBoolean (Constants.ACHIEVEMENTS_SOUND_IN_FULL_SCREEN_ENABLED_PROPERTY_NAME);
         
     }
 
     public void setSoundsInFullScreenEnabled (boolean v)
     {
         
-        try
-        {
-        
-            Environment.setUserProperty (Constants.ACHIEVEMENTS_SOUND_IN_FULL_SCREEN_ENABLED_PROPERTY_NAME,
-                                         new BooleanProperty (Constants.ACHIEVEMENTS_SOUND_IN_FULL_SCREEN_ENABLED_PROPERTY_NAME,
-                                                              v));
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set achievements sound in full screen property",
-                                  e);
-                            
-        }        
+        UserProperties.set (Constants.ACHIEVEMENTS_SOUND_IN_FULL_SCREEN_ENABLED_PROPERTY_NAME,
+                            v);
         
     }
 
     public void setSoundEnabled (boolean v)
     {
         
-        try
-        {
-        
-            Environment.setUserProperty (Constants.ACHIEVEMENTS_SOUND_ENABLED_PROPERTY_NAME,
-                                         new BooleanProperty (Constants.ACHIEVEMENTS_SOUND_ENABLED_PROPERTY_NAME,
-                                                              v));
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set achievements sound property",
-                                  e);
-                            
-        }        
+        UserProperties.set (Constants.ACHIEVEMENTS_SOUND_ENABLED_PROPERTY_NAME,
+                            v);
         
     }
 
     public boolean isSoundEnabled ()
     {
         
-        return Environment.getUserProperties ().getPropertyAsBoolean (Constants.ACHIEVEMENTS_SOUND_ENABLED_PROPERTY_NAME);
+        return UserProperties.getAsBoolean (Constants.ACHIEVEMENTS_SOUND_ENABLED_PROPERTY_NAME);
         
     }
 
@@ -1272,8 +1239,8 @@ public class AchievementsManager implements ProjectEventListener
             
             achieved.remove (id.toLowerCase ());
             
-            Environment.setUserProperty (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
-                                         this.getAsString (achieved));
+            UserProperties.set (Constants.USER_ACHIEVEMENTS_ACHIEVED_PROPERTY_NAME,
+                                this.getAsString (achieved));
 
         } else {
             

@@ -1089,17 +1089,15 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
 
         this.ignoreDocumentChange = true;
 
-        com.gentlyweb.properties.Properties props = Environment.getUserProperties ();        
+        this.editor.setLineSpacing (UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
         
-        this.editor.setLineSpacing (props.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
-        
-        this.setFontSize (props.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME));
-        this.setFontFamily (props.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
-        this.setAlignment (props.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));
-        this.setFirstLineIndent (props.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
-        this.setWritingLineColor (UIUtils.getColor (props.getProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
-        this.setHighlightWritingLine (props.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
-        this.setTextBorder (props.getPropertyAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
+        this.setFontSize (UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME));
+        this.setFontFamily (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
+        this.setAlignment (UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));
+        this.setFirstLineIndent (UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
+        this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
+        this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
+        this.setTextBorder (UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
         
         this.restoreBackgroundColor ();
         this.restoreFontColor ();

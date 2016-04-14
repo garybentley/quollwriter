@@ -163,7 +163,7 @@ public class RuleFactory
             (type == ALL))
         {
 
-            String ignores = Environment.getUserProperties ().getProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME);
+            String ignores = UserProperties.get (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME);
 
             if (ignores != null)
             {
@@ -303,44 +303,24 @@ public class RuleFactory
 
         }
 
-        com.gentlyweb.properties.Properties props = null;
-
-        if (type == USER)
-        {
-
-            props = Environment.getUserProperties ();
-
-        }
-
         if (type == PROJECT)
         {
 
-            props = projProps;
-
+            StringProperty p = new StringProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
+                                                   b.toString ());
+            p.setDescription ("N/A");
+    
+            projProps.setProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
+                                   p);
+            
         }
 
-        StringProperty p = new StringProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
-                                               b.toString ());
-        p.setDescription ("N/A");
-
-        props.setProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
-                           p);
 
         if (type == USER)
         {
 
-            try
-            {
-
-                Environment.saveUserProperties (props);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to save user properties",
-                                      e);
-
-            }
+            UserProperties.set (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
+                                b.toString ());
 
         }
 

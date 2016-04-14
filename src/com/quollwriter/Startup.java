@@ -65,7 +65,7 @@ public class Startup
 
             boolean showError = false;
 
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
+            if (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME))
             {
 
                 Environment.showLanding ();
@@ -73,7 +73,7 @@ public class Startup
             }
 
             // See if the user property is to open the last edited project.
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
+            if (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
             {
             
                 try

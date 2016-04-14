@@ -144,31 +144,8 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
             }
 
-            Properties props = Environment.getUserProperties ();
-
-            StringProperty p = new StringProperty (Constants.OBJECT_TYPES_PROPERTY_NAME,
-                                                   sb.toString ());
-            p.setDescription ("N/A");
-
-            props.setProperty (Constants.OBJECT_TYPES_PROPERTY_NAME,
-                               p);
-
-            try
-            {
-
-                Environment.saveUserProperties (props);
-
-            } catch (Exception e)
-            {
-
-                // Not good but not the end of the world, record the error but don't tell the user.
-                Environment.logError ("Unable to save user properties for: " +
-                                      Constants.OBJECT_TYPES_PROPERTY_NAME +
-                                      " property with value: " +
-                                      sb.toString (),
-                                      e);
-
-            }
+            UserProperties.set (Constants.OBJECT_TYPES_PROPERTY_NAME,
+                                sb.toString ());
 
         }
 

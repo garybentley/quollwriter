@@ -21,18 +21,16 @@ public class ProjectTextProperties extends TextProperties
         
         this.projectViewer = pv;
 
-        com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
-                        
-        this.initInternal (props.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME),
-                           props.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
-                           props.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
-                           props.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
-                           props.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
+        this.initInternal (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME),
+                           UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
+                           UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
+                           UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
+                           UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
                            Color.black,
                            UIUtils.getComponentColor (),
-                           UIUtils.getColor (props.getProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
-                           props.getPropertyAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
-                           props.getPropertyAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
+                           UIUtils.getColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
+                           UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
+                           UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
         
     }
 
@@ -213,25 +211,9 @@ public class ProjectTextProperties extends TextProperties
     private void setProperty (AbstractProperty prop)
     {
         
-        com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
-
-        prop.setDescription ("N/A");
+        UserProperties.set (prop.getID (),
+                            prop);
         
-        props.setProperty (prop.getID (),
-                           prop);
-
-        try
-        {
-        
-            Environment.saveUserProperties (props);
-        
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to save user properties",
-                                  e);            
-            
-        }
-
         this.projectViewer.reinitAllChapterEditors ();
 
     }

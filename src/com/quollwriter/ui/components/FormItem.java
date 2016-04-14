@@ -1,17 +1,17 @@
 package com.quollwriter.ui.components;
 
-import java.awt.Component;
+import javax.swing.*;
 
 
 public class FormItem
 {
 
     public Object    label = null;
-    public Component component = null;
+    public JComponent component = null;
     public String    formatSpec = null;
 
-    public FormItem(Object    l,
-                    Component c)
+    public FormItem(Object     l,
+                    JComponent c)
     {
 
         this.label = l;
@@ -19,9 +19,9 @@ public class FormItem
 
     }
 
-    public FormItem(Object    l,
-                    Component c,
-                    String    s)
+    public FormItem(Object     l,
+                    JComponent c,
+                    String     s)
     {
 
         this (l,

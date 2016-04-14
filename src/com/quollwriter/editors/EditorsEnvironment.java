@@ -114,7 +114,7 @@ public class EditorsEnvironment
             
         }
             
-        EditorsEnvironment.editorsProps.setParentProperties (Environment.getUserProperties ());
+        EditorsEnvironment.editorsProps.setParentProperties (UserProperties.getProperties ());
             
         try
         {

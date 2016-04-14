@@ -215,33 +215,17 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     {
 
         // Set the properties.
-        com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
+        //com.gentlyweb.properties.Properties props = Environment.getUserProperties ();
 
         try
         {
 
-            FloatProperty fp = new FloatProperty (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME,
-                                                  this.getXBorderWidth ());
-            fp.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME,
-                               fp);
-
-            fp = new FloatProperty (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME,
-                                    this.getYBorderWidth ());
-            fp.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME,
-                               fp);
-
-            fp = new FloatProperty (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
-                                    this.getBorderOpacity ());
-            fp.setDescription ("N/A");
-
-            props.setProperty (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
-                               fp);
-
-            Environment.saveUserProperties (props);
+            UserProperties.set (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME,
+                                this.getXBorderWidth ());
+            UserProperties.set (Constants.FULL_SCREEN_BORDER_Y_WIDTH_PROPERTY_NAME,
+                                this.getYBorderWidth ());
+            UserProperties.set (Constants.FULL_SCREEN_BORDER_OPACITY_PROPERTY_NAME,
+                                this.getBorderOpacity ());
 
         } catch (Exception e)
         {
@@ -658,21 +642,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                       "Since this is your first time using <i>Distraction Free Mode</i> it is recommended you spend a bit of time reading about how it works.  It may work in different ways to how you expect and/or how other writing applications implement similar modes.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more</a>",
                                                       -1);
 
-            try
-            {
-        
-                Environment.setUserProperty (propName,
-                                             new BooleanProperty (propName,
-                                                                  true));
-        
-            } catch (Exception e)
-            {
-        
-                Environment.logError ("Unable to save user properties",
-                                      e);
-                
-            }            
-                                                      
+            UserProperties.set (propName,
+                                true);
+
             return;            
             
         }        
@@ -788,17 +760,15 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             
         };
             
-        Properties userProps = Environment.getUserProperties ();
-
         Object bgObj = null;
         
-        String b = userProps.getProperty (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
+        String b = UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
         
         if (b == null)
         {
             
             // Legacy < v2
-            File f = userProps.getPropertyAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
+            File f = UserProperties.getAsFile (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
         
             if ((f != null)
                 &&
@@ -1679,7 +1649,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             public void actionPerformed (ActionEvent ev)
             {
 
-                info.setVisible (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+                info.setVisible (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
              
                 time.setText (_this.clockFormat.format (new Date ()));
                
@@ -1761,7 +1731,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         l.actionPerformed (new ActionEvent (this, 0, "0"));
         
-        info.setVisible (Environment.getUserProperties ().getPropertyAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
+        info.setVisible (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
         
         this.updateTimer = new Timer (500,
                                       l);
@@ -1900,20 +1870,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
  
                 _this.setDistractionFreeModeEnabled (!_this.isDistractionFreeModeEnabled ());
 
-                try
-                {
-            
-                    Environment.setUserProperty (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
-                                                 new BooleanProperty (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
-                                                                      _this.isDistractionFreeModeEnabled ()));
-            
-                } catch (Exception e)
-                {
-            
-                    Environment.logError ("Unable to save user properties",
-                                          e);
-                    
-                }
+                UserProperties.set (Constants.FULL_SCREEN_ENABLE_DISTRACTION_FREE_MODE_WHEN_EDITING_PROPERTY_NAME,
+                                    _this.isDistractionFreeModeEnabled ());
 
             }
               
@@ -2259,14 +2217,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private void setNoFullScreenBackground ()
     {
 
-        // Check to see if there is a background set, if not use the default.
-        Properties userProps = Environment.getUserProperties ();
-
-        Object bgObj = null;
-        
-        String b = userProps.getProperty (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
-        
-        if (b == null)
+        // Check to see if there is a background set, if not use the default.                
+        if (UserProperties.get (Constants.FULL_SCREEN_BG_PROPERTY_NAME) == null)
         {
  
             BackgroundImage bimg = new BackgroundImage (Constants.DEFAULT_FULL_SCREEN_BG_IMAGE_FILE_NAME);
@@ -2292,10 +2244,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private void setFullScreenBackgroundProperty (Object o)
     {
 
-        Properties userProps = Environment.getUserProperties ();
-
         // Legacy < v2
-        userProps.removeProperty (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
+        UserProperties.remove (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
 
         String v = null;
                 
@@ -2335,28 +2285,12 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         if (v == null)
         {
             
-            userProps.removeProperty (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
+            UserProperties.remove (Constants.FULL_SCREEN_BG_PROPERTY_NAME);
             
         }
-        
-        StringProperty p = new StringProperty (Constants.FULL_SCREEN_BG_PROPERTY_NAME,
-                                               v);
-        p.setDescription ("Full screen background");
 
-        userProps.setProperty (Constants.FULL_SCREEN_BG_PROPERTY_NAME,
-                               p);
-        
-        try
-        {
-            
-            Environment.saveUserProperties (userProps);
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to save user properties",
-                                  e);
-            
-        }
+        UserProperties.set (Constants.FULL_SCREEN_BG_PROPERTY_NAME,
+                            v);
         
     }
     

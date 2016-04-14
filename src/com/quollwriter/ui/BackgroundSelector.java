@@ -121,8 +121,10 @@ public class BackgroundSelector extends Box implements ListSelectionListener
 
         }
 
-        String colors = Environment.getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
+        String colors = UserProperties.get (Constants.COLOR_SWATCHES_PROPERTY_NAME);
 
+        // XXXTODO: Add a listener for the swatches.
+        
         colors = "#ffffff," + colors;
         colors += ",#000000";
 
@@ -154,7 +156,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         this.list.setVisibleRowCount (rows);
         this.list.addListSelectionListener (this);
         this.list.setOpaque (true);
-        this.list.setBackground (Color.white);
+        this.list.setBackground (UIUtils.getComponentColor ());
         UIUtils.setAsButton (this.list);
         
         this.list.addMouseListener (new MouseAdapter ()
@@ -270,7 +272,7 @@ public class BackgroundSelector extends Box implements ListSelectionListener
         try
         {
         
-            String bgFiles = Environment.getUserProperties ().getProperty (Constants.BG_IMAGE_FILES_PROPERTY_NAME);
+            String bgFiles = UserProperties.get (Constants.BG_IMAGE_FILES_PROPERTY_NAME);
             
             if (bgFiles == null)
             {
@@ -337,8 +339,8 @@ public class BackgroundSelector extends Box implements ListSelectionListener
             // Get as a string.
             String data = JDOMUtils.getElementAsString (root);
             
-            Environment.setUserProperty (Constants.BG_IMAGE_FILES_PROPERTY_NAME,
-                                         data);
+            UserProperties.set (Constants.BG_IMAGE_FILES_PROPERTY_NAME,
+                                data);
 
         } catch (Exception e) {
             

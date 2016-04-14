@@ -3526,7 +3526,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     private String getUILayout ()
     {
         
-        String sidebarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+        String sidebarLoc = UserProperties.get (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
         
         String uiLayout = Constants.LAYOUT_CH_PS;
         
@@ -3540,24 +3540,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                 uiLayout = Constants.LAYOUT_CH_PS;
                 
             }
-            
-            Environment.getUserProperties ().removeProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
-            
-            try
-            {
-            
-                Environment.saveUserProperties (Environment.getUserProperties ());
-                
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to save user properties",
-                                      e);
-                
-            }
+                        
+            UserProperties.remove (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
             
         } else {
             
-            uiLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+            uiLayout = UserProperties.get (Constants.UI_LAYOUT_PROPERTY_NAME);
             
         }
 
@@ -3621,7 +3609,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         
         this.setToolbarLocation (this.proj.getProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME));
 
-        String sidebarLoc = Environment.getUserProperties ().getProperty (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
+        String sidebarLoc = UserProperties.get (Constants.SIDEBAR_LOCATION_PROPERTY_NAME);
         
         String uiLayout = this.getUILayout ();
         
@@ -8601,7 +8589,7 @@ xxx
             // column).
             Rectangle pp = p.getEditor ().modelToView (textPos);
             
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+            if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
             {
             
                 if (textPos <= l)

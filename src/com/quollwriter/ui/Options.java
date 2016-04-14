@@ -440,8 +440,6 @@ public class Options extends Box
         		
         Box box = new Box (BoxLayout.Y_AXIS);                
         
-        Properties userProps = Environment.getUserProperties ();
-        
         final JCheckBox showTips = new JCheckBox (Environment.replaceObjectNames ("Show useful tips"));
         showTips.setOpaque (false);
                         
@@ -451,9 +449,9 @@ public class Options extends Box
 		final JCheckBox showCB = new JCheckBox (Environment.replaceObjectNames ("Show the {Projects} window"));
 		showCB.setOpaque (false);
 		
-        showTips.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME));
-		lastCB.setSelected (userProps.getPropertyAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME));
-		showCB.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME));
+        showTips.setSelected (UserProperties.getAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME));
+		lastCB.setSelected (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME));
+		showCB.setSelected (UserProperties.getAsBoolean (Constants.SHOW_LANDING_ON_START_PROPERY_NAME));
 		
         showTips.addItemListener (new ItemAdapter ()
         {
@@ -486,33 +484,13 @@ public class Options extends Box
 					
 					showCB.setSelected (true);
 
-					try
-					{
-					
-						Environment.setUserProperty (Constants.SHOW_LANDING_ON_START_PROPERY_NAME,
-													 showCB.isSelected ());
-					
-					} catch (Exception e) {
-						
-						Environment.logError ("Unable to save show landing on start property",
-											  e);
-						
-					}
+                    UserProperties.set (Constants.SHOW_LANDING_ON_START_PROPERY_NAME,
+										showCB.isSelected ());
 					
 				}
 				
-				try
-				{
-				
-					Environment.setUserProperty (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME,
-												 lastCB.isSelected ());
-                
-				} catch (Exception e) {
-					
-					Environment.logError ("Unable to save open last edited project property",
-										  e);
-					
-				}
+				UserProperties.set (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME,
+									lastCB.isSelected ());
 				
             }
             
@@ -536,34 +514,14 @@ public class Options extends Box
 				{
 					
 					lastCB.setSelected (true);
-
-					try
-					{
 					
-						Environment.setUserProperty (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME,
-													 lastCB.isSelected ());
-					
-					} catch (Exception e) {
-						
-						Environment.logError ("Unable to save open last edited project property",
-											  e);
-						
-					}
+                    UserProperties.set (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME,
+                                        lastCB.isSelected ());
 					
 				}
 
-				try
-				{
-				
-					Environment.setUserProperty (Constants.SHOW_LANDING_ON_START_PROPERY_NAME,
-												 showCB.isSelected ());
-                
-				} catch (Exception e) {
-					
-					Environment.logError ("Unable to save show landing on start property",
-										  e);
-					
-				}
+                UserProperties.set (Constants.SHOW_LANDING_ON_START_PROPERY_NAME,
+                                    showCB.isSelected ());
 
             }
             
@@ -593,7 +551,7 @@ public class Options extends Box
         Box box = new Box (BoxLayout.Y_AXIS);
         
         final JCheckBox optinToBetas = UIUtils.createCheckBox ("Opt-in to beta versions (enables auto-send of errors to Quoll Writer support)");
-        optinToBetas.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME));
+        optinToBetas.setSelected (UserProperties.getAsBoolean (Constants.OPTIN_TO_BETA_VERSIONS_PROPERTY_NAME));
         
         optinToBetas.addActionListener (new ActionAdapter ()
         {
@@ -646,7 +604,7 @@ public class Options extends Box
         Box box = new Box (BoxLayout.Y_AXIS);
         
         this.sendErrorsToSupport = UIUtils.createCheckBox ("Send errors to Quoll Writer support");
-        this.sendErrorsToSupport.setSelected (Environment.getUserProperties ().getPropertyAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME));
+        this.sendErrorsToSupport.setSelected (UserProperties.getAsBoolean (Constants.AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME));
         
         this.sendErrorsToSupport.addActionListener (new ActionAdapter ()
         {
@@ -1232,15 +1190,13 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
-        final Properties userProps = Environment.getUserProperties ();
-  
         c = this.createHelpText ("Show an icon against a {chapter} in the {chapter} list when");
         this.setAsMainItem (c);
   
         box.add (c);
   
         final JCheckBox showEditPos = new JCheckBox (Environment.replaceObjectNames ("it has an edit position"));
-        showEditPos.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME));
+        showEditPos.setSelected (UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME));
         showEditPos.setOpaque (false);
         showEditPos.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -1276,7 +1232,7 @@ public class Options extends Box
         box.add (c);
         
         final JCheckBox showEdited = new JCheckBox (Environment.replaceObjectNames ("it is set as edit complete"));
-        showEdited.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME));
+        showEdited.setSelected (UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME));
         showEdited.setOpaque (false);
         showEdited.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -1416,7 +1372,7 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (15));
 
         final JCheckBox showEditMarker = new JCheckBox (Environment.replaceObjectNames ("Show the edit position in a {chapter}"));
-        showEditMarker.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME));
+        showEditMarker.setSelected (UserProperties.getAsBoolean (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME));
         showEditMarker.setOpaque (false);
         showEditMarker.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -1479,7 +1435,7 @@ public class Options extends Box
 
         box.add (c);
 
-        final Color col = UIUtils.getColor (userProps.getProperty (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME));
+        final Color col = UIUtils.getColor (UserProperties.get (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME));
         
         final JPanel cSwatch = QColorChooser.getSwatch (col);
 
@@ -1491,9 +1447,7 @@ public class Options extends Box
             public void mouseReleased (MouseEvent ev)
             {
 
-                String colors = userProps.getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-                            
-                QPopup popup = QColorChooser.getColorChooserPopup (colors,
+                QPopup popup = QColorChooser.getColorChooserPopup ("Select the edit indicator color",
                                                                    col,
                                                                    new ChangeAdapter ()
                                                                    {
@@ -1620,7 +1574,7 @@ public class Options extends Box
 
         final JCheckBox markEdited = new JCheckBox (Environment.replaceObjectNames ("Set a {chapter} as edit complete when the edit position is at the end of the {chapter}"));
         markEdited.setOpaque (false);
-        markEdited.setSelected (userProps.getPropertyAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME));
+        markEdited.setSelected (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME));
         markEdited.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         markEdited.addItemListener (new ItemAdapter ()
@@ -1697,7 +1651,7 @@ public class Options extends Box
 
         final JCheckBox compressMenu = new JCheckBox (Environment.replaceObjectNames ("Compress the {chapter} right click menu"));
         compressMenu.setOpaque (false);
-        compressMenu.setSelected (userProps.getPropertyAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME));
+        compressMenu.setSelected (UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME));
         compressMenu.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         compressMenu.addItemListener (new ItemAdapter ()
@@ -1803,7 +1757,7 @@ public class Options extends Box
 
         } else {
             
-            downloadFiles.setVisible (!DictionaryProvider.isLanguageInstalled (userProps.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME)));
+            downloadFiles.setVisible (!DictionaryProvider.isLanguageInstalled (UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME)));
                 
         }
         
@@ -1865,7 +1819,7 @@ public class Options extends Box
                 
                         spellcheckLang.setModel (new DefaultComboBoxModel (langs));
                         
-                        String def = userProps.getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+                        String def = UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
                         
                         if (_this.viewer instanceof AbstractProjectViewer)
                         {
@@ -2004,7 +1958,7 @@ public class Options extends Box
             
                 final String lang = spellcheckLang.getSelectedItem ().toString ();
 
-                String def = Environment.getUserProperties ().getProperty (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
+                String def = UserProperties.get (Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME);
 
                 final String currLang = def;
                                 
@@ -2182,9 +2136,7 @@ public class Options extends Box
     {
         
         final Options _this = this;    
-    
-        final Properties userProps = Environment.getUserProperties ();
-    
+        
         Box box = new Box (BoxLayout.Y_AXIS);
         
         final JButton b = UIUtils.createButton ("Change names",
@@ -2219,9 +2171,7 @@ public class Options extends Box
     {
         
         final Options _this = this;    
-    
-        final Properties userProps = Environment.getUserProperties ();
-    
+        
         //box.add (this.createHeader ("How things look and sound"));
         //box.add (Box.createVerticalStrut (5));
         
@@ -2230,7 +2180,7 @@ public class Options extends Box
 		final JCheckBox keepCB = new JCheckBox (Environment.replaceObjectNames ("Keep the {Projects} window open when a {project} is opened"));
 		keepCB.setOpaque (false);
         
-        keepCB.setSelected (!userProps.getPropertyAsBoolean (Constants.CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME));
+        keepCB.setSelected (!UserProperties.getAsBoolean (Constants.CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME));
         
         keepCB.addItemListener (new ItemAdapter ()
         {
@@ -2255,7 +2205,7 @@ public class Options extends Box
 		final JCheckBox openPWCB = new JCheckBox (Environment.replaceObjectNames ("Show the {Projects} window when I have no open {projects}"));
 		openPWCB.setOpaque (false);
         
-        openPWCB.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME));
+        openPWCB.setSelected (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME));
         
         openPWCB.addItemListener (new ItemAdapter ()
         {
@@ -2278,7 +2228,7 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (15));
 
         final JCheckBox showPrev = new JCheckBox (Environment.replaceObjectNames ("Show a brief preview of the object when you mouse over its name in the {project} sidebar"));
-        showPrev.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME));
+        showPrev.setSelected (UserProperties.getAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME));
         showPrev.setOpaque (false);
         
         showPrev.addItemListener (new ItemAdapter ()
@@ -2302,7 +2252,7 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (15));
 
         final JCheckBox showNotesInChapterList = new JCheckBox (Environment.replaceObjectNames ("Show {Notes} in the {Chapter} list"));
-        showNotesInChapterList.setSelected (userProps.getPropertyAsBoolean (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME));
+        showNotesInChapterList.setSelected (UserProperties.getAsBoolean (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME));
         showNotesInChapterList.setOpaque (false);
         
         showNotesInChapterList.addItemListener (new ItemAdapter ()
@@ -2343,7 +2293,7 @@ public class Options extends Box
         
         box.add (c);
                 
-        String selLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+        String selLayout = UserProperties.get (Constants.UI_LAYOUT_PROPERTY_NAME);
 
         final JLabel layoutSel = new JLabel (new ImageIcon (Environment.getImage (Constants.DATA_DIR + selLayout + ".png")));
         
@@ -2356,7 +2306,7 @@ public class Options extends Box
             public void handlePress (MouseEvent ev)
             {
                 
-                String selLayout = Environment.getUserProperties ().getProperty (Constants.UI_LAYOUT_PROPERTY_NAME);
+                String selLayout = UserProperties.get (Constants.UI_LAYOUT_PROPERTY_NAME);
 
                 final QPopup qp = UIUtils.createClosablePopup ("Select a layout",
                                                                Environment.getIcon (Constants.EDIT_ICON_NAME,
@@ -2552,7 +2502,7 @@ public class Options extends Box
 
         final JComboBox toolbarLoc = new JComboBox (v);
 
-        String loc = userProps.getProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME);
+        String loc = UserProperties.get (Constants.TOOLBAR_LOCATION_PROPERTY_NAME);
 
         int ind = 0;
 
@@ -2587,7 +2537,7 @@ public class Options extends Box
         
                 }
         
-                if (loc.equals (userProps.getProperty (Constants.TOOLBAR_LOCATION_PROPERTY_NAME)))
+                if (loc.equals (UserProperties.get (Constants.TOOLBAR_LOCATION_PROPERTY_NAME)))
                 {
 
                     return;
@@ -2639,7 +2589,7 @@ public class Options extends Box
 
         final JComboBox tabsLoc = new JComboBox (v);
 
-        loc = userProps.getProperty (Constants.TABS_LOCATION_PROPERTY_NAME);
+        loc = UserProperties.get (Constants.TABS_LOCATION_PROPERTY_NAME);
 
         ind = 0;
 
@@ -2688,7 +2638,7 @@ public class Options extends Box
         
                 }
         
-                if (loc.equals (userProps.getProperty (Constants.TABS_LOCATION_PROPERTY_NAME)))
+                if (loc.equals (UserProperties.get (Constants.TABS_LOCATION_PROPERTY_NAME)))
                 {
 
                     return;
@@ -2730,7 +2680,7 @@ public class Options extends Box
                 
         final JCheckBox playSound = new JCheckBox (UIUtils.formatForUser ("Play a typewriter sound when editing a {chapter}."));
 
-        boolean playSoundEnabled = userProps.getPropertyAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
+        boolean playSoundEnabled = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
 
         final FileFinder f = new FileFinder ();
         final JButton useB = new JButton ("Use Sound");
@@ -2789,7 +2739,7 @@ public class Options extends Box
         
         box.add (c);
         
-        String sf = userProps.getProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
+        String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
 
         if (sf == null)
         {
@@ -2834,7 +2784,7 @@ public class Options extends Box
             public void actionPerformed (ActionEvent ev)
             {
                 
-                Environment.getUserProperties ().removeProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
+                UserProperties.remove (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
                 
                 useB.setEnabled (false);
                 testB.setEnabled (false);
@@ -3380,24 +3330,9 @@ public class Options extends Box
                                      boolean value)
     {
         
-        try
-        {
+        UserProperties.set (name,
+                            value);
     
-            Environment.setUserProperty (name,
-                                         new BooleanProperty (name,
-                                                              value));
-    
-        } catch (Exception e)
-        {
-    
-            Environment.logError ("Unable to save user properties",
-                                  e);
-    
-            UIUtils.showErrorMessage (this,
-                                      "Unable to save user properties");
-    
-        }
-
         if (this.viewer instanceof AbstractProjectViewer)
         {
         
@@ -3411,23 +3346,8 @@ public class Options extends Box
                                      String value)
     {
         
-        try
-        {
-    
-            Environment.setUserProperty (name,
-                                         new StringProperty (name,
-                                                             value));
-    
-        } catch (Exception e)
-        {
-    
-            Environment.logError ("Unable to save user properties",
-                                  e);
-    
-            UIUtils.showErrorMessage (this,
-                                      "Unable to save user properties");
-    
-        }
+        UserProperties.set (name,
+                            value);
 
         if (this.viewer instanceof AbstractProjectViewer)
         {

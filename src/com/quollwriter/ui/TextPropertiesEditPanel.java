@@ -280,8 +280,6 @@ public class TextPropertiesEditPanel extends Box
 
             public void mouseReleased (MouseEvent ev)
             {
-
-                String colors = Environment.getUserProperties ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
             
                 Color writingLineColor = _this.textProps.getWritingLineColor ();
   
@@ -290,7 +288,7 @@ public class TextPropertiesEditPanel extends Box
                 if (popup == null)
                 {
                 
-                    popup = QColorChooser.getColorChooserPopup (colors,
+                    popup = QColorChooser.getColorChooserPopup ("Select the highlight line color",
                                                                 writingLineColor,
                                                                 new ChangeAdapter ()
                                                                 {
@@ -370,8 +368,6 @@ public class TextPropertiesEditPanel extends Box
                 public void mouseReleased (MouseEvent ev)
                 {
     
-                    String colors = Environment.getUserProperties ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-                
                     Color textcolor = _this.textProps.getTextColor ();
                 
                     QPopup popup = _this.popups.get ("textcolor");
@@ -379,7 +375,7 @@ public class TextPropertiesEditPanel extends Box
                     if (popup == null)
                     {
                     
-                        popup = QColorChooser.getColorChooserPopup (colors,
+                        popup = QColorChooser.getColorChooserPopup ("Select the text color",
                                                                     textcolor,
                                                                     new ChangeAdapter ()
                                                                     {
@@ -457,8 +453,6 @@ public class TextPropertiesEditPanel extends Box
                 public void mouseReleased (MouseEvent ev)
                 {
     
-                    String colors = Environment.getUserProperties ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-    
                     Color bgcolor = _this.textProps.getBackgroundColor ();   
     
                     QPopup popup = _this.popups.get ("bgcolor");
@@ -466,7 +460,7 @@ public class TextPropertiesEditPanel extends Box
                     if (popup == null)
                     {
                         
-                        popup = QColorChooser.getColorChooserPopup (colors,
+                        popup = QColorChooser.getColorChooserPopup ("Select the background color",
                                                                     bgcolor,
                                                                     new ChangeAdapter ()
                                                                     {
@@ -781,8 +775,6 @@ public class TextPropertiesEditPanel extends Box
 
             public void mouseReleased (MouseEvent ev)
             {
-
-                String colors = Environment.getUserProperties ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
             
                 Color writingLineColor = _this.textProps.getWritingLineColor ();
   
@@ -791,7 +783,7 @@ public class TextPropertiesEditPanel extends Box
                 if (popup == null)
                 {
                 
-                    popup = QColorChooser.getColorChooserPopup (colors,
+                    popup = QColorChooser.getColorChooserPopup ("Select the highlight line color",
                                                                 writingLineColor,
                                                                 new ChangeAdapter ()
                                                                 {
@@ -839,7 +831,9 @@ public class TextPropertiesEditPanel extends Box
 
                 }
 
-                _this.popupParent.showPopupAt (popup,
+                popup.setDraggable (_this.viewer);
+                
+                _this.viewer.showPopupAt (popup,
                                                _this.writingLineHighlightColorSwatch,
                                                true);
 
@@ -865,8 +859,6 @@ public class TextPropertiesEditPanel extends Box
                 public void mouseReleased (MouseEvent ev)
                 {
     
-                    String colors = Environment.getUserProperties ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-                
                     Color textcolor = _this.textProps.getTextColor ();
                 
                     QPopup popup = _this.popups.get ("textcolor");
@@ -874,7 +866,7 @@ public class TextPropertiesEditPanel extends Box
                     if (popup == null)
                     {
                     
-                        popup = QColorChooser.getColorChooserPopup (colors,
+                        popup = QColorChooser.getColorChooserPopup ("Select the text color",
                                                                     textcolor,
                                                                     new ChangeAdapter ()
                                                                     {
@@ -902,9 +894,9 @@ public class TextPropertiesEditPanel extends Box
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
                                                                             
-                                                                            QPopup p = _this.popups.remove ("textcolor");
+                                                                            //QPopup p = _this.popups.remove ("textcolor");
                                                                             
-                                                                            p.removeFromParent ();
+                                                                            //p.removeFromParent ();
                                                                             
                                                                         }
                                                                         
@@ -927,7 +919,9 @@ public class TextPropertiesEditPanel extends Box
     
                     }
     
-                    _this.popupParent.showPopupAt (popup,
+                    popup.setDraggable (_this.viewer);
+    
+                    _this.viewer.showPopupAt (popup,
                                                    _this.textcolorSwatch,
                                                    true);
                                                    //new Point (x, y));
@@ -946,8 +940,6 @@ public class TextPropertiesEditPanel extends Box
                 public void mouseReleased (MouseEvent ev)
                 {
     
-                    String colors = Environment.getUserProperties ().getProperty (Constants.COLOR_SWATCHES_PROPERTY_NAME);
-    
                     Color bgcolor = _this.textProps.getBackgroundColor ();   
     
                     QPopup popup = _this.popups.get ("bgcolor");
@@ -955,7 +947,7 @@ public class TextPropertiesEditPanel extends Box
                     if (popup == null)
                     {
                         
-                        popup = QColorChooser.getColorChooserPopup (colors,
+                        popup = QColorChooser.getColorChooserPopup ("Select the background color",
                                                                     bgcolor,
                                                                     new ChangeAdapter ()
                                                                     {
@@ -1011,7 +1003,9 @@ public class TextPropertiesEditPanel extends Box
     
                     }
     
-                    _this.popupParent.showPopupAt (popup,
+                    popup.setDraggable (_this.viewer);
+    
+                    _this.viewer.showPopupAt (popup,
                                                    new Point (x, y),
                                                    true);
                     

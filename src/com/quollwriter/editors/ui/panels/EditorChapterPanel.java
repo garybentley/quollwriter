@@ -515,7 +515,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             // column).
             Rectangle pp = this.editor.modelToView (textPos);
             
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
+            if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
             {
             
                 if (textPos < tl)
@@ -624,7 +624,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                final JPopupMenu popup)
     {
 
-      boolean compress = Environment.getUserProperties ().getPropertyAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);    
+      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);    
       
       this.doFillPopupMenu (ev,
                             popup,

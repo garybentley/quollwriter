@@ -733,7 +733,7 @@ public class IconColumn extends JPanel implements DocumentListener
             
         }
         
-        if (!Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME))
+        if (!UserProperties.getAsBoolean (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME))
         {
             
             return;
@@ -742,7 +742,7 @@ public class IconColumn extends JPanel implements DocumentListener
         
         int w = this.getSize ().width;
         
-        Color c = UIUtils.getColor (Environment.getUserProperties ().getProperty (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME));
+        Color c = UIUtils.getColor (UserProperties.get (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME));
         
         try
         {
