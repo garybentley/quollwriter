@@ -91,11 +91,17 @@ public class Constants
 
     public static final String VERSION_TAG = "[[VERSION]]";
     
+    public static final String HTTP_PROTOCOL = "http";
+    
+    public static final String HTTPS_PROTOCOL = "https";
+    
     public static final String OPENPROJECT_PROTOCOL = "openproject";
     
     public static final String OPENEDITORMESSAGE_PROTOCOL = "openeditormessage";
 
     public static final String OBJECTREF_PROTOCOL = "objectref";
+
+    public static final String OBJECTNAME_PROTOCOL = "objectname";
 
     public static final String ACTION_PROTOCOL = "action";
 

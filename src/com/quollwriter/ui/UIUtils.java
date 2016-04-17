@@ -2287,6 +2287,153 @@ public class UIUtils
 
     }
     
+    public static void showObjectSelectPopup (final Set<? extends NamedObject> objs,
+                                              final AbstractViewer             parent,
+                                              final String                     popupTitle,
+                                              final ActionListener             onSelect,
+                                              final boolean                    closeOnSelect,
+                                              final Point                      showAt)
+    {
+        
+        UIUtils.doActionLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+    
+                final Box content = new Box (BoxLayout.Y_AXIS);
+                        
+                content.setOpaque (true);
+                content.setBackground (UIUtils.getComponentColor ());
+                
+                DefaultListModel<NamedObject> m = new DefaultListModel ();
+                
+                for (NamedObject o : objs)
+                {
+                    
+                    m.addElement (o);
+                    
+                }
+                                
+                final JList l = new JList ();
+                l.setModel (m);
+                l.setLayoutOrientation (JList.VERTICAL);
+                l.setVisibleRowCount (0);
+                l.setOpaque (true);
+                l.setBackground (UIUtils.getComponentColor ());
+                l.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                 Short.MAX_VALUE));
+                UIUtils.setAsButton (l);
+        
+                l.setCellRenderer (new DefaultListCellRenderer ()
+                {
+        
+                    public Component getListCellRendererComponent (JList   list,
+                                                                   Object  value,
+                                                                   int     index,
+                                                                   boolean isSelected,
+                                                                   boolean cellHasFocus)
+                    {
+        
+                        NamedObject obj = (NamedObject) value;
+        
+                        JLabel l = (JLabel) super.getListCellRendererComponent (list,
+                                                                                value,
+                                                                                index,
+                                                                                isSelected,
+                                                                                cellHasFocus);
+                        
+                        l.setText (obj.getName ());
+        
+                        l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+                        l.setIcon (Environment.getObjectIcon (obj,
+                                                              Constants.ICON_NOTIFICATION));
+                        l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
+        
+                        if (cellHasFocus)
+                        {
+                            
+                            l.setBackground (Environment.getHighlightColor ());
+                            
+                        }
+        
+                        return l;
+ 
+                    }
+        
+                });
+                
+                int rowHeight = 37;
+                
+                l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+                /*
+                final Dimension sSize = new Dimension (this.swatchSize.width + (2 * this.borderWidth) + (2 * this.horizGap),
+                                                       this.swatchSize.height + (2 * this.borderWidth) + (2 * this.vertGap));
+                */
+                JScrollPane sp = new JScrollPane (l);
+                
+                sp.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
+                sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+                sp.setOpaque (false);
+                
+                sp.getViewport ().setPreferredSize (new Dimension (400,
+                                                                   rowHeight * (objs.size () > 3 ? 3 : objs.size ())));
+                                                                   
+                sp.setBorder (null);
+                
+                content.add (sp);
+                                                
+                final QPopup ep = UIUtils.createClosablePopup ((popupTitle != null ? popupTitle : "Select an item"),
+                                                               Environment.getIcon (Constants.VIEW_ICON_NAME,
+                                                                                    Constants.ICON_POPUP),
+                                                               null);
+                
+                ep.setContent (content);
+
+                l.addListSelectionListener (new ListSelectionListener ()
+                {
+                    
+                    @Override
+                    public void valueChanged (ListSelectionEvent ev)
+                    {
+                        
+                        if (onSelect != null)
+                        {
+                            
+                            NamedObject obj = (NamedObject) l.getSelectedValue ();
+                            
+                            onSelect.actionPerformed (new ActionEvent (l,
+                                                                       0,
+                                                                       obj.getObjectReference ().asString ()));
+                            
+                            if (closeOnSelect)
+                            {
+                            
+                                ep.removeFromParent ();
+                                
+                            }
+                                           
+                        }
+                    }
+                    
+                });
+        
+                content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                                    content.getPreferredSize ().height));
+                                                    
+                parent.showPopupAt (ep,
+                                    (showAt != null ? showAt : UIUtils.getCenterShowPosition (parent,
+                                                                                              ep)),
+                                    false);
+                ep.setDraggable (parent);
+                
+            }
+            
+        });
+        
+    }
+    
     public static void showMessage (final PopupsSupported parent,
                                     final String          title,
                                     final Component       message,
@@ -4022,98 +4169,136 @@ public class UIUtils
                 
         for (NamedObject n : objs)
         {
+                
+            Set<Integer> matches = null;
                         
             for (String name : n.getAllNames ())
             {                        
             
-                Set<Integer> matches = ti.findAllTextIndexes (name,
-                                                              null);
-                
-                // This needs to be on a language basis.
+                matches = ti.findAllTextIndexes (name,
+                                                 null);
+                                
+                // TODO: This needs to be on a language basis.
                 Set<Integer> matches2 = ti.findAllTextIndexes (name + "'s",
                                                                null);
     
                 matches.addAll (matches2);
-                                                               
-                if (matches != null)
-                {
-                                                            
-                    Iterator<Integer> iter = matches.iterator ();
+                
+                Iterator<Integer> iter = matches.iterator ();
     
-                    while (iter.hasNext ())
+                while (iter.hasNext ())
+                {
+                    
+                    Integer ind = iter.next ();
+                    
+                    // Now search back through the string to make sure
+                    // we aren't actually part of a http or https string.
+                    int httpInd = t.lastIndexOf ("http://",
+                                                 ind);
+                    int httpsInd = t.lastIndexOf ("https://",
+                                                  ind);
+                    
+                    if ((httpInd > -1)
+                        ||
+                        (httpsInd > -1)
+                       )
                     {
                         
-                        Integer ind = iter.next ();
+                        // Check forward to ensure there is no white space.
+                        String ss = t.substring (Math.max (httpInd, httpsInd),
+                                                 ind);
                         
-                        // Now search back through the string to make sure
-                        // we aren't actually part of a http or https string.
-                        int httpInd = t.lastIndexOf ("http://",
-                                                     ind);
-                        int httpsInd = t.lastIndexOf ("https://",
-                                                      ind);
+                        boolean hasWhitespace = false;
                         
-                        if ((httpInd > -1)
-                            ||
-                            (httpsInd > -1)
-                           )
+                        char[] chars = ss.toCharArray ();
+                        
+                        for (int i = 0; i < chars.length; i++)
                         {
                             
-                            // Check forward to ensure there is no white space.
-                            String ss = t.substring (Math.max (httpInd, httpsInd),
-                                                     ind);
-                            
-                            boolean hasWhitespace = false;
-                            
-                            char[] chars = ss.toCharArray ();
-                            
-                            for (int i = 0; i < chars.length; i++)
+                            if (Character.isWhitespace (chars[i]))
                             {
                                 
-                                if (Character.isWhitespace (chars[i]))
-                                {
-                                    
-                                    hasWhitespace = true;
-                                    
-                                    break;
-                                    
-                                }
+                                hasWhitespace = true;
                                 
-                            }
-                            
-                            if (!hasWhitespace)
-                            {
-                                
-                                // This name is part of a http/https link so ignore.
-                                continue;
+                                break;
                                 
                             }
                             
                         }
                         
-                        // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
-                        if (Character.isLowerCase (t.charAt (ind)))
+                        if (!hasWhitespace)
                         {
                             
-                            reps.put (ind,
-                                      new NamedObjectNameWrapper (name.toLowerCase (),
-                                                                  n));
-                            
-                        } else {
-                            
-                            // Uppercase each of the words in the name.
-                            reps.put (ind,
-                                      new NamedObjectNameWrapper (TextUtilities.capitalize (name),
-                                                                  n));
+                            // This name is part of a http/https link so ignore.
+                            continue;
                             
                         }
-    
+                        
+                    }
+                    
+                    // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
+                    if (Character.isLowerCase (t.charAt (ind)))
+                    {
+                        
+                        reps.put (ind,
+                                  new NamedObjectNameWrapper (name.toLowerCase (),
+                                                              n));
+                        
+                    } else {
+                        
+                        // Uppercase each of the words in the name.
+                        reps.put (ind,
+                                  new NamedObjectNameWrapper (TextUtilities.capitalize (name),
+                                                              n));
+                        
                     }
                     
                 }
-                
-            }
 
+            }
+                    
         }
+        
+        NavigableMap<Integer, NamedObjectNameWrapper> nreps = new TreeMap ();
+        
+        List<Integer> mis = new ArrayList (reps.keySet ());
+            
+        // Sort by location.
+        Collections.sort (mis);
+                        
+        // Prune out the overlaps.
+        for (int i = 0; i < mis.size (); i++)
+        {
+            
+            Integer curr = mis.get (i);
+            
+            NamedObjectNameWrapper wrap = reps.get (curr);
+            
+            nreps.put (curr,
+                       wrap);
+                        
+            int ni = i + 1;
+            
+            if (ni < mis.size ())
+            {
+            
+                Integer next = mis.get (ni);
+                                    
+                // Does the next match start before the end of the current match?
+                if (next.intValue () <= curr.intValue () + wrap.name.length ())
+                {
+                    
+                    // Move to the next, when the loop goes to the next it will
+                    // increment again moving past it.
+                    i = ni;
+                    
+                }
+                
+            } 
+            
+        }
+        
+        reps = nreps;
         
         StringBuilder b = new StringBuilder (t);
         
@@ -4126,13 +4311,20 @@ public class UIUtils
             Integer ind = iter.next ();
             
             NamedObjectNameWrapper obj = reps.get (ind);
-            
+/*                            
             b = b.replace (ind,
                            ind + obj.name.length (),
                            "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + obj.namedObject.getObjectReference ().asString () + "'>" + obj.name + "</a>");
-            
+  */          
+            b = b.replace (ind,
+                           ind + obj.name.length (),
+                           String.format ("<a href='%s://%s'>%s</a>",
+                                          Constants.OBJECTNAME_PROTOCOL,
+                                          obj.name,
+                                          obj.name));
+
         }
-        
+
         t = b.toString ();
         
         t = StringUtils.replaceString (t,
@@ -5155,6 +5347,73 @@ public class UIUtils
 
                         }
 
+                        if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
+                        {
+                        
+                            Set<Asset> objs = pv.getProject ().getAllAssetsByName (url.getHost (),
+                                                                                   null);
+                        
+                            if ((objs == null)
+                                ||
+                                (objs.size () == 0)
+                               )
+                            {
+                                
+                                return;
+                                
+                            }
+                            
+                            if (objs.size () == 1)
+                            {
+                        
+                                pv.viewObject (objs.iterator ().next ());
+
+                                return;
+                            
+                            } else {
+                                
+                                try
+                                {
+                                
+                                    Point point = desc.modelToView (ev.getSourceElement ().getStartOffset ()).getLocation ();
+                                    
+                                    point = SwingUtilities.convertPoint (desc,
+                                                                         point,
+                                                                         pv);
+                                    
+                                    UIUtils.showObjectSelectPopup (objs,
+                                                                   pv,
+                                                                   "Select an item to view",
+                                                                   new ActionListener ()
+                                                                   {
+                                                                    
+                                                                        @Override
+                                                                        public void actionPerformed (ActionEvent ev)
+                                                                        {
+                                                                            
+                                                                            pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (ev.getActionCommand ())));
+                                                                            
+                                                                        }
+                                                                    
+                                                                   },
+                                                                   true,
+                                                                   point);
+                                    
+                                } catch (Exception e) {
+                                    
+                                    Environment.logError ("Unable to show popup",
+                                                          e);
+                                    
+                                    pv.viewObject (objs.iterator ().next ());
+                                    
+                                    return;
+                                    
+                                }
+                                
+                            }
+
+                        }
+
                         if (url.getProtocol ().equals ("mailto"))
                         {
 
@@ -5171,33 +5430,45 @@ public class UIUtils
 
             });
 
-        PropertyChangedAdapter pca = new PropertyChangedAdapter ()
+        if (qp != null)
         {
 
-            public void propertyChanged (PropertyChangedEvent ev)
+            PropertyChangedAdapter pca = new PropertyChangedAdapter ()
             {
-
-                if (ev.getChangeType ().equals (NamedObject.DESCRIPTION))
+    
+                public void propertyChanged (PropertyChangedEvent ev)
                 {
-            
-                    desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
-                                                                 UIUtils.markupStringForAssets (description,
-                                                                                                pv.getProject (),
-                                                                                                n)));
-
+    
+                    if (ev.getChangeType ().equals (NamedObject.DESCRIPTION))
+                    {
+                
+                        desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
+                                                                     UIUtils.markupStringForAssets (description,
+                                                                                                    pv.getProject (),
+                                                                                                    n)));
+    
+                    }
+                                                                                                    
                 }
-                                                                                                
-            }
+    
+            };
+        
+            qp.addObjectPropertyChangedListener (pca);
+    
+            pca.propertyChanged (new PropertyChangedEvent (qp,
+                                                           NamedObject.DESCRIPTION,
+                                                           null,
+                                                           null));
 
-        };
-
-        qp.addObjectPropertyChangedListener (pca);
-
-        pca.propertyChanged (new PropertyChangedEvent (qp,
-                                                       NamedObject.DESCRIPTION,
-                                                       null,
-                                                       null));
-
+        } else {
+                        
+            desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
+                                                         UIUtils.markupStringForAssets (description,
+                                                                                        pv.getProject (),
+                                                                                        n)));            
+                                                           
+        }
+        
         return desc;
 
     }

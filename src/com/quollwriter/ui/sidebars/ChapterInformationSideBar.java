@@ -68,7 +68,9 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
         super.init ();
         
-        this.scrollVerticalTo (0);
+        this.update (this.chapter);        
+        
+        //this.scrollVerticalTo (0);
         
     }
     
@@ -81,24 +83,31 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
             
             AbstractEditorPanel p = (AbstractEditorPanel) ev.getPanel ();
 
-            this.chapter = p.getChapter ();
-
-            this.desc.update (this.chapter);
-            
-            this.goals.update (this.chapter);
-            
-            this.plan.update (this.chapter);
-            
-            this.linkedTo.update (this.chapter);
+            this.update (p.getChapter ());
                         
-            this.setTitle (this.chapter.getName ());
-            
-            this.scrollVerticalTo (0);
-            
         }
 
     }
         
+    private void update (Chapter c)
+    {
+
+        this.chapter = c;
+        
+        this.desc.update (this.chapter);
+        
+        this.goals.update (this.chapter);
+        
+        this.plan.update (this.chapter);
+        
+        this.linkedTo.update (this.chapter);
+                    
+        this.setTitle (this.chapter.getName ());
+
+        this.scrollVerticalTo (0);
+        
+    }
+    
     public List<AccordionItem> getItems ()
     {
         
@@ -123,7 +132,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         items.add (this.plan);
         
         items.add (this.linkedTo);
-        
+                
         return items;
         
     }

@@ -869,40 +869,54 @@ public class Project extends NamedObject
                                     a.getObjectType ()) != null;
 
     }
-
-    public Set<? extends Asset> getAllAssetsByName (String n,
-                                                    String objType)
+    
+    public Set<Asset> getAllAssetsByName (String n,
+                                          String objType)
     {
 
-        if (objType.equals (Location.OBJECT_TYPE))
+        Set<Asset> assets = new LinkedHashSet ();
+    
+        if ((objType == null)
+            ||
+            (objType.equals (Location.OBJECT_TYPE))
+           )
         {
 
-            return this.getAllLocationsByName (n);
+            assets.addAll (this.getAllLocationsByName (n));
 
         }
 
-        if (objType.equals (QCharacter.OBJECT_TYPE))
+        if ((objType == null)
+            ||
+            (objType.equals (QCharacter.OBJECT_TYPE))
+           )
         {
 
-            return this.getAllCharactersByName (n);
+            assets.addAll (this.getAllCharactersByName (n));
 
         }
 
-        if (objType.equals (QObject.OBJECT_TYPE))
+        if ((objType == null)
+            ||
+            (objType.equals (QObject.OBJECT_TYPE))
+           )
         {
 
-            return this.getAllQObjectsByName (n);
+            assets.addAll (this.getAllQObjectsByName (n));
 
         }
 
-        if (objType.equals (ResearchItem.OBJECT_TYPE))
+        if ((objType == null)
+            ||
+            (objType.equals (ResearchItem.OBJECT_TYPE))
+           )
         {
 
-            return this.getAllResearchItemsByName (n);
+            assets.addAll (this.getAllResearchItemsByName (n));
 
         }
 
-        return null;
+        return assets;
         
     }
     
@@ -975,13 +989,36 @@ public class Project extends NamedObject
         for (Asset a : assets)
         {
 
-            if (a.getName ().toLowerCase ().equals (n))
+            if (a.getName ().equalsIgnoreCase (n))
             {
 
                 matched.add (a);
 
+                continue;
+                
             }
 
+            List<String> aliases = a.getAliasesAsList ();
+            
+            if (aliases != null)
+            {
+                
+                for (String al : aliases)
+                {
+                    
+                    if (al.equalsIgnoreCase (n))
+                    {
+        
+                        matched.add (a);
+        
+                        continue;
+        
+                    }
+                    
+                }
+                
+            }
+            
         }
 
         return matched;
