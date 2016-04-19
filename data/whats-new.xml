@@ -1,5 +1,16 @@
 <whatsnew>
 
+  <version id="2.5">
+    <item>
+      <title>Targets</title>
+      <description><![CDATA[You can now set certain targets to track how your writing is progressing.  Set targets for how much you write in a session, every day, week or month.  A number of new charts have been added to help you track these statistics over time.<br /><br />You can also specify targets for {chapter} length and readability.<br /><br /><a href='action:targets'>Click here</a> to open the Targets sidebar which can be accessed from the {Project} menu.]]></description>
+    </item>
+    <item>
+      <title>Updated Charts &amp; some new ones</title>
+      <description><![CDATA[The charts have been revamped and some new ones have been added to help keep track of your targets.<br /><br /><a href='action:statistics'>Click here</a> to open the Statistics/Charts panel.]]></description>
+    </item>
+  </version>
+
   <version id="2.4.2">        
     <item onlyIfCurrentVersion="true">
       <title>Bug fixes and a change to Editors service invites</title>

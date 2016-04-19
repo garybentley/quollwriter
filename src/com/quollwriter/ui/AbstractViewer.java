@@ -2360,6 +2360,33 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 
             }
             
+            if (v.equals ("targets"))
+            {
+
+                this.viewTargets ();
+                
+                return;
+                
+            }
+
+            if (v.equals ("statistics"))
+            {
+
+                this.viewStatistics ();
+                
+                return;
+                
+            }
+
+            if (v.equals ("charts"))
+            {
+
+                this.viewStatistics ();
+                
+                return;
+                
+            }
+
         } catch (Exception e) {
             
             Environment.logError ("Unable to perform action: " +
