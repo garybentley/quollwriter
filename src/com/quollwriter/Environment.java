@@ -3501,6 +3501,13 @@ public class Environment
             
         }
         
+        if (userProps == null)
+        {
+            
+            userProps = new com.gentlyweb.properties.Properties ();
+            
+        }
+        
         if (userProps != sysProps)
         {
     
