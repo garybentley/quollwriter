@@ -953,72 +953,88 @@ public class Environment
         
     }
     
-    public static void deleteProject (ProjectInfo pr,
-                                      ActionListener onDelete)
+    public static void deleteProject (final ProjectInfo pr,
+                                      final ActionListener onDelete)
     {
 
         AbstractProjectViewer viewer = Environment.openProjects.get (pr);
+                
+        ActionListener onClose = new ActionListener ()
+        {
         
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                // There is probably now (because of h2) a "projectdb.lobs.db" directory.
+                // Add a can delete file to it.
+                try
+                {
+        
+                    Utils.createQuollWriterDirFile (new File (pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db"));
+        
+                } catch (Exception e)
+                {
+        
+                    // Ignore for now.
+                    Environment.logError ("Unable to add can delete dir file to: " +
+                                          pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db",
+                                          e);
+        
+                }        
+                
+                // Delete the directory.
+                Utils.deleteDir (pr.getProjectDirectory ());
+        
+                // Delete the backup directory.
+                Utils.deleteDir (pr.getBackupDirectory ());
+                
+                // Remove the project from the list.
+                try
+                {
+        
+                    Environment.projectInfoManager.deleteObject (pr,
+                                                                 false,
+                                                                 null);
+                
+                } catch (Exception e)
+                {
+        
+                    Environment.logError ("Unable to delete project: " +
+                                          pr,
+                                          e);
+        
+                }
+        
+                Environment.fireProjectInfoChangedEvent (pr,
+                                                         ProjectInfoChangedEvent.DELETED);
+                
+                if (onDelete != null)
+                {
+                    
+                    onDelete.actionPerformed (new ActionEvent (pr, 1, "deleted"));
+                    
+                } else {
+                
+                    Environment.showLandingIfNoOpenProjects ();
+        
+                }
+                
+            }
+           
+            
+        };
+           
         if (viewer != null)
         {
             
             viewer.close (true,
-                          null);
-            
-        }
-        
-        // There is probably now (because of h2) a "projectdb.lobs.db" directory.
-        // Add a can delete file to it.
-        try
-        {
-
-            Utils.createQuollWriterDirFile (new File (pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db"));
-
-        } catch (Exception e)
-        {
-
-            // Ignore for now.
-            Environment.logError ("Unable to add can delete dir file to: " +
-                                  pr.getProjectDirectory ().getPath () + "/projectdb.lobs.db",
-                                  e);
-
-        }        
-        
-        // Delete the directory.
-        Utils.deleteDir (pr.getProjectDirectory ());
-
-        // Delete the backup directory.
-        Utils.deleteDir (pr.getBackupDirectory ());
-        
-        // Remove the project from the list.
-        try
-        {
-
-            Environment.projectInfoManager.deleteObject (pr,
-                                                         false,
-                                                         null);
-        
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to delete project: " +
-                                  pr,
-                                  e);
-
-        }
-
-        Environment.fireProjectInfoChangedEvent (pr,
-                                                 ProjectInfoChangedEvent.DELETED);
-        
-        if (onDelete != null)
-        {
-            
-            onDelete.actionPerformed (new ActionEvent (pr, 1, "deleted"));
+                          onClose);
             
         } else {
-        
-            Environment.showLandingIfNoOpenProjects ();
 
+            UIUtils.doLater (onClose);
+            
         }
                 
     }
