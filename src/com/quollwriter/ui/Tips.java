@@ -238,7 +238,10 @@ public class Tips
                         if (qp != null)
                         {
                         
-                            if (c.equals ("chaptertab"))
+                            if ((c.equals ("chaptertab"))
+                                &&
+                                (qp instanceof ProjectObjectQuollPanel)
+                               )
                             {
                                 
                                 v = (((ProjectObjectQuollPanel) qp).getForObject () instanceof Chapter);
