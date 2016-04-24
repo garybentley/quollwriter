@@ -2583,7 +2583,7 @@ public class Environment
                                                                                             
                                                 }
                                                 
-                                            });
+                                            }).resize ();
                 
                 return;
 
