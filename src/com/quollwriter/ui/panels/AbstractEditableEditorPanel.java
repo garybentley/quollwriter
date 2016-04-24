@@ -69,7 +69,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         
         this.actions.put (DELETE_CHAPTER_ACTION_NAME,
                           new DeleteChapterActionHandler ((Chapter) this.obj,
-                                                                    this.projectViewer));
+                                                                    this.viewer));
 
         this.actions.put (SAVE_ACTION_NAME,
                           new ActionAdapter ()
@@ -236,9 +236,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 if (ev.getLength () > 0)
                 {
                         
-                    _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                                          ProjectEvent.EDIT,
-                                                          _this.chapter);
+                    _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                                   ProjectEvent.EDIT,
+                                                   _this.chapter);
                     
                 }
 
@@ -395,9 +395,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 if (ev.getLength () > 0)
                 {
                         
-                    _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                                          ProjectEvent.EDIT,
-                                                          _this.chapter);
+                    _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                                   ProjectEvent.EDIT,
+                                                   _this.chapter);
                     
                 }                    
 
@@ -566,7 +566,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                             "Click to view the word counts and readability indices",
                                             TOGGLE_WORDCOUNTS_ACTION_NAME));
 
-        String type = (this.projectViewer.isSpellCheckingEnabled () ? "off" : "on");
+        String type = (this.viewer.isSpellCheckingEnabled () ? "off" : "on");
 
         acts.add (this.createToolbarButton ("spellchecker-turn-" + type,
                                             "Click to turn the spell checker " + type,
@@ -856,9 +856,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                     editor.addWordToDictionary (ev.getActionCommand ());
 
-                    _this.projectViewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
-                                                          ProjectEvent.ADD_WORD,
-                                                          ev.getActionCommand ());
+                    _this.viewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
+                                                   ProjectEvent.ADD_WORD,
+                                                   ev.getActionCommand ());
 
                 }
 
@@ -934,9 +934,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                                               loc + word.length (),
                                                               repWord);
                                 
-                                    _this.projectViewer.fireProjectEvent (ProjectEvent.SPELL_CHECK,
-                                                                          ProjectEvent.REPLACE,
-                                                                          ev.getActionCommand ());
+                                    _this.viewer.fireProjectEvent (ProjectEvent.SPELL_CHECK,
+                                                                   ProjectEvent.REPLACE,
+                                                                   ev.getActionCommand ());
     
                                 }
     
@@ -978,11 +978,11 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 } else
                 {
     
-                    if ((this.projectViewer.synonymLookupsSupported ()) &&
+                    if ((this.viewer.synonymLookupsSupported ()) &&
                         (ev.getSource () == this.editor))
                     {
     
-                        if (Environment.isEnglish (_this.projectViewer.getSpellCheckLanguage ()))
+                        if (Environment.isEnglish (_this.viewer.getSpellCheckLanguage ()))
                         {
                         
                             if ((word != null) &&

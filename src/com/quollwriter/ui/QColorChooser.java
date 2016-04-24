@@ -89,7 +89,6 @@ public class QColorChooser extends Box
         final Dimension sSize = new Dimension (this.swatchSize.width + (2 * this.borderWidth) + (2 * this.horizGap),
                                                this.swatchSize.height + (2 * this.borderWidth) + (2 * this.vertGap));
         
-        
         this.swatchesScrollPane.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         this.swatchesScrollPane.getVerticalScrollBar ().setUnitIncrement (this.swatchSize.height + (2 * this.borderWidth) + (this.vertGap * 2));
         this.swatchesScrollPane.setAlignmentX (JComponent.LEFT_ALIGNMENT);

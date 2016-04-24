@@ -13,15 +13,15 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
 
-public abstract class TextInputActionHandler extends ActionAdapter
+public abstract class TextInputActionHandler<E extends AbstractViewer> extends ActionAdapter
 {
 
-    protected AbstractProjectViewer projectViewer = null;
+    protected E viewer = null;
 
-    public TextInputActionHandler (AbstractProjectViewer pv)
+    public TextInputActionHandler (E pv)
     {
 
-        this.projectViewer = pv;
+        this.viewer = pv;
 
     }
 
@@ -48,7 +48,7 @@ public abstract class TextInputActionHandler extends ActionAdapter
 
         final TextInputActionHandler _this = this;
     
-        UIUtils.createTextInputPopup (this.projectViewer,
+        UIUtils.createTextInputPopup (this.viewer,
                                       this.getTitle (),
                                       this.getIcon (),
                                       this.getHelp (),
@@ -79,7 +79,7 @@ public abstract class TextInputActionHandler extends ActionAdapter
                                                   
                                               } catch (Exception e) {
                                                 
-                                                  UIUtils.showErrorMessage (_this.projectViewer,
+                                                  UIUtils.showErrorMessage (_this.viewer,
                                                                             "Unable to perform command, please contact support for assistance.");
                                                   
                                                   Environment.logError ("Unable to perform command",
@@ -103,7 +103,7 @@ public abstract class TextInputActionHandler extends ActionAdapter
                                                 
                                               } catch (Exception e) {
                                                 
-                                                  UIUtils.showErrorMessage (_this.projectViewer,
+                                                  UIUtils.showErrorMessage (_this.viewer,
                                                                             "Unable to perform command, please contact support for assistance.");
                                                   
                                                   Environment.logError ("Unable to perform command",

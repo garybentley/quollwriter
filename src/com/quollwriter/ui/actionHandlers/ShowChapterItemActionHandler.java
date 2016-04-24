@@ -80,7 +80,7 @@ public class ShowChapterItemActionHandler extends ActionAdapter
         this.item = item;
         this.editorPanel = qep;
         this.iconColumn = ic;
-        this.projectViewer = this.editorPanel.getProjectViewer ();
+        this.projectViewer = this.editorPanel.getViewer ();
         
         final ShowChapterItemActionHandler _this = this;
 /*

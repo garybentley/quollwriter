@@ -49,7 +49,7 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.VerticalLayout;
 
 
-public class IdeaBoard extends ProjectObjectQuollPanel
+public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
 {
 
     public static final String PANEL_ID = "ideaboard";
@@ -118,7 +118,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel
             this.viewBox.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             this.shortDesc = UIUtils.createHelpTextPane ((String) null,
-                                                         this.typeBox.ideaBoard.getProjectViewer ());
+                                                         this.typeBox.ideaBoard.getViewer ());
             /*
             this.shortDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                       this.typeBox.ideaBoard.getProjectViewer ().getProject (),
@@ -130,7 +130,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel
             this.shortDesc.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             this.fullDesc = UIUtils.createHelpTextPane ((String) null,
-                                                        this.typeBox.ideaBoard.getProjectViewer ());
+                                                        this.typeBox.ideaBoard.getViewer ());
 /*
             this.fullDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
                                                                      this.typeBox.ideaBoard.getProjectViewer ().getProject (),
@@ -372,8 +372,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel
 
                                                   _this.updateIdea ();
 
-                                                  _this.typeBox.getIdeaBoard ().getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                                                      ProjectEvent.RATE);
+                                                  _this.typeBox.getIdeaBoard ().getViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                                                               ProjectEvent.RATE);
 
                                               }
 
@@ -462,13 +462,13 @@ public class IdeaBoard extends ProjectObjectQuollPanel
             }
             
             this.shortDesc.setText (UIUtils.markupStringForAssets (firstSent,
-                                                                   this.typeBox.ideaBoard.getProjectViewer ().getProject (),
+                                                                   this.typeBox.ideaBoard.getViewer ().getProject (),
                                                                    null));
 
             this.shortDesc.setToolTipText ("Click to show the full text");
                                                                          
             this.fullDesc.setText (UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
-                                                                  this.typeBox.ideaBoard.getProjectViewer ().getProject (),
+                                                                  this.typeBox.ideaBoard.getViewer ().getProject (),
                                                                   null));
 
         }
@@ -794,9 +794,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel
 
                                 _this.sortIdeas (IdeaType.SORT_BY_RATING);
 
-                                _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                      ProjectEvent.SORT,
-                                                                                      IdeaType.SORT_BY_RATING);
+                                _this.ideaBoard.getViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                               ProjectEvent.SORT,
+                                                                               IdeaType.SORT_BY_RATING);
 
                             }
 
@@ -816,9 +816,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel
 
                                 _this.sortIdeas (IdeaType.SORT_BY_DATE);
 
-                                _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                      ProjectEvent.SORT,
-                                                                                      IdeaType.SORT_BY_DATE);
+                                _this.ideaBoard.getViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                               ProjectEvent.SORT,
+                                                                               IdeaType.SORT_BY_DATE);
 
                             }
 
@@ -847,9 +847,9 @@ public class IdeaBoard extends ProjectObjectQuollPanel
 
                                 _this.sortIdeas (IdeaType.SORT_BY_TEXT);
 
-                                _this.ideaBoard.getProjectViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
-                                                                                      ProjectEvent.SORT,
-                                                                                      IdeaType.SORT_BY_TEXT);
+                                _this.ideaBoard.getViewer ().fireProjectEvent (Idea.OBJECT_TYPE,
+                                                                               ProjectEvent.SORT,
+                                                                               IdeaType.SORT_BY_TEXT);
 
                             }
 

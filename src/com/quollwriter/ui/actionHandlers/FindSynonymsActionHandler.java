@@ -63,7 +63,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
         this.position = position;
         //this.chapter = c;
         this.editorPanel = p;
-        this.projectViewer = this.editorPanel.getProjectViewer ();
+        this.projectViewer = this.editorPanel.getViewer ();
 
         final FindSynonymsActionHandler _this = this;
         
@@ -116,7 +116,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
     public void showItem ()
     {
 
-        if (!this.editorPanel.getProjectViewer ().isLanguageFunctionAvailable ())
+        if (!this.editorPanel.getViewer ().isLanguageFunctionAvailable ())
         {
             
             return;

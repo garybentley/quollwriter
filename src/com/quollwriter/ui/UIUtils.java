@@ -5604,11 +5604,11 @@ public class UIUtils
 
     }
 
-    public static void addNewAssetItemsToPopupMenu (Container             m,
-                                                    Component             showPopupAt,
-                                                    AbstractProjectViewer pv,
-                                                    String                name,
-                                                    String                desc)
+    public static void addNewAssetItemsToPopupMenu (Container     m,
+                                                    Component     showPopupAt,
+                                                    ProjectViewer pv,
+                                                    String        name,
+                                                    String        desc)
     {
 
         String pref = "Shortcut: Ctrl+Shift+";

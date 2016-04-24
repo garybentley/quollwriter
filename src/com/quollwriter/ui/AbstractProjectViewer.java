@@ -2268,7 +2268,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         if (name == AbstractProjectViewer.DELETE_PROJECT_ACTION)
         {
 
-            return new DeleteProjectActionHandler (this);
+            return new DeleteProjectActionHandler (this,
+                                                   this.getProject (),
+                                                   null);
 
         }
 

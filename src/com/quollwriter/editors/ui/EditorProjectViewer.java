@@ -206,7 +206,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                             
                                                                     // Should really add generics for this.
                                                                     return new DeleteCommentActionHandler (item,
-                                                                                                           (EditorProjectViewer) ep.getProjectViewer (),
+                                                                                                           (EditorProjectViewer) ep.getViewer (),
                                                                                                            showAtItem);
                                                             
                                                                 }

@@ -13,13 +13,13 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
 
-public class DeleteWarmupActionHandler extends YesDeleteConfirmTextInputActionHandler
+public class DeleteWarmupActionHandler extends YesDeleteConfirmTextInputActionHandler<WarmupsViewer>
 {
 
     private Chapter               chapter = null;
 
-    public DeleteWarmupActionHandler (Chapter               c,
-                                      AbstractProjectViewer pv)
+    public DeleteWarmupActionHandler (Chapter       c,
+                                      WarmupsViewer pv)
     {
 
         super (pv,
@@ -46,7 +46,7 @@ public class DeleteWarmupActionHandler extends YesDeleteConfirmTextInputActionHa
                               throws Exception
     {
 
-        this.projectViewer.deleteChapter (this.chapter);
+        this.viewer.deleteChapter (this.chapter);
 
         return true;
         

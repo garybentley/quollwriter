@@ -35,6 +35,7 @@ import com.quollwriter.editors.ui.*;
 import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.achievements.ui.*;
 import com.quollwriter.ui.charts.*;
+import com.quollwriter.ui.actionHandlers.*;
 
 // TODO: Create a PopupFrame that supports popups.
 
@@ -1015,8 +1016,13 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			
 			return;
             
-        }				
+        }
+		
+		new DeleteProjectActionHandler (this,
+										p,
+										onDelete).actionPerformed (new ActionEvent (this, 0, "delete"));
 
+/*
         UIUtils.createTextInputPopup (this,
                                      "Delete {project}",
                                      Constants.DELETE_ICON_NAME,
@@ -1055,7 +1061,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 									 },
 									 null,
 									 null);
-
+*/
     }	
 
     public void showImportProject ()

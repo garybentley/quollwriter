@@ -130,7 +130,7 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
             
         }
 
-        AbstractProjectViewer viewer = panel.getProjectViewer ();        
+        AbstractProjectViewer viewer = panel.getViewer ();        
         
         final java.util.Set<ChapterItem> its = new TreeSet (new ChapterItemSorter ());
 

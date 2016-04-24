@@ -93,7 +93,7 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
     {
 
         return new DeleteChapterItemActionHandler (item,
-                                                   ep.getProjectViewer (),
+                                                   ep.getViewer (),
                                                    showAtItem);
 
     }

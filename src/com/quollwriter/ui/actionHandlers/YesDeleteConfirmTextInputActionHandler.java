@@ -13,16 +13,16 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 
-public abstract class YesDeleteConfirmTextInputActionHandler extends TextInputActionHandler
+public abstract class YesDeleteConfirmTextInputActionHandler<E extends AbstractViewer> extends TextInputActionHandler<E>
 {
 
     private NamedObject object = null;
 
-    public YesDeleteConfirmTextInputActionHandler (AbstractProjectViewer pv,
-                                                   NamedObject           n)
+    public YesDeleteConfirmTextInputActionHandler (E           viewer,
+                                                   NamedObject n)
     {
 
-        super (pv);
+        super (viewer);
         
         if (n == null)
         {

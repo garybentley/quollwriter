@@ -16,7 +16,7 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 
-public class RenameProjectActionHandler extends TextInputActionHandler
+public class RenameProjectActionHandler extends TextInputActionHandler<AbstractProjectViewer>
 {
 
     private Project               project = null;
@@ -60,7 +60,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler
     public String getInitialValue ()
     {
         
-        return this.projectViewer.getProject ().getName ();
+        return this.viewer.getProject ().getName ();
         
     }
     
@@ -79,10 +79,10 @@ public class RenameProjectActionHandler extends TextInputActionHandler
 
         v = v.trim ();
         
-        if (!v.equalsIgnoreCase (this.projectViewer.getProject ().getName ()))
+        if (!v.equalsIgnoreCase (this.viewer.getProject ().getName ()))
         {
                                                                         
-            File newDir = new File (this.projectViewer.getProject ().getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (v));
+            File newDir = new File (this.viewer.getProject ().getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (v));
 
             if (newDir.exists ())
             {
@@ -102,12 +102,12 @@ public class RenameProjectActionHandler extends TextInputActionHandler
     {
         
         final String newName = v;
-        final String oldName = this.projectViewer.getProject ().getName ();
+        final String oldName = this.viewer.getProject ().getName ();
         
         if (!newName.equals (oldName))
         {
             
-            final Project proj = this.projectViewer.getProject ();
+            final Project proj = this.viewer.getProject ();
             
             proj.setName (newName);
 
@@ -115,7 +115,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler
             try
             {
 
-                this.projectViewer.saveProject ();
+                this.viewer.saveProject ();
 
             } catch (Exception e)
             {
@@ -139,8 +139,8 @@ public class RenameProjectActionHandler extends TextInputActionHandler
                 try
                 {
 
-                    this.projectViewer.saveObject (b,
-                                                   true);
+                    this.viewer.saveObject (b,
+                                            true);
 
                 } catch (Exception e)
                 {
@@ -155,11 +155,11 @@ public class RenameProjectActionHandler extends TextInputActionHandler
 
             }
 
-            final File newDir = new File (this.projectViewer.getProject ().getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (newName));                                                    
+            final File newDir = new File (this.viewer.getProject ().getProjectDirectory ().getParentFile () + "/" + Utils.sanitizeForFilename (newName));                                                    
 
             // Close the viewer.
-            this.projectViewer.close (true,
-                                      new ActionListener ()
+            this.viewer.close (true,
+                               new ActionListener ()
             {                                                    
             
                 public void actionPerformed (ActionEvent ev)
@@ -175,7 +175,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler
                                               newDir);
 
                         UIUtils.showErrorMessage (null,
-                                                  "Unable to rename project directory, please contact Quoll Writer support for assistance.");
+                                                  "Unable to rename {project} directory, please contact Quoll Writer support for assistance.");
         
                         return;
         

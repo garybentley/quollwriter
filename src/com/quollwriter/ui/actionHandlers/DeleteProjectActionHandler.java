@@ -13,15 +13,34 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 
-public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionHandler
+public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionHandler<AbstractViewer>
 {
 
-    public DeleteProjectActionHandler (AbstractProjectViewer pv)
+    private ProjectInfo projInfo = null;
+    private ActionListener onDelete = null;
+    
+    public DeleteProjectActionHandler (AbstractViewer viewer,
+                                       Project        proj,
+                                       ActionListener onDelete)
     {
 
-        super (pv,
-               pv.getProject ());
+        this (viewer,
+              Environment.getProjectInfo (proj),
+              onDelete);
+               
+    }
 
+    public DeleteProjectActionHandler (AbstractViewer viewer,
+                                       ProjectInfo    pi,
+                                       ActionListener onDelete)
+    {
+
+        super (viewer,
+               pi);
+
+        this.projInfo = pi;
+        this.onDelete = onDelete;
+               
     }
 
     public String getDeleteType ()
@@ -42,21 +61,8 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
                               throws Exception
     {
 
-        // Need a ref for later.
-        final Project pr = this.projectViewer.getProject ();
-
-        this.projectViewer.close (true,
-                                  new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-        
-                Environment.deleteProject (pr);
-                        
-            }
-            
-        });
+        Environment.deleteProject (this.projInfo,
+                                   this.onDelete);
 
         return true;
         

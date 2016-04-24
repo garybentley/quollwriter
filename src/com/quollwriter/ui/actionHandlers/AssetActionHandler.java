@@ -37,9 +37,9 @@ public class AssetActionHandler extends ProjectViewerActionHandler
     private boolean          displayAfterSave = false;
     private DetailsEditPanel delegate = null;
 
-    public AssetActionHandler (Asset                 a,
-                               AbstractProjectViewer pv,
-                               int                   mode)
+    public AssetActionHandler (Asset         a,
+                               ProjectViewer pv,
+                               int           mode)
     {
 
         super (a,
@@ -53,7 +53,7 @@ public class AssetActionHandler extends ProjectViewerActionHandler
         {
 
             this.delegate = AssetViewPanel.getEditDetailsPanel (a,
-                                                                this.projectViewer);
+                                                                pv);
 
         } catch (Exception e)
         {
@@ -62,7 +62,7 @@ public class AssetActionHandler extends ProjectViewerActionHandler
                                   a,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (pv,
                                       "Unable to show form.");
 
         }

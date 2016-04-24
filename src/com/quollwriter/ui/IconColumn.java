@@ -187,12 +187,12 @@ public class IconColumn extends JPanel implements DocumentListener
     public void showItem (ChapterItem it)
     {
 
-        if (this.ep.getProjectViewer ().isDistractionFreeModeEnabled ())
+        if (this.ep.getViewer ().isDistractionFreeModeEnabled ())
         {
             
-            this.ep.getProjectViewer ().showNotificationPopup ("Function unavailable",
-                                                               "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
-                                                               5);
+            this.ep.getViewer ().showNotificationPopup ("Function unavailable",
+                                                        "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
+                                                        5);
 
             return;            
             

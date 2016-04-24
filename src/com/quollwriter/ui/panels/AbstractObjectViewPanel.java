@@ -46,7 +46,7 @@ import com.quollwriter.ui.components.IconProvider;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.Runner;
 
-public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
+public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> extends ProjectObjectQuollPanel<E>
 {
 
     private ActionMap              actions = null;
@@ -65,10 +65,9 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
     private ActionListener         deleteObjectAction = null;
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
     private ObjectDocumentsEditPanel objDocsEditPanel = null;
-    //protected ProjectViewer        projectViewer = null;
 
-    public AbstractObjectViewPanel (AbstractProjectViewer pv,
-                                    NamedObject           n)
+    public AbstractObjectViewPanel (E           pv,
+                                    NamedObject n)
                              throws GeneralException
     {
 
@@ -102,7 +101,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
                throws GeneralException
     {
     
-        this.projectViewer.setLinks (this.obj);
+        this.viewer.setLinks (this.obj);
 
         this.title = UIUtils.createHeader (this.obj.getName (),
                                            Constants.PANEL_TITLE,
@@ -147,7 +146,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
         sb.setToolTipText ("Click to delete this " + Environment.getObjectTypeName (this.obj));
         UIUtils.setAsButton (sb);
 
-        this.deleteObjectAction = this.getDeleteObjectAction (this.projectViewer,
+        this.deleteObjectAction = this.getDeleteObjectAction (this.viewer,
                                                               this.obj);
 
         sb.addActionListener (this.deleteObjectAction);
@@ -202,7 +201,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
         }
 
-        this.detailsPanel = this.getDetailEditPanel (this.projectViewer,
+        this.detailsPanel = this.getDetailEditPanel (this.viewer,
                                                      this.obj);
                                                      
         this.detailsPanel.init (this);
@@ -246,7 +245,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
             });
                 
-        this.objDocsEditPanel = new ObjectDocumentsEditPanel (this.projectViewer,
+        this.objDocsEditPanel = new ObjectDocumentsEditPanel (this.viewer,
                                                               this.obj);
         
         this.objDocsEditPanel.init ();
@@ -324,12 +323,12 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
     public abstract String getIconType ();
 
-    public abstract DetailsEditPanel getDetailEditPanel (AbstractProjectViewer pv,
-                                                         NamedObject           obj)
+    public abstract DetailsEditPanel getDetailEditPanel (E           viewer,
+                                                         NamedObject obj)
                                                   throws GeneralException;
 
-    public abstract ActionListener getDeleteObjectAction (AbstractProjectViewer pv,
-                                                          NamedObject           obj);
+    public abstract ActionListener getDeleteObjectAction (E           viewer,
+                                                          NamedObject obj);
 
     public abstract void doInit ();
 
@@ -341,7 +340,9 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
     private EditPanel createLinkedToPanel ()
     {
 
-        final AbstractObjectViewPanel _this = this;
+        // Need to specify the viewer type here to let the compiler know
+        // what to do.
+        final AbstractObjectViewPanel<AbstractProjectViewer> _this = (AbstractObjectViewPanel<AbstractProjectViewer>) this;
 
         return new EditPanel (false)
         {
@@ -353,7 +354,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
                 exclude.add (_this.obj);
 
                 // Painful but just about the only way.
-                _this.projectViewer.setLinks (_this.obj);
+                _this.viewer.setLinks (_this.obj);
 
                 // Get all the "other objects" for the links the note has.
                 Iterator<Link> it = _this.obj.getLinks ().iterator ();
@@ -367,7 +368,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
                 }
 
-                DefaultTreeModel m = new DefaultTreeModel (UIUtils.createLinkToTree (_this.projectViewer.getProject (),
+                DefaultTreeModel m = new DefaultTreeModel (UIUtils.createLinkToTree (_this.viewer.getProject (),
                                                                                      exclude,
                                                                                      links,
                                                                                      false));
@@ -414,7 +415,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
                                           _this.obj,
                                           e);
 
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "An internal error has occurred.\n\nUnable to add/edit object.");
 
                     return false;
@@ -425,8 +426,8 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
                 try
                 {
 
-                    _this.projectViewer.saveLinks (_this.obj,
-                                                   s);
+                    _this.viewer.saveLinks (_this.obj,
+                                            s);
 
                 } catch (Exception e)
                 {
@@ -435,7 +436,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
                                           _this.obj,
                                           e);
 
-                    UIUtils.showErrorMessage (_this.projectViewer,
+                    UIUtils.showErrorMessage (_this.viewer,
                                               "An internal error has occurred.\n\nUnable to save links.");
 
                     return false;
@@ -446,7 +447,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
                 java.util.Set<NamedObject> otherObjects = _this.obj.getOtherObjectsInLinks ();
 
-                _this.projectViewer.refreshObjectPanels (otherObjects);
+                _this.viewer.refreshObjectPanels (otherObjects);
 
                 return true;
 
@@ -462,7 +463,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
             public void handleEditStart ()
             {
 
-                _this.linkedToEditTree.setModel (UIUtils.getLinkedToTreeModel (_this.projectViewer,
+                _this.linkedToEditTree.setModel (UIUtils.getLinkedToTreeModel (_this.viewer,
                                                                                _this.obj,
                                                                                true));
 
@@ -517,7 +518,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
             public JComponent getEditPanel ()
             {
 
-                _this.linkedToEditTree = UIUtils.createLinkedToTree (_this.projectViewer,
+                _this.linkedToEditTree = UIUtils.createLinkedToTree (_this.viewer,
                                                                      _this.obj,
                                                                      true);
 
@@ -528,7 +529,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
             public JComponent getViewPanel ()
             {
 
-                _this.linkedToViewTree = UIUtils.createLinkedToTree (_this.projectViewer,
+                _this.linkedToViewTree = UIUtils.createLinkedToTree (_this.viewer,
                                                                      _this.obj,
                                                                      false);
 
@@ -555,7 +556,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
         this.doFillToolBar (tb,
                             fullScreen);
-
+/*
         final JButton b = UIUtils.createToolBarButton ("new",
                                                        "Click to add a new " + Environment.getObjectTypeName (QCharacter.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (Location.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (QObject.OBJECT_TYPE) + " etc.",
                                                        "new",
@@ -571,7 +572,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
                 UIUtils.addNewAssetItemsToPopupMenu (m,
                                                      b,
-                                                     _this.projectViewer,
+                                                     _this.viewer,
                                                      null,
                                                      null);
 
@@ -588,16 +589,16 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
         b.addActionListener (ab);
 
         tb.add (b);
-
+*/
         tb.add (UIUtils.createToolBarButton ("print",
                                              "Click to print the " + Environment.getObjectTypeName (this.obj.getObjectType ()) + " details",
                                              "print",
-                                             UIUtils.getComingSoonAction (this.projectViewer)));
+                                             UIUtils.getComingSoonAction (this.viewer)));
 
         tb.add (UIUtils.createToolBarButton ("delete",
                                              "Click to delete this " + Environment.getObjectTypeName (this.obj.getObjectType ()),
                                              "delete",
-                                             this.getDeleteObjectAction (this.projectViewer,
+                                             this.getDeleteObjectAction (this.viewer,
                                                                          this.obj)));
 
     }
@@ -699,7 +700,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
         exclude.add (this.obj);
 
         // Painful but just about the only way.
-        this.projectViewer.setLinks (this.obj);
+        this.viewer.setLinks (this.obj);
 
         // Get all the "other objects" for the links the note has.
         Iterator<Link> it = this.obj.getLinks ().iterator ();
@@ -713,7 +714,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
         }
 
-        DefaultTreeModel m = new DefaultTreeModel (UIUtils.createLinkToTree (this.projectViewer.getProject (),
+        DefaultTreeModel m = new DefaultTreeModel (UIUtils.createLinkToTree (this.viewer.getProject (),
                                                                              exclude,
                                                                              links,
                                                                              false));
@@ -729,7 +730,7 @@ public abstract class AbstractObjectViewPanel extends ProjectObjectQuollPanel
 
         this.title.setTitle (this.obj.getName ());
 
-        this.projectViewer.setLinks (this.obj);
+        this.viewer.setLinks (this.obj);
 
         this.detailsPanel.refreshViewPanel ();
 

@@ -30,11 +30,11 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
     {
 
         super (d,
-               qep.getProjectViewer (),
+               qep.getViewer (),
                mode);
 
         this.editorPanel = qep;
-        this.projectViewer = qep.getProjectViewer ();
+        this.projectViewer = qep.getViewer ();
 
     }
 
@@ -45,12 +45,12 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
     {
 
         super (d,
-               qep.getProjectViewer (),
+               qep.getViewer (),
                mode,
                addHideControl);
 
         this.editorPanel = qep;
-        this.projectViewer = qep.getProjectViewer ();
+        this.projectViewer = qep.getViewer ();
 
     }
 

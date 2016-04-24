@@ -13,7 +13,7 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
 
-public class DeleteChapterActionHandler extends YesDeleteConfirmTextInputActionHandler
+public class DeleteChapterActionHandler extends YesDeleteConfirmTextInputActionHandler<AbstractProjectViewer>
 {
 
     private Chapter               chapter = null;
@@ -46,7 +46,7 @@ public class DeleteChapterActionHandler extends YesDeleteConfirmTextInputActionH
                               throws Exception
     {
 
-        this.projectViewer.deleteChapter (this.chapter);
+        this.viewer.deleteChapter (this.chapter);
 
         return true;
         

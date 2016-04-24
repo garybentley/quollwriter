@@ -91,18 +91,18 @@ public class IgnoreCheckbox extends JCheckBox
                                           public void actionPerformed (ActionEvent ev)
                                           {
 
-                                              qp.getProjectViewer ().addPopup (t,
-                                                                               true,
-                                                                               false);
+                                              qp.getViewer ().addPopup (t,
+                                                                        true,
+                                                                        false);
 
                                               Point po = SwingUtilities.convertPoint (_this,
                                                                                       30,
                                                                                       0 - _this.getPreferredSize ().height - t.getPreferredSize ().height - 10,
-                                                                                      qp.getProjectViewer ());
+                                                                                      qp.getViewer ());
 
-                                              qp.getProjectViewer ().showPopupAt (t,
-                                                                                  po,
-                                                                                  true);
+                                              qp.getViewer ().showPopupAt (t,
+                                                                           po,
+                                                                           true);
 
                                           }
 
@@ -118,7 +118,7 @@ public class IgnoreCheckbox extends JCheckBox
 
                                               t.setVisible (false);
 
-                                              qp.getProjectViewer ().removePopup (t);
+                                              qp.getViewer ().removePopup (t);
 
                                           }
 
@@ -176,9 +176,9 @@ public class IgnoreCheckbox extends JCheckBox
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                     
-                                                        ProblemFinderRuleConfig.confirmRuleRemoval (qp.getProjectViewer (),
+                                                        ProblemFinderRuleConfig.confirmRuleRemoval (qp.getViewer (),
                                                                                                     _this.issue.getRule (),
-                                                                                                    _this.qp.getProjectViewer ().getProject ().getProperties (),
+                                                                                                    _this.qp.getViewer ().getProject ().getProperties (),
                                                                                                     new ActionListener ()
                                                         {
                     
@@ -205,7 +205,7 @@ public class IgnoreCheckbox extends JCheckBox
                     
                                                         _this.qp.showProblemFinderRuleConfig ();
                     
-                                                        _this.qp.getProjectViewer ().getProblemFinderRuleConfig ().editRule (_this.issue.getRule (),
+                                                        _this.qp.getViewer ().getProblemFinderRuleConfig ().editRule (_this.issue.getRule (),
                                                                                                                              false);
                     
                                                     }

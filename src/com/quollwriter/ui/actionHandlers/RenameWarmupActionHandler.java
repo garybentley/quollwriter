@@ -20,13 +20,13 @@ import com.quollwriter.ui.components.FormEvent;
 import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
 
-public class RenameWarmupActionHandler extends TextInputActionHandler
+public class RenameWarmupActionHandler extends TextInputActionHandler<WarmupsViewer>
 {
 
     private Chapter               chapter = null;
 
-    public RenameWarmupActionHandler (Chapter               c,
-                                      AbstractProjectViewer pv)
+    public RenameWarmupActionHandler (Chapter       c,
+                                      WarmupsViewer pv)
     {
 
         super (pv);
@@ -125,16 +125,16 @@ public class RenameWarmupActionHandler extends TextInputActionHandler
 
             this.chapter.setName (v);
 
-            this.projectViewer.saveObject (this.chapter,
-                                           true);
+            this.viewer.saveObject (this.chapter,
+                                    true);
 
             // Inform the chapter tree that something has changed.
-            this.projectViewer.handleItemChangedEvent (new ItemChangedEvent (this,
-                                                                             this.chapter,
-                                                                             AbstractProjectViewer.NAME_CHANGED));
+            this.viewer.handleItemChangedEvent (new ItemChangedEvent (this,
+                                                                      this.chapter,
+                                                                      WarmupsViewer.NAME_CHANGED));
     
-            this.projectViewer.fireProjectEventLater (this.chapter.getObjectType (),
-                                                      ProjectEvent.RENAME);
+            this.viewer.fireProjectEventLater (this.chapter.getObjectType (),
+                                               ProjectEvent.RENAME);
 
             return true;
                                                       
@@ -147,7 +147,7 @@ public class RenameWarmupActionHandler extends TextInputActionHandler
                                   v,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "An internal error has occurred.\n\nUnable to change name of {warmup}.");
 
         }

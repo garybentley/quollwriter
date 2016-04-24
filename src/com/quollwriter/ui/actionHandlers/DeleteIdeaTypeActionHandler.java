@@ -22,7 +22,7 @@ public class DeleteIdeaTypeActionHandler extends YesDeleteConfirmTextInputAction
                                         IdeaBoard ib)
     {
 
-        super (ib.getProjectViewer (),
+        super (ib.getViewer (),
                it);
     
         this.ideaType = it;

@@ -52,7 +52,7 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene>
     {
 
         return new DeleteChapterItemActionHandler (item,
-                                                   ep.getProjectViewer (),
+                                                   ep.getViewer (),
                                                    showAtItem);
 
     }

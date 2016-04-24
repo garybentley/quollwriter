@@ -28,7 +28,7 @@ public class NewIdeaTypeActionHandler extends TextInputActionHandler
     public NewIdeaTypeActionHandler (IdeaBoard ib)
     {
 
-        super (ib.getProjectViewer ());
+        super (ib.getViewer ());
     
         this.ideaBoard = ib;
 

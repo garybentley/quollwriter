@@ -67,7 +67,7 @@ public class ProblemFinder extends Box
         try
         {
 
-            this.issuesToIgnore = ((ProjectViewer) this.editor.getProjectViewer ()).getProblemFinderIgnores (this.editor.getChapter (),
+            this.issuesToIgnore = ((ProjectViewer) this.editor.getViewer ()).getProblemFinderIgnores (this.editor.getChapter (),
                                                                                                              this.editor.getEditor ().getDocument ());
 
         } catch (GeneralException e)
@@ -145,8 +145,8 @@ public class ProblemFinder extends Box
             
         }
 
-        this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                          ProjectEvent.UNIGNORE);
+        this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                   ProjectEvent.UNIGNORE);
         
     }
     
@@ -167,8 +167,8 @@ public class ProblemFinder extends Box
             try
             {
 
-                ((ProjectViewer) this.editor.getProjectViewer ()).saveProblemFinderIgnores (this.editor.getChapter (),
-                                                                                            this.issuesToIgnore);
+                ((ProjectViewer) this.editor.getViewer ()).saveProblemFinderIgnores (this.editor.getChapter (),
+                                                                                     this.issuesToIgnore);
 
             } catch (GeneralException e)
             {
@@ -287,7 +287,7 @@ public class ProblemFinder extends Box
     {
         
         List<Issue> issues = RuleFactory.getParagraphIssues (p,
-                                                             this.editor.getProjectViewer ().getProject ().getProperties ());
+                                                             this.editor.getViewer ().getProject ().getProperties ());
 
         this.setPositions (issues);
         
@@ -313,7 +313,7 @@ public class ProblemFinder extends Box
     {
         
         List<Issue> issues = RuleFactory.getSentenceIssues (s,
-                                                            this.editor.getProjectViewer ().getProject ().getProperties ());
+                                                            this.editor.getViewer ().getProject ().getProperties ());
         
         this.setPositions (issues);
         
@@ -385,7 +385,7 @@ public class ProblemFinder extends Box
         if (this.end > -1)
         {
             
-            UIUtils.showMessage (this.editor.getProjectViewer (),
+            UIUtils.showMessage (this.editor.getViewer (),
                                  "No more problems found",
                                  "No more problems found in selected text.",
                                  "Finish",
@@ -420,7 +420,7 @@ public class ProblemFinder extends Box
            
         };
         
-        UIUtils.createQuestionPopup (this.editor.getProjectViewer (),
+        UIUtils.createQuestionPopup (this.editor.getViewer (),
                                      "No more problems found",
                                      Constants.INFO_ICON_NAME,
                                      "No more problems found.  Return to the start of the {chapter}?",
@@ -451,7 +451,7 @@ public class ProblemFinder extends Box
                                                         Environment.logError ("Unable to move back to start",
                                                                               e);
                                                         
-                                                        UIUtils.showErrorMessage (_this.editor.getProjectViewer (),
+                                                        UIUtils.showErrorMessage (_this.editor.getViewer (),
                                                                                   "Unable to move back to start of {chapter}");
                                                         
                                                     }
@@ -516,19 +516,11 @@ public class ProblemFinder extends Box
         if (this.end > -1)
         {
             
-            UIUtils.showMessage (this.editor.getProjectViewer (),
+            UIUtils.showMessage (this.editor.getViewer (),
                                  "No more problems found",
                                  "No more problems found in selected text.",
                                  "Finish",
-                                 new ActionListener ()
-                                 {
-                                    
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-                                                                                
-                                    }
-                                    
-                                 });
+                                 null);
             
             return 0;
 
@@ -585,16 +577,16 @@ public class ProblemFinder extends Box
 
                 this.issuesToIgnore.add (b.issue);
 
-                this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                  ProjectEvent.IGNORE);
+                this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                           ProjectEvent.IGNORE);
 
             } else {
 
                 if (this.issuesToIgnore.remove (b.issue))
                 {
 
-                    this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                      ProjectEvent.UNIGNORE);
+                    this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                               ProjectEvent.UNIGNORE);
 
                 }
                 
@@ -823,8 +815,8 @@ public class ProblemFinder extends Box
 
                         l.setVisible (false);
 
-                        _this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                           ProjectEvent.UNIGNORE);
+                        _this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                                    ProjectEvent.UNIGNORE);
                         
                         _this.getParent ().getParent ().validate ();
                         _this.getParent ().getParent ().repaint ();
@@ -843,8 +835,8 @@ public class ProblemFinder extends Box
                                                                             0,
                                                                             "selected"));
 
-                        _this.editor.getProjectViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                           ProjectEvent.UNIGNORE);
+                        _this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                                    ProjectEvent.UNIGNORE);
                         
                     }
                     

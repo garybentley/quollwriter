@@ -47,7 +47,7 @@ import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
 
-public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implements SpellCheckSupported, TextStylable
+public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<AbstractProjectViewer> implements SpellCheckSupported, TextStylable
 {
 
     public static final String TOGGLE_SPELLCHECK_ACTION_NAME = "toggle-spellcheck";
@@ -202,7 +202,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
                               public void actionPerformed (ActionEvent ev)
                               {
                                 
-                                  _this.projectViewer.showFind (null);
+                                  _this.viewer.showFind (null);
                                 
                               }
                             
@@ -215,7 +215,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
                               public void actionPerformed (ActionEvent ev)
                               {
 
-                                  _this.projectViewer.setSpellCheckingEnabled (!_this.editor.isSpellCheckEnabled ());
+                                  _this.viewer.setSpellCheckingEnabled (!_this.editor.isSpellCheckEnabled ());
 
                               }
 
@@ -228,7 +228,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
                               public void actionPerformed (ActionEvent ev)
                               {
 
-                                  _this.projectViewer.viewWordCounts ();
+                                  _this.viewer.viewWordCounts ();
 
                               }
 
@@ -325,7 +325,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
                 try
                 {
                                                             
-                    _this.projectViewer.updateChapterCounts (_this.chapter);
+                    _this.viewer.updateChapterCounts (_this.chapter);
                     
                     _this.wordCountUpdate = null;
                                                 
@@ -341,9 +341,9 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
             
         };
         
-        this.projectViewer.schedule (this.wordCountUpdate,
-                                     1 * 1000,
-                                     -1);
+        this.viewer.schedule (this.wordCountUpdate,
+                              1 * 1000,
+                              -1);
         
         
     }
@@ -375,7 +375,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
                              throws GeneralException
     {
         
-        this.projectViewer.showTextProperties ();
+        this.viewer.showTextProperties ();
         
     }
     
@@ -538,9 +538,9 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
 
                 _this.initScrollBar ();
                         
-                _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                                      ev.getType (),
-                                                      ev);
+                _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                               ev.getType (),
+                                               ev);
                                 
             }
             
@@ -603,9 +603,9 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
 
                 _this.initScrollBar ();
                         
-                _this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                                      ev.getType (),
-                                                      ev);
+                _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                               ev.getType (),
+                                               ev);
                                 
             }
             
@@ -1064,7 +1064,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
     public void initEditor (TextProperties props)
     {
         
-        Project proj = this.projectViewer.getProject ();
+        Project proj = this.viewer.getProject ();
 
         this.ignoreDocumentChange = true;
 
@@ -1293,7 +1293,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel implem
     public TextProperties getTextProperties ()
     {
 
-        return new ProjectTextProperties (this.projectViewer);
+        return new ProjectTextProperties (this.viewer);
 
     }
     

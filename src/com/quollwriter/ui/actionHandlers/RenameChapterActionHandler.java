@@ -21,7 +21,7 @@ import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
 
 
-public class RenameChapterActionHandler extends TextInputActionHandler
+public class RenameChapterActionHandler extends TextInputActionHandler<AbstractProjectViewer>
 {
 
     private Chapter               chapter = null;
@@ -126,16 +126,16 @@ public class RenameChapterActionHandler extends TextInputActionHandler
 
             this.chapter.setName (v);
 
-            this.projectViewer.saveObject (this.chapter,
-                                           true);
+            this.viewer.saveObject (this.chapter,
+                                    true);
 
             // Inform the chapter tree that something has changed.
-            this.projectViewer.handleItemChangedEvent (new ItemChangedEvent (this,
-                                                                             this.chapter,
-                                                                             AbstractProjectViewer.NAME_CHANGED));
+            this.viewer.handleItemChangedEvent (new ItemChangedEvent (this,
+                                                                      this.chapter,
+                                                                      AbstractProjectViewer.NAME_CHANGED));
     
-            this.projectViewer.fireProjectEventLater (this.chapter.getObjectType (),
-                                                      ProjectEvent.RENAME);
+            this.viewer.fireProjectEventLater (this.chapter.getObjectType (),
+                                               ProjectEvent.RENAME);
 
             return true;
                                                       
@@ -148,8 +148,8 @@ public class RenameChapterActionHandler extends TextInputActionHandler
                                   v,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to change name of chapter.");
+            UIUtils.showErrorMessage (this.viewer,
+                                      "An internal error has occurred.\n\nUnable to change name of {chapter}.");
 
         }
         

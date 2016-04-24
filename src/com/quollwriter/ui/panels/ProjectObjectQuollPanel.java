@@ -30,7 +30,7 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.actionHandlers.*;
 
-public abstract class ProjectObjectQuollPanel extends QuollPanel<AbstractProjectViewer>
+public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> extends QuollPanel<E>
 {
 
     public static final int UNSAVED_CHANGES_ACTION_EVENT = 0;
@@ -40,8 +40,6 @@ public abstract class ProjectObjectQuollPanel extends QuollPanel<AbstractProject
     public static final String HAS_CHANGES_COMMAND = "hasChanges";
     public static final String NO_CHANGES_COMMAND = "noChanges";
 
-    protected AbstractProjectViewer projectViewer = null;
-
     protected Box                                   content = null;
     protected NamedObject                           obj = null;
     private java.util.List                          actionListeners = new ArrayList ();
@@ -50,15 +48,12 @@ public abstract class ProjectObjectQuollPanel extends QuollPanel<AbstractProject
     private JToolBar                                toolBar = null;
     private boolean                                 readyForUse = false;
     
-    public ProjectObjectQuollPanel (AbstractProjectViewer pv,
-                                    NamedObject           obj)
+    public ProjectObjectQuollPanel (E           pv,
+                                    NamedObject obj)
     {
 
         super (pv);
     
-        // super (BoxLayout.PAGE_AXIS);
-
-        this.projectViewer = pv;
         this.obj = obj;
                 
     }
@@ -110,8 +105,6 @@ public abstract class ProjectObjectQuollPanel extends QuollPanel<AbstractProject
         // Fire an event to interested parties.
         this.fireActionEvent (new ActionEvent (this,
                                                QuollPanel.SAVED,
-
-                                               // QuollEditorPanel.CHAPTER_SAVED,
                                                "chapterSaved"));
 
     }
@@ -142,11 +135,4 @@ public abstract class ProjectObjectQuollPanel extends QuollPanel<AbstractProject
 
     }
     
-    public AbstractProjectViewer getProjectViewer ()
-    {
-
-        return this.projectViewer;
-
-    }
-
 }

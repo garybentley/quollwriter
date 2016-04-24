@@ -59,7 +59,7 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
     {
 
         return new DeleteChapterItemActionHandler (item,
-                                                   qep.getProjectViewer (),
+                                                   qep.getViewer (),
                                                    showAtItem);
 
     }

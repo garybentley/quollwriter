@@ -21,7 +21,7 @@ import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
 
 
-public class RenameNoteTypeActionHandler extends TextInputActionHandler
+public class RenameNoteTypeActionHandler extends TextInputActionHandler<AbstractProjectViewer>
 {
 
     private String type = null;
@@ -118,7 +118,7 @@ public class RenameNoteTypeActionHandler extends TextInputActionHandler
                                   v,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to change type.");
 
         }

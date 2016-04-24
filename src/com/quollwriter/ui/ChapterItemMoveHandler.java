@@ -184,17 +184,17 @@ public class ChapterItemMoveHandler
             }
             
             // Save the chapter, this deals with side-effects.
-            this.ep.getProjectViewer ().saveObject (c,
-                                                     true);
+            this.ep.getViewer ().saveObject (c,
+                                             true);
 
             this.iconColumn.repaint ();
 
-            this.ep.getProjectViewer ().reloadTreeForObjectType (Chapter.OBJECT_TYPE);            
+            this.ep.getViewer ().reloadTreeForObjectType (Chapter.OBJECT_TYPE);            
             
         } catch (Exception e)
         {
 
-            UIUtils.showErrorMessage (this.iconColumn,
+            UIUtils.showErrorMessage (this.ep.getViewer (),
                                       "Unable to move item");
             
             Environment.logError ("Unable to move item: " +

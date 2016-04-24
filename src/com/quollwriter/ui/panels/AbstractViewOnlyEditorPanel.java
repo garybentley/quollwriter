@@ -105,7 +105,7 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
                                             "Click to view the word counts and readability indices",
                                             TOGGLE_WORDCOUNTS_ACTION_NAME));
 
-        String type = (this.projectViewer.isSpellCheckingEnabled () ? "off" : "on");
+        String type = (this.viewer.isSpellCheckingEnabled () ? "off" : "on");
 
         acts.add (this.createToolbarButton ("spellchecker-turn-" + type,
                                             "Click to turn the spell checker " + type,

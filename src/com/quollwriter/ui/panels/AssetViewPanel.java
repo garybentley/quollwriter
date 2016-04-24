@@ -39,7 +39,7 @@ import com.quollwriter.ui.actionHandlers.*;
 //import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyChangedListener
+public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> implements PropertyChangedListener
 {
 
     private static Map<Class, Class> detailsEditPanels = new HashMap ();
@@ -62,8 +62,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     private AppearsInChaptersEditPanel appearsInPanel = null;
 
-    public AssetViewPanel (AbstractProjectViewer pv,
-                           Asset                 a)
+    public AssetViewPanel (ProjectViewer pv,
+                           Asset         a)
                    throws GeneralException
     {
 
@@ -72,8 +72,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
                
     }
 
-    public static DetailsEditPanel getEditDetailsPanel (Asset                 a,
-                                                        AbstractProjectViewer pv)
+    public static DetailsEditPanel getEditDetailsPanel (Asset         a,
+                                                        ProjectViewer pv)
                                                  throws GeneralException
     {
 
@@ -113,8 +113,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
      * @returns The edit details panel.
      * @throws GeneralException If the panel cannot be created.
      */
-    public DetailsEditPanel getDetailEditPanel (AbstractProjectViewer pv,
-                                                NamedObject           n)
+    public DetailsEditPanel getDetailEditPanel (ProjectViewer pv,
+                                                NamedObject   n)
                                          throws GeneralException
     {
 
@@ -144,8 +144,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
 */
-    public static ActionListener getRenameAssetAction (final AbstractProjectViewer pv,
-                                                       final Asset                 a)
+    public static ActionListener getRenameAssetAction (final ProjectViewer pv,
+                                                       final Asset         a)
     {
 
         return new RenameAssetActionHandler (a,
@@ -153,8 +153,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
     
-    public static ActionListener getDeleteAssetAction (final AbstractProjectViewer pv,
-                                                       final Asset                 a)
+    public static ActionListener getDeleteAssetAction (final ProjectViewer pv,
+                                                       final Asset         a)
     {
 
         return new ActionAdapter ()
@@ -209,8 +209,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
 
-    public ActionListener getDeleteObjectAction (AbstractProjectViewer pv,
-                                                 NamedObject           n)
+    public ActionListener getDeleteObjectAction (ProjectViewer pv,
+                                                 NamedObject   n)
     {
 
         return AssetViewPanel.getDeleteAssetAction (pv,
@@ -218,8 +218,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
 
     }
 
-    public ActionListener getRenameObjectAction (AbstractProjectViewer pv,
-                                                 NamedObject           n)
+    public ActionListener getRenameObjectAction (ProjectViewer pv,
+                                                 NamedObject   n)
     {
 
         return AssetViewPanel.getRenameAssetAction (pv,
@@ -231,6 +231,41 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
                                boolean  fullScreen)
     {
 
+        final AssetViewPanel _this = this;
+    
+        final JButton b = UIUtils.createToolBarButton ("new",
+                                                       "Click to add a new " + Environment.getObjectTypeName (QCharacter.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (Location.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (QObject.OBJECT_TYPE) + " etc.",
+                                                       "new",
+                                                       null);
+
+        ActionAdapter ab = new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                JPopupMenu m = new JPopupMenu ();
+
+                UIUtils.addNewAssetItemsToPopupMenu (m,
+                                                     b,
+                                                     _this.viewer,
+                                                     null,
+                                                     null);
+
+                Component c = (Component) ev.getSource ();
+
+                m.show (c,
+                        c.getX (),
+                        c.getY ());
+
+            }
+
+        };
+
+        b.addActionListener (ab);
+
+        tb.add (b);
+    
     }
 
     public void doInit ()
@@ -314,7 +349,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel implements PropertyC
     private EditPanel createAppearsInChaptersPanel ()
     {
 
-        this.appearsInPanel = new AppearsInChaptersEditPanel (this.projectViewer,
+        this.appearsInPanel = new AppearsInChaptersEditPanel (this.viewer,
                                                               this.obj);
         
         return this.appearsInPanel;

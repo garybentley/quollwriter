@@ -21,13 +21,13 @@ import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
 
 
-public class RenameAssetActionHandler extends TextInputActionHandler
+public class RenameAssetActionHandler extends TextInputActionHandler<ProjectViewer>
 {
 
     private Asset asset = null;
 
-    public RenameAssetActionHandler (Asset                 a,
-                                     AbstractProjectViewer pv)
+    public RenameAssetActionHandler (Asset         a,
+                                     ProjectViewer pv)
     {
 
         super (pv);
@@ -88,8 +88,8 @@ public class RenameAssetActionHandler extends TextInputActionHandler
         
         boolean exists = false;
         
-        Set<? extends Asset> as = this.projectViewer.getProject ().getAllAssetsByName (v,
-                                                                                       this.asset.getObjectType ());
+        Set<? extends Asset> as = this.viewer.getProject ().getAllAssetsByName (v,
+                                                                                this.asset.getObjectType ());
         
         if (as.size () > 0)
         {
@@ -129,16 +129,16 @@ public class RenameAssetActionHandler extends TextInputActionHandler
 
             this.asset.setName (v);
 
-            this.projectViewer.saveObject (this.asset,
-                                           true);
+            this.viewer.saveObject (this.asset,
+                                    true);
 
             // Inform the chapter tree that something has changed.
-            this.projectViewer.handleItemChangedEvent (new ItemChangedEvent (this,
-                                                                             this.asset,
-                                                                             AbstractProjectViewer.NAME_CHANGED));
+            this.viewer.handleItemChangedEvent (new ItemChangedEvent (this,
+                                                                      this.asset,
+                                                                      ProjectViewer.NAME_CHANGED));
     
-            this.projectViewer.fireProjectEventLater (this.asset.getObjectType (),
-                                                      ProjectEvent.RENAME);
+            this.viewer.fireProjectEventLater (this.asset.getObjectType (),
+                                               ProjectEvent.RENAME);
 
             return true;
                                                       
@@ -151,7 +151,7 @@ public class RenameAssetActionHandler extends TextInputActionHandler
                                   v,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       String.format ("An internal error has occurred.\n\nUnable to change name of %s.",
                                                      Environment.getObjectTypeName (this.asset)));
 

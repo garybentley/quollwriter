@@ -370,11 +370,10 @@ public class ProjectViewer extends AbstractProjectViewer
             
         }
         
-        if (parent instanceof ProjectObjectQuollPanel)
+        if (parent instanceof AssetViewPanel)
         {
             
-            // Holy moly!
-            pv = (ProjectViewer) ((ProjectObjectQuollPanel) parent).getProjectViewer ();
+            pv = ((AssetViewPanel) parent).getViewer ();
             
         }
 
