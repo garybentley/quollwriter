@@ -1261,6 +1261,15 @@ public class EditorsEnvironment
         
     }
         
+    public static void closeDown ()
+    {
+        
+        EditorsEnvironment.goOffline ();
+        
+        // Close all the db connections.
+        EditorsEnvironment.editorsManager.closeConnectionPool ();
+        
+    }
     public static void goOffline ()
     {
         

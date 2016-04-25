@@ -9983,5 +9983,48 @@ public class UIUtils
         return addTo;
         
     }
+
+	public static void showAddNewProject (AbstractViewer viewer,
+                                          Point          showAt,
+                                          ActionListener onCreate)
+	{
+		
+        final QPopup popup = UIUtils.createClosablePopup ("Create a new {project}",
+                                                          Environment.getIcon (Constants.ADD_ICON_NAME,
+                                                                               Constants.ICON_POPUP),
+                                                          null);
+
+		Box content = new Box (BoxLayout.Y_AXIS);
+
+		content.add (UIUtils.createHelpTextPane ("To create a new {Project} enter the name below, select the directory it should be saved to and press the Create button.",
+										   null));
+
+		final NewProjectPanel newProjPanel = new NewProjectPanel ();
+											
+		JComponent cp = newProjPanel.createPanel (popup,
+												  popup.getCloseAction (),
+												  true,
+												  popup.getCloseAction (),
+												  true);
+
+		content.add (cp);
+												  
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+                         
+        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                     content.getPreferredSize ().height));
+
+        popup.setContent (content);
+                                                               
+        viewer.showPopupAt (popup,
+                            (showAt != null ? showAt : UIUtils.getCenterShowPosition (viewer,
+                                                                                      popup)),
+                            false);
+        
+        popup.resize ();
+        
+        popup.setDraggable (viewer);		
+		
+	}
     
 }

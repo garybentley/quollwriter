@@ -1180,6 +1180,13 @@ public class Environment
     private static void closeDown ()
     {
 
+        if (Environment.openProjects.size () > 0)
+        {
+
+            throw new IllegalStateException ("Cannot closedown when there are open projects.");
+        
+        }
+        
         Environment.generalTimer.cancel ();
         Environment.generalTimer.purge ();
         
@@ -1192,66 +1199,68 @@ public class Environment
             
         }
     
-        if (Environment.openProjects.size () == 0)
+        // Go offline from the editors service (if logged in).
+        EditorsEnvironment.closeDown ();                            
+
+        Environment.userSession.end (new Date ());
+
+        try
+        {
+            
+            Environment.projectInfoManager.addSession (Environment.userSession);
+               
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to add session",
+                                  e);
+            
+        }
+    
+        Environment.projectInfoManager.closeConnectionPool ();
+    
+        if (Environment.isWindows)
         {
 
-            // Go offline from the editors service (if logged in).
-            EditorsEnvironment.goOffline ();                            
-        
-            Environment.userSession.end (new Date ());
-        
-            try
+            File userDir = Environment.getQuollWriterJarsDir ();
+
+            if (userDir == null)
             {
                 
-                Environment.projectInfoManager.addSession (Environment.userSession);
+                // Force the exit since sometimes it won't if create a new project.
+                //System.exit (0);
                 
-            } catch (Exception e) {
-                
-                Environment.logError ("Unable to add session",
-                                      e);
+                return;
                 
             }
-        
-            Environment.projectInfoManager.closeConnectionPool ();
-        
-            if (Environment.isWindows)
+            
+            if (Environment.upgradeRequired)
             {
-
-                File userDir = Environment.getQuollWriterJarsDir ();
-
-                if (userDir == null)
+            
+                Environment.upgradeRequired = false;
+            
+                try
                 {
-                    
-                    return;
-                    
-                }
-                
-                if (Environment.upgradeRequired)
+
+                    List args = new ArrayList ();
+                    args.add (System.getProperty ("java.home") + "\\bin\\java.exe");
+                    args.add ("-jar");
+                    args.add (userDir + "\\QuollWriter-upgrade.jar");
+
+                    ProcessBuilder pb = new ProcessBuilder (args);
+                    pb.start ();
+
+                } catch (Exception e)
                 {
-                
-                    Environment.upgradeRequired = false;
-                
-                    try
-                    {
-
-                        List args = new ArrayList ();
-                        args.add (System.getProperty ("java.home") + "\\bin\\java.exe");
-                        args.add ("-jar");
-                        args.add (userDir + "\\QuollWriter-upgrade.jar");
-
-                        ProcessBuilder pb = new ProcessBuilder (args);
-                        pb.start ();
-
-                    } catch (Exception e)
-                    {
-
-                    }
 
                 }
 
+            } else {
+                
+                //System.exit (0);
+                
             }
 
-        }        
+        }
         
     }
     
@@ -1285,7 +1294,7 @@ public class Environment
             
             if (Environment.getOpenProjects ().size () == 0)
             {
-    
+
                 Environment.showLanding ();
             
             }            
@@ -1307,13 +1316,13 @@ public class Environment
                                                      null);
 
                 } else {
-                    
+                 
                     if ((Environment.landingViewer == null)
                         ||
                         (!Environment.landingViewer.isShowing ())
                        )
                     {
-                    
+                  
                         // Only call the close down if there are no open projects
                         // and the landing is not being shown or null.
                         Environment.closeDown ();
@@ -3589,7 +3598,8 @@ public class Environment
         
         // Start the timer, it is done here so that any other code that needs it can start running things
         // straightaway.
-        Environment.generalTimer = new java.util.Timer (true);
+        Environment.generalTimer = new java.util.Timer ("Environment-general",
+                                                        true);
         
         // Load the default object type names.
         try

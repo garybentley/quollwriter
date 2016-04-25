@@ -38,7 +38,15 @@ import com.quollwriter.editors.*;
 
 import org.jdom.*;
 
-
+/**
+ * It is recommended you no longer use this class, it can prevent the JVM shutting
+ * down when used for creating a project (a problem I haven't tracked down).
+ *
+ * The functionality it provides has been superceeded by Landing and UIUtils.showAddNewProject.
+ *
+ * TODO: This class will be removed in a future release, use at your own risk!
+ * @Deprecated
+ */
 public class FindOrOpen extends PopupWindow //JFrame
 {
 
@@ -318,6 +326,8 @@ Won't animate due to rubber stamping in table renderer.
                             {
         
                                 _this.close ();
+                                
+                                _this.dispose ();
         
                                 return;
                                 
@@ -1003,7 +1013,7 @@ Won't animate due to rubber stamping in table renderer.
             final NewProjectPanel newProjPanel = new NewProjectPanel ();
                                                 
             JComponent cp = newProjPanel.createPanel (this,
-                                                      null,
+                                                      closeAction,
                                                       true,
                                                       closeAction,
                                                       true);

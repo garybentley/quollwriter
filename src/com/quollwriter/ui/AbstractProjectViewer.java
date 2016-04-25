@@ -167,7 +167,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 	private JPanel                cards = null;
 	private CardLayout            cardsLayout = null;
 	
-	private java.util.Timer autoBackupsTimer = null;
+	//private java.util.Timer autoBackupsTimer = null;
 	private TimerTask autoSaveTask = null;
 	private TargetsData targets = null;
 	private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
@@ -2216,6 +2216,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                 public void actionPerformed (ActionEvent ev)
                 {
 
+                    UIUtils.showAddNewProject (pv,
+                                               null,
+                                               null);
+                
+/*              
                     FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_NEW);
 
                     f.pack ();
@@ -2223,7 +2228,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                     //UIUtils.setCenterOfScreenLocation (f);
 
                     f.setVisible (true);
-
+*/
                 }
 
             };
@@ -3807,6 +3812,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         }        
                 
+        this.proj.addPropertyChangedListener (this);        
+                		
+		this.targets = new TargetsData (this.proj.getProperties ());		
+
         Environment.addToAchievementsManager (this);
 
         this.initSideBars ();
@@ -3814,6 +3823,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         this.initDictionaryProvider ();
         
         this.handleNewProject ();
+        
+		this.initChapterCounts ();
         
         this.setSpellCheckingEnabled (this.proj.getPropertyAsBoolean (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME));
 
@@ -3939,10 +3950,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             throw e;
             
         }
-
-		this.initChapterCounts ();
-		
-		this.targets = new TargetsData (this.proj.getProperties ());		
 		
         Environment.incrStartupProgress ();
 
@@ -3954,6 +3961,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         this.proj.setNoCredentials (p.isNoCredentials ());
 
         this.proj.addPropertyChangedListener (this);
+
+		this.initChapterCounts ();
+		
+		this.targets = new TargetsData (this.proj.getProperties ());		
 
         Environment.incrStartupProgress ();
 
@@ -6088,7 +6099,7 @@ xxx
                                   
         }
 
-		this.autoBackupsTimer = null;
+		//this.autoBackupsTimer = null;
 		
         this.proj = null;
 

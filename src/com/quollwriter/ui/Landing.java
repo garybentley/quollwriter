@@ -144,8 +144,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
             public void handleDoublePress (MouseEvent ev)
             {
 
-				_this.showAddNewProject ();
-                
+				UIUtils.showAddNewProject (_this,
+										   null,
+										   null);
+			                
             }
 			
             @Override
@@ -164,7 +166,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 												public void actionPerformed (ActionEvent ev)
 												{
 												
-													_this.showAddNewProject ();
+													UIUtils.showAddNewProject (_this,
+																			   null,
+																			   null);
 													
 												}
 												
@@ -246,8 +250,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
             public void handleDoublePress (MouseEvent ev)
             {
 
-				_this.showAddNewProject ();
-                
+				UIUtils.showAddNewProject (_this,
+										   null,
+										   null);
+			                
             }
                 
             @Override
@@ -266,7 +272,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 												public void actionPerformed (ActionEvent ev)
 												{
 												
-													_this.showAddNewProject ();
+													UIUtils.showAddNewProject (_this,
+																			   null,
+																			   null);
 													
 												}
 												
@@ -801,7 +809,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                 
-                                                  _this.showAddNewProject ();
+													UIUtils.showAddNewProject (_this,
+																			   null,
+																			   null);
                                                 
                                               }
                                             
@@ -1490,7 +1500,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	{
 		
 	}
-	
+/*	
 	private void showAddNewProject ()
 	{
 		
@@ -1531,7 +1541,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         popup.setDraggable (this);		
 		
 	}
-	
+	*/
     @Override
     public void showPopupAt (Component popup,
                              Component showAt,
@@ -3166,7 +3176,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                 
-                                                  _this.showAddNewProject ();
+                                                  UIUtils.showAddNewProject (_this,
+																			 null,
+																			 null);
                                                 
                                               }
                                             
@@ -3249,7 +3261,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 												public void actionPerformed (ActionEvent ev)
 												{
 												
-													_this.showAddNewProject ();
+													UIUtils.showAddNewProject (_this,
+																			   null,
+																			   null);
 													
 												}
 												
@@ -4137,16 +4151,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		UserProperties.set ("landing-window-width",
 							this.splitPane.getSize ().width);
 		
-		this.dispose ();
-
-		if (afterClose != null)
-		{
-
-			afterClose.actionPerformed (new ActionEvent (this,
-														 0,
-														 "closed"));
-			
-		}
+		super.close (true,
+					 null);
 		
 		Environment.landingClosed ();
 		

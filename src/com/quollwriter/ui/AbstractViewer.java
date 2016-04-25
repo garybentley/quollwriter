@@ -113,7 +113,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
-        this.generalTimer = new java.util.Timer (true);
+        this.generalTimer = new java.util.Timer ("Viewer-general-" + this.hashCode (),
+												 true);
         
         this.addWindowListener (new WindowAdapter ()
             {
@@ -2445,28 +2446,20 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 
     }    
     
-    private boolean closeInternal (boolean        saveUnsavedChanges,
-                                   ActionListener afterClose)
+    private boolean closeInternal (ActionListener afterClose)
     {
                 
         this.notifications.setVisible (false);        
                 
         this.dispose ();
-
-        if (afterClose != null)
-        {
-
-            afterClose.actionPerformed (new ActionEvent (this,
-                                                         0,
-                                                         "closed"));
-            
-        }
         
         this.generalTimer.cancel ();
         this.generalTimer.purge ();
         
         this.generalTimer = null;
-        
+		
+		UIUtils.doLater (afterClose);
+
         return true;
         
     }
@@ -2475,8 +2468,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                           final ActionListener afterClose)
     {
             
-        return this.closeInternal (true,
-                                   afterClose);
+        return this.closeInternal (afterClose);
                             
     }
     
