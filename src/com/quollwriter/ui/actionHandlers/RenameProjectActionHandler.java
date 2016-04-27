@@ -180,28 +180,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
                         return;
         
                     }
-        /*
-                    // Change the name in the projects file.
-                    try
-                    {
-        
-                        Environment.renameProject (oldName,
-                                                   newName);
-        
-                    } catch (Exception e)
-                    {
-        
-                        Environment.logError ("Unable to rename project (probably an error with the projects file): " +
-                                              proj,
-                                              e);
 
-                        UIUtils.showErrorMessage (null,
-                                                  "Unable to rename project, please contact Quoll Writer support for assistance.");
-        
-                        return;
-                                                      
-                    }
-        */
                     proj.setProjectDirectory (newDir);
         
                     // Open the project again.

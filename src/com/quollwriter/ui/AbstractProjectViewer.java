@@ -5994,12 +5994,8 @@ xxx
         // Close all the db connections.
         this.dBMan.closeConnectionPool ();
 
-        /* NEW START */
         super.close (false,
                      null);
-							//afterClose);        
-        
-        /* END NEW */
         
         try
         {
@@ -6015,19 +6011,12 @@ xxx
             Environment.logError ("Unable to close project",
                                   e);
 
+            Environment.showLanding ();
+                                  
             return false;
                                   
         }
 
-		//this.autoBackupsTimer = null;
-		/*
-        this.proj = null;
-
-        this.dBMan = null;
-        
-		return super.close (false,
-							afterClose);
-        */
     }
     
     @Override
