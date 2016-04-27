@@ -3866,10 +3866,10 @@ public class Options extends Box
                         proj.setBackupDirectory (newBackupDir);
                         
                     }
-               
-                   _this.viewer.close (true,
-                                       new ActionListener ()
-                   {
+                              
+                    _this.viewer.close (true,
+                                        new ActionListener ()
+                    {
    
                        public void actionPerformed (ActionEvent ev)
                        {
@@ -3902,7 +3902,7 @@ public class Options extends Box
                                                             @Override
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                                                                
+                                                                                                                                
                                                                 Environment.getProjectViewer (proj).fireProjectEventLater (proj.getObjectType (),
                                                                                                                            ProjectEvent.CHANGED_DIRECTORY);
                                                                 
@@ -3913,6 +3913,9 @@ public class Options extends Box
                 
                             } catch (Exception e)
                             {
+                
+                                // Show the projects window.
+                                Environment.showLanding ();
                 
                                 Environment.logError ("Unable to reopen project: " +
                                                       proj,

@@ -1274,7 +1274,23 @@ public class Environment
         
     }
     
-    public static void projectClosed (AbstractProjectViewer pv)
+    /**
+     * Inform the environment about a project closing.
+     *
+     * If <b>onClose</b> is provided then it is assumed that the caller
+     * is doing something after the project has been deregistered with the
+     * environment, for example opening another project or window.
+     *
+     * If <b>onClose</b> is not provided (null) then a check is made to see if
+     * the projects window should be shown or should shutdown occur because
+     * there are no projects open.
+     *
+     * @param pv The project viewer being closed.
+     * @param onClose The action to take once the project is deregistered.
+     * @throws Exception If something goes wrong (the list is long).
+     */
+    public static void projectClosed (AbstractProjectViewer pv,
+                                      ActionListener        onClose)
                                throws Exception
     {
 
@@ -1292,49 +1308,60 @@ public class Environment
         
         Environment.userSession.updateCurrentSessionWordCount (pv.getSessionWordCount ());
         
-        if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
+        // We assume that the caller knows what to do when the project has been
+        // closed.
+        if (onClose != null)
         {
             
-            if (Environment.getOpenProjects ().size () == 0)
-            {
-
-                Environment.showLanding ();
-            
-            }            
+            UIUtils.doLater (onClose);
             
         } else {
-            
-            // Any more open projects?
-            if (Environment.getOpenProjects ().size () == 0)
+        
+            if (UserProperties.getAsBoolean (Constants.SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME))
             {
-            
-                if ((Environment.landingViewer != null)
-                    &&
-                    (!Environment.landingViewer.isShowing ())
-                   )
+                
+                if (Environment.getOpenProjects ().size () == 0)
                 {
-            
-                    // Exit the landing.
-                    Environment.landingViewer.close (false,
-                                                     null);
-
-                } else {
-                 
-                    if ((Environment.landingViewer == null)
-                        ||
+    
+                    Environment.showLanding ();
+                
+                }            
+                
+            } else {
+                
+                // Any more open projects?
+                if (Environment.getOpenProjects ().size () == 0)
+                {
+                
+                    if ((Environment.landingViewer != null)
+                        &&
                         (!Environment.landingViewer.isShowing ())
                        )
                     {
-                  
-                        // Only call the close down if there are no open projects
-                        // and the landing is not being shown or null.
-                        Environment.closeDown ();
+                
+                        // Exit the landing.
+                        Environment.landingViewer.close (false,
+                                                         null);
+    
+                    } else {
+                     
+                        if ((Environment.landingViewer == null)
+                            ||
+                            (!Environment.landingViewer.isShowing ())
+                           )
+                        {
+                      
+                            // Only call the close down if there are no open projects
+                            // and the landing is not being shown or null.
+                            Environment.closeDown ();
+                            
+                        }
                         
                     }
                     
-                }
-                
-            } 
+                } 
+            }
+            
         }
         
     }
