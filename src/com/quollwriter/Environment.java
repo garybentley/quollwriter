@@ -160,6 +160,7 @@ public class Environment
         
         Map m = Environment.buttonLabels;
         
+        // TODO: Make this into a configuration file.
         m.put (Constants.CANCEL_BUTTON_LABEL_ID,
                "Cancel");
         m.put (Constants.CONFIRM_BUTTON_LABEL_ID,
@@ -172,6 +173,8 @@ public class Environment
                "Update");
         m.put (Constants.FINISH_BUTTON_LABEL_ID,
                "Finish");        
+        m.put (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
+               "Create a Backup");        
 
         // We use a synchronized weak hash map here so that we don't have to worry about all the
         // references since they will be transient compared to the potential length of the service
@@ -2094,6 +2097,14 @@ public class Environment
                     om.closeConnectionPool ();
                     
                 }
+                
+            }
+            
+            if (pv != null)
+            {
+                
+                pv.fireProjectEventLater (ProjectEvent.BACKUPS,
+                                          ProjectEvent.NEW);                
                 
             }
             

@@ -3199,7 +3199,8 @@ public class Options extends Box
         
         box.add (Box.createVerticalStrut (10));
         
-        JButton create = new JButton ("Create a Backup");
+        JButton create = UIUtils.createButton (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
+                                               null);
 
         create.addActionListener (new ActionAdapter ()
         {

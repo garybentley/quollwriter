@@ -42,19 +42,14 @@ import com.quollwriter.exporter.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
-public class BackupsManager extends Box 
+public class BackupsManager extends Box implements ProjectEventListener
 {
 
-    private JComboBox   exportOthersType = null;
-    private JComboBox   exportChaptersType = null;
-    private JComboBox   fileType = null;
-    private JTextField  fileField = null;
-    private JTree       itemsTree = null;
-    private JScrollPane itemsTreeScroll = null;
-    private JTable      wordTable = null;
-    private FileWatcher watcher = null;
     private AbstractViewer viewer = null;
     private ProjectInfo proj = null;
+    private Box backupsBox = null;
+    private JLabel noBackups = null;
+    private JLabel backupsDir = null;
 
     public BackupsManager (AbstractViewer pv,
                            ProjectInfo    pi)
@@ -65,8 +60,81 @@ public class BackupsManager extends Box
         this.viewer = pv;
         this.proj = pi;
 
+        this.viewer.addProjectEventListener (this);
+        
     }
 
+    public void eventOccurred (ProjectEvent ev)
+    {
+
+        if (ev.getType ().equals (ProjectEvent.BACKUPS))
+        {
+            
+            this.update ();
+            
+        }
+            
+    }
+    
+    private void update ()
+    {
+
+        try
+        {
+        
+            this.noBackups.setVisible (true);
+        
+            this.backupsDir.setVisible (this.proj.getBackupDirectory ().exists ());
+        
+            this.backupsBox.removeAll ();
+            
+            File[] _files = this.proj.getBackupDirectory ().listFiles ();
+            
+            if ((_files != null)
+                &&
+                (_files.length > 0)
+               )
+            {                
+    
+                java.util.List<File> files = (java.util.List<File>) Arrays.asList (_files);
+                
+                Query q = new Query ();
+                
+                q.parse (String.format ("SELECT * FROM %s WHERE fileExtension(:_currobj) = 'zip' ORDER BY lastModified DESC",
+                                        File.class.getName ()));
+                
+                QueryResults qr = q.execute (files);
+                
+                files = (java.util.List<File>) qr.getResults ();
+                
+                for (File f : files)
+                {
+                    
+                    Backup b = new Backup (f,
+                                           this.proj);
+                    
+                    b.init ();
+                    
+                    this.backupsBox.add (b);
+                        
+                }
+                
+                this.noBackups.setVisible (files.size () == 0);
+
+            }
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to build list of backups",
+                                  e);
+            
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to show list of backups, please contact Quoll Writer support for assistance.");
+            
+        }
+        
+    }
+    
     public void init ()
                throws Exception
     {
@@ -81,17 +149,26 @@ public class BackupsManager extends Box
 
         this.add (tp);
         
-        JLabel dl = UIUtils.createClickableLabel ("Click to view the backups directory",
-                                                  null,
-                                                  this.proj.getBackupDirectory ().toURI ().toString ());
+        this.backupsDir = UIUtils.createClickableLabel ("Click to view the backups directory",
+                                                        Environment.getIcon (Constants.VIEW_ICON_NAME,
+                                                                             Constants.ICON_MENU),
+                                                        this.proj.getBackupDirectory ().toURI ().toString ());
 
-        dl.setBorder (UIUtils.createPadding (0, 0, 10, 0));
+        this.backupsDir.setBorder (UIUtils.createPadding (0, 0, 10, 0));
         
-        this.add (dl);
+        this.add (this.backupsDir);
         
-        Box backupsBox = new ScrollableBox (BoxLayout.Y_AXIS);
-        backupsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-        backupsBox.setOpaque (false);
+        this.noBackups = UIUtils.createLabel ("You currently have no backups for this {project}.");
+        this.noBackups.setIcon (Environment.getIcon (Constants.INFO_ICON_NAME,
+                                                     Constants.ICON_MENU));
+
+        this.noBackups.setBorder (UIUtils.createPadding (0, 0, 10, 0));
+        
+        this.add (this.noBackups);
+        
+        this.backupsBox = new ScrollableBox (BoxLayout.Y_AXIS);
+        this.backupsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.backupsBox.setOpaque (false);
 
         final JScrollPane spsp = UIUtils.createScrollPane (backupsBox);
         spsp.getVerticalScrollBar ().setUnitIncrement (20);
@@ -103,39 +180,29 @@ public class BackupsManager extends Box
         wspsp.setBorder (UIUtils.createPadding (0, 0, 0, 0));
         this.add (wspsp);
         
-        File[] _files = this.proj.getBackupDirectory ().listFiles ();
+        this.update ();
         
-        if (_files != null)
-        {                
-
-            java.util.List<File> files = (java.util.List<File>) Arrays.asList (_files);
-            
-            Query q = new Query ();
-            
-            q.parse (String.format ("SELECT * FROM %s WHERE fileExtension(:_currobj) = 'zip' ORDER BY lastModified DESC",
-                                    File.class.getName ()));
-            
-            QueryResults qr = q.execute (files);
-            
-            files = (java.util.List<File>) qr.getResults ();
-            
-            for (File f : files)
-            {
-                
-                Backup b = new Backup (f,
-                                       this.proj);
-                
-                b.init ();
-                
-                backupsBox.add (b);
-                    
-            }
-            
-        }
-
         this.add (Box.createVerticalStrut (10));
         
-        JButton finish = new JButton ("Finish");
+        JButton create = UIUtils.createButton (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
+                                               null);
+
+        create.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+            
+                UIUtils.showCreateBackup (proj,
+                                          null,
+                                          _this.viewer);
+                            
+            }
+
+        });        
+        
+        JButton finish = UIUtils.createButton (Constants.FINISH_BUTTON_LABEL_ID,
+                                               null);
 
         finish.addActionListener (new ActionAdapter ()
         {
@@ -149,7 +216,7 @@ public class BackupsManager extends Box
 
         });
 
-        JButton[] buts = new JButton[] { finish };
+        JButton[] buts = new JButton[] { create, finish };
 
         JPanel bp = UIUtils.createButtonBar2 (buts,
                                               Component.CENTER_ALIGNMENT); 
@@ -286,12 +353,16 @@ public class BackupsManager extends Box
                                                                         // Reopen the project.
                                                                         Environment.openProject (_this.proj);
                                                                         
+                                                                        AbstractProjectViewer p = Environment.getProjectViewer (_this.proj);
+                                                                        
                                                                         // Show confirmation.
-                                                                        UIUtils.showMessage ((PopupsSupported) Environment.getProjectViewer (_this.proj),
+                                                                        UIUtils.showMessage ((PopupsSupported) p,
                                                                                              "{Project} restored",
-                                                                                             String.format ("The {project} has been restored using file <b>%s</b>.",
+                                                                                             String.format ("The {project} has been restored from file <b>%s</b>.",
                                                                                                             _this.file.getName ()));
                                                                         
+                                                                        p.fireProjectEventLater (ProjectEvent.BACKUPS,
+                                                                                                 ProjectEvent.RESTORE);
                                                                         
                                                                     } catch (Exception e) {
                                                                                                                                                 
@@ -386,6 +457,11 @@ public class BackupsManager extends Box
                                                 
                                                 p.validate ();
                                                 p.repaint ();
+                                                
+                                                BackupsManager.this.viewer.fireProjectEventLater (ProjectEvent.BACKUPS,
+                                                                                                  ProjectEvent.DELETE);
+                                                
+                                                BackupsManager.this.update ();
                                                 
                                             }
                                             

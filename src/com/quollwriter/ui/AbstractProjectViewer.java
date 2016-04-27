@@ -4531,9 +4531,11 @@ xxx
 		
 									try
 									{
-		
-										_this.addNotification ("An automatic backup has been created.  <a href='" + bf.getParentFile ().toURI ().toURL () + "'>Click to view the backup directory.</a>",
-															  "information",
+
+										_this.addNotification (String.format ("An automatic backup has been created.  <a href='%s:%s'>Click to view the backups.</a>",
+                                                                              Constants.ACTION_PROTOCOL,
+                                                                              Constants.BACKUPS_HTML_PANEL_ACTION),
+															  Constants.INFO_ICON_NAME,
 															  30);
 
 									} catch (Exception e) {
@@ -5569,27 +5571,19 @@ xxx
     public void handleHTMLPanelAction (String v)
     {
         
-/*
-        StringTokenizer t = new StringTokenizer (v,
-                                                 ",;");
-        
-        if (t.countTokens () > 1)
-        {
-        
-            while (t.hasMoreTokens ())
-            {
-                
-                this.handleHTMLPanelAction (t.nextToken ().trim ());
-                
-            }
-
-            return;
-
-        }
-*/
         try
         {
 
+            if (v.equals (Constants.BACKUPS_HTML_PANEL_ACTION))
+            {
+                
+                UIUtils.showManageBackups (Environment.getProjectInfo (this.proj),
+                                           this);
+                
+                return;
+                
+            }
+        
             if (v.equals ("textproperties"))
             {
                 
@@ -5605,24 +5599,7 @@ xxx
                 return;
                 
             }
-/*
-            if (v.equals ("showundealtwitheditormessages"))
-            {
-                
-                this.viewEditors ();
-                                
-            }
-            */
-            /*
-            if (v.equals ("whatsnew"))
-            {
-                
-                this.showWhatsNew (true);
 
-                return;
-                
-            }
-            */
             if (v.equals ("find"))
             {
                 
@@ -5631,16 +5608,7 @@ xxx
                 return;
                 
             }
-/*
-            if (v.equals ("achievements"))
-            {
-                
-                this.viewAchievements ();
-                
-                return;
-                
-            }
-*/
+
             if (v.equals ("spellcheckoff"))
             {
                 
@@ -5658,16 +5626,7 @@ xxx
                 return;
                                 
             }
-/*
-            if (v.equals ("warmup"))
-            {
-                
-                this.showWarmupPromptSelect ();
-                
-                return;
-                
-            }
-*/
+
             if (v.equals ("statistics"))
             {
                 
@@ -5712,16 +5671,7 @@ xxx
                 return;
                 
             }
-            /*
-            if (v.equals ("showinviteeditor"))
-            {
-                
-                EditorsUIUtils.showInviteEditor (this);
-                
-                return;                
-                
-            }
-            */
+
             if (v.equals ("enabletypewritersound"))
             {
                 
@@ -5764,63 +5714,7 @@ xxx
                 return;
                 
             }
-            /*
-            if (v.equals ("editobjectnames"))
-            {
-                
-                this.showObjectTypeNameChanger ();
-                
-                return;
-                        
-            }
-            
-            if (v.equals ("contact"))
-            {
-                
-                this.showContactSupport ();
-                
-                return;
-                
-            }
-            */
-/*
-            if (v.equals ("reportbug"))
-            {
 
-                this.showReportProblem ();
-                
-                return;
-                
-            }
-
-            if (v.equals ("editors"))
-            {
-
-                this.viewEditors ();
-                
-                return;
-                
-            }
-            */
-/*
-            if (v.startsWith ("options"))
-            {
-                
-                String section = null;
-                
-                int dot = v.indexOf ('.');
-                
-                if (dot > 1)
-                {
-                    
-                    section = v.substring (dot + 1);
-                    
-                }
-                
-                this.showOptions (section);
-                
-            }
-            */
             super.handleHTMLPanelAction (v);
             
         } catch (Exception e) {

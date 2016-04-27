@@ -109,6 +109,8 @@ public class Constants
     
     public static final String QUOLLWRITER_PROTOCOL = "qw";
 
+    public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
+    
     public static final String CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME = "closeProjectsWindowWhenProjectOpened";
     
     public static final String SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME = "showProjectsWindowWhenNoOpenProjects";
@@ -641,6 +643,7 @@ public class Constants
     public static final String SEND_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "send$$__";
     public static final String UPDATE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "update$$__";
     public static final String FINISH_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "finish$$__";
+    public static final String CREATE_BACKUP_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "create_backup$$__";
 
     public static final String LAYOUT_PS_CH = "layout-ps-ch";
     public static final String LAYOUT_CH_PS = "layout-ch-ps";

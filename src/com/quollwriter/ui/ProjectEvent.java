@@ -37,6 +37,7 @@ public class ProjectEvent extends EventObject
     public static final String TABS = "tabs";
     public static final String WHATS_NEW = "whatsnew";
     public static final String STATISTICS = "statistics";
+    public static final String BACKUPS = "backups";
     
     public static final String CHANGE_BACKGROUND = "changebackground";
     public static final String CHANGE_LANGUAGE = "changelanguage";
@@ -47,6 +48,7 @@ public class ProjectEvent extends EventObject
     public static final String NEW = "new";
     public static final String EDIT = "edit";
     public static final String RENAME = "rename";
+    public static final String RESTORE = "restore";
     public static final String DELETE = "delete";
     public static final String ON = "on";
     public static final String OFF = "off";
