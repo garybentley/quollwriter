@@ -852,6 +852,15 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                     }
                     
                 });
+
+        am.put ("new-project",
+                this.getAction (AbstractProjectViewer.NEW_PROJECT_ACTION,
+                                null));
+
+        am.put ("open-project",
+                this.getAction (AbstractProjectViewer.OPEN_PROJECT_ACTION,
+                                null));
+
         /*
         am.put ("debug",
                 new ActionAdapter ()
@@ -1044,6 +1053,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                         Event.CTRL_MASK),
                 Constants.SHOW_FIND_ACTION);        
         
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_N,
+                                        Event.CTRL_MASK),
+                "new-project");        
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_O,
+                                        Event.CTRL_MASK),
+                "open-project");        
+
     }
     
     public WordCountTimer getWordCountTimer ()

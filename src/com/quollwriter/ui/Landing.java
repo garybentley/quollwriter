@@ -4318,5 +4318,59 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         this.showSideBar ("targets");
 
 	}
+
+	@Override
+    public void initActionMappings (ActionMap am)
+    {
+        
+        final Landing _this = this;
+	
+        am.put ("new-project",	
+				new ActionAdapter ()
+				{
+				  
+					@Override
+					public void actionPerformed (ActionEvent ev)
+					{
+	  
+						UIUtils.showAddNewProject (_this,
+												   null,
+												   null);
+					  
+					}
+				  
+				});
+	
+        am.put ("show-main",	
+				new ActionAdapter ()
+				{
+				  
+					@Override
+					public void actionPerformed (ActionEvent ev)
+					{
+	  
+						_this.showMainCard ();
+					  
+					}
+				  
+				});
+
+	}
+	
+    @Override
+    public void initKeyMappings (InputMap im)
+    {
+        
+        super.initKeyMappings (im);
+        
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_ESCAPE,
+                                        0),
+                "show-main");
+		
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_N,
+                                        InputEvent.CTRL_MASK),
+                "new-project");
+
+	}
 	
 }
