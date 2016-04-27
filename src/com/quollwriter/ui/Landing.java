@@ -1014,15 +1014,29 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         final Landing _this = this;
                 
-        AbstractProjectViewer viewer = Environment.getProjectViewer (p);
+        final AbstractProjectViewer viewer = Environment.getProjectViewer (p);
         
         if (viewer != null)
         {
             
-			UIUtils.showMessage ((PopupsSupported) this,
+			UIUtils.showMessage (this,
 								 "{Project} already open",
 								 String.format ("<b>%s</b> is currently already open in a window.  Please delete the {project} from that window or close the {project} then delete it from here.",
-												p.getName ()));
+												p.getName ()),
+								 null,
+								 new ActionListener ()
+								 {
+									
+									@Override
+									public void actionPerformed (ActionEvent ev)
+									{
+										
+										viewer.setExtendedState (JFrame.NORMAL);
+										viewer.toFront ();
+										
+									}
+									
+								 });
 			
 			return;
             
