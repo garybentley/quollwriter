@@ -4337,6 +4337,8 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
     public void initActionMappings (ActionMap am)
     {
         
+		super.initActionMappings (am);
+		
         final Landing _this = this;
 	
         am.put ("new-project",	

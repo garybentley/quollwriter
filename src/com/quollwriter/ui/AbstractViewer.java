@@ -1172,6 +1172,19 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         
         final AbstractViewer _this = this;
         
+        am.put ("show-options",
+                new ActionAdapter ()
+                {
+                    
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        _this.showOptions (null);
+                        
+                    }
+                    
+                });
+		
         am.put ("do-warmup",
                 new ActionAdapter ()
                 {
@@ -1309,6 +1322,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     public void initKeyMappings (InputMap im)
     {
         
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F3,
+                                        0),
+                "show-options");
+		
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F7,
                                         0),
                 "vieweditors");                

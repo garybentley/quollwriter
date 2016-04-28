@@ -793,20 +793,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         final AbstractProjectViewer _this = this;
         
         super.initActionMappings (am);
-        
-        am.put ("show-options",
-                new ActionAdapter ()
-                {
-                    
-                    public void actionPerformed (ActionEvent ev)
-                    {
-                        
-                        _this.showOptions ();
-                        
-                    }
-                    
-                });
-        
+                
         am.put ("close-current-tab",
                 new ActionAdapter ()
                 {
@@ -1032,10 +1019,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F1,
                                         0),
                 Constants.SHOW_FIND_ACTION);
-
-        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F3,
-                                        0),
-                "show-options");
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F4,
                                         0),
