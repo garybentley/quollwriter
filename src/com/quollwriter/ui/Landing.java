@@ -652,8 +652,22 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                             UIUtils.getCenterShowPosition (this,
                                                            popup),
                             false);
-        
+        		
         popup.setDraggable (this);				
+		
+		// TODO: Why Swing??? Why, why, why???
+		UIUtils.doLater (new ActionListener ()
+		{
+			
+			@Override
+			public void actionPerformed (ActionEvent ev)
+			{
+				
+				popup.resize ();		
+				
+			}
+			
+		});
 		
 	}
 	

@@ -1103,7 +1103,7 @@ public class TextArea extends Box
     public void setBorder (Border b)
     {
 
-        super.setBorder (b);
+        //super.setBorder (b);
         
         this.scrollPane.setBorder (b);
         

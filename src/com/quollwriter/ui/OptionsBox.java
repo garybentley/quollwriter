@@ -39,6 +39,28 @@ public class OptionsBox extends Box
         
     }
 
+    public void addMain (String   text,
+                         TextArea item)
+    {
+                
+        if (this.getComponentCount () > 0)
+        {
+            
+            this.add (Box.createVerticalStrut (10));
+                
+        }
+        
+        this.add (this.mainItem (this.text (text)));
+                
+        this.add (Box.createVerticalStrut (5));
+
+        item.setAlignmentX (Component.LEFT_ALIGNMENT);
+        item.setAlignmentY (Component.TOP_ALIGNMENT);            
+        
+        this.add (item);
+        
+    }
+
     public void addMain (JComponent item)
     {
                 
@@ -116,10 +138,10 @@ public class OptionsBox extends Box
 
         c.setAlignmentX (Component.LEFT_ALIGNMENT);
         c.setAlignmentY (Component.TOP_ALIGNMENT);    
-    
+    /*
         c.setBorder (new CompoundBorder (UIUtils.createPadding (0, 0, 0, 0),
                                          c.getBorder ()));
-        
+      */  
         return c;
         
     }
