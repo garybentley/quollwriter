@@ -119,6 +119,7 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
 
         final JTable typeTable = UIUtils.createTable ();
         typeTable.setTableHeader (null);
+        typeTable.setToolTipText ("Double click to edit, press Enter when done.");
                 
         typeTable.setModel (new DefaultTableModel ()
         {
@@ -149,6 +150,46 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
             }
             
         });        
+        
+        typeTable.addMouseListener (new MouseEventHandler ()
+        {
+                        
+            @Override
+            public void fillPopup (final JPopupMenu m,
+                                   final MouseEvent ev)
+            {
+                
+                final int rowInd = typeTable.rowAtPoint (ev.getPoint ());
+                        
+                if (rowInd < 0)
+                {
+                    
+                    return;
+                    
+                }
+                        
+                typeTable.setRowSelectionInterval (rowInd,
+                                                   rowInd);
+
+                m.add (UIUtils.createMenuItem ("Edit",
+                                               Constants.EDIT_ICON_NAME,
+                                               new ActionListener ()
+                                               {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        typeTable.editCellAt (rowInd,
+                                                                              0);
+                                                        
+                                                    }
+                                                
+                                               }));
+                
+            }
+            
+        });
         
         this.typeModel = (DefaultTableModel) typeTable.getModel ();
 
