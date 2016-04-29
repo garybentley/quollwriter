@@ -2489,6 +2489,14 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                             
     }
     
+	public void bringPopupToFront (Component c)
+	{
+				
+		this.getLayeredPane ().setPosition (c,
+											0);
+		
+	}
+	
     public void addPopup (Component c)
     {
 

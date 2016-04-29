@@ -74,15 +74,7 @@ public class QPopup extends Box
             public void mouseReleased (MouseEvent ev)
             {
                 
-                if (_this.getParent () instanceof JLayeredPane)
-                {
-                    
-                    JLayeredPane p = (JLayeredPane) _this.getParent ();
-                    
-                    p.setPosition (_this,
-                                   0);
-                    
-                }
+                _this.toFront ();
                 
             }
             
@@ -367,6 +359,21 @@ public class QPopup extends Box
 
     }
 
+    public void toFront ()
+    {
+                
+        if (this.getParent () instanceof JLayeredPane)
+        {
+            
+            JLayeredPane p = (JLayeredPane) this.getParent ();
+            
+            p.setPosition (this,
+                           0);
+            
+        }
+        
+    }
+    
     public Dragger setDraggable (Component within)
     {
 

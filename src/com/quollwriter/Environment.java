@@ -2126,15 +2126,7 @@ public class Environment
                 }
                 
             }
-            
-            if (pv != null)
-            {
-                
-                pv.fireProjectEventLater (ProjectEvent.BACKUPS,
-                                          ProjectEvent.NEW);                
-                
-            }
-            
+                        
         }
         
     }

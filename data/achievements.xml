@@ -560,6 +560,16 @@
     <description>Change the background image in full screen mode.</description>
   </item>
 
+  <item id="backupnew" category="project" icon="snapshot" type="event" event="backups.new">
+    <name>I need backup!</name>
+    <description>Create a backup for your {project}.</description>
+  </item>
+
+  <item id="backupsshow" category="project" icon="snapshot" type="event" event="backups.show">
+    <name>I've got your back</name>
+    <description>View the backups for your {project}.</description>
+  </item>
+
   <item id="tips5" category="user" type="event" icon="help" currentSession="true" event="tips.show" count="5">
     <name>Tipster</name>
     <description>View more than 5 tips.</description>

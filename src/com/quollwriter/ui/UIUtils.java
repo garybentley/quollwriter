@@ -2433,6 +2433,19 @@ public class UIUtils
         });
         
     }
+
+    public static void showMessage (final PopupsSupported parent,
+                                    final String          title,
+                                    final Component       message)
+    {
+
+        UIUtils.showMessage (parent,
+                             title,
+                             message,
+                             null,
+                             null);
+    
+    }
     
     public static void showMessage (final PopupsSupported parent,
                                     final String          title,
@@ -5589,6 +5602,7 @@ public class UIUtils
         t.append ("span.iu a{font-style: italic; text-decoration: underline;}");
         t.append ("span.u a{text-decoration: underline;}");
         t.append ("span.iu a{font-style: italic; text-decoration: underline;}");
+        t.append ("span a img{text-decoration: none; border: 0px;}");
         t.append ("</style>");
 
         return t.toString ();
@@ -9343,47 +9357,66 @@ public class UIUtils
                                           final AbstractViewer viewer)
 	{
 		
-		final QPopup popup = UIUtils.createClosablePopup ("Current Backups",
-                                                          Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
-                                                                         	   Constants.ICON_POPUP),
-                                                          null);
-			
-		BackupsManager bm = null;
-		
-		try
-		{
-		
-			bm = new BackupsManager (viewer,
-									 proj);
-			bm.init ();
+        String popupName = "managebackups";
+        QPopup popup = viewer.getNamedPopup (popupName);
+        
+        if (popup == null)
+        {
+                
+            popup = UIUtils.createClosablePopup ("Current Backups",
+                                                 Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+                
+            BackupsManager bm = null;
+            
+            try
+            {
+            
+                bm = new BackupsManager (viewer,
+                                         proj);
+                bm.init ();
+    
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to show backups manager",
+                                      e);
+                
+                UIUtils.showErrorMessage (viewer,
+                                          "Unable to show backups manager, please contact Quoll Writer support for assitance.");
+                
+                return;
+                
+            }
+            
+            bm.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                  bm.getPreferredSize ().height));
+            bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
+        
+            popup.setContent (bm);
+            
+            popup.setDraggable (viewer);
+                              
+            popup.resize ();
+    
+            viewer.showPopupAt (popup,
+                                UIUtils.getCenterShowPosition (viewer,
+                                                               popup),
+                                false);
 
-		} catch (Exception e) {
-			
-			Environment.logError ("Unable to show backups manager",
-								  e);
-			
-			UIUtils.showErrorMessage (viewer,
-									  "Unable to show backups manager, please contact Quoll Writer support for assitance.");
-			
-			return;
-			
-		}
+            viewer.addNamedPopup (popupName,
+                                  popup);
+            
+        } else {
+            
+            popup.setVisible (true);            
+            popup.toFront ();
+            
+        }
 		
-		bm.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-							  bm.getPreferredSize ().height));
-		bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
-	
-		popup.setContent (bm);
-		
-		popup.setDraggable (viewer);
-						  
-		popup.resize ();
-
-		viewer.showPopupAt (popup,
-						    UIUtils.getCenterShowPosition (viewer,
-														   popup),
-						    false);
-		
+        viewer.fireProjectEvent (ProjectEvent.BACKUPS,
+                                 ProjectEvent.SHOW);
+        
 	}
 
     public static void showCreateBackup (final Project        proj,
@@ -9421,12 +9454,47 @@ public class UIUtils
                                                 File f = Environment.createBackupForProject (proj,
                                                                                              false);
                     
+                                                Box b = new Box (BoxLayout.Y_AXIS);
+                    
+                                                JTextPane m = UIUtils.createHelpTextPane (String.format ("A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
+                                                                                                         f.getParentFile ().toURI ().toString (),
+                                                                                                         f),
+                                                                                          viewer);
+                                                
+                                                m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                                                          m.getPreferredSize ().height));
+                                                m.setBorder (null);
+                    
+                                                b.add (m);
+                                                
+                                                b.add (Box.createVerticalStrut (10));
+                    
+                                                JLabel l = UIUtils.createClickableLabel ("Click to view the backups",
+                                                                                         Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
+                                                                                                              Constants.ICON_MENU),
+                                                                                         new ActionListener ()
+                                                                                         {
+                                                                                            
+                                                                                            @Override
+                                                                                            public void actionPerformed (ActionEvent ev)
+                                                                                            {
+                                                                                                
+                                                                                                UIUtils.showManageBackups (proj,
+                                                                                                                           viewer);
+                                                                                                
+                                                                                            }
+                                                                                            
+                                                                                         });
+                                                
+                                                b.add (l);
+                    
                                                 UIUtils.showMessage ((PopupsSupported) viewer,
                                                                      "Backup created",
-                                                                     String.format ("A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
-                                                                                    f.getParentFile ().toURI ().toString (),
-                                                                                    f));
-                    
+                                                                     b);
+                                                
+                                                viewer.fireProjectEvent (ProjectEvent.BACKUPS,
+                                                                         ProjectEvent.NEW);
+                                                
                                             } catch (Exception e)
                                             {
                     
