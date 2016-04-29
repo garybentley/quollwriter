@@ -318,7 +318,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.setIconImage (Environment.getWindowIcon ().getImage ());
                 
         this.updateForDebugMode ();        
-                
+        
+        //Environment.addToAchievementsManager (this);		
+		        
     }
     
     public void setTitleHeaderControlsVisible (boolean v)

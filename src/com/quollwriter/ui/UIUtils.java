@@ -9414,8 +9414,9 @@ public class UIUtils
             
         }
 		
-        viewer.fireProjectEvent (ProjectEvent.BACKUPS,
-                                 ProjectEvent.SHOW);
+        Environment.fireUserProjectEvent (viewer,
+                                          ProjectEvent.BACKUPS,
+                                          ProjectEvent.SHOW);
         
 	}
 
@@ -9492,8 +9493,9 @@ public class UIUtils
                                                                      "Backup created",
                                                                      b);
                                                 
-                                                viewer.fireProjectEvent (ProjectEvent.BACKUPS,
-                                                                         ProjectEvent.NEW);
+                                                Environment.fireUserProjectEvent (viewer,
+                                                                                  ProjectEvent.BACKUPS,
+                                                                                  ProjectEvent.NEW);
                                                 
                                             } catch (Exception e)
                                             {

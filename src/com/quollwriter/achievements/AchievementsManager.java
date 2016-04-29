@@ -40,13 +40,11 @@ public class AchievementsManager implements ProjectEventListener
     private Map<String, Set<AchievementRule>> userRules = new HashMap ();
     
     // The inner map key is the AchievementRule.getEventId.
-    private Map<AbstractProjectViewer, Map<String, Set<AchievementRule>>> eventRules = new HashMap ();
-    private Map<AbstractProjectViewer, AchievementsChecker> checkers = new HashMap ();
+    private Map<AbstractViewer, Map<String, Set<AchievementRule>>> eventRules = new HashMap ();
+    private Map<AbstractViewer, AchievementsChecker> checkers = new HashMap ();
     
     // The key is the id attribute of the element.
     private Map<String, Element> ruleEls = new LinkedHashMap ();
-        
-    private Timer checker = new Timer (true);
         
     private Clip achievementSound = null;
         
@@ -172,9 +170,9 @@ public class AchievementsManager implements ProjectEventListener
                                                               userSessionRules,
                                                               this);
             
-            this.checker.schedule (ac,
-                                   10 * 1000,
-                                   10 * 1000);
+            Environment.schedule (ac,
+                                  10 * 1000,
+                                  10 * 1000);
             
             this.checkers.put (null,
                                ac);            
@@ -428,12 +426,12 @@ public class AchievementsManager implements ProjectEventListener
                       throws Exception
     {
         
-        Set<AbstractProjectViewer> viewers = new HashSet (this.eventRules.keySet ());
+        Set<AbstractViewer> viewers = new HashSet (this.eventRules.keySet ());
         
-        for (AbstractProjectViewer pv : viewers)
+        for (AbstractViewer pv : viewers)
         {
             
-            this.removeProjectViewer (pv);
+            this.removeViewer (pv);
             
         }
         
@@ -511,8 +509,8 @@ public class AchievementsManager implements ProjectEventListener
                 
     }
 
-    public void removeProjectViewer (AbstractProjectViewer v)
-                                     throws                Exception
+    public void removeViewer (AbstractViewer v)
+                       throws Exception
     {
         
         if (v == null)
@@ -559,11 +557,18 @@ public class AchievementsManager implements ProjectEventListener
 
         }
 
-        // Save the state.
-        v.getProject ().setProperty (Constants.PROJECT_ACHIEVEMENTS_STATE_PROPERTY_NAME,
-                                     this.getState (rs));
+        if (v instanceof AbstractProjectViewer)
+        {
+            
+            AbstractProjectViewer pv = (AbstractProjectViewer) v;
         
-        v.saveProject ();
+            // Save the state.
+            pv.getProject ().setProperty (Constants.PROJECT_ACHIEVEMENTS_STATE_PROPERTY_NAME,
+                                          this.getState (rs));
+            
+            pv.saveProject ();
+     
+        }
      
         if (t != null)
         {
@@ -576,8 +581,16 @@ public class AchievementsManager implements ProjectEventListener
         
     }
     
+    public void addViewer (Landing l)
+                           throws Exception
+    {
+
+        l.addProjectEventListener (this);            
+    
+    }    
+    
     public void addProjectViewer (AbstractProjectViewer v)
-                                  throws                Exception
+                           throws Exception
     {
         
         // Get the list of project/chapter achieved achievements.
@@ -670,9 +683,9 @@ public class AchievementsManager implements ProjectEventListener
                                                               constantRules,
                                                               this);
             
-            this.checker.schedule (ac,
-                                   10 * 1000,
-                                   10 * 1000);
+            Environment.schedule (ac,
+                                  10 * 1000,
+                                  10 * 1000);
             
             this.checkers.put (v,
                                ac);
@@ -689,8 +702,9 @@ public class AchievementsManager implements ProjectEventListener
      
     }
     
-    public synchronized void achievementReached (AbstractProjectViewer viewer,
-                                                 AchievementRule       ar)
+    // TODO: Allow for just AbstractViewer.
+    public synchronized void projectAchievementReached (AbstractProjectViewer viewer,
+                                                        AchievementRule       ar)
     {
 
         if (Environment.isDebugModeEnabled ())
@@ -1064,8 +1078,8 @@ public class AchievementsManager implements ProjectEventListener
                                              ev))
                             {
                                 
-                                this.achievementReached (pv,
-                                                         ar);
+                                this.projectAchievementReached (pv,
+                                                                ar);
                                 
                                 achieved.add (ar);
                                 
@@ -1112,9 +1126,9 @@ public class AchievementsManager implements ProjectEventListener
         public AchievementsManager   manager = null;
         public Set<AchievementRule> rules = null;
         private int count = 0;
-        public AchievementsChecker (AbstractProjectViewer viewer,
-                                    Set<AchievementRule>  rules,
-                                    AchievementsManager   manager)
+        public AchievementsChecker (AbstractProjectViewer       viewer,
+                                    Set<AchievementRule> rules,
+                                    AchievementsManager  manager)
         {
             
             this.viewer = viewer;
@@ -1160,7 +1174,7 @@ public class AchievementsManager implements ProjectEventListener
                 try
                 {
                 
-                    manager.removeProjectViewer (this.viewer);
+                    manager.removeViewer (this.viewer);
                     
                 } catch (Exception e) {
                     
@@ -1194,8 +1208,8 @@ public class AchievementsManager implements ProjectEventListener
                             
                         } else {
                         
-                            manager.achievementReached (this.viewer,
-                                                        ar);
+                            manager.projectAchievementReached (this.viewer,
+                                                               ar);
 
                         }
                         

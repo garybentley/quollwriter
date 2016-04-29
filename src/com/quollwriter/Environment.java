@@ -2684,18 +2684,18 @@ public class Environment
         
     }
 
-    public static void removeFromAchievementsManager (AbstractProjectViewer viewer)
+    public static void removeFromAchievementsManager (AbstractViewer viewer)
     {
         
         try
         {
         
-            Environment.achievementsManager.removeProjectViewer (viewer);
+            Environment.achievementsManager.removeViewer (viewer);
             
         } catch (Exception e) {
             
             Environment.logError ("Unable to remove from achievements: " +
-                                  viewer.getProject (),
+                                  viewer,
                                   e);
             
         }
@@ -3504,6 +3504,8 @@ public class Environment
         // See if this is first use.
         Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
         
+        Environment.userSession = new UserSession ();
+        
         // Get the username and password.
         String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
         String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
@@ -3828,8 +3830,6 @@ public class Environment
 
                 if (Environment.isStartupComplete ())
                 {
-
-                    Environment.userSession = new UserSession ();
                     
                     Environment.userSession.start (new Date ());
                 
@@ -5844,12 +5844,7 @@ public class Environment
     public static void showAchievement (AchievementRule ar)
     {
 
-        for (AbstractProjectViewer viewer : Environment.openProjects.values ())
-        {
-            
-            viewer.showAchievement (ar);
-            
-        }
+        Environment.getFocusedViewer ().showAchievement (ar);
         
     }
 
@@ -6400,10 +6395,8 @@ public class Environment
     public static TargetsData getDefaultUserTargets ()
     {
 
-        //TargetsData td = new TargetsData (Environment.userProperties.getParentProperties ());
-
-        // XXX
         TargetsData td = new TargetsData (UserProperties.getProperties ().getParentProperties ());
+
         return td;
         
     }
