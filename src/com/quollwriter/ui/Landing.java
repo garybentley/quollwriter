@@ -469,205 +469,235 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	{
 		
 		final Landing _this = this;
-		
-        final QPopup popup = UIUtils.createClosablePopup ("Change what is displayed",
-                                                          Environment.getIcon (Constants.EDIT_ICON_NAME,
-                                                                               Constants.ICON_POPUP),
-                                                          null);
 
-		Box content = new Box (BoxLayout.Y_AXIS);
-		      
-		OptionsBox bb = new OptionsBox (this);
-		
-		content.add (bb);
-			        		
-		ProjectInfo _bogus = new ProjectInfo ();
-
-		_bogus.setProjectDirectory (FileSystemView.getFileSystemView ().getDefaultDirectory ());
-		_bogus.setName (Environment.replaceObjectNames ("My {Project}"));
-		_bogus.setStatus ("In Progress");
-		_bogus.setLastEdited (new Date (System.currentTimeMillis () - (24 * 7 * 60 * 60 * 1000)));
-		_bogus.addStatistic (ProjectInfo.Statistic.chapterCount,
-							 5);
-		_bogus.addStatistic (ProjectInfo.Statistic.wordCount,
-							 12123);
+        String popupName = "editprojectinfo";
+        QPopup popup = this.getNamedPopup (popupName);
         
-        _bogus.addStatistic (ProjectInfo.Statistic.gunningFogIndex,
-							 3);
-        _bogus.addStatistic (ProjectInfo.Statistic.fleschReadingEase,
-							 73);
-        _bogus.addStatistic (ProjectInfo.Statistic.fleschKincaidGradeLevel,
-                             8);
-        _bogus.addStatistic (ProjectInfo.Statistic.editedWordCount,
-							 5398);
-				
-		//final JTextField status = new JTextField (this.getProjectInfoFormat ());
-						
-		final TextArea status = new TextArea ("Enter the format here...",
-											  3,
-											  -1);
-		status.setText (this.getProjectInfoFormat ());
-						
-		final ProjectBox pb = new ProjectBox (_bogus,
-											  this.getProjectInfoFormat (),
-											  _this);
-											
-		pb.setInteractive (false);
-												
-		status.addCaretListener (new CaretListener ()
-		{
-			
-			@Override
-            public void caretUpdate (CaretEvent ev)	
-			{
-						
-				pb.setProjectInfoFormat (status.getText ());
-				
-				popup.resize ();
-						
-			}
-			
-		});
-		
-		bb.addMain ("Use the following format for {project} information.  <a href='help:projects/landing'>Click here</a> for help on the format/tags that can be used.",
-					status);
-				
-		Box pbb = new Box (BoxLayout.X_AXIS);
-		pbb.setMaximumSize (new Dimension (PROJECT_BOX_WIDTH,
-										   Short.MAX_VALUE));
-		pbb.add (pb);
-				
-		bb.addSub (UIUtils.createBoldSubHeader ("Example",
-												null),
-				   pbb);
-						   
-		content.add (Box.createVerticalStrut (15));
-		
-		content.add (Box.createVerticalGlue ());
-		
-        JButton save = UIUtils.createButton (Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
-				 						     null);
-
-        save.addActionListener (new ActionAdapter ()
+        if (popup == null)
         {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-				UserProperties.set (Constants.PROJECT_INFO_FORMAT,
-									status.getText ());
-								
-				try
-				{
-				
-					_this.showProjects ();
-					
-				} catch (Exception e) {
-					
-					Environment.logError ("Unable to update projects with format: " +
-										  status.getText (),
-										  e);
-					
-					UIUtils.showErrorMessage (_this,
-											  "Unable to update {projects} with the new format.");
-				
-					return;					
-					
-				}
-            
-            }
-
-        });
-
-        JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-				 							   null);
-
-        cancel.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-				popup.removeFromParent ();
-
-            }
-
-        });
-
-        JButton reset = new JButton ("Use default");
-
-        reset.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-				status.setText (UserProperties.get (Constants.DEFAULT_PROJECT_INFO_FORMAT));
-			
-				pb.setProjectInfoFormat (status.getText ());
-				
-				popup.resize ();			
-			
-				UserProperties.set (Constants.PROJECT_INFO_FORMAT,
-									status.getText ());
-				
-				try
-				{
-				
-					_this.showProjects ();
-					
-				} catch (Exception e) {
-					
-					Environment.logError ("Unable to update projects with format: " +
-										  status.getText (),
-										  e);
-					
-					UIUtils.showErrorMessage (_this,
-											  "Unable to update {projects} with the new format.");
-				
-					return;					
-					
-				}
-            
-            }
-
-        });
-        
-        JButton[] buts = { save, reset, cancel };
-		
-		JPanel bp = UIUtils.createButtonBar2 (buts,
-											  Component.CENTER_ALIGNMENT); 
-		bp.setOpaque (false);
-		bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-		content.add (bp);
-
-        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-                         
-        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                     content.getPreferredSize ().height));
-
-        popup.setContent (content);
-                                                               
-        this.showPopupAt (popup,
-                            UIUtils.getCenterShowPosition (this,
-                                                           popup),
-                            false);
         		
-        popup.setDraggable (this);				
-		
-		// TODO: Why Swing??? Why, why, why???
-		UIUtils.doLater (new ActionListener ()
-		{
+			popup = UIUtils.createClosablePopup ("Change what is displayed",
+												 Environment.getIcon (Constants.EDIT_ICON_NAME,
+																	  Constants.ICON_POPUP),
+												 null);
+
+			final QPopup _popup = popup;
+												 
+            popup.setPopupName (popupName);
+            
+            this.addNamedPopup (popupName,
+                                popup);
+														  									  
+			Box content = new Box (BoxLayout.Y_AXIS);
+				  
+			OptionsBox bb = new OptionsBox (this);
 			
-			@Override
-			public void actionPerformed (ActionEvent ev)
+			content.add (bb);
+								
+			ProjectInfo _bogus = new ProjectInfo ();
+	
+			_bogus.setProjectDirectory (FileSystemView.getFileSystemView ().getDefaultDirectory ());
+			_bogus.setName (Environment.replaceObjectNames ("My {Project}"));
+			_bogus.setStatus ("In Progress");
+			_bogus.setLastEdited (new Date (System.currentTimeMillis () - (24 * 7 * 60 * 60 * 1000)));
+			_bogus.addStatistic (ProjectInfo.Statistic.chapterCount,
+								 5);
+			_bogus.addStatistic (ProjectInfo.Statistic.wordCount,
+								 12123);
+			
+			_bogus.addStatistic (ProjectInfo.Statistic.gunningFogIndex,
+								 3);
+			_bogus.addStatistic (ProjectInfo.Statistic.fleschReadingEase,
+								 73);
+			_bogus.addStatistic (ProjectInfo.Statistic.fleschKincaidGradeLevel,
+								 8);
+			_bogus.addStatistic (ProjectInfo.Statistic.editedWordCount,
+								 5398);
+					
+			//final JTextField status = new JTextField (this.getProjectInfoFormat ());
+							
+			final TextArea status = new TextArea ("Enter the format here...",
+												  3,
+												  -1);
+			status.setText (this.getProjectInfoFormat ());
+							
+			final ProjectBox pb = new ProjectBox (_bogus,
+												  this.getProjectInfoFormat (),
+												  _this);
+												
+			pb.setInteractive (false);
+													
+			status.addCaretListener (new CaretListener ()
 			{
 				
-				popup.resize ();		
+				@Override
+				public void caretUpdate (CaretEvent ev)	
+				{
+							
+					pb.setProjectInfoFormat (status.getText ());
+					
+					UIUtils.doLater (new ActionListener ()
+					{
+						
+						@Override
+						public void actionPerformed (ActionEvent ev)
+						{
+							
+							_popup.resize ();
+							
+						}
+						
+					});
+							
+				}
 				
-			}
+			});
 			
-		});
+			bb.addMain ("Use the following format for {project} information.  <a href='help:projects/landing'>Click here</a> for help on the format/tags that can be used.",
+						status);
+					
+			Box pbb = new Box (BoxLayout.X_AXIS);
+			pbb.setMaximumSize (new Dimension (PROJECT_BOX_WIDTH,
+											   Short.MAX_VALUE));
+			pbb.add (pb);
+					
+			bb.addSub (UIUtils.createBoldSubHeader ("Example",
+													null),
+					   pbb);
+							   
+			content.add (Box.createVerticalStrut (15));
+			
+			content.add (Box.createVerticalGlue ());
+			
+			JButton save = UIUtils.createButton (Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
+												 null);
+	
+			save.addActionListener (new ActionAdapter ()
+			{
+	
+				public void actionPerformed (ActionEvent ev)
+				{
+	
+					UserProperties.set (Constants.PROJECT_INFO_FORMAT,
+										status.getText ());
+									
+					try
+					{
+					
+						_this.showProjects ();
+						
+					} catch (Exception e) {
+						
+						Environment.logError ("Unable to update projects with format: " +
+											  status.getText (),
+											  e);
+						
+						UIUtils.showErrorMessage (_this,
+												  "Unable to update {projects} with the new format.");
+					
+						return;					
+						
+					}
+				
+				}
+	
+			});
+	
+			JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+												   null);
+	
+			cancel.addActionListener (new ActionAdapter ()
+			{
+	
+				public void actionPerformed (ActionEvent ev)
+				{
+	
+					_popup.removeFromParent ();
+	
+				}
+	
+			});
+	
+			JButton reset = new JButton ("Use default");
+	
+			reset.addActionListener (new ActionAdapter ()
+			{
+	
+				public void actionPerformed (ActionEvent ev)
+				{
+	
+					status.setText (UserProperties.get (Constants.DEFAULT_PROJECT_INFO_FORMAT));
+				
+					pb.setProjectInfoFormat (status.getText ());
+					
+					_popup.resize ();			
+				
+					UserProperties.set (Constants.PROJECT_INFO_FORMAT,
+										status.getText ());
+					
+					try
+					{
+					
+						_this.showProjects ();
+						
+					} catch (Exception e) {
+						
+						Environment.logError ("Unable to update projects with format: " +
+											  status.getText (),
+											  e);
+						
+						UIUtils.showErrorMessage (_this,
+												  "Unable to update {projects} with the new format.");
+					
+						return;					
+						
+					}
+				
+				}
+	
+			});
+			
+			JButton[] buts = { save, reset, cancel };
+			
+			JPanel bp = UIUtils.createButtonBar2 (buts,
+												  Component.CENTER_ALIGNMENT); 
+			bp.setOpaque (false);
+			bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+			content.add (bp);
+	
+			content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+							 
+			content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+										 content.getPreferredSize ().height));
+	
+			popup.setContent (content);
+																   
+			this.showPopupAt (popup,
+								UIUtils.getCenterShowPosition (this,
+															   popup),
+								false);
+					
+			popup.setDraggable (this);				
+			
+			// TODO: Why Swing??? Why, why, why???
+			UIUtils.doLater (new ActionListener ()
+			{
+				
+				@Override
+				public void actionPerformed (ActionEvent ev)
+				{
+					
+					_popup.resize ();		
+					
+				}
+				
+			});
+			
+		} else {
+			
+			popup.setVisible (true);
+			
+		}
 		
 	}
 	
