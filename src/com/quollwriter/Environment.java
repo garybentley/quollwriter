@@ -3789,9 +3789,7 @@ public class Environment
         {
         
             EditorsEnvironment.init ();
-                       
-            Environment.logMessage (Environment.projectInfoManager.getSessions (0) + "");
-                        
+                                               
         } catch (Exception e) {
             
             Environment.logError ("Unable to init editors environment",

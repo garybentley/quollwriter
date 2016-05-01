@@ -204,6 +204,20 @@ public class EditorsObjectManager extends ObjectManager
         
     }
     
+    /**
+     * Get the current/latest version of the schema that is available.  This is in contrast
+     * to getSchemaVersion which should return the current version of the actual schema being
+     * used.
+     *
+     * @returns The version.
+     */
+    public int getLatestSchemaVersion ()
+    {
+        
+        return EditorsEnvironment.schemaVersion;
+
+    }    
+    
     public int getSchemaVersion ()
                           throws GeneralException    
     {

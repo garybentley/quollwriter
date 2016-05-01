@@ -35,7 +35,9 @@ public class EditorsEnvironment
     //private static boolean hasRegisteredForEditorService = false;
     public static boolean serviceAvailable = true;
     private static List<EditorEditor> editors = new ArrayList ();
-    private static int    schemaVersion = 0;
+    
+    // TODO: This is *NOT* the way to handle this but is ok for now and saves faffing with dirs and files.
+    protected static int    schemaVersion = 0;
     private static com.gentlyweb.properties.Properties editorsProps = new com.gentlyweb.properties.Properties ();
     private static EditorEditor.OnlineStatus currentOnlineStatus = EditorEditor.OnlineStatus.offline;
     private static EditorEditor.OnlineStatus lastOnlineStatus = null;
@@ -813,7 +815,7 @@ public class EditorsEnvironment
     
     public static int getSchemaVersion (File dir)
     {
-        
+                
         File dbf = new File (EditorsEnvironment.getEditorsDBFile (dir).getPath () + Constants.H2_DB_FILE_SUFFIX);
 
         if (!dbf.exists ())

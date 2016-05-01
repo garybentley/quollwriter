@@ -471,7 +471,7 @@ public class ObjectManager
         {
 
             this.createSchema ();
-
+            
         } else
         {
 
@@ -2383,6 +2383,11 @@ public class ObjectManager
     
             this.runCreateViewsScript (conn);
 
+            // Finally update the schema version to the current version (we do 0-1 here to get
+            // things rolling but it may not be the latest version).
+            this.updateSchemaVersion (this.getLatestSchemaVersion (),
+                                      conn);
+            
         } catch (Exception e) {
             
             this.throwException (conn,
@@ -2397,6 +2402,20 @@ public class ObjectManager
             
     }
 
+    /**
+     * Get the current/latest version of the schema that is available.  This is in contrast
+     * to getSchemaVersion which should return the current version of the actual schema being
+     * used.
+     *
+     * @returns The version.
+     */
+    public int getLatestSchemaVersion ()
+    {
+        
+        return Environment.getSchemaVersion ();
+        
+    }
+    
     private void updateSchema (int oldVersion,
                                int newVersion)
                         throws GeneralException

@@ -48,7 +48,7 @@ public class ProjectInfoObjectManager extends ObjectManager
                     password,
                     filePassword,
                     newSchemaVersion);
-
+                    
     }
 
     public void updateLinks (NamedObject d,
@@ -75,15 +75,66 @@ public class ProjectInfoObjectManager extends ObjectManager
                               throws Exception
     {
 
-        List params = new ArrayList ();
-        params.add (newVersion);
+        boolean release = false;
+    
+        if (conn == null)
+        {
+            
+            conn = this.getConnection ();
+            release = true;
+            
+        }
+    
+        try
+        {
+    
+            List params = new ArrayList ();
+            params.add (newVersion);
+    
+            this.executeStatement ("UPDATE info SET schema_version = ?",
+                                   params,
+                                   conn);
 
-        this.executeStatement ("UPDATE info SET schema_version = ?",
-                               params,
-                               conn);
+        } catch (Exception e) {
+            
+            this.throwException (conn,
+                                 "Unable to update schema version to: " +
+                                 newVersion,
+                                 e);
+            
+        } finally {
+            
+            if (release)
+            {
+                
+                this.releaseConnection (conn);
+                
+            }            
+            
+        }
         
     }
     
+    /**
+     * Get the current/latest version of the schema that is available.  This is in contrast
+     * to getSchemaVersion which should return the current version of the actual schema being
+     * used.
+     *
+     * @returns The version.
+     */
+    public int getLatestSchemaVersion ()
+    {
+        
+        return Environment.getProjectInfoSchemaVersion ();
+        
+    }
+    
+    /**
+     * Get the current version of the project info schema.  This is the actual version of
+     * the schema for the db.
+     *
+     * @return The version.
+     */
     public int getSchemaVersion ()
                           throws GeneralException    
     {
