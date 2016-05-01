@@ -1428,6 +1428,13 @@ public class Utils
             
         }
         
+        if (b.length () == 0)
+        {
+            
+            b.append ("0m");
+            
+        }
+        
         return b.toString ();
         
     }

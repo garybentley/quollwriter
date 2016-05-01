@@ -229,7 +229,7 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
                 days -= 7;
                 
             }
-        
+                
             gc.add (Calendar.DATE,
                     -1 * days);
             
@@ -348,6 +348,25 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
                     sessionsAboveTarget++;
                     
                 }
+                        
+                if (days == -1)
+                {
+                    
+                    if (minDate == null)
+                    {
+                        
+                        minDate = s.getStart ();
+                        
+                    }
+
+                    if (s.getStart ().before (minDate))
+                    {
+                    
+                        minDate = s.getStart ();
+                    
+                    }
+                    
+                }
             
                 long time = s.getEnd ().getTime () - s.getStart ().getTime ();
             
@@ -400,6 +419,13 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
 
         }
         
+        if (minDate == null)
+        {
+            
+            minDate = new Date ();
+            
+        }
+        
         this.chart = QuollChartUtils.createTimeSeriesChart ("Date",
                                                             "Word Count",
                                                             ds);
@@ -424,7 +450,7 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
         if (this.showAvg.isSelected ())
         {
         
-            long avgWords = totalWords / sessions;
+            long avgWords = (sessions > 0 ? totalWords / sessions : 0);
         
             String t = "";
             
@@ -501,7 +527,7 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
       
         items.add (this.createDetailLabel (String.format ("%s - Session%s",
                                                     Environment.formatNumber (sessions),
-                                                    (sessions > 1 ? "s" : ""))));
+                                                    (sessions == 1 ? "" : "s"))));
         
         if (this.showTarget.isSelected ())
         {

@@ -298,6 +298,25 @@ public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
                     
                 }
             
+                if (days == -1)
+                {
+                    
+                    if (minDate == null)
+                    {
+                        
+                        minDate = s.getStart ();
+                        
+                    }
+
+                    if (s.getStart ().before (minDate))
+                    {
+                    
+                        minDate = s.getStart ();
+                    
+                    }
+                    
+                }
+            
                 long time = s.getEnd ().getTime () - s.getStart ().getTime ();
                                         
                 if (time < 60 * 1000)
@@ -364,6 +383,13 @@ public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
         {
         
             avg = total / sessions;
+            
+        }
+        
+        if (minDate == null)
+        {
+            
+            minDate = new Date ();
             
         }
         
