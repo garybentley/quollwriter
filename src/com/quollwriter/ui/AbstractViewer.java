@@ -829,6 +829,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                             public void actionPerformed (ActionEvent ev)
                             {
                         
+								desc.setText ("");
+						
                                 UIUtils.showMessage ((PopupsSupported) _this,
                                                      "Message sent",
                                                      "Your request has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
@@ -1077,6 +1079,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                             public void actionPerformed (ActionEvent ev)
                             {
                         
+								desc.setText ("");
+						
                                 UIUtils.showMessage ((PopupsSupported) _this,
                                                      "Problem/Bug reported",
                                                      "Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
@@ -2066,44 +2070,53 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     {
 
         String popupName = "whatsnew";
-        
+
         QPopup popup = this.getNamedPopup (popupName);
                 
-        try
-        {
+		if (popup == null)
+		{
 
-            popup = UIUtils.createWizardPopup ("What's new in version " + Environment.getQuollWriterVersion (),
-                                               Constants.WHATS_NEW_ICON_NAME,
-                                               null,
-                                               new WhatsNew (this,
-                                                             onlyShowCurrentVersion));
-    
-            popup.setPopupName (popupName); 
-    
-        } catch (Exception e) {
-            
-            // Not good but not the end of the world but shouldn't stop things from going on.
-            Environment.logError ("Unable to init whats new",
-                                  e);
-            
-            UIUtils.showErrorMessage (this,
-                                      "Unable to show What's New, please contact Quoll Writer support for assitance.");
-            
-            return;
-            
-        }
-            
-        this.addNamedPopup (popupName,
-                            popup);            
+			try
+			{
+	
+				popup = UIUtils.createWizardPopup ("What's new in version " + Environment.getQuollWriterVersion (),
+												   Constants.WHATS_NEW_ICON_NAME,
+												   null,
+												   new WhatsNew (this,
+																 onlyShowCurrentVersion));
+		
+				popup.setPopupName (popupName); 
+		
+			} catch (Exception e) {
+				
+				// Not good but not the end of the world but shouldn't stop things from going on.
+				Environment.logError ("Unable to init whats new",
+									  e);
+				
+				UIUtils.showErrorMessage (this,
+										  "Unable to show What's New, please contact Quoll Writer support for assitance.");
+				
+				return;
+				
+			}
+				
+			this.addNamedPopup (popupName,
+								popup);            
+							
+			popup.setDraggable (this);
+							  
+			popup.resize ();
+			this.showPopupAt (popup,
+							  UIUtils.getCenterShowPosition (this,
+															 popup),
+							  false);
+
+		} else {
+			
+			popup.setVisible (true);
                         
-        popup.setDraggable (this);
-                          
-        popup.resize ();
-        this.showPopupAt (popup,
-                          UIUtils.getCenterShowPosition (this,
-                                                         popup),
-                          false);
-                        
+		}
+		
         this.fireProjectEvent (ProjectEvent.WHATS_NEW,
                                ProjectEvent.SHOW);
    

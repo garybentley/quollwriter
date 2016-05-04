@@ -50,6 +50,7 @@ public class BackupsManager extends Box implements ProjectEventListener
     private Box backupsBox = null;
     private JLabel noBackups = null;
     private JLabel backupsDir = null;
+    private JScrollPane scrollPane = null;
 
     public BackupsManager (AbstractViewer pv,
                            ProjectInfo    pi)
@@ -60,7 +61,7 @@ public class BackupsManager extends Box implements ProjectEventListener
         this.viewer = pv;
         this.proj = pi;
 
-        this.viewer.addProjectEventListener (this);
+        Environment.addUserProjectEventListener (this);
         
     }
 
@@ -81,6 +82,8 @@ public class BackupsManager extends Box implements ProjectEventListener
 
         try
         {
+        
+            final BackupsManager _this = this;
         
             this.noBackups.setVisible (true);
         
@@ -121,6 +124,19 @@ public class BackupsManager extends Box implements ProjectEventListener
                 
                 this.noBackups.setVisible (files.size () == 0);
 
+                UIUtils.doLater (new ActionListener ()
+                {
+                    
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                
+                        _this.scrollPane.getVerticalScrollBar ().setValue (0);
+                        
+                    }
+                    
+                });
+                
             }
             
         } catch (Exception e) {
@@ -170,13 +186,13 @@ public class BackupsManager extends Box implements ProjectEventListener
         this.backupsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.backupsBox.setOpaque (false);
 
-        final JScrollPane spsp = UIUtils.createScrollPane (backupsBox);
-        spsp.getVerticalScrollBar ().setUnitIncrement (20);
-        spsp.getViewport ().setPreferredSize (new Dimension (450,
-                                                             300));
+        this.scrollPane = UIUtils.createScrollPane (backupsBox);
+        this.scrollPane.getVerticalScrollBar ().setUnitIncrement (20);
+        this.scrollPane.getViewport ().setPreferredSize (new Dimension (450,
+                                                                        300));
         
         Box wspsp = new Box (BoxLayout.Y_AXIS);
-        wspsp.add (spsp);
+        wspsp.add (this.scrollPane);
         wspsp.setBorder (UIUtils.createPadding (0, 0, 0, 0));
         this.add (wspsp);
         
@@ -231,7 +247,7 @@ public class BackupsManager extends Box implements ProjectEventListener
             public void actionPerformed (ActionEvent ev)
             {
                 
-                spsp.getVerticalScrollBar ().setValue (0);
+                _this.scrollPane.getVerticalScrollBar ().setValue (0);
                 
             }
             

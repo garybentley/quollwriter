@@ -9393,6 +9393,7 @@ public class UIUtils
                                   bm.getPreferredSize ().height));
             bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
         
+            popup.setRemoveOnClose (false);
             popup.setContent (bm);
             
             popup.setDraggable (viewer);
