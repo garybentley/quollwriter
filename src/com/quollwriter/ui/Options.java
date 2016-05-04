@@ -3069,9 +3069,7 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (5));
         
         boolean backupsEnabled = proj.getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME);
-        enableBackups.setSelected (backupsEnabled);        
-
-        backupsCount.setEnabled (backupsEnabled);           
+        enableBackups.setSelected (backupsEnabled);                  
         
         backupsAmount.setSelectedItem (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME));
         backupsAmount.setEnabled (backupsEnabled);
@@ -3095,9 +3093,7 @@ public class Options extends Box
             }
 
         });
-        
-        backupsCount.setEnabled (enableBackups.isSelected ());
-        
+                
         c = this.createHelpText ("Create a new backup after the following time between sessions or during a session");
         this.setAsSubItem (c);
         
@@ -3111,12 +3107,12 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (10));        
         
         c = this.createHelpText ("Number of backups to keep (oldest are deleted first)");
-        this.setAsSubItem (c);
+        this.setAsMainItem (c);
         
         box.add (c);
         
         c = this.createWrapper (backupsCount);
-        this.setAsSubItem2 (c);
+        this.setAsSubItem (c);
         
         box.add (c);        
         
@@ -3152,10 +3148,6 @@ public class Options extends Box
                 boolean sel = enableBackups.isSelected ();
 
                 backupsAmount.setEnabled (sel);
-
-                backupsCount.setEnabled (sel);
-                
-                bf.setEnabled (sel);
                 
                 _this.updateDefaultProjectProperty (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME,
                                                     sel);
@@ -3167,12 +3159,12 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (10));              
                 
         c = this.createHelpText ("Select the directory where {project} backups are stored");
-        this.setAsSubItem (c);
+        this.setAsMainItem (c);
 
         box.add (c);
         
         c = this.createWrapper (bf);
-        this.setAsSubItem2 (c);        
+        this.setAsSubItem (c);        
 
         box.add (c);
         
