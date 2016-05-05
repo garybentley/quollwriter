@@ -3185,7 +3185,7 @@ public class Options extends Box
         });
 
         c = this.createWrapper (bb);
-        this.setAsSubItem2 (c);
+        this.setAsSubItem (c);
         
         box.add (c);
         

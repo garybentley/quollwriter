@@ -4521,6 +4521,10 @@ xxx
 							final File bf = _this.dBMan.createBackup (proj,
 																	  Utils.getCountAsInt (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME)));
 		
+                            Environment.fireUserProjectEvent (_this,
+                                                              ProjectEvent.BACKUPS,
+                                                              ProjectEvent.NEW);
+        
 							UIUtils.doLater (new ActionListener ()
 							{
 								
