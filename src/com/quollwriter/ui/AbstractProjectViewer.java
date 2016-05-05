@@ -4030,46 +4030,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 		
 		this.scheduleAutoSaveForAllEditors ();	
 		
-		/*
-        // See if the properties say that we should produce a snapshot.
-        if ((this.proj.getPropertyAsBoolean (Constants.AUTO_SNAPSHOTS_ENABLED_PROPERTY_NAME)) &&
-            (this.proj.getLastEdited () != null))
-        {
-
-            // Check to see how long it has been since the last update.
-            long t = System.currentTimeMillis ();
-
-            if ((t - this.proj.getLastEdited ().getTime ()) > Utils.getTimeAsMillis (this.proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)))
-            {
-
-                // Create a snapshot.
-                File bf = null;
-
-                try
-                {
-
-                    bf = this.dBMan.createBackup (this.proj);
-
-                    this.addNotification ("An automatic snapshot has been created.  <a href='" + bf.getParentFile ().toURI ().toURL () + "'>Click to view the backup directory.</a>",
-                                          "information",
-                                          30);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to create backup for project: " +
-                                          this.proj,
-                                          e);
-
-                    UIUtils.showErrorMessage (this,
-                                              "Unable to create snapshot.");
-
-                }
-
-            }
-
-        }
-*/
         Environment.incrStartupProgress ();
 
         this.dBMan.createActionLogEntry (this.proj,
@@ -4517,13 +4477,8 @@ xxx
 						if ((System.currentTimeMillis () - lastDate) > Utils.getTimeAsMillis (proj.getProperty (Constants.AUTO_SNAPSHOTS_TIME_PROPERTY_NAME)))
 						{
 			
-							// Create a backup.
-							final File bf = _this.dBMan.createBackup (proj,
-																	  Utils.getCountAsInt (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME)));
-		
-                            Environment.fireUserProjectEvent (_this,
-                                                              ProjectEvent.BACKUPS,
-                                                              ProjectEvent.NEW);
+                            Environment.createBackupForProject (proj,
+                                                                false);
         
 							UIUtils.doLater (new ActionListener ()
 							{

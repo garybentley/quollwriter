@@ -2110,8 +2110,15 @@ public class Environment
         try
         {
             
-            return om.createBackup (proj,
-                                    (noPrune ? -1 : Utils.getCountAsInt (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME))));
+            File f = om.createBackup (proj,
+                                      (noPrune ? -1 : Utils.getCountAsInt (proj.getProperty (Constants.BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME))));
+
+            Environment.fireUserProjectEvent (proj,
+                                              ProjectEvent.BACKUPS,
+                                              ProjectEvent.NEW,
+                                              proj);
+
+            return f;                                                              
             
         } finally {
             

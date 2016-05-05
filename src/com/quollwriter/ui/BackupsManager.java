@@ -68,12 +68,34 @@ public class BackupsManager extends Box implements ProjectEventListener
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (ev.getType ().equals (ProjectEvent.BACKUPS))
+        if (!ev.getType ().equals (ProjectEvent.BACKUPS))
+        {
+
+            return;
+        
+        }
+        
+        Object c = ev.getContextObject ();
+    
+        if ((c != null)
+            &&
+            (c instanceof Project)
+           )
         {
             
-            this.update ();
+            Project p = (Project) c;
+            
+            if (Environment.getProjectInfo (p) != this.proj)
+            {
+                
+                // Not interested in this project.
+                return;
+                
+            }
             
         }
+        
+        this.update ();
             
     }
     
