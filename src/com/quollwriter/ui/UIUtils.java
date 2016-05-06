@@ -8312,42 +8312,7 @@ public class UIUtils
                                                null,
                                                true,
                                                onCancel);
-/*
-        JButton bt = new JButton (Environment.getIcon (Constants.CANCEL_ICON_NAME,
-                                                       Constants.ICON_MENU));
-        UIUtils.setAsButton (bt);
-        bt.setOpaque (false);
 
-        bt.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                if (onCancel != null)
-                {
-                    
-                    onCancel.actionPerformed (ev);
-                    
-                }
-                
-                qp.removeFromParent ();
-                
-            }
-            
-        });
-        */
-
-        /*
-        JToolBar tb = new JToolBar ();
-        tb.setOpaque (false);
-        tb.setFloatable (false);
-        tb.setBackground (UIUtils.getComponentColor ());
-
-        tb.add (bt);
-
-        qp.getHeader ().setControls (tb);
-        */
         final Box content = new Box (BoxLayout.Y_AXIS);
 
         JComponent mess = UIUtils.createHelpTextPane (message,

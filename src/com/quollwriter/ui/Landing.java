@@ -499,7 +499,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			_bogus.setProjectDirectory (FileSystemView.getFileSystemView ().getDefaultDirectory ());
 			_bogus.setName (Environment.replaceObjectNames ("My {Project}"));
 			_bogus.setStatus ("In Progress");
-			_bogus.setLastEdited (new Date (System.currentTimeMillis () - (24 * 7 * 60 * 60 * 1000)));
+			_bogus.setLastEdited (new Date (System.currentTimeMillis () - (7 * Constants.DAY_IN_MILLIS)));
 			_bogus.addStatistic (ProjectInfo.Statistic.chapterCount,
 								 5);
 			_bogus.addStatistic (ProjectInfo.Statistic.wordCount,
@@ -2089,7 +2089,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			this.parent = parent;
 			this.format = format;
-			
+						
 			final ProjectBox _this = this;
 			
 			this.project = p;
@@ -2499,7 +2499,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 				
 					if (ev.getID () == MouseEvent.MOUSE_ENTERED)
 					{
-						
+
 						_this.setBorder (new LineBorder (UIUtils.getBorderColor (), 1, false));
 						_this.showBackground = true;
 						

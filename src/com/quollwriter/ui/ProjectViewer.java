@@ -2578,7 +2578,6 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.reloadTreeForObjectType (a.getObjectType ());
         
-        // See if there is a panel viewing the character.
         this.removePanel (a);
 
     }

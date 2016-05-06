@@ -6931,6 +6931,7 @@ xxx
 
                     }
 */
+
                     if (!_this.closePanel (qp))
                     {
                         
@@ -7011,14 +7012,14 @@ xxx
     
     public boolean closePanel (QuollPanel qp)
     {
-
+/*
         if (!this.removePanel (qp))
         {
 
             return false;
         
         }
-    
+  */  
         // Get the state.
         Map m = new LinkedHashMap ();
 
@@ -7044,14 +7045,157 @@ xxx
 
             }
 
-        }
-
-        qp.close ();
-
-        this.panels.remove (panelId);
-
-        return true;
+        }    
+    
+        final AbstractProjectViewer _this = this;
         
+        if (qp instanceof ProjectObjectQuollPanel)
+        {
+            
+            final ProjectObjectQuollPanel p = (ProjectObjectQuollPanel) qp;
+            
+            final ActionListener remove = new ActionListener ()
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    NamedObject n = p.getForObject ();
+            
+                    if (p != null)
+                    {
+            
+                        if ((_this.fsf != null)
+                            &&
+                            (p == _this.fsf.getPanel ().getChild ())
+                           )
+                        {
+                            
+                            // In full screen, restore first.
+                            _this.restoreFromFullScreen (_this.fsf.getPanel ());
+                            
+                            // Add a blank instead.
+                            _this.fsf.showBlankPanel ();
+                            
+                        }        
+            
+                        _this.removePanel (p);
+                    
+                        // Remove all the property changed listeners.
+                        java.util.List<PropertyChangedListener> l = p.getObjectPropertyChangedListeners ();
+            
+                        if (l != null)
+                        {
+            
+                            for (PropertyChangedListener c : l)
+                            {
+            
+                                n.removePropertyChangedListener (c);
+            
+                            }
+            
+                        }
+            
+                    }
+    
+                }
+                
+            };
+            
+            // Object already deleted, don't ask the question.
+            if (!this.proj.hasObject (p.getForObject ()))
+            {
+                
+                remove.actionPerformed (new ActionEvent (this,
+                                                         0,
+                                                         "deleted"));
+                
+                return true;
+                
+            }
+    
+            if (p.hasUnsavedChanges ())
+            {
+            
+                UIUtils.createQuestionPopup (this,
+                                             "Save before closing?",
+                                             Constants.SAVE_ICON_NAME,
+                                             String.format ("The %s has unsaved changes.  Save before closing?",
+                                                            p.getForObject ().getObjectType ()),
+                                             "Yes, save the changes",
+                                             "No, discard the changes",
+                                             new ActionListener ()
+                                             {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+    
+                                                    try
+                                                    {
+                                    
+                                                        p.saveUnsavedChanges ();
+                                    
+                                                    } catch (Exception e)
+                                                    {
+                                    
+                                                        // What the hell to do here???
+                                                        Environment.logError ("Unable to save: " +
+                                                                              p.getForObject (),
+                                                                              e);
+                                    
+                                                        UIUtils.showErrorMessage (_this,
+                                                                                  "Unable to save " +
+                                                                                  Environment.getObjectTypeName (p.getForObject ()).toLowerCase () +
+                                                                                  ": " +
+                                                                                  p.getForObject ().getName ());
+                                                                    
+                                                        return;
+                                                                    
+                                                    }    
+                                                
+                                                    remove.actionPerformed (ev);
+                                                
+                                                }
+                                                
+                                             },
+                                             new ActionListener ()
+                                             {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    remove.actionPerformed (ev);
+                                                    
+                                                }
+                                                
+                                             },
+                                             new ActionListener ()
+                                             {
+                                                
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    remove.actionPerformed (ev);
+                                                    
+                                                }
+                                                
+                                             },
+                                             null);
+                
+                return false;
+    
+            }
+    
+            remove.actionPerformed (new ActionEvent (this,
+                                                     0,
+                                                     "deleted"));
+
+            return true;
+                                                     
+        }    
+    
+        return this.removePanel (qp);
+    
     }
         
     protected void informTreeOfNodeChange (NamedObject n,
@@ -7247,110 +7391,9 @@ xxx
         super.showPopupAt (c,
                            p,
                            hideOnParentClick);
-    /*
-        Insets ins = this.getInsets ();
-
-        if ((c.getParent () == null)
-            &&
-            (c.getParent () != this.getLayeredPane ())
-           )
-        {
-
-            this.addPopup (c,
-                           hideOnParentClick,
-                           false);
-
-        }
-
-        Dimension cp = c.getPreferredSize ();
-
-        if ((p.y + cp.height) > (this.getBounds ().height - ins.top - ins.bottom))
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            // See if the child is changing height.
-            if (c.getBounds ().height != cp.height)
-            {
-            
-                p.y = p.y - (cp.height - c.getBounds ().height);
-        
-            } else {
-                
-                p.y = p.y - cp.height;
-
-            }
-                
-        }
-
-        if (p.y < 0)
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.y = 10;
-
-        }
-
-        if ((p.x + cp.width) > (this.getBounds ().width - ins.left - ins.right))
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.x = p.x - cp.width;
-
-        }
-
-        if (p.x < 0)
-        {
-
-            p = new Point (p.x,
-                           p.y);
-
-            p.x = 10;
-
-        }
-
-        c.setBounds (p.x,
-                     p.y,
-                     c.getPreferredSize ().width,
-                     c.getPreferredSize ().height);
-
-        c.setVisible (true);
-        this.validate ();
-        this.repaint ();
-*/
-    }
-/*
-    public void showPopup (Component c,
-                           boolean   hideOnParentClick)
-    {
-
-        Point p = this.getMousePosition ();
-
-        if (p != null)
-        {
-
-            SwingUtilities.convertPointToScreen (p,
-                                                 this);
-
-        } else
-        {
-
-            p = new Point (300,
-                           300);
-
-        }
-
-        this.showPopupAt (c,
-                          p,
-                          hideOnParentClick);
 
     }
-*/
+
     public boolean removePanel (NamedObject n)
     {
 
@@ -7382,19 +7425,11 @@ xxx
 
         }
         
-		// Not sure if this will auto pick the correct method, force it to be sure.
-		if (p instanceof ProjectObjectQuollPanel)
-		{
-			
-			return this.removePanel ((ProjectObjectQuollPanel) p);
-			
-		}
-		
         return this.removePanel (p);
         
     }
-    
-    private boolean removePanel (final QuollPanel p)
+
+    public boolean removePanel (final QuollPanel p)
     {
 
 		p.close ();
@@ -7415,151 +7450,6 @@ xxx
 		return true;
 	
 	}
-	
-    private boolean removePanel (final ProjectObjectQuollPanel p)
-    {
-        
-        final AbstractProjectViewer _this = this;
-        
-        final ActionListener remove = new ActionListener ()
-        {
-            
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                NamedObject n = p.getForObject ();
-        
-                if (p != null)
-                {
-        
-                    if ((_this.fsf != null)
-                        &&
-                        (p == _this.fsf.getPanel ().getChild ())
-                       )
-                    {
-                        
-                        // In full screen, restore first.
-                        _this.restoreFromFullScreen (_this.fsf.getPanel ());
-                        
-                        // Add a blank instead.
-                        _this.fsf.showBlankPanel ();
-                        
-                    }        
-        
-					_this.removePanel ((QuollPanel) p);
-		        
-                    // Remove all the property changed listeners.
-                    java.util.List<PropertyChangedListener> l = p.getObjectPropertyChangedListeners ();
-        
-                    if (l != null)
-                    {
-        
-                        for (PropertyChangedListener c : l)
-                        {
-        
-                            n.removePropertyChangedListener (c);
-        
-                        }
-        
-                    }
-        
-                }
-
-            }
-            
-        };
-        
-        // Object already deleted, don't ask the question.
-        if (!this.proj.hasObject (p.getForObject ()))
-        {
-            
-            remove.actionPerformed (new ActionEvent (this,
-                                                     0,
-                                                     "deleted"));
-            
-            return true;
-            
-        }
-
-        if (p.hasUnsavedChanges ())
-        {
-        
-            UIUtils.createQuestionPopup (this,
-                                         "Save before closing?",
-                                         Constants.SAVE_ICON_NAME,
-                                         String.format ("The %s has unsaved changes.  Save before closing?",
-                                                        p.getForObject ().getObjectType ()),
-                                         "Yes, save the changes",
-                                         "No, discard the changes",
-                                         new ActionListener ()
-                                         {
-                                            
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-
-                                                try
-                                                {
-                                
-                                                    p.saveObject ();
-                                
-                                                } catch (Exception e)
-                                                {
-                                
-                                                    // What the hell to do here???
-                                                    Environment.logError ("Unable to save: " +
-                                                                          p.getForObject (),
-                                                                          e);
-                                
-                                                    UIUtils.showErrorMessage (_this,
-                                                                              "Unable to save " +
-                                                                              Environment.getObjectTypeName (p.getForObject ()).toLowerCase () +
-                                                                              ": " +
-                                                                              p.getForObject ().getName ());
-                                                                
-                                                    return;
-                                                                
-                                                }    
-                                            
-                                                remove.actionPerformed (ev);
-                                            
-                                            }
-                                            
-                                         },
-                                         new ActionListener ()
-                                         {
-                                            
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                                
-                                                remove.actionPerformed (ev);
-                                                
-                                            }
-                                            
-                                         },
-                                         new ActionListener ()
-                                         {
-                                            
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-                                                
-                                                remove.actionPerformed (ev);
-                                                
-                                            }
-                                            
-                                         },
-                                         null);
-            
-            return false;
-
-        }
-
-        remove.actionPerformed (new ActionEvent (this,
-                                                 0,
-                                                 "deleted"));
-  
-        return true;
-
-    }
 
     public ObjectManager getObjectManager ()
     {
