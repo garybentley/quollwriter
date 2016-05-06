@@ -1007,18 +1007,29 @@ public class WarmupsViewer extends AbstractProjectViewer
     public void fillSettingsPopup (JPopupMenu titlePopup)
     {
 
-        titlePopup.add (this.createMenuItem ("New {Project}",
-                                             Constants.NEW_ICON_NAME,
-                                             AbstractProjectViewer.NEW_PROJECT_ACTION));
-
-        titlePopup.add (this.createMenuItem ("Rename {Project}",
-                                             Constants.EDIT_ICON_NAME,
-                                             AbstractProjectViewer.RENAME_PROJECT_ACTION));
-
         titlePopup.add (this.createMenuItem ("Open {Project}",
                                              Constants.OPEN_PROJECT_ICON_NAME,
                                              AbstractProjectViewer.OPEN_PROJECT_ACTION));
 
+        titlePopup.add (this.createMenuItem ("New {Project}",
+                                             Constants.NEW_ICON_NAME,
+                                             AbstractProjectViewer.NEW_PROJECT_ACTION));
+
+		titlePopup.addSeparator ();
+                                             
+        titlePopup.add (this.createMenuItem ("Rename {Project}",
+                                             Constants.EDIT_ICON_NAME,
+                                             AbstractProjectViewer.RENAME_PROJECT_ACTION));
+
+        titlePopup.add (this.createMenuItem ("Statistics",
+                                             Constants.CHART_ICON_NAME,
+                                             AbstractProjectViewer.SHOW_STATISTICS_ACTION));
+  
+        // Create Project Snapshot
+        titlePopup.add (this.createMenuItem ("Create a Backup",
+                                             Constants.SNAPSHOT_ICON_NAME,
+                                             AbstractProjectViewer.CREATE_PROJECT_SNAPSHOT_ACTION));
+                                             
         titlePopup.add (this.createMenuItem ("Close {Project}",
                                              Constants.CLOSE_ICON_NAME,
                                              AbstractProjectViewer.CLOSE_PROJECT_ACTION));
