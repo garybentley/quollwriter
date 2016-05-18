@@ -5,49 +5,53 @@ import java.awt.Color;
 import com.gentlyweb.properties.*;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.components.TextProperties;
 import com.quollwriter.ui.components.QTextEditor;
 
-public class ProjectTextProperties extends TextProperties
+public class ProjectTextProperties extends TextProperties implements UserPropertySetter
 {
 
-    private AbstractProjectViewer projectViewer = null;
-    private TextPropertiesSideBar sideBar = null;
-    
-    public ProjectTextProperties (AbstractProjectViewer pv)
+    private boolean allowSet = true;
+
+    public ProjectTextProperties ()
     {
         
-        this.projectViewer = pv;
-
         this.initInternal (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
                            UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
                            UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
                            UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
-                           Color.black,
-                           UIUtils.getComponentColor (),
+                           UIUtils.getColor (UserProperties.get (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
+                           UIUtils.getColor (UserProperties.get (Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
                            UIUtils.getColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
                            UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
         
     }
 
-    public ProjectTextProperties (AbstractProjectViewer pv,
-                                  TextProperties        props)
+    public ProjectTextProperties (TextProperties props)
     {
-        
-        this (pv);
-                
+                        
         this.initInternal (props);
         
     }
-    
-    public void setSideBar (TextPropertiesSideBar s)
+
+    @Override
+    public void stopSetting ()
     {
         
-        this.sideBar = s;
+        this.allowSet = false;
+        
+    }
+    
+    @Override
+    public void startSetting ()
+    {
+        
+        this.allowSet = true;
         
     }
     
@@ -55,7 +59,13 @@ public class ProjectTextProperties extends TextProperties
     {
         
         super.setBackgroundColor (c);
+                        
+        this.setProperty (new StringProperty (Constants.EDITOR_BGCOLOR_PROPERTY_NAME,
+                                              UIUtils.colorToHex (this.getBackgroundColor ())));        
+        
 /*
+ *
+ *
         if (this.sideBar != null)
         {
             
@@ -114,38 +124,10 @@ public class ProjectTextProperties extends TextProperties
     {
         
         super.setTextColor (c);
-/*
-        AbstractEditorPanel aep = (AbstractEditorPanel) this.fsf.getPanel ().getChild ();
-
-        QTextEditor editor = aep.getEditor ();
-        
-        if (c.equals (this.getBackgroundColor ()))
-        {
-
-            if (c.equals (Color.black))
-            {
-
-                // Set the background to white.
-                aep.restoreBackgroundColor ();
-
-                this.setBackgroundColor (Color.white);
                 
-            }
-
-            if (c.equals (Color.white))
-            {
-
-                // Set the background to black.
-                this.setBackgroundColor (Color.black);
-
-            }
-
-        }
-        */
-/*
         this.setProperty (new StringProperty (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getTextColor ())));
-  */      
+
     }
     
     public void setLineSpacing (float v)
@@ -208,14 +190,58 @@ public class ProjectTextProperties extends TextProperties
     
     }
 
+    private void reinitViewers ()
+    {
+        
+        Environment.doForOpenProjects (null, // all project types
+                                       new ProjectViewerAction ()
+        {
+            
+            @Override
+            public void doAction (AbstractProjectViewer v)
+            {
+                
+                v.reinitAllChapterEditors ();
+                
+            }
+            
+        });
+
+    }
+    
     private void setProperty (AbstractProperty prop)
     {
+        
+        if (!this.allowSet)
+        {
+            
+            return;
+            
+        }
         
         UserProperties.set (prop.getID (),
                             prop);
         
-        this.projectViewer.reinitAllChapterEditors ();
+        this.reinitViewers ();
 
     }
+
+    public void resetToDefaults ()
+    {
+
+        this.setBackgroundColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_BGCOLOR_PROPERTY_NAME)));
+        this.setTextColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_FONT_COLOR_PROPERTY_NAME)));
+        this.setTextBorder (UserProperties.getAsInt (Constants.DEFAULT_EDITOR_TEXT_BORDER_PROPERTY_NAME));
+        this.setFontFamily (UserProperties.get (Constants.DEFAULT_EDITOR_FONT_PROPERTY_NAME));
+        this.setFontSize (UserProperties.getAsInt (Constants.DEFAULT_EDITOR_FONT_SIZE_PROPERTY_NAME));
+        this.setAlignment (UserProperties.get (Constants.DEFAULT_EDITOR_ALIGNMENT_PROPERTY_NAME));
+        this.setFirstLineIndent (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
+        this.setLineSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME));
+        this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
+        this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
     
+        this.reinitViewers ();
+                           
+    }
+   
 }

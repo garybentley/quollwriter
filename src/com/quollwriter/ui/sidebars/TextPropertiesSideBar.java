@@ -62,7 +62,7 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
         this.props = new TextPropertiesEditPanel (pv,
                                                   props,
                                                   null,
-                                                  false,
+                                                  true,
                                                   popupParent);
                         
     }

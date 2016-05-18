@@ -1098,9 +1098,11 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
         this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
         this.setTextBorder (UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
+        this.setTextColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)));
+        this.setBackgroundColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_BGCOLOR_PROPERTY_NAME)));
         
-        this.restoreBackgroundColor ();
-        this.restoreFontColor ();
+        //this.restoreBackgroundColor ();
+        //this.restoreFontColor ();
         
         this.ignoreDocumentChange = false;
         
@@ -1293,7 +1295,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     public TextProperties getTextProperties ()
     {
 
-        return new ProjectTextProperties (this.viewer);
+        return Environment.getProjectTextProperties ();
 
     }
     

@@ -724,41 +724,17 @@ public class QColorChooser extends Box
 
     }
 
-    public static QPopup getColorChooserPopup (String         title,
-                                               final Color    initialColor,
-                                               ChangeListener cl,
-                                               ActionListener closeListener)
+    public static QPopup getColorChooserPopup (final String         title,
+                                               final Color          initialColor,
+                                               final ChangeListener cl,
+                                               final ActionListener closeListener)
     {
 
-        final QPopup qp = new QPopup ((title != null ? title : "Select a color"),
-                                      null,
-                                      null);
-
         final QColorChooser cc = new QColorChooser (initialColor);
-
-        JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
-                                              Constants.ICON_MENU,
-                                              "Click to close",
-                                              closeListener);
         
-        List<JButton> buts = new ArrayList ();
-        buts.add (close);
-        
-        qp.getHeader ().setControls (UIUtils.createButtonBar (buts));
-                                                    
-        close.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                qp.setVisible (false);
-
-                //cc.hideAdvanced ();
-
-            }
-
-        });
+        final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : "Select a color"),
+                                                       null,
+                                                       closeListener);
 
         cc.setBorder (UIUtils.createPadding (10, 10, 10, 10));
 

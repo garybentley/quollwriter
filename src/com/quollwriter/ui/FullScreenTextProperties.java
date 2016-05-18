@@ -8,14 +8,16 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.panels.*;
+import com.quollwriter.events.*;
 import com.quollwriter.ui.components.TextProperties;
 import com.quollwriter.ui.components.QTextEditor;
 
-public class FullScreenTextProperties extends TextProperties
+public class FullScreenTextProperties extends TextProperties implements UserPropertySetter
 {
 
     private FullScreenFrame fsf = null;
     private FullScreenPropertiesSideBar sideBar = null;
+    private boolean allowSet = true;
     
     public FullScreenTextProperties (FullScreenFrame fsf)
     {
@@ -54,6 +56,22 @@ public class FullScreenTextProperties extends TextProperties
         this (fsf);
                 
         this.initInternal (props);
+        
+    }
+    
+    @Override
+    public void stopSetting ()
+    {
+        
+        this.allowSet = false;
+        
+    }
+    
+    @Override
+    public void startSetting ()
+    {
+        
+        this.allowSet = true;
         
     }
     
@@ -134,8 +152,8 @@ public class FullScreenTextProperties extends TextProperties
 
         }
         
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
-                            UIUtils.colorToHex (this.getTextColor ()));
+        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
+                                              UIUtils.colorToHex (this.getTextColor ())));
         
     }
     
@@ -144,8 +162,8 @@ public class FullScreenTextProperties extends TextProperties
 
         super.setWritingLineColor (c);
 
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
-                            UIUtils.colorToHex (this.getWritingLineColor ()));    
+        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                             UIUtils.colorToHex (this.getWritingLineColor ())));        
     
     }    
  
@@ -154,8 +172,8 @@ public class FullScreenTextProperties extends TextProperties
 
         super.setHighlightWritingLine (v);
 
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
-                            this.isHighlightWritingLine ());    
+        this.setProperty (new BooleanProperty (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
+                                               v));
     
     }
     
@@ -164,8 +182,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setLineSpacing (v);
         
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
-                            this.getLineSpacing ());
+        this.setProperty (new FloatProperty (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
+                                             this.getLineSpacing ()));
             
     }
     
@@ -174,8 +192,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setFirstLineIndent (v);
         
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
-                            this.getFirstLineIndent ());
+        this.setProperty (new BooleanProperty (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
+                                               this.getFirstLineIndent ()));
         
     }
     
@@ -184,8 +202,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setAlignment (v);
 
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
-                            this.getAlignment ());
+        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
+                                              this.getAlignment ()));
         
     }
     
@@ -194,8 +212,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setFontSize (v);
         
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
-                            this.getFontSize ());
+        this.setProperty (new IntegerProperty (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
+                                               this.getFontSize ()));
                 
     }
     
@@ -204,8 +222,8 @@ public class FullScreenTextProperties extends TextProperties
         
         super.setTextBorder (v);
         
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
-                            this.getTextBorder ());
+        this.setProperty (new IntegerProperty (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
+                                              this.getTextBorder ()));
                 
     }
 
@@ -214,14 +232,21 @@ public class FullScreenTextProperties extends TextProperties
     
         super.setFontFamily (f);
         
-        UserProperties.set (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
-                            this.getFontFamily ());
-        
+        this.setProperty (new StringProperty (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
+                                              this.getFontFamily ()));
+                
     }
     
     private void setProperty (AbstractProperty prop)
     {
 
+        if (!this.allowSet)
+        {
+            
+            return;
+            
+        }    
+    
         UserProperties.set (prop.getID (),
                             prop);
     
@@ -230,7 +255,18 @@ public class FullScreenTextProperties extends TextProperties
     public void resetToDefaults ()
     {
 
-        this.fsf.resetPropertiesToDefaults ();
+        this.setBackgroundColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_BGCOLOR_PROPERTY_NAME)));
+        this.setTextColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_FONT_COLOR_PROPERTY_NAME)));
+        this.setTextBorder (UserProperties.getAsInt (Constants.DEFAULT_EDITOR_TEXT_BORDER_PROPERTY_NAME));
+        this.setFontFamily (UserProperties.get (Constants.DEFAULT_EDITOR_FONT_PROPERTY_NAME));
+        this.setFontSize (UserProperties.getAsInt (Constants.DEFAULT_EDITOR_FONT_SIZE_PROPERTY_NAME));
+        this.setAlignment (UserProperties.get (Constants.DEFAULT_EDITOR_ALIGNMENT_PROPERTY_NAME));
+        this.setFirstLineIndent (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
+        this.setLineSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME));
+        this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
+        this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
+    
+        //this.fsf.resetPropertiesToDefaults ();
             
     }
     

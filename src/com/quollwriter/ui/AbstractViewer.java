@@ -3287,6 +3287,13 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                           long      repeat)
     {
        
+		if (this.generalTimer == null)
+		{
+			
+			return;
+			
+		}
+	   
         if (repeat < 1)
         {
             

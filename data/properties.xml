@@ -64,6 +64,56 @@
     <value>dd MMM yyyy</value>
   </property>
     
+  <property id="defaultEditorFontSize" type="integer">
+    <description>The default font size for the editor.</description>
+    <value>14</value>
+  </property>
+
+  <property id="defaultEditorTextBorder" type="integer">
+    <description>The default text border for the editor.</description>
+    <value>0</value>
+  </property>
+
+  <property id="defaultEditorWritingLineColor" type="string">
+    <description>The default color for the writing line for the editor.</description>
+    <value>#D3D3D3</value>
+  </property>
+  
+  <property id="defaultEditorFontColor" type="string">
+    <description>The default font color for the text for the editor.</description>
+    <value>#000000</value>
+  </property>
+
+  <property id="defaultEditorBGColor" type="string">
+    <description>The default background color for the text for the editor.</description>
+    <value>#FDFDFD</value>
+  </property>
+
+  <property id="defaultEditorFont" type="string">
+    <description>The default font for the editor.</description>
+    <value>Georgia</value>
+  </property>
+
+  <property id="defaultEditorAlignment" type="string">
+    <description>The default text alignment for the editor.</description>
+    <value>Left</value>
+  </property>
+
+  <property id="defaultEditorLineSpacing" type="number">
+    <description>The default text line spacing for the editor.</description>
+    <value>1.3</value>
+  </property>
+
+  <property id="defaultEditorIndentFirstLine" type="boolean">
+    <description>Whether the first line of each paragraph should be indented in the editor.</description>
+    <value>false</value>
+  </property>
+
+  <property id="defaultEditorHighlightWritingLine" type="boolean">
+    <description>Whether the writing line should be highlighted in the editor.</description>
+    <value>false</value>
+  </property>
+  
   <property id="editorFontSize" type="integer">
     <description>The default font size for the editor.</description>
     <value>14</value>
@@ -79,6 +129,16 @@
     <value>#D3D3D3</value>
   </property>
   
+  <property id="editorFontColor" type="string">
+    <description>The default font color for the text for the editor.</description>
+    <value>#000000</value>
+  </property>
+
+  <property id="editorBGColor" type="string">
+    <description>The default background color for the text for the editor.</description>
+    <value>#FDFDFD</value>
+  </property>
+
   <property id="editorFont" type="string">
     <description>The default font for the editor.</description>
     <value>Georgia</value>
@@ -86,12 +146,22 @@
 
   <property id="editorAlignment" type="string">
     <description>The default text alignment for the editor.</description>
-    <value>left</value>
+    <value>Left</value>
   </property>
 
   <property id="editorLineSpacing" type="number">
     <description>The default text line spacing for the editor.</description>
     <value>1.3</value>
+  </property>
+
+  <property id="editorIndentFirstLine" type="boolean">
+    <description>Whether the first line of each paragraph should be indented in the editor.</description>
+    <value>false</value>
+  </property>
+
+  <property id="editorHighlightWritingLine" type="boolean">
+    <description>Whether the writing line should be highlighted in the editor.</description>
+    <value>false</value>
   </property>
 
   <property id="textProp" type="number">

@@ -382,7 +382,7 @@ public class TextProperties implements TextStylable
 
     public void setBackgroundColor (Color c)
     {
-        
+
         this.bgColor = c;
         
         if ((this.setOn != null)

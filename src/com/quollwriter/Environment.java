@@ -155,6 +155,8 @@ public class Environment
         
     private static java.util.Timer generalTimer = null;
         
+    private static ProjectTextProperties projectTextProps = null;
+        
     static
     {
         
@@ -3635,6 +3637,10 @@ public class Environment
         Environment.defaultObjectProperties.put (Project.OBJECT_TYPE,
                                                  sysDefProjProps);        
         
+        // Create the text properties, they are derived from the user properties so need to be done after
+        // the user props are inited.
+        Environment.projectTextProps = new ProjectTextProperties ();
+        
         // Start the timer, it is done here so that any other code that needs it can start running things
         // straightaway.
         Environment.generalTimer = new java.util.Timer ("Environment-general",
@@ -5900,6 +5906,13 @@ public class Environment
         
     }
     
+    public static ProjectTextProperties getProjectTextProperties ()
+    {
+        
+        return Environment.projectTextProps;
+        
+    }
+    
     public static boolean isInFullScreen ()
     {
         
@@ -5907,43 +5920,71 @@ public class Environment
         
     }
 
-    public static void doForOpenProjects (String              projectType,
-                                          ProjectViewerAction act)
+    public static void doForOpenProjects (final String              projectType,
+                                          final ProjectViewerAction act)
     {
 
-        for (ProjectInfo p : Environment.openProjects.keySet ())
-        {
-    
-            AbstractProjectViewer pv = Environment.openProjects.get (p);
-    
-            if (p.getType ().equals (projectType))
+        UIUtils.doLater (new ActionListener ()
+        {                         
+        
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
-                                
-                act.doAction (pv);
+    
+                for (ProjectInfo p : Environment.openProjects.keySet ())
+                {
+            
+                    AbstractProjectViewer pv = Environment.openProjects.get (p);
+            
+                    if ((projectType == null)
+                        ||
+                        (p.getType ().equals (projectType))
+                       )
+                    {
+                                        
+                        act.doAction (pv);
+                        
+                    }
+                    
+                }
                 
             }
             
-        }
+        });
         
     }
     
-    public static void doForOpenProjectViewers (Class               projectViewerType,
-                                                ProjectViewerAction act)
+    public static void doForOpenProjectViewers (final Class               projectViewerType,
+                                                final ProjectViewerAction act)
     {
 
-        for (ProjectInfo p : Environment.openProjects.keySet ())
+        UIUtils.doLater (new ActionListener ()
         {
     
-            AbstractProjectViewer pv = Environment.openProjects.get (p);
-    
-            if (projectViewerType.isAssignableFrom (pv.getClass ()))
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
-                                
-                act.doAction (pv);
+    
+                for (ProjectInfo p : Environment.openProjects.keySet ())
+                {
+            
+                    AbstractProjectViewer pv = Environment.openProjects.get (p);
+            
+                    if ((projectViewerType == null)
+                        ||
+                        (projectViewerType.isAssignableFrom (pv.getClass ()))
+                       )
+                    {
+                                        
+                        act.doAction (pv);
+                        
+                    }
+                    
+                }
                 
             }
             
-        }        
+        });
         
     }
 

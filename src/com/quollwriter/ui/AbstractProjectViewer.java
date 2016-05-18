@@ -2025,7 +2025,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                null);
 
     }
-    
+        
     public void reinitAllChapterEditors ()
     {
 
@@ -6129,11 +6129,11 @@ xxx
             return;
             
         }
-    
+
         this.addSideBar ("textproperties",
                          new TextPropertiesSideBar (this,
                                                     this,
-                                                    new ProjectTextProperties (this)));
+                                                    Environment.getProjectTextProperties ()));
         
         this.showSideBar ("textproperties");
         

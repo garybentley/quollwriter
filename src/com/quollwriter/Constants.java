@@ -185,6 +185,26 @@ public class Constants
 
     public static final String COMPACT_MENUS_PROPERTY_NAME = "compactMenus";
 
+    public static final String DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME = "defaultEditorWritingLineColor";
+    
+    public static final String DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME = "defaultEditorHighlightWritingLine";
+    
+    public static final String DEFAULT_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME = "defaultEditorIndentFirstLine";
+
+    public static final String DEFAULT_EDITOR_FONT_PROPERTY_NAME = "defaultEditorFont";
+
+    public static final String DEFAULT_EDITOR_FONT_COLOR_PROPERTY_NAME = "defaultEditorFontColor";
+    
+    public static final String DEFAULT_EDITOR_BGCOLOR_PROPERTY_NAME = "defaultEditorBGColor";
+    
+    public static final String DEFAULT_EDITOR_FONT_SIZE_PROPERTY_NAME = "defaultEditorFontSize";
+
+    public static final String DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME = "defaultEditorLineSpacing";
+
+    public static final String DEFAULT_EDITOR_ALIGNMENT_PROPERTY_NAME = "defaultEditorAlignment";
+
+    public static final String DEFAULT_EDITOR_TEXT_BORDER_PROPERTY_NAME = "defaultEditorTextBorder";
+    
     public static final String EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME = "editorWritingLineColor";
     
     public static final String EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME = "editorHighlightWritingLine";
@@ -195,6 +215,10 @@ public class Constants
 
     public static final String EDITOR_FONT_PROPERTY_NAME = "editorFont";
 
+    public static final String EDITOR_FONT_COLOR_PROPERTY_NAME = "editorFontColor";
+    
+    public static final String EDITOR_BGCOLOR_PROPERTY_NAME = "editorBGColor";
+    
     public static final String EDITOR_FONT_SIZE_PROPERTY_NAME = "editorFontSize";
 
     public static final String EDITOR_LINE_SPACING_PROPERTY_NAME = "editorLineSpacing";

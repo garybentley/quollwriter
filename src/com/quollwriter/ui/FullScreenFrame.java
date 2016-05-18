@@ -458,8 +458,8 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         Insets ins = this.panel.getChild ().getInsets (); // this.getInsets ();
 
-        p.x += ins.left;
-        p.y += ins.top;
+        //p.x += ins.left;
+        //p.y += ins.top;
         
         try
         {
@@ -1273,13 +1273,15 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         if (this.panel.getChild () instanceof AbstractEditorPanel)
         {
-            
+
             AbstractEditorPanel aep = (AbstractEditorPanel) this.panel.getChild ();
         
-            aep.initEditor (this.normalTextProperties);
+            //aep.initEditor (this.normalTextProperties);
+        
+            aep.initEditor (this.fullScreenTextProperties);
         
             aep.restoreBackgroundColor ();
-                        
+/*                        
             this.fullScreenTextProperties = new FullScreenTextProperties (this,
                                                                           this.normalTextProperties);
 
@@ -1287,7 +1289,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                  false);
             
             this.properties.setTextProperties (this.fullScreenTextProperties);
-            
+*/            
         }
         
     }

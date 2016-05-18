@@ -22,12 +22,13 @@ import com.quollwriter.*;
 
 import com.gentlyweb.properties.*;
 
+import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
 
-public class TextPropertiesEditPanel extends Box
+public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 {
     
     private AbstractViewer viewer = null;
@@ -64,9 +65,50 @@ public class TextPropertiesEditPanel extends Box
         this.viewer = pv;
         this.showColorSelectors = showColorSelectors;
         this.popupParent = popupParent;
-        
+                
     }
         
+    @Override
+    public void propertyChanged (UserPropertyEvent ev)
+    {
+
+        UserPropertySetter set = null;
+    
+        if (this.textProps instanceof UserPropertySetter)
+        {
+            
+            set = (UserPropertySetter) this.textProps;
+            set.stopSetting ();
+            
+        }
+        
+        try
+        {
+    
+            this.fonts.setSelectedItem (this.textProps.getFontFamily ());
+            this.sizes.setSelectedItem (this.textProps.getFontSize ());
+            this.align.setSelectedItem (this.textProps.getAlignment ());
+            this.line.setSelectedItem (this.textProps.getLineSpacing ());
+            this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
+            this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());        
+            this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
+            this.indent.setSelected (this.textProps.getFirstLineIndent ());
+            this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
+            this.textBorder.setValue (this.textProps.getTextBorder ());
+            
+        } finally {
+            
+            if (set != null)
+            {
+                
+                set.startSetting ();
+                
+            }
+            
+        }
+
+    }
+    
     public Dimension getMinimumSize ()
     {
         
@@ -76,13 +118,15 @@ public class TextPropertiesEditPanel extends Box
     
     public void setTextProperties (TextProperties props)
     {
-        
+    
         this.fonts.setSelectedItem (props.getFontFamily ());
         this.sizes.setSelectedItem (props.getFontSize ());
         this.align.setSelectedItem (props.getAlignment ());
         this.line.setSelectedItem (props.getLineSpacing ());
         this.textcolorSwatch.setBackground (props.getTextColor ());
         this.bgcolorSwatch.setBackground (props.getBackgroundColor ());        
+        this.highlightWritingLine.setSelected (props.isHighlightWritingLine ());
+        this.indent.setSelected (props.getFirstLineIndent ());
             
         this.textProps = props;
 
@@ -281,7 +325,7 @@ public class TextPropertiesEditPanel extends Box
             public void mouseReleased (MouseEvent ev)
             {
             
-                Color writingLineColor = _this.textProps.getWritingLineColor ();
+                final Color writingLineColor = _this.textProps.getWritingLineColor ();
   
                 QPopup popup = _this.popups.get ("writingline");
                 
@@ -293,6 +337,7 @@ public class TextPropertiesEditPanel extends Box
                                                                 new ChangeAdapter ()
                                                                 {
                          
+                                                                    @Override
                                                                     public void stateChanged (ChangeEvent ev)
                                                                     {
                         
@@ -305,37 +350,13 @@ public class TextPropertiesEditPanel extends Box
                                                                     }
 
                                                                 },
-                                                                new ActionAdapter ()
-                                                                {
-                                                                    
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
-                                                                        
-                                                                        QPopup p = _this.popups.remove ("writingline");
-                                                                        
-                                                                        p.removeFromParent ();
-                                                                        
-                                                                    }
-                                                                    
-                                                                });                
+                                                                null);
             
                     _this.popups.put ("writingline",
                                       popup);
 
                 }
                 
-                int x = ev.getXOnScreen ();
-                int y = ev.getYOnScreen ();
-
-                Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-
-                if ((y + popup.getPreferredSize ().height) > d.height)
-                {
-
-                    y -= popup.getPreferredSize ().height;
-
-                }
-
                 _this.popupParent.showPopupAt (popup,
                                                _this.writingLineHighlightColorSwatch,
                                                true);
@@ -396,26 +417,14 @@ public class TextPropertiesEditPanel extends Box
                              
                                                                          }
     
-                                                                     },
-                                                                    new ActionAdapter ()
-                                                                    {
-                                                                        
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-                                                                            
-                                                                            QPopup p = _this.popups.remove ("textcolor");
-                                                                            
-                                                                            p.removeFromParent ();
-                                                                            
-                                                                        }
-                                                                        
-                                                                    });                
+                                                                    },
+                                                                    null);                
                 
                         _this.popups.put ("textcolor",
                                           popup);
     
                     }
-                
+                /*
                     int x = ev.getXOnScreen ();
                     int y = ev.getYOnScreen ();
     
@@ -427,7 +436,7 @@ public class TextPropertiesEditPanel extends Box
                         y -= popup.getPreferredSize ().height;
     
                     }
-    
+    */
                     _this.popupParent.showPopupAt (popup,
                                                    _this.textcolorSwatch,
                                                    true);
@@ -437,7 +446,7 @@ public class TextPropertiesEditPanel extends Box
     
             });
     
-            builder.add (UIUtils.getLimitWrapper (textcolorSwatch),
+            builder.add (UIUtils.getLimitWrapper (this.textcolorSwatch),
                          cc.xy (3,
                                 r));
     
@@ -485,25 +494,14 @@ public class TextPropertiesEditPanel extends Box
                                                                         }
      
                                                                     },
-                                                                     new ActionAdapter ()
-                                                                     {
-                                                                      
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-                                                                          
-                                                                          QPopup p = _this.popups.remove ("bgcolor");
-                                                                          
-                                                                          p.removeFromParent ();
-                                                                          
-                                                                        }
-                                                                      
-                                                                    });    
+                                                                    null);    
     
                         _this.popups.put ("bgcolor",
                                           popup);
     
                     }
-                                          
+                    
+                    /*                      
                     int x = ev.getXOnScreen ();
                     int y = ev.getYOnScreen ();
     
@@ -515,11 +513,15 @@ public class TextPropertiesEditPanel extends Box
                         y -= popup.getPreferredSize ().height;
     
                     }
-    
+    */
+                    _this.popupParent.showPopupAt (popup,
+                                                   _this.bgcolorSwatch,
+                                                   true);
+    /*
                     _this.popupParent.showPopupAt (popup,
                                                    new Point (x, y),
                                                    true);
-                    
+      */              
                 }
     
             });
@@ -528,7 +530,7 @@ public class TextPropertiesEditPanel extends Box
     
             //this.fsf.setBackgroundColor (this.fullScreenTextProperties.getBackgroundColor ());
     
-            builder.add (UIUtils.getLimitWrapper (bgcolorSwatch),
+            builder.add (UIUtils.getLimitWrapper (this.bgcolorSwatch),
                          cc.xy (3,
                                 r));
 
@@ -800,19 +802,7 @@ public class TextPropertiesEditPanel extends Box
                                                                     }
 
                                                                 },
-                                                                new ActionAdapter ()
-                                                                {
-                                                                    
-                                                                    public void actionPerformed (ActionEvent ev)
-                                                                    {
-                                                                        
-                                                                        QPopup p = _this.popups.remove ("writingline");
-                                                                        
-                                                                        p.removeFromParent ();
-                                                                        
-                                                                    }
-                                                                    
-                                                                });                
+                                                                null);                
             
                     _this.popups.put ("writingline",
                                       popup);
@@ -888,43 +878,18 @@ public class TextPropertiesEditPanel extends Box
                                                                          }
     
                                                                      },
-                                                                    new ActionAdapter ()
-                                                                    {
-                                                                        
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-                                                                            
-                                                                            //QPopup p = _this.popups.remove ("textcolor");
-                                                                            
-                                                                            //p.removeFromParent ();
-                                                                            
-                                                                        }
-                                                                        
-                                                                    });                
+                                                                    null);                
                 
                         _this.popups.put ("textcolor",
                                           popup);
     
                     }
-                
-                    int x = ev.getXOnScreen ();
-                    int y = ev.getYOnScreen ();
-    
-                    Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-    
-                    if ((y + popup.getPreferredSize ().height) > d.height)
-                    {
-    
-                        y -= popup.getPreferredSize ().height;
-    
-                    }
-    
+                    
                     popup.setDraggable (_this.viewer);
     
                     _this.viewer.showPopupAt (popup,
-                                                   _this.textcolorSwatch,
-                                                   true);
-                                                   //new Point (x, y));
+                                              _this.textcolorSwatch,
+                                              true);
                 
                 }
     
@@ -958,11 +923,7 @@ public class TextPropertiesEditPanel extends Box
                                                                             Color c = (Color) ev.getSource ();
      
                                                                             _this.textProps.setBackgroundColor (c);
-     
-                                                                            //_this.fsf.setBackgroundColor (c);
-                                                                            
-                                                                            //_this.sizeBoxWrapper.setBackground (c);
-                                                                            
+                                                                                 
                                                                             bgcolorSwatch.setBackground (c);
                                                                             textcolorSwatch.setBackground (_this.textProps.getTextColor ());
                                                                               
@@ -972,42 +933,18 @@ public class TextPropertiesEditPanel extends Box
                                                                         }
      
                                                                     },
-                                                                     new ActionAdapter ()
-                                                                     {
-                                                                      
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-                                                                          
-                                                                          QPopup p = _this.popups.remove ("bgcolor");
-                                                                          
-                                                                          p.removeFromParent ();
-                                                                          
-                                                                        }
-                                                                      
-                                                                    });    
+                                                                    null);    
     
                         _this.popups.put ("bgcolor",
                                           popup);
     
                     }
                                           
-                    int x = ev.getXOnScreen ();
-                    int y = ev.getYOnScreen ();
-    
-                    Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-    
-                    if ((y + popup.getPreferredSize ().height) > d.height)
-                    {
-    
-                        y -= popup.getPreferredSize ().height;
-    
-                    }
-    
                     popup.setDraggable (_this.viewer);
     
                     _this.viewer.showPopupAt (popup,
-                                                   new Point (x, y),
-                                                   true);
+                                              _this.bgcolorSwatch,
+                                              true);
                     
                 }
     
@@ -1016,11 +953,7 @@ public class TextPropertiesEditPanel extends Box
             this.addItem ("Background",
                           this.bgcolorSwatch,
                           layout);
-        
-            //this.fsf.setFontColor (this.fullScreenTextProperties.getTextColor ());
-    
-            //this.fsf.setBackgroundColor (this.fullScreenTextProperties.getBackgroundColor ());
-    
+            
             final JLabel reset = UIUtils.createClickableLabel ("Reset to defaults",
                                                                null);
         
@@ -1045,6 +978,9 @@ public class TextPropertiesEditPanel extends Box
         }
     
         this.add (layout);
+        
+        // Add the listener last so that if we get an update nothing will NPE.
+        UserProperties.addListener (this);        
         
     }
 
