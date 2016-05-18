@@ -2997,10 +2997,10 @@ public class ObjectManager
         return f;
 
     }
-
+    
     public void closeConnectionPool ()
     {
-
+    
         if (this.connectionPool != null)
         {
 
@@ -3012,8 +3012,9 @@ public class ObjectManager
 
             } catch (Exception e)
             {
-                e.printStackTrace ();
-                // Ignore.
+                
+                Environment.logError ("Unable to close pool",
+                                      e);
 
             }
 

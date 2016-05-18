@@ -5916,6 +5916,8 @@ xxx
                                   
         }
 
+        this.proj.removePropertyChangedListener (this);                
+        
         ChapterDataHandler ch = (ChapterDataHandler) this.dBMan.getHandler (Chapter.class);
 
         ch.saveWordCounts (this.proj,
