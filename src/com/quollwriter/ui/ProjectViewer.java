@@ -140,6 +140,17 @@ public class ProjectViewer extends AbstractProjectViewer
             
         });
         
+		/*
+		 * Disabled for now, drag-n-drop importing throws a bizarre exception:
+		 *
+		 * Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+	     *     at javax.swing.TransferHandler$DropHandler.drop(TransferHandler.java:1521)
+         *     at java.awt.dnd.DropTarget.drop(DropTarget.java:455)
+         *     at javax.swing.TransferHandler$SwingDropTarget.drop(TransferHandler.java:1282)
+         *     at sun.awt.dnd.SunDropTargetContextPeer.processDropMessage(SunDropTargetContextPeer.java:538)
+         *
+         * This problem seems to have been introduced in Java8, it definitely worked in Java7, grr...
+         *
 		this.setTransferHandler (new ImportTransferHandler (new ActionListener ()
 		{
 			            
@@ -252,7 +263,7 @@ public class ProjectViewer extends AbstractProjectViewer
 		}));                  
 
         this.importOverlay.setTransferHandler (this.getTransferHandler ());
-        						
+        		*/				
     }
     
     public IconProvider getIconProvider ()

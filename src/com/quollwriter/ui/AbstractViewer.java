@@ -1915,7 +1915,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             Box content = new Box (BoxLayout.Y_AXIS);
     
             FormLayout pfl = new FormLayout ("5px, right:p, 6px, fill:p:grow",
-                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
+                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
     
             PanelBuilder pbuilder = new PanelBuilder (pfl);
     
@@ -1931,6 +1931,18 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                cc.xy (4,
                                       y));
     
+			y += 2;
+			
+            pbuilder.addLabel ("Java Version",
+                               cc.xy (2,
+                                      y));
+    
+            pbuilder.addLabel (String.format ("%s %sbit",
+											  System.getProperty ("java.version"),
+											  System.getProperty ("sun.arch.data.model")),
+                               cc.xy (4,
+                                      y));
+
             y += 2;
     
             pbuilder.addLabel ("Copyright",
