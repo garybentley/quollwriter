@@ -85,15 +85,7 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
         return null;
         
     }
-    
-    @Override
-    public boolean removeOnClose ()
-    {
         
-        return false;
-        
-    }
-    
     public boolean canClose ()
     {
         

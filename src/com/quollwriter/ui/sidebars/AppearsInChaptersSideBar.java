@@ -66,6 +66,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         
     }
     
+    @Override
     public boolean canClose ()
     {
         

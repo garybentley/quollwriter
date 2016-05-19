@@ -1285,6 +1285,21 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             
         }
     
+        try
+        {
+    
+            // Close the sidebar down gracefully.
+            sb.onHide ();
+        
+            sb.onClose ();
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to close sidebar: " + sb.getName (),
+                                  e);
+            
+        }
+    
         this.sideBars.remove (sb.getName ());
 
         this.activeSideBars.remove (sb);
@@ -1299,8 +1314,19 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         this.removeSideBarListener (sb);
         
         this.removeMainPanelListener (sb);
+
+        AbstractSideBar _sb = (this.activeSideBars.size () > 0 ? this.activeSideBars.peek () : null);
         
-        this.setUILayout (this.layout);
+        if (_sb != null)
+        {
+         
+            this.showSideBar (_sb.getName ());
+            
+        } else {
+        
+            this.setUILayout (this.layout);
+        
+        }
         
     }
     
@@ -5886,8 +5912,6 @@ xxx
         for (AbstractSideBar sb : new ArrayList<AbstractSideBar> (this.activeSideBars))
         {
                         
-            sb.onClose ();
-        
             this.removeSideBar (sb);
         
         }

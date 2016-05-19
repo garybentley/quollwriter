@@ -146,7 +146,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
     
     public abstract void onHide ();
     
-    public abstract boolean removeOnClose ();
+    //public abstract boolean removeOnClose ();
     
     public void setTitle (String t)
     {

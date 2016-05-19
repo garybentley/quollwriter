@@ -4209,6 +4209,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		UserProperties.set ("landing-window-width",
 							this.splitPane.getSize ().width);
 		
+		// Close and remove all sidebars.
+        for (AbstractSideBar sb : new ArrayList<AbstractSideBar> (this.activeSideBars))
+        {
+                        
+            this.removeSideBar (sb);
+        
+        }
+		
 		super.close (true,
 					 null);
 		
@@ -4217,6 +4225,52 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		return true;
 		
 	}
+	
+    public void removeSideBar (AbstractSideBar sb)
+    {
+
+        if (sb == null)
+        {
+            
+            return;
+            
+        }
+    
+        try
+        {
+    
+            // Close the sidebar down gracefully.
+            sb.onHide ();
+        
+            sb.onClose ();
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to close sidebar: " + sb.getName (),
+                                  e);
+            
+        }
+    
+        this.sideBars.remove (sb.getName ());
+
+        this.activeSideBars.remove (sb);
+        
+        this.removeSideBarListener (sb);
+
+        AbstractSideBar _sb = (this.activeSideBars.size () > 0 ? this.activeSideBars.peek () : null);
+        
+        if (_sb != null)
+        {
+         
+            this.showSideBar (_sb.getName ());
+            
+        } else {
+        
+            this.setUILayout ();
+        
+        }
+        
+    }
 	
 	@Override
 	public void closeSideBar ()

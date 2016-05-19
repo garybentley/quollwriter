@@ -587,14 +587,6 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
         this.otherSideBarsButton.setVisible (false);
         
     }    
-    
-    @Override
-    public boolean removeOnClose ()
-    {
-        
-        return false;
-        
-    }
 
     @Override
     public void onHide ()
