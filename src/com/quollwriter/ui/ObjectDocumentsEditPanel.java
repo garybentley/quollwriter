@@ -510,20 +510,27 @@ public class ObjectDocumentsEditPanel extends EditPanel
                                        MouseEvent ev)
                 {
     
-                    menu.add (UIUtils.createMenuItem ("Remove",
-                                                      Constants.DELETE_ICON_NAME,
-                                                      new ActionListener ()
-                                                      {
-                                                           
-                                                          public void actionPerformed (ActionEvent ev)
+                    final MouseEventHandler _thisEv = this;
+        
+                    if (_this.isValidFile ())
+                    {
+        
+                        menu.add (UIUtils.createMenuItem ("Open",
+                                                          Constants.OPEN_PROJECT_ICON_NAME,
+                                                          new ActionListener ()
                                                           {
                                                                
-                                                               _this.parent.removeFile (_this);
-                                                                                                                              
-                                                          }
-                                                           
-                                                      }));
-                    
+                                                              public void actionPerformed (ActionEvent ev)
+                                                              {
+                                                              
+                                                                    _thisEv.handlePress (null);
+                                                                                                                                  
+                                                              }
+                                                               
+                                                          }));
+
+                    }
+                                                          
                     if (f.getParentFile ().exists ())
                     {
                     
@@ -543,7 +550,21 @@ public class ObjectDocumentsEditPanel extends EditPanel
                                                             }));
                         
                     }
-                    
+                                                      
+                    menu.add (UIUtils.createMenuItem ("Remove",
+                                                      Constants.DELETE_ICON_NAME,
+                                                      new ActionListener ()
+                                                      {
+                                                           
+                                                          public void actionPerformed (ActionEvent ev)
+                                                          {
+                                                               
+                                                               _this.parent.removeFile (_this);
+                                                                                                                              
+                                                          }
+                                                           
+                                                      }));
+                                        
                 }
                 
                 @Override
@@ -593,6 +614,10 @@ public class ObjectDocumentsEditPanel extends EditPanel
                     
                     if (!_this.isValidFile ())
                     {
+                        
+                        UIUtils.showMessage (_this,
+                                             "File cannot be opened",
+                                             "The file cannot be opened, this is usually because the file or its parent folder have been moved or deleted.");
                         
                         return;
                                     
