@@ -12,6 +12,7 @@ import javax.swing.event.*;
 import javax.swing.border.*;
 
 import com.quollwriter.*;
+import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.Header;
@@ -301,5 +302,17 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
     {
 
     }
+           
+    /**
+     * Allows a subclass sidebar to indicate it is "for" a particular object.
+     *
+     * @returns Always null, override where necessary.
+     */
+    public NamedObject getForObject ()
+    {
+        
+        return null;
             
+    }
+    
 }

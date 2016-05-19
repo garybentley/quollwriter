@@ -2531,6 +2531,8 @@ public class ProjectViewer extends AbstractProjectViewer
         // Inform the chapter tree about the change.
         this.reloadTreeForObjectType (c.getObjectType ());
 
+		this.removeAllSideBarsForObject (c);		
+		
         // Remove the tab (if present).
         this.removeAllPanelsForObject (c);
 
@@ -2604,6 +2606,8 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.reloadTreeForObjectType (a.getObjectType ());
         
+		this.removeAllSideBarsForObject (a);
+		
         this.removePanel (a);
 
     }

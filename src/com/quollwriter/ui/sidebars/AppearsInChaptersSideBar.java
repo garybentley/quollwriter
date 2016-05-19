@@ -18,7 +18,6 @@ import com.quollwriter.ui.components.ScrollableBox;
 public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
     
-    private NamedObject obj = null;
     private AppearsInChaptersEditPanel panel = null;
     private JTree tree = null;
     
@@ -29,6 +28,14 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         super (v);
         
         this.panel = p;
+        
+    }
+    
+    @Override
+    public NamedObject getForObject ()
+    {
+        
+        return this.panel.getForObject ();
         
     }
     
@@ -55,7 +62,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
     public boolean removeOnClose ()
     {
         
-        return false;
+        return true;
         
     }
     

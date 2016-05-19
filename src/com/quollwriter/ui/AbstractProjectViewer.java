@@ -7403,6 +7403,23 @@ xxx
 
     }
 
+    public void removeAllSideBarsForObject (NamedObject n)
+    {
+                
+        for (AbstractSideBar s : this.sideBars.values ())
+        {
+            
+            if (n == s.getForObject ())
+            {
+                
+                this.removeSideBar (s);
+                
+            }
+            
+        }
+        
+    }
+    
     public void removeAllPanelsForObject (NamedObject n)
     {
 
