@@ -47,6 +47,14 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         */
     }
 
+    @Override
+    public NamedObject getForObject ()
+    {
+        
+        return this.chapter;
+        
+    }
+    
     public Dimension getMinimumSize ()
     {
         
