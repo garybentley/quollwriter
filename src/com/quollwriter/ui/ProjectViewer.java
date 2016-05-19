@@ -381,13 +381,28 @@ public class ProjectViewer extends AbstractProjectViewer
             
         }
         
-        if (parent instanceof AssetViewPanel)
-        {
-            
-            pv = ((AssetViewPanel) parent).getViewer ();
-            
-        }
-
+		if (parent instanceof QuollPanel)
+		{
+			
+			AbstractViewer v = ((QuollPanel) parent).getViewer ();
+			
+			if (v instanceof ProjectViewer)
+			{
+				
+				pv = (ProjectViewer) v;
+				
+			}
+			
+		}
+		
+		if (parent instanceof FullScreenFrame)
+		{
+			
+			// TODO: A little dangerous to do this, fix in future.
+			pv = (ProjectViewer) ((FullScreenFrame) parent).getProjectViewer ();
+			
+		}
+		
         final ProjectViewer ppv = pv;
         
         im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (QObject.OBJECT_TYPE).charAt (0))),
