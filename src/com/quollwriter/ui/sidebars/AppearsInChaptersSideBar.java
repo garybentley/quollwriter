@@ -96,6 +96,19 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
                                                             
     }
     
+    public void updateSnippets (Map<Chapter, List<Segment>> snippets)
+    {
+        
+        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.viewer.getProject ());
+
+        UIUtils.createTree (snippets,
+                            tn);
+
+        UIUtils.setTreeRootNode (this.tree,
+                                 tn);        
+        
+    }    
+    
     public void setSnippets (Map<Chapter, List<Segment>> snippets)
     {
         
@@ -104,7 +117,7 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         UIUtils.createTree (snippets,
                             tn);
 
-        UIUtils.setTreeRootNode (tree,
+        UIUtils.setTreeRootNode (this.tree,
                                  tn);        
         
         // Get the first item and show that.

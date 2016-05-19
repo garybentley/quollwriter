@@ -3257,6 +3257,57 @@ public class ProjectViewer extends AbstractProjectViewer
 
                 Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
                 
+				_this.doForSideBars (AppearsInChaptersSideBar.class,
+									 new QuollSideBarAction<AppearsInChaptersSideBar> ()
+									 {
+										
+										public void doAction (final AppearsInChaptersSideBar sb)
+										{
+											 
+											final NamedObject n = sb.getForObject ();
+																						
+											try
+											{
+												
+												final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
+																														_this);
+												
+												UIUtils.doLater (new ActionListener ()
+												{
+												   
+													@Override
+													public void actionPerformed (ActionEvent ev)
+													{
+														
+														try
+														{
+														
+															sb.updateSnippets (snippets);
+															
+														} catch (Exception e) {
+															
+															Environment.logError ("Unable to update appears in chapters sidebar for object: " +
+																				  n,
+																				  e);
+															
+														}
+																				 
+													}
+													
+												});
+												
+											} catch (Exception e) {
+												
+												Environment.logError ("Unable to update appears in chapters sidebar for object: " +
+																	  n,
+																	  e);
+												
+											}
+											
+										}
+										
+									 });
+				
 				_this.doForPanels (AssetViewPanel.class,
 								   new QuollPanelAction<AssetViewPanel> ()
 								   {
@@ -3304,8 +3355,7 @@ public class ProjectViewer extends AbstractProjectViewer
 																  n,
 																  e);
 											
-										}
-										
+										}										
 										 
 									}
                                 

@@ -2492,6 +2492,71 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                       
     }
 */
+
+    public void doForSideBars (final Class              type,
+                               final QuollSideBarAction act,
+							   final boolean            doOnEventThread)
+    {
+        
+		Set<AbstractSideBar> ps = new LinkedHashSet (this.sideBars.values ());
+		
+        for (AbstractSideBar sb : ps)
+        {
+            
+            if (type.isAssignableFrom (sb.getClass ()))
+            {
+                
+				final AbstractSideBar _sb = sb;
+				
+				if (doOnEventThread)
+				{
+				
+					UIUtils.doLater (new ActionListener ()
+					{
+					
+						@Override
+						public void actionPerformed (ActionEvent ev)
+						{
+							
+							act.doAction (_sb);
+							
+						}
+						
+					});
+					
+				} else {
+					
+					try
+					{
+						
+						act.doAction (sb);
+						
+					} catch (Exception e) {
+						
+						Environment.logError ("Unable to perform action: " +
+											  act,
+											  e);
+						
+					}
+					
+				}
+                
+            }
+            
+        }
+        
+    }
+        
+    public void doForSideBars (final Class              type,
+                               final QuollSideBarAction act)
+    {
+        
+		this.doForSideBars (type,
+						    act,
+						    true);
+        
+    }
+
     public void doForPanels (final Class            type,
                              final QuollPanelAction act,
 							 final boolean          doOnEventThread)
