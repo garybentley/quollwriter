@@ -48,6 +48,14 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
     }
 
     @Override
+    public String getName ()
+    {
+        
+        return "chapterinfo-" + this.chapter.getKey ();
+        
+    }
+    
+    @Override
     public NamedObject getForObject ()
     {
         
@@ -62,6 +70,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
     }    
     
+    @Override
     public Dimension getPreferredSize ()
     {
         
@@ -70,6 +79,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         
     }
     
+    @Override
     public void init ()
                throws GeneralException
     {
@@ -83,6 +93,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
     }
     
     // TODO: Change so that each chapter has its own information sidebar
+    /*
     public void panelShown (MainPanelEvent ev)
     {
 
@@ -96,7 +107,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
         }
 
     }
-        
+      */  
     private void update (Chapter c)
     {
 
@@ -155,7 +166,7 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
     public String getTitle ()
     {
         
-        return this.chapter.getName ();
+        return this.chapter.getName () + " Information";
         
     }
     

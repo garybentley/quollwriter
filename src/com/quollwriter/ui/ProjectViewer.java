@@ -2356,10 +2356,10 @@ public class ProjectViewer extends AbstractProjectViewer
         ChapterInformationSideBar cb = new ChapterInformationSideBar (this,
                                                                       c);
         
-        this.addSideBar ("chapterinfo-" + c.getKey (),
+        this.addSideBar (cb.getName (),
                          cb);
         
-        this.showSideBar ("chapterinfo-" + c.getKey ());
+        this.showSideBar (cb.getName ());
     
         return true;
     
