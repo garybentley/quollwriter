@@ -99,7 +99,7 @@ public class ProjectViewer extends AbstractProjectViewer
 	private PropertyChangedListener objectTypePropChangedListener = null;
 	private PropertyChangedListener noteTypePropChangedListener = null;
         
-    public ProjectViewer()
+    public ProjectViewer ()
     {
 
         final ProjectViewer _this = this;
@@ -107,10 +107,61 @@ public class ProjectViewer extends AbstractProjectViewer
         this.iconProvider = new DefaultIconProvider ();
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
         
+		InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+		ActionMap actions = this.getActionMap ();
+		
         ProjectViewer.addAssetActionMappings (this,
-                                              this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW),
-                                              this.getActionMap ());
+                                              im,
+											  actions);
 
+        im.put (KeyStroke.getKeyStroke ("ctrl shift H"),
+                "new" + Chapter.OBJECT_TYPE);
+
+        actions.put ("new" + Chapter.OBJECT_TYPE,
+					 new ActionAdapter ()
+					 {
+		
+						public void actionPerformed (ActionEvent ev)
+						{
+														
+							Chapter ch = _this.getChapterCurrentlyEdited ();
+							
+							NamedObject o = ch;							
+							
+							if (ch == null)
+							{
+								
+								// Get the last chapter.
+								Book b = _this.proj.getBooks ().get (0);
+    
+								ch = b.getLastChapter ();
+
+								o = ch;
+								
+								if (ch == null)
+								{
+									
+									o = b;
+									
+								}
+								
+							}
+							
+							Action a = _this.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
+														o);
+							
+							if (a != null)
+							{
+								
+								a.actionPerformed (ev);
+								
+							}
+							
+						}
+						
+					 });
+
+											  
         Set<String> objTypes = new LinkedHashSet ();
         objTypes.add (Chapter.OBJECT_TYPE);
         objTypes.add (QCharacter.OBJECT_TYPE);

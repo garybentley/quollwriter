@@ -55,6 +55,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     public static final String SET_EDIT_COMPLETE_ACTION_NAME = "set-edit-complete";
     public static final String REMOVE_EDIT_POINT_ACTION_NAME = "remove-edit-point";
 
+    public static final String NEW_CHAPTER_ACTION_NAME = "new" + Chapter.OBJECT_TYPE;
     public static final String NEW_SCENE_ACTION_NAME = "new" + Scene.OBJECT_TYPE;
     public static final String NEW_OUTLINE_ITEM_ACTION_NAME = "new" + OutlineItem.OBJECT_TYPE;
     public static final String NEW_NOTE_ACTION_NAME = "new" + Note.OBJECT_TYPE;
@@ -287,6 +288,21 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                                                
                              }
                            
+                          });
+        
+        this.actions.put (NEW_CHAPTER_ACTION_NAME,
+                          new ActionAdapter ()
+                          {
+
+                              public void actionPerformed (ActionEvent ev)
+                              {
+
+                                  _this.performAction (ev,
+                                                       NEW_CHAPTER_ACTION_NAME,
+                                                       -1);
+
+                              }
+
                           });
         
         this.actions.put (NEW_SCENE_ACTION_NAME,
@@ -653,6 +669,23 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         }
 
+        if (c.equals (NEW_CHAPTER_ACTION_NAME))
+        {
+
+            Action a = this.projectViewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
+                                                     this.chapter);
+        
+            if (a != null)
+            {
+               
+               a.actionPerformed (ev);
+               
+            }
+        
+            return;
+
+        }
+        
         if (c.equals (NEW_SCENE_ACTION_NAME))
         {
 
@@ -859,6 +892,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                          NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
                                          aa));
                                   
+            buts.add (this.createButton (Chapter.OBJECT_TYPE,
+                                         Constants.ICON_MENU,
+                                         String.format ("Add a new {%s}", Chapter.OBJECT_TYPE),
+                                         NEW_CHAPTER_ACTION_NAME,
+                                         aa));
+
             if (popup instanceof JPopupMenu)
             {                                            
             
@@ -928,6 +967,14 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             mi = this.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
                                       Constants.EDIT_NEEDED_NOTE_ICON_NAME,
                                       NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                      null,
+                                      aa);
+        
+            popup.add (mi);
+        
+            mi = this.createMenuItem (Environment.getObjectTypeName (Chapter.OBJECT_TYPE),
+                                      Chapter.OBJECT_TYPE,
+                                      NEW_CHAPTER_ACTION_NAME,
                                       null,
                                       aa);
         
