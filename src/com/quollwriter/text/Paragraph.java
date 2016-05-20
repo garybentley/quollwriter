@@ -56,7 +56,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
                 break;
                 
             }
-            
+     
             String t = paragraph.substring (st,
                                             en);
             
@@ -90,7 +90,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
             
         }
         
-        this.paragraph = paragraph.trim ();
+        this.paragraph = paragraph;//.trim ();
                         
     }
     

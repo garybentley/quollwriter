@@ -82,7 +82,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
             
         }        
     
-        this.sentence = sentence.trim ();    
+        this.sentence = sentence;//.trim ();    
     
     }
     
