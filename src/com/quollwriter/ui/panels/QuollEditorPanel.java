@@ -225,8 +225,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                               public void actionPerformed (ActionEvent ev)
                               {
                                  
-                                 
-                                 
                                  new SplitChapterActionHandler (_this.chapter,
                                                                 _this.projectViewer).actionPerformed (ev);
         
@@ -1295,10 +1293,15 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                )
             {
     
-                m.add (this.createMenuItem ("Split {Chapter}",
-                                            Constants.CHAPTER_SPLIT_ICON_NAME,
-                                            SPLIT_CHAPTER_ACTION_NAME,
-                                            null));
+               if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
+               {
+    
+                  m.add (this.createMenuItem ("Split {Chapter}",
+                                              Constants.CHAPTER_SPLIT_ICON_NAME,
+                                              SPLIT_CHAPTER_ACTION_NAME,
+                                              null));
+
+               }
             
             }
             
