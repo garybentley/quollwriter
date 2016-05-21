@@ -185,7 +185,10 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         StringWithMarkup sm = c.getText ();
 
-        if (sm.getText () == null)
+        if ((sm == null)
+            ||
+            (sm.getText () == null)
+           )
         {
         
             return;
