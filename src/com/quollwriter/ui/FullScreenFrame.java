@@ -555,9 +555,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             
             this.normalTextProperties = null;
 
-            edPanel.restoreBackgroundColor ();
+            //edPanel.restoreBackgroundColor ();
     
-            edPanel.restoreFontColor ();
+            //edPanel.restoreFontColor ();
     
             //edPanel.reflowText ();
     
