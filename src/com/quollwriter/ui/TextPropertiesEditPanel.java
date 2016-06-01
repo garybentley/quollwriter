@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Color;
+import java.awt.Font;
 
 import java.awt.event.*;
 
@@ -31,11 +32,13 @@ import com.quollwriter.ui.components.TextProperties;
 public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 {
     
+    public static int MAX_TEXT_BORDER_WIDTH = 150;
+    
     private AbstractViewer viewer = null;
     private TextProperties textProps = null;
     private String eventType = null;
     private boolean showColorSelectors = false;
-    private PopupsSupported popupParent = null;
+    //private PopupsSupported popupParent = null;
 
     private JComboBox            fonts = null;
     private JComboBox            sizes = null;
@@ -64,7 +67,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
         this.eventType = eventType;
         this.viewer = pv;
         this.showColorSelectors = showColorSelectors;
-        this.popupParent = popupParent;
+        //this.popupParent = popupParent;
                 
     }
         
@@ -119,6 +122,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
     public void setTextProperties (TextProperties props)
     {
     
+        this.textProps = props;
+    
         this.fonts.setSelectedItem (props.getFontFamily ());
         this.sizes.setSelectedItem (props.getFontSize ());
         this.align.setSelectedItem (props.getAlignment ());
@@ -127,15 +132,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
         this.bgcolorSwatch.setBackground (props.getBackgroundColor ());        
         this.highlightWritingLine.setSelected (props.isHighlightWritingLine ());
         this.indent.setSelected (props.getFirstLineIndent ());
+        this.textBorder.setValue (props.getTextBorder ());
             
-        this.textProps = props;
-
-        // Need to update the text background/text color.
-        this.textProps.setTextColor (props.getTextColor ());
-        this.textProps.setBackgroundColor (props.getBackgroundColor ());
-        this.textProps.setWritingLineColor (props.getWritingLineColor ());
-        this.textProps.setHighlightWritingLine (props.isHighlightWritingLine ());
-        
     }
         
     private void addItem (String     label,
@@ -178,8 +176,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
     
         layout.setBorder (UIUtils.createPadding (5, 5, 5, 5));
     
-        this.fonts = UIUtils.getFontsComboBox (this.textProps.getFontFamily (),
-                                               this.textProps);
+        this.fonts = UIUtils.getFontsComboBox (this.textProps.getFontFamily ());
 
         this.fonts.addActionListener (new ActionAdapter ()
         {
@@ -187,6 +184,12 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {            
 
+                _this.fonts.setFont (new Font ((String) _this.fonts.getSelectedItem (),
+                                         Font.PLAIN,
+                                         12));
+
+                _this.textProps.setFontFamily ((String) _this.fonts.getSelectedItem ());
+            
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_FONT);
 
@@ -194,12 +197,15 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         });
 
+                this.fonts.setFont (new Font ((String) this.fonts.getSelectedItem (),
+                                         Font.PLAIN,
+                                         12));
+
         this.addItem ("Font",
                       this.fonts,
                       layout);
 
-        this.sizes = UIUtils.getFontSizesComboBox (this.textProps.getFontSize (),
-                                                   this.textProps);
+        this.sizes = UIUtils.getFontSizesComboBox (this.textProps.getFontSize ());
 
         this.sizes.addActionListener (new ActionAdapter ()
         {
@@ -207,6 +213,18 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                try
+                {
+
+                    _this.textProps.setFontSize (Integer.parseInt (_this.sizes.getSelectedItem ().toString ()));
+                    
+                } catch (Exception e)
+                {
+
+                    // Ignore.
+
+                }
+            
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_FONT_SIZE);
 
@@ -218,8 +236,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                       this.sizes,
                       layout);
     
-        this.align = UIUtils.getAlignmentComboBox (this.textProps.getAlignment (),
-                                                   this.textProps);
+        this.align = UIUtils.getAlignmentComboBox (this.textProps.getAlignment ());
 
         this.align.addActionListener (new ActionAdapter ()
         {
@@ -227,6 +244,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                _this.textProps.setAlignment ((String) _this.align.getSelectedItem ());            
+            
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_ALIGNMENT);
 
@@ -238,14 +257,25 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                       this.align,
                       layout);
 
-        this.line = UIUtils.getLineSpacingComboBox (this.textProps.getLineSpacing (),
-                                                    this.textProps);
-
+        this.line = UIUtils.getLineSpacingComboBox (this.textProps.getLineSpacing ());
+                                                    
         this.line.addActionListener (new ActionAdapter ()
         {
     
             public void actionPerformed (ActionEvent ev)
             {
+
+                try
+                {
+
+                    _this.textProps.setLineSpacing (Float.parseFloat (_this.line.getSelectedItem ().toString ()));
+
+                } catch (Exception e)
+                {
+
+                    // Ignore.
+
+                }
 
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_LINE_SPACING);
@@ -260,8 +290,8 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         this.textBorder = new JSlider (SwingConstants.HORIZONTAL,
                                        0,
-                                       15,
-                                       0);
+                                       TextPropertiesEditPanel.MAX_TEXT_BORDER_WIDTH,
+                                       this.textProps.getTextBorder ());
         this.textBorder.setToolTipText ("Drag to change the size of the border between the edge of the writing area and the text");
         this.textBorder.addChangeListener (new ChangeAdapter ()
         {
@@ -269,7 +299,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void stateChanged (ChangeEvent ev)
             {
 
-                _this.textProps.setTextBorder (_this.textBorder.getValue () * 5);
+                _this.textProps.setTextBorder (_this.textBorder.getValue ());
             
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_TEXT_BORDER);                
@@ -345,12 +375,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             
                 Color writingLineColor = _this.textProps.getWritingLineColor ();
   
-                QPopup popup = _this.popups.get ("writingline");
-                
-                if (popup == null)
-                {
-                
-                    popup = QColorChooser.getColorChooserPopup ("Select the highlight line color",
+                QPopup popup = QColorChooser.getColorChooserPopup ("Select the highlight line color",
                                                                 writingLineColor,
                                                                 new ChangeAdapter ()
                                                                 {
@@ -364,28 +389,14 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                                                                        
                                                                         _this.textProps.setWritingLineColor (c);
 
+                                                                        _this.viewer.fireProjectEvent (_this.eventType,
+                                                                                                       ProjectEvent.CHANGE_HIGHLIGHT_WRITING_LINE);
+                                                                        
                                                                     }
 
                                                                 },
                                                                 null);                
-            
-                    _this.popups.put ("writingline",
-                                      popup);
-
-                }
-                
-                int x = ev.getXOnScreen ();
-                int y = ev.getYOnScreen ();
-
-                Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-
-                if ((y + popup.getPreferredSize ().height) > d.height)
-                {
-
-                    y -= popup.getPreferredSize ().height;
-
-                }
-
+                            
                 popup.setDraggable (_this.viewer);
                 
                 _this.viewer.showPopupAt (popup,
@@ -416,12 +427,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
     
                     Color textcolor = _this.textProps.getTextColor ();
                 
-                    QPopup popup = _this.popups.get ("textcolor");
-                    
-                    if (popup == null)
-                    {
-                    
-                        popup = QColorChooser.getColorChooserPopup ("Select the text color",
+                    QPopup popup = QColorChooser.getColorChooserPopup ("Select the text color",
                                                                     textcolor,
                                                                     new ChangeAdapter ()
                                                                     {
@@ -445,11 +451,6 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                                                                      },
                                                                     null);                
                 
-                        _this.popups.put ("textcolor",
-                                          popup);
-    
-                    }
-                    
                     popup.setDraggable (_this.viewer);
     
                     _this.viewer.showPopupAt (popup,
@@ -472,12 +473,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
     
                     Color bgcolor = _this.textProps.getBackgroundColor ();   
     
-                    QPopup popup = _this.popups.get ("bgcolor");
-                    
-                    if (popup == null)
-                    {
-                        
-                        popup = QColorChooser.getColorChooserPopup ("Select the background color",
+                    QPopup popup = QColorChooser.getColorChooserPopup ("Select the background color",
                                                                     bgcolor,
                                                                     new ChangeAdapter ()
                                                                     {
@@ -499,11 +495,6 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
      
                                                                     },
                                                                     null);    
-    
-                        _this.popups.put ("bgcolor",
-                                          popup);
-    
-                    }
                                           
                     popup.setDraggable (_this.viewer);
     
@@ -543,10 +534,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
         }
     
         this.add (layout);
-        
-        // Add the listener last so that if we get an update nothing will NPE.
-        UserProperties.addListener (this);        
-        
+                
     }
-
+    
 }

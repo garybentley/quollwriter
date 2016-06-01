@@ -374,8 +374,7 @@ public class WordCloudPanel extends BasicQuollPanel<AbstractProjectViewer>
                                       3,
                                       -1);
             
-            this.fonts = UIUtils.getFontsComboBox ("Futura",
-                                                   null);
+            this.fonts = UIUtils.getFontsComboBox ("Futura");
             
             Vector<Integer> sizes = new Vector ();
             sizes.add (10);

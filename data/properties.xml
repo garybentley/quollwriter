@@ -173,7 +173,8 @@
     <description><![CDATA[The default width of the sidebar in full screen mode.]]></description>
     <value><![CDATA[250]]></value>
   </property>
-  
+<!--
+Removed so that the full screen properties will inherit from the standard editor ones.
   <property id="fullScreenEditorAlignment" type="string">
     <description><![CDATA[The default text alignment in full screen mode.]]></description>
     <value><![CDATA[Left]]></value>
@@ -194,6 +195,16 @@
     <value><![CDATA[14.0]]></value>
   </property>
   
+  <property id="fullScreenEditorFont" type="string">
+    <description>The default font in full screen mode.</description>
+    <value>Georgia</value>
+  </property>  
+  
+  <property id="fullScreenEditorIndentFirstLine" type="boolean">
+    <description>Whether the first line of each paragraph should be indented in the editor for full screen mode.</description>
+    <value>false</value>
+  </property>  
+  
   <property id="fullScreenEditorTextBorder" type="integer">
     <description><![CDATA[The default text border in full screen mode.]]></description>
     <value><![CDATA[0]]></value>
@@ -201,9 +212,19 @@
   
   <property id="fullScreenEditorLineSpacing" type="float">
     <description><![CDATA[The default line spacing in full screen mode.]]></description>
-    <value><![CDATA[1.0]]></value>
+    <value><![CDATA[1.3]]></value>
   </property>
   
+  <property id="fullScreenEditorHighlightWritingLine" type="boolean">
+    <description>Whether the writing line should be highlighted in the editor for full screen mode.</description>
+    <value>false</value>
+  </property>  
+  
+  <property id="fullScreenEditorWritingLineColor" type="string">
+    <description>The default color for the writing line for the editor in full screen mode.</description>
+    <value>#D3D3D3</value>
+  </property>  
+  -->
   <property id="fullScreenShowChildBorder" type="boolean">
     <description>In full screen mode show the border around the child panel.</description>
     <value>true</value>
@@ -214,7 +235,6 @@
     <value>false</value>
   </property>
 
-  fullScreenEditorHighlightWritingLine
   <property id="noteTypes" type="string">
     <description>The default note types.</description>
     <value>Information|To Do</value>

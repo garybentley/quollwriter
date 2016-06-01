@@ -984,7 +984,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
     
                         if (Environment.isEnglish (_this.viewer.getSpellCheckLanguage ()))
                         {
-                        
+                       
                             if ((word != null) &&
                                 (word.length () > 0))
                             {

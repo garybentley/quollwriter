@@ -47,10 +47,14 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
 
-public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelListener
+public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer> implements MainPanelListener, FullScreenListener
 {
     
+    public static final String NAME = "textproperties";
+    
     private TextPropertiesEditPanel props = null;
+    private FullScreenPropertiesEditPanel fsprops = null;
+    private Box fscontainer = null;
     
     public TextPropertiesSideBar (AbstractProjectViewer pv,
                                   PopupsSupported       popupParent,
@@ -59,12 +63,80 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
         
         super (pv);
                      
+        this.fsprops = new FullScreenPropertiesEditPanel ();                                 
+        
+        final TextPropertiesSideBar _this = this;
+                     
         this.props = new TextPropertiesEditPanel (pv,
                                                   props,
                                                   null,
                                                   true,
-                                                  popupParent);
+                                                  popupParent)
+        {
+            
+            public void setBackgroundColor (Color c)
+            {
+                
+                //_this.fsTextProps.setBackgroundColor (c);
+                
+                _this.fsprops.setBackgroundColor (c);
+                
+            }
+            
+        };
+                    
+        pv.addFullScreenListener (this);
+                       
+    }
+
+    @Override
+    public void fullScreenExited (FullScreenEvent ev)
+    {
+        
+        this.onShow ();
+        
+        /*
+        this.setTitle (this.getTitle ());
+        
+        UserProperties.removeListener (this.fsTextProps);  
+        
+        // Add the listener last so that if we get an update nothing will NPE.
+        UserProperties.addListener (this.props);        
+        
+        this.props.setVisible (true);
+        
+        this.fsTextProps.setVisible (false);
+        
+        this.fsprops.setVisible (false);
+        */
+    }
+    
+    @Override
+    public void fullScreenEntered (FullScreenEvent ev)
+    {
+        
+        this.onShow ();
+        
+        /*
+        this.setTitle ("Full Screen Properties");
+        
+        final TextPropertiesSideBar _this = this;
+        
+        UserProperties.removeListener (this.props);        
+        
+        FullScreenFrame fsf = this.viewer.getFullScreenFrame ();
                         
+        UserProperties.addListener (this.fsTextProps);          
+        
+        this.props.setVisible (false);        
+        this.fsprops.setFullScreenFrame (fsf);
+        
+        this.fsTextProps.setVisible (true);
+        this.fsprops.setVisible (true);
+        
+        this.validate ();
+        this.repaint ();
+        */
     }
 
     /**
@@ -79,7 +151,7 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
     }
     
     @Override    
-    public List<JButton> getHeaderControls ()
+    public List<JComponent> getHeaderControls ()
     {
         
         return null;
@@ -101,22 +173,64 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
     }
     
     @Override
-    public void onShow ()
+    public void onHide ()
     {
-        
+
+
+
     }
     
     @Override
-    public void onHide ()
+    public void onShow ()
     {
+
+        if (this.viewer.isInFullScreen ())
+        {            
+            
+            this.setTitle ("Full Screen Properties");
+                    
+            UserProperties.removeListener (this.props);
+                    
+            this.props.setTextProperties (Environment.getFullScreenTextProperties ());
+
+            UserProperties.addListener (this.props);
+            
+            FullScreenFrame fsf = this.viewer.getFullScreenFrame ();
+                                        
+            this.fsprops.setFullScreenFrame (fsf);
+            
+            this.fsprops.setVisible (true);
+
+        } else {
+            
+            UserProperties.removeListener (this.props);
+
+            this.props.setTextProperties (Environment.getProjectTextProperties ());
+
+            UserProperties.addListener (this.props);
+
+            this.setTitle (this.getTitle ());
+                                                            
+            this.fsprops.setVisible (false);            
+            
+        }
         
+        this.validate ();
+        this.repaint ();
+
+
     }
     
+    @Override
     public void onClose ()
     {
+                
+        UserProperties.removeListener (this.props);  
+
+        this.viewer.removeFullScreenListener (this);
         
     }
-    
+        
     public String getTitle ()
     {
         
@@ -140,9 +254,19 @@ public class TextPropertiesSideBar extends AbstractSideBar implements MainPanelL
     public JComponent getContent ()
     {
 
-        this.props.init ();
+        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        this.fsprops.setBorder (UIUtils.createPadding (0, 0, 10, 0));
+        
+        b.add (this.fsprops);
+
+        b.add (this.props);
     
-        return this.wrapInScrollPane (this.props);
+        this.props.init ();
+                
+        UserProperties.addListener (this.props);
+                
+        return this.wrapInScrollPane (b);
         
     }
     

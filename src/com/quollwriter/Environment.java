@@ -156,6 +156,7 @@ public class Environment
     private static java.util.Timer generalTimer = null;
         
     private static ProjectTextProperties projectTextProps = null;
+    private static FullScreenTextProperties fullScreenTextProps = null;
         
     static
     {
@@ -3641,6 +3642,8 @@ public class Environment
         // the user props are inited.
         Environment.projectTextProps = new ProjectTextProperties ();
         
+        Environment.fullScreenTextProps = new FullScreenTextProperties ();
+        
         // Start the timer, it is done here so that any other code that needs it can start running things
         // straightaway.
         Environment.generalTimer = new java.util.Timer ("Environment-general",
@@ -5903,6 +5906,13 @@ public class Environment
         }
 
         return null;
+        
+    }
+    
+    public static FullScreenTextProperties getFullScreenTextProperties ()
+    {
+        
+        return Environment.fullScreenTextProps;
         
     }
     

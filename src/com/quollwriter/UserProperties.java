@@ -194,6 +194,23 @@ public class UserProperties
         
     }
 
+    public static boolean getAsBoolean (String name,
+                                        String defOnNull)
+    {
+        
+        AbstractProperty a = UserProperties.props.getPropertyObj (name);
+        
+        if (a == null)
+        {
+            
+            return UserProperties.getAsBoolean (defOnNull);
+            
+        }
+        
+        return UserProperties.props.getPropertyAsBoolean (name);
+        
+    }
+    
     public static boolean getAsBoolean (String name)
     {
         
@@ -201,6 +218,23 @@ public class UserProperties
         
     }
     
+    public static int getAsInt (String name,
+                                String defOnNull)
+    {
+        
+        AbstractProperty a = UserProperties.props.getPropertyObj (name);
+        
+        if (a == null)
+        {
+            
+            return UserProperties.getAsInt (defOnNull);
+            
+        }
+        
+        return UserProperties.props.getPropertyAsInt (name);
+        
+    }
+
     public static int getAsInt (String name)
     {
         
@@ -215,6 +249,23 @@ public class UserProperties
         
     }
 
+    public static float getAsFloat (String name,
+                                    String defOnNull)
+    {
+        
+        AbstractProperty a = UserProperties.props.getPropertyObj (name);
+        
+        if (a == null)
+        {
+            
+            return UserProperties.getAsFloat (defOnNull);
+            
+        }
+        
+        return UserProperties.props.getPropertyAsFloat (name);
+        
+    }
+
     public static float getAsFloat (String name)
     {
         
@@ -222,6 +273,23 @@ public class UserProperties
         
     }
     
+    public static String get (String name,
+                              String defOnNull)
+    {
+        
+        AbstractProperty a = UserProperties.props.getPropertyObj (name);
+        
+        if (a == null)
+        {
+            
+            return UserProperties.get (defOnNull);
+            
+        }
+        
+        return UserProperties.props.getProperty (name);
+        
+    }
+
     public static String get (String name)
     {
         

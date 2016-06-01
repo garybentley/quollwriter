@@ -84,14 +84,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     private JButton              distModeButton = null;
     private int                  minimumSideBarWidth = 0;
     private boolean              noHideSideBar = false;
-    private TextProperties       normalTextProperties = null;
-    private FullScreenTextProperties       fullScreenTextProperties = null;
     private Map<String, QPopup>  popups = new HashMap ();
     private Timer                headerHideTimer = null;
     private Paint                background = null;
     private QPopup               backgroundSelectorPopup = null;
     private Object               backgroundObject = null;
-    private FullScreenPropertiesSideBar properties = null;
     private AbstractProjectViewer projectViewer = null;
     private BufferedImage         noImageBackground = null;
     private boolean              hideIconColumnForEditors = false;
@@ -109,9 +106,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.projectViewer = viewer;
         
         Project proj = this.projectViewer.getProject ();
-        
-        this.fullScreenTextProperties = new FullScreenTextProperties (this);
-        
+                
         this.xBorderWidth = proj.getPropertyAsFloat (Constants.FULL_SCREEN_BORDER_X_WIDTH_PROPERTY_NAME);
 
         if (this.xBorderWidth <= 0)
@@ -250,12 +245,30 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             // Ignore.
 
         }
+    /*
+        boolean show = false;
     
-        this.projectViewer.removeMainPanelListener (this.properties);
+        try
+        {
+    
+            if (this.properties == this.projectViewer.getActiveOtherSideBar ())
+            {
+                
+                show = true;
+                
+            }
+
+        } catch (Exception e) {
+            
+            // Ignore
+            
+        }
+    */
+        //this.projectViewer.removeMainPanelListener (this.properties);
     
         this.projectViewer.removeSideBarListener (this);
 
-        this.projectViewer.removeSideBar (this.properties);
+        //this.projectViewer.removeSideBar (this.properties);
 
         this.clockTimer.stop ();
         
@@ -282,7 +295,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.projectViewer.fullScreenClosed (this.panel.getChild ());
 
         EditorsEnvironment.fullScreenExited ();
-        
+
         this.projectViewer.fireProjectEventLater (ProjectEvent.FULL_SCREEN,
                                                   ProjectEvent.EXIT);
                                                   
@@ -547,19 +560,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
     
-            //QTextEditor ed = edPanel.getEditor ();//editor;
-            
             edPanel.setIgnoreDocumentChanges (true);
     
-            edPanel.initEditor (this.normalTextProperties);
-            
-            this.normalTextProperties = null;
-
-            //edPanel.restoreBackgroundColor ();
-    
-            //edPanel.restoreFontColor ();
-    
-            //edPanel.reflowText ();
+            Environment.getProjectTextProperties ().setOn (edPanel,
+                                                           true);
     
             edPanel.setIgnoreDocumentChanges (false);
 
@@ -793,12 +797,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             
         this.getContentPane ().add (this.bgImagePanel);
 
-        this.properties = new FullScreenPropertiesSideBar (this,
-                                                           this.fullScreenTextProperties);
-        
-        this.projectViewer.addSideBar ("fullscreenproperties",
-                                       this.properties);        
-                
         this.projectViewer.addSideBarListener (this);
         
         this.createHeader ();
@@ -914,7 +912,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                 _this.setBorderOpacity (_this.borderOpacity + (-1 * r * 0.1f));
 
-                _this.properties.backgroundOpacityChanged ();
+                //_this.properties.backgroundOpacityChanged ();
                 
                 _this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
                                                       ProjectEvent.CHANGE_BG_OPACITY);
@@ -1084,7 +1082,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     _this.setChildBorder ();
 
                     // Not using an event, overkill since there is such high coupling between the two components.
-                    _this.properties.displayAreaSizeChanged ();
+                    //_this.properties.displayAreaSizeChanged ();
                     
                     _this.lastX = x;
 
@@ -1118,7 +1116,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     _this.setChildBorder ();
 
                     // Not using an event, overkill since there is such high coupling between the two components.
-                    _this.properties.displayAreaSizeChanged ();
+                    //_this.properties.displayAreaSizeChanged ();
                                         
                     _this.lastY = y;
 
@@ -1268,32 +1266,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
     }
     
-    public void resetPropertiesToDefaults ()
-    {
-        
-        if (this.panel.getChild () instanceof AbstractEditorPanel)
-        {
-
-            AbstractEditorPanel aep = (AbstractEditorPanel) this.panel.getChild ();
-        
-            //aep.initEditor (this.normalTextProperties);
-        
-            aep.initEditor (this.fullScreenTextProperties);
-        
-            aep.restoreBackgroundColor ();
-/*                        
-            this.fullScreenTextProperties = new FullScreenTextProperties (this,
-                                                                          this.normalTextProperties);
-
-            this.fullScreenTextProperties.setOn (aep,
-                                                 false);
-            
-            this.properties.setTextProperties (this.fullScreenTextProperties);
-*/            
-        }
-        
-    }
-
     private void createSideBar ()
     {
         
@@ -1553,10 +1525,14 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         
         // Small thing, if the current project viewer sidebar is the text properties then show the full screen
         // properties instead.
+        
+        // Remove any normal properties.
+        //this.projectViewer.removeSideBar (TextPropertiesSideBar.NAME);        
+        
         if (this.projectViewer.isCurrentSideBarTextProperties ())
         {
             
-            this.showProperties ();
+            //this.showProperties ();
             
         }
         
@@ -2598,8 +2574,21 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
     public void showProperties ()
     {
+                
+        try
+        {
         
-        this.projectViewer.showSideBar ("fullscreenproperties");
+            this.projectViewer.showTextProperties ();//showSideBar ("fullscreenproperties");
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to show properties",
+                                  e);
+            
+            UIUtils.showErrorMessage (this.projectViewer,
+                                      "Unable to show properties.");
+            
+        }
 
     }
         
@@ -2681,7 +2670,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.sideBar.setBorder (sb);
         
         int w = this.sideBar.getPreferredSize ().width;
-                
+              
         this.sideBar.setBounds (x,
                                 (int) (d.height * 0.1),
                                 w + 30 + 13,
@@ -2795,13 +2784,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 
             AbstractEditorPanel edPanel = (AbstractEditorPanel) child;
         
-            this.normalTextProperties = edPanel.getTextProperties ();
+            Environment.getFullScreenTextProperties ().setOn (edPanel,
+                                                              true);
         
-            this.fullScreenTextProperties.setOn (edPanel,
-                                                 false);
-        
-            edPanel.initEditor (this.fullScreenTextProperties);
-
             this.showFirstTimeInDistractionFreeModeInfoPopup ();
                         
         }
@@ -3021,69 +3006,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         child.repaint ();
 
     }
-/*
-    public void setBackgroundColorX (Color c)
-    {
-        
-        this.fullScreenTextProperties.setBackgroundColor (c);
 
-        if (c.equals (this.fullScreenTextProperties.getTextColor ()))
-        {
-
-            if (c.equals (Color.black))
-            {
-
-                // Set the background to white.
-                this.fullScreenTextProperties.setTextColor (Color.white);
-
-            }
-
-            if (c.equals (Color.white))
-            {
-
-                // Set the background to black.
-                this.fullScreenTextProperties.setTextColor (Color.black);
-
-            }
-
-        }
-
-    }
-
-    public void setFontColorX (Color c)
-    {
-
-        AbstractEditorPanel aep = (AbstractEditorPanel) this.panel.getChild ();
-
-        QTextEditor editor = aep.getEditor ();
-        
-        this.fullScreenTextProperties.setTextColor (c);
-
-        if (c.equals (this.fullScreenTextProperties.getBackgroundColor ()))
-        {
-
-            if (c.equals (Color.black))
-            {
-
-                // Set the background to white.
-                aep.restoreBackgroundColor ();
-
-                this.fullScreenTextProperties.setBackgroundColor (Color.white);
-                
-            }
-
-            if (c.equals (Color.white))
-            {
-
-                // Set the background to black.
-                this.fullScreenTextProperties.setBackgroundColor (Color.black);
-
-            }
-
-        }
-
-    }
-*/
     private float limitBorderWidth (float w)
     {
 

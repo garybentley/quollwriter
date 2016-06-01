@@ -3095,8 +3095,7 @@ public class UIUtils
         
     }
     
-    public static JComboBox getFontSizesComboBox (final int          sizeDef,
-                                                  final TextStylable editor)
+    public static JComboBox getFontSizesComboBox (final int sizeDef)
     {
 
         Vector<Integer> sizeV = new Vector ();
@@ -3134,41 +3133,11 @@ public class UIUtils
         final JComboBox sizes = UIUtils.createNumberComboBox (sizeV,
                                                               sizeDef);
 
-        if (editor != null)
-        {
-
-            sizes.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        try
-                        {
-
-                            // Need to take the screen resolution into account.
-                            //editor.setFontSize (UIUtils.getEditorFontSize (Integer.parseInt (sizes.getSelectedItem ().toString ())));
-                            editor.setFontSize (Integer.parseInt (sizes.getSelectedItem ().toString ()));
-                            
-                        } catch (Exception e)
-                        {
-
-                            // Ignore.
-
-                        }
-
-                    }
-
-                });
-
-        }
-
         return sizes;
 
     }
 
-    public static JComboBox getLineSpacingComboBox (final float        lsDef,
-                                                    final TextStylable editor)
+    public static JComboBox getLineSpacingComboBox (final float lsDef)
     {
 
         Vector<Float> lineS = new Vector ();
@@ -3221,33 +3190,6 @@ public class UIUtils
 
         line.setToolTipText ("Enter a value to set a spacing that is not already in the list");
 
-        if (editor != null)
-        {
-
-            line.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        try
-                        {
-
-                            editor.setLineSpacing (Float.parseFloat (line.getSelectedItem ().toString ()));
-
-                        } catch (Exception e)
-                        {
-
-                            // Ignore.
-
-                        }
-
-                    }
-
-                });
-
-        }
-
         line.setMaximumSize (line.getPreferredSize ());        
         
         if (lsDef > 0)
@@ -3261,8 +3203,7 @@ public class UIUtils
 
     }
 
-    public static JComboBox getFontsComboBox (final String       selected,
-                                              final TextStylable editor)
+    public static JComboBox getFontsComboBox (final String       selected)
     {
 
         GraphicsEnvironment gEnv = GraphicsEnvironment.getLocalGraphicsEnvironment ();
@@ -3315,29 +3256,6 @@ public class UIUtils
 
         fonts.setMaximumSize (fonts.getPreferredSize ());
 
-        if (editor != null)
-        {
-
-            fonts.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        fonts.setFont (new Font ((String) fonts.getSelectedItem (),
-                                                 Font.PLAIN,
-                                                 12));
-
-                        editor.setFontFamily ((String) fonts.getSelectedItem ());
-
-                        // _this.getEditor ().setFontSize (UIUtils.getEditorFontSize (Integer.parseInt (_this.sizes.getSelectedItem ().toString ())));
-
-                    }
-
-                });
-
-        }
-
         if (selected != null)
         {
 
@@ -3349,8 +3267,7 @@ public class UIUtils
 
     }
 
-    public static JComboBox getAlignmentComboBox (final String       alignDef,
-                                                  final TextStylable editor)
+    public static JComboBox getAlignmentComboBox (final String alignDef)
     {
 
         Vector<String> alignS = new Vector ();
@@ -3359,23 +3276,6 @@ public class UIUtils
         alignS.add ("Right");
 
         final JComboBox align = new JComboBox (alignS);
-
-        if (editor != null)
-        {
-
-            align.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        editor.setAlignment ((String) align.getSelectedItem ());
-
-                    }
-
-                });
-
-        }
 
         align.setMaximumSize (align.getPreferredSize ());
         

@@ -136,6 +136,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     private Map<String, Integer>  sideBarWidths = new HashMap ();
     private java.util.List<SideBarListener> sideBarListeners = new ArrayList ();
     private java.util.List<MainPanelListener> mainPanelListeners = new ArrayList ();
+    private java.util.List<FullScreenListener> fullScreenListeners = new ArrayList ();
     //private Map<String, QPopup> popups = new HashMap ();
     private ProblemFinderRuleConfig problemFinderRuleConfig = null;
 
@@ -1149,6 +1150,48 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         
     }
     
+    private void fireFullScreenEnteredEvent ()
+    {
+        
+        FullScreenEvent ev = new FullScreenEvent (this);
+        
+        for (FullScreenListener l : this.fullScreenListeners)
+        {
+
+            l.fullScreenEntered (ev);
+            
+        }
+        
+    }
+    
+    private void fireFullScreenExitedEvent ()
+    {
+        
+        FullScreenEvent ev = new FullScreenEvent (this);
+        
+        for (FullScreenListener l : this.fullScreenListeners)
+        {
+
+            l.fullScreenExited (ev);
+            
+        }
+        
+    }
+
+    public void removeFullScreenListener (FullScreenListener l)
+    {
+
+        this.fullScreenListeners.remove (l);
+
+    }
+    
+    public void addFullScreenListener (FullScreenListener l)
+    {
+        
+        this.fullScreenListeners.add (l);
+        
+    }
+
     protected void fireSideBarShownEvent (AbstractSideBar sb)
     {
         
@@ -1255,8 +1298,18 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             
         }
         */
+        
+        if (this.currentOtherSideBar != null)
+        {
+            
+            this.currentOtherSideBar.onHide ();
+            
+            this.fireSideBarHiddenEvent (this.currentOtherSideBar);
+            
+        }
+        
         this.currentOtherSideBar = null;
-
+        
         this.showMainSideBar ();
         
     }
@@ -1285,11 +1338,24 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             
         }
     
+        this.sideBars.remove (sb.getName ());
+
+        this.activeSideBars.remove (sb);    
+            
+        if (this.currentOtherSideBar == sb)
+        {
+            
+            this.currentOtherSideBar = null;
+            
+        }
+    
         try
         {
     
             // Close the sidebar down gracefully.
             sb.onHide ();
+        
+            this.fireSideBarHiddenEvent (sb);
         
             sb.onClose ();
 
@@ -1299,18 +1365,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                   e);
             
         }
-    
-        this.sideBars.remove (sb.getName ());
-
-        this.activeSideBars.remove (sb);
-        
-        if (this.currentOtherSideBar == sb)
-        {
             
-            this.currentOtherSideBar = null;
-            
-        }
-        
         this.removeSideBarListener (sb);
         
         this.removeMainPanelListener (sb);
@@ -1319,12 +1374,17 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         
         if (_sb != null)
         {
-         
+        
             this.showSideBar (_sb.getName ());
             
         } else {
         
-            this.setUILayout (this.layout);
+            if (this.fsf == null)
+            {
+                
+                this.setUILayout (this.layout);
+                
+            }
         
         }
         
@@ -1487,7 +1547,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             c++;
         
         }
-        
+    
         return c;
         
     }
@@ -1629,7 +1689,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                          
         if (this.fsf != null)
         {
-            
+                        
             if (this.currentOtherSideBar != null)
             {
                 
@@ -2645,6 +2705,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                           });
                 
     }
+  
     /*
 	public void setPlaySoundFileOnKeyStroke (boolean v)
 	{
@@ -6191,7 +6252,7 @@ xxx
         if (this.currentOtherSideBar != null)
         {
                     
-            return this.currentOtherSideBar.getName ().equals ("textproperties");
+            return this.currentOtherSideBar.getName ().equals (TextPropertiesSideBar.NAME);
         
         }
         
@@ -6203,30 +6264,17 @@ xxx
                              throws GeneralException
     {
 
-        if (!(this.getCurrentlyVisibleTab () instanceof AbstractEditorPanel))
+        if (!this.sideBars.containsKey (TextPropertiesSideBar.NAME))
         {
-            
-            return;
-            
+        
+            this.addSideBar (TextPropertiesSideBar.NAME,
+                             new TextPropertiesSideBar (this,
+                                                        this,
+                                                        Environment.getProjectTextProperties ()));
+
         }
     
-        // Due to the way that key bindings work it's difficult to override the Ctrl+E binding
-        // for showing the text properties in full screen.  Instead do a check here if in full screen.
-        if (this.isInFullScreen ())
-        {
-            
-            this.fsf.showProperties ();
-            
-            return;
-            
-        }
-
-        this.addSideBar ("textproperties",
-                         new TextPropertiesSideBar (this,
-                                                    this,
-                                                    Environment.getProjectTextProperties ()));
-        
-        this.showSideBar ("textproperties");
+        this.showSideBar (TextPropertiesSideBar.NAME);
         
     }    
     
@@ -6567,6 +6615,8 @@ xxx
         this.validate ();
         this.repaint ();
         
+        this.fireFullScreenExitedEvent ();
+        
     }
 
     public void restoreFromFullScreen (FullScreenQuollPanel qp)
@@ -6708,6 +6758,8 @@ xxx
         this.validate ();
         this.repaint ();
 		
+        this.fireFullScreenEnteredEvent ();        
+        
 		final AbstractProjectViewer _this = this;
 		
 		UIUtils.doLater (new ActionListener ()
@@ -6802,6 +6854,8 @@ xxx
             this.repaint ();            
             
         }
+        
+        this.fireFullScreenEnteredEvent ();                
 
     }
 

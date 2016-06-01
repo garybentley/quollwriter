@@ -15,46 +15,38 @@ import com.quollwriter.ui.components.QTextEditor;
 public class FullScreenTextProperties extends TextProperties implements UserPropertySetter
 {
 
-    private FullScreenFrame fsf = null;
-    private FullScreenPropertiesSideBar sideBar = null;
     private boolean allowSet = true;
     
-    public FullScreenTextProperties (FullScreenFrame fsf)
+    public FullScreenTextProperties ()
     {
         
-        this.fsf = fsf;
-        
-        AbstractProjectViewer pv = fsf.getProjectViewer ();
-        
-        Project proj = pv.getProject ();
-        
-        this.initInternal (proj.getProperty (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
-                                             Constants.EDITOR_FONT_PROPERTY_NAME),
-                           proj.getPropertyAsInt (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
-                                                  Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
-                           proj.getProperty (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
-                                             Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
-                           proj.getPropertyAsBoolean (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
-                                                      Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
-                           proj.getPropertyAsFloat (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
-                                                    Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
-                           UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME)),
-                           UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME)),
-                           UIUtils.getColor (proj.getProperty (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
-                                                               Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
-                           proj.getPropertyAsBoolean (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
-                                                      Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
-                           proj.getPropertyAsInt (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
-                                                  Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
+        this.initInternal (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME,
+                                               Constants.EDITOR_FONT_PROPERTY_NAME),
+                           UserProperties.getAsInt (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME,
+                                                    Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
+                           UserProperties.get (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME,
+                                               Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
+                           UserProperties.getAsBoolean (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
+                                                        Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME),
+                           UserProperties.getAsFloat (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME,
+                                                      Constants.EDITOR_LINE_SPACING_PROPERTY_NAME),
+                           UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME,
+                                                                 Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)),
+                           UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
+                                                                 Constants.EDITOR_BGCOLOR_PROPERTY_NAME)),
+                           UIUtils.getColor (UserProperties.get (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
+                                                                 Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
+                           UserProperties.getAsBoolean (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
+                                                        Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
+                           UserProperties.getAsInt (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME,
+                                                    Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME)
+                          );
 
     }
 
-    public FullScreenTextProperties (FullScreenFrame fsf,
-                                     TextProperties  props)
+    public FullScreenTextProperties (TextProperties  props)
     {
         
-        this (fsf);
-                
         this.initInternal (props);
         
     }
@@ -74,25 +66,11 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
         this.allowSet = true;
         
     }
-    
-    public void setSideBar (FullScreenPropertiesSideBar s)
-    {
         
-        this.sideBar = s;
-        
-    }
-    
     public void setBackgroundColor (Color c)
     {
         
         super.setBackgroundColor (c);
-
-        if (this.sideBar != null)
-        {
-            
-            this.sideBar.backgroundChanged ();
-            
-        }
         
         if (c.equals (this.getTextColor ()))
         {
@@ -124,19 +102,12 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
     {
         
         super.setTextColor (c);
-
-        AbstractEditorPanel aep = (AbstractEditorPanel) this.fsf.getPanel ().getChild ();
-
-        QTextEditor editor = aep.getEditor ();
         
         if (c.equals (this.getBackgroundColor ()))
         {
 
             if (c.equals (Color.black))
             {
-
-                // Set the background to white.
-                aep.restoreBackgroundColor ();
 
                 this.setBackgroundColor (Color.white);
                 
@@ -265,9 +236,7 @@ public class FullScreenTextProperties extends TextProperties implements UserProp
         this.setLineSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME));
         this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
         this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
-    
-        //this.fsf.resetPropertiesToDefaults ();
-            
+                
     }
     
 }
