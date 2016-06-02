@@ -48,3 +48,28 @@ p
 {
     text-decoration: underline;
 }
+
+span.biu
+{
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.bi
+{
+    font-style: italic;
+    font-weight: bold;
+}
+
+.bu
+{
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.iu
+{
+    font-style: italic;
+    text-decoration: underline;
+}
