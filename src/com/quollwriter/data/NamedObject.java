@@ -45,6 +45,80 @@ public abstract class NamedObject extends DataObject
 
     }
     
+    public <T extends NamedObject> void merge (T other)
+    {
+        
+        String od = other.getDescriptionText ();
+        
+        String td = this.getDescriptionText ();
+        
+        if ((td == null)
+            &&
+            (od != null)
+           )
+        {
+            
+            this.setDescription (other.getDescription ());
+            
+        }
+        
+        if ((td != null)
+            &&
+            (od != null)
+           )
+        {
+            
+            td = td.trim ();
+            od = od.trim ();
+            
+            if ((!td.equalsIgnoreCase (od))
+                &&
+                (!td.toLowerCase ().contains (od.toLowerCase ()))
+               )
+            {
+            
+                String nd = td + "\n\n" + od;
+                
+                this.setDescription (new StringWithMarkup (nd,
+                                                           this.getDescription ().getMarkup ()));
+                
+            }
+            
+        }
+        
+        Set<String> taliases = new LinkedHashSet (this.getAliasesAsList ());
+        
+        taliases.addAll (other.getAliasesAsList ());
+
+        if (taliases.size () > 0)
+        {
+        
+            StringBuilder b = new StringBuilder ();
+            
+            int i = 0;
+            
+            for (String a : taliases)
+            {
+                
+                b.append (a);
+                                
+                if (i < taliases.size () - 1)
+                {
+                    
+                    b.append (",");
+                    
+                }
+                
+                i++;
+                                
+            }
+            
+            this.setAliases (b.toString ());
+            
+        }
+        
+    }
+    
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
