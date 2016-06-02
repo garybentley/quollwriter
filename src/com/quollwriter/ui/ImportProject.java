@@ -160,10 +160,30 @@ public class ImportProject extends Wizard implements ImportCallback
                 if (n instanceof Asset)
                 {
 
+                    String prefix = "Imported";
+                
                     Asset a = (Asset) n;
 
-                    this.pv.getProject ().addAsset (a);
+                    // See if we should merge.
+                    Asset oa = this.pv.getProject ().getAssetByName (a.getName (),
+                                                                     a.getObjectType ());
 
+                    if (oa != null)
+                    {
+                        
+                        // Merge.
+                        oa.merge (a);
+
+                        a = oa;
+                        
+                        prefix = "Merged";
+                        
+                    } else {
+                    
+                        this.pv.getProject ().addAsset (a);
+
+                    }
+                        
                     try
                     {
 
@@ -171,7 +191,7 @@ public class ImportProject extends Wizard implements ImportCallback
                                             true);
 
                         this.pv.createActionLogEntry (a,
-                                                      "Imported asset from: " +
+                                                      prefix + " asset from: " +
                                                       this.fileFind.getSelectedFile ());
 
                     } catch (Exception e)
@@ -186,7 +206,7 @@ public class ImportProject extends Wizard implements ImportCallback
                                                   a.getName ());
 
                     }
-
+    
                     this.pv.reloadAssetTree (a);
 
                     this.pv.openObjectSection (a.getObjectType ());
