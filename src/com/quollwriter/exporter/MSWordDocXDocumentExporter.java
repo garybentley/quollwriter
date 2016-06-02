@@ -1061,8 +1061,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         try
         {
 
-            String goals = c.getGoals ().getText ();
-            String plan = c.getPlan ().getText ();        
+            String goals = (c.getGoals () != null ? c.getGoals ().getText () : null);            
+            String plan = (c.getPlan () != null ? c.getPlan ().getText () : null);        
         
             if (goals != null)
             {
