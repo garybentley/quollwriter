@@ -280,20 +280,21 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                                 "[[TITLE]]",
                                                                 c.getName ());
                 
-                String t = (c.getText () != null ? c.getText ().getMarkedUpText () : "");
+                StringWithMarkup v = c.getText ();
                 
-                // Split the text on new line, for each one output a p tag if not empty.
+                String t = (v != null ? v.getText () : null);
+    
+                TextIterator iter = new TextIterator (t);    
+                                
+                Markup m = (c != null ? v.getMarkup () : null);
 
-                // Get the text and split it.
-                TextIterator ti = new TextIterator (t);
-                
                 StringBuilder ct = new StringBuilder ();
-                
-                for (Paragraph para : ti.getParagraphs ())
+
+                for (Paragraph para : iter.getParagraphs ())
                 {
-                
+                                            
                     ct.append (String.format ("<p>%s</p>",
-                                              para.getText ()));
+                                              para.markupAsHTML (m)));
                     
                 }
                 
