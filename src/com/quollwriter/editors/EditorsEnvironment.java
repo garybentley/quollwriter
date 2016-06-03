@@ -84,15 +84,8 @@ public class EditorsEnvironment
         EditorsEnvironment.messageHandler.logMessages (v);        
         
     }
-    
-    public static File getUserEditorsPropertiesFile ()
-    {
-
-        return Environment.getUserFile (Constants.EDITORS_PROPERTIES_FILE_NAME);
-
-    }        
-        
-    public static void init ()
+            
+    public static void init (com.gentlyweb.properties.Properties props)
                       throws Exception
     {
         
@@ -102,21 +95,8 @@ public class EditorsEnvironment
             return;
             
         }
-            
-        // Get the user editor properties.
-        File edPropsFile = EditorsEnvironment.getUserEditorsPropertiesFile ();
-
-        if (edPropsFile.exists ())
-        {
-
-            com.gentlyweb.properties.Properties eprops = new com.gentlyweb.properties.Properties (edPropsFile,
-                                                                                                  Environment.GZIP_EXTENSION);
-                    
-            EditorsEnvironment.editorsProps = eprops;
-            
-        }
-            
-        EditorsEnvironment.editorsProps.setParentProperties (UserProperties.getProperties ());
+                                
+        EditorsEnvironment.editorsProps = props;
             
         try
         {
@@ -2994,7 +2974,7 @@ public class EditorsEnvironment
         }
 
         // Load the per user properties.
-        File pf = EditorsEnvironment.getUserEditorsPropertiesFile ();
+        File pf = Environment.getUserEditorsPropertiesFile ();
 
         JDOMUtils.writeElementToFile (props.getAsJDOMElement (),
                                       pf,

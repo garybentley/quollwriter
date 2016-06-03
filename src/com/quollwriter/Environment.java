@@ -3804,7 +3804,22 @@ public class Environment
         try
         {
         
-            EditorsEnvironment.init ();
+            // Get the user editor properties.
+            com.gentlyweb.properties.Properties eprops = null;
+            
+            File edPropsFile = Environment.getUserEditorsPropertiesFile ();
+
+            if (edPropsFile.exists ())
+            {
+
+                eprops = new com.gentlyweb.properties.Properties (edPropsFile,
+                                                                  Environment.GZIP_EXTENSION);
+                    
+                eprops.setParentProperties (UserProperties.getProperties ());
+            
+            }
+        
+            EditorsEnvironment.init (eprops);
                                                
         } catch (Exception e) {
             
@@ -4082,6 +4097,13 @@ public class Environment
         
     }
 
+    public static File getUserEditorsPropertiesFile ()
+    {
+
+        return Environment.getUserFile (Constants.EDITORS_PROPERTIES_FILE_NAME);
+
+    }        
+    
     private static int getPastSessionsWordCount (int daysPast)
                                           throws GeneralException
     {
