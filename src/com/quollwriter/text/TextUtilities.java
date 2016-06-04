@@ -736,4 +736,72 @@ public class TextUtilities
         
     }
     
+    public static NavigableSet<Integer> find (List<Word> words,
+                                              List<Word> findWords,
+                                              boolean    ignoreCase)
+    {
+
+        List<String> _words = new ArrayList ();
+        
+        for (Word w : words)
+        {
+            
+            _words.add ((ignoreCase ? w.getText ().toLowerCase () : w.getText ()));
+            
+        }
+    
+        List<String> _findWords = new ArrayList ();
+        
+        for (Word w : findWords)
+        {
+            
+            _findWords.add ((ignoreCase ? w.getText ().toLowerCase () : w.getText ()));
+            
+        }
+
+        int fws = _findWords.size ();
+        int c = 0;
+        
+        NavigableSet<Integer> ret = new TreeSet ();
+
+        while (true)
+        {
+            
+            int ind = Collections.indexOfSubList (_words,
+                                                  _findWords);
+            
+            if (ind > -1)
+            {
+                
+                c += ind;
+                
+                ret.add (c);
+                
+                int next = ind + fws;
+                
+                c+= fws;
+                
+                if (next < _words.size ())
+                {
+                
+                    _words = _words.subList (next,
+                                             _words.size ());
+                
+                } else {
+                    
+                    break;
+                    
+                }
+                
+            } else {
+                
+                break;
+                
+            }
+            
+        }
+        
+        return ret;
+                
+    }
 }

@@ -189,12 +189,14 @@ public class TextIterator
      *
      * @param i The index.
      * @return The paragraph.
+     * @Deprecated Since all text is now represented by paragraphs there is no need for this method.  It now
+     *             just returns {@link getParagraphAt(int)}.  That method should now be used instead.
      */
     public Paragraph getPreviousClosestParagraphTo (int i)
     {
         
         Paragraph f = this.getParagraphAt (i);
-        
+
         if (f != null)
         {
             
@@ -229,10 +231,14 @@ public class TextIterator
      *
      * @param i The index.
      * @return The sentence.
+     * @Deprecated Since all text is now represented by paragraphs/sentences there is no need for this method.  It now
+     *             just returns {@link getSentenceAt(int)}.  That method should now be used instead.
      */
     public Sentence getPreviousClosestSentenceTo (int i)
     {
                 
+        return this.getSentenceAt (i);
+                /*
         Paragraph p = this.getPreviousClosestParagraphTo (i);
         
         if (p != null)
@@ -243,7 +249,7 @@ public class TextIterator
         }
                 
         return null;
-        
+        */
     }
     
     /**
@@ -252,6 +258,8 @@ public class TextIterator
      *
      * @param i The index.
      * @return The paragraph.
+     * @Deprecated Since all text is now represented by sentences there is no need for this method.  It now
+     *             just returns {@link getParagraphAt(int)}.  That method should now be used instead.
      */
     public Paragraph getNextClosestParagraphTo (int i)
     {
@@ -291,10 +299,14 @@ public class TextIterator
      *
      * @param i The index.
      * @return The sentence.
+     * @Deprecated Since all text is now represented by paragraphs/sentences there is no need for this method.  It now
+     *             just returns {@link getSentenceAt(int)}.  That method should now be used instead.
      */
     public Sentence getNextClosestSentenceTo (int i)
     {
                 
+        return this.getSentenceAt (i);
+    /*
         Paragraph p = this.getNextClosestParagraphTo (i);
         
         if (p != null)
@@ -305,7 +317,7 @@ public class TextIterator
         }
                 
         return null;
-        
+      */  
     }
 
     public Paragraph getParagraphAt (int i)

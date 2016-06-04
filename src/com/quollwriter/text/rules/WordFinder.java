@@ -224,8 +224,8 @@ public class WordFinder extends AbstractDialogueRule
             for (Integer i : inds)
             {
 
-                Word w = sentence.getWordAt (i);
-                
+                Word w = sentence.getWord (i);
+              
                 int l = w.getText ().length ();
                 
                 if (this.tWords.size () > 1)

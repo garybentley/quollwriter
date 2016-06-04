@@ -845,7 +845,7 @@ public class ProblemFinder extends Box
             }
 
             ed.addHighlight (textBlock.getAllTextStartOffset (), //sentenceStart,
-                             textBlock.getAllTextEndOffset (), //sentenceEnd,
+                             textBlock.getAllTextEndOffset () + 1, //sentenceEnd,
                              this.lineHighlight,
                              false);
 

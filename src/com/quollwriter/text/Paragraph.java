@@ -232,12 +232,18 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
      *
      * @param i The index.
      * @return The sentence.
+     * @Deprecated Since all text is now represented by sentences there is no need for this method.  It now
+     *             just returns {@link getSentenceAt(int)}.  That method should now be used instead.
      */
     public Sentence getNextClosestSentenceTo (int i)
     {
-        
+                
         Sentence f = this.getSentenceAt (i);
         
+        return f;
+        
+        /*
+         *Since all text is now represented by sentences there is no need to 
         if (f != null)
         {
             
@@ -259,7 +265,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         }
         
         return f;
-        
+        */
     }
     
     /**
@@ -268,12 +274,16 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
      *
      * @param i The index.
      * @return The sentence.
+     * @Deprecated Since all text is now represented by sentences there is no need for this method.  It now
+     *             just returns {@link getSentenceAt(int)}.  That method should now be used instead.
      */
     public Sentence getPreviousClosestSentenceTo (int i)
     {
         
         Sentence f = this.getSentenceAt (i);
         
+        return f;
+/*        
         if (f != null)
         {
             
@@ -299,7 +309,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
         }
         
         return f;
-        
+  */      
     }
 
     /**
@@ -325,7 +335,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
     public int getEnd ()
     {
         
-        return this.start + this.paragraph.length ();
+        return this.start + this.paragraph.length () - 1;
         
     }
     
@@ -454,7 +464,7 @@ public class Paragraph implements TextBlock<NoTextBlock, Paragraph, Sentence>
      *
      * @param text The text to look for.
      * @param constraints Limit the search to the specified constraints.
-     * @return The matching sentences with sentence local indexes of the matches.
+     * @return The matching sentences with sentence local word indexes of the matches.
      */
     public Map<Sentence, NavigableSet<Integer>> findInSentences (String              text,
                                                                  DialogueConstraints constraints)

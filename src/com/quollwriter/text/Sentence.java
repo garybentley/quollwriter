@@ -181,15 +181,42 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 
     }
     
-    public Word getWordAt (int i)
+    /**
+     * Get the nth word in the list of words this sentence models, words are indexed from 0.
+     *
+     * param i The word index.
+     * @returns The word at index i or null if there isn't one.
+     */
+    public Word getWord (int i)
+    {
+        
+        if (i < 0 || i > this.words.size () - 1)
+        {
+            
+            return null;
+            
+        }
+        
+        return this.words.get (i);
+        
+    }
+    
+    /**
+     * Get the word at the specifed offset into the sentence text.  This is the word at the nth character in the sentence,
+     * characters start at 0.
+     *
+     * @param offset The nth character.
+     * @returns The word at that character or null if there isn't one.
+     */
+    public Word getWordAt (int offset)
     {
         
         for (Word w : this.words)
         {
 
-            if ((w.getEnd () - 1 >= i)
+            if ((w.getEnd () - 1 >= offset)
                 &&
-                (w.getStart () <= i)
+                (w.getStart () <= offset)
                )
             {
                             
@@ -223,13 +250,52 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         return this.sentence;
         
     }
+    
+    public int getIndexOfFirstTextWord ()
+    {
+        
+        for (int i = 0; i < this.words.size (); i++)
+        {
+            
+            if (!this.words.get (i).isPunctuation ())
+            {
+                
+                return i;
+                
+            }
+            
+        }
+        
+        return -1;
+        
+    }
+
+    public int getIndexOfLastTextWord ()
+    {
+        
+        for (int i = this.words.size () - 1; i > -1; i--)
+        {
+            
+            if (!this.words.get (i).isPunctuation ())
+            {
+                
+                return i;
+                
+            }
+            
+        }
+        
+        return -1;
+        
+    }
 
     /**
      * Look for the text in the sentence.
      *
      * @param find The text to find.
      * @param constraints Limit the search to the specified constraints.
-     * @return A set of positions within the sentence of the specified words.
+     * @return A set of positions within the sentence of the specified words, this returns the word index in the sentence.
+     *         So if the 3rd and 5th words matches then 3, 5 would be returned.  Words are indexed from 0.
      */
     public NavigableSet<Integer> find (List<Word>          findWords,
                                        DialogueConstraints constraints)
@@ -245,7 +311,67 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         }
                 
         NavigableSet<Integer> ret = new TreeSet ();
+        
+        for (Integer ind : TextUtilities.find (this.words,
+                                               findWords,
+                                               true))
+        {
+        
+            Word fw = this.words.get (ind);
 
+            if ((constraints.ignoreInDialogue)
+                &&
+                (fw.isInDialogue ())
+               )
+            {
+                
+                continue;
+                
+            }
+            
+            if ((constraints.onlyInDialogue)
+                &&
+                (!fw.isInDialogue ())
+               )
+            {
+                
+                continue;
+
+            }
+            
+            if ((constraints.where.equals (DialogueConstraints.START))
+                &&
+                (ind != this.getIndexOfFirstTextWord ())
+               )
+            {
+                
+                continue;
+                
+            }
+
+            if ((constraints.where.equals (DialogueConstraints.END))
+                &&
+                ((findWords.size () + ind - 1) != this.getIndexOfLastTextWord ())
+               )
+            {
+                
+                continue;
+                
+            }
+            
+            ret.add (ind);
+        
+        }
+
+        return ret;
+        /*
+        if (true)
+        {
+            
+            return ret;
+            
+        }
+        
         int fc = findWords.size ();
 
         int wc = this.words.size ();
@@ -400,7 +526,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         }
 
         return ret;
-
+*/
     }
     
     /**
@@ -459,7 +585,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
     public int getEnd ()
     {
         
-        return this.start + this.sentence.length ();
+        return this.start + this.sentence.length () - 1;
         
     }
     
