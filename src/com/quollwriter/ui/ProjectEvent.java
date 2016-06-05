@@ -54,8 +54,6 @@ public class ProjectEvent extends EventObject
     public static final String OFF = "off";
     public static final String MOVE = "move";
     public static final String RATE = "rate";
-    public static final String NEWRULE = "newrule";
-    public static final String EDITRULE = "editrule";
     public static final String SUBMIT = "submit";
     public static final String CHANGED = "changed";
     public static final String ENTER = "enter";
@@ -67,6 +65,7 @@ public class ProjectEvent extends EventObject
     public static final String UNIGNORE = "unignore";
     public static final String NEW_RULE = "newrule";
     public static final String EDIT_RULE = "editrule";
+    public static final String REMOVE_RULE = "removerule";
     public static final String SORT = "sort";
     public static final String TIME_REACHED = "timereached";
     public static final String WORD_COUNT_REACHED = "wordcountreached";

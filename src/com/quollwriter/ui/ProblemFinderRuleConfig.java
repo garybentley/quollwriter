@@ -42,7 +42,7 @@ import com.quollwriter.ui.components.*;
 import org.josql.*;
 
 
-public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
+public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEventListener
 {
 
     private class RuleWrapper
@@ -181,21 +181,26 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
                                 
-                                                                conf.removeRuleBox (_this);
-                                    
-                                                                if (_this.rule.getCategory ().equals (Rule.SENTENCE_CATEGORY))
-                                                                {
-                                    
-                                                                    conf.sentenceControl.setVisible (true);
-                                    
-                                                                }
-                                    
-                                                                if (_this.rule.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
-                                                                {
-                                    
-                                                                    conf.paragraphControl.setVisible (true);
-                                    
-                                                                }
+                                                                 conf.removeRuleBox (_this);
+                                     
+                                                                 if (_this.rule.getCategory ().equals (Rule.SENTENCE_CATEGORY))
+                                                                 {
+                                     
+                                                                     conf.sentenceControl.setVisible (true);
+                                     
+                                                                 }
+                                     
+                                                                 if (_this.rule.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
+                                                                 {
+                                     
+                                                                     conf.paragraphControl.setVisible (true);
+                                     
+                                                                 }
+                                                                
+                                                                 Environment.fireUserProjectEvent (conf,
+                                                                                                   ProjectEvent.PROBLEM_FINDER,
+                                                                                                   ProjectEvent.REMOVE_RULE,
+                                                                                                   _this.rule);
                                                                 
                                                             }
 
@@ -226,13 +231,16 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 
     //private QuollEditorPanel editor = null;
     private Box              wordsBox = null;
+    private JScrollPane      wordsBoxSP = null;
     private Box              wordsEditBox = null;
     private JPanel           wordsWrapper = null;
     private Box              sentenceBox = null;
+    private JScrollPane      sentenceBoxSP = null;
     private Box              sentenceEditBox = null;
     private JPanel           sentenceWrapper = null;
     private Box              sentenceControl = null;
     private Box              paragraphBox = null;
+    private JScrollPane      paragraphBoxSP = null;
     private Box              paragraphEditBox = null;
     private JPanel           paragraphWrapper = null;
     private Box              paragraphControl = null;
@@ -240,15 +248,45 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
     private AbstractProjectViewer projectViewer = null;
     private boolean inited = false;
     
-    public ProblemFinderRuleConfig (AbstractProjectViewer pv)
-    {
+     public ProblemFinderRuleConfig (AbstractProjectViewer pv)
+     {
+ 
+         super (BoxLayout.Y_AXIS);
+         
+         this.projectViewer = pv;
+                  
+         Environment.addUserProjectEventListener (this);
+                     
+     }
 
-        super (BoxLayout.Y_AXIS);
-        
-        this.projectViewer = pv;
-                    
-    }
-
+     public void eventOccurred (ProjectEvent ev)
+     {
+ 
+          if (!ev.getType ().equals (ProjectEvent.PROBLEM_FINDER))
+          {
+               
+               return;
+               
+          }
+ 
+          if ((!ev.getAction ().equals (ProjectEvent.NEW_RULE))
+              &&
+              (!ev.getAction ().equals (ProjectEvent.EDIT_RULE))
+              &&
+              (!ev.getAction ().equals (ProjectEvent.REMOVE_RULE))
+             )
+          {
+  
+              return;
+          
+          }
+  
+          this.addWordRules ();
+          this.addSentenceRules ();
+          this.addParagraphRules ();
+         
+     }
+    
     private void createSentenceWrapper ()
     {
 
@@ -258,15 +296,15 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
         this.sentenceBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.sentenceBox.setOpaque (false);
 
-        final JScrollPane spsp = new JScrollPane (this.sentenceBox);
-        spsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        spsp.getViewport ().setOpaque (false);
-        spsp.setBorder (null);
-        spsp.setOpaque (false);
-        spsp.getVerticalScrollBar ().setUnitIncrement (20);
-        spsp.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        spsp.getViewport ().setPreferredSize (new Dimension (450,
-                                                             400));
+        this.sentenceBoxSP = new JScrollPane (this.sentenceBox);
+        this.sentenceBoxSP.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.sentenceBoxSP.getViewport ().setOpaque (false);
+        this.sentenceBoxSP.setBorder (null);
+        this.sentenceBoxSP.setOpaque (false);
+        this.sentenceBoxSP.getVerticalScrollBar ().setUnitIncrement (20);
+        this.sentenceBoxSP.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.sentenceBoxSP.getViewport ().setPreferredSize (new Dimension (450,
+                                                                           400));
 
         
         this.sentenceWrapper = new JPanel ();
@@ -358,7 +396,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 
         this.sentenceControl.setVisible (this.getSentenceIgnores ().size () != 0);
 
-        sentenceAll.add (spsp);
+        sentenceAll.add (this.sentenceBoxSP);
 
         this.sentenceWrapper.add (sentenceAll,
                                   "view");
@@ -373,50 +411,63 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
         ((CardLayout) this.sentenceWrapper.getLayout ()).show (this.sentenceWrapper,
                                                                "view");
 
-        List<Rule> senRules = RuleFactory.getSentenceRules ();
-
-        if (senRules != null)
-        {
-
-            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                                  this.projectViewer.getProject ().getProperties ());
-        
-            for (Rule r : senRules)
-            {
-
-                if (ignores.containsKey (r.getId ()))
-                {
-
-                    continue;
-
-                }
-
-                RuleBox rb = new RuleBox (r);
-
-                this.sentenceBox.add (rb);
-
-                rb.init (this);
-
-            }
-
-        }
-
-        this.sentenceBox.add (Box.createVerticalGlue ());
-
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                spsp.getVerticalScrollBar ().setValue (0);
-                
-            }
-            
-        });
-          
+          this.addSentenceRules ();
+                                                                         
     }
 
+    private void addSentenceRules ()
+    {
+     
+          final int val = this.sentenceBoxSP.getVerticalScrollBar ().getValue ();
+     
+          this.sentenceBox.removeAll ();
+     
+          List<Rule> senRules = RuleFactory.getSentenceRules ();
+  
+          if (senRules != null)
+          {
+  
+              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                    this.projectViewer.getProject ().getProperties ());
+          
+              for (Rule r : senRules)
+              {
+  
+                  if (ignores.containsKey (r.getId ()))
+                  {
+  
+                      continue;
+  
+                  }
+  
+                  RuleBox rb = new RuleBox (r);
+  
+                  this.sentenceBox.add (rb);
+  
+                  rb.init (this);
+  
+              }
+  
+          }
+  
+          this.sentenceBox.add (Box.createVerticalGlue ());     
+     
+          final ProblemFinderRuleConfig _this = this;
+          
+          UIUtils.doLater (new ActionListener ()
+          {
+  
+              public void actionPerformed (ActionEvent ev)
+              {
+                  
+                  _this.sentenceBoxSP.getVerticalScrollBar ().setValue (val);
+                  
+              }
+              
+          });
+     
+    }
+    
     private void createParagraphWrapper ()
     {
 
@@ -426,15 +477,15 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
         this.paragraphBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.paragraphBox.setOpaque (false);
 
-        final JScrollPane spsp = new JScrollPane (this.paragraphBox);
-        spsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        spsp.getViewport ().setOpaque (false);
-        spsp.setBorder (null);
-        spsp.setOpaque (false);
-        spsp.getVerticalScrollBar ().setUnitIncrement (20);
-        spsp.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        spsp.getViewport ().setPreferredSize (new Dimension (450,
-                                                             400));
+        this.paragraphBoxSP = new JScrollPane (this.paragraphBox);
+        this.paragraphBoxSP.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.paragraphBoxSP.getViewport ().setOpaque (false);
+        this.paragraphBoxSP.setBorder (null);
+        this.paragraphBoxSP.setOpaque (false);
+        this.paragraphBoxSP.getVerticalScrollBar ().setUnitIncrement (20);
+        this.paragraphBoxSP.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.paragraphBoxSP.getViewport ().setPreferredSize (new Dimension (450,
+                                                                            400));
 
         
         this.paragraphWrapper = new JPanel ();
@@ -526,7 +577,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 
         this.paragraphControl.setVisible (this.getParagraphIgnores ().size () != 0);
 
-        paragraphAll.add (spsp);
+        paragraphAll.add (this.paragraphBoxSP);
 
         this.paragraphWrapper.add (paragraphAll,
                                    "view");
@@ -541,49 +592,61 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
         ((CardLayout) this.paragraphWrapper.getLayout ()).show (this.paragraphWrapper,
                                                                 "view");
 
-        List<Rule> paraRules = RuleFactory.getParagraphRules ();
-
-        if (paraRules != null)
-        {
-
-            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                                  this.projectViewer.getProject ().getProperties ());
-        
-            for (Rule r : paraRules)
-            {
-
-                if (ignores.containsKey (r.getId ()))
-                {
-
-                    continue;
-
-                }
-
-                RuleBox rb = new RuleBox (r);
-                this.paragraphBox.add (rb);
-
-                rb.init (this);
-
-            }
-
-        }
-
-        this.paragraphBox.add (Box.createVerticalGlue ());
-
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                spsp.getVerticalScrollBar ().setValue (0);
-                
-            }
-            
-        });
+          this.addParagraphRules ();
           
-    }
+     }
+    
+     private void addParagraphRules ()
+     {
+     
+          final int val = this.paragraphBoxSP.getVerticalScrollBar ().getValue ();     
+     
+          this.paragraphBox.removeAll ();
+     
+          List<Rule> paraRules = RuleFactory.getParagraphRules ();
+  
+          if (paraRules != null)
+          {
+  
+              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                    this.projectViewer.getProject ().getProperties ());
+          
+              for (Rule r : paraRules)
+              {
+  
+                  if (ignores.containsKey (r.getId ()))
+                  {
+  
+                      continue;
+  
+                  }
+  
+                  RuleBox rb = new RuleBox (r);
+                  this.paragraphBox.add (rb);
+  
+                  rb.init (this);
+  
+              }
+  
+          }
+
+          this.paragraphBox.add (Box.createVerticalGlue ());     
+     
+          final ProblemFinderRuleConfig _this = this;
+     
+          UIUtils.doLater (new ActionListener ()
+          {
+  
+               @Override
+               public void actionPerformed (ActionEvent ev)
+               {
+                  
+                    _this.paragraphBoxSP.getVerticalScrollBar ().setValue (val);
+               }
+              
+          });
+       
+     }
     
     private void createWordsWrapper ()
     {
@@ -593,19 +656,19 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
         this.wordsBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.wordsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.wordsBox.setOpaque (false);
-        final JScrollPane ppsp = new JScrollPane (this.wordsBox);
-        ppsp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        ppsp.getViewport ().setOpaque (false);
-        ppsp.setBorder (null);
-        ppsp.setOpaque (false);
-        ppsp.getVerticalScrollBar ().setUnitIncrement (20);
-        ppsp.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.wordsBoxSP = new JScrollPane (this.wordsBox);
+        this.wordsBoxSP.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.wordsBoxSP.getViewport ().setOpaque (false);
+        this.wordsBoxSP.setBorder (null);
+        this.wordsBoxSP.setOpaque (false);
+        this.wordsBoxSP.getVerticalScrollBar ().setUnitIncrement (20);
+        this.wordsBoxSP.setHorizontalScrollBarPolicy (JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.wordsWrapper = new JPanel ();
         this.wordsWrapper.setLayout (new CardLayout ());
         this.wordsWrapper.setOpaque (false);
-        ppsp.getViewport ().setPreferredSize (new Dimension (450,
-                                                             400));
+        this.wordsBoxSP.getViewport ().setPreferredSize (new Dimension (450,
+                                                                        400));
 
         Box wordsAll = new Box (BoxLayout.Y_AXIS);
         wordsAll.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -654,7 +717,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
 
         wordsAll.add (wordsControl);
 
-        wordsAll.add (ppsp);
+        wordsAll.add (this.wordsBoxSP);
 
         this.wordsWrapper.add (wordsAll,
                                "view");
@@ -669,70 +732,82 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
         ((CardLayout) this.wordsWrapper.getLayout ()).show (this.wordsWrapper,
                                                             "view");     
 
-        // Get all the "word" rules.
-        List<Rule> wordRules = RuleFactory.getWordRules ();
+          this.addWordRules ();
+     
+    }
+    
+    private void addWordRules ()
+    {
+     
+          final int val = this.wordsBoxSP.getVerticalScrollBar ().getValue ();     
+     
+          this.wordsBox.removeAll ();
+     
+          // Get all the "word" rules.
+          List<Rule> wordRules = RuleFactory.getWordRules ();
+  
+          Query q = new Query ();
+  
+          try
+          {
+  
+              q.parse ("SELECT * FROM com.quollwriter.text.rules.WordFinder ORDER BY word.toLowerCase");
+  
+              QueryResults qr = q.execute (wordRules);
+  
+              wordRules = (List<Rule>) qr.getResults ();
+  
+          } catch (Exception e)
+          {
+  
+              Environment.logError ("Unable to sort word rules",
+                                    e);
+  
+              // Just carry on.
+  
+          }
+  
+          if (wordRules != null)
+          {
+  
+              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                    this.projectViewer.getProject ().getProperties ());
+                  
+              for (Rule r : wordRules)
+              {
+  
+                  if (ignores.containsKey (r.getId ()))
+                  {
+  
+                      continue;
+  
+                  }
+  
+                  RuleBox rb = new RuleBox (r);
+  
+                  this.wordsBox.add (rb);
+  
+                  rb.init (this);
+                  
+              }
+  
+          }
 
-        Query q = new Query ();
-
-        try
-        {
-
-            q.parse ("SELECT * FROM com.quollwriter.text.rules.WordFinder ORDER BY word.toLowerCase");
-
-            QueryResults qr = q.execute (wordRules);
-
-            wordRules = (List<Rule>) qr.getResults ();
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to sort word rules",
-                                  e);
-
-            // Just carry on.
-
-        }
-
-        if (wordRules != null)
-        {
-
-            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                                  this.projectViewer.getProject ().getProperties ());
-                
-            for (Rule r : wordRules)
-            {
-
-                if (ignores.containsKey (r.getId ()))
-                {
-
-                    continue;
-
-                }
-
-                RuleBox rb = new RuleBox (r);
-
-                this.wordsBox.add (rb);
-
-                rb.init (this);
-                
-            }
-
-        }
-
-        this.wordsBox.add (Box.createVerticalGlue ());        
-
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                ppsp.getVerticalScrollBar ().setValue (0);
-                
-            }
-            
-        });
+          this.wordsBox.add (Box.createVerticalGlue ());        
+     
+          final ProblemFinderRuleConfig _this = this;
+          
+          UIUtils.doLater (new ActionListener ()
+          {
+  
+              public void actionPerformed (ActionEvent ev)
+              {
+                  
+                  _this.wordsBoxSP.getVerticalScrollBar ().setValue (val);
+                  
+              }
+              
+          });
      
     }
     
@@ -963,9 +1038,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
                                          r,
                                          add);
      
-                    _this.projectViewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                          (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
-                                                          r);
+                    Environment.fireUserProjectEvent (_this,
+                                                      ProjectEvent.PROBLEM_FINDER,
+                                                      (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
+                                                      r);
                     
                }
                
@@ -1231,6 +1307,8 @@ public class ProblemFinderRuleConfig extends ScrollableBox //PopupWindow
                                                                "project"));
                     
                 }
+                
+                
                 
             }
             
