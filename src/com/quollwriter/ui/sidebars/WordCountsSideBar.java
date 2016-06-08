@@ -157,7 +157,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     @Override
     public void panelShown (MainPanelEvent ev)
     {
-                
+                /*
         if (ev.getPanel () instanceof AbstractEditorPanel)
         {
 
@@ -169,7 +169,9 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             this.chapterItem.setVisible (false);
             
         }
-
+*/
+        this.update ();
+        
     }
         
     private void update ()
