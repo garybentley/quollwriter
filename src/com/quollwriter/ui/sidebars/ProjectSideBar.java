@@ -147,14 +147,14 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
     
     public void setObjectSelectedInSidebar (DataObject d)
     {
-        
+        /*
         if (d == null)
         {
             
             return;
             
         }
-        
+        */
         for (String objType : this.projItemBoxes.keySet ())
         {
             
@@ -162,12 +162,17 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             
             it.clearSelectedItemInTree ();
          
-            if (d.getObjectType ().equals (objType))
+            if (d != null)
             {
                 
-                it.setObjectSelectedInTree (d);
+                if (d.getObjectType ().equals (objType))
+                {
+                    
+                    it.setObjectSelectedInTree (d);
+                    
+                }
                 
-            } 
+            }
 
         }        
         
