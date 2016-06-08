@@ -112,7 +112,9 @@ public class TextIterator
                     for (Integer i : found)
                     {
                         
-                        matches.add (i + st);
+                        matches.add (s.getWord (i).getAllTextStartOffset ());
+                        
+                        //matches.add (i + st);
                         
                     }
                     

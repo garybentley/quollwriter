@@ -4222,7 +4222,7 @@ public class UIUtils
         {
             
             Integer ind = iter.next ();
-            
+
             NamedObjectNameWrapper obj = reps.get (ind);
 /*                            
             b = b.replace (ind,
@@ -5374,7 +5374,7 @@ public class UIUtils
                                                            null));
 
         } else {
-                        
+
             desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
                                                          UIUtils.markupStringForAssets (description,
                                                                                         pv.getProject (),
