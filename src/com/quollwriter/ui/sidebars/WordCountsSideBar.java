@@ -276,147 +276,152 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                 
             }
                         
-            this.chapterWordCount.setText (Environment.formatNumber (chc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount)) + "%");
+            if (chc != null)
+            {                        
             
-            this.chapterPages.setText (Environment.formatNumber (a4Count));
-            
-            this.chapterReadability.setVisible (false);
-            this.chapterReadabilityHeader.setVisible (false);
-            
-            if ((this.viewer.isLanguageEnglish ())
-                &&
-                (chc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
-               )
-            {
-            
-                this.chapterReadability.setVisible (true);
-                this.chapterReadabilityHeader.setVisible (true);
-            
-                ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
-
-                this.chapterFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
+                this.chapterWordCount.setText (Environment.formatNumber (chc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount)) + "%");
                 
-                this.chapterGunningFog.setText (Environment.formatNumber (Math.round (ri.getGunningFogIndex ())));
+                this.chapterPages.setText (Environment.formatNumber (a4Count));
                 
-                this.chapterFleschReadingEase.setText (Environment.formatNumber (Math.round (ri.getFleschReadingEase ())));
-
-            }
-            
-            this.chapterItem.setTitle (qep.getTitle ());
-
-            this.chapterItem.setVisible (true);
-            
-            if (this.chapterSparkLine.getComponents ().length == 0)
-            {
-            
-                try
+                this.chapterReadability.setVisible (false);
+                this.chapterReadabilityHeader.setVisible (false);
+                
+                if ((this.viewer.isLanguageEnglish ())
+                    &&
+                    (chc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
+                   )
                 {
-        
-                    ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
-        
-                    // TODO: Find a better way of handling this.
-                    if (dh != null)
-                    {
-
-                        org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries (c.getName ());
-            
-                        int diff = 0;
-            
-                        int min = Integer.MAX_VALUE;
-                        int max = Integer.MIN_VALUE;
+                
+                    this.chapterReadability.setVisible (true);
+                    this.chapterReadabilityHeader.setVisible (true);
+                
+                    ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
+    
+                    this.chapterFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
                     
-                        // Get all the word counts for the chapter.
-                        java.util.List<WordCount> wordCounts = dh.getWordCounts (c,
-                                                                                 -7);
+                    this.chapterGunningFog.setText (Environment.formatNumber (Math.round (ri.getGunningFogIndex ())));
+                    
+                    this.chapterFleschReadingEase.setText (Environment.formatNumber (Math.round (ri.getFleschReadingEase ())));
     
-                        if (wordCounts.size () == 0)
-                        {
-                            
-                            wordCounts.add (new WordCount (chc.wordCount,
-                                                           null,
-                                                           Environment.zeroTimeFieldsForDate (new Date ())));
-                            
-                        }
+                }
+                
+                this.chapterItem.setTitle (qep.getTitle ());
     
-                        // Expand the dates back if necessary.
-                        if (wordCounts.size () == 1)
+                this.chapterItem.setVisible (true);
+                
+                if (this.chapterSparkLine.getComponents ().length == 0)
+                {
+                
+                    try
+                    {
+            
+                        ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
+            
+                        // TODO: Find a better way of handling this.
+                        if (dh != null)
                         {
-                            
-                            // Get a date for 7 days ago.
-                            Date d = new Date (System.currentTimeMillis () - (7 * 24 * 60 * 60 * 1000));
-                            
-                            wordCounts.add (0,
-                                            new WordCount (chc.wordCount,
-                                                           null,
-                                                           Environment.zeroTimeFieldsForDate (d)));
-                            
-                        }
+    
+                            org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries (c.getName ());
+                
+                            int diff = 0;
+                
+                            int min = Integer.MAX_VALUE;
+                            int max = Integer.MIN_VALUE;
                         
-                        for (WordCount wc : wordCounts)
-                        {
-    
-                            int count = wc.getCount ();
-    
-                            min = Math.min (min,
-                                            count);
-                            max = Math.max (max,
-                                            count);
-    
-                            try
+                            // Get all the word counts for the chapter.
+                            java.util.List<WordCount> wordCounts = dh.getWordCounts (c,
+                                                                                     -7);
+        
+                            if (wordCounts.size () == 0)
                             {
-    
-                                ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
-                                        count);
-    
-                            } catch (Exception e) {
                                 
-                                // Ignore, trying to add a duplicate day.
+                                wordCounts.add (new WordCount (chc.wordCount,
+                                                               null,
+                                                               Environment.zeroTimeFieldsForDate (new Date ())));
                                 
+                            }
+        
+                            // Expand the dates back if necessary.
+                            if (wordCounts.size () == 1)
+                            {
+                                
+                                // Get a date for 7 days ago.
+                                Date d = new Date (System.currentTimeMillis () - (7 * 24 * 60 * 60 * 1000));
+                                
+                                wordCounts.add (0,
+                                                new WordCount (chc.wordCount,
+                                                               null,
+                                                               Environment.zeroTimeFieldsForDate (d)));
+                                
+                            }
+                            
+                            for (WordCount wc : wordCounts)
+                            {
+        
+                                int count = wc.getCount ();
+        
+                                min = Math.min (min,
+                                                count);
+                                max = Math.max (max,
+                                                count);
+        
+                                try
+                                {
+        
+                                    ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
+                                            count);
+        
+                                } catch (Exception e) {
+                                    
+                                    // Ignore, trying to add a duplicate day.
+                                    
+                                }
+        
+                            }
+                
+                            diff = max - min;
+        
+                            int wordDiff = diff;
+                            
+                            if (diff == 0)
+                            {
+        
+                                diff = 100;
+        
+                            }
+                        
+                            if ((min < Integer.MAX_VALUE) ||
+                                (max > Integer.MIN_VALUE))
+                            {
+                                        
+                                this.chapterSparkLineLabel.setText (String.format ("past 7 days, <b>%s%s</b> words",
+                                                                                   (wordDiff == 0 ? "" : (wordDiff > 0 ? "+" : "")),
+                                                                                   Environment.formatNumber (wordDiff)));
+                                        
+                                org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
+                                                                                                                         max + (diff / 2),
+                                                                                                                         min - (diff / 2)));
+                
+                                cp.setToolTipText ("Word count activity for the past 7 days");
+                                
+                                cp.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                                  16));
+                                cp.setPreferredSize (new Dimension (60,
+                                                                    16));
+                                this.chapterSparkLine.add (cp);
+                
                             }
     
                         }
             
-                        diff = max - min;
-    
-                        int wordDiff = diff;
-                        
-                        if (diff == 0)
-                        {
-    
-                            diff = 100;
-    
-                        }
-                    
-                        if ((min < Integer.MAX_VALUE) ||
-                            (max > Integer.MIN_VALUE))
-                        {
-                                    
-                            this.chapterSparkLineLabel.setText (String.format ("past 7 days, <b>%s%s</b> words",
-                                                                               (wordDiff == 0 ? "" : (wordDiff > 0 ? "+" : "")),
-                                                                               Environment.formatNumber (wordDiff)));
-                                    
-                            org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
-                                                                                                                     max + (diff / 2),
-                                                                                                                     min - (diff / 2)));
+                    } catch (Exception e)
+                    {
             
-                            cp.setToolTipText ("Word count activity for the past 7 days");
-                            
-                            cp.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                              16));
-                            cp.setPreferredSize (new Dimension (60,
-                                                                16));
-                            this.chapterSparkLine.add (cp);
+                        Environment.logError ("Unable to generate 7 day activity sparkline",
+                                              e);
             
-                        }
-
                     }
-        
-                } catch (Exception e)
-                {
-        
-                    Environment.logError ("Unable to generate 7 day activity sparkline",
-                                          e);
-        
+                    
                 }
 
             }
