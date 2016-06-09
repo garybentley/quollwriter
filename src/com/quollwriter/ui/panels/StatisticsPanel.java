@@ -244,7 +244,7 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
                                                      6,
                                                      6));
         
-        this.configPanel.setAlignmentY (Component.TOP_ALIGNMENT);          
+        this.configPanel.setAlignmentY (Component.TOP_ALIGNMENT);
         b.add (this.configPanel);
         
         this.detailPanel = new Box (BoxLayout.Y_AXIS);
@@ -258,10 +258,12 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
         JScrollPane sp = UIUtils.createScrollPane (b);
         
         sp.setBorder (null);
+        sp.setMinimumSize (new Dimension (200,
+                                          300));
                 
         this.splitPane.setLeftComponent (sp);
-        sp.setMinimumSize (new Dimension (50, 200));
-        sp.setPreferredSize (new Dimension (225, 200));
+        //sp.setMinimumSize (new Dimension (50, 200));
+        sp.setPreferredSize (new Dimension (200, 300));
         this.splitPane.setRightComponent (this.chartPanel);        
                 
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
