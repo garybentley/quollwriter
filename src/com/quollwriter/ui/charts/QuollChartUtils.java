@@ -194,10 +194,10 @@ public class QuollChartUtils
         plot.getRangeAxis ().setLabelFont (f);
         plot.getRangeAxis ().setTickLabelFont (f);
                 
-        XYBarRenderer rend = new XYBarRenderer ();
+        XYBarRenderer rend = new XYBarRenderer (0.05);
         rend.setShadowVisible (false);
         rend.setDrawBarOutline (true);
-
+        
         QuollChartUtils.customizeSeriesPaints (rend);
         
         rend.setBarPainter (new StandardXYBarPainter ());
@@ -314,6 +314,8 @@ public class QuollChartUtils
         rend.setDrawBarOutline (true);
         rend.setItemMargin (0);
         rend.setBarPainter (new StandardBarPainter ());
+        rend.setMaximumBarWidth (0.10);
+        rend.setMinimumBarLength (0.05);
         
         QuollChartUtils.customizeSeriesPaints (rend);
         
