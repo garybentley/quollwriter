@@ -964,61 +964,11 @@ public class Targets<E extends AbstractViewer> extends Accordion
     
         final TargetsData projTargets = pv.getProjectTargets ();
         
+        Set<Chapter> chaps = pv.getChaptersOverReadabilityTarget ();
+        
         final Targets _this = this;
-
-        int tgf = projTargets.getReadabilityGF ();
-        int tfk = projTargets.getReadabilityFK ();
         
-        int cc = 0;
-        
-        if ((tgf > 0)
-            ||
-            (tfk > 0)
-           )
-        {
-                        
-            for (Book book : pv.getProject ().getBooks ())
-            {
-
-                for (Chapter c : book.getChapters ())
-                {
-                                    
-                    ReadabilityIndices ri = pv.getReadabilityIndices (c);
-                    
-                    float fk = ri.getFleschKincaidGradeLevel ();
-                    float gf = ri.getGunningFogIndex ();
-                    
-                    if ((tfk > 0)
-                        &&
-                        (ri.getFleschKincaidGradeLevel () > tfk)
-                       )
-                    {
-                        
-                        cc++;
-                        
-                        continue;
-                        
-                    }
-                                          
-                    if ((tgf > 0)
-                        &&
-                        (ri.getGunningFogIndex () > tgf)
-                       )
-                    {
-                        
-                        cc++;
-                        
-                        continue;
-                        
-                    }
-                    
-                }
-                
-            }
-            
-        }
-        
-        final int _cc = cc;
+        final int _cc = chaps.size ();
 
         UIUtils.doLater (new ActionListener ()
         {
