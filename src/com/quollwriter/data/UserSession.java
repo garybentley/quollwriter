@@ -122,15 +122,15 @@ public class UserSession extends Session
     
     public boolean shouldShowDailyTargetReachedPopup ()
     {
-
+System.out.println ("D: " + this.dailyTargetReachedPopupShown + ", " + this.dailyTargetReachedPopupShownDate);
         if ((this.dailyTargetReachedPopupShownDate != null)
             &&
-            (!this.dailyTargetReachedPopupShown)
+            (this.dailyTargetReachedPopupShown)
            )
         {
 
             Date d = Utils.zeroTimeFields (new Date ());
-
+System.out.println ("D: " + d + ", " + this.dailyTargetReachedPopupShownDate);
             return d.after (this.dailyTargetReachedPopupShownDate);
             
         }
