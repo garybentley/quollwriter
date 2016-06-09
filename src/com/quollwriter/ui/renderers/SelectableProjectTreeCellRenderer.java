@@ -31,6 +31,34 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
     }
 
+    /**
+     * Override this method to indicate that the component associated with the
+     * value.  This method always returns true.  The value will be a string or the user object associated
+     * with the node.
+     *
+     * @returns A value indicating whether the component associated with the value should be enabled.
+     */
+    public boolean shouldEnable (Object value)
+    {
+       
+       return true;
+        
+    }
+    
+    /**
+     * Override to specify the tool tip text for the component associated with the value.
+     * This method always returns null.  The value will be a string or the user object associated
+     * with the node.
+     *
+     * @returns A value for the tool tip for the component associated with the value.
+     */
+    public String getToolTipText (Object value)
+    {
+        
+        return null;
+        
+    }
+    
     public void setIconType (String objType,
                              String iconType)
     {
@@ -60,6 +88,8 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
         p.setOpaque (false);
 
+        p.setToolTipText (this.getToolTipText (value));
+        
         JLabel l = new JLabel ();
         l.setOpaque (false);
 
@@ -72,6 +102,8 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
             l.setText ((String) value);
 
+            l.setToolTipText (this.getToolTipText (value));
+            
             p.add (l);
 
             return p;
@@ -87,7 +119,16 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
             b.setOpaque (false);
             p.add (b);
             p.add (Box.createHorizontalStrut (5));
-            b.setSelected (s.selected);
+            
+            if (this.shouldEnable (s.obj))
+            {
+            
+                b.setSelected (s.selected);
+                
+            }
+            
+            b.setToolTipText (this.getToolTipText (s.obj));
+            b.setEnabled (this.shouldEnable (s.obj));
 
         }
 
@@ -151,6 +192,9 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
         l.setText (((NamedObject) s.obj).getName ());
 
+        l.setEnabled (this.shouldEnable (s.obj));
+        l.setToolTipText (this.getToolTipText (s.obj));
+        
         UIUtils.setAsButton (p);
 
         p.setBorder (new EmptyBorder (2, 2, 2, 2));

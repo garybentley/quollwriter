@@ -20,6 +20,7 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.plot.*;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.*;
@@ -231,13 +232,30 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
         h.setAlignmentY (Component.TOP_ALIGNMENT);
 
         b.add (h);
-
+        
+        Set<Chapter> init = new LinkedHashSet ();
+        
+        for (Chapter c : this.viewer.getProject ().getBook (0).getChapters ())
+        {
+            
+            ChapterCounts cc = _this.viewer.getChapterCounts (c);
+            
+            if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+            {
+                
+                init.add (c);
+                
+            }
+            
+        }
+        
         this.chapters = new JTree (UIUtils.createTree (this.viewer.getProject ().getBook (0),
                                                        new ArrayList (), /* exclude */
-                                                       this.viewer.getProject ().getBook (0).getChapters (), /* init */
+                                                       init, /* init */
                                                        true));
 
         this.chapters.setOpaque (false);
+        ToolTipManager.sharedInstance().registerComponent (this.chapters);
                                                        
         this.chapters.getModel ().addTreeModelListener (new TreeModelAdapter ()
         {
@@ -253,12 +271,144 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
 
         });
 
-        SelectableProjectTreeCellRenderer rend = new SelectableProjectTreeCellRenderer ();
+        SelectableProjectTreeCellRenderer rend = new SelectableProjectTreeCellRenderer ()
+        {
+            
+            @Override
+            public boolean shouldEnable (Object v)
+            {
+                
+                if (v instanceof Chapter)
+                {
+
+                    Chapter c = (Chapter) v;
+                    
+                    ChapterCounts cc = _this.viewer.getChapterCounts (c);
+                    
+                    return cc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT;
+                    
+                }
+                
+                return true;
+                
+            }
+            
+            @Override
+            public String getToolTipText (Object v)
+            {
+                
+                if (v instanceof Chapter)
+                {
+
+                    Chapter c = (Chapter) v;
+                    
+                    ChapterCounts cc = _this.viewer.getChapterCounts (c);
+                    
+                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    {
+                        
+                        if (cc.wordCount == 0)
+                        {
+                            
+                            return Environment.replaceObjectNames ("This {chapter} is excluded because it has no words.");
+                            
+                        } else {
+                        
+                            return Environment.replaceObjectNames (String.format ("This {chapter} is excluded because it only has %s word%s.",
+                                                                                  Environment.formatNumber (cc.wordCount),
+                                                                                  (cc.wordCount == 1 ? "" : "s")));
+                        
+                        }
+                        
+                    }
+                    
+                }
+                
+                return super.getToolTipText (v);
+                
+            }
+            
+        };
         
         rend.setShowIcons (false);
-        
         this.chapters.setCellRenderer (rend);
-        UIUtils.addSelectableListener (this.chapters);
+        
+        this.chapters.addMouseListener (new MouseEventHandler ()
+        {
+
+            private void selectAllChildren (DefaultTreeModel       model,
+                                            DefaultMutableTreeNode n,
+                                            boolean                v)
+            {
+
+                Enumeration<DefaultMutableTreeNode> en = n.children ();
+
+                while (en.hasMoreElements ())
+                {
+
+                    DefaultMutableTreeNode c = en.nextElement ();
+
+                    SelectableDataObject s = (SelectableDataObject) c.getUserObject ();
+
+                    s.selected = v;
+
+                    // Tell the model that something has changed.
+                    model.nodeChanged (c);
+
+                    // Iterate.
+                    this.selectAllChildren (model,
+                                            c,
+                                            v);
+
+                }
+
+            }
+
+            @Override
+            public void handlePress (MouseEvent ev)
+            {
+
+                TreePath tp = _this.chapters.getPathForLocation (ev.getX (),
+                                                                 ev.getY ());
+
+                if (tp != null)
+                {
+
+                    DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
+                    // Tell the model that something has changed.
+                    DefaultTreeModel model = (DefaultTreeModel) _this.chapters.getModel ();
+
+                    SelectableDataObject s = (SelectableDataObject) n.getUserObject ();
+                    
+                    if (s.obj instanceof Chapter)
+                    {
+                        
+                        Chapter c = (Chapter) s.obj;
+                        
+                        ChapterCounts cc = _this.viewer.getChapterCounts (c);
+                        
+                        if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                        {
+                            
+                            return;
+                            
+                        }
+                        
+                        
+                    }
+
+                    s.selected = !s.selected;
+
+                    model.nodeChanged (n);
+
+                }
+
+            }
+
+        });
+
+        //UIUtils.addSelectableListener (this.chapters);
 
         this.chapters.setRootVisible (false);
         this.chapters.setShowsRootHandles (false);
@@ -295,6 +445,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
         float maxFK = 0;
         float maxGF = 0;
         float showMax = 0;
+        int filteredCount = 0;
                                     
         final DefaultCategoryDataset ds = new DefaultCategoryDataset ();
                                     
@@ -307,13 +458,25 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
                 for (Chapter c : book.getChapters ())
                 {
 
+                    ChapterCounts cc = this.viewer.getChapterCounts (c);
+                    
+                    // Filter out chapters with less than the min readability word count.
+                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    {
+                        
+                        filteredCount++;
+                        
+                        continue;
+                        
+                    }
+
                     if (!selected.contains (c))
                     {
 
                         continue;
 
                     }
-
+                    
                     ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
                     
                     float fk = ri.getFleschKincaidGradeLevel ();
@@ -373,7 +536,7 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
             
         final CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setCategoryLabelPositions (CategoryLabelPositions.STANDARD);//CategoryLabelPositions.createUpRotationLabelPositions (Math.PI / 0.5));        
-        
+                
         plot.setOrientation (PlotOrientation.HORIZONTAL);            
         plot.setRangeAxisLocation (AxisLocation.BOTTOM_OR_LEFT);
             
@@ -382,8 +545,16 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
         int targetGF = ptargs.getReadabilityGF ();
         int targetFK = ptargs.getReadabilityFK ();
 
-        double avgGF = totalGF / chapterCount;
-        double avgFK = totalFK / chapterCount;
+        double avgGF = 0;
+        double avgFK = 0;
+        
+        if (chapterCount > 0)
+        {
+            
+            avgGF = totalGF / chapterCount;
+            avgFK = totalFK / chapterCount;
+            
+        }
 
         double diffAvgGF = avgGF - targetGF;        
         
@@ -646,6 +817,15 @@ public class ReadabilityIndicesChart extends AbstractQuollChart<AbstractProjectV
             
         }
 
+        if (filteredCount > 0)
+        {
+            
+            items.add (this.createWarningLabel (String.format ("%s {chapters} have less than %s words and have been excluded",
+                                                              Environment.formatNumber (filteredCount),
+                                                              Environment.formatNumber (Constants.MIN_READABILITY_WORD_COUNT))));
+            
+        }
+        
         if (showFK)
         {
         
