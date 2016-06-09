@@ -309,8 +309,14 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                     }
 
                     ChapterCounts cc = this.viewer.getChapterCounts (c);
+                            
+                    if (cc.wordCount > 0)
+                    {
                                         
-                    chapterCount++;
+                        chapterCount++;
+                        
+                    }
+                    
                     totalWords += cc.wordCount;
                     
                     if (cc.wordCount > maxWords)
@@ -390,7 +396,14 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
     
         int targetWords = ptargs.getMaxChapterCount ();
 
-        double avgWords = totalWords / chapterCount;
+        double avgWords = 0;
+        
+        if (chapterCount > 0)
+        {
+            
+            avgWords = totalWords / chapterCount;
+            
+        }
 
         double diffAvgWords = avgWords - targetWords;        
         
