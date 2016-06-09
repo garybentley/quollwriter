@@ -8982,6 +8982,15 @@ xxx
             
                     ReadabilityIndices ri = this.getReadabilityIndices (c);
                     
+                    ChapterCounts cc = this.getChapterCounts (c);
+                    
+                    if (cc.wordCount < Constants.MIN_READABILITY_WORD_COUNT)
+                    {
+                        
+                        continue;
+                        
+                    }
+                    
                     float fk = ri.getFleschKincaidGradeLevel ();
                     float gf = ri.getGunningFogIndex ();
                     
