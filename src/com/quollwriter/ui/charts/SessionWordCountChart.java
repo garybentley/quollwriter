@@ -461,7 +461,7 @@ public class SessionWordCountChart extends AbstractQuollChart<AbstractViewer>
                 
                 t = String.format (", %s%s target",
                                    (diffAvg < 0 ? "" : "+"),
-                                   Environment.formatNumber (diffAvg));
+                                   Environment.formatNumber ((long) diffAvg));
                 
             }
         
