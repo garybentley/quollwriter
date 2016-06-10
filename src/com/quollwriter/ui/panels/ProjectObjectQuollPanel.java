@@ -58,6 +58,14 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
                 
     }
     
+    @Override
+    public E getViewer ()
+    {
+        
+        return this.viewer;
+        
+    }
+    
     public abstract boolean saveUnsavedChanges ()
                                          throws Exception;
 

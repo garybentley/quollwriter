@@ -26,7 +26,7 @@ import com.quollwriter.ui.components.Form;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 
-public class AssetActionHandler extends ProjectViewerActionHandler
+public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer>
 {
 
     private static Map<String, Class> actionHandlers = new HashMap ();
@@ -325,6 +325,8 @@ public class AssetActionHandler extends ProjectViewerActionHandler
                 this.projectViewer.saveObject (asset,
                                                true);
 
+                this.projectViewer.openObjectSection (asset.getObjectType ());                                               
+                                               
                 this.projectViewer.fireProjectEvent (asset.getObjectType (),
                                                      ProjectEvent.NEW,
                                                      asset);

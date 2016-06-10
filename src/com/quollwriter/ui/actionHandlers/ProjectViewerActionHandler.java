@@ -5,22 +5,20 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 
-public abstract class ProjectViewerActionHandler extends AbstractActionHandler
+public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer> extends AbstractActionHandler<E>
 {
 
-    protected AbstractProjectViewer projectViewer = null;
     protected AbstractEditorPanel editorPanel = null;
 
-    public ProjectViewerActionHandler(NamedObject           d,
-                                      AbstractProjectViewer pv,
-                                      int                   mode)
+    public ProjectViewerActionHandler(NamedObject d,
+                                      E           pv,
+                                      int         mode)
     {
 
-        super (d,
+        this (d,
                pv,
-               mode);
-
-        this.projectViewer = pv;
+               mode,
+               true);
 
     }
 
@@ -30,11 +28,11 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
     {
 
         super (d,
-               qep.getViewer (),
+               // This feels wrong to me, we shouldn't have to cast here...
+               (E) qep.getViewer (),
                mode);
 
         this.editorPanel = qep;
-        this.projectViewer = qep.getViewer ();
 
     }
 
@@ -45,19 +43,18 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
     {
 
         super (d,
-               qep.getViewer (),
+               (E) qep.getViewer (),
                mode,
                addHideControl);
 
         this.editorPanel = qep;
-        this.projectViewer = qep.getViewer ();
 
     }
 
-    public ProjectViewerActionHandler(NamedObject   d,
-                                      AbstractProjectViewer pv,
-                                      int           mode,
-                                      boolean       addHideControl)
+    public ProjectViewerActionHandler(NamedObject d,
+                                      E           pv,
+                                      int         mode,
+                                      boolean     addHideControl)
     {
 
         super (d,
@@ -65,10 +62,16 @@ public abstract class ProjectViewerActionHandler extends AbstractActionHandler
                mode,
                addHideControl);
 
-        this.projectViewer = pv;
-
     }
 
+    @Override
+    public E getViewer ()
+    {
+        
+        return super.getViewer ();
+        
+    }
+    
     public void handleCancel (int mode)
     {
 

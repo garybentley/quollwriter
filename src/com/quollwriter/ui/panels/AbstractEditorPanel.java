@@ -301,6 +301,14 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         
     }
 
+    @Override
+    public AbstractProjectViewer getViewer ()
+    {
+        
+        return super.getViewer ();
+        
+    }
+    
     private void scheduleWordCountUpdate ()
     {
         

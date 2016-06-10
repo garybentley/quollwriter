@@ -34,7 +34,7 @@ import com.quollwriter.ui.components.PopupEvent;
 import com.quollwriter.ui.renderers.*;
 
 
-public abstract class AbstractActionHandler extends FormAdapter
+public abstract class AbstractActionHandler<E extends AbstractProjectViewer> extends FormAdapter
 {
 
     public static final int ADD = 1;
@@ -42,7 +42,7 @@ public abstract class AbstractActionHandler extends FormAdapter
 
     private JTree                   tree = null;
     protected Form                  f = null;
-    protected AbstractProjectViewer projectViewer = null;
+    protected E projectViewer = null;
     protected int                   mode = 0;
     private boolean                 showLinkTo = false;
     protected NamedObject           dataObject = null;
@@ -55,9 +55,9 @@ public abstract class AbstractActionHandler extends FormAdapter
     private ActionListener          onShowAction = null;
     private ActionListener          onHideAction = null;
 
-    public AbstractActionHandler(NamedObject           d,
-                                 AbstractProjectViewer pv,
-                                 int                   mode)
+    public AbstractActionHandler(NamedObject d,
+                                 E           pv,
+                                 int         mode)
     {
 
         this.mode = mode;
@@ -66,10 +66,10 @@ public abstract class AbstractActionHandler extends FormAdapter
 
     }
 
-    public AbstractActionHandler(NamedObject           d,
-                                 AbstractProjectViewer pv,
-                                 int                   mode,
-                                 boolean               addHideControl)
+    public AbstractActionHandler(NamedObject d,
+                                 E           pv,
+                                 int         mode,
+                                 boolean     addHideControl)
     {
 
         this (d,
@@ -80,6 +80,13 @@ public abstract class AbstractActionHandler extends FormAdapter
 
     }
 
+    public E getViewer ()
+    {
+        
+        return this.projectViewer;
+        
+    }
+    
     public void setShowLinkTo (boolean v)
     {
 
