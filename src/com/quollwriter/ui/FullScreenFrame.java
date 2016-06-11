@@ -1975,6 +1975,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                     _this.setFullScreenBackground (bce.getValue ());
 
+                    Environment.fireUserProjectEvent (_this,
+                                                      ProjectEvent.FULL_SCREEN,
+                                                      ProjectEvent.CHANGE_BG_IMAGE,
+                                                      bce.getValue ());            
+                    
                 }
 
             },
@@ -2338,9 +2343,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.backgroundObject = f;
                 
         this.setFullScreenBackgroundProperty (f);
-        
-        this.projectViewer.fireProjectEvent (ProjectEvent.FULL_SCREEN,
-                                             ProjectEvent.CHANGE_BG_IMAGE);            
     
     }
 
