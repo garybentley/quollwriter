@@ -378,11 +378,15 @@
   <item id="addnote" category="project" type="item" icon="note" objectType="note" count="1" action="new">
     <name>So noted</name>
     <description>Add a note.</description>
+    <match accessor="editNeeded"
+           value="false" />    
   </item>
 
   <item id="addnote5" category="project" type="item" icon="note" objectType="note" count="5" action="new">
     <name>Scribbler</name>
     <description>Add 5 notes.</description>
+    <match accessor="editNeeded"
+           value="false" />    
   </item>
 
   <item id="spellcheckreplace" category="user" type="event" icon="spellchecker" event="spellcheck.replace" count="1">

@@ -492,6 +492,11 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             this.projectViewer.saveObject (n,
                                            true);
 
+            this.projectViewer.fireProjectEvent (n.getObjectType (),
+                                                 (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
+                                                 n);
+                                           
+                                           
         } catch (Exception e)
         {
 
