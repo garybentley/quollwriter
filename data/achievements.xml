@@ -190,7 +190,7 @@
     <description>You checked the word counts, have you written as much as you think?</description>
   </item>
 
-  <item id="wordcounthistory" category="project" type="event" icon="statistics" event="wordcounthistory.show">
+  <item id="wordcounthistory" category="project" type="event" icon="statistics" event="showchart.per-chapter-word-counts">
     <name>Historian</name>
     <description>You checked the word count history, are those lines going up?</description>
   </item>

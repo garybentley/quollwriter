@@ -357,6 +357,10 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
         
         this.chartSelect.setSelectedItem (chart);
 
+        this.viewer.fireProjectEvent (ProjectEvent.SHOW_CHART,
+                                      type,
+                                      chart);
+        
     }
     
     public void fillPopupMenu (MouseEvent ev,

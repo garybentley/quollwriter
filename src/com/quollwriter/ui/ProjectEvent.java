@@ -11,7 +11,7 @@ public class ProjectEvent extends EventObject
     public static final String DISTRACTION_FREE = "distractionfree";
     public static final String TYPE_WRITER_SOUND = "typewritersound";
     public static final String WORD_COUNTS = "wordcounts";
-    public static final String WORD_COUNT_HISTORY = "wordcounthistory";
+    //public static final String WORD_COUNT_HISTORY = "wordcounthistory";
     public static final String AUTO_SAVE = "autosave";
     public static final String SPELL_CHECK = "spellcheck";
     public static final String TOOLBAR = "toolbar";
@@ -68,6 +68,7 @@ public class ProjectEvent extends EventObject
     public static final String REMOVE_RULE = "removerule";
     public static final String SORT = "sort";
     public static final String TIME_REACHED = "timereached";
+    public static final String SHOW_CHART = "showchart";
     public static final String WORD_COUNT_REACHED = "wordcountreached";
     public static final String CONVERT_TO_PROJECT = "converttoproject";
     public static final String WARMUP_ON_STARTUP = "warmuponstartup";
