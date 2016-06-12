@@ -206,6 +206,10 @@ public abstract class DetailsEditPanel extends EditPanel
             this.projectViewer.saveObject (this.object,
                                            true);
 
+            this.projectViewer.fireProjectEvent (this.object.getObjectType (),
+                                                 ProjectEvent.EDIT,
+                                                 this.object);
+                                           
         } catch (Exception e)
         {
 
