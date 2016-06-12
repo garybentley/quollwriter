@@ -22,7 +22,9 @@ public abstract class FindResultsBox extends ProjectObjectsAccordionItem
                iconType,
                forObjType,
                viewer);
-                                            
+                   
+        this.getTree ().getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
+        
     }
         
     public boolean showItemCountOnHeader ()

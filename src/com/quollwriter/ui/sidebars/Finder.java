@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
 import javax.swing.text.*;
+import javax.swing.event.*;
 
 import com.gentlyweb.utils.*;
 
@@ -28,7 +29,7 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class Finder extends AbstractSideBar<AbstractProjectViewer>
+public class Finder extends AbstractSideBar<AbstractProjectViewer> implements TreeSelectionListener
 {
 
     private static final String TITLE_PREFIX = "Find";
@@ -38,6 +39,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer>
     private Box content = null;
     private JLabel noMatches = null;
     private String currentSearch = null;
+    private Set<FindResultsBox> results = null;
         
     public Finder (AbstractProjectViewer v)
     {
@@ -87,6 +89,26 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer>
     @Override
     public void onClose ()
     {
+        
+        this.removeListeners ();
+        
+    }
+    
+    private void removeListeners ()
+    {
+        
+        // Remove the listeners.
+        if (this.results != null)
+        {
+            
+            for (FindResultsBox b : this.results)
+            {
+                
+                b.getTree ().removeTreeSelectionListener (this);
+                
+            }
+            
+        }        
         
     }
     
@@ -222,6 +244,8 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer>
     private void search ()
     {
 
+        this.removeListeners ();
+    
         this.content.removeAll ();
     
         this.clearHighlight ();
@@ -239,10 +263,12 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer>
             
         }
         
-        Set<FindResultsBox> res = this.viewer.findText (t);
+        this.results = this.viewer.findText (t);
         
-        for (FindResultsBox r : res)
+        for (FindResultsBox r : this.results)
         {
+            
+            r.getTree ().addTreeSelectionListener (this);
             
             r.init ();
             
@@ -250,7 +276,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer>
             
         }
 
-        this.noMatches.setVisible (res.size () == 0);
+        this.noMatches.setVisible (this.results.size () == 0);
                 
         this.currentSearch = t;
 
@@ -261,6 +287,40 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer>
 
     }
 
+    @Override
+    public void valueChanged (TreeSelectionEvent ev)
+    {
+        
+        if (this.results == null)
+        {
+            
+            return;
+            
+        }
+        
+        if (!ev.isAddedPath ())
+        {
+            
+            return;
+            
+        }
+        
+        for (FindResultsBox b : this.results)
+        {
+            
+            if (ev.getSource () == b.getTree ())
+            {
+                
+                continue;
+                
+            }
+            
+            b.clearSelectedItemInTree ();
+            
+        }
+                
+    }
+    
     public void clearHighlight ()
     {
         
