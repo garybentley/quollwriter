@@ -116,27 +116,28 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
             this.viewBox = new Box (BoxLayout.Y_AXIS);
             this.add (this.viewBox);
             this.viewBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+/*
             this.shortDesc = UIUtils.createHelpTextPane ((String) null,
                                                          this.typeBox.ideaBoard.getViewer ());
-            /*
+                                                         */
+            
             this.shortDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
-                                                                      this.typeBox.ideaBoard.getProjectViewer ().getProject (),
-                                                                      this.typeBox.ideaBoard.getProjectViewer (),
+                                                                      this.typeBox.ideaBoard.getViewer ().getProject (),
+                                                                      this.typeBox.ideaBoard.getViewer (),
                                                                       this.typeBox.ideaBoard);
-                                                                      */
+            
             this.shortDesc.setBorder (UIUtils.createPadding (3, 5, 0, 5));
             this.viewBox.add (this.shortDesc);
             this.shortDesc.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+/*
             this.fullDesc = UIUtils.createHelpTextPane ((String) null,
                                                         this.typeBox.ideaBoard.getViewer ());
-/*
+*/
             this.fullDesc = UIUtils.createObjectDescriptionViewPane ((String) null,
-                                                                     this.typeBox.ideaBoard.getProjectViewer ().getProject (),
-                                                                     this.typeBox.ideaBoard.getProjectViewer (),
+                                                                     this.typeBox.ideaBoard.getViewer ().getProject (),
+                                                                     this.typeBox.ideaBoard.getViewer (),
                                                                      this.typeBox.ideaBoard);
-                                                                     */
+  
             this.fullDesc.setBorder (UIUtils.createPadding (3, 5, 0, 5));
             this.updateViewText ();
 
@@ -469,15 +470,17 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
                 
             }
             
-            this.shortDesc.setText (UIUtils.markupStringForAssets (firstSent,
+            this.shortDesc.setText (UIUtils.getWithHTMLStyleSheet (this.shortDesc,
+                                                                   UIUtils.markupStringForAssets (firstSent,
                                                                    this.typeBox.ideaBoard.getViewer ().getProject (),
-                                                                   null));
+                                                                   null)));
 
             this.shortDesc.setToolTipText ("Click to show the full text");
-                                                                         
-            this.fullDesc.setText (UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
+
+            this.fullDesc.setText (UIUtils.getWithHTMLStyleSheet (this.fullDesc,
+                                                                  UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
                                                                   this.typeBox.ideaBoard.getViewer ().getProject (),
-                                                                  null));
+                                                                  null)));
 
         }
 
