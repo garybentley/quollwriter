@@ -215,9 +215,17 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
                         // Get the last chapter from the project.
                         final Chapter ch = _this.typeBox.ideaBoard.projectViewer.getProject ().getBook (0).getLastChapter ();
         
-                        mi.addActionListener (new AddChapterActionHandler (ch.getBook (),
-                                                                           ch,
-                                                                           _this.typeBox.ideaBoard.projectViewer));
+                        Chapter newCh = new Chapter (ch.getBook (),
+                                                     null);
+        
+                        newCh.setDescription (_this.idea.getDescription ());
+        
+                        AddChapterActionHandler caa = new AddChapterActionHandler (ch.getBook (),
+                                                                                   ch,
+                                                                                   _this.typeBox.ideaBoard.projectViewer,
+                                                                                   newCh);
+                                
+                        mi.addActionListener (caa);
 
                         p.add (mi);
 

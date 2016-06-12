@@ -25,7 +25,23 @@ public class AddChapterActionHandler extends AbstractActionHandler
     private ProjectViewer projectViewer = null;
     private Chapter       addAfter = null;
     private Book          book = null;
+    private ActionListener afterAdd = null;
+    private Chapter       chapterToAdd = null;
+    
+    public AddChapterActionHandler(Book          b,
+                                   Chapter       addAfter,
+                                   ProjectViewer pv,
+                                   Chapter       chapterToAdd)
+    {
 
+        this (b,
+              addAfter,
+              pv);
+    
+        this.chapterToAdd = chapterToAdd;
+    
+    }
+    
     public AddChapterActionHandler(Book          b,
                                    Chapter       addAfter,
                                    ProjectViewer pv)
@@ -62,6 +78,13 @@ public class AddChapterActionHandler extends AbstractActionHandler
 
     }
 
+    public void setDoAfterAdd (ActionListener onAdd)
+    {
+        
+        this.afterAdd = onAdd;
+        
+    }
+    
     public void handleCancel (int mode)
     {
 
@@ -88,9 +111,21 @@ public class AddChapterActionHandler extends AbstractActionHandler
         try
         {
 
-            this.dataObject = this.book.createChapterAfter (this.addAfter,
-                                                            this.nameField.getText ());
+            if (this.chapterToAdd != null)
+            {
+                
+                this.chapterToAdd.setName (this.nameField.getText ());
+                
+                this.dataObject = this.book.createChapterAfter (this.addAfter,
+                                                                this.chapterToAdd);
 
+            } else {
+        
+                this.dataObject = this.book.createChapterAfter (this.addAfter,
+                                                                this.nameField.getText ());
+
+            }
+                                                                
             this.projectViewer.saveObject (this.dataObject,
                                            true);
 
@@ -136,6 +171,13 @@ public class AddChapterActionHandler extends AbstractActionHandler
 
         }
 
+        if (this.afterAdd != null)
+        {
+            
+            UIUtils.doLater (this.afterAdd);
+            
+        }
+        
         return true;
 
     }
