@@ -5881,7 +5881,14 @@ public class Environment
     public static void showAchievement (AchievementRule ar)
     {
 
-        Environment.getFocusedViewer ().showAchievement (ar);
+        AbstractViewer v = Environment.getFocusedViewer ();
+        
+        if (v != null)
+        {
+            
+            v.showAchievement (ar);
+            
+        }
         
     }
 
