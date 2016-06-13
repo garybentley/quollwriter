@@ -15,7 +15,7 @@
     <item><![CDATA[Don't like the position of the tabs?  Change it in the options.  <a href="action:options.look">Click here to view options.</a>]]></item>
   </tip>
   <tip>
-    <item condition="!landingviewer"><![CDATA[Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href="action:textproperties">Click here to view the text properties now.</a>]]></item>
+    <item condition="chaptertab"><![CDATA[Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href="action:textproperties">Click here to view the text properties now.</a>]]></item>
   </tip>
   <tip>
     <item condition="!options"><![CDATA[Want to change something?  <a href="action:options">Check out the options, there might be a setting for it.</a>]]></item>
@@ -80,7 +80,7 @@
   </tip>
 
   <tip>
-    <item condition="chaptertab"><![CDATA[Want to check how readable your prose is?  <a href="action:readability">Click to view the check the readability now.</a><br />You can also check the readability by opening the word counts via <b>Ctrl+W</b> or use the [wordcount] button on the toolbar then select [readability]<b>Readability</b>.]]></item>
+    <item condition="chaptertab"><![CDATA[Want to check how readable your prose is?  <a href="action:wordcounts">Click to view the check the readability now.</a><br />You can also check the readability by opening the word counts via <b>Ctrl+W</b> or use the [wordcount] button on the toolbar.]]></item>
   </tip>
 
   <tip>
@@ -93,7 +93,7 @@
   </tip>
 
   <tip>
-    <item condition="chaptertab"><![CDATA[Missing the sound of a typewriter?  <a href="action:enabletypewritersound">Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the chapter tab of the <a href="action:options.project">project options</a>.]]></item>
+    <item condition="chaptertab"><![CDATA[Missing the sound of a typewriter?  <a href="action:enabletypewritersound">Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href="action:options.look">options</a>.]]></item>
   </tip>
   
   <tip>
