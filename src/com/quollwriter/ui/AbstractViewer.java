@@ -2233,7 +2233,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                         UIUtils.createQuestionPopup (_this,
                                                      "Stop showing tips?",
                                                      Constants.STOP_ICON_NAME,
-                                                     "Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:projectoptions'>Options panel</a>.",
+                                                     "Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:options.start'>Options panel</a>.",
                                                      "Yes, stop showing them",
                                                      "No, keep them",
                                                      new ActionListener ()
