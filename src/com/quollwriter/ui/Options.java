@@ -283,6 +283,7 @@ public class Options extends Box
     public void showSection (Section name)
     {
 
+        final Options _this = this;
         final Accordion.Item item = this.sections.get (name);
         
         if (item != null)
@@ -320,7 +321,7 @@ public class Options extends Box
             
             };            
                                                           
-            Timer cycle = UIUtils.createCyclicAnimator (l,
+            final Timer cycle = UIUtils.createCyclicAnimator (l,
                                                         l,
                                                         60,
                                                         1500,
@@ -340,10 +341,22 @@ public class Options extends Box
                                                            
                                                         });
             
-            // Scroll to it and open.
-            item.scrollRectToVisible (item.getBounds ());
-            
-            cycle.start ();
+            UIUtils.doLater (new ActionListener ()
+            {
+                
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    _this.scrollPane.scrollRectToVisible (SwingUtilities.convertRectangle (item,
+                                                                                           item.getBounds (),
+                                                                                           _this.scrollPane));
+                    
+                    cycle.start ();
+                    
+                }
+                
+            });
             
         }
         
