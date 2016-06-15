@@ -626,8 +626,8 @@ public class ObjectDocumentsEditPanel extends EditPanel
                     try
                     {
                         
-                        UIUtils.openURL (_this.viewer,
-                                         f.toURI ().toURL ());
+                        UIUtils.showFile (_this.viewer,
+                                          f);
                     
                     } catch (Exception e) {
                         
