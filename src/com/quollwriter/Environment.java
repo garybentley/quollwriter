@@ -1623,8 +1623,10 @@ public class Environment
             return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
             
         }
-        
+
         if ((p.isEditorProject ())
+            &&
+            (p.getForEditor () != null)
             &&
             (EditorsEnvironment.getEditorByEmail (p.getForEditor ().getEmail ()) == null)
            )

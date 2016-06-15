@@ -68,10 +68,10 @@ public class Project extends NamedObject
     //private EditorProject      editorProject = null;
     
     // TODO: Need a new object to encapsulate this stuff
-    private EditorEditor       forEditor = null;
+    //private EditorEditor       forEditor = null;
     private Set<ProjectEditor> projectEditors = null;
     private ProjectVersion     projVer = null;
-    
+
     public Project (Element pEl)
                     throws  Exception
     {
@@ -190,7 +190,9 @@ public class Project extends NamedObject
                     
                 }
                 
-                this.forEditor = ed;
+                this.setForEditor (editorEmail);
+                
+                //this.forEditor = ed;
                 
             }
             
@@ -212,20 +214,9 @@ public class Project extends NamedObject
             }
 
         }
-/*
-        String id = JDOMUtils.getAttributeValue (pEl,
-                                                 XMLConstants.editorsProjectId,
-                                                 false);
-        
-        if (!id.equals (""))
-        {
-            
-            this.editorsProjectId = id;
-            
-        }
-  */      
+
     }
-    
+   
     public Project()
     {
 
@@ -332,7 +323,7 @@ public class Project extends NamedObject
         }
         
         return new LinkedHashSet (this.projectEditors);
-        
+
     }
     
     public void setProjectEditors (Collection<ProjectEditor> eds)
@@ -348,10 +339,11 @@ public class Project extends NamedObject
         this.projectEditors = new TreeSet (eds);
         
     }
-    
-    public void setForEditor (EditorEditor ed)
+
+    public void setForEditor (String editorEmail) //EditorEditor ed)
     {
         
+/*        
         if ((this.forEditor != null)
             &&
             (ed == null)
@@ -373,12 +365,13 @@ public class Project extends NamedObject
         }
                 
         this.forEditor = ed;
-
+*/
         try
         {
 
             this.setProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME,
-                              this.forEditor.getEmail ());
+                              editorEmail);
+                              //this.forEditor.getEmail ());
 
         } catch (Exception e) {
             
@@ -435,7 +428,27 @@ public class Project extends NamedObject
     public EditorEditor getForEditor ()
     {
         
-        return this.forEditor;
+        if (this.isEditorProject ())
+        {
+            
+            // Get the editor email.
+            String edEmail = this.getProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME);
+
+            if (edEmail == null)
+            {
+                
+                // This is a strange situation, what to do?
+                return null;
+                
+            }
+            
+            return EditorsEnvironment.getEditorByEmail (edEmail);
+
+        }
+        
+        return null;
+        
+        //return this.forEditor;
         
     }
     
@@ -1401,12 +1414,14 @@ public class Project extends NamedObject
                                     "ideaTypes",
                                     this.ideaTypes.size ());
         
-        if (this.forEditor != null)
+        EditorEditor ed = this.getForEditor ();
+        
+        if (ed != null)
         {
             
             this.addToStringProperties (props,
                                         "forEditor",
-                                        this.forEditor.getEmail ());
+                                        ed.getEmail ());
             
         }
         
@@ -1794,12 +1809,14 @@ public class Project extends NamedObject
         pEl.addContent (dEl);
         dEl.addContent (this.getProjectDirectory ().getPath ());
 
-        if (this.forEditor != null)
+        EditorEditor ed = this.getForEditor ();
+        
+        if (ed != null)
         {
             
             Element fEl = new Element (XMLConstants.forEditor);
             pEl.addContent (fEl);
-            fEl.addContent (this.forEditor.getEmail ());            
+            fEl.addContent (ed.getEmail ());            
             
         }
         

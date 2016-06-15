@@ -237,7 +237,7 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
             if (ti.getSentenceCount () > 1)
             {
                 
-                genComm = ti.getNextClosestSentenceTo (-1).getText ();
+                genComm = ti.getFirstSentence ().getText ();
 
             }
                 

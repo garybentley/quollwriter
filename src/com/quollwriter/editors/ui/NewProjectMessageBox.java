@@ -501,7 +501,7 @@ public class NewProjectMessageBox extends MessageBox<NewProjectMessage> implemen
                                                 if (ti.getSentenceCount () > 1)
                                                 {
                                                     
-                                                    commText = ti.getNextClosestSentenceTo (-1).getText ();
+                                                    commText = ti.getFirstSentence ().getText ();
                                                 
                                                     commText += "<br /><a href='#'>More, click to view all.</a>";
                                                                          

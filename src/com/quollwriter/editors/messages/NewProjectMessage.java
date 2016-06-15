@@ -372,7 +372,7 @@ public class NewProjectMessage extends AbstractProjectMessage
         proj.setType (Project.EDITOR_PROJECT_TYPE);
         proj.setId (this.getForProjectId ());
         proj.setName (this.getForProjectName ());
-        proj.setForEditor (this.getEditor ());
+        proj.setForEditor (this.getEditor ().getEmail ());
        
         proj.setProjectVersion (this.getProjectVersion ());
        

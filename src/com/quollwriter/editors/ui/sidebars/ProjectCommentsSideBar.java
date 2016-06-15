@@ -168,7 +168,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
             if (sc > 1)
             {
                 
-                commText = ti.getNextClosestSentenceTo (-1).getText ();
+                commText = ti.getFirstSentence ().getText ();
             
                 commText += "<br /><a href='#'>More, click to view all.</a>";
                                      
@@ -351,7 +351,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                         if (ti.getSentenceCount () > 1)
                         {
                             
-                            genComm = ti.getNextClosestSentenceTo (-1).getText ();
+                            genComm = ti.getFirstSentence ().getText ();
     
                         }
                             

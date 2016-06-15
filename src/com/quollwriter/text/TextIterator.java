@@ -296,6 +296,27 @@ public class TextIterator
     }
     
     /**
+     * Get the first sentence of the first paragraph.
+     *
+     * @return The first sentence.
+     */
+    public Sentence getFirstSentence ()
+    {
+        
+        Paragraph p = this.getFirstParagraph ();
+        
+        if (p == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return p.getFirstSentence ();
+        
+    }
+    
+    /**
      * For index i, find the sentence that either starts on that boundary or the following sentence closest
      * to the boundary.
      *

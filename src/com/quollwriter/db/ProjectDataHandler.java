@@ -71,7 +71,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                     p.setProjectVersion (pvh.getLatest (conn));
 
                 }
-                
+                /*
                 // Get the editor email.
                 String edEmail = p.getProperty (Constants.FOR_EDITOR_EMAIL_PROPERTY_NAME);
 
@@ -85,11 +85,11 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                 EditorEditor ed = EditorsEnvironment.getEditorByEmail (edEmail);
                 
                 p.setForEditor (ed);
-                
+                */
             } else {
                 
                 // Get the project editors.
-                p.setProjectEditors (EditorsEnvironment.getProjectEditors (p.getId ()));
+                //p.setProjectEditors (EditorsEnvironment.getProjectEditors (p.getId ()));
                 
             }
             
