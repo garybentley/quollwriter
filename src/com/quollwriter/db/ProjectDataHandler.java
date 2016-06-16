@@ -89,7 +89,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             } else {
                 
                 // Get the project editors.
-                //p.setProjectEditors (EditorsEnvironment.getProjectEditors (p.getId ()));
+                p.setProjectEditors (EditorsEnvironment.getProjectEditors (p.getId ()));
                 
             }
             
