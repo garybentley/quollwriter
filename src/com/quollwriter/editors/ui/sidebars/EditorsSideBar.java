@@ -426,6 +426,13 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                         
                                                         _this.hideNotification ();
                                                         
+                                                        if (fnp != null)
+                                                        {
+                                                            
+                                                            fnp.removeFromParent ();
+                                                            
+                                                        }                                                        
+                                                        
                                                         EditorsUIUtils.showLoginError ("Unable to login, please check your email and password.",
                                                                                        new ActionListener ()
                                                                                        {
