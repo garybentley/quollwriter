@@ -4124,7 +4124,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         this.initSideBars ();
 
         this.initDictionaryProvider ();
-                
+
         this.handleOpenProject ();
 
         Environment.incrStartupProgress ();
@@ -4136,7 +4136,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         Environment.incrStartupProgress ();        
         
         this.initWindow ();
-        
+
         this.setSplitPaneColor ();
         
         // Init all the panels.
@@ -4262,7 +4262,7 @@ xxx
 			@Override
 			public void actionPerformed (ActionEvent ev)
 			{
-				
+				                
 				try
 				{
 					
@@ -4379,7 +4379,7 @@ xxx
 			@Override
 			public void run ()
 			{
-				
+
 				try
 				{
 										
@@ -4828,7 +4828,7 @@ xxx
         String openTabs = this.getOpenTabsProperty ();
 
         this.openPanelsFromObjectIdList (openTabs);
-                
+     
         String lastOpen = this.proj.getProperty (Constants.LAST_OPEN_TAB_PROPERTY_NAME + suffix);
 
         if (lastOpen != null)
@@ -6945,7 +6945,7 @@ xxx
     {
 
         this.updateToolbarForPanel (qp);
-    
+
         if (!this.inFullScreen ())
         {
     
@@ -8022,6 +8022,9 @@ xxx
 		
 		ChapterCounts cc = new ChapterCounts (t);
         
+        cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
+                                                                 t);
+        
 		this.chapterCounts.put (c,
 								cc);		
 		
@@ -8034,7 +8037,7 @@ xxx
 												 this.getCurrentChapterText (c));
 	
 	}
-	
+	/*
 	public int getAllChaptersA4PageCount ()
 	{
 
@@ -8056,7 +8059,7 @@ xxx
 		return a;
 		
 	}
-	
+	*/
     public ChapterCounts getAllChapterCounts ()
     {
 

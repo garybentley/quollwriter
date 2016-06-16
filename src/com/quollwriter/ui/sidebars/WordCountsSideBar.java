@@ -90,6 +90,24 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     {
         
         final WordCountsSideBar _this = this;
+
+        if (this.timer == null)
+        {
+                    
+            this.timer = new Timer (2 * Constants.SEC_IN_MILLIS,
+                                    new ActionAdapter ()
+                                    {
+                                       
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
+                                       
+                                            _this.update ();
+                                            
+                                        }
+                                        
+                                    });
+
+        }
         
         // Start the timer.
         this.timer.start ();
@@ -111,6 +129,8 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     @Override
     public void onHide ()
     {
+        
+        this.timer.stop ();
         
     }
     
@@ -253,13 +273,16 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                 
             } 
             
-            int a4Count = this.viewer.getChapterA4PageCount (c);
+            //int a4Count = 0; //this.viewer.getChapterA4PageCount (c);
             
             ChapterCounts chc = this.viewer.getChapterCounts (c);
             
             this.chapterEditPointBox.setVisible (false);
 
-            if (c.getEditPosition () > 0)
+            if ((c.getEditPosition () > 0)
+                &&
+                (chc != null)
+               )
             {
 
                 // Get the text.
@@ -283,7 +306,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             
                 this.chapterWordCount.setText (Environment.formatNumber (chc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount)) + "%");
                 
-                this.chapterPages.setText (Environment.formatNumber (a4Count));
+                this.chapterPages.setText (Environment.formatNumber (chc.standardPageCount));
                 
                 this.chapterReadability.setVisible (false);
                 this.chapterReadabilityHeader.setVisible (false);
@@ -458,7 +481,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         
         this.allChaptersWordCount.setText (Environment.formatNumber (achc.wordCount));
 
-        this.allChaptersPages.setText (Environment.formatNumber (this.viewer.getAllChaptersA4PageCount ()));
+        this.allChaptersPages.setText (Environment.formatNumber (achc.standardPageCount)); //this.viewer.getAllChaptersA4PageCount ()));
 
         this.allChaptersEditPointBox.setVisible (false);
                 
@@ -1079,29 +1102,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     {
 
         super.init ();
- 
-        if (this.timer != null)
-        {
-            
-            return;
-            
-        }
-    
-        final WordCountsSideBar _this = this;
-                
-        this.timer = new Timer (2 * Constants.SEC_IN_MILLIS,
-                                new ActionAdapter ()
-                                {
-                                   
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-                                   
-                                        _this.update ();
-                                        
-                                    }
-                                    
-                                });
-                
+                 
     }    
     
 }

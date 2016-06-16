@@ -102,6 +102,9 @@ public class UIUtils
     
     public static final Point defaultLeftCornerShowPopupAt = new Point (10, 10);
     
+    private static final QTextEditor wordCountPerPageEditor = new QTextEditor (null,
+                                                                               false);
+    
     // Deliberately null so that the center of the window is found when the popup is shown.
     public static final Point defaultCenterShowPopupAt = null;
     
@@ -6077,7 +6080,7 @@ public class UIUtils
     public static int getA4PageCountForChapter (Chapter c,
                                                 String  text)
     {
-        
+    
         if ((text == null)
             ||
             (text.trim ().length () == 0)
@@ -6089,8 +6092,11 @@ public class UIUtils
         }
         
         // Create a new editor.
+        QTextEditor ed = UIUtils.wordCountPerPageEditor;
+/*
         QTextEditor ed = new QTextEditor (null,
                                           false);
+                                          */
         ed.setSectionBreak (Constants.SECTION_BREAK);
 
         ed.setLineSpacing (c.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
@@ -6113,7 +6119,7 @@ public class UIUtils
 
         ed.setSize (new Dimension ((int) (pageWidth * ppi),
                                    ed.getPreferredSize ().height));
-
+ 
         // Get the height, divide by the page size.
         int a4PageCount = (int) (ed.getHeight () / (pageHeight * ppi));
 
@@ -6139,7 +6145,7 @@ public class UIUtils
 
         }
         */
-                
+              
         return a4PageCount;        
         
     }
