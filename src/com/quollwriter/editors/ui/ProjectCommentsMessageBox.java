@@ -77,10 +77,10 @@ public class ProjectCommentsMessageBox extends MessageBox<ProjectCommentsMessage
                         
         }            
                         
-        final String text = String.format ("%s {Comment%s}", // %s
+        final String text = String.format ("%s {Comment%s} %s", // %s
                                            this.message.getComments ().size (),
-                                           (this.message.getComments ().size () > 1 ? "s" : ""));
-                                           //(this.message.isSentByMe () ? "sent" : "received"));
+                                           (this.message.getComments ().size () > 1 ? "s" : ""),
+                                           (this.message.isSentByMe () ? "sent" : "received"));
                 
         JComponent h = UIUtils.createBoldSubHeader (text,
                                                     Constants.COMMENT_ICON_NAME);
