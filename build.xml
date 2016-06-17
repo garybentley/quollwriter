@@ -64,7 +64,7 @@
     <java classname="com.quollwriter.Startup" 
           maxmemory="512m"
           fork="yes">
-        <arg value="_debugMode" />        
+        <arg value="_debugMode" />
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xnoagent" />
         <!--
@@ -379,7 +379,7 @@
            debug="on"
            deprecation="on"
            nowarn="on"
-           excludes="**/svn/**">
+           excludes="**/svn/**,**/*_fx*">
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />    
@@ -519,10 +519,12 @@
             outfile="./test/results/problem-finder-results" />
       <test name="com.quollwriter.test.text.TextTestSuite"
             outfile="./test/results/text-results" />
+      <!--
       <test name="com.quollwriter.test.db.DatabaseTestSuite"
             outfile="./test/results/db-results" />
       <test name="com.quollwriter.test.editors.messages.MessagesTestSuite"
             outfile="./test/results/editors-messages-results" />
+      -->
     </junit>
            
   </target>
@@ -540,6 +542,8 @@
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />    
         <fileset dir="./3rd-party-jars/docx4j-jars"
+                 includes="*.jar" />    
+        <fileset dir="${testBinDir}"
                  includes="*.jar" />    
       </classpath>
     </javac>
