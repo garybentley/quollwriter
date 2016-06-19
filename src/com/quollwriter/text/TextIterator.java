@@ -11,6 +11,13 @@ public class TextIterator
     public TextIterator (String t)
     {
                 
+        if (t == null)
+        {
+            
+            return;
+                
+        }
+        
         int l = t.length ();
                 
         Paragraph last = null;
