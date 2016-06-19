@@ -156,6 +156,83 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
         
     }
 
+    public Set<Note> getNotesForVersion (ProjectVersion pv,
+                                         Connection     conn)
+                                  throws GeneralException
+    {
+
+        if (pv == null)
+        {
+            
+            throw new IllegalArgumentException ("Must provide a project version");
+            
+        }
+    
+        boolean closeConn = false;
+        
+        if (conn == null)
+        {
+            
+            conn = this.objectManager.getConnection ();
+            
+            closeConn = true;
+            
+        }
+        
+        try
+        {
+
+            Set<Note> ret = new LinkedHashSet ();
+        
+            List params = new ArrayList ();
+            params.add (pv.getKey ());
+        
+            ResultSet rs = this.objectManager.executeQuery (String.format ("%s WHERE objectdbkey IN (SELECT dbkey FROM chapter WHERE projectversiondbkey = ?) ORDER BY datecreated",
+                                                                           STD_SELECT_PREFIX),
+                                                            params,
+                                                            conn);
+
+            while (rs.next ())
+            {
+
+                ret.add (this.getNote (rs,
+                                       true));
+
+            }
+
+            try
+            {
+
+                rs.close ();
+
+            } catch (Exception e)
+            {
+            }
+
+            return ret;
+                                                                                    
+        } catch (Exception e) {
+            
+            this.objectManager.throwException (conn,
+                                               "Unable to get notes for project version: " +
+                                               pv,
+                                               e);
+            
+        } finally {
+                        
+            if (closeConn)
+            {
+                
+                this.objectManager.releaseConnection (conn);
+                
+            }
+            
+        }        
+        
+        return null;
+        
+    }
+    
     public Set<Note> getDealtWith (ProjectVersion pv,
                                    boolean        isDealtWith,
                                    Connection     conn)

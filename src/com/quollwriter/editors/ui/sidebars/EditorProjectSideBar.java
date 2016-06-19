@@ -293,28 +293,45 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                     try
                     {
                         
-                        int c = _this.viewer.getUnsentComments (pv).size ();
+                        Set<Note> comms = _this.viewer.getNotesForVersion (pv);
                         
-                        if (c > 0)
+                        int unsent = 0;
+                        
+                        for (Note n : comms)
                         {
                             
-                            if (c == 1)
+                            if (!n.isDealtWith ())
                             {
                                 
-                                s.append ("<b>1</b> unsent comment");
-                                
-                            } else {
-                            
-                                s.append (String.format ("<b>%s</b> unsent comments",
-                                                         Environment.formatNumber (c)));
+                                unsent++;
                                 
                             }
-                                        
-                        } else {
-                            
-                            s.append ("All comments sent");
                             
                         }
+                        
+                        String t = String.format ("%s {comment%s}",
+                                                  Environment.formatNumber (comms.size ()),
+                                                  (comms.size () == 1 ? "" : "s"));
+                        
+                        if (unsent > 0)
+                        {
+                            
+                            t += String.format (", <span style='color: red;'><b>%s</b> unsent</span>",
+                                                Environment.formatNumber (unsent));
+                            
+                        } else {
+                            
+                            t += ", all sent";
+                            
+                        }
+                        
+                        s.append (t);
+
+                        JLabel info = UIUtils.createInformationLabel (s.toString ());
+                        
+                        info.setBorder (UIUtils.createPadding (0, 5, 0, 5));
+                        
+                        b.add (info);
                         
                     } catch (Exception e) {
                         
@@ -323,12 +340,7 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
                                               e);
                         
                     }
-                    JLabel info = UIUtils.createInformationLabel (s.toString ());
-                    
-                    info.setBorder (UIUtils.createPadding (0, 5, 0, 5));
-                    
-                    b.add (info);
-                    
+                                        
                     b.setToolTipText (String.format ("<html>Click to view version <b>%s</b>.</html>",
                                                      pv.getName ()));
                     

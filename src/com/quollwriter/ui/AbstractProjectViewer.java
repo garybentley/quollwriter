@@ -8691,6 +8691,17 @@ xxx
         
     }
 
+    public Set<Note> getNotesForVersion (ProjectVersion pv)
+                                  throws GeneralException
+    {
+        
+        NoteDataHandler ndh = (NoteDataHandler) this.dBMan.getHandler (Note.class);
+        
+        return ndh.getNotesForVersion (pv,
+                                       null);
+
+    }
+    
     public Set<Note> getDealtWithNotes (ProjectVersion pv,
                                         boolean        isDealtWith)
                                  throws GeneralException
