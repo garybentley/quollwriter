@@ -69,10 +69,13 @@ public class TextArea extends Box
         if (placeholder != null)
         {
             
+            Color c = this.text.getForeground ();
+            
             this.placeholder = Environment.replaceObjectNames (placeholder);
             this.text.setTextWithMarkup (new StringWithMarkup (this.placeholder));
             this.text.setFontColor (UIUtils.getHintTextColor ());
             this.text.getCaret ().setDot (0);
+            this.text.setCaretColor (c);
             this.spellCheckEnabled = false;
             
         }
