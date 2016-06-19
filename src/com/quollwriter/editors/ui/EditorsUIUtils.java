@@ -4957,7 +4957,7 @@ public class EditorsUIUtils
         {
             
             proj = Environment.getProjectById (message.getForProjectId (),
-                                               Project.NORMAL_PROJECT_TYPE);
+                                               (message.isSentByMe () ? Project.EDITOR_PROJECT_TYPE : Project.NORMAL_PROJECT_TYPE));
         
         } catch (Exception e) {
             
