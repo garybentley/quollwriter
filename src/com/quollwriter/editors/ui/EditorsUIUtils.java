@@ -5673,7 +5673,7 @@ public class EditorsUIUtils
                                                       EditorRemovedMessage.MESSAGE_TYPE));
         
         EditorsUIUtils.showMessagesInPopup ("All messages",
-                                            Constants.ERROR_ICON_NAME,
+                                            Constants.FIND_ICON_NAME,
                                             String.format ("All messages you've sent to and/or received from <b>%s</b>.",
                                                            ed.getShortName ()),
                                             messages,
