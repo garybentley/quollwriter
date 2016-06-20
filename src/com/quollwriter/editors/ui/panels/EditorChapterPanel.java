@@ -918,7 +918,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
         super.restoreBackgroundColor ();
 
-        this.iconColumn.setBackground (IconColumn.defaultBGColor);
+        //this.iconColumn.setBackground (IconColumn.defaultBGColor);
 
     }
 
@@ -926,7 +926,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
     {
 
         super.setBackgroundColor (c);
-
+/*
         if (c.equals (Color.white))
         {
 
@@ -938,7 +938,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             this.iconColumn.setBackground (c);
 
         }
-
+*/
     }
 
    private static class CutNPasteTransferHandler extends TransferHandler 
