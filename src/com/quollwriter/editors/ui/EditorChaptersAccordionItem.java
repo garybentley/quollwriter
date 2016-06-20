@@ -89,6 +89,51 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
         this.tree.setCellRenderer (new ProjectTreeCellRenderer (true)
         {
            
+            public Component getTreeCellRendererComponent (JTree   tree,
+                                                           Object  value,
+                                                           boolean sel,
+                                                           boolean expanded,
+                                                           boolean leaf,
+                                                           int     row,
+                                                           boolean hasFocus)
+            {
+        
+                Component co= super.getTreeCellRendererComponent (tree,
+                                                    value,
+                                                    sel,
+                                                    expanded,
+                                                    leaf,
+                                                    row,
+                                                    hasFocus);
+                
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+        
+                value = node.getUserObject ();                
+                
+                if (value instanceof Chapter)
+                {
+        
+                    Chapter c = (Chapter) value;
+        
+                    String n = c.getName ();
+                    
+                    int s = c.getNotes ().size ();
+                    
+                    if (s > 0)
+                    {
+                    
+                        n += " (" + c.getNotes ().size () + ")";
+                        
+                    }
+                
+                    this.setText (n);
+        
+                }
+
+                return this;
+                
+            }          
+           
             @Override
             public String getIconType (DataObject             d,
                                        DefaultMutableTreeNode par)
