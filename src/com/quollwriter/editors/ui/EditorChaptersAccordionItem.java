@@ -38,12 +38,13 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
     
     }
         
-    public void reloadTree (JTree tree)
+    @Override
+    public void reloadTree ()
     {
         
         java.util.List<TreePath> openPaths = new ArrayList ();
         
-        Enumeration<TreePath> paths = tree.getExpandedDescendants (new TreePath (tree.getModel ().getRoot ()));
+        Enumeration<TreePath> paths = this.tree.getExpandedDescendants (new TreePath (this.tree.getModel ().getRoot ()));
 
         if (paths != null)
         {
@@ -57,32 +58,56 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
 
         }
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
-                                                                                  null,
-                                                                                  null,
-                                                                                  false));        
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
+                                                                                       null,
+                                                                                       null,
+                                                                                       false));        
 
-        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel ();
+        DefaultTreeModel dtm = (DefaultTreeModel) this.tree.getModel ();
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot ();
 
         for (TreePath p : openPaths)
         {
 
-            tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                               ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
+            this.tree.expandPath (UIUtils.getTreePathForUserObject (root,
+                                                                    ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
 
         }        
         
     }    
     
-    public void init (JTree tree)
+    @Override
+    public void initTree ()
     {
 
-        ((DefaultTreeModel) tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
-                                                                                  null,
-                                                                                  null,
-                                                                                  false));
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
+                                                                                       null,
+                                                                                       null,
+                                                                                       false));
+        
+        this.tree.setCellRenderer (new ProjectTreeCellRenderer (true)
+        {
+           
+            @Override
+            public String getIconType (DataObject             d,
+                                       DefaultMutableTreeNode par)
+            {
+             
+                if (d instanceof Note)
+                {
+             
+                    return Constants.COMMENT_ICON_NAME;
+             
+                }
+                                
+                return super.getIconType (d,
+                                          par);
+                
+            }
+            
+        });
+        
     }
 
     @Override
