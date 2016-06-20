@@ -472,7 +472,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
 
         super.restoreBackgroundColor ();
 
-        this.iconColumn.setBackground (IconColumn.defaultBGColor);
+        //this.iconColumn.setBackground (IconColumn.defaultBGColor);
 
     }
 
@@ -480,7 +480,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
    {
 
        super.setBackgroundColor (c);
-
+/*
        if (c.equals (Color.white))
        {
 
@@ -492,7 +492,7 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
            this.iconColumn.setBackground (c);
 
        }
-
+*/
    }
 
    public void removeItem (ChapterItem c)
