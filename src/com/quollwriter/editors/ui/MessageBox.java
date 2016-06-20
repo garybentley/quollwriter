@@ -25,6 +25,7 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
     protected boolean showAttentionBorder = true;
     private Box content = null;
     private PropertyChangedListener updateListener = null;
+    private AbstractViewer childViewer = null;
     
     public MessageBox (E              mess,
                        AbstractViewer viewer)
@@ -174,6 +175,20 @@ public abstract class MessageBox<E extends EditorMessage> extends Box implements
     }
     
     public abstract boolean isAutoDealtWith ();
+    
+    public AbstractViewer getChildViewer ()
+    {
+        
+        return this.childViewer;
+        
+    }
+    
+    public void setChildViewer (AbstractViewer v)
+    {
+        
+        this.childViewer = v;
+        
+    }
     
     @Override
     public Component add (Component c)

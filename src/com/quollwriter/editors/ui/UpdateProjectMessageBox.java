@@ -129,8 +129,9 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
         
         this.add (h);
                 
-        JComponent bp = NewProjectMessageBox.getProjectMessageDetails (this.message,
-                                                                       this.viewer);
+        JComponent bp = EditorsUIUtils.getProjectMessageDetails (this.message,
+                                                                 this.viewer,
+                                                                 this);
         bp.setBorder (UIUtils.createPadding (0, 5, 0, 5));        
         
         this.add (bp);                             
