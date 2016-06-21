@@ -6214,7 +6214,7 @@ public class Environment
         try
         {
             
-            List<ProjectInfo> pis = new ArrayList (Environment.getAllProjectInfos ());
+            List<ProjectInfo> pis = new ArrayList (Environment.getAllProjectInfos (Project.NORMAL_PROJECT_TYPE));
             
             Collections.sort (pis,
                               new ProjectInfoSorter ());
