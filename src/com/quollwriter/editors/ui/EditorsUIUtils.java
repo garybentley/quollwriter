@@ -1194,6 +1194,9 @@ public class EditorsUIUtils
                                                             NewProjectMessage.MESSAGE_TYPE,
                                                             UpdateProjectMessage.MESSAGE_TYPE);
         
+        SortedSet<EditorMessage> projRes = ed.getMessages (p.getId (),
+                                                           NewProjectResponseMessage.MESSAGE_TYPE);
+                                                           
         boolean update = false;
         
         Set<String> chapterIds = new HashSet ();
@@ -1207,7 +1210,7 @@ public class EditorsUIUtils
             // Get the last one.
             EditorMessage last = messages.last ();
 
-            update = true;
+            update = (projRes.size () == 0);
                         
             AbstractProjectMessage pm = (AbstractProjectMessage) last;
 
@@ -1234,7 +1237,7 @@ public class EditorsUIUtils
         
             if (last instanceof UpdateProjectMessage)
             {
-                                
+                
                 if (verName != null)
                 {
                 
@@ -5189,6 +5192,21 @@ public class EditorsUIUtils
             
             UIUtils.showMessage (parentViewer,
                                  "The {project} for this update no longer exists.");
+            
+            message.setDealtWith (true);
+            
+            try
+            {
+            
+                EditorsEnvironment.updateMessage (message);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to update project message: " +
+                                      message,
+                                      e);                
+                
+            }
             
             return;
             
