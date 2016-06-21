@@ -342,6 +342,35 @@ public class JSONEncoder
 
         }
 
+        if (o instanceof StringWithMarkup)
+        {
+
+            StringWithMarkup s = (StringWithMarkup) o;
+        
+            Map props = new LinkedHashMap ();
+
+            if (s.getMarkup () != null)
+            {
+            
+                props.put ("markup",
+                           s.getMarkup ().toString ());
+                
+            }
+        
+            if (s.getText () != null)
+            {
+            
+                props.put ("text",
+                           s.getText ());
+                
+            }
+
+            return JSONEncoder.encode (props,
+                                       prettyPrint,
+                                       indent);
+
+        }
+
         if (o instanceof Collection)
         {
 
@@ -385,9 +414,6 @@ public class JSONEncoder
             
         }
   */
-
-        Environment.logMessage ("JSON string encoding unsupported object type: " +
-                                o.getClass ().getName ());
   
         return JSONEncoder.encode (o.toString (),
                                    prettyPrint,
