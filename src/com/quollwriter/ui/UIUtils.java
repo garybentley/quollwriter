@@ -6520,7 +6520,18 @@ public class UIUtils
 
         JButton b = new JButton (Environment.replaceObjectNames (Environment.getButtonLabel (label)),
                                  (icon == null ? null : Environment.getIcon (icon,
-                                                                             Constants.ICON_MENU)));
+                                                                             Constants.ICON_MENU)))
+        {
+            
+            @Override
+            public void setToolTipText (String t)
+            {
+                
+                super.setToolTipText (Environment.replaceObjectNames (t));
+                
+            }            
+            
+        };
 
         return b;
 
