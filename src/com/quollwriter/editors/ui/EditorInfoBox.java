@@ -1635,7 +1635,8 @@ if (viewer == null)
             {
                 
                 // Sent the project.  Do nothing since we have no response.
-                return;                
+                addSend = true;
+                //return;                
                 
             }
         
