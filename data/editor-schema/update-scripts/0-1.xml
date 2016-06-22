@@ -30,6 +30,8 @@ CREATE TABLE namedobject
     dbkey BIGINT NOT NULL,
     name CLOB,
     description CLOB,
+    markup CLOB,
+    files CLOB,
     lastmodified TIMESTAMP,
     PRIMARY KEY (dbkey)
 )
