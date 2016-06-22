@@ -173,6 +173,15 @@ public class EditorsEnvironment
                                     
                                 }
 
+                                if (email == null)
+                                {
+                                    
+                                    // Can't login, no account, this can happen if the user used to have an account and has
+                                    // deleted it with the setting enabled.
+                                    return;
+                                    
+                                }
+                                
                                 // Add a notification to the project viewer saying we are logging in.
                                 final AbstractViewer viewer = Environment.getFocusedViewer ();
                                 
@@ -1249,7 +1258,12 @@ public class EditorsEnvironment
         EditorsEnvironment.goOffline ();
         
         // Close all the db connections.
-        EditorsEnvironment.editorsManager.closeConnectionPool ();
+        if (EditorsEnvironment.editorsManager != null)
+        {
+            
+            EditorsEnvironment.editorsManager.closeConnectionPool ();
+            
+        }
         
     }
     public static void goOffline ()
@@ -1725,6 +1739,7 @@ public class EditorsEnvironment
             {
 
                 final AbstractViewer viewer = Environment.getFocusedViewer ();
+                boolean add = false;
                 
                 // See if we already have this editor and this is a resend.
                 EditorEditor fed = EditorsEnvironment.getEditorByEmail (toEmail);
@@ -1733,6 +1748,7 @@ public class EditorsEnvironment
                 {
                     
                     fed = new EditorEditor ();
+                    add = true;
                     
                 }                
                 
@@ -1769,7 +1785,7 @@ public class EditorsEnvironment
                     ed.setMessagingUsername (inv.getToMessagingUsername ());
                     ed.setServiceName (inv.getToServiceName ());
                     
-                    if (fed == null)
+                    if (add)
                     {
                     
                         // Add as new.
