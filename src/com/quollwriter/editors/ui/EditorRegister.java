@@ -638,7 +638,7 @@ public class EditorRegister extends Wizard
 
             ws.title = "Getting started";
 
-            ws.helpText = String.format ("Welcome to the Quoll Writer Editors Service.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your {editors} database.<br /><br /><span class='warning'>The Editors Service and Editor Mode functions are still in beta.  They work but might be subject to change in future releases.</span><br /><br />%s",
+            ws.helpText = String.format ("Welcome to the Quoll Writer Editors Service.  The registration process only takes a minute and the service is free to use (no really).<br /><br />If you've already registered don't worry just use the link at the bottom to find your {editors} database.<br /><br />%s",
                                          Environment.getQuollWriterHelpLink ("editor-mode/overview",
                                                                              "Find out more about the editor service."));
             
