@@ -1192,12 +1192,10 @@ public class Environment
             throw new IllegalStateException ("Cannot closedown when there are open projects.");
         
         }
-        
+
         Environment.generalTimer.cancel ();
         Environment.generalTimer.purge ();
-        
-        Environment.generalTimer = null;
-    
+            
         if (Environment.landingViewer != null)
         {
             
