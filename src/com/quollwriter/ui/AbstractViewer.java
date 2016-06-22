@@ -2500,8 +2500,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.generalTimer.cancel ();
         this.generalTimer.purge ();
         
-        this.generalTimer = null;
-		
 		UIUtils.doLater (afterClose);
 
         return true;
