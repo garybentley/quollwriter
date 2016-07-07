@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.5" />
+  <property name="currVersion" value="2.5.1" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -15,7 +15,7 @@
   <property name="toolsJarName" value="${binDir}/${projectName}-tools.jar" />
   <property name="imagesJarName" value="${binDir}/${projectName}-images.jar" />
   <property name="dataJarName" value="${binDir}/${projectName}-data.jar" />
-  <property name="promptsJarName" value="${binDir}/${projectName}-prompts.jar" />  
+  <property name="promptsJarName" value="${binDir}/${projectName}-prompts.jar" />
   <property name="dictionariesJarName" value="${binDir}/${projectName}-dictionaries.jar" />
   <property name="upgradeQuollWriterJar" value="${binDir}/${projectName}-upgrade.jar" />
   <property name="docsDir" value="./docs" />
@@ -27,12 +27,12 @@
   <property name="testBuildDir" value="${testDir}/build" />
   <property name="testBinDir" value="${testDir}/bin" />
   <property name="testJarName" value="${testBinDir}/${projectName}-tests.jar" />
-  
+
   <target name="init">
 
     <mkdir dir="${buildDir}" />
     <mkdir dir="${srcDir}" />
-    <mkdir dir="${binDir}" />    
+    <mkdir dir="${binDir}" />
     <tstamp>
       <format property="TODAY" pattern="dd/MMM/yy" />
     </tstamp>
@@ -44,12 +44,12 @@
   <target name="cleanTestBuild">
     <delete dir="${testBuildDir}" />
   </target>
-  
+
   <target name="testInit">
 
     <mkdir dir="${testBuildDir}" />
     <mkdir dir="${testSrcDir}" />
-    <mkdir dir="${testBinDir}" />    
+    <mkdir dir="${testBinDir}" />
 
   </target>
 
@@ -61,7 +61,7 @@
   </target>
 
   <target name="run" depends="init, createJar, createPromptsJar, createDataJar, createImagesJar">
-    <java classname="com.quollwriter.Startup" 
+    <java classname="com.quollwriter.Startup"
           maxmemory="512m"
           fork="yes">
         <arg value="_debugMode" />
@@ -77,18 +77,18 @@
       <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </java>
   </target>
-  
+
   <target name="runfx" depends="init, createJar, createPromptsJar, createDataJar, createImagesJar">
-    <java classname="com.quollwriter.Startup_fx" 
+    <java classname="com.quollwriter.Startup_fx"
           maxmemory="512m"
           fork="yes">
-        <arg value="_debugMode" />        
+        <arg value="_debugMode" />
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xnoagent" />
         <!--
@@ -101,15 +101,15 @@
       <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </java>
   </target>
 
   <target name="runOnly" depends="init">
-    <java classname="com.quollwriter.Startup" 
+    <java classname="com.quollwriter.Startup"
           maxmemory="512m"
           fork="yes">
         <arg value="-Dlog4j.configuration=log4j.xml" />
@@ -117,11 +117,11 @@
       <classpath path="${jarName}:${imagesJarName}:${promptsJarName}:${dataJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./installer"
-                 includes="log4j.xml" />    
+                 includes="log4j.xml" />
       </classpath>
     </java>
   </target>
@@ -157,7 +157,7 @@
         </section>
       </manifest>
     </jar>
-  
+
   </target>
 
   <target name="createDataJar">
@@ -216,7 +216,7 @@
         </section>
       </manifest>
     </jar>
-  
+
   </target>
 
   <target name="createPromptsJar">
@@ -237,11 +237,11 @@
         </section>
       </manifest>
     </jar>
-  
+
   </target>
 
   <target name="createLanguageFiles">
-    
+
     <delete file="./language-files/output/English.zip" />
     <delete file="./language-files/output/English-dictionary-only.zip" />
     <delete file="./language-files/output/Czech.zip" />
@@ -252,7 +252,7 @@
     <delete file="./language-files/output/Polish.zip" />
     <delete file="./language-files/output/Russian.zip" />
     <delete file="./language-files/output/Spanish.zip" />
-    
+
     <zip destfile="./language-files/output/English.zip"
          update="yes">
       <fileset dir="./language-files">
@@ -325,13 +325,13 @@
         <include name="dictionaries/Spanish.zip" />
       </fileset>
     </zip>
-    
+
   </target>
-  
+
   <target name="createJar" depends="fullCompile">
     <property name="title" value="QuollWriter" />
     <property name="package" value="com/quollwriter" />
-    
+
     <jar destfile="${jarName}" >
       <fileset dir="${buildDir}"
                excludes="com/quollwriter/tools/*"
@@ -352,7 +352,7 @@
   <target name="createToolsJar" depends="fullCompile">
     <property name="title" value="QuollWriter Tools" />
     <property name="package" value="com/quollwriter/tools" />
-    
+
     <jar destfile="${toolsJarName}" >
       <fileset dir="${buildDir}"
                includes="com/quollwriter/tools/*.class" />
@@ -368,7 +368,7 @@
     </jar>
 
   </target>
-  
+
   <target name="fullCompile" depends="cleanBuild, init">
     <antcall target="compile" />
   </target>
@@ -382,12 +382,12 @@
            excludes="**/svn/**,**/*_fx*">
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </javac>
-           
+
   </target>
 
   <!--
@@ -412,9 +412,9 @@
              bottom="&lt;center>&amp;#160;&amp;#160;&lt;/a>Copyright &amp;#169; ${year} Gary Bentley. All Rights Reserved.&lt;/dd>&lt;/center>">
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
 
        <link href="http://java.sun.com/j2se/1.4.2/docs/api" />
@@ -426,7 +426,7 @@
   </target>
 
   <target name="createPromptFiles" depends="init">
-    <java classname="com.quollwriter.tools.CreatePromptFiles" 
+    <java classname="com.quollwriter.tools.CreatePromptFiles"
           maxmemory="512m"
           fork="yes">
         <arg value="./prompts.txt" />
@@ -435,39 +435,39 @@
       <classpath path="${jarName};${toolsJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </java>
   </target>
 
   <target name="createDictionaryFiles" depends="init">
-    <java classname="com.quollwriter.tools.CreateDictionaryFiles" 
+    <java classname="com.quollwriter.tools.CreateDictionaryFiles"
           maxmemory="512m"
           fork="yes">
         <arg value="./dictionaries" />
       <classpath path="${jarName};${toolsJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </java>
   </target>
 
   <target name="getPromptAuthors" depends="init">
-    <java classname="com.quollwriter.tools.GetPromptAuthors" 
+    <java classname="com.quollwriter.tools.GetPromptAuthors"
           maxmemory="512m"
           fork="yes">
         <arg value="./data/prompts/" />
       <classpath path="${jarName};${toolsJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </java>
   </target>
@@ -481,21 +481,21 @@
            includes="DictionaryTest.java">
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </javac>
-           
-    <java classname="DictionaryTest" 
+
+    <java classname="DictionaryTest"
           maxmemory="512m"
           fork="yes">
       <classpath path=".;${jarName};${toolsJarName}" />
       <classpath>
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </java>
 
@@ -506,13 +506,13 @@
            printsummary="yes">
       <classpath>
         <fileset dir="${binDir}"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="${testBinDir}"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />            
+                 includes="*.jar" />
       </classpath>
       <formatter type="plain" />
       <test name="com.quollwriter.test.problemFinder.ProblemFinderTestSuite"
@@ -526,34 +526,34 @@
             outfile="./test/results/editors-messages-results" />
       -->
     </junit>
-           
+
   </target>
-  
+
   <target name="compileTests" depends="cleanTestBuild,testInit">
     <javac srcdir="${testSrcDir}"
            destdir="${testBuildDir}"
            debug="on"
            deprecation="on"
-           nowarn="on"           
+           nowarn="on"
            excludes="**/svn/**">
       <classpath>
         <fileset dir="${binDir}"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="./3rd-party-jars/docx4j-jars"
-                 includes="*.jar" />    
+                 includes="*.jar" />
         <fileset dir="${testBinDir}"
-                 includes="*.jar" />    
+                 includes="*.jar" />
       </classpath>
     </javac>
-           
+
   </target>
 
   <target name="createTestsJar" depends="compileTests">
     <property name="title" value="QuollWriter-tests" />
     <property name="package" value="com/quollwriter/test" />
-    
+
     <jar destfile="${testJarName}" >
       <fileset dir="${testBuildDir}"
                includes="**/*.class" />
@@ -571,5 +571,5 @@
     </jar>
 
   </target>
-  
+
 </project>
