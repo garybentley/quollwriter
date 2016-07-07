@@ -1,6 +1,6 @@
 <whatsnew>
 
-  <version id="2.4.1">
+  <version id="2.5.1">
     <item onlyIfCurrentVersion="true">
       <title>Bug squashing</title>
       <description><![CDATA[Fixed a bug relating to shutdown after a new user creates their first project.  Fixed a bug that prevented the Editors environment from being inited.]]></description>
