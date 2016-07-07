@@ -99,16 +99,16 @@ public class UIUtils
     private static int DEFAULT_ASSUMED_SCREEN_RESOLUTION = 96;
     private static int DEFAULT_POPUP_WIDTH = 450;
     public static int DEFAULT_SCROLL_BY_AMOUNT = 20;
-    
+
     public static final Point defaultLeftCornerShowPopupAt = new Point (10, 10);
-    
+
     private static final QTextEditor wordCountPerPageEditor = new QTextEditor (null,
                                                                                false);
-    
+
     // Deliberately null so that the center of the window is found when the popup is shown.
     public static final Point defaultCenterShowPopupAt = null;
-    
-    public static Font headerFont = null; 
+
+    public static Font headerFont = null;
 
     public static final Border textFieldSpacing = new EmptyBorder (3,
                                                                    3,
@@ -120,74 +120,74 @@ public class UIUtils
                                                                                                "jpeg",
                                                                                                "gif",
                                                                                                "png");
-                                                                   
+
     public static int getScrollByAmount ()
     {
-        
+
         return DEFAULT_SCROLL_BY_AMOUNT;
-                   
+
     }
-    
+
     public static int getScreenScaledWidth (int w)
     {
-        
+
         return Math.round ((float) w * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / (float) DEFAULT_ASSUMED_SCREEN_RESOLUTION));
-        
+
     }
-    
+
     public static int getPopupWidth ()
     {
-           
+
         return UIUtils.getScreenScaledWidth (DEFAULT_POPUP_WIDTH);
-                                                                   
+
     }
-    
+
     public static TreePath getTreePathForUserObjects (DefaultMutableTreeNode node,
                                                       TreePath               p)
     {
-        
+
         Object[] objs = p.getPath ();
-        
+
         for (int i = 0; i < objs.length; i++)
         {
-            
+
             DefaultMutableTreeNode n = (DefaultMutableTreeNode) objs[i];
-            
+
             Object nObj = n.getUserObject ();
-            
+
             TreePath tp = UIUtils.getTreePathForUserObject (node,
                                                             nObj);
-            
+
             if (tp == null)
             {
-                
+
                 continue;
-                
+
             } else {
-                
+
                 if (i == objs.length - 1)
                 {
-                    
+
                     return tp;
-                    
+
                 }
-                
+
             }
-            
+
             node = (DefaultMutableTreeNode) tp.getPath ()[tp.getPath ().length - 1];
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public static TreePath getTreePathForUserObject (DefaultMutableTreeNode node,
                                                      Object                 o)
     {
 
         Object nObj  = node.getUserObject ();
-        
+
         if (nObj instanceof SelectableDataObject)
         {
 
@@ -197,12 +197,12 @@ public class UIUtils
 
         if (nObj instanceof DataObject)
         {
-        
+
             if (nObj.equals (o))
             {
-    
+
                 return new TreePath (node.getPath ());
-    
+
             }
 
         }
@@ -212,23 +212,23 @@ public class UIUtils
             (o instanceof Segment)
            )
         {
-        
+
             if (nObj.toString ().equals (o.toString ()))
             {
-    
+
                 return new TreePath (node.getPath ());
-    
+
             }
 
         }
-        
+
         if (nObj == o)
         {
-            
+
             return new TreePath (node.getPath ());
-            
+
         }
-        
+
         Enumeration en = node.children ();
 
         while (en.hasMoreElements ())
@@ -251,7 +251,7 @@ public class UIUtils
         return null;
 
     }
-    
+
     public static void createTree (Collection             items,
                                    DefaultMutableTreeNode parent)
     {
@@ -336,23 +336,23 @@ public class UIUtils
     {
 
         List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (Asset.getAssetClass (objType)));
-        
+
         DefaultMutableTreeNode root = new DefaultMutableTreeNode (p);
 
         Collections.sort (objs,
                           new NamedObjectSorter ());
 
         for (NamedObject obj : objs)
-        {                          
-        
+        {
+
             root.add (new DefaultMutableTreeNode (obj));
 
         }
 
         return root;
-        
+
     }
-/*    
+/*
     public static DefaultMutableTreeNode createLocationsTree (Project p)
     {
 
@@ -369,9 +369,9 @@ public class UIUtils
         }
 
         return root;
-        
+
     }
-  */                                             
+  */
     public static DefaultMutableTreeNode createAssetsTree (Project p)
     {
 
@@ -482,18 +482,18 @@ public class UIUtils
 
     public static void initTable (JTable t)
     {
-        
+
         t.setAlignmentX (Component.LEFT_ALIGNMENT);
         t.setOpaque (false);
         t.setFillsViewportHeight (true);
-        t.setShowVerticalLines (false);        
+        t.setShowVerticalLines (false);
         t.setRowHeight (24);
         t.setBorder (null);
-        
+
         t.setDefaultRenderer (Object.class,
                               new DefaultTableCellRenderer ()
                               {
-                                
+
                                   @Override
                                   public Component getTableCellRendererComponent (JTable  t,
                                                                                   Object  value,
@@ -502,35 +502,35 @@ public class UIUtils
                                                                                   int     row,
                                                                                   int     column)
                                   {
-                                    
+
                                       super.getTableCellRendererComponent (t,
                                                                            value,
                                                                            isSelected,
                                                                            hasFocus,
                                                                            row,
                                                                            column);
-                                    
+
                                       this.setBorder (UIUtils.createPadding (0, 3, 0, 3));
-                                   
+
                                       return this;
-                                    
+
                                   }
-                                
+
                               });
-        
+
     }
-    
+
     public static JTable createTable ()
     {
-        
+
         JTable t = new JTable ();
-        
+
         UIUtils.initTable (t);
-        
-        return t;        
-        
+
+        return t;
+
     }
-    
+
     public static JTree createSelectableTree ()
     {
 
@@ -601,7 +601,7 @@ public class UIUtils
                     this.selectAllChildren (model,
                                             n,
                                             s.selected);
-                    
+
                 }
 
             }
@@ -613,11 +613,11 @@ public class UIUtils
 
         tree.putClientProperty ("Tree.paintLines",
                                 Boolean.FALSE);
-        
+
         return tree;
-        
+
     }
-    
+
     public static JTree createLinkedToTree (final AbstractProjectViewer projectViewer,
                                             final NamedObject           dataObject,
                                             boolean                     editMode)
@@ -778,49 +778,49 @@ public class UIUtils
 
     public static void scrollIntoView (final JComponent c)
     {
-        
+
         Environment.scrollIntoView (c);
-/*                
+/*
         JComponent p = (JComponent) c.getParent ();
-        
+
         JComponent pp = c;
-        
+
         while (p != null)
         {
-            
+
             if (p instanceof JScrollPane)
             {
-            
+
                 final JScrollPane sp = (JScrollPane) p;
-                
+
                 SwingUtilities.invokeLater (new Runnable ()
                 {
-                    
+
                     public void run ()
                     {
-                    
+
                         sp.getVerticalScrollBar ().setValue (c.getBounds (null).y);
-                        
+
                     }
-                    
+
                 });
 
                 return;
-                
+
             }
-            
+
             pp = p;
-            
+
             p = (JComponent) p.getParent ();
-            
+
         }
-  */                      
+  */
     }
-    
+
     public static void expandPathsForLinkedOtherObjects (JTree       tree,
                                                          NamedObject d)
     {
-        
+
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) ((DefaultTreeModel) tree.getModel ()).getRoot ();
 
         for (Link l : d.getLinks ())
@@ -834,11 +834,11 @@ public class UIUtils
             {
 
                 tree.expandPath (tp.getParentPath ());
-                
+
             }
 
-        }        
-        
+        }
+
     }
 
     public static DefaultTreeModel getLinkedToTreeModel (AbstractProjectViewer projectViewer,
@@ -863,7 +863,7 @@ public class UIUtils
             links.add (it.next ().getOtherObject (dataObject));
 
         }
-        
+
         return new DefaultTreeModel (UIUtils.createLinkToTree (projectViewer.getProject (),
                                                                exclude,
                                                                links,
@@ -953,49 +953,49 @@ public class UIUtils
                                               final AbstractViewer viewer,
                                                     Point          showAt)
     {
-        
+
         final QPopup ep = UIUtils.createClosablePopup (title,
                                                        icon,
                                                        onClose);
 
         Box b = new Box (BoxLayout.Y_AXIS);
-        
+
         b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-        
+
         b.add (content);
-        
+
         ep.setContent (b);
 
         b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                            b.getPreferredSize ().height));
-   
+
         if (showAt == null)
         {
-            
+
             showAt = UIUtils.getCenterShowPosition (viewer,
                                                     ep);
-            
+
         }
-   
+
         viewer.showPopupAt (ep,
                             showAt,
                             false);
         ep.setDraggable (viewer);
-        
+
         return ep;
-        
+
     }
-    
+
     public static QPopup createClosablePopup (final String         title,
                                               final Icon           icon,
                                               final ActionListener onClose)
     {
-        
+
         final QPopup qp = new QPopup (Environment.replaceObjectNames (title),
                                       icon,
                                       null)
         {
-            
+
             public void setVisible (boolean v)
             {
 
@@ -1027,42 +1027,42 @@ public class UIUtils
             {
 
                 qp.removeFromParent ();
-                
+
             }
-            
+
         });
-        
+
         List<JButton> buts = new ArrayList ();
         buts.add (close);
-        
+
         qp.getHeader ().setControls (UIUtils.createButtonBar (buts));
-                                                    
-        return qp;        
-        
+
+        return qp;
+
     }
-    
+
     public static DefaultMutableTreeNode createChapterNotesNode (Chapter c)
     {
 
         if (!UserProperties.getAsBoolean (Constants.SHOW_NOTES_IN_CHAPTER_LIST_PROPERTY_NAME))
         {
-            
+
             return null;
-            
+
         }
-    
+
         Set<Note> notes = c.getNotes ();
-        
+
         if ((notes == null)
             ||
             (notes.size () == 0)
            )
         {
-            
+
             return null;
-            
+
         }
-    
+
         TreeParentNode nullN = new TreeParentNode (Note.OBJECT_TYPE,
                                                    Environment.replaceObjectNames ("{Notes}"),
                                                    notes.size ());
@@ -1071,7 +1071,7 @@ public class UIUtils
 
         for (Note n : c.getNotes ())
         {
-        
+
             DefaultMutableTreeNode node = UIUtils.createTreeNode (n,
                                                                   null,
                                                                   null,
@@ -1087,28 +1087,28 @@ public class UIUtils
             root.add (node);
 
         }
-        
+
         if ((c.getNotes () == null)
             ||
             (c.getNotes ().size () == 0)
            )
         {
-            
+
             return null;
-            
+
         }
-        
+
         return root;
 
     }
-    
+
     public static DefaultMutableTreeNode createNoteTree (ProjectViewer pv)
     {
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode (pv.getProject ());
 
-        Map<String, Set<Note>> typeNotes = pv.getNotesAgainstTypes (); 
-        
+        Map<String, Set<Note>> typeNotes = pv.getNotesAgainstTypes ();
+
         Map<String, DefaultMutableTreeNode> noteNodes = new HashMap ();
 
         TreeParentNode nullN = new TreeParentNode (Note.OBJECT_TYPE,
@@ -1120,14 +1120,14 @@ public class UIUtils
                        nullNode);
 
         Set<String> types = typeNotes.keySet ();
-                       
+
         for (String type : types)
         {
 
             boolean added = false;
 
             Set<Note> notes = typeNotes.get (type);
-            
+
             for (Note n : notes)
             {
 
@@ -1156,7 +1156,7 @@ public class UIUtils
                                                                    type,
                                                                    notes.size ());
                                                                    //noteTypeHandler.getObjectsForType (t).size ());
-                                                                   
+
                             DefaultMutableTreeNode tn = new DefaultMutableTreeNode (b);
 
                             root.add (tn);
@@ -1200,46 +1200,46 @@ public class UIUtils
 
     public static JCheckBox createCheckBox (String text)
     {
-        
+
         return UIUtils.createCheckBox (text,
                                        null);
-        
+
     }
-    
+
     public static JCheckBox createCheckBox (String         text,
                                             ActionListener onClick)
     {
-        
+
         JCheckBox b = new JCheckBox ()
         {
-          
-            @Override 
+
+            @Override
             public void setText (String t)
             {
-                
+
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
-                
+
             }
-            
+
         };
-        
+
         b.setText (text);
         b.setBackground (null);
         b.setOpaque (false);
-        
+
         if (onClick != null)
         {
-            
+
             b.addActionListener (onClick);
-            
+
         }
-        
+
         b.setVerticalTextPosition (SwingConstants.TOP);
         b.setVerticalAlignment (SwingConstants.TOP);
-        
+
         return b;
-        
+
     }
 
     public static DefaultMutableTreeNode createChaptersTree (Project    p,
@@ -1333,11 +1333,11 @@ public class UIUtils
 
             if (selectable)
             {
-        
+
                 // Peek at the top to find out the type.
                 BlankNamedObject bdo = new BlankNamedObject (assets.get (0).getObjectType (),
                                                              Environment.getObjectTypeNamePlural (assets.get (0)));
-    
+
                 Object o = bdo;
 
                 SelectableDataObject s = new SelectableDataObject (bdo);
@@ -1346,11 +1346,11 @@ public class UIUtils
                 o = s;
 
                 charn = new DefaultMutableTreeNode (o);
-                
+
                 root.add (charn);
-                
+
                 root = charn;
-                
+
             }
 
             for (Asset a : assets)
@@ -1381,7 +1381,7 @@ public class UIUtils
                 }
 
                 root.add (node);
-                
+
             }
 /*
             if (charn.getChildCount () > 0)
@@ -1650,7 +1650,7 @@ public class UIUtils
         }
 
     }
-    
+
     public static void getSelectedObjects (DefaultMutableTreeNode n,
                                            Set                    s)
     {
@@ -1935,7 +1935,7 @@ public class UIUtils
         List items = new ArrayList (c.getScenes ());
 
         items.addAll (c.getOutlineItems ());
-      
+
         Collections.sort (items,
                           new ChapterItemSorter ());
 
@@ -2037,18 +2037,18 @@ public class UIUtils
 
         if (!selectable)
         {
-        
+
             DefaultMutableTreeNode notesNode = UIUtils.createChapterNotesNode (c);
-    
+
             if (notesNode != null)
             {
-                
+
                 root.add (notesNode);
-                
+
             }
 
         }
-        
+
         return root;
 
     }
@@ -2059,29 +2059,29 @@ public class UIUtils
 
         if (parent == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         // Force back onto event thread.
         UIUtils.doActionLater (new ActionListener ()
         {
 
             public void actionPerformed (ActionEvent ev)
             {
-        
+
                 final Box content = new Box (BoxLayout.Y_AXIS);
-        
+
                 AbstractProjectViewer pv = null;
-                
+
                 if (parent instanceof AbstractProjectViewer)
                 {
-                    
+
                     pv = (AbstractProjectViewer) parent;
-                    
+
                 }
-        
+
                 JTextPane m = UIUtils.createHelpTextPane (String.format ("%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
                                                                          message,
                                                                          Constants.ACTION_PROTOCOL,
@@ -2091,48 +2091,48 @@ public class UIUtils
                                           m.getPreferredSize ().height));
                 m.setBorder (null);
                 content.add (m);
-        
+
                 content.add (Box.createVerticalStrut (10));
-                
+
                 JButton close = UIUtils.createButton ("Close",
                                                       null);
-                
+
                 JButton[] buts = new JButton[] { close };
-                
+
                 JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                               Component.LEFT_ALIGNMENT); 
+                                                               Component.LEFT_ALIGNMENT);
                 buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
-        
+
                 final QPopup ep = UIUtils.createPopup ("Oops, an error has occurred...",
                                                        Constants.ERROR_ICON_NAME,
                                                        content,
                                                        true,
                                                        null);
-        
+
                 close.addActionListener (new ActionListener ()
                 {
-                    
+
                     public void actionPerformed (ActionEvent ev)
                     {
-                        
-                        ep.removeFromParent ();                
-                                                 
+
+                        ep.removeFromParent ();
+
                     }
                 });
-                
+
                 content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                          content.getPreferredSize ().height));
-                                                    
+
                 parent.showPopupAt (ep,
                                     UIUtils.getCenterShowPosition ((Component) parent,
                                                                    ep),
                                     false);
                 ep.setDraggable ((Component) parent);
-                
+
             }
-            
+
         });
 
     }
@@ -2147,58 +2147,58 @@ public class UIUtils
     public static void showErrorMessage (Object parent,
                                          String message)
     {
-        
+
         if (parent == null)
         {
-            
+
             UIUtils.showErrorMessage (message);
-            
+
             return;
-            
+
         }
-        
+
         if (parent instanceof PopupsSupported)
         {
-            
+
             UIUtils.showErrorMessage ((PopupsSupported) parent,
                                       message);
-            
+
             return;
-            
+
         }
 
         if (parent instanceof PopupWindow)
         {
-            
+
             UIUtils.showErrorMessage ((PopupWindow) parent,
                                       message);
-            
+
             return;
-            
+
         }
 
         if (parent instanceof PopupWindow)
         {
-            
+
             UIUtils.showErrorMessage (((PopupWindow) parent).getViewer (),
                                       message);
-            
+
             return;
-            
+
         }
-        
+
         if (parent instanceof QuollPanel)
         {
-            
+
             UIUtils.showErrorMessage ((PopupsSupported) ((QuollPanel) parent).getViewer (),
                                       message);
-            
+
             return;
-            
+
         }
-    
+
         UIUtils.showErrorMessage (message);
-        
+
     }
 /*
     private static void showErrorMessage (final AbstractProjectViewer pv,
@@ -2207,39 +2207,39 @@ public class UIUtils
 
         if (pv == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         UIUtils.doActionLater (new ActionListener ()
         {
 
             public void actionPerformed (ActionEvent ev)
             {
-        
+
                 ErrorWindow ew = new ErrorWindow (pv,
                                                   message);
-                
+
                 ew.init ();
-                
+
             }
-            
+
         });
 
     }
-  */  
+  */
     private static void showErrorMessage (final PopupWindow p,
                                           final String      message)
     {
-        
+
         if (p == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         UIUtils.doActionLater (new ActionListener ()
         {
 
@@ -2248,26 +2248,26 @@ public class UIUtils
 
                 ErrorWindow ew = new ErrorWindow (p.getViewer (),
                                                   message);
-                
+
                 ew.init ();
-        
+
                 Rectangle pbounds = p.getBounds ();
-        
+
                 Dimension size = ew.getPreferredSize ();
-                
+
                 int x = ((pbounds.width - size.width) / 2) + pbounds.x;
                 int y = ((pbounds.height - size.height) / 2) + pbounds.y;
-        
+
                 // Move the window
                 Point showAt = new Point (x,
                                           y);
-                
+
                 ew.setShowAt (showAt);
-                
+
             }
-            
+
         });
-        
+
     }
 
     private static void showErrorMessage (final String      message)
@@ -2278,18 +2278,18 @@ public class UIUtils
 
             public void actionPerformed (ActionEvent ev)
             {
-    
+
                 ErrorWindow ew = new ErrorWindow (null,
                                                   message);
-                
+
                 ew.init ();
-                
+
             }
-            
+
         });
 
     }
-    
+
     public static void showObjectSelectPopup (final Set<? extends NamedObject> objs,
                                               final AbstractViewer             parent,
                                               final String                     popupTitle,
@@ -2297,27 +2297,27 @@ public class UIUtils
                                               final boolean                    closeOnSelect,
                                               final Point                      showAt)
     {
-        
+
         UIUtils.doActionLater (new ActionListener ()
         {
 
             public void actionPerformed (ActionEvent ev)
             {
-    
+
                 final Box content = new Box (BoxLayout.Y_AXIS);
-                        
+
                 content.setOpaque (true);
                 content.setBackground (UIUtils.getComponentColor ());
-                
+
                 DefaultListModel<NamedObject> m = new DefaultListModel ();
-                
+
                 for (NamedObject o : objs)
                 {
-                    
+
                     m.addElement (o);
-                    
+
                 }
-                                
+
                 final JList l = new JList ();
                 l.setModel (m);
                 l.setLayoutOrientation (JList.VERTICAL);
@@ -2327,114 +2327,114 @@ public class UIUtils
                 l.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                  Short.MAX_VALUE));
                 UIUtils.setAsButton (l);
-        
+
                 l.setCellRenderer (new DefaultListCellRenderer ()
                 {
-        
+
                     public Component getListCellRendererComponent (JList   list,
                                                                    Object  value,
                                                                    int     index,
                                                                    boolean isSelected,
                                                                    boolean cellHasFocus)
                     {
-        
+
                         NamedObject obj = (NamedObject) value;
-        
+
                         JLabel l = (JLabel) super.getListCellRendererComponent (list,
                                                                                 value,
                                                                                 index,
                                                                                 isSelected,
                                                                                 cellHasFocus);
-                        
+
                         l.setText (obj.getName ());
-        
+
                         l.setFont (l.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
                         l.setIcon (Environment.getObjectIcon (obj,
                                                               Constants.ICON_NOTIFICATION));
                         l.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
-        
+
                         if (cellHasFocus)
                         {
-                            
+
                             l.setBackground (Environment.getHighlightColor ());
-                            
+
                         }
-        
+
                         return l;
- 
+
                     }
-        
+
                 });
-                
+
                 int rowHeight = 37;
-                
+
                 l.setAlignmentX (JComponent.LEFT_ALIGNMENT);
                 /*
                 final Dimension sSize = new Dimension (this.swatchSize.width + (2 * this.borderWidth) + (2 * this.horizGap),
                                                        this.swatchSize.height + (2 * this.borderWidth) + (2 * this.vertGap));
                 */
                 JScrollPane sp = new JScrollPane (l);
-                
+
                 sp.setHorizontalScrollBarPolicy (ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                 sp.getVerticalScrollBar ().setUnitIncrement (rowHeight);
                 sp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
                 sp.setOpaque (false);
-                
+
                 sp.getViewport ().setPreferredSize (new Dimension (400,
                                                                    rowHeight * (objs.size () > 3 ? 3 : objs.size ())));
-                                                                   
+
                 sp.setBorder (null);
-                
+
                 content.add (sp);
-                                                
+
                 final QPopup ep = UIUtils.createClosablePopup ((popupTitle != null ? popupTitle : "Select an item"),
                                                                Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
                                                                null);
-                
+
                 ep.setContent (content);
 
                 l.addListSelectionListener (new ListSelectionListener ()
                 {
-                    
+
                     @Override
                     public void valueChanged (ListSelectionEvent ev)
                     {
-                        
+
                         if (onSelect != null)
                         {
-                            
+
                             NamedObject obj = (NamedObject) l.getSelectedValue ();
-                            
+
                             onSelect.actionPerformed (new ActionEvent (l,
                                                                        0,
                                                                        obj.getObjectReference ().asString ()));
-                            
+
                             if (closeOnSelect)
                             {
-                            
+
                                 ep.removeFromParent ();
-                                
+
                             }
-                                           
+
                         }
                     }
-                    
+
                 });
-        
+
                 content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                     content.getPreferredSize ().height));
-                                                    
+
                 parent.showPopupAt (ep,
                                     (showAt != null ? showAt : UIUtils.getCenterShowPosition (parent,
                                                                                               ep)),
                                     false);
                 ep.setDraggable (parent);
-                
+
             }
-            
+
         });
-        
+
     }
 
     public static void showMessage (final PopupsSupported parent,
@@ -2447,9 +2447,9 @@ public class UIUtils
                              message,
                              null,
                              null);
-    
+
     }
-    
+
     public static void showMessage (final PopupsSupported parent,
                                     final String          title,
                                     final Component       message,
@@ -2463,9 +2463,9 @@ public class UIUtils
                              confirmButtonLabel,
                              onConfirm,
                              null);
-    
-    }    
-        
+
+    }
+
     public static void showMessage (final PopupsSupported parent,
                                     final String          title,
                                     final Component       message,
@@ -2476,63 +2476,63 @@ public class UIUtils
 
         if (parent == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         UIUtils.doActionLater (new ActionListener ()
         {
 
             public void actionPerformed (ActionEvent ev)
             {
-    
+
                 final Box content = new Box (BoxLayout.Y_AXIS);
-                        
+
                 content.setOpaque (true);
                 content.setBackground (UIUtils.getComponentColor ());
                 content.add (message);
-                        
+
                 content.add (Box.createVerticalStrut (10));
-                
+
                 JButton close = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : "Close"),
                                                       null);
-                
+
                 if (onConfirm != null)
                 {
-                    
+
                     close.addActionListener (onConfirm);
-                    
+
                 }
-                
+
                 JButton[] buts = new JButton[] { close };
-                
+
                 JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                               Component.CENTER_ALIGNMENT); 
+                                                               Component.CENTER_ALIGNMENT);
                 buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
-                        
+
                 final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : "Just so you know..."),
                                                                Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
                                                                onConfirm);
-                
+
                 ep.setContent (content);
 
                 close.addActionListener (ep.getCloseAction ());
-        
+
                 content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                     content.getPreferredSize ().height));
-                                                    
+
                 parent.showPopupAt (ep,
                                     (showAt != null ? showAt : UIUtils.getCenterShowPosition ((Component) parent,
                                                                                               ep)),
                                     false);
                 ep.setDraggable ((Component) parent);
-                
+
             }
-            
+
         });
 
     }
@@ -2550,9 +2550,9 @@ public class UIUtils
                              confirmButtonLabel,
                              onConfirm,
                              null);
-    
+
     }
-    
+
     public static void showMessage (final PopupsSupported parent,
                                     final String          title,
                                     final String          message,
@@ -2562,17 +2562,17 @@ public class UIUtils
     {
 
         AbstractProjectViewer pv = null;
-        
+
         if (parent instanceof AbstractProjectViewer)
         {
-            
+
             pv = (AbstractProjectViewer) parent;
-            
+
         }
-    
+
         JTextPane m = UIUtils.createHelpTextPane (message,
                                                   pv);
-        
+
         m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                   m.getPreferredSize ().height));
         m.setBorder (null);
@@ -2590,14 +2590,14 @@ public class UIUtils
                                     String          title,
                                     String          message)
     {
-        
+
         UIUtils.showMessage (parent,
                              title,
                              message,
                              null);
-        
+
     }
-        
+
     public static void showMessage (PopupsSupported parent,
                                     String          title,
                                     String          message,
@@ -2610,9 +2610,9 @@ public class UIUtils
                              null,
                              null,
                              showAt);
-        
-    }                                
-     
+
+    }
+
     public static void showMessage (AbstractViewer parent,
                                     String         title,
                                     String          message,
@@ -2622,82 +2622,82 @@ public class UIUtils
 
         if (parent == null)
         {
-            
+
             UIUtils.showMessage (title,
                                  message,
                                  confirmButtonLabel,
                                  onConfirm);
-            
+
             return;
-            
+
         }
 
         UIUtils.showMessage ((PopupsSupported) parent,
                              title,
                              message,
                              confirmButtonLabel,
-                             onConfirm);    
-    
+                             onConfirm);
+
     }
-    
+
     public static void showMessage (Component      parent,
                                     String         title,
                                     String         message,
                                     String         confirmButtonLabel,
                                     ActionListener onConfirm)
     {
-        
+
         if (parent == null)
         {
-            
+
             UIUtils.showMessage (title,
                                  message,
                                  confirmButtonLabel,
                                  onConfirm);
-            
+
             return;
-            
+
         }
 
         if (parent instanceof QuollPanel)
         {
-            
+
             UIUtils.showMessage ((PopupsSupported) ((QuollPanel) parent).getViewer (),
                                  title,
                                  message,
                                  confirmButtonLabel,
                                  onConfirm);
-            
+
             return;
-            
+
         }
-        
+
         if (parent instanceof PopupsSupported)
         {
-            
+
             UIUtils.showMessage ((PopupsSupported) parent,
                                  title,
                                  message,
                                  confirmButtonLabel,
                                  onConfirm);
-            
+
             return;
-            
+
         }
-        
+
         if (parent instanceof PopupWindow)
         {
-            
+
             UIUtils.showMessage (((PopupWindow) parent).getViewer (),
                                  title,
                                  message,
                                  confirmButtonLabel,
                                  onConfirm);
-            
+
             return;
-            
+
         }
-            
+
         UIUtils.showMessage (title,
                              message,
                              confirmButtonLabel,
@@ -2715,7 +2715,7 @@ public class UIUtils
                              message,
                              null,
                              null);
-    
+
     }
 
     public static void showMessage (Component parent,
@@ -2727,52 +2727,52 @@ public class UIUtils
                              message,
                              null,
                              null);
-    
-    }    
+
+    }
 
     private static void showMessage (String                title,
                                      String                message,
                                      String                confirmButtonLabel,
                                      ActionListener        onConfirm)
     {
-        
+
         MessageWindow ew = new MessageWindow (null,
                                               title,
                                               message,
                                               confirmButtonLabel,
                                               onConfirm);
-        
+
         ew.init ();
 
     }
-    
+
     public static QPopup createPopup (String         title,
                                       String         icon,
                                       JComponent     content,
-                                      boolean        includeCancel,                                      
+                                      boolean        includeCancel,
                                       final ActionListener cancelListener)
     {
-                
+
         final QPopup p = new QPopup (title,
                                      (icon != null ? Environment.getIcon (icon,
                                                                           Constants.ICON_POPUP) : null),
                                      null);
-        
+
         if (content != null)
         {
-        
+
             p.setContent (content);
-            
+
         }
-        
+
         if (includeCancel)
         {
-            
+
             final JButton cancel = UIUtils.createButton ("cancel",
                                                          Constants.ICON_MENU,
                                                          "Click to close.",
                                                          null);
-            
+
             cancel.addActionListener (new ActionAdapter ()
             {
 
@@ -2780,113 +2780,113 @@ public class UIUtils
                 {
 
                     p.setVisible (false);
-                    
+
                     if (cancelListener != null)
                     {
-                        
+
                         cancelListener.actionPerformed (ev);
-                        
+
                     }
 
                 }
 
             });
-            
+
             List<JButton> buts = new ArrayList ();
             buts.add (cancel);
-            
+
             p.getHeader ().setControls (UIUtils.createButtonBar (buts));
-            
+
         }
 
         return p;
-        
+
     }
 
     public static JLabel createInformationLabel (String message)
     {
-        
+
         JLabel l = new JLabel ()
         {
-            
+
             public void setText (String t)
             {
-                
+
                 if (t == null)
                 {
-                    
+
                     super.setText ("");
-                    
+
                     return;
-                    
+
                 }
-                
+
                 super.setText (String.format ("<html><i>%s</i></html>",
                                               Environment.replaceObjectNames (t)));
-                                
+
             }
-            
+
         };
-                
+
         l.setText (message);
         l.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return l;
 
     }
-    
+
     public static JLabel createLoadingLabel (String message)
     {
-    
+
         JLabel l = new JLabel (Environment.getLoadingIcon (),
                                SwingConstants.LEFT)
         {
-          
+
             @Override
             public void setText (String t)
             {
-                
+
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames ((t != null ? t : "Loading..."))));
-                
+
             }
-            
+
         };
-                
+
         l.setText (message);
         l.setVisible (false);
         l.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return l;
-        
+
     }
-    
+
     public static JLabel createErrorLabel (String message)
     {
-        
+
         JLabel err = new JLabel ()
         {
-        
-            @Override 
+
+            @Override
             public void setText (String t)
             {
-                
+
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
-                
+
             }
-            
-            @Override 
+
+            @Override
             public void setToolTipText (String t)
             {
-                
+
                 super.setText (String.format ("%s",
                                               Environment.replaceObjectNames (t)));
-                
+
             }
 
         };
-        
+
         err.setText (message);
         err.setForeground (UIUtils.getColor (Constants.ERROR_TEXT_COLOR));
         err.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
@@ -2894,41 +2894,41 @@ public class UIUtils
         err.setAlignmentX (Component.LEFT_ALIGNMENT);
         err.setVerticalTextPosition (SwingConstants.TOP);
         err.setVerticalAlignment (SwingConstants.TOP);
-        
+
         return err;
-        
+
     }
-    
+
     public static JLabel createLabel (String message)
     {
-        
+
         JLabel err = new JLabel ()
         {
-        
-            @Override 
+
+            @Override
             public void setText (String t)
             {
-                
+
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
-                
+
             }
-            
-            @Override 
+
+            @Override
             public void setToolTipText (String t)
             {
-                
+
                 super.setToolTipText (Environment.replaceObjectNames (t));
-                
+
             }
 
         };
-        
+
         err.setText (message);
         err.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         return err;
-        
+
     }
 
     public static void createPopupMenuLabels (Map labels)
@@ -3066,7 +3066,7 @@ public class UIUtils
     public static JComboBox createNumberComboBox (Vector<Integer> vals,
                                                   int             def)
     {
-        
+
         final JComboBox cb = new JComboBox (vals);
 
         cb.setEditor (new javax.swing.plaf.basic.BasicComboBoxEditor ()
@@ -3083,8 +3083,8 @@ public class UIUtils
 
         cb.setEditable (true);
 
-        cb.setMaximumSize (cb.getPreferredSize ());        
-        
+        cb.setMaximumSize (cb.getPreferredSize ());
+
         if (def > 0)
         {
 
@@ -3095,9 +3095,9 @@ public class UIUtils
         cb.setToolTipText ("Enter a value to set a size that is not already in the list");
 
         return cb;
-        
+
     }
-    
+
     public static JComboBox getFontSizesComboBox (final int sizeDef)
     {
 
@@ -3132,7 +3132,7 @@ public class UIUtils
             sizeV.addElement (sizeDef);
 
         }
-        
+
         final JComboBox sizes = UIUtils.createNumberComboBox (sizeV,
                                                               sizeDef);
 
@@ -3193,8 +3193,8 @@ public class UIUtils
 
         line.setToolTipText ("Enter a value to set a spacing that is not already in the list");
 
-        line.setMaximumSize (line.getPreferredSize ());        
-        
+        line.setMaximumSize (line.getPreferredSize ());
+
         if (lsDef > 0)
         {
 
@@ -3281,7 +3281,7 @@ public class UIUtils
         final JComboBox align = new JComboBox (alignS);
 
         align.setMaximumSize (align.getPreferredSize ());
-        
+
         if (alignDef != null)
         {
 
@@ -3330,7 +3330,7 @@ public class UIUtils
                                null);
 
         h.setFont (h.getFont ().deriveFont (UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
-                                                      
+
         h.setTitleColor (UIUtils.getTitleColor ());
         h.setOpaque (false);
 
@@ -3339,7 +3339,7 @@ public class UIUtils
         h.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         h.setBorder (UIUtils.createPadding (0, 0, 2, 0));
-        
+
         return h;
 
     }
@@ -3397,44 +3397,44 @@ public class UIUtils
 
         for (String n : names)
         {
-        
+
             Map<Sentence, NavigableSet<Integer>> matches = ti.findInSentences (n,
                                                                                null);
-        
+
             if (matches != null)
             {
-                
+
                 Iterator<Sentence> iter = matches.keySet ().iterator ();
-    
+
                 char[] tchar = text.toCharArray ();
-                
+
                 while (iter.hasNext ())
                 {
-                    
+
                     Sentence sen = iter.next ();
-                    
+
                     Set<Integer> inds = matches.get (sen);
-                    
+
                     if ((inds != null)
                         &&
                         (inds.size () > 0)
                        )
                     {
-                        
+
                         Segment s = new Segment (tchar,
                                                  sen.getAllTextStartOffset (),
                                                  sen.getText ().length ());
-    
+
                         snippets.add (s);
-    
-                    }                
-                    
+
+                    }
+
                 }
-                
+
             }
-            
+
         }
-                
+
         return snippets;
 
     }
@@ -3444,21 +3444,21 @@ public class UIUtils
     {
 
         Set<NamedObject> ret = new TreeSet (new NamedObjectSorter ());
-        
+
         for (NamedObject n : p.getAllNamedChildObjects ())
         {
-            
+
             if (n.contains (s))
             {
-                
+
                 ret.add (n);
-                
+
             }
-            
+
         }
 
-        return ret;        
-        
+        return ret;
+
     }
 
     public static Set<Asset> getAssetsContaining (String  s,
@@ -3466,21 +3466,21 @@ public class UIUtils
     {
 
         Set<Asset> ret = new TreeSet (new NamedObjectSorter ());
-        
+
         for (NamedObject n : p.getAllNamedChildObjects (Asset.class))
         {
-            
+
             if (n.contains (s))
             {
-                
+
                 ret.add ((Asset) n);
-                
+
             }
-            
+
         }
 
-        return ret;        
-        
+        return ret;
+
     }
 
     public static Set<Asset> getAssetsContaining (String  s,
@@ -3489,21 +3489,21 @@ public class UIUtils
     {
 
         Set<Asset> ret = new TreeSet (new NamedObjectSorter ());
-        
+
         for (NamedObject n : p.getAllNamedChildObjects (limitTo))
         {
-            
+
             if (n.contains (s))
             {
-                
+
                 ret.add ((Asset) n);
-                
+
             }
-            
+
         }
 
-        return ret;        
-        
+        return ret;
+
     }
 
     public static Set<Note> getNotesContaining (String  s,
@@ -3511,21 +3511,21 @@ public class UIUtils
     {
 
         Set<Note> ret = new TreeSet (new NamedObjectSorter ());
-        
+
         for (NamedObject n : p.getAllNamedChildObjects (Note.class))
         {
-            
+
             if (n.contains (s))
             {
-                
+
                 ret.add ((Note) n);
-                
+
             }
-            
+
         }
 
-        return ret;        
-        
+        return ret;
+
     }
 
     public static Set<OutlineItem> getOutlineItemsContaining (String  s,
@@ -3533,21 +3533,21 @@ public class UIUtils
     {
 
         Set<OutlineItem> ret = new TreeSet (new NamedObjectSorter ());
-        
+
         for (NamedObject n : p.getAllNamedChildObjects (OutlineItem.class))
         {
-            
+
             if (n.contains (s))
             {
-                
+
                 ret.add ((OutlineItem) n);
-                
+
             }
-            
+
         }
 
-        return ret;        
-        
+        return ret;
+
     }
 
     public static Set<Scene> getScenesContaining (String  s,
@@ -3555,21 +3555,21 @@ public class UIUtils
     {
 
         Set<Scene> ret = new TreeSet (new NamedObjectSorter ());
-        
+
         for (NamedObject n : p.getAllNamedChildObjects (Scene.class))
         {
-            
+
             if (n.contains (s))
             {
-                
+
                 ret.add ((Scene) n);
-                
+
             }
-            
+
         }
 
-        return ret;        
-        
+        return ret;
+
     }
 
     public static Map<Chapter, List<Segment>> getObjectSnippets (NamedObject n,
@@ -3603,13 +3603,13 @@ public class UIUtils
 
                 // See if there is an editor for it.
                 AbstractEditorPanel aep = (AbstractEditorPanel) pv.getEditorForChapter (c);
-                
+
                 if (aep != null)
                 {
-                    
+
                     t = aep.getEditor ().getText ();
-                    
-                }                
+
+                }
 
                 if ((t == null)
                     ||
@@ -3668,26 +3668,26 @@ public class UIUtils
                 Chapter c = chapters.get (j);
 
                 AbstractEditorPanel qep = pv.getEditorForChapter (c);
-                
+
                 String t = null;
-                
+
                 if (qep != null)
                 {
-                    
+
                     t = qep.getEditor ().getText ();
-                    
+
                 } else {
-                
+
                     if (c.getText () != null)
                     {
-                
+
                         // Get the text.
                         t = c.getText ().getText ();
-                        
+
                     }
 
                 }
-                    
+
                 if (t == null)
                 {
 
@@ -3726,7 +3726,7 @@ public class UIUtils
         }
 
         s = Environment.replaceObjectNames (s);
-                
+
         s = UIUtils.markupLinks ("http://",
                                  s);
 
@@ -3745,8 +3745,8 @@ public class UIUtils
     public static String markupLinks (String urlPrefix,
                                       String s)
     {
-        
-        int ind = 0;        
+
+        int ind = 0;
 
         while (true)
         {
@@ -3773,9 +3773,9 @@ public class UIUtils
 
                     }
 
-                }                
-                
-                // Find the first whitespace char after...                
+                }
+
+                // Find the first whitespace char after...
                 char[] chars = s.toCharArray ();
 
                 StringBuilder b = new StringBuilder ();
@@ -3788,13 +3788,13 @@ public class UIUtils
                         (chars[i] != '<')
                        )
                     {
-                        
+
                         b.append (chars[i]);
-                        
+
                     } else {
-                        
+
                         break;
-                        
+
                     }
 
                 }
@@ -3809,7 +3809,7 @@ public class UIUtils
                 {
 
                     ind = ind + urlPrefix.length ();
-                
+
                     continue;
 
                 }
@@ -3824,7 +3824,7 @@ public class UIUtils
                                        st.length () - 1);
 
                 }
-                
+
                 String w = "<a href='" + urlPrefix + st + "'>" + urlPrefix + st + "</a>";
 
                 StringBuilder ss = new StringBuilder (s);
@@ -3888,13 +3888,13 @@ public class UIUtils
 
         TreePath tp = UIUtils.getTreePathForUserObject (root,
                                                         n);
-        
+
         // It can happen but shouldn't.
         if (tp == null)
         {
-            
+
             return;
-            
+
         }
 
         DefaultMutableTreeNode nNode = (DefaultMutableTreeNode) tp.getLastPathComponent ();
@@ -3912,32 +3912,32 @@ public class UIUtils
                                                          Project     p,
                                                          NamedObject ignore)
     {
-        
+
         if (t == null)
         {
-            
+
             return t;
-            
+
         }
 
         Set<NamedObject> ret = new HashSet ();
-    
+
         Set<NamedObject> objs = p.getAllNamedChildObjects (Asset.class);
 
         Set<NamedObject> chaps = p.getAllNamedChildObjects (Chapter.class);
-        
+
         if (chaps.size () > 0)
         {
-            
+
             objs.addAll (chaps);
-            
+
         }
 
         if (objs.size () == 0)
         {
-            
+
             return ret;
-            
+
         }
 
         if (ignore != null)
@@ -4028,8 +4028,8 @@ public class UIUtils
                                            "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + nw.namedObject.getObjectReference ().asString () + "'>" + nw.name + "</a>");
 
         }
-        
-        
+
+
     }
     */
     public static String markupStringForAssets (String      t,
@@ -4039,27 +4039,27 @@ public class UIUtils
 
         if (t == null)
         {
-            
+
             return t;
-            
+
         }
-    
+
         Set<NamedObject> objs = p.getAllNamedChildObjects (Asset.class);
 
         Set<NamedObject> chaps = p.getAllNamedChildObjects (Chapter.class);
-        
+
         if (chaps.size () > 0)
         {
-            
+
             objs.addAll (chaps);
-            
+
         }
 
         if (objs.size () == 0)
         {
-            
+
             return t;
-            
+
         }
 
         if (ignore != null)
@@ -4080,158 +4080,158 @@ public class UIUtils
         }
 
         NavigableMap<Integer, NamedObjectNameWrapper> reps = new TreeMap ();
-        
+
         TextIterator ti = new TextIterator (t);
-                
+
         for (NamedObject n : objs)
         {
-                
+
             Set<Integer> matches = null;
-                        
+
             for (String name : n.getAllNames ())
-            {                        
-            
+            {
+
                 matches = ti.findAllTextIndexes (name,
                                                  null);
-                                
+
                 // TODO: This needs to be on a language basis.
                 Set<Integer> matches2 = ti.findAllTextIndexes (name + "'s",
                                                                null);
-    
+
                 matches.addAll (matches2);
-                
+
                 Iterator<Integer> iter = matches.iterator ();
-    
+
                 while (iter.hasNext ())
                 {
-                    
+
                     Integer ind = iter.next ();
-                    
+
                     // Now search back through the string to make sure
                     // we aren't actually part of a http or https string.
                     int httpInd = t.lastIndexOf ("http://",
                                                  ind);
                     int httpsInd = t.lastIndexOf ("https://",
                                                   ind);
-                    
+
                     if ((httpInd > -1)
                         ||
                         (httpsInd > -1)
                        )
                     {
-                        
+
                         // Check forward to ensure there is no white space.
                         String ss = t.substring (Math.max (httpInd, httpsInd),
                                                  ind);
-                        
+
                         boolean hasWhitespace = false;
-                        
+
                         char[] chars = ss.toCharArray ();
-                        
+
                         for (int i = 0; i < chars.length; i++)
                         {
-                            
+
                             if (Character.isWhitespace (chars[i]))
                             {
-                                
+
                                 hasWhitespace = true;
-                                
+
                                 break;
-                                
+
                             }
-                            
+
                         }
-                        
+
                         if (!hasWhitespace)
                         {
-                            
+
                             // This name is part of a http/https link so ignore.
                             continue;
-                            
+
                         }
-                        
+
                     }
-                    
+
                     // Check the char at the index, if it's uppercase then we upper the word otherwise lower.
                     if (Character.isLowerCase (t.charAt (ind)))
                     {
-                        
+
                         reps.put (ind,
                                   new NamedObjectNameWrapper (name.toLowerCase (),
                                                               n));
-                        
+
                     } else {
-                        
+
                         // Uppercase each of the words in the name.
                         reps.put (ind,
                                   new NamedObjectNameWrapper (TextUtilities.capitalize (name),
                                                               n));
-                        
+
                     }
-                    
+
                 }
 
             }
-                    
+
         }
-        
+
         NavigableMap<Integer, NamedObjectNameWrapper> nreps = new TreeMap ();
-        
+
         List<Integer> mis = new ArrayList (reps.keySet ());
-            
+
         // Sort by location.
         Collections.sort (mis);
-                        
+
         // Prune out the overlaps.
         for (int i = 0; i < mis.size (); i++)
         {
-            
+
             Integer curr = mis.get (i);
-            
+
             NamedObjectNameWrapper wrap = reps.get (curr);
-            
+
             nreps.put (curr,
                        wrap);
-                        
+
             int ni = i + 1;
-            
+
             if (ni < mis.size ())
             {
-            
+
                 Integer next = mis.get (ni);
-                                    
+
                 // Does the next match start before the end of the current match?
                 if (next.intValue () <= curr.intValue () + wrap.name.length ())
                 {
-                    
+
                     // Move to the next, when the loop goes to the next it will
                     // increment again moving past it.
                     i = ni;
-                    
+
                 }
-                
-            } 
-            
+
+            }
+
         }
-        
+
         reps = nreps;
-        
+
         StringBuilder b = new StringBuilder (t);
-        
+
         // We iterate backwards over the indexes so we don't have to choppy-choppy the string.
         Iterator<Integer> iter = reps.descendingKeySet ().iterator ();
-        
+
         while (iter.hasNext ())
         {
-            
+
             Integer ind = iter.next ();
 
             NamedObjectNameWrapper obj = reps.get (ind);
-/*                            
+/*
             b = b.replace (ind,
                            ind + obj.name.length (),
                            "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + obj.namedObject.getObjectReference ().asString () + "'>" + obj.name + "</a>");
-  */          
+  */
             b = b.replace (ind,
                            ind + obj.name.length (),
                            String.format ("<a href='%s://%s'>%s</a>",
@@ -4242,7 +4242,7 @@ public class UIUtils
         }
 
         t = b.toString ();
-        
+
         t = StringUtils.replaceString (t,
                                        String.valueOf ('\n'),
                                        "<br />");
@@ -4253,11 +4253,11 @@ public class UIUtils
 
     public static String getObjectALink (NamedObject d)
     {
-        
+
         return "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + d.getObjectReference ().asString () + "'>" + d.getName () + "</a>";
-        
+
     }
-    
+
     public static Map<String, String> parseState (String s)
     {
 
@@ -4330,17 +4330,17 @@ public class UIUtils
         JButton bt = new JButton (Environment.getIcon (icon,
                                                        Constants.ICON_TOOLBAR))
         {
-        
+
             @Override
             public void setText (String t)
             {
-                
+
                 super.setText (Environment.replaceObjectNames (t));
-                
+
             }
-            
+
         };
-        
+
         UIUtils.setAsButton (bt);
         bt.setToolTipText (Environment.replaceObjectNames (tooltip));
         bt.setActionCommand (actionCommand);
@@ -4398,7 +4398,7 @@ public class UIUtils
     public static void setTreeRootNode (JTree                  tree,
                                         DefaultMutableTreeNode tn)
     {
-        
+
         java.util.List<TreePath> openPaths = new ArrayList ();
 
         Enumeration<TreePath> paths = tree.getExpandedDescendants (new TreePath (tree.getModel ().getRoot ()));
@@ -4426,7 +4426,7 @@ public class UIUtils
                                                                ((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
 
         }
-        
+
     }
 
     public static Action getComingSoonAction (final Component pv)
@@ -4500,55 +4500,55 @@ public class UIUtils
         int iconType = Constants.ICON_MENU;
         int fontSize = 10;
         Insets ins = null;
-                
+
         if (titleType == Constants.POPUP_WINDOW_TITLE)
         {
-            
+
             iconType = Constants.ICON_POPUP;
             fontSize = 16;
             ins = null; //new Insets (3, 3, 3, 3);
-            
+
         }
-        
+
         if (titleType == Constants.SUB_PANEL_TITLE)
         {
-            
+
             iconType = Constants.ICON_SUB_PANEL_MAIN;
             fontSize = 14;
             ins = new Insets (5, 5, 0, 0);
-                               
+
         }
 
         if (titleType == Constants.PANEL_TITLE)
         {
-            
+
             iconType = Constants.ICON_PANEL_MAIN;
             fontSize = 16;
             ins = new Insets (5, 7, 5, 7);
 
-                               
+
         }
 
         if (titleType == Constants.FULL_SCREEN_TITLE)
         {
-            
+
             iconType = Constants.ICON_PANEL_MAIN;
             fontSize = 18;
             ins = new Insets (5, 10, 8, 5);
 
-                               
+
         }
 
         ImageIcon ii = null;
-        
+
         if (icon != null)
         {
-            
+
             ii = Environment.getIcon (icon,
                                       iconType);
-            
+
         }
-        
+
         Header h = new Header (Environment.replaceObjectNames (title),
                                ii,
                                controls);
@@ -4560,9 +4560,9 @@ public class UIUtils
         h.setPadding (ins);
 
         return h;
-        
+
     }
-    
+
     public static JPanel createHelpBox (String                helpText,
                                         int                   iconType,
                                         AbstractProjectViewer pv)
@@ -4574,7 +4574,7 @@ public class UIUtils
         PanelBuilder pb = new PanelBuilder (fl);
 
         CellConstraints cc = new CellConstraints ();
-        
+
         ImagePanel helpII = new ImagePanel (Environment.getIcon ("help",
                                                                  iconType),
                                             null);
@@ -4612,95 +4612,95 @@ public class UIUtils
 
     public static String formatTextForHelpPane (String text)
     {
-        
+
         if (text != null)
         {
 
             StringBuilder buf = new StringBuilder ();
-    
+
             text = Environment.replaceObjectNames (text);
-    
+
             text = StringUtils.replaceString (text,
                                               String.valueOf ('\n'),
-                                              "<br />");        
-            
+                                              "<br />");
+
             text = UIUtils.markupLinks (text);
-            
+
             int ind = text.indexOf ("[");
-            
+
             while (ind > -1)
             {
-                
+
                 int end = text.indexOf ("]",
                                         ind + 1);
-    
+
                 if (end > ind + 1)
                 {
-                    
+
                     String v = text.substring (ind + 1,
                                                end);
-                   
+
                     StringTokenizer st = new StringTokenizer (v,
                                                               ",;");
-                    
+
                     String icon = st.nextToken ().trim ().toLowerCase ();
                     String action = null;
-                    
+
                     if (st.hasMoreTokens ())
                     {
-                        
+
                         action = st.nextToken ().trim ().toLowerCase ();
-                        
+
                     }
-                    
+
                     v = "<img src=\"" + Environment.getIconURL (icon, Constants.ICON_MENU) + "\" />";
-                                    
+
                     if (action != null)
                     {
-                        
+
                         v = "<a href=\"action:" + action + "\">" + v + "</a>";
-                                    
+
                     }
-                    
+
                     // Split up the value.
                     text = text.substring (0,
                                            ind) + v + text.substring (end + 1);
-                    
+
                     ind = text.indexOf ("[",
                                         ind + v.length ());
-                    
-                    
+
+
                 }
-                
-            }        
-        
+
+            }
+
             text = UIUtils.getWithHTMLStyleSheet (new JTextField ("abcdABCD"),
                                                   text);
 
         }
 
         return text;
-        
+
     }
 
     // TODO: Make this work.
     public static JTextPane createHelpTextPane (StringWithMarkup text,
                                                 AbstractViewer   viewer)
     {
-        
+
         return UIUtils.createHelpTextPane ((text != null ? text.getMarkedUpText () : null),
                                            viewer);
-        
+
     }
-    
+
     public static JTextPane createHelpTextPane (AbstractViewer   viewer)
     {
-        
+
         return UIUtils.createHelpTextPane ((String) null,
                                            viewer);
-        
+
     }
-    
+
     public static JTextPane createHelpTextPane (String         text,
                                                 AbstractViewer viewer)
     {
@@ -4710,15 +4710,15 @@ public class UIUtils
 
         final JTextPane desc = new JTextPane (doc)
         {
-          
+
             @Override
             public void setText (String t)
             {
-                
+
                 super.setText (UIUtils.formatTextForHelpPane (t));
-                
+
             }
-            
+
         };
 
         desc.setEditorKit (kit);
@@ -4728,9 +4728,9 @@ public class UIUtils
 
         desc.setSize (new Dimension (500,
                                      500));
-        
+
         desc.setText (text);
-        
+
         /*
         desc.setMaximumSize (new Dimension (500,
                                             500)); // desc.getPreferredSize ());
@@ -4740,17 +4740,17 @@ public class UIUtils
                                          5,
                                          10,
                                          5));
-*/ 
-                                         
+*/
+
         // new
         /*
         desc.setBorder (new EmptyBorder (5,
                                          5,
                                          10,
                                          5));
-          */                               
+          */
         // end new
-                                         
+
         UIUtils.addHyperLinkListener (desc,
                                       viewer);
 
@@ -4764,7 +4764,7 @@ public class UIUtils
 
         HTMLPanel p = new HTMLPanel (text,
                                      projectViewer);
-    
+
         p.setOpaque (false);
         p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
@@ -4774,10 +4774,10 @@ public class UIUtils
                                          5));
 
         p.setSize (UIUtils.getPopupWidth () - 20, 10000);
-        
+
         p.doDocumentLayout (p.getGraphics ());
-                                         
-                                         
+
+
         return p;
 
     }
@@ -4801,11 +4801,11 @@ public class UIUtils
 
         if (text == null)
         {
-            
+
             text = "";
-            
+
         }
-    
+
         text = StringUtils.replaceString (text,
                                           String.valueOf ('\n'),
                                           "<br />");
@@ -4845,7 +4845,7 @@ public class UIUtils
                                       "Unable to open web page: " + url);
 
             return;
-                                      
+
         }
 
         UIUtils.openURL (parent,
@@ -4855,84 +4855,84 @@ public class UIUtils
 
     public static AbstractViewer getViewer (Component parent)
     {
-        
+
         if (parent == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         if (parent instanceof AbstractViewer)
         {
-            
+
             return (AbstractViewer) parent;
-            
+
         }
-        
+
         if (parent instanceof PopupWindow)
         {
-            
+
             return ((PopupWindow) parent).getViewer ();
-            
+
         }
-        
+
         if (parent instanceof QuollPanel)
         {
-            
+
             return ((QuollPanel) parent).getViewer ();
-            
+
         }
-        
+
         return UIUtils.getViewer (parent.getParent ());
-        
+
     }
-    
+
     public static AbstractProjectViewer getProjectViewer (Component parent)
     {
-        
+
         AbstractViewer v = UIUtils.getViewer (parent);
-        
+
         if ((v != null)
             &&
             (v instanceof AbstractProjectViewer)
            )
         {
-            
+
             return (AbstractProjectViewer) v;
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
 /*
     public static AbstractViewer getViewer (Component parent)
     {
-        
+
         if (parent == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         if (parent instanceof AbstractViewer)
         {
-            
+
             return (AbstractViewer) parent;
-            
+
         }
-                
+
         return UIUtils.getViewer (parent.getParent ());
-        
+
     }
 */
     public static void showFile (Component parent,
                                  File      f)
     {
-        
+
         try
         {
 
@@ -4949,27 +4949,27 @@ public class UIUtils
                                       "Unable to open: " + f);
 
             return;
-                                      
+
         }
 
     }
-        
+
     public static void openURL (Component parent,
                                 URL       url)
     {
 
         if (url == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         if (url.getProtocol ().equals (Constants.QUOLLWRITER_PROTOCOL))
         {
-            
+
             String u = Environment.getQuollWriterWebsite ();
-            
+
             String p = url.getPath ();
 
             if ((!p.endsWith (".html"))
@@ -4987,19 +4987,19 @@ public class UIUtils
             }
 
             u = u + "/" + p;
-            
+
             if (url.getQuery () != null)
             {
-                
+
                 u += "?" + url.getQuery ();
-                
+
             }
 
             if (url.getRef () != null)
             {
-                
+
                 u += "#" + url.getRef ();
-                
+
             }
 
             try
@@ -5016,10 +5016,10 @@ public class UIUtils
 
                 return;
 
-            }            
-            
+            }
+
         }
-    
+
         if (url.getProtocol ().equals (Constants.HELP_PROTOCOL))
         {
 
@@ -5055,20 +5055,20 @@ public class UIUtils
 
             if (parent != null)
             {
-                
+
                 AbstractViewer pv = UIUtils.getViewer (parent);
 
                 if (pv != null)
                 {
-                    
+
                     Environment.eventOccurred (new ProjectEvent (pv,
                                                                  ProjectEvent.HELP,
-                                                                 ProjectEvent.SHOW));                    
-                    
+                                                                 ProjectEvent.SHOW));
+
                 }
-                
+
             }
-            
+
         }
 
         if (url.getProtocol ().equals (Constants.OPENPROJECT_PROTOCOL))
@@ -5077,66 +5077,66 @@ public class UIUtils
             String projId = url.getPath ();
 
             Project proj = null;
-            
+
             try
             {
-                
+
                 Environment.openProject (projId,
                                          null,
                                          null);
-                                    
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to get project for id: " + projId,
                                       e);
-                
+
             }
-            
+
             return;
-        
+
         }
-        
+
         if (url.getProtocol ().equals (Constants.OPENEDITORMESSAGE_PROTOCOL))
         {
 
             int key = 0;
-            
+
             try
             {
-                
+
                 key = Integer.parseInt (url.getPath ());
-                
+
             } catch (Exception e) {
-                
+
                 // Ignore?
-                
+
             }
-       
+
             // Get the message.
             EditorMessage mess = null;
-            
+
             try
             {
-                
+
                 mess = EditorsEnvironment.getMessageByKey (key);
-                
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to get message for key: " + key,
                                       e);
-                
+
             }
-            
+
             if (mess != null)
             {
-                
+
                 // Need to work out what to do.
                 //EditorsEnvironment.openEditorMessage (mess);
-                
+
             }
-        
+
             return;
-        
+
         }
 
         if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
@@ -5144,7 +5144,7 @@ public class UIUtils
 
             if (parent != null)
             {
-                
+
                 AbstractProjectViewer pv = UIUtils.getProjectViewer (parent);
 
                 if (pv != null)
@@ -5153,37 +5153,37 @@ public class UIUtils
                     pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
 
                     return;
-                
+
                 }
-                
+
             }
 
         }
-        
-        
+
+
         if (url.getProtocol ().equals (Constants.ACTION_PROTOCOL))
         {
 
             String action = url.getPath ();
-        
+
             if (parent != null)
             {
-                
+
                 AbstractViewer pv = Environment.getFocusedViewer ();
 
                 if (pv != null)
                 {
-                    
+
                     pv.handleHTMLPanelAction (action);
-                                        
+
                     return;
-                
+
                 }
-                
+
             }
-                            
+
         }
-        
+
         if (url.getProtocol ().equals ("mailto"))
         {
 
@@ -5221,15 +5221,15 @@ public class UIUtils
                                                         n,
                                                         pv,
                                                         qp);
-        
+
     }
-    
+
     public static JTextPane createObjectDescriptionViewPane (final String                  description,
                                                              final NamedObject             n,
                                                              final AbstractProjectViewer   pv,
                                                              final ProjectObjectQuollPanel qp)
     {
-            
+
         HTMLEditorKit kit = new HTMLEditorKit ();
         HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
 
@@ -5265,67 +5265,67 @@ public class UIUtils
 
                         if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
                         {
-                        
+
                             Set<Asset> objs = pv.getProject ().getAllAssetsByName (url.getHost (),
                                                                                    null);
-                        
+
                             if ((objs == null)
                                 ||
                                 (objs.size () == 0)
                                )
                             {
-                                
+
                                 return;
-                                
+
                             }
-                            
+
                             if (objs.size () == 1)
                             {
-                        
+
                                 pv.viewObject (objs.iterator ().next ());
 
                                 return;
-                            
+
                             } else {
-                                
+
                                 try
                                 {
-                                
+
                                     Point point = desc.modelToView (ev.getSourceElement ().getStartOffset ()).getLocation ();
-                                    
+
                                     point = SwingUtilities.convertPoint (desc,
                                                                          point,
                                                                          pv);
-                                    
+
                                     UIUtils.showObjectSelectPopup (objs,
                                                                    pv,
                                                                    "Select an item to view",
                                                                    new ActionListener ()
                                                                    {
-                                                                    
+
                                                                         @Override
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
-                                                                            
+
                                                                             pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (ev.getActionCommand ())));
-                                                                            
+
                                                                         }
-                                                                    
+
                                                                    },
                                                                    true,
                                                                    point);
-                                    
+
                                 } catch (Exception e) {
-                                    
+
                                     Environment.logError ("Unable to show popup",
                                                           e);
-                                    
+
                                     pv.viewObject (objs.iterator ().next ());
-                                    
+
                                     return;
-                                    
+
                                 }
-                                
+
                             }
 
                         }
@@ -5339,7 +5339,7 @@ public class UIUtils
 
                         UIUtils.openURL (pv,
                                          url);
-                        
+
                     }
 
                 }
@@ -5351,26 +5351,26 @@ public class UIUtils
 
             PropertyChangedAdapter pca = new PropertyChangedAdapter ()
             {
-    
+
                 public void propertyChanged (PropertyChangedEvent ev)
                 {
-    
+
                     if (ev.getChangeType ().equals (NamedObject.DESCRIPTION))
                     {
-                
+
                         desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
                                                                      UIUtils.markupStringForAssets (description,
                                                                                                     pv.getProject (),
                                                                                                     n)));
-    
+
                     }
-                                                                                                    
+
                 }
-    
+
             };
-        
+
             qp.addObjectPropertyChangedListener (pca);
-    
+
             pca.propertyChanged (new PropertyChangedEvent (qp,
                                                            NamedObject.DESCRIPTION,
                                                            null,
@@ -5381,10 +5381,10 @@ public class UIUtils
             desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
                                                          UIUtils.markupStringForAssets (description,
                                                                                         pv.getProject (),
-                                                                                        n)));            
-                                                           
+                                                                                        n)));
+
         }
-        
+
         return desc;
 
     }
@@ -5404,9 +5404,9 @@ public class UIUtils
                                           textColor,
                                           linkColor,
                                           -1);
-    
+
     }
-    
+
     public static String getHTMLStyleSheet (JTextComponent desc,
                                             String         textColor,
                                             String         linkColor,
@@ -5416,23 +5416,23 @@ public class UIUtils
         StringBuilder t = new StringBuilder ();
 
         Font f = null;
-        
+
         if (desc != null)
         {
-            
+
             f = desc.getFont ();
-            
+
         } else {
-            
+
             f = new JLabel ().getFont ();
-            
+
         }
 
         if (linkColor == null)
         {
-            
+
             linkColor = Constants.HTML_LINK_COLOR;
-            
+
         }
 
         if (!linkColor.startsWith ("#"))
@@ -5444,9 +5444,9 @@ public class UIUtils
 
         if (textColor == null)
         {
-            
+
             textColor = "#000000";
-            
+
         }
 
         if (!textColor.startsWith ("#"))
@@ -5457,14 +5457,14 @@ public class UIUtils
         }
 
         int size = textSize;
-        
+
         if (size < 1)
         {
-            
+
             size = (int) f.getSize ();
-            
+
         }
-                
+
         t.append ("<style>");
         t.append ("*{font-family: \"" + f.getFontName () + "\"; font-size: " + size + "px; background-color: transparent; color: " + textColor + ";}\n");
         t.append ("body{padding: 0px; margin: 0px;color: " + textColor + "; font-size: " + size + "pt; font-family: \"" + f.getFontName () + "\";}");
@@ -5486,7 +5486,7 @@ public class UIUtils
         t.append ("p.help img{padding-left: 3px; padding-right: 3px;}");
         t.append (".error{color: red;}");
         t.append (".warning{color: red;}");
-        
+
         // A pox on the java html renderer.
         t.append ("span.b{font-weight: bold;}");
         t.append ("span.bi{font-style: italic; font-weight: bold;}");
@@ -5553,16 +5553,16 @@ public class UIUtils
 
             if (name != null)
             {
-                
+
                 a.setName (name);
-                
+
             }
 
             if (desc != null)
             {
-                
+
                 a.setDescription (new StringWithMarkup (desc));
-                
+
             }
 
             String oName = Environment.getObjectTypeName (a.getObjectType ());
@@ -5611,7 +5611,7 @@ public class UIUtils
     {
 
         List<JComponent> buts = new ArrayList ();
-    
+
         String pref = "Shortcut: Ctrl+Shift+";
 
         for (String type : Asset.supportedAssetTypes.keySet ())
@@ -5637,16 +5637,16 @@ public class UIUtils
 
             if (name != null)
             {
-                
+
                 a.setName (name);
-                
+
             }
 
             if (desc != null)
             {
-                
+
                 a.setDescription (new StringWithMarkup (desc));
-                
+
             }
 
             String oName = Environment.getObjectTypeName (a.getObjectType ());
@@ -5661,7 +5661,7 @@ public class UIUtils
                                                                 AbstractActionHandler.ADD);
 
             aah.setPopupOver (pv);
-                                                                
+
             if (showPopupAt instanceof PopupsSupported)
             {
 
@@ -5685,23 +5685,23 @@ public class UIUtils
         m.add (UIUtils.createPopupMenuButtonBar (null,
                                                  m,
                                                  buts));
-        
+
     }
-    
+
     public static Color getBorderHighlightColor ()
     {
-        
+
         return UIUtils.getColor ("#275C92");
-        
+
     }
-    
+
     public static Color getHintTextColor ()
     {
-        
+
         return UIUtils.getColor ("#aaaaaa");
-        
+
     }
-    
+
     public static Color getColor (String hexCode)
     {
 
@@ -5751,7 +5751,7 @@ public class UIUtils
                                                 final int     iconType,
                                                 final String  helpText)
     {
-        
+
         final JButton helpBut = new JButton (Environment.getIcon ("help",
                                                                   iconType));
         helpBut.setToolTipText ((helpText != null ? helpText : "Click to view the help"));
@@ -5760,19 +5760,19 @@ public class UIUtils
 
         helpBut.addActionListener (new ActionAdapter ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                    
+
                 UIUtils.openURL (helpBut,
                                  "help://" + helpPage);
-                
+
             }
-            
+
         });
-        
+
         return helpBut;
-        
+
     }
 
     public static JLabel createWebsiteLabel (final String  website,
@@ -5783,24 +5783,24 @@ public class UIUtils
         final JLabel web = new JLabel (String.format ("<html>%s</html>",
                                                       Environment.replaceObjectNames (((display == null) ? website : display))))
         {
-          
+
             @Override
             public void setText (String t)
             {
-                
+
                 if (!this.getText ().equals (""))
                 {
-                
+
                     throw new IllegalStateException ("Once set the website label text cannot be modified.");
-                
+
                 }
-                
+
                 super.setText (t);
-                
+
             }
-            
+
         };
-        
+
         // web.setEditable (false);
         web.setOpaque (false);
         web.setBorder (null);
@@ -5891,42 +5891,42 @@ public class UIUtils
     public static JLabel createClickableLabel (String title,
                                                Icon   icon)
     {
-        
+
         String ns = null;
-        
+
         return UIUtils.createClickableLabel (title,
                                              icon,
                                              ns);
-        
+
     }
 
     public static JLabel createClickableLabel (final String title,
                                                final Icon   icon,
                                                final String gotoURLOnClick)
     {
-        
+
         return UIUtils.createClickableLabel (title,
                                              icon,
                                              new ActionListener ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if (gotoURLOnClick != null)
                 {
-                
+
                     UIUtils.openURL (null,
                                      gotoURLOnClick);
 
                 }
-                
+
             }
-            
+
         });
-        
+
     }
-    
+
     public static void makeClickable (final JLabel l,
                                       final ActionListener onClick)
     {
@@ -5940,21 +5940,21 @@ public class UIUtils
 
                 if (onClick != null)
                 {
-                    
+
                     try
                     {
-                        
+
                         onClick.actionPerformed (new ActionEvent (l, 1, "clicked"));
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to perform action",
                                               e);
-                        
+
                     }
-                    
+
                 }
-                
+
             }
         /*
             @Override
@@ -5982,11 +5982,11 @@ public class UIUtils
             }
 */
         });
-        
-        l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));        
-        
+
+        l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+
     }
-    
+
     public static JLabel createClickableLabel (final String         title,
                                                final Icon           icon,
                                                final ActionListener onClick)
@@ -5996,27 +5996,27 @@ public class UIUtils
                                      icon,
                                      SwingConstants.LEFT)
         {
-          
+
             @Override
             public void setText (String t)
             {
-                
+
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
-                
+
             }
-            
+
             @Override
             public void setToolTipText (String t)
             {
 
                 super.setToolTipText (String.format ("%s",
                                                      Environment.replaceObjectNames (t)));
-                
+
             }
-            
+
         };
-        
+
         l.setText (title);
         l.setForeground (UIUtils.getColor (Constants.HTML_LINK_COLOR));
         l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
@@ -6024,7 +6024,7 @@ public class UIUtils
         l.setVerticalTextPosition (SwingConstants.TOP);
         UIUtils.makeClickable (l,
                                onClick);
-        
+
         return l;
 
     }
@@ -6038,41 +6038,41 @@ public class UIUtils
                                      icon,
                                      SwingConstants.LEFT)
         {
-          
+
             @Override
             public void setText (String t)
             {
-                
+
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
-                
+
             }
-            
+
             @Override
             public void setToolTipText (String t)
             {
 
                 super.setToolTipText (String.format ("%s",
                                                      Environment.replaceObjectNames (t)));
-                
+
             }
-            
+
         };
-        
+
         l.setText (title);
 
         if (onClick != null)
         {
-            
+
             l.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
             UIUtils.makeClickable (l,
                                    onClick);
-            
+
         }
-        
+
         l.setVerticalAlignment (SwingConstants.TOP);
         l.setVerticalTextPosition (SwingConstants.TOP);
-        
+
         return l;
 
     }
@@ -6080,17 +6080,17 @@ public class UIUtils
     public static int getA4PageCountForChapter (Chapter c,
                                                 String  text)
     {
-    
+
         if ((text == null)
             ||
             (text.trim ().length () == 0)
            )
         {
-            
+
             return 0;
-            
+
         }
-        
+
         // Create a new editor.
         QTextEditor ed = UIUtils.wordCountPerPageEditor;
 /*
@@ -6119,7 +6119,7 @@ public class UIUtils
 
         ed.setSize (new Dimension ((int) (pageWidth * ppi),
                                    ed.getPreferredSize ().height));
- 
+
         // Get the height, divide by the page size.
         int a4PageCount = (int) (ed.getHeight () / (pageHeight * ppi));
 
@@ -6132,7 +6132,7 @@ public class UIUtils
 
         /*
          *standard pages count
-         
+
         ed.setSize (new Dimension (4 * ppi,
                                    ed.getPreferredSize ().height));
 
@@ -6145,14 +6145,14 @@ public class UIUtils
 
         }
         */
-              
-        return a4PageCount;        
-        
+
+        return a4PageCount;
+
     }
 
     public static JScrollPane createScrollPane (JComponent c)
     {
-        
+
         JScrollPane sp = new JScrollPane (c);
         sp.setOpaque (true);
         sp.getViewport ().setBackground (UIUtils.getComponentColor ());
@@ -6164,16 +6164,16 @@ public class UIUtils
         // Ease of use thing since you want all tables to scroll on rows.
         if (c instanceof JTable)
         {
-            
+
             sp.getVerticalScrollBar ().setUnitIncrement (((JTable) c).getRowHeight ());
             sp.getVerticalScrollBar ().setBlockIncrement (1);
-            
+
         }
-        
+
         return sp;
-        
+
     }
-        
+
     public static JScrollPane createScrollPane (JTextComponent t)
     {
 
@@ -6226,25 +6226,25 @@ public class UIUtils
 
     public static JComponent createOpaqueGlue (int dir)
     {
-        
+
         JComponent c = null;
-        
+
         if (dir == BoxLayout.Y_AXIS)
         {
-            
+
             c = (JComponent) Box.createVerticalGlue ();
-            
+
         } else {
-            
+
             c = (JComponent) Box.createHorizontalGlue ();
-            
+
         }
-        
+
         c.setOpaque (true);
         c.setBackground (UIUtils.getComponentColor ());
 
         return c;
-        
+
     }
 
     /**
@@ -6262,27 +6262,27 @@ public class UIUtils
                                            int                   rows,
                                            int                   maxChars)
     {
-        
+
         TextArea t = new TextArea (placeholder,
                                    rows,
                                    maxChars);
         t.setDictionaryProvider (pv.getDictionaryProvider ());
         t.setSpellCheckEnabled (pv.isSpellCheckingEnabled ());
-        
+
         try
         {
-        
+
             t.setSynonymProvider (pv.getSynonymProvider ());
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set synonym provider.",
                                   e);
-            
+
         }
 
         return t;
-        
+
     }
 
     /**
@@ -6299,145 +6299,145 @@ public class UIUtils
                                            int    rows,
                                            int    maxChars)
     {
-        
+
         TextArea t = new TextArea (placeholder,
                                    rows,
                                    maxChars);
-        
+
         try
         {
-        
+
             t.setDictionaryProvider (Environment.getDefaultDictionaryProvider ());
             t.setSpellCheckEnabled (true);
 
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set dictionary provider",
                                   e);
-            
+
         }
-        
+
         try
         {
-        
+
             t.setSynonymProvider (Environment.getSynonymProvider (null));
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set synonym provider.",
                                   e);
-            
+
         }
 
         return t;
-        
+
     }
 
     public static JComponent createPopupMenuButtonBar (String           title,
                                                        final JPopupMenu       parent,
                                                        List<JComponent> buttons)
     {
-        
+
         ActionListener aa = new ActionAdapter ()
         {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 parent.setVisible (false);
-                
+
             }
-            
+
         };
-        
+
         for (JComponent but : buttons)
         {
-            
+
             if (but instanceof JButton)
             {
-                
+
                 JButton b = (JButton) but;
-                
+
                 b.addActionListener (aa);
-                
+
             }
-            
+
         }
-        
+
         Box b = new Box (BoxLayout.X_AXIS);
-        
+
         // This is to get around the "icon space" in the menu.
         b.add (Box.createHorizontalStrut (32));
-        
+
         if (title == null)
         {
-            
+
             title = "";
-            
+
         }
-            
+
         JLabel l = new JLabel (Environment.replaceObjectNames (title));
 
         l.setForeground (UIUtils.getColor ("#444444"));
         l.setFont (l.getFont ().deriveFont (Font.ITALIC));
-        
+
         l.setPreferredSize (new Dimension (Math.max (50, l.getPreferredSize ().width),
                                            l.getPreferredSize ().height));
-                    
+
         b.add (l);
-        
+
         b.add (Box.createHorizontalStrut (10));
-                                              
+
         b.add (UIUtils.createButtonBar (buttons));
-                
+
         b.add (Box.createHorizontalGlue ());
-                
+
         return b;
-        
+
     }
-    
+
     public static JPanel createButtonBar2 (JButton[] buts,
                                            float     alignment)
     {
-        
+
         ButtonBarBuilder bb = ButtonBarBuilder.create ();
-        
+
         if (buts == null)
         {
-            
+
             return bb.build ();
-            
-        }        
-        
+
+        }
+
         if ((alignment == Component.RIGHT_ALIGNMENT)
             ||
             (alignment == Component.CENTER_ALIGNMENT)
            )
         {
-         
+
             bb.addGlue ();
-            
+
         }
-        
+
         bb.addButton (buts);
-        
+
         if (alignment == Component.CENTER_ALIGNMENT)
         {
-            
+
             bb.addGlue ();
-            
+
         }
-        
+
         bb.opaque (false);
 
         JPanel p = bb.build ();
-        
+
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         return p;
-        
+
     }
-    
+
     public static JToolBar createButtonBar (List<? extends JComponent> buttons)
     {
 
@@ -6474,29 +6474,29 @@ public class UIUtils
 
         JButton b = new JButton (icon)
         {
-            
+
             @Override
             public void setToolTipText (String t)
             {
-                
+
                 super.setToolTipText (Environment.replaceObjectNames (t));
-                
+
             }
-            
+
         };
 
         b.setFocusPainted (false);
         b.setToolTipText (toolTipText);
         b.setOpaque (false);
         UIUtils.setAsButton (b);
-        
+
         if (action != null)
         {
-        
+
             b.addActionListener (action);
-            
+
         }
-        
+
         return b;
 
     }
@@ -6506,12 +6506,12 @@ public class UIUtils
                                         String         toolTipText,
                                         ActionListener action)
     {
- 
+
         return UIUtils.createButton (Environment.getIcon (icon,
                                                           iconType),
                                      toolTipText,
                                      action);
-        
+
     }
 
     public static JButton createButton (String label,
@@ -6522,15 +6522,15 @@ public class UIUtils
                                  (icon == null ? null : Environment.getIcon (icon,
                                                                              Constants.ICON_MENU)))
         {
-            
+
             @Override
             public void setToolTipText (String t)
             {
-                
+
                 super.setToolTipText (Environment.replaceObjectNames (t));
-                
-            }            
-            
+
+            }
+
         };
 
         return b;
@@ -6568,11 +6568,11 @@ public class UIUtils
 
         if (p == null)
         {
-            
+
             return "Prompt no longer available.  Usually this is due to it's removal at the request of the author.";
-            
+
         }
-    
+
         String link = "";
 
         if (p.isUserPrompt ())
@@ -6587,7 +6587,7 @@ public class UIUtils
                                   p.getURL (),
                                   p.getStoryName (),
                                   p.getAuthor ());
-            
+
         }
 
         return p.getText () + "<br /> - " + link;
@@ -6600,45 +6600,45 @@ public class UIUtils
 
         if (UIUtils.headerFont == null)
         {
-            
+
             UIUtils.headerFont = new JLabel ("").getFont ().deriveFont (Font.BOLD,
                                                                         16);
-            
+
         }
-            
+
         return UIUtils.headerFont;
 
     }
 
     public static float getScaledFontSize (int v)
     {
-        
+
         // Ugh, assume a 96 dpi and let the underlying windows manager handle scaling.
         // We return a float here so that calls to Font.deriveFont can use the value directly rather than
         // having to cast.
-        return (float) (Math.round ((float) v * ((float) DEFAULT_ASSUMED_SCREEN_RESOLUTION / 72f)));       
-        
+        return (float) (Math.round ((float) v * ((float) DEFAULT_ASSUMED_SCREEN_RESOLUTION / 72f)));
+
     }
-    
+
     @Deprecated
     /**
      * Use UIUtils.getScaledFontSize instead.
      */
     public static float scaleToScreenSize (double h)
     {
-        
+
         // Ugh, assume a 96 dpi and let the underlying windows manager handle scaling.
         return UIUtils.getScaledFontSize ((int) h);
-                
+
     }
 
     public static int getPrintFontSize ()
     {
-        
+
         return UIUtils.getPrintFontSize (new JLabel ().getFont ().getSize ());
-        
+
     }
-    
+
     public static int getPrintFontSize (int size)
     {
 
@@ -6648,12 +6648,12 @@ public class UIUtils
 
     public static int getEditorFontSize (int size)
     {
-    
+
         // Need to take the screen resolution into account.
         float s = (float) size * ((float) java.awt.Toolkit.getDefaultToolkit ().getScreenResolution () / 72f);
 
         return (int) s;
-                
+
     }
 
     public static JFreeChart createSparkLine (TimeSeries series,
@@ -6750,141 +6750,141 @@ public class UIUtils
         return false;
 
     }
-    
+
     public static ImageIcon getColoredIcon (String name,
                                             int    type,
                                             Color  c)
     {
-        
+
         ImageIcon ic = Environment.getIcon (name,
                                             type);
-        
+
         if (ic == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return UIUtils.getColoredIcon (ic.getImage (),
                                        c);
-                
+
     }
 
     public static ImageIcon getColoredIcon (Image  im,
                                             Color  c)
     {
-        
+
         if (im == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         final int crgb = c.getRGB ();
-        
+
         ImageFilter filter = new RGBImageFilter()
         {
           public final int filterRGB(int x, int y, int rgb)
           {
             if (rgb != 0)
             {
-            
+
             }
              return (rgb != 0 ? crgb : rgb);
 
           }
         };
-    
+
         ImageProducer ip = new FilteredImageSource (im.getSource (), filter);
-        return new ImageIcon (Toolkit.getDefaultToolkit().createImage(ip)); 
-        
+        return new ImageIcon (Toolkit.getDefaultToolkit().createImage(ip));
+
     }
-    
+
     public static Image replaceColorInImage (Image  im,
                                              Color  orig,
                                              Color  changeTo)
     {
-        
+
         if (im == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         final int orgb = orig.getRGB ();
         final int crgb = changeTo.getRGB ();
-        
+
         ImageFilter filter = new RGBImageFilter()
         {
           public final int filterRGB(int x, int y, int rgb)
           {
             if (rgb != 0)
             {
-            
+
             }
-            
+
             return (rgb == orgb ? crgb : rgb);
 
           }
         };
-    
+
         ImageProducer ip = new FilteredImageSource (im.getSource (), filter);
-        return Toolkit.getDefaultToolkit().createImage (ip); 
-        
+        return Toolkit.getDefaultToolkit().createImage (ip);
+
     }
 
     public static Color getIconColumnColor ()
     {
-        
-        return UIUtils.getColor ("#f0f0f0");//"f5fcfe");        
-        
+
+        return UIUtils.getColor ("#f0f0f0");//"f5fcfe");
+
     }
 
     public static int getSplitPaneDividerSize ()
     {
-        
+
         return 2;
-        
+
     }
-    
+
     public static Color getTitleColor ()
     {
-        
+
         return UIUtils.getColor ("#333333");
-        
+
     }
-    
+
     public static Color getInnerBorderColor ()
     {
-    
+
         return UIUtils.getColor ("#dddddd");
-        
+
     }
-    
+
     public static Color getDragIconColor ()
     {
-        
+
         return UIUtils.getColor ("#aaaaaa");
-        
+
     }
-    
+
     public static Color getBorderColor ()
     {
-        
-        return UIUtils.getColor ("#aaaaaa");        
-        
+
+        return UIUtils.getColor ("#aaaaaa");
+
     }
-    
+
     public static Color getComponentColor ()
     {
-        
+
         return UIUtils.getColor ("#fdfdfd");
-        
+
     }
-    
+
     public static boolean clipboardHasContent ()
     {
 
@@ -6949,41 +6949,41 @@ public class UIUtils
                                                    Color         color,
                                                    String        where)
     {
-        
+
         FontMetrics m = im.getGraphics ().getFontMetrics (font);
-        
+
         int sh = m.getHeight ();
         int sw = m.stringWidth (text);
-        
+
         int imw = im.getWidth ();
         int imh = im.getHeight ();
-        
+
         int nw = 0;
         int nh = 0;
-        
+
         Point w = null;
-                
+
         if (where.equals ("tr"))
         {
-            
+
             nw = imw - sw;
             nh = sh;
-            
+
         }
-        
+
         if (where.equals ("bl"))
         {
-            
+
             nh = imh - sh;
-            
+
         }
-        
+
         if (where.equals ("br"))
         {
-            
+
             nh = imh;// - sh;
             nw = imw - sw;
-            
+
         }
 
         return UIUtils.drawStringOnImage (im,
@@ -6991,44 +6991,44 @@ public class UIUtils
                                           font,
                                           color,
                                           new Point (nw, nh));
-        
+
     }
-    
+
     public static BufferedImage getImageOfComponent (Component c,
                                                      int       width,
                                                      int       height)
     {
-        
+
         width = (width > 0 ? width : c.getWidth ());
         height = (height > 0 ? height : c.getHeight ());
-        
+
         BufferedImage image = new BufferedImage (width,
                                                  height,
                                                  BufferedImage.TYPE_INT_ARGB);
 
         Graphics g = image.getGraphics ();
-                    
+
         if (c.isOpaque ())
         {
 
             g.setColor (c.getBackground ());
-                                                 
+
             g.fillRect (0,
                         0,
                         width,
                         height);
 
         }
-                                                                                                 
-        c.paint (g); 
-        return image;        
-        
+
+        c.paint (g);
+        return image;
+
     }
-    
+
     public static BufferedImage copyImage (BufferedImage im)
     {
-        
-        BufferedImage b = new BufferedImage (im.getWidth (), 
+
+        BufferedImage b = new BufferedImage (im.getWidth (),
                                              im.getHeight (),
                                              im.getType ());
         Graphics g = b.getGraphics ();
@@ -7036,12 +7036,12 @@ public class UIUtils
                      0,
                      0,
                      null);
-        g.dispose ();        
-        
+        g.dispose ();
+
         return b;
-        
+
     }
-    
+
     /**
      * Draw a string onto an image at the specified point (<b>where</b>).
      *
@@ -7058,42 +7058,42 @@ public class UIUtils
                                                    Color         color,
                                                    Point         where)
     {
-        
+
         BufferedImage newIm = UIUtils.copyImage (im);
-        
+
         Graphics2D g = (Graphics2D) newIm.getGraphics ();
-        
+
         g.setFont (font);
-        
+
         g.setRenderingHint (RenderingHints.KEY_TEXT_ANTIALIASING,
-                            RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);        
-        
+                            RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
         g.setColor (color);
-        
+
         FontMetrics fm = g.getFontMetrics ();
-        
+
         java.awt.geom.Rectangle2D b = g.getFontMetrics ().getStringBounds (text,
                                                             g);
-        
+
         g.drawString (text,
                       where.x,
                       (int) (where.y + b.getHeight ()));
-        
+
         return newIm;
-        
+
     }
-    
+
     public static BufferedImage getBufferedImage (Image     im,
                                                   Component io)
     {
-        
+
         if (im == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         int           height = im.getHeight (io);
         int           width = im.getWidth (io);
 
@@ -7106,60 +7106,60 @@ public class UIUtils
                      0,
                      Color.black,
                      io);
-        
+
         return bi;
-        
+
     }
-    
+
     public static BufferedImage getScaledImage (DataSource ds,
                                                 int        width,
                                                 int        height)
     {
-        
+
         try
         {
-            
+
             return UIUtils.getScaledImage (ImageIO.read (ds.getInputStream ()),
                                            width,
                                            height);
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to read image from data source: " + ds,
                                   e);
-            
-            return null;            
-            
+
+            return null;
+
         }
-        
+
     }
-    
+
     public static BufferedImage getImage (byte[] bytes)
                                    throws Exception
     {
-        
+
         if (bytes == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return ImageIO.read (new ByteArrayInputStream (bytes));
-        
+
     }
-    
+
     public static byte[] getImageBytes (BufferedImage im)
                                  throws Exception
     {
-        
+
         if (im == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         ByteArrayOutputStream bout = new ByteArrayOutputStream ();
         ImageIO.write (im,
                        "jpeg",
@@ -7167,46 +7167,46 @@ public class UIUtils
         bout.flush ();
         bout.close ();
         return bout.toByteArray ();
-        
+
     }
-    
+
     public static BufferedImage getImage (File f)
     {
-        
+
         try
         {
-        
+
             return ImageIO.read (f);
-        
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to find image for file: " + f,
                                   e);
-            
+
             return null;
-            
+
         }
-                
+
     }
 
     public static BufferedImage getScaledImage (File          f,
                                                 int           width,
                                                 int           height)
     {
-        
+
         return UIUtils.getScaledImage (UIUtils.getImage (f),
                                        width,
                                        height);
-        
+
     }
 
     public static BufferedImage getScaledImage (File          f,
                                                 int           width)
     {
-        
+
         return UIUtils.getScaledImage (UIUtils.getImage (f),
                                        width);
-        
+
     }
 
     public static BufferedImage getScaledImage (BufferedImage img,
@@ -7215,55 +7215,55 @@ public class UIUtils
 
         if (img == null)
         {
-            
+
             return null;
-            
+
         }
-    
+
         return Scalr.resize (img,
                              Scalr.Method.QUALITY,
                              Scalr.Mode.FIT_TO_WIDTH,
                              targetWidth,
                              Scalr.OP_ANTIALIAS);
-    
+
     }
-    
+
     public static BufferedImage createBufferedImage (int width,
                                                      int height)
     {
-        
+
         BufferedImage im = new BufferedImage (width,
                                               height,
                                               BufferedImage.TYPE_INT_ARGB);
-        
+
         Graphics2D g = im.createGraphics ();
-        
+
         g.setBackground (new Color (0, true));
         g.clearRect (0, 0, width, height);
-        
+
         g.dispose ();
-        
+
         return im;
-        
+
     }
-    
+
     public static Graphics2D createThrowawayGraphicsInstance ()
     {
-        
+
         return new BufferedImage (1, 1, BufferedImage.TYPE_INT_ARGB).createGraphics ();
-        
+
     }
-    
+
     public static BufferedImage iconToImage(Icon icon)
     {
-    
+
        if (icon instanceof ImageIcon) {
           return (BufferedImage) ((ImageIcon)icon).getImage();
        } else {
-        
+
           int w = icon.getIconWidth();
           int h = icon.getIconHeight();
-          GraphicsEnvironment ge = 
+          GraphicsEnvironment ge =
             GraphicsEnvironment.getLocalGraphicsEnvironment();
           GraphicsDevice gd = ge.getDefaultScreenDevice();
           GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -7272,11 +7272,11 @@ public class UIUtils
           icon.paintIcon(null, g, 0, 0);
           g.dispose();
           return image;
-    
+
        }
-     
-    }    
-    
+
+    }
+
     public static BufferedImage getScaledImage (BufferedImage img,
                                                 int           targetWidth,
                                                 int           targetHeight)
@@ -7288,7 +7288,7 @@ public class UIUtils
                              (targetWidth > 0 ? targetWidth : img.getWidth ()),
                              (targetHeight > 0 ? targetHeight : img.getHeight ()),
                              Scalr.OP_ANTIALIAS);
-/*    
+/*
         BufferedImage tmp = new BufferedImage (targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = tmp.createGraphics();
         g2.setRenderingHint (RenderingHints.KEY_RENDERING,
@@ -7297,9 +7297,9 @@ public class UIUtils
         g2.dispose();
 
         return tmp;
-  */  
-    }    
-    
+  */
+    }
+
     public static ImageIcon overlayImage (ImageIcon bg,
                                           ImageIcon fg,
                                           String    where)
@@ -7309,66 +7309,66 @@ public class UIUtils
 
         Image bgi = bg.getImage ();
         Image fgi = fg.getImage ();
-                
+
         BufferedImage n = new BufferedImage (bgi.getWidth (but),
                                              bgi.getHeight (but),
                                              BufferedImage.TYPE_INT_ARGB);
-                                
+
         Graphics2D g = n.createGraphics ();
         g.setRenderingHint (RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
-                
+
         g.drawImage (bgi,
                      0,
                      0,
                      null);
-        
+
         if (where.equals ("tl"))
         {
-            
+
             g.drawImage (fgi,
                          0,
                          0,
                          null);
-            
+
         }
 
         if (where.equals ("tr"))
         {
-            
+
             g.drawImage (fgi,
                          bgi.getWidth (but) - fgi.getWidth (but),
                          0,
                          null);
-            
+
         }
 
         if (where.equals ("bl"))
         {
-            
+
             g.drawImage (fgi,
                          0,
                          bgi.getHeight (but) - fgi.getHeight (but),
                          null);
-            
+
         }
 
         if (where.equals ("br"))
         {
-            
+
             g.drawImage (fgi,
                          bgi.getWidth (but) - fgi.getWidth (but),
                          bgi.getHeight (but) - fgi.getHeight (but),
                          null);
-            
+
         }
-        
+
         g.dispose ();
-        
+
         //bg.setImage (bgi);
-        
+
         return new ImageIcon (n);
-        
+
     }
 
     public static FileFinder createFileFind (final String         initPath,
@@ -7377,183 +7377,183 @@ public class UIUtils
                                              final String         approveButtonText,
                                              final ActionListener handler)
     {
-        
+
         FileFinder ff = new FileFinder ();
-        
+
         if (initPath != null)
         {
-        
+
             ff.setFile (new File (initPath));
-            
+
         }
-        
+
         ff.setOnSelectHandler (handler);
         ff.setApproveButtonText (approveButtonText);
         ff.setFinderSelectionMode (fileSelectionMode);
         ff.setFinderTitle (finderTitle);
-        
+
         ff.init ();
-        
+
         return ff;
-        
+
     }
 
     public static Component getComponentByName (Container parent,
                                                 String    name)
     {
-        
+
         if (name == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         if (parent == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         Component[] children = parent.getComponents ();
-        
+
         for (int i = 0; i < children.length; i++)
         {
-            
+
             if (name.equals (children[i].getName ()))
             {
-                
+
                 return children[i];
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public static String formatForUser (String v)
     {
-        
+
         v = Environment.replaceObjectNames (v);
-        
+
         return v;
-        
+
     }
 
     public static JMenuItem createMenuItem (String label,
                                             String icon,
                                             ActionListener action)
     {
-        
+
         JMenuItem mi = new JMenuItem (Environment.replaceObjectNames (label),
                                       Environment.getIcon (icon,
                                                  Constants.ICON_MENU));
         mi.addActionListener (action);
-        
+
         return mi;
-        
-    }    
-    
+
+    }
+
     public static JMenuItem createMenuItem (String label,
                                             String icon,
                                             ActionListener action,
                                             String         actionCommand,
                                             KeyStroke      accel)
     {
-        
+
         JMenuItem mi = UIUtils.createMenuItem (label,
                                                icon,
                                                action);
-        
+
         mi.setActionCommand (actionCommand);
         mi.setAccelerator (accel);
-        
+
         return mi;
-        
+
     }
-    
+
     public static void listenToTableForCellChanges (JTable table,
                                                     Action action)
     {
-        
+
         // Shouldn't be cleaned up since it adds itself as a property listener to the table.
         new TableCellListener (table,
                                action);
-        
+
     }
 
     public static boolean isAnimatedGif (File f)
     {
-        
+
         String type = Utils.getFileType (f);
-        
+
         if (f == null)
         {
-            
+
             throw new IllegalArgumentException ("Unable to determine file type for file: " +
                                                 f);
-            
+
         }
-        
+
         int c = 0;
-        
+
         ImageReader r = null;
-        
+
             r = ImageIO.getImageReadersBySuffix (type).next ();
-            
+
             if (r == null)
             {
-                
+
                 throw new IllegalArgumentException ("Unsupported file type for file: " +
                                                     f);
-                
+
             }
-                 
+
         try
         {
-                 
+
             r.setInput (ImageIO.createImageInputStream (f));
-            
+
         } catch (Exception e) {
-            
+
             throw new IllegalArgumentException ("Unable to read image file: " +
                                                 f,
-                                                e);            
-                        
+                                                e);
+
         }
-        
+
         try
         {
-                        
+
             int ind = 0;
-            
+
             // Upper bound valid?
             while (ind < 100)
             {
 
                 if (c > 1)
                 {
-                    
+
                     return true;
-                    
+
                 }
-                
+
                 r.read (ind);
-                
+
                 ind++;
                 c++;
-                
+
             }
-            
+
         } catch (Exception e) {
-            
+
         }
 
         return false;
-        
+
     }
 
     public static void doActionWhenPanelIsReady (final QuollPanel     p,
@@ -7561,124 +7561,124 @@ public class UIUtils
                                                  final Object         contextObject,
                                                  final String         actionTypeName)
     {
-        
+
         final Exception pe = new Exception ();
-        
+
         final javax.swing.Timer t = new javax.swing.Timer (100,
-                                                           null);   
-        
+                                                           null);
+
         // TODO: Change this to be based on an event that the panel fires when ready.
         ActionListener l = new ActionListener ()
         {
-            
+
             private int count = 0;
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if (p.isReadyForUse ())
                 {
-                    
+
                     t.setRepeats (false);
                     t.stop ();
 
                     try
                     {
-                        
+
                         action.actionPerformed (new ActionEvent ((contextObject != null ? contextObject : action),
                                                                  1,
                                                                  (actionTypeName != null ? actionTypeName : "any")));
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to perform action: " + action + "\nCause: " +
                                               Utils.getStackTrace (pe),
                                               e);
-            
+
                         UIUtils.showErrorMessage (p.getViewer (),
                                                   "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
-                                                
+
                     }
-                                                            
+
                     return;
-                    
+
                 }
 
                 // 2s delay max.
                 if (count > 50)
                 {
-                    
+
                     Environment.logError ("Unable to perform action: " + action,
                                           new Exception ("Unable to perform action for panel: " + p.getPanelId (),
                                                          pe));
-        
+
                     UIUtils.showErrorMessage (p.getViewer (),
-                                              "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");                    
-                    
+                                              "Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
+
                     t.setRepeats (false);
                     t.stop ();
-                    
+
                 }
-                
+
                 count++;
-                                
+
             }
-            
+
         };
-        
+
         t.setRepeats (true);
         t.addActionListener (l);
-        
+
         t.start ();
-        
+
     }
-    
+
     public static void doActionLater (final ActionListener action)
     {
-        
+
         UIUtils.doActionLater (action,
                                null,
                                null);
-        
+
     }
-    
+
     public static void doActionLater (final ActionListener action,
                                       final Object         contextObject,
                                       final String         actionTypeName)
     {
-        
+
         SwingUtilities.invokeLater (new Runner ()
         {
-           
+
             public void run ()
             {
-                
+
                 try
                 {
-                    
+
                     action.actionPerformed (new ActionEvent ((contextObject != null ? contextObject : action),
                                                              1,
                                                              (actionTypeName != null ? actionTypeName : "any")));
-                    
+
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to perform action",
                                           e);
-        
+
                     UIUtils.showErrorMessage ("Sorry, the action cannot be performed, please contact Quoll Writer support for assistance.");
-                                            
+
                 }
-                
+
             }
-            
+
         });
-        
+
     }
-    
+
     public static void addDoActionOnReturnPressed (TextArea       text,
                                                    ActionListener action)
     {
-        
+
         text.addDoActionOnCtrlReturnPressed (action);
 
         /*
@@ -7690,10 +7690,10 @@ public class UIUtils
     public static void addDoActionOnReturnPressed (final JTextComponent text,
                                                     final ActionListener action)
     {
-        
+
         if (text instanceof JTextField)
         {
-            
+
             text.addKeyListener (new KeyAdapter ()
             {
 
@@ -7712,32 +7712,32 @@ public class UIUtils
 
                 }
 
-            });            
-            
+            });
+
         } else {
-        
+
             text.addKeyListener (new KeyAdapter ()
             {
-    
+
                 public void keyPressed (KeyEvent ev)
                 {
-    
+
                     if (((ev.getModifiersEx () & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) &&
                         (ev.getKeyCode () == KeyEvent.VK_ENTER))
                     {
-    
+
                         action.actionPerformed (new ActionEvent (text,
                                                                  1,
                                                                  "ctrl-return-pressed"));
-    
+
                     }
-    
+
                 }
-    
-            });        
+
+            });
 
         }
-        
+
     }
 
     public static MessageWindow createQuestionPopup (PopupWindow           popup,
@@ -7750,71 +7750,71 @@ public class UIUtils
                                                      final ActionListener  onCancel,
                                                      Point                 showAt)
     {
-        
+
         Map<String, ActionListener> buttons = new LinkedHashMap ();
-                
+
         if (onConfirm != null)
         {
-                
+
             buttons.put (Environment.getButtonLabel (confirmButtonLabel,
                                                      Constants.CONFIRM_BUTTON_LABEL_ID),
                          new ActionAdapter ()
             {
-                
+
                 public void actionPerformed (ActionEvent ev)
                 {
-                                            
+
                     try
                     {
-                        
+
                         onConfirm.actionPerformed (ev);
-                        
+
                     } catch (Exception e) {
-                        
+
                         // This is just a hail mary in case something unexpected happens like an NPE and isn't
                         // caught by the action listener.
                         Environment.logError ("Something wrong on action",
                                               e);
-                        
+
                     }
-                    
+
                 }
-                
+
             });
-                        
+
         }
-        
+
         buttons.put (Environment.getButtonLabel (cancelButtonLabel,
                                                  Constants.CANCEL_BUTTON_LABEL_ID),
                      new ActionAdapter ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                    
+
                 if (onCancel != null)
                 {
-                    
+
                     try
                     {
-                    
+
                         onCancel.actionPerformed (ev);
-                        
+
                     } catch (Exception e) {
-                                                        
+
                         // This is just a hail mary in case something unexpected happens like an NPE and isn't
                         // caught by the action listener.
                         Environment.logError ("Something wrong on action",
                                               e);
-                                    
+
                     }
-                    
+
                 }
-                                        
+
             }
-            
+
         });
-                    
+
         return UIUtils.createQuestionPopup (popup,
                                             title,
                                             icon,
@@ -7822,9 +7822,9 @@ public class UIUtils
                                             buttons,
                                             null,
                                             showAt);
-        
+
     }
-    
+
     public static MessageWindow createQuestionPopup (PopupWindow           popup,
                                                      String                title,
                                                      String                icon,
@@ -7833,50 +7833,50 @@ public class UIUtils
                                                      final ActionListener              onClose,
                                                      Point                 showAt)
     {
-                
+
         final MessageWindow mw = new MessageWindow ((popup != null ? popup.getViewer () : null),
                                                     title,
                                                     message)
         {
-            
+
             public JButton[] getButtons ()
             {
 
                 JButton[] buts = new JButton[buttons.size ()];
-                
-                int i = 0; 
-                
+
+                int i = 0;
+
                 // Too much type information required to do entrySet...
                 // We will never do much iterating here so simpler and clearer to just do it the "hard way".
                 Iterator<String> iter = buttons.keySet ().iterator ();
-                
+
                 while (iter.hasNext ())
                 {
-                    
+
                     String label = iter.next ();
-                    
+
                     ActionListener a = buttons.get (label);
-                    
+
                     JButton b = UIUtils.createButton (label,
                                                       null);
-                
+
                     b.addActionListener (this.getCloseAction ());
-        
+
                     if (a != null)
                     {
-                        
+
                         b.addActionListener (a);
-                        
+
                     }
-                        
+
                     buts[i++] = b;
-                                
+
                 }
-                            
+
                 return buts;
-                
+
             }
-            
+
         };
 
         mw.init ();
@@ -7884,22 +7884,22 @@ public class UIUtils
         // If show at is null then show the message window at the center of the popup.
         if (showAt == null)
         {
-            
+
             Rectangle pbounds = popup.getBounds ();
-    
+
             Dimension size = mw.getPreferredSize ();
-            
+
             int x = ((pbounds.width - size.width) / 2) + pbounds.x;
             int y = ((pbounds.height - size.height) / 2) + pbounds.y;
-    
+
             // Move the window
             showAt = new Point (x,
                                 y);
 
         }
-        
+
         mw.setShowAt (showAt);
-        
+
         // Add the on close
         if (onClose != null)
         {
@@ -7915,13 +7915,13 @@ public class UIUtils
                 }
 
             });
-                        
+
         }
-        
+
         return mw;
-        
+
     }
-        
+
     public static QPopup createQuestionPopup (AbstractViewer        viewer,
                                               String                title,
                                               String                icon,
@@ -7933,22 +7933,22 @@ public class UIUtils
                                               final ActionListener  onClose,
                                               Point                 showAt)
     {
-                        
+
         Map<String, ActionListener> buttons = new LinkedHashMap ();
-        
+
         if (onConfirm != null)
         {
-        
+
             buttons.put (Environment.getButtonLabel (confirmButtonLabel,
                                                      Constants.CONFIRM_BUTTON_LABEL_ID),
                          onConfirm);
-            
+
         }
-        
+
         buttons.put (Environment.getButtonLabel (cancelButtonLabel,
                                                  Constants.CANCEL_BUTTON_LABEL_ID),
                      onCancel);
-        
+
         return UIUtils.createQuestionPopup (viewer,
                                             title,
                                             icon,
@@ -7956,7 +7956,7 @@ public class UIUtils
                                             buttons,
                                             onClose,
                                             showAt);
-        
+
     }
 
     public static QPopup createQuestionPopup (AbstractViewer              viewer,
@@ -7967,7 +7967,7 @@ public class UIUtils
                                               ActionListener              onClose,
                                               Point                       showAt)
     {
-        
+
         JComponent mess = UIUtils.createHelpTextPane (Environment.replaceObjectNames (message),
                                                       viewer);
         mess.setBorder (null);
@@ -7981,7 +7981,7 @@ public class UIUtils
                                             buttons,
                                             onClose,
                                             showAt);
-                                     
+
     }
     /*
     public static QPopup createQuestionPopup (AbstractProjectViewer       viewer,
@@ -7992,48 +7992,48 @@ public class UIUtils
                                               ActionListener              onClose,
                                               Point                       showAt)
     {
-                
+
         final QPopup qp = UIUtils.createClosablePopup (title,
                                                        Environment.getIcon (icon,
                                                                             Constants.ICON_POPUP),
                                                        onClose);
-        
+
         Box content = new Box (BoxLayout.Y_AXIS);
-        
+
         content.add (mess);
         content.add (Box.createVerticalStrut (10));
-                            
+
         JButton[] buts = new JButton[buttons.size ()];
-        
-        int i = 0; 
-        
+
+        int i = 0;
+
         // Too much type information required to do entrySet...
         // We will never do much iterating here so simpler and clearer to just do it the "hard way".
         Iterator<String> iter = buttons.keySet ().iterator ();
-        
+
         while (iter.hasNext ())
         {
-            
+
             String label = iter.next ();
-            
+
             ActionListener a = buttons.get (label);
-            
+
             JButton b = UIUtils.createButton (label,
                                               null);
-        
+
             b.addActionListener (qp.getCloseAction ());
 
             if (a != null)
             {
-                
+
                 b.addActionListener (a);
-                
+
             }
-                
+
             buts[i++] = b;
-                        
+
         }
-            
+
         JComponent bs = UIUtils.createButtonBar2 (buts,
                                                   Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
         bs.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -8046,20 +8046,20 @@ public class UIUtils
 
         if (showAt == null)
         {
-        
+
             showAt = UIUtils.getCenterShowPosition (viewer,
                                                     qp);
-            
+
         }
-        
+
         viewer.showPopupAt (qp,
                             showAt,
                             false);
-        
+
         qp.setDraggable (viewer);
-        
+
         return qp;
-        
+
     }
 */
     public static QPopup createQuestionPopup (PopupsSupported             viewer,
@@ -8070,48 +8070,48 @@ public class UIUtils
                                               ActionListener              onClose,
                                               Point                       showAt)
     {
-                
+
         final QPopup qp = UIUtils.createClosablePopup (title,
                                                        Environment.getIcon (icon,
                                                                             Constants.ICON_POPUP),
                                                        onClose);
-        
+
         Box content = new Box (BoxLayout.Y_AXIS);
-        
+
         content.add (mess);
         content.add (Box.createVerticalStrut (10));
-                            
+
         JButton[] buts = new JButton[buttons.size ()];
-        
-        int i = 0; 
-        
+
+        int i = 0;
+
         // Too much type information required to do entrySet...
         // We will never do much iterating here so simpler and clearer to just do it the "hard way".
         Iterator<String> iter = buttons.keySet ().iterator ();
-        
+
         while (iter.hasNext ())
         {
-            
+
             String label = iter.next ();
-            
+
             ActionListener a = buttons.get (label);
-            
+
             JButton b = UIUtils.createButton (label,
                                               null);
-        
+
             b.addActionListener (qp.getCloseAction ());
 
             if (a != null)
             {
-                
+
                 b.addActionListener (a);
-                
+
             }
-                
+
             buts[i++] = b;
-                        
+
         }
-            
+
         JComponent bs = UIUtils.createButtonBar2 (buts,
                                                   Component.LEFT_ALIGNMENT); //ButtonBarFactory.buildLeftAlignedBar (buts);
         bs.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -8124,30 +8124,30 @@ public class UIUtils
 
         if (showAt == null)
         {
-        
+
             if (viewer instanceof Component)
             {
-        
+
                 showAt = UIUtils.getCenterShowPosition ((Component) viewer,
                                                         qp);
 
             }
-            
+
         }
-        
+
         viewer.showPopupAt (qp,
                             showAt,
                             false);
-        
+
         if (viewer instanceof Component)
         {
-        
+
             qp.setDraggable ((Component) viewer);
-            
+
         }
-        
+
         return qp;
-        
+
     }
 
     public static QPopup createHelpPopup (AbstractViewer  viewer,
@@ -8156,25 +8156,25 @@ public class UIUtils
                                           ActionListener  onClose,
                                           Point           showAt)
     {
-                
+
         final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : "Help"),
                                                        Environment.getIcon (Constants.HELP_ICON_NAME,
                                                                             Constants.ICON_POPUP),
                                                        onClose);
-        
+
         Box content = new Box (BoxLayout.Y_AXIS);
-        
+
         content.add (UIUtils.createHelpTextPane (text,
                                                  viewer));
         content.add (Box.createVerticalStrut (10));
-                                        
+
         JButton b = UIUtils.createButton ("Close",
                                           null);
-                        
+
         JButton[] buts = { b };
-                        
+
         JComponent bs = UIUtils.createButtonBar2 (buts,
-                                                  Component.CENTER_ALIGNMENT); 
+                                                  Component.CENTER_ALIGNMENT);
         bs.setAlignmentX (Component.LEFT_ALIGNMENT);
         content.add (bs);
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
@@ -8185,30 +8185,30 @@ public class UIUtils
 
         if (showAt == null)
         {
-        
+
             if (viewer instanceof Component)
             {
-        
+
                 showAt = UIUtils.getCenterShowPosition ((Component) viewer,
                                                         qp);
 
             }
-            
+
         }
-        
+
         viewer.showPopupAt (qp,
                             showAt,
                             false);
-        
+
         if (viewer instanceof Component)
         {
-        
+
             qp.setDraggable ((Component) viewer);
-            
+
         }
-        
+
         return qp;
-        
+
     }
 
     public static QPopup createTextInputPopup (final AbstractViewer  viewer,
@@ -8243,13 +8243,13 @@ public class UIUtils
         content.add (Box.createVerticalStrut (10));
 
         final JLabel error = UIUtils.createErrorLabel ("Please enter a value.");
-        
+
         error.setVisible (false);
         error.setBorder (new EmptyBorder (0,
                                           0,
                                           5,
                                           0));
-                                                
+
         final JTextField text = UIUtils.createTextField ();
 
         text.setMinimumSize (new Dimension (300,
@@ -8259,50 +8259,50 @@ public class UIUtils
         text.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             text.getPreferredSize ().height));
         text.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         if (initValue != null)
         {
-            
+
             text.setText (initValue);
-            
+
         }
-        
-        error.setAlignmentX (Component.LEFT_ALIGNMENT);        
-        
+
+        error.setAlignmentX (Component.LEFT_ALIGNMENT);
+
         content.add (error);
         content.add (text);
-        
+
         content.add (Box.createVerticalStrut (10));
-        
+
         JButton confirm = null;
         JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : Constants.CANCEL_BUTTON_LABEL_ID),
                                                null);
-        
+
         if (onConfirm != null)
         {
-            
+
             confirm = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
                                             null);
-                                            
+
             ActionListener confirmAction = new ActionAdapter ()
             {
-                
+
                 public void actionPerformed (ActionEvent ev)
                 {
 
                     if (validator != null)
                     {
-                        
+
                         String mess = validator.isValid (text.getText ().trim ());
-                        
+
                         if (mess != null)
                         {
 
-                            // Should probably wrap this in a 
+                            // Should probably wrap this in a
                             error.setText (mess);
-                                                        
+
                             error.setVisible (true);
-                                                
+
                             // Got to be an easier way of doing this.
                             content.setPreferredSize (null);
 
@@ -8312,59 +8312,59 @@ public class UIUtils
                             viewer.showPopupAt (qp,
                                                 qp.getLocation (),
                                                 false);
-                            
+
                             return;
-                            
+
                         }
-                                                                        
+
                     }
-                    
+
                     onConfirm.actionPerformed (new ActionEvent (text,
                                                                 0,
                                                                 text.getText ().trim ()));
-                    
+
                     qp.removeFromParent ();
-                    
+
                 }
-                
+
             };
 
             UIUtils.addDoActionOnReturnPressed (text,
                                                 confirmAction);
             confirm.addActionListener (confirmAction);
-                        
+
         }
-        
+
         cancel.addActionListener (new ActionAdapter ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if (onCancel != null)
                 {
-                    
+
                     onCancel.actionPerformed (ev);
-                                    
+
                 }
-                
+
                 qp.removeFromParent ();
-                
+
             }
-            
+
         });
-                    
+
         JButton[] buts = null;
-        
+
         if (confirm != null)
         {
-            
+
             buts = new JButton[] { confirm, cancel };
-            
+
         } else {
-            
+
             buts = new JButton[] { cancel };
-            
+
         }
 
         JComponent buttons = UIUtils.createButtonBar2 (buts,
@@ -8373,161 +8373,161 @@ public class UIUtils
         content.add (buttons);
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
         qp.setContent (content);
-                        
+
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
         if (showAt == null)
         {
-        
+
             showAt = UIUtils.getCenterShowPosition (viewer,
                                                     qp);
-            
+
         }
 
         qp.setDraggable (viewer);
-                                                    
+
         viewer.showPopupAt (qp,
                             showAt,
                             false);
 
         if (initValue != null)
         {
-            
+
             text.selectAll ();
-                
-        } 
+
+        }
 
         text.grabFocus ();
-        
+
         return qp;
-        
+
     }
 
     public static Point getCenterShowPosition (Component parent,
                                                Component show)
     {
-        
+
         Dimension pd = (parent.isShowing () ? parent.getSize () : parent.getPreferredSize ());
         Dimension sd = (show.isShowing () ? show.getSize () : show.getPreferredSize ());
-        
+
         return new Point ((pd.width - sd.width) / 2,
                           (pd.height - sd.height) / 2);
-        
+
     }
 
     public static void doLater (ActionListener l)
     {
-        
+
         UIUtils.doLater (l,
                          null,
                          null);
-        
+
     }
 
     public static void doLater (final ActionListener l,
                                 final Object         c,
                                 final String         showOnError)
     {
-        
+
         if (l == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         SwingUtilities.invokeLater (new Runnable ()
         {
-                                 
+
             public void run ()
             {
-            
+
                try
                {
-                   
+
                    l.actionPerformed (new ActionEvent ((c != null ? c : this),
                                                        0,
                                                        "do"));
-   
+
                } catch (Exception e) {
-                   
+
                    if (showOnError != null)
                    {
-                   
+
                         Environment.logError (showOnError,
                                               e);
-                        
+
                         if (c instanceof Component)
                         {
-                        
+
                             UIUtils.showErrorMessage ((Component) c,
                                                       showOnError);
 
                         }
-                                                      
+
                    } else {
-                    
+
                         Environment.logError ("Unable to perform action",
                                               e);
-                        
+
                         if (c instanceof Component)
                         {
-                        
+
                             UIUtils.showErrorMessage ((Component) c,
-                                                      "Unable to perform action");                        
-                    
+                                                      "Unable to perform action");
+
                         }
-                    
+
                    }
-                   
+
                }
-               
+
             }
-            
+
         });
-                
-        
+
+
     }
 
     public static String getOpenProjectHTML (String projId)
     {
-        
+
         ProjectInfo proj = null;
-        
+
         try
         {
-            
+
             proj = Environment.getProjectById (projId,
                                                null);
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to get project for id: " +
                                   projId,
                                   e);
-            
+
             return "Unknown Project";
-            
+
         }
-        
+
         if (proj == null)
         {
-            
+
             Environment.logError ("Unable to get project info for project with id: " +
                                   projId);
-            
+
             return "Unknown Project";
-            
+
         }
-        
-        String projName = proj.getName ();        
+
+        String projName = proj.getName ();
 
         return String.format ("<a href='%s:%s'>%s</a>",
                               Constants.OPENPROJECT_PROTOCOL,
                               projId,
                               proj.getName ());
-    
+
     }
 
     /**
@@ -8546,11 +8546,11 @@ public class UIUtils
                                    int        bottom,
                                    int        right)
     {
-        
+
         c.setBorder (UIUtils.createPadding (top, left, bottom, right));
-        
+
     }
-    
+
     /**
      * Is a wrapper for:
      * <code>
@@ -8565,12 +8565,12 @@ public class UIUtils
                                                               int bottom,
                                                               int right)
     {
-       
+
         return new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getInnerBorderColor ()),
                                    UIUtils.createPadding (top, left, bottom, right));
-        
+
     }
-    
+
     /**
      * Is a wrapper for:
      * <code>
@@ -8585,10 +8585,10 @@ public class UIUtils
                                                            int bottom,
                                                            int right)
     {
-       
+
         return new CompoundBorder (new MatteBorder (1, 0, 0, 0, UIUtils.getInnerBorderColor ()),
                                    UIUtils.createPadding (top, left, bottom, right));
-        
+
     }
 
     /**
@@ -8605,10 +8605,10 @@ public class UIUtils
                                                               int bottom,
                                                               int right)
     {
-       
+
         return new CompoundBorder (new MatteBorder (1, 1, 1, 1, UIUtils.getBorderColor ()),
                                    UIUtils.createPadding (top, left, bottom, right));
-        
+
     }
 
     public static EmptyBorder createPadding (int top,
@@ -8616,86 +8616,86 @@ public class UIUtils
                                              int bottom,
                                              int right)
     {
-        
+
         return new EmptyBorder (top, left, bottom, right);
-        
+
     }
 
     public static void closePopupParent (Container parent)
     {
-        
+
         if (parent == null)
         {
-            
+
             return;
-            
+
         }
 
         if (parent instanceof QPopup)
         {
-          
+
             ((QPopup) parent).removeFromParent ();
-        
+
             return;
-            
+
         }
-        
+
         UIUtils.closePopupParent (parent.getParent ());
 
     }
-    
+
     public static void resizeParent (Container parent)
     {
-        
+
         if (parent == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         if (parent instanceof QPopup)
         {
-            
+
             ((QPopup) parent).resize ();
-        
+
             return;
-            
+
         }
-        
+
         if (parent instanceof PopupWindow)
         {
-            
+
             ((PopupWindow) parent).resize ();
-        
+
             return;
-            
+
         }
 
         UIUtils.resizeParent (parent.getParent ());
-        
+
     }
-    
+
     public static QPopup createWizardPopup (String         title,
                                             String         iconType,
                                             ActionListener onClose,
                                             Wizard         wizard)
     {
-        
+
         QPopup p = UIUtils.createClosablePopup (title,
                                                 (iconType != null ? Environment.getIcon (iconType, Constants.ICON_POPUP) : null),
                                                 onClose);
-                
+
         wizard.init ();
-        
+
         wizard.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                         wizard.getPreferredSize ().height));
-        wizard.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
-        
+        wizard.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
         p.setContent (wizard);
-        
+
         return p;
-        
+
     }
 
     /**
@@ -8705,35 +8705,35 @@ public class UIUtils
      */
     public static ValueValidator getYesValueValidator ()
     {
-        
+
         return new ValueValidator<String> ()
         {
 
             public String isValid (String v)
             {
-              
+
                 if ((v == null)
                     ||
                     (!v.trim ().equalsIgnoreCase ("yes"))
                    )
                 {
-                    
+
                     return "Please enter the word Yes below.";
-                    
+
                 }
-                
+
                 return null;
-              
-            }    
-        
+
+            }
+
         };
-        
+
     }
 
     public static JTextField createSearchBox (final int            delay,
                                               final ActionListener onSearch)
     {
-        
+
         final JTextField text = UIUtils.createTextField ();
         text.setBorder (new CompoundBorder (UIUtils.createPadding (5, 10, 5, 10),
                                             text.getBorder ()));
@@ -8753,17 +8753,17 @@ public class UIUtils
                 // If enter was pressed then search, don't start the timer.
                 if (ev.getKeyCode () == KeyEvent.VK_ENTER)
                 {
-                    
+
                     if (onSearch != null)
                     {
-                        
+
                         onSearch.actionPerformed (new ActionEvent (text, 1, text.getText ().trim ()));
-                        
+
                     }
-                    
-                    
+
+
                     return;
-                    
+
                 }
 
                 this.searchT.start ();
@@ -8775,23 +8775,23 @@ public class UIUtils
         text.addKeyListener (vis);
         text.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             text.getPreferredSize ().height));
-        
+
         text.addMouseListener (new MouseEventHandler ()
         {
-           
+
             @Override
             public void mouseEntered (MouseEvent ev)
             {
-                
+
                 text.grabFocus ();
                 text.selectAll ();
-                
+
             }
-            
+
         });
-        
+
         return text;
-        
+
     }
 
     public static JComponent showTemporaryNotification (String                t,
@@ -8799,9 +8799,9 @@ public class UIUtils
                                                         Component             showAt,
                                                         int                   showFor)
     {
-        
+
         Box outer = new Box (BoxLayout.Y_AXIS);
-        
+
         outer.setBorder (QPopup.defaultBorder);
         outer.setOpaque (false);
         outer.setDoubleBuffered (true);
@@ -8810,26 +8810,26 @@ public class UIUtils
         Box inner = new Box (BoxLayout.Y_AXIS);
         inner.setBackground (UIUtils.getComponentColor ());
         inner.setOpaque (true);
-        
+
         inner.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-        
+
         JTextPane m = UIUtils.createHelpTextPane (t,
                                                   parent);
         m.setSize (new Dimension (150 - 20,
                                   m.getPreferredSize ().height));
-        
+
         inner.add (m);
-        
+
         outer.add (inner);
-   
+
         parent.showPopupAt (outer,
                             showAt,
                             false);
-        
+
         return outer;
-        
+
     }
-    
+
     public static javax.swing.Timer createCyclicAnimator (final PropertyChangeListener cycleUp,
                                                           final PropertyChangeListener cycleDown,
                                                           final int                    fps,
@@ -8843,9 +8843,9 @@ public class UIUtils
         final boolean incr = (startValue <= endValue);
 
         final AtomicInteger count = new AtomicInteger (0);
-        
+
         final Map<String, javax.swing.Timer> animators = new HashMap ();
-        
+
         final javax.swing.Timer up = UIUtils.createAnimator (cycleUp,
                                            fps,
                                            duration / 2,
@@ -8853,15 +8853,15 @@ public class UIUtils
                                            (incr ? endValue : startValue),
                                            new ActionListener ()
                                            {
-                                            
+
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
-                                                    
+
                                                     if (incr)
                                                     {
-                                                        
+
                                                         count.incrementAndGet ();
-                                                        
+
                                                     }
 
                                                     if ((!incr)
@@ -8869,27 +8869,27 @@ public class UIUtils
                                                         (count.get () == repeatCount)
                                                        )
                                                     {
-                                                        
+
                                                         if (onComplete != null)
                                                         {
-                                                            
+
                                                             onComplete.actionPerformed (new ActionEvent ("complete", endValue, "complete"));
-                                                            
+
                                                         }
-                                                        
+
                                                         return;
-                                                        
+
                                                     }
-                                                        
+
                                                     animators.get ("down").restart ();
-                                                    
+
                                                 }
-                                            
+
                                            });
-        
+
         animators.put ("up",
                        up);
-        
+
         final javax.swing.Timer down = UIUtils.createAnimator (cycleDown,
                                            fps,
                                            duration / 2,
@@ -8897,74 +8897,74 @@ public class UIUtils
                                            (incr ? startValue : endValue),
                                            new ActionListener ()
                                            {
-                                            
+
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
-                                                    
-                                                    
+
+
                                                     if (!incr)
                                                     {
-                                                        
+
                                                         count.incrementAndGet ();
-                                                        
+
                                                     }
-                                                    
+
                                                     if ((incr)
                                                         &&
                                                         (count.get () == repeatCount)
                                                        )
                                                     {
-                                                        
+
                                                         if (onComplete != null)
                                                         {
-                                                            
+
                                                             onComplete.actionPerformed (new ActionEvent ("complete", endValue, "complete"));
-                                                            
-                                                        }                                                            
-                                                    
+
+                                                        }
+
                                                         return;
-                                                            
+
                                                     }
-                                                    
+
                                                     animators.get ("up").restart ();
-                                                    
+
                                                 }
-                                            
+
                                            });
 
         animators.put ("down",
                        down);
-                                           
+
         javax.swing.Timer t = new javax.swing.Timer (0, null);
 
         t.addActionListener (new ActionListener ()
         {
-           
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if (incr)
                 {
-                    
+
                     up.start ();
-                    
+
                 } else {
-                    
+
                     down.start ();
-                    
+
                 }
-                                                
+
             }
-            
+
         });
-        
+
         t.setRepeats (false);
-                
+
         return t;
-        
+
     }
-    
+
     public static javax.swing.Timer createAnimator (final PropertyChangeListener l,
                                                     final int                    fps,
                                                     final int                    duration,
@@ -8972,89 +8972,89 @@ public class UIUtils
                                                     final double                 endValue,
                                                     final ActionListener         onComplete)
     {
-        
+
         final javax.swing.Timer t = new javax.swing.Timer (1000 / fps, null);
-        
+
         final double increment = ((endValue - startValue) / (double) fps) * (1000d / (double) duration);
-        
+
         final boolean incr = (startValue <= endValue);
-        
+
         t.addActionListener (new ActionListener ()
         {
-            
+
             private double v = startValue;
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if ((incr && (this.v >= endValue))
                     ||
                     (!incr && (this.v <= endValue))
                    )
                 {
-                    
+
                     t.stop ();
-                    
+
                     if (onComplete != null)
                     {
-                        
+
                         this.v = startValue;
-                        
+
                         onComplete.actionPerformed (new ActionEvent ("complete", 1, "complete"));
-                        
+
                     }
-                    
+
                     return;
-                    
+
                 }
-                
+
                 double nv = this.v + increment;
-                
+
                 if ((incr)
                     &&
                     (nv > endValue)
                    )
                 {
-                    
+
                     nv = endValue;
-                    
+
                 }
-                
+
                 if ((!incr)
                     &&
                     (nv < endValue)
                    )
                 {
-                    
+
                     nv = endValue;
-                    
+
                 }
 
                 l.propertyChange (new PropertyChangeEvent (this,
                                                            "value",
                                                            this.v,
                                                            nv));
-                
+
                 this.v = nv;
-                                                                            
+
             }
-            
+
         });
-        
+
         t.setCoalesce (true);
-        
+
         return t;
-        
+
     }
 
     public static void openProjectAndDoAction (ProjectInfo    proj,
                                                ActionListener onOpen,
                                                AbstractViewer parentViewer)
     {
-        
-        AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
-        
+
+        AbstractProjectViewer pv = Environment.getProjectViewer (proj);
+
         if ((pv == null)
             &&
             (proj.isEncrypted ())
@@ -9073,22 +9073,22 @@ public class UIUtils
                                           onOpen,
                                           null,
                                           null);
-            
+
         } else {
-            
+
             onOpen.actionPerformed (new ActionEvent ("", 1, ""));
-            
-        }                            
-        
+
+        }
+
     }
-    
+
     public static void askForPasswordForProject (final ProjectInfo    proj,
                                                  final ActionListener onProvided,
                                                  final AbstractViewer parentViewer)
     {
-        
-        AbstractProjectViewer pv = Environment.getProjectViewer (proj);                    
-        
+
+        AbstractProjectViewer pv = Environment.getProjectViewer (proj);
+
         if ((pv == null)
             &&
             (proj.isEncrypted ())
@@ -9106,182 +9106,182 @@ public class UIUtils
                                           null,
                                           new ActionListener ()
                                           {
-                                            
+
                                               @Override
                                               public void actionPerformed (ActionEvent ev)
                                               {
-                                                
+
                                                   proj.setFilePassword ((String) ev.getSource ());
-                                                  
+
                                                   if (onProvided != null)
                                                   {
-                                                    
+
                                                     onProvided.actionPerformed (new ActionEvent (proj,
                                                                                                  1,
                                                                                                  "provided"));
-                                                    
+
                                                   }
-                                                
+
                                               }
-                                            
+
                                           },
                                           null,
                                           null);
-            
+
         } else {
-            
+
             onProvided.actionPerformed (new ActionEvent (proj, 1, "provided"));
-            
-        }                            
-        
+
+        }
+
     }
 
     public static JComboBox getSpellCheckLanguagesSelector (final ActionListener onSelect,
                                                             final String         defLang)
     {
-        
+
         final JComboBox spellcheckLang = new JComboBox ();
 
         if (onSelect != null)
         {
-            
+
             spellcheckLang.addItemListener (new ItemAdapter ()
             {
-               
+
                public void itemStateChanged (ItemEvent ev)
                {
-                
+
                     if (ev.getStateChange () != ItemEvent.SELECTED)
                     {
-                        
+
                         return;
-                        
+
                     }
-                
+
                     final String lang = spellcheckLang.getSelectedItem ().toString ();
-    
+
                     onSelect.actionPerformed (new ActionEvent (spellcheckLang, 1, lang));
-    
+
                }
-               
+
             });
-            
+
         }
-        
+
         // Get the languages supported by the spellchecker.
         new Thread (new Runnable ()
         {
 
             public void run ()
             {
-                
+
                 String l = null;
-                
+
                 try
                 {
-                    
+
                     l = Environment.getUrlFileAsString (new URL (Environment.getQuollWriterWebsite () + "/" + Environment.getProperty (Constants.QUOLL_WRITER_SUPPORTED_LANGUAGES_URL_PROPERTY_NAME)));
-                    
+
                 } catch (Exception e) {
-                    
+
                     // Something gone wrong, so just add english.
                     l = Constants.ENGLISH;
-                    
+
                     Environment.logError ("Unable to get language files url",
                                           e);
-                    
+
                 }
-        
+
                 StringTokenizer t = new StringTokenizer (l,
                                                          String.valueOf ('\n'));
 
                 final Vector langs = new Vector ();
-                
+
                 while (t.hasMoreTokens ())
                 {
-                    
+
                     String lang = t.nextToken ().trim ();
-                    
+
                     if (lang.equals (""))
                     {
-                        
+
                         continue;
-                        
+
                     }
 
                     langs.add (lang);
-                    
+
                 }
-                
+
                 SwingUtilities.invokeLater (new Runnable ()
                 {
-                    
+
                     public void run ()
                     {
-                
+
                         spellcheckLang.setModel (new DefaultComboBoxModel (langs));
                         spellcheckLang.setSelectedItem (defLang);
                         spellcheckLang.setEnabled (true);
-                        
+
                     }
-                    
+
                 });
-                
+
             }
-            
-        }).start ();        
-                
+
+        }).start ();
+
         return spellcheckLang;
-        
+
     }
 
 	public static void showManageBackups (final ProjectInfo    proj,
                                           final AbstractViewer viewer)
 	{
-		
+
         String popupName = "managebackups";
         QPopup popup = viewer.getNamedPopup (popupName);
-        
+
         if (popup == null)
         {
-                
+
             popup = UIUtils.createClosablePopup ("Current Backups",
                                                  Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
-                
+
             BackupsManager bm = null;
-            
+
             try
             {
-            
+
                 bm = new BackupsManager (viewer,
                                          proj);
                 bm.init ();
-    
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to show backups manager",
                                       e);
-                
+
                 UIUtils.showErrorMessage (viewer,
-                                          "Unable to show backups manager, please contact Quoll Writer support for assitance.");
-                
+                                          "Unable to show backups manager, please contact Quoll Writer support for assistance.");
+
                 return;
-                
+
             }
-            
+
             bm.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                   bm.getPreferredSize ().height));
-            bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));        
-        
+            bm.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
             popup.setRemoveOnClose (false);
             popup.setContent (bm);
-            
+
             popup.setDraggable (viewer);
-                              
+
             popup.resize ();
-    
+
             viewer.showPopupAt (popup,
                                 UIUtils.getCenterShowPosition (viewer,
                                                                popup),
@@ -9289,18 +9289,18 @@ public class UIUtils
 
             viewer.addNamedPopup (popupName,
                                   popup);
-            
+
         } else {
-            
-            popup.setVisible (true);            
+
+            popup.setVisible (true);
             popup.toFront ();
-            
+
         }
-		
+
         Environment.fireUserProjectEvent (viewer,
                                           ProjectEvent.BACKUPS,
                                           ProjectEvent.SHOW);
-        
+
 	}
 
     public static void showCreateBackup (final Project        proj,
@@ -9311,14 +9311,14 @@ public class UIUtils
         UIUtils.showCreateBackup (Environment.getProjectInfo (proj),
                                   filePassword,
                                   viewer);
-    
+
     }
-    
+
     public static void showCreateBackup (final ProjectInfo    proj,
                                          final String         filePassword,
                                          final AbstractViewer viewer)
     {
-        
+
         UIUtils.createQuestionPopup (viewer,
                                      "Create a Backup",
                                      Constants.SNAPSHOT_ICON_NAME,
@@ -9328,75 +9328,75 @@ public class UIUtils
                                      null,
                                      new ActionAdapter ()
                                      {
-                                        
+
                                         public void actionPerformed (ActionEvent ev)
                                         {
-                                            
+
                                             try
                                             {
 
                                                 File f = Environment.createBackupForProject (proj,
                                                                                              false);
-                    
+
                                                 Box b = new Box (BoxLayout.Y_AXIS);
-                    
+
                                                 JTextPane m = UIUtils.createHelpTextPane (String.format ("A backup has been created and written to:\n\n  <a href='%s'>%s</a>",
                                                                                                          f.getParentFile ().toURI ().toString (),
                                                                                                          f),
                                                                                           viewer);
-                                                
+
                                                 m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                                                           m.getPreferredSize ().height));
                                                 m.setBorder (null);
-                    
+
                                                 b.add (m);
-                                                
+
                                                 b.add (Box.createVerticalStrut (10));
-                    
+
                                                 JLabel l = UIUtils.createClickableLabel ("Click to view the backups",
                                                                                          Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
                                                                                                               Constants.ICON_MENU),
                                                                                          new ActionListener ()
                                                                                          {
-                                                                                            
+
                                                                                             @Override
                                                                                             public void actionPerformed (ActionEvent ev)
                                                                                             {
-                                                                                                
+
                                                                                                 UIUtils.showManageBackups (proj,
                                                                                                                            viewer);
-                                                                                                
+
                                                                                             }
-                                                                                            
+
                                                                                          });
-                                                
+
                                                 b.add (l);
-                    
+
                                                 UIUtils.showMessage ((PopupsSupported) viewer,
                                                                      "Backup created",
                                                                      b);
-                                                
+
                                             } catch (Exception e)
                                             {
-                    
+
                                                 Environment.logError ("Unable to create backup of project: " +
                                                                       proj,
                                                                       e);
-                    
+
                                                 UIUtils.showErrorMessage (viewer,
                                                                           "Unable to create backup.");
-                    
+
                                             }
-                                            
+
                                         }
-                                        
+
                                     },
                                     null,
                                     null,
                                     null);
-        
+
     }
-    
+
     public static void showSynonymSelector (final Word        word,
                                             final QTextEditor ed)
                                      throws Exception
@@ -9409,39 +9409,39 @@ public class UIUtils
             (word == null)
            )
         {
-            
+
             return;
-            
+
         }
-    
+
         Synonyms syns = ed.getSynonymProvider ().getSynonyms (word.getText ());
-                    
+
         if ((syns == null)
             ||
             (syns.words.size () == 0)
            )
         {
-            
+
             return;
-            
+
         }
-    
+
         // Get the parent to show the popup at.
         // This is wrong but good "enough" for now.
         AbstractViewer viewer = UIUtils.getViewer (ed);
-        
+
         if (viewer == null)
         {
-            
+
             throw new GeneralException ("Unable to show synonyms for editor that has no viewer parent.");
-            
+
         }
-        
+
         final Object highlight = ed.addHighlight (word.getAllTextStartOffset (),
                                                   word.getAllTextEndOffset (),
                                                   null,
-                                                  true);        
-    
+                                                  true);
+
         final QPopup popup = new QPopup ("Synonyms for: " + word.getText (),
                                          Environment.getIcon (Constants.FIND_ICON_NAME,
                                                               Constants.ICON_POPUP),
@@ -9451,12 +9451,12 @@ public class UIUtils
                                               Constants.ICON_MENU,
                                               "Click to close",
                                               null);
-        
+
         List<JButton> buts = new ArrayList ();
         buts.add (close);
-        
+
         popup.getHeader ().setControls (UIUtils.createButtonBar (buts));
-                                                    
+
         close.addActionListener (new ActionAdapter ()
         {
 
@@ -9466,11 +9466,11 @@ public class UIUtils
                 popup.setVisible (false);
 
                 ed.removeHighlight (highlight);
-                
+
             }
 
         });
-        
+
         StringBuilder sb = new StringBuilder ();
 
         sb.append ("6px");
@@ -9568,13 +9568,13 @@ public class UIUtils
 
                         if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
                         {
-                            
+
                             ed.replaceText (word.getAllTextStartOffset (),
                                             word.getAllTextEndOffset (),
                                             ev.getURL ().getHost ());
 
                             ed.removeHighlight (highlight);
-                                                        
+
                             popup.setVisible (false);
 
                             Environment.fireUserProjectEvent (ProjectEvent.SYNONYM,
@@ -9635,14 +9635,14 @@ public class UIUtils
         popup.setOpaque (false);
 
         popup.setDraggable (viewer);
-        
+
         viewer.showPopupAt (popup,
                             r,
                             "above",
                             true);
 
     }
-    
+
     public static void downloadDictionaryFiles (String               lang,
                                                 final AbstractViewer parent,
                                                 final ActionListener onComplete)
@@ -9650,16 +9650,16 @@ public class UIUtils
 
         if (Environment.isEnglish (lang))
         {
-            
+
             lang = Constants.ENGLISH;
-            
+
         }
 
         final String langOrig = lang;
         final String language = lang;
-        
+
         String fileLang = lang;
-        
+
         // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
         // download the English-dictionary-only.zip.
         if ((Environment.isEnglish (lang))
@@ -9669,61 +9669,61 @@ public class UIUtils
             (Environment.hasSynonymsDirectory (lang))
            )
         {
-            
+
             fileLang = "English-dictionary-only";
-            
+
         }
-        
+
         URL url = null;
-        
+
         try
         {
-            
+
             url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (Environment.getProperty (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
                                                                                                    "[[LANG]]",
                                                                                                    StringUtils.replaceString (fileLang,
                                                                                                                               " ",
                                                                                                                               "%20")));
-            
+
         } catch (Exception e) {
-            
+
             UIUtils.showErrorMessage (parent,
                                       "Unable to download language files");
-            
+
             Environment.logError ("Unable to download language files, cant create url",
                                   e);
 
-            return;            
-            
+            return;
+
         }
-        
+
         Environment.logDebugMessage ("Downloading language file(s) from: " + url + ", for language: " + lang);
-        
+
         File _file = null;
-    
+
         // Create a temp file for it.
         try
         {
 
             _file = File.createTempFile ("quollwriter-language-" + fileLang,
                                          null);
-            
+
         } catch (Exception e) {
-            
+
             UIUtils.showErrorMessage (parent,
                                       "Unable to download language files");
-            
+
             Environment.logError ("Unable to download language files, cant create temp file",
                                   e);
 
             return;
-            
+
         }
 
         _file.deleteOnExit ();
-        
+
         final File file = _file;
-                
+
         Box b = new Box (BoxLayout.Y_AXIS);
 
         final JTextPane htmlP = UIUtils.createHelpTextPane (String.format ("The language files for <b>%s</b> are now being downloaded.",
@@ -9736,80 +9736,80 @@ public class UIUtils
 
         b.add (htmlP);
         b.add (Box.createVerticalStrut (10));
-        
+
         final JProgressBar prog = new JProgressBar (0, 100);
-        
+
         prog.setPreferredSize (new Dimension (500, 25));
         prog.setMaximumSize (new Dimension (500, 25));
         prog.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         b.add (prog);
-                
+
         final Notification n = parent.addNotification (b,
                                                        Constants.DOWNLOAD_ICON_NAME,
                                                        -1,
                                                        null);
-                                
+
         final ActionListener removeNotification = new ActionListener ()
         {
-        
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                n.removeNotification ();
-                
+
             }
         };
-        
+
         final UrlDownloader downloader = new UrlDownloader (url,
                                                             file,
                                                             new DownloadListener ()
                                                             {
-                                                        
+
                                                                 public void handleError (Exception e)
                                                                 {
-                                                                    
+
                                                                     UIUtils.showErrorMessage (parent,
                                                                                               "A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
-                                                                    
+
                                                                     Environment.logError ("Unable to download language files",
                                                                                           e);
-                                                                    
+
                                                                     UIUtils.doLater (removeNotification);
-                                                                    
+
                                                                 }
-                                                        
+
                                                                 public void progress (final int downloaded,
                                                                                       final int total)
                                                                 {
 
                                                                     UIUtils.doLater (new ActionListener ()
                                                                     {
-                                                            
+
                                                                         @Override
                                                                         public void actionPerformed (ActionEvent ev)
                                                                         {
-                                                                            
+
                                                                             int val = (int) (((double) downloaded / (double) total) * 100);
-                                                                            
+
                                                                             prog.setValue (val);
-                                                                            
+
                                                                         }
-                                                                        
+
                                                                     });
-                                                                    
+
                                                                 }
-                                                                
+
                                                                 public void finished (int total)
                                                                 {
-                                                                                                                                        
+
                                                                     prog.setValue (100);
                                                                     prog.setIndeterminate (true);
-                                                                    
+
                                                                     new Thread (new Runner ()
                                                                     {
-                                                                    
+
                                                                         public void run ()
                                                                         {
 
@@ -9819,125 +9819,125 @@ public class UIUtils
 
                                                                                 Utils.extractZipFile (file,
                                                                                                       Environment.getUserQuollWriterDir ());
-                                                                                
+
                                                                             } catch (Exception e) {
-                                                                                
+
                                                                                 Environment.logError ("Unable to extract language zip file: " +
                                                                                                       file +
                                                                                                       " to: " +
                                                                                                       Environment.getUserQuollWriterDir (),
                                                                                                       e);
-                                                                                
+
                                                                                 return;
-                                                                                
+
                                                                             } finally {
-        
+
                                                                                 file.delete ();
-                                                                                
+
                                                                             }
-                                                                            
+
                                                                             if (onComplete != null)
                                                                             {
-                                                                                                                                                    
+
                                                                                 UIUtils.doLater (new ActionListener ()
                                                                                 {
-                                                                        
+
                                                                                     @Override
                                                                                     public void actionPerformed (ActionEvent ev)
                                                                                     {
-                                                                        
-                                                                                        prog.setIndeterminate (false);                                                                    
-                                                                                       
+
+                                                                                        prog.setIndeterminate (false);
+
                                                                                         onComplete.actionPerformed (new ActionEvent (parent, 0, langOrig));
-                                                                                        
+
                                                                                     }
-                                                                                    
+
                                                                                 });
-                                                                                
+
                                                                             }
 
                                                                             UIUtils.doLater (removeNotification);
-                                                                                                                                                        
+
                                                                         }
-                                                                        
+
                                                                     }).start ();
-                                                                    
+
                                                                 }
-                                                        
+
                                                             });
-        
+
         downloader.start ();
-                        
+
         n.addCancelListener (new ActionListener ()
         {
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 downloader.stop ();
-                
+
                 file.delete ();
 
             }
-            
+
         });
-        
-    }    
+
+    }
 
     public static JComponent createForm (Set<FormItem> items)
     {
-        
+
         Box addTo = new Box (BoxLayout.Y_AXIS);
         addTo.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-        
+
         for (FormItem it : items)
         {
-                
+
             if (it.label != null)
             {
-            
+
                 if (it.label instanceof String)
                 {
-            
+
                     addTo.add (UIUtils.createLabel ((String) it.label));
-                    
+
                 } else {
-                    
+
                     addTo.add ((JComponent) it.label);
-                    
+
                 }
-            
+
             }
-        
+
             if (it.component != null)
             {
-            
+
                 Box b = new Box (BoxLayout.X_AXIS);
-    
+
                 b.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-                
+
                 b.setBorder (UIUtils.createPadding ((it.label != null ? 5 : 0), 10, 10, 0));
-                
+
                 it.component.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-                
+
                 b.add (it.component);
-               
+
                 addTo.add (b);
-                
+
             }
 
         }
-        
+
         return addTo;
-        
+
     }
 
 	public static void showAddNewProject (AbstractViewer viewer,
                                           Point          showAt,
                                           ActionListener onCreate)
 	{
-		
+
         final QPopup popup = UIUtils.createClosablePopup ("Create a new {project}",
                                                           Environment.getIcon (Constants.ADD_ICON_NAME,
                                                                                Constants.ICON_POPUP),
@@ -9949,7 +9949,7 @@ public class UIUtils
 										   null));
 
 		final NewProjectPanel newProjPanel = new NewProjectPanel ();
-											
+
 		JComponent cp = newProjPanel.createPanel (popup,
 												  popup.getCloseAction (),
 												  true,
@@ -9957,23 +9957,23 @@ public class UIUtils
 												  true);
 
 		content.add (cp);
-												  
+
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-                         
+
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                      content.getPreferredSize ().height));
 
         popup.setContent (content);
-                                                               
+
         viewer.showPopupAt (popup,
                             (showAt != null ? showAt : UIUtils.getCenterShowPosition (viewer,
                                                                                       popup)),
                             false);
-        
+
         popup.resize ();
-        
-        popup.setDraggable (viewer);		
-		
+
+        popup.setDraggable (viewer);
+
 	}
-    
+
 }
