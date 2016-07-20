@@ -31,7 +31,6 @@ public class QSpellChecker implements DocumentListener,
     private QTextEditor        text = null;
     private SpellChecker       checker = null;
     private LinePainter        painter = new LinePainter (Color.RED);
-    private Timer              timer = new Timer (true);
     private Map                elsToCheck = new WeakHashMap ();
     private boolean            enabled = false;
     private int                lastCaret = -1;
@@ -54,16 +53,16 @@ public class QSpellChecker implements DocumentListener,
 
     public SynonymProvider getSynonymProvider ()
     {
-        
+
         return this.synonymProvider;
-        
+
     }
-    
+
     public void setSynonymProvider (SynonymProvider sp)
     {
-        
+
         this.synonymProvider = sp;
-        
+
     }
 
     public void setDictionaryProvider (DictionaryProvider dp)
@@ -78,16 +77,16 @@ public class QSpellChecker implements DocumentListener,
 
         if (dp == null)
         {
-            
+
             this.checker = null;
             this.dictProvider = null;
-            
+
             return;
-            
+
         }
-        
+
         this.checker = dp.getSpellChecker ();
-        
+
         //this.checker = new SpellChecker ();
 
         this.dictProvider = dp;
@@ -130,37 +129,47 @@ public class QSpellChecker implements DocumentListener,
 
     }
 
-    public boolean isWordCorrect (String word)
+    public boolean isWordCorrect (Word word)
     {
 
         if (this.checker == null)
         {
-            
+
             return false;
-            
+
         }
-    
+
+        return this.checker.isCorrect (word);
+
+/*
+        if (w.isPunctuation ())
+        {
+
+            continue;
+
+        }
+
         // See if the word is a number.
         try
         {
-            
+
             Double.parseDouble (word);
-            
+
             return true;
-            
+
         } catch (Exception e) {
-            
+
             // Not a number.
-            
+
         }
 
         boolean v = this.checker.isCorrect (word)
                     ||
                     this.checker.isIgnored (word);
-                    
+
         if (!v)
         {
-                        
+
             // See if we have a synonym provider, if so check to see if the word ends with
             // "s", "ed" or "er", if it does strip the ending then look for the synonym, if it has
             // one then allow it through.
@@ -174,37 +183,37 @@ public class QSpellChecker implements DocumentListener,
                 (this.synonymProvider != null)
                )
             {
-                
+
                 if (word.endsWith ("s"))
                 {
-                    
+
                     word = word.substring (0,
                                            word.length () - 1);
-                                        
+
                 } else {
-                    
+
                     word = word.substring (0,
                                            word.length () - 2);
-                                        
+
                 }
-                
+
                 try
                 {
-                    
-                    v = this.synonymProvider.hasSynonym (word);
-                 
-                } catch (Exception e) {
-                    
-                    // Ignore it.
-                    
-                }
-                
-            }
-            
-        }
-        
-        return v;
 
+                    v = this.synonymProvider.hasSynonym (word);
+
+                } catch (Exception e) {
+
+                    // Ignore it.
+
+                }
+
+            }
+
+        }
+
+        return v;
+*/
     }
 
     public void addWord (String w,
@@ -220,34 +229,26 @@ public class QSpellChecker implements DocumentListener,
     {
 
         TextIterator ti = new TextIterator (this.text.getText ());
-        
+
         int start = this.text.viewToModel (p);
 
-        String word = null;
-        
-        if (start > 0)
+        Word word = null;
+
+        if (start > -1)
         {
 
-            Word w = ti.getWordAt (start);
-            
-            if (w != null)
-            {
-                
-                word = w.getText ();
-                
-            }
-            
+            word = ti.getWordAt (start);
+
         }
 
         return this.getSuggestions (word);
-        
+
     }
 
-    public List getSuggestions (String word)
+    public List getSuggestions (Word word)
     {
-    
-        if ((word == null) ||
-            (word.trim ().equals ("")))
+
+        if (word == null)
         {
 
             return null;
@@ -256,22 +257,12 @@ public class QSpellChecker implements DocumentListener,
 
         if (this.checker == null)
         {
-            
+
             return null;
-            
-        }
-        
-        List l = null;
-
-        if ((!this.checker.isCorrect (word)) &&
-            (!this.checker.isIgnored (word)))
-        {
-
-            l = this.checker.getSuggestions (word);
 
         }
 
-        return l;
+        return this.checker.getSuggestions (word);
 
     }
 
@@ -307,14 +298,6 @@ public class QSpellChecker implements DocumentListener,
 
         final QSpellChecker _this = this;
 
-        this.timer.schedule (new BlankTimerTask ()
-            {
-
-                public void run ()
-                {
-
-                    Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
-
                     SwingUtilities.invokeLater (new Runnable ()
                         {
 
@@ -323,16 +306,18 @@ public class QSpellChecker implements DocumentListener,
 
                                 _this.checkElement (el);
 
-                                _this.elsToCheck.remove (el);
+                                final Object o = new Object ();
+
+                                synchronized (o)
+                                {
+
+                                    _this.elsToCheck.remove (el);
+
+                                }
 
                             }
 
                         });
-
-                }
-
-            },
-            100);
 
     }
 
@@ -424,39 +409,39 @@ public class QSpellChecker implements DocumentListener,
         int docLength = this.text.getDocument ().getLength ();
 
         int end = el.getEndOffset ();
-        
+
         if (start == end)
         {
-            
+
             return;
-            
+
         }
-        
+
         TextIterator ti = new TextIterator (this.text.getText ().substring (start,
                                                                             end - 1));
-        
+
         List<Word> words = ti.getWords ();
-        
+
         for (Word w : words)
         {
-            
+
             if (w.isPunctuation ())
             {
-                
+
                 continue;
-                
+
             }
-            
-            String word = w.getText ();
-            
-            int wordStart = w.getAllTextStartOffset () + start;
-            int wordEnd = w.getAllTextEndOffset () + start;
-            
-            if (!this.isWordCorrect (word))
+
+            //String word = w.getText ();
+
+            if (!this.isWordCorrect (w))
             {
 
                 try
                 {
+
+                    int wordStart = w.getAllTextStartOffset () + start;
+                    int wordEnd = w.getAllTextEndOffset () + start;
 
                     this.text.addHighlight (wordStart,
                                             wordEnd,
@@ -468,8 +453,8 @@ public class QSpellChecker implements DocumentListener,
 
                 }
 
-            }            
-            
+            }
+
         }
         /*
         int wordStart = -1;
@@ -566,52 +551,52 @@ public class QSpellChecker implements DocumentListener,
             this.lastCharacterOver = QSpellChecker.NULL_CHAR;
 
         }
-        
+
         if (ev.getLength () == 1)
         {
-        
+
             String t = null;
-            
+
             try
             {
-                
+
                 t = ev.getDocument ().getText (ev.getOffset (),
                                                ev.getLength ());
-                
+
             } catch (Exception e) {
-                
+
                 // Wtf...
                 return;
-                
+
             }
-            
+
             if (t.trim ().length () == 0)
             {
-                
+
                 // Check the previous element.
                 Element element;
-        
+
                 try
                 {
-    
+
                     element = ((AbstractDocument) ev.getDocument ()).getParagraphElement (ev.getOffset ());
-    
+
                 } catch (Exception ex)
                 {
-    
+
                     return;
-    
+
                 }
-        
+
                 this.checkElement (element);
-                
+
             }
-            
+
         } else {
-            
+
             this.checkElements (ev.getOffset (),
                                 ev.getLength ());
-            
+
         }
 
     }
@@ -647,52 +632,52 @@ public class QSpellChecker implements DocumentListener,
 
         if (ev.getLength () == 1)
         {
-        
+
             // Check the previous char, if there is one then don't check, if it's whitespace then check.
             if (ev.getOffset () > 0)
             {
-                
+
                 String t = null;
-                
+
                 try
                 {
-                    
+
                     t = ev.getDocument ().getText (ev.getOffset () - 1,
                                                    ev.getLength ());
-                    
+
                 } catch (Exception e) {
-                    
+
                     // Wtf...
                     return;
-                    
+
                 }
-            
+
                 // Check the previous element.
                 Element element;
-        
+
                 try
                 {
-    
+
                     element = ((AbstractDocument) ev.getDocument ()).getParagraphElement (ev.getOffset ());
-    
+
                 } catch (Exception ex)
                 {
-    
+
                     return;
-    
+
                 }
-        
+
                 this.checkElement (element);
 
                 return;
-                
+
             }
-            
+
         } else {
-            
+
             this.checkElements (ev.getOffset (),
                                 ev.getLength ());
-            
+
         }
 
     }
