@@ -1571,9 +1571,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.notifications.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                           this.notifications.getPreferredSize ().height));
 
-        this.validate ();
-        this.repaint ();
-
     }
 
     public Notification addNotification (String text,

@@ -54,6 +54,8 @@ import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.events.*;
 import com.quollwriter.synonyms.*;
+import com.quollwriter.text.*;
+import com.quollwriter.text.rules.*;
 
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
@@ -9084,6 +9086,91 @@ xxx
         }
 
         return chaps;
+
+    }
+
+    public Set<Issue> getProblems (Chapter c)
+    {
+
+        Set<Issue> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            TextBlockIterator ti = new TextBlockIterator (ct);
+
+            TextBlock b = null;
+
+            while ((b = ti.next ()) != null)
+            {
+
+                if (b instanceof Paragraph)
+                {
+
+                    ret.addAll (RuleFactory.getParagraphIssues ((Paragraph) b,
+                                                                this.proj.getProperties ()));
+
+                }
+
+                if (b instanceof Sentence)
+                {
+
+                    ret.addAll (RuleFactory.getSentenceIssues ((Sentence) b,
+                                                                this.proj.getProperties ()));
+
+                }
+
+            }
+
+        }
+
+        return ret;
+
+    }
+
+    public Set<Word> getSpellingErrors (Chapter c)
+    {
+
+        Set<Word> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            DictionaryProvider dp = this.getDictionaryProvider ();
+
+            if (dp != null)
+            {
+
+                SpellChecker sc = dp.getSpellChecker ();
+
+                if (sc != null)
+                {
+
+                    TextIterator ti = new TextIterator (ct);
+
+                    for (Word w : ti.getWords ())
+                    {
+
+                        if (!sc.isCorrect (w))
+                        {
+
+                            ret.add (w);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return ret;
 
     }
 

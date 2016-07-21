@@ -20,8 +20,9 @@ import javax.swing.undo.*;
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.StringWithMarkup;
-
 import com.quollwriter.DictionaryProvider;
+
+import com.quollwriter.text.*;
 
 import com.quollwriter.synonyms.SynonymProvider;
 
@@ -41,7 +42,7 @@ public class QTextEditor extends JTextPane implements TextStylable
     public static final String ITALIC_ACTION_NAME = "italic";
     public static final String UNDERLINE_ACTION_NAME = "underline";
     public static final String PRINT_ACTION_NAME = "print";
-    
+
     public CompoundUndoManager    undoManager = null;
     public QSpellChecker          spellChecker = null;
     private boolean               loading = false;
@@ -60,9 +61,9 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         this.setCaret (new QCaret ());
         this.getCaret ().setBlinkRate (500);
-        
+
         this.undoManager = new CompoundUndoManager (this);
-                
+
         // Adapted from: https://community.oracle.com/thread/2376090
         // When there is a long contiguous piece of text it will prevent the text from
         // wrapping.  This allows the wrapping to occur.  However it does not prevent the
@@ -71,46 +72,46 @@ public class QTextEditor extends JTextPane implements TextStylable
         /*
         final ViewFactory vf = new ViewFactory ()
         {
-          
+
             @Override
             public View create (Element elem)
             {
-                
+
                 String kind = elem.getName();
 
                 if (kind != null)
                 {
-                
+
                     if (kind.equals (AbstractDocument.ContentElementName))
                     {
-                    
+
                         return new LabelView (elem)
                         {
-                    
+
                             @Override
                             public float getMinimumSpan (int axis)
                             {
-                                
+
                                 if (axis == View.X_AXIS)
                                 {
-                                    
+
                                     return 0;
-                                    
+
                                 }
-                                
+
                                 if (axis == View.Y_AXIS)
                                 {
-                                    
+
                                     return super.getMinimumSpan (axis);
-                                    
+
                                 }
-                                
+
                                 throw new IllegalArgumentException ("Invalid axis: " + axis);
-                                
+
                             }
-                            
+
                         };
-                        
+
                     } else if (kind.equals(AbstractDocument.ParagraphElementName)) {
                         return new ParagraphView(elem);
                     } else if (kind.equals(AbstractDocument.SectionElementName)) {
@@ -120,32 +121,32 @@ public class QTextEditor extends JTextPane implements TextStylable
                     } else if (kind.equals(StyleConstants.IconElementName)) {
                         return new IconView(elem);
                     }
-                
+
                 }
-    
+
                 // default to text display
                 return new LabelView (elem);
-                
+
             }
-            
+
         };
-*/        
+*/
         this.setEditorKit (new QStyledEditorKit ());
 /*
         {
-           
+
             @Override
             public ViewFactory getViewFactory ()
             {
-                
+
                 return vf;
-                
+
             }
-            
+
         });
-  */      
+  */
         this.initDocument ();
-                
+
         this.setMargin (new Insets (5,
                                     5,
                                     0,
@@ -159,7 +160,7 @@ public class QTextEditor extends JTextPane implements TextStylable
         this.spellChecker = new QSpellChecker (this,
                                                prov);
         this.spellChecker.enable (spellCheckerEnabled);
-            
+
         ActionMap am = this.getActionMap ();
 
         am.put (REDO_ACTION_NAME,
@@ -233,7 +234,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                     }
 
                 });
-        
+
         am.put (ITALIC_ACTION_NAME,
                 new ActionAdapter ()
                 {
@@ -377,7 +378,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                     }
 
                 });
-        
+
         am.put ("italic",
                 new ActionAdapter ()
                 {
@@ -426,14 +427,14 @@ public class QTextEditor extends JTextPane implements TextStylable
                 UNDERLINE_ACTION_NAME);
 
         this.lineHighlighter = new LineHighlighter (Color.LIGHT_GRAY);
-                
+
     }
 
     public void initDocument ()
     {
 
         this.doc = new DefaultStyledDocument ();
-        
+
         this.doc.putProperty (DefaultEditorKit.EndOfLineStringProperty,
                               "\n");
 
@@ -441,9 +442,9 @@ public class QTextEditor extends JTextPane implements TextStylable
                                                     null);
         StyleConstants.setAlignment (this.sectionBreakStyle,
                                      StyleConstants.ALIGN_CENTER);
-        
+
         this.doc.addUndoableEditListener (this.undoManager);
-        
+
         this.doc.setParagraphAttributes (0,
                                          0,
                                          this.styles,
@@ -452,94 +453,94 @@ public class QTextEditor extends JTextPane implements TextStylable
                                          0,
                                          this.styles,
                                          true);
-                                         
+
         this.setDocument (this.doc);
-        
+
     }
-    
+
     public void setCanFormat (boolean c)
     {
-        
+
         this.canFormat = c;
-        
+
     }
-    
+
     public boolean isCanFormat ()
     {
-        
+
         return this.canFormat;
-        
+
     }
-    
+
     public void setCanCopy (boolean c)
     {
-        
+
         this.canCopy = c;
-        
+
     }
-    
+
     public boolean isCanCopy ()
     {
-        
+
         return this.canCopy;
-        
+
     }
-    
+
     @Override
     public void copy ()
     {
-        
+
         if (!this.canCopy)
         {
-            
+
             return;
-        
+
         }
-                
+
         super.copy ();
-        
+
     }
-    
+
     @Override
     public void paste ()
     {
-        
+
         if (!this.canCopy)
         {
-            
+
             return;
-            
+
         }
-        
+
         Transferable trans = Toolkit.getDefaultToolkit().getSystemClipboard().getContents (null);
-        
+
         if ((trans != null)
             &&
             (trans.isDataFlavorSupported (DataFlavor.stringFlavor))
            )
         {
-                
+
             try
             {
-                
+
                 String s = (String) trans.getTransferData (DataFlavor.stringFlavor);
 
                 s = com.quollwriter.text.TextUtilities.sanitizeText (s);
-                                
+
                 TransferHandler transferHandler = this.getTransferHandler();
                 transferHandler.importData (this,
-                                            new StringSelection (s));        
+                                            new StringSelection (s));
 
             } catch (Exception e) {
-             
+
                 super.paste ();
-                
+
             }
-            
+
         }
-        
+
     }
-    
+
     protected QTextEditor()
     {
 
@@ -548,53 +549,53 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setWritingLineColor (Color c)
     {
-        
+
         this.lineHighlighter.setPaint (c);
         this.validate ();
         this.repaint ();
-        
+
     }
-    
+
     public void setHighlightWritingLine (boolean v)
     {
-        
+
         if (v)
         {
-            
+
             this.lineHighlighter.install (this);
-            
+
         } else {
-            
+
             this.lineHighlighter.uninstall ();
-            
+
         }
-        
+
     }
-    
+
     public SynonymProvider getSynonymProvider ()
     {
-        
+
         if (this.spellChecker != null)
         {
-            
+
             return this.spellChecker.getSynonymProvider ();
-            
-        }        
-        
+
+        }
+
         return null;
-        
+
     }
-    
+
     public void setSynonymProvider (SynonymProvider sp)
     {
-        
+
         if (this.spellChecker != null)
         {
-            
+
             this.spellChecker.setSynonymProvider (sp);
-            
+
         }
-        
+
     }
 
     public boolean _print ()
@@ -603,7 +604,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         QTextEditor qt = new QTextEditor (null,
                                           false);
-        
+
         qt.setSectionBreak (this.sectionBreak);
 
         qt.setLineSpacing (this.getLineSpacing ());
@@ -634,7 +635,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setDictionaryProvider (DictionaryProvider dp)
     {
-    
+
         this.spellChecker.setDictionaryProvider (dp);
 
         this.checkSpelling ();
@@ -650,12 +651,12 @@ public class QTextEditor extends JTextPane implements TextStylable
         MutableAttributeSet attrs = new SimpleAttributeSet ();
         attrs.addAttribute (style,
                             true);
-        
+
         this.doc.setCharacterAttributes (start,
                                          end - start,
                                          attrs,
                                          false);
-        
+
     }
 
     public String getSelectedText ()
@@ -686,24 +687,24 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public StringWithMarkup getTextWithMarkup ()
     {
-        
+
         return new StringWithMarkup (this.getText (),
                                      new Markup (this.getDocument ()));
-        
+
     }
 
     public void addStyleChangeListener (StyleChangeListener l)
     {
-        
+
         this.styleChangeListeners.add (l);
-        
+
     }
 
     public void removeStyleChangeListener (StyleChangeListener l)
     {
-        
+
         this.styleChangeListeners.remove (l);
-        
+
     }
 
     protected void fireStyleChangeEvent (int     start,
@@ -711,25 +712,25 @@ public class QTextEditor extends JTextPane implements TextStylable
                                          String  styleType,
                                          boolean on)
     {
-        
+
         StyleChangeEvent ev = new StyleChangeEvent (this,
                                                     start,
                                                     end,
                                                     styleType,
                                                     on);
-        
+
         for (StyleChangeListener l : this.styleChangeListeners)
         {
-            
+
             l.styleChanged (ev);
-            
+
         }
-        
+
     }
 
     private void clearBoldItalicUnderline ()
     {
-        
+
         SimpleAttributeSet attrs = new SimpleAttributeSet ();
 
         StyleConstants.setBold (attrs,
@@ -738,15 +739,15 @@ public class QTextEditor extends JTextPane implements TextStylable
                                   false);
         StyleConstants.setUnderline (attrs,
                                      false);
-        
+
         StyledEditorKit k = (StyledEditorKit) this.getEditorKit ();
-        
+
         MutableAttributeSet inAttrs = k.getInputAttributes ();
-        
+
         inAttrs.addAttributes (attrs);
-        
+
     }
-    
+
     public void setStyle (MutableAttributeSet attrs,
                           TextRange           range)
     {
@@ -759,56 +760,56 @@ public class QTextEditor extends JTextPane implements TextStylable
                                              attrs,
                                              false);
 
-        } 
-            
+        }
+
         StyledEditorKit k = (StyledEditorKit) this.getEditorKit ();
-        
+
         MutableAttributeSet inAttrs = k.getInputAttributes ();
-        
+
         inAttrs.addAttributes (attrs);
-            
+
     }
-    
+
     public void toggleBold ()
     {
-        
+
         if (!this.canFormat)
         {
-            
+
             return;
-            
+
         }
-        
+
         int start = this.getSelectionStart ();
-            
+
         if (start < 0)
         {
-            
+
             start = this.getCaret ().getDot ();
-            
+
         }
 
         if (this.getSelectionEnd () == start)
         {
-            
+
             if (start > 0)
             {
-                
+
                 start--;
-                
+
             }
 
         }
-        
+
         AbstractDocument.AbstractElement el = (AbstractDocument.AbstractElement) this.doc.getCharacterElement (start);
 
         SimpleAttributeSet attr = new SimpleAttributeSet ();
 
         StyleConstants.setBold (attr,
                                 !StyleConstants.isBold (el.getAttributes ()));
-        
+
         TextRange tr = new TextRange (this);
-        
+
         this.setStyle (attr,
                        tr);
 
@@ -816,7 +817,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                                    tr.end,
                                    StyleChangeEvent.BOLD,
                                    StyleConstants.isBold (attr));
-        
+
     }
 
     public void toggleItalic ()
@@ -824,28 +825,28 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         if (!this.canFormat)
         {
-            
+
             return;
-            
+
         }
-    
+
         int start = this.getSelectionStart ();
-            
+
         if (start < 0)
         {
-            
+
             start = this.getCaret ().getDot ();
-            
+
         }
 
         if (this.getSelectionEnd () == start)
         {
-            
+
             if (start > 0)
             {
-                
+
                 start--;
-                
+
             }
 
         }
@@ -858,7 +859,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                                   !StyleConstants.isItalic (el.getAttributes ()));
 
         TextRange tr = new TextRange (this);
-        
+
         this.setStyle (attr,
                        tr);
 
@@ -874,28 +875,28 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         if (!this.canFormat)
         {
-            
+
             return;
-            
+
         }
-    
+
         int start = this.getSelectionStart ();
-            
+
         if (start < 0)
         {
-            
+
             start = this.getCaret ().getDot ();
-            
+
         }
 
         if (this.getSelectionEnd () == start)
         {
-            
+
             if (start > 0)
             {
-                
+
                 start--;
-                
+
             }
 
         }
@@ -908,7 +909,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                                      !StyleConstants.isUnderline (el.getAttributes ()));
 
         TextRange tr = new TextRange (this);
-        
+
         this.setStyle (attr,
                        tr);
 
@@ -923,34 +924,34 @@ public class QTextEditor extends JTextPane implements TextStylable
                              int    end,
                              String replace)
     {
-               
+
         int caret = this.getCaret ().getDot ();
-                
+
         this.startCompoundEdit ();
 
         this.select (start,
                      end);
-        
+
         this.replaceSelection (replace);
-        
+
         this.endCompoundEdit ();
 
         this.getCaret ().setDot (caret);
-        
+
     }
-    
+
     public void startCompoundEdit ()
     {
-        
+
         this.undoManager.startCompoundEdit ();
-        
+
     }
 
     public void endCompoundEdit ()
     {
-        
+
         this.undoManager.endCompoundEdit ();
-        
+
     }
 
     public CompoundUndoManager getUndoManager ()
@@ -962,7 +963,7 @@ public class QTextEditor extends JTextPane implements TextStylable
 /*
     public TextProperties getTextProperties ()
     {
-        
+
         return new TextProperties (this,
                                    this.getFontFamily (),
                                    this.getFontSize (),
@@ -971,14 +972,14 @@ public class QTextEditor extends JTextPane implements TextStylable
                                    this.getLineSpacing () + 1,
                                    this.getTextColor (),
                                    this.getBackgroundColor ());
-        
+
     }
-  */  
+  */
     public String getAlignmentAsString ()
     {
-        
+
         int v = this.getAlignment ();
-        
+
         if (v == StyleConstants.ALIGN_LEFT)
         {
 
@@ -999,11 +1000,11 @@ public class QTextEditor extends JTextPane implements TextStylable
             return QTextEditor.ALIGN_JUSTIFIED;
 
         }
-        
+
         return QTextEditor.ALIGN_LEFT;
-        
+
     }
-    
+
     public int getAlignment ()
     {
 
@@ -1032,14 +1033,14 @@ public class QTextEditor extends JTextPane implements TextStylable
     {
 
         float f = 0f;
-    
+
         if (v)
         {
 
             f = 30f;
 
         }
-    
+
         StyleConstants.setFirstLineIndent (this.styles,
                                            f);
 
@@ -1079,11 +1080,11 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public Color getTextColor ()
     {
-        
+
         return this.getFontColor ();
-        
+
     }
-    
+
     public Color getFontColor ()
     {
 
@@ -1093,24 +1094,24 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setTextColor (Color c)
     {
-        
+
         this.setFontColor (c);
-        
+
     }
-    
+
     public void setFontColor (Color c)
     {
 
         // Change the caret color to match.
         this.setCaretColor (c);
-    
+
         StyleConstants.setForeground (this.styles,
                                       c);
 
         this.applyStyles ();
 
     }
-    
+
     /**
      * Note: is here for compatibility, but will do nothing, parent components need to
      * implement TextStyleable.setTextBorder with their own behaviour.
@@ -1118,11 +1119,11 @@ public class QTextEditor extends JTextPane implements TextStylable
     @Override
     public void setTextBorder (int v)
     {
-       
+
         // Do nothing.
-        
+
     }
-    
+
     public int getFontSize ()
     {
 
@@ -1132,13 +1133,13 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public Font getFontForStyles ()
     {
-        
+
         return new Font (this.getFontFamily (),
                          Font.PLAIN,
                          this.getFontSize ());
-                
+
     }
-  
+
     public void setFontSize (int v)
     {
 
@@ -1151,7 +1152,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                                    this.doc.getEndPosition ().getOffset (),
                                    StyleChangeEvent.FONT_SIZE,
                                    false);
-        
+
     }
 
     public String getFontFamily ()
@@ -1166,11 +1167,11 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         if (name == null)
         {
-            
+
             throw new IllegalArgumentException ("Font family name cannot be null");
-            
+
         }
-    
+
         StyleConstants.setFontFamily (this.styles,
                                       name);
 
@@ -1180,7 +1181,7 @@ public class QTextEditor extends JTextPane implements TextStylable
                                    this.doc.getEndPosition ().getOffset (),
                                    StyleChangeEvent.FONT_NAME,
                                    false);
-                
+
     }
 
     private void applyStyles ()
@@ -1197,14 +1198,14 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public int getLineHeight ()
     {
-        
+
         java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage (1, 1, java.awt.image.BufferedImage.TYPE_INT_ARGB);
         Graphics g = bi.getGraphics ();
-        
+
         return (int) (g.getFontMetrics (new Font (this.getFontFamily (), Font.PLAIN, this.getFontSize ())).getHeight () * this.getLineSpacing ());
-        
+
     }
-    
+
     public float getLineSpacing ()
     {
 
@@ -1261,9 +1262,9 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     }
 
-    public List getSpellCheckSuggestions (String word)
+    public List getSpellCheckSuggestions (Word word)
     {
-        
+
         if (this.spellChecker == null)
         {
 
@@ -1284,11 +1285,11 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public void setSectionBreak (String b)
     {
-        
+
         this.sectionBreak = b;
-        
+
     }
-    
+
     private void initSectionBreaks (String t)
     {
 
@@ -1364,36 +1365,36 @@ public class QTextEditor extends JTextPane implements TextStylable
             {
 
                 final QTextEditor _this = this;
-                
+
                 this.addKeyListener (new KeyAdapter ()
                 {
-                    
+
                     public void keyPressed (KeyEvent ev)
                     {
-                        
+
                         _this.removeHighlight (o);
-                        
+
                         _this.removeKeyListener (this);
-                        
+
                     }
-                    
+
                 });
-        
+
                 this.addMouseListener (new MouseAdapter ()
                 {
-                    
+
                     public void mousePressed (MouseEvent ev)
                     {
-                        
+
                         _this.removeHighlight (o);
-                        
+
                         _this.removeMouseListener (this);
-                        
+
                     }
-                    
+
                 });
-                
-                
+
+
             }
 
             return o;
@@ -1506,15 +1507,15 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         String t = null;
         Markup markup = null;
-        
+
         if (text != null)
         {
-            
+
             t = text.getText ();
             markup = text.getMarkup ();
-            
+
         }
-        
+
         if (t != null)
         {
 
@@ -1523,11 +1524,11 @@ public class QTextEditor extends JTextPane implements TextStylable
                                            "");
 
         }
-        
-        //this.styles = new SimpleAttributeSet ();        
-        
+
+        //this.styles = new SimpleAttributeSet ();
+
         this.clearBoldItalicUnderline ();
-        
+
         super.setText (t);
 
         //this.applyStyles ();
@@ -1547,11 +1548,11 @@ public class QTextEditor extends JTextPane implements TextStylable
 
         if (this.spellChecker != null)
         {
-            
+
             this.spellChecker.enable (enabled);
-            
+
         }
-        
+
     }
 
     public void checkSpelling ()
@@ -1596,28 +1597,28 @@ public class QTextEditor extends JTextPane implements TextStylable
                             int length)
                      throws BadLocationException
     {
-        
+
         this.doc.remove (where,
                          length);
-                
+
         this.removeAllHighlights (null);
-        
+
     }
-    
+
     public void setBackgroundColor (Color c)
     {
-        
+
         this.setBackground (c);
-        
+
     }
 
     public Color getBackgroundColor ()
     {
-        
+
         return this.getBackground ();
-        
+
     }
-    
+
     public static int getPrintFontSize (int size)
     {
 
@@ -1627,18 +1628,18 @@ public class QTextEditor extends JTextPane implements TextStylable
 
     public boolean isPositionAtTextEnd (int p)
     {
-        
+
         int cl = this.getText ().length ();
-        
+
         if (cl == 0)
         {
-                        
+
             return p == cl;
-            
+
         }
 
         return p >= cl;
-        
-    }    
+
+    }
 
 }

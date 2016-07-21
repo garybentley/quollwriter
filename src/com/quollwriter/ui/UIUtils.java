@@ -9976,4 +9976,191 @@ public class UIUtils
 
 	}
 
+    public static JComponent getChapterInfoPreview (Chapter               c,
+                                                    String                format,
+                                                    AbstractProjectViewer viewer)
+    {
+
+        String lastEd = "";
+
+        if (c.getLastModified () != null)
+        {
+
+            lastEd = String.format ("Last edited: %s",
+                                    Environment.formatDate (c.getLastModified ()));
+
+        } else {
+
+            lastEd = "Not yet edited.";
+
+        }
+
+        String text = format;
+
+        if (text == null)
+        {
+
+            text = UserProperties.get (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
+                                       Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT);
+
+        }
+
+        String nl = String.valueOf ('\n');
+
+        while (text.endsWith (nl))
+        {
+
+            text = text.substring (0,
+                                   text.length () - 1);
+
+        }
+
+        text = text.toLowerCase ();
+
+        String desc = c.getDescriptionText ();
+        String descFirstLine = null;
+
+        if ((desc == null)
+            ||
+            (desc.length () == 0)
+           )
+        {
+
+            desc = "<b>No description.</b>";
+            descFirstLine = desc;
+
+        } else {
+
+            descFirstLine = new TextIterator (desc).getFirstSentence ().getText ();
+
+        }
+
+        String chapText = viewer.getCurrentChapterText (c);
+
+        if (chapText != null)
+        {
+
+            chapText  = new TextIterator (chapText).getFirstSentence ().getText ();
+
+        } else {
+
+
+
+        }
+
+        if (chapText == null)
+        {
+
+            chapText = Environment.replaceObjectNames ("{Chapter} is empty.");
+
+        }
+
+        text = StringUtils.replaceString (text,
+                                          " ",
+                                          "&nbsp;");
+        text = StringUtils.replaceString (text,
+                                          nl,
+                                          "<br />");
+
+        text = StringUtils.replaceString (text,
+                                          Constants.DESCRIPTION_TAG,
+                                          desc);
+
+        text = StringUtils.replaceString (text,
+                                          Constants.DESCRIPTION_FIRST_LINE_TAG,
+                                          descFirstLine);
+
+        text = StringUtils.replaceString (text,
+                                          Constants.CHAPTER_FIRST_LINE_TAG,
+                                          chapText);
+
+        ChapterCounts cc = viewer.getChapterCounts (c);
+
+        text = StringUtils.replaceString (text,
+                                          Constants.WORDS_TAG,
+                                          String.format ("%s words",
+                                                         Environment.formatNumber (cc.wordCount)));
+        text = StringUtils.replaceString (text,
+                                          Constants.LAST_EDITED_TAG,
+                                          lastEd);
+
+        int ep = c.getEditPosition ();
+
+        if (c.isEditComplete ())
+        {
+
+            ep = 100;
+
+        } else {
+
+            if (ep > 0)
+            {
+
+                if (ep > chapText.length () - 1)
+                {
+
+                    ep = chapText.length ();
+
+                }
+
+                ChapterCounts ecc = new ChapterCounts (chapText.substring (0,
+                                                                           ep));
+
+                ep = Environment.getPercent (ecc.wordCount, cc.wordCount);
+
+            }
+
+        }
+
+        if (ep < 0)
+        {
+
+            ep = 0;
+
+        }
+
+        text = StringUtils.replaceString (text,
+                                          Constants.EDIT_COMPLETE_TAG,
+                                          String.format ("%s%% complete",
+                                                         Environment.formatNumber (ep)));
+
+        if (text.contains (Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG))
+        {
+
+            text = StringUtils.replaceString (text,
+                                              Constants.PROBLEM_FINDER_PROBLEM_COUNT_TAG,
+                                              String.format ("%s problems",
+                                                             Environment.formatNumber (viewer.getProblems (c).size ())));
+
+        }
+
+        if (text.contains (Constants.SPELLING_ERROR_COUNT_TAG))
+        {
+
+            text = StringUtils.replaceString (text,
+                                              Constants.SPELLING_ERROR_COUNT_TAG,
+                                              String.format ("%s spelling errors",
+                                                             Environment.formatNumber (viewer.getSpellingErrors (c).size ())));
+
+        }
+
+        ReadabilityIndices ri = viewer.getReadabilityIndices (c);
+        text = StringUtils.replaceString (text,
+                                          Constants.READABILITY_TAG,
+                                          String.format ("GL: %s, RE: %s, GF: %s",
+                                                         Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())),
+                                                         Environment.formatNumber (Math.round (ri.getFleschReadingEase ())),
+                                                         Environment.formatNumber (Math.round (ri.getGunningFogIndex ()))));
+
+         JEditorPane p = UIUtils.createHelpTextPane (text,
+                                                     null);
+
+         p.setSize (new Dimension (380,
+                                   500));
+         p.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        return p;
+
+    }
+
 }
