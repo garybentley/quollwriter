@@ -33,7 +33,7 @@ public class Chapter extends NamedObject
     private int editPosition = -1;
     private Position textEditPos = null;
     private boolean editComplete = false;
-    
+
     private ProjectVersion projVersion = null;
 
     public Chapter()
@@ -71,25 +71,25 @@ public class Chapter extends NamedObject
 
     public void setProjectVersion (ProjectVersion v)
     {
-        
+
         this.projVersion = v;
-        
+
     }
-    
+
     public ProjectVersion getProjectVersion ()
     {
-        
+
         if (this.projVersion == null)
         {
-            
+
             return this.getBook ().getProject ().getProjectVersion ();
-            
+
         }
-        
+
         return this.projVersion;
-        
+
     }
-   
+
     /**
      * If a chapter item has it's position changed (say via a drag/drop operation to move it)
      * then the sets need to be "reindexed" since the ordering is dependent on the position and
@@ -100,49 +100,49 @@ public class Chapter extends NamedObject
      */
     public synchronized void reindex ()
     {
-       
+
         super.reindex ();
-       
+
         TreeSet<Scene> sscenes = new TreeSet (new ChapterItemSorter ());
-        
+
         sscenes.addAll (this.scenes);
-        
+
         this.scenes = sscenes;
-        
+
         TreeSet<OutlineItem> ooutlineItems = new TreeSet (new ChapterItemSorter ());
-        
+
         ooutlineItems.addAll (this.outlineItems);
-        
+
         this.outlineItems = ooutlineItems;
 
         for (Scene s : this.scenes)
         {
-            
+
             s.reindex ();
-            
+
         }
-        
+
         for (OutlineItem it : this.outlineItems)
         {
-            
+
             it.reindex ();
-            
+
         }
-        
+
     }
-    
+
     public boolean isEditComplete ()
     {
-        
+
         return this.editComplete;
-        
+
     }
-    
+
     public void setEditComplete (boolean b)
     {
-        
+
         this.editComplete = b;
-                
+
     }
     /*
     public String getMarkup ()
@@ -174,12 +174,12 @@ public class Chapter extends NamedObject
                                     "plan",
                                     ((old != null) ? c.getPlan () : null),
                                     this.plan);
-                                    
+
         if (old != null)
         {
 
             String ot = c.getChapterText ();
-        
+
             if (ot == null)
             {
 
@@ -188,7 +188,7 @@ public class Chapter extends NamedObject
             }
 
             ot = TextUtilities.stripNonValidXMLCharacters (ot);
-            
+
             String nt = this.getChapterText ();
 
             if (nt == null)
@@ -199,7 +199,7 @@ public class Chapter extends NamedObject
             }
 
             nt = TextUtilities.stripNonValidXMLCharacters (nt);
-            
+
             String[] oldText = ot.split ("\\n");
             String[] newText = nt.split ("\\n");
 
@@ -369,7 +369,7 @@ public class Chapter extends NamedObject
 
     public Set<ChapterItem> getChapterItemsWithPositionGreaterThan (int pos)
     {
-        
+
         Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
@@ -383,7 +383,7 @@ public class Chapter extends NamedObject
             }
 
         }
-        
+
         for (Scene s : this.scenes)
         {
 
@@ -391,7 +391,7 @@ public class Chapter extends NamedObject
             {
 
                 items.add (s);
-                
+
             }
 
         }
@@ -407,15 +407,15 @@ public class Chapter extends NamedObject
             }
 
         }
-        
+
         return items;
-        
+
     }
 
     public Set<ChapterItem> getChapterItemsWithPositionBetween (int start,
                                                                 int end)
     {
-        
+
         Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
 
         for (OutlineItem it : this.outlineItems)
@@ -432,7 +432,7 @@ public class Chapter extends NamedObject
             }
 
         }
-        
+
         for (Scene s : this.scenes)
         {
 
@@ -443,7 +443,7 @@ public class Chapter extends NamedObject
             {
 
                 items.add (s);
-                
+
             }
 
         }
@@ -462,11 +462,11 @@ public class Chapter extends NamedObject
             }
 
         }
-        
+
         return items;
-        
+
     }
-    
+
     public Set<OutlineItem> getItemsFromPositionToNextScene (int pos)
     {
 
@@ -612,7 +612,7 @@ public class Chapter extends NamedObject
     {
 
         Set<NamedObject> objs = new TreeSet (new ChapterItemSorter ());
-    
+
         objs.addAll (this.scenes);
         objs.addAll (this.outlineItems);
         objs.addAll (this.getNotes ());
@@ -644,61 +644,61 @@ public class Chapter extends NamedObject
             this.addScene ((Scene) item);
 
         }
-        
+
     }
 
     public Set<? extends ChapterItem> getAllStructureItemsWithinRange (int min,
                                                                        int max)
     {
-        
+
         Set<ChapterItem> items = new TreeSet (new ChapterItemSorter ());
-        
+
         for (OutlineItem it : this.outlineItems)
         {
-            
+
             if (it.getPosition () < min || it.getPosition () > max)
             {
-                
+
                 continue;
-                
+
             }
-            
+
             items.add (it);
-            
+
         }
-    
+
         for (Scene s : this.scenes)
         {
-            
+
             if (s.getPosition () >= min && s.getPosition () <= max)
             {
-                            
+
                 items.add (s);
-                
+
             }
-            
+
             Set<OutlineItem> oitems = s.getOutlineItems ();
-            
+
             for (OutlineItem oit : oitems)
             {
-                
+
                 if (oit.getPosition () < min || oit.getPosition () > max)
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
-                items.add (oit);                            
-                
-            }            
-            
+
+                items.add (oit);
+
+            }
+
         }
-    
+
         return items;
-    
+
     }
-    
+
     public Set<? extends ChapterItem> getChapterItems (String objType)
     {
 
@@ -729,49 +729,49 @@ public class Chapter extends NamedObject
 
     public void addNote (Note n)
     {
-        
+
         if (this.getNotes ().contains (n))
         {
-            
+
             return;
-            
+
         }
-        
+
         if ((n.getChapter () != null)
             &&
             (n.getChapter () != this)
            )
         {
-            
+
             n.getChapter ().removeNote (n);
-            
+
         }
-        
+
         super.addNote (n);
-        
+
     }
-    
+
     public void addScene (Scene s)
     {
 
         if (this.scenes.contains (s))
         {
-            
+
             throw new IllegalStateException ("Already have scene: " +
                                              s);
-            
+
         }
-    
+
         if ((s.getChapter () != null)
             &&
             (s.getChapter () != this)
            )
         {
-            
+
             s.getChapter ().removeScene (s);
-            
+
         }
-    
+
         s.setChapter (this);
 /*
         for (OutlineItem i : s.getOutlineItems ())
@@ -796,20 +796,20 @@ public class Chapter extends NamedObject
     {
 
         Set<Scene> items = new TreeSet (new ChapterItemSorter ());
-        
+
         items.addAll (this.scenes);
 
         return items;
-        
+
     }
 
     public Set<OutlineItem> getOutlineItems ()
     {
 
         Set<OutlineItem> items = new TreeSet (new ChapterItemSorter ());
-        
+
         items.addAll (this.outlineItems);
-        
+
         return items;
 
     }
@@ -859,39 +859,39 @@ public class Chapter extends NamedObject
 
         if (i.getScene () != null)
         {
-            
+
             return;
-            
+
         }
-        
+
         if ((i.getChapter () != null)
             &&
             (i.getChapter () != this)
            )
         {
-            
+
             i.getChapter ().removeOutlineItem (i);
-            
+
         }
 
         i.setChapter (this);
 
         if (i.getScene () == null)
         {
-        
+
             this.outlineItems.add (i);
-            
+
         }
 
     }
 
     public String getChapterText ()
     {
-        
+
         return (this.text != null ? this.text.getText () : null);
-        
+
     }
-    
+
     public StringWithMarkup getText ()
     {
 
@@ -901,29 +901,31 @@ public class Chapter extends NamedObject
 
     public void setText (StringWithMarkup t)
     {
-    
+
         if (t != null)
         {
 
             String _t = t.getText ();
-        
+
             if (_t != null)
             {
-        
+
                 _t = com.quollwriter.text.TextUtilities.sanitizeText (_t);
-/*        
+/*
                 _t = StringUtils.replaceString (_t,
                                                 String.valueOf ('\r'),
                                                 "");
-  */      
+  */
                 t.update (_t,
                           t.getMarkup ());
 
             }
-                                                      
+
         }
 
         this.text = t;
+
+        this.setLastModified (new Date ());
 
     }
 
@@ -952,6 +954,8 @@ public class Chapter extends NamedObject
 
         this.goals = t;
 
+        this.setLastModified (new Date ());
+
     }
 
     public StringWithMarkup getPlan ()
@@ -979,14 +983,16 @@ public class Chapter extends NamedObject
 
         this.plan = t;
 
+        this.setLastModified (new Date ());
+
     }
         /*
     @Override
     public String toString ()
     {
-                
-        return Environment.formatObjectToStringProperties (this);        
-        
+
+        return Environment.formatObjectToStringProperties (this);
+
     }
     */
     @Override
@@ -994,7 +1000,7 @@ public class Chapter extends NamedObject
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "editPosition",
                                     this.editPosition);
@@ -1013,7 +1019,7 @@ public class Chapter extends NamedObject
         this.addToStringProperties (props,
                                     "outlineItems",
                                     this.outlineItems.size ());
-            
+
     }
 
     public void setBook (Book b)
@@ -1091,82 +1097,82 @@ public class Chapter extends NamedObject
 
     public void setTextEditPosition (Position p)
     {
-        
+
         this.textEditPos = p;
-        
+
         if (p == null)
         {
-            
+
             this.editPosition = -1;
-            
+
         }
-        
+
     }
-    
+
     public void setEditPosition (int p)
     {
 
         int oldPos = this.editPosition;
-    
+
         this.editPosition = p;
 
         this.textEditPos = null;
-        
+
         this.firePropertyChangedEvent (EDIT_POSITION,
                                        oldPos,
-                                       this.editPosition);        
-                
+                                       this.editPosition);
+
     }
-    
+
     public int getEditPosition ()
     {
-        
+
         if (this.textEditPos != null)
         {
-            
+
             return this.textEditPos.getOffset ();
-            
+
         }
-        
+
         return this.editPosition;
-        
+
     }
 
     public int getChapterLength ()
     {
-        
+
         if (this.text == null)
         {
-            
+
             return 0;
-            
+
         }
-        
+
         if (this.text.getText () == null)
         {
-            
+
             return 0;
-            
+
         }
-        
+
         return this.text.getText ().length ();
-        
+
     }
-    
+
     public boolean isPositionAtChapterEnd (int p)
     {
-        
+
         int cl = this.getChapterLength ();
-        
+
         if (cl == 0)
         {
-                        
+
             return p == cl;
-            
+
         }
 
         return p >= cl - 1;
-        
+
     }
-    
+
 }

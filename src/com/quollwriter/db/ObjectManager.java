@@ -166,9 +166,9 @@ public class ObjectManager
 
     public File getDBDir ()
     {
-        
+
         return this.dir;
-        
+
     }
     /*
     public DataHandler getHandler (Class c)
@@ -248,41 +248,41 @@ public class ObjectManager
 
         try
         {
-        
+
             List objs = dh.getObjects (n,
                                        conn,
                                        loadChildObjects);
 
             return objs;
-        
+
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to get objects of type: " +
                                  c.getName () +
                                  " with parent: " +
                                  n,
-                                 e);            
-                        
-            // Never hit... but doesn't matter.         
+                                 e);
+
+            // Never hit... but doesn't matter.
             return null;
-                                       
+
         } finally {
-            
+
             if (releaseConn)
             {
-            
+
                 this.releaseConnection (conn);
-                
+
             }
 
         }
-        
+
     }
 
     public DataObject getObjectByKey (Class      c,
                                       int        key,
-                                      DataObject parent, 
+                                      DataObject parent,
                                       Connection conn,
                                       boolean    loadChildObjects)
                                throws GeneralException
@@ -311,14 +311,14 @@ public class ObjectManager
 
         try
         {
-        
+
             return dh.getObjectByKey (key,
                                       parent,
                                       conn,
                                       loadChildObjects);
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to get object of type: " +
                                  c.getName () +
@@ -326,17 +326,17 @@ public class ObjectManager
                                  key +
                                  " and parent: " +
                                  parent,
-                                 e);            
-                                 
+                                 e);
+
             return null;
-                                      
+
         } finally {
-                                      
+
             if (releaseConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
         }
@@ -463,7 +463,7 @@ public class ObjectManager
         PoolingDataSource pds = (PoolingDataSource) this.ds;
 
         pds.setAccessToUnderlyingConnectionAllowed (true);
-        
+
         // Check to see if the project exists, if not create the schema.
         // Get the schema version.
 
@@ -471,7 +471,7 @@ public class ObjectManager
         {
 
             this.createSchema ();
-            
+
         } else
         {
 
@@ -505,7 +505,7 @@ public class ObjectManager
 
         // Hardcoding the name since it's possible to have more than 1 sequence.
         //return "KEY_SEQUENCE";
-    
+
         Connection c = null;
 
         try
@@ -525,7 +525,7 @@ public class ObjectManager
             }
 
             return null;
-            
+
         } catch (Exception e)
         {
 
@@ -534,7 +534,7 @@ public class ObjectManager
                                  e);
 
             return null;
-                                 
+
         } finally
         {
 
@@ -548,9 +548,9 @@ public class ObjectManager
                              Set<Link>   newLinks)
                       throws GeneralException
     {
-    
+
         Connection c = null;
-    
+
         try
         {
 
@@ -571,19 +571,19 @@ public class ObjectManager
                     (l.getObject2 () == null)
                    )
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 if ((this.project.getObjectForReference (l.getObject1 ().getObjectReference ()) == null) ||
                     (this.project.getObjectForReference (l.getObject2 ().getObjectReference ()) == null))
                 {
 
                     continue;
 
-                }                
-                
+                }
+
                 this.saveObject (l,
                                  c);
 
@@ -602,9 +602,9 @@ public class ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (c);
-            
+
         }
 
     }
@@ -616,11 +616,11 @@ public class ObjectManager
 
         if (d == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         if (d.getKey () == null)
         {
 
@@ -634,14 +634,14 @@ public class ObjectManager
             return;
 
         }
-        
+
         if (this.project == null)
         {
-            
+
             throw new IllegalStateException ("No project set yet, either call getProject or setProject first.");
-            
+
         }
-        
+
         boolean closeConn = false;
 
         if (conn == null)
@@ -691,16 +691,16 @@ public class ObjectManager
 
                 if (o1type == null)
                 {
-                    
+
                     continue;
-                    
+
                 }
-                
+
                 if (o2type == null)
                 {
-                    
+
                     continue;
-                    
+
                 }
 
                 ObjectReference o1 = new ObjectReference (o1type,
@@ -756,7 +756,7 @@ public class ObjectManager
     {
 
         Connection c = null;
-        
+
         try
         {
 
@@ -774,9 +774,9 @@ public class ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (c);
-            
+
         }
 
     }
@@ -785,7 +785,7 @@ public class ObjectManager
     private String getNewId (Connection c)
                       throws GeneralException
     {
-        
+
         boolean releaseConn = false;
 
         if (c == null)
@@ -805,42 +805,42 @@ public class ObjectManager
             PreparedStatement rand = c.prepareStatement ("SELECT RANDOM_UUID()");
 
             int count = 0;
-            
+
             while (true)
             {
-            
+
                 if (count == 20)
                 {
-                    
+
                     throw new GeneralException ("Unable to get new id");
-                    
+
                 }
-            
+
                 ResultSet rs = rand.executeQuery ();
-    
+
                 if (rs.next ())
                 {
-    
+
                     id = rs.getString (1);
-    
+
                 }
-                
+
                 List params = new ArrayList ();
                 params.add (id);
-                
+
                 rs = this.executeQuery ("SELECT dbkey FROM dataobject WHERE id = ?",
                                         params,
                                         c);
-                
+
                 if (!rs.next ())
                 {
-                    
+
                     return id;
-                    
+
                 }
-                
+
                 count++;
-                
+
             }
 
         } catch (Exception e)
@@ -851,7 +851,7 @@ public class ObjectManager
                                  e);
 
             return null;
-                                 
+
         } finally
         {
 
@@ -865,12 +865,12 @@ public class ObjectManager
         }
 
     }
-    
+
     // Should merge this with getNewId
     private String getNewVersion (Connection c)
-                           throws GeneralException    
+                           throws GeneralException
     {
-        
+
         boolean releaseConn = false;
 
         if (c == null)
@@ -890,42 +890,42 @@ public class ObjectManager
             PreparedStatement rand = c.prepareStatement ("SELECT RANDOM_UUID()");
 
             int count = 0;
-            
+
             while (true)
             {
-            
+
                 if (count == 20)
                 {
-                    
+
                     throw new GeneralException ("Unable to get new version");
-                    
+
                 }
-            
+
                 ResultSet rs = rand.executeQuery ();
-    
+
                 if (rs.next ())
                 {
-    
+
                     id = rs.getString (1);
-    
+
                 }
-                
+
                 List params = new ArrayList ();
                 params.add (id);
-                
+
                 rs = this.executeQuery ("SELECT dbkey FROM dataobject WHERE version = ?",
                                         params,
                                         c);
-                
+
                 if (!rs.next ())
                 {
-                    
+
                     return id;
-                    
+
                 }
-                
+
                 count++;
-                
+
             }
 
         } catch (Exception e)
@@ -936,7 +936,7 @@ public class ObjectManager
                                  e);
 
             return null;
-                                 
+
         } finally
         {
 
@@ -1045,14 +1045,14 @@ public class ObjectManager
                 return rs.getInt (1);
 
             }
-            
+
         } catch (Exception e)
         {
 
             this.throwException (c,
                                  "Unable to get schema version",
                                  e);
-                
+
         } finally
         {
 
@@ -1061,68 +1061,68 @@ public class ObjectManager
         }
 
         return -1;
-        
+
     }
 
     public static boolean isDatabaseAlreadyInUseException (Throwable e)
     {
-        
+
         if (e instanceof JdbcSQLException)
         {
-            
+
             JdbcSQLException ex = (JdbcSQLException) e;
-            
+
             if (ex.getErrorCode () == org.h2.constant.ErrorCode.DATABASE_ALREADY_OPEN_1)
             {
-                
+
                 return true;
-                
+
             }
-            
+
             /*
              *176
             if (ex.getErrorCode () == org.h2.api.ErrorCode.DATABASE_ALREADY_OPEN_1)
             {
-                
+
                 return true;
-                
+
             }
             */
 
         }
-        
+
         Throwable cause = e.getCause ();
-        
+
         if (cause != null)
         {
-            
+
             return ObjectManager.isDatabaseAlreadyInUseException (cause);
-            
+
         }
-        
+
         return false;
-        
-        
+
+
     }
-    
+
     public static boolean isEncryptionException (Throwable e)
     {
-        
+
         if (e instanceof JdbcSQLException)
         {
-            
+
             JdbcSQLException ex = (JdbcSQLException) e;
-            
+
             if ((ex.getErrorCode () == org.h2.constant.ErrorCode.FILE_ENCRYPTION_ERROR_1)
                 ||
                 (ex.getErrorCode () == org.h2.constant.ErrorCode.WRONG_USER_OR_PASSWORD)
                )
             {
-                
+
                 return true;
-                
+
             }
-            
+
             /*
              *176
             if ((ex.getErrorCode () == org.h2.api.ErrorCode.FILE_ENCRYPTION_ERROR_1)
@@ -1130,26 +1130,26 @@ public class ObjectManager
                 (ex.getErrorCode () == org.h2.api.ErrorCode.WRONG_USER_OR_PASSWORD)
                )
             {
-                
+
                 return true;
-                
+
             }
             */
         }
-        
+
         Throwable cause = e.getCause ();
-        
+
         if (cause != null)
         {
-            
+
             return ObjectManager.isEncryptionException (cause);
-            
+
         }
-        
+
         return false;
-        
+
     }
-    
+
     public Connection getConnection ()
                               throws GeneralException
     {
@@ -1159,7 +1159,7 @@ public class ObjectManager
 
             Connection conn = this.ds.getConnection ();
             conn.setAutoCommit (false);
-            
+
             return conn;
 
         } catch (Exception e)
@@ -1177,19 +1177,19 @@ public class ObjectManager
 
         if (conn == null)
         {
-            
+
             return;
-            
+
         }
-    
+
         try
         {
 
             if (!conn.isClosed ())
             {
-        
+
                 conn.commit ();
-                
+
             }
 
             conn.close ();
@@ -1209,36 +1209,36 @@ public class ObjectManager
                                 Exception  cause)
                          throws GeneralException
     {
-        
+
         if (conn != null)
         {
-        
+
             try
             {
-                
+
                 if (!conn.isClosed ())
                 {
-                
+
                     conn.rollback ();
-                    
+
                 }
-                
+
                 conn.close ();
-                
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to rollback connection",
                                       e);
-                
+
             }
-        
+
         }
-        
+
         throw new GeneralException (message,
                                     cause);
-        
+
     }
-    
+
     public void deleteLinks (NamedObject n,
                              Connection  conn)
                       throws GeneralException
@@ -1258,7 +1258,7 @@ public class ObjectManager
 
             } catch (Exception e)
             {
-                
+
                 this.throwException (null,
                                      "Unable to get connection",
                                      e);
@@ -1269,92 +1269,92 @@ public class ObjectManager
 
         try
         {
-        
+
             this.getLinks (n,
                            conn);
-    
+
             Set<Link> links = n.getLinks ();
-    
+
             Iterator<Link> iter = links.iterator ();
-    
+
             while (iter.hasNext ())
             {
-    
+
                 Link l = iter.next ();
-    
+
                 this.deleteObject (l,
                                    false,
                                    conn);
-    
+
                 iter.remove ();
-    
+
                 // Get either side.
                 l.getObject1 ().removeLink (l);
                 l.getObject2 ().removeLink (l);
-    
+
             }
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to delete links for: " +
                                  n,
                                  e);
-            
+
         } finally {
-            
+
             if (closeConn)
             {
 
                 this.releaseConnection (conn);
-    
+
             }
 
         }
-            
+
     }
 
     public DataHandler getHandler (Class c)
     {
-        
+
         DataHandler dh = this.handlers.get (c);
-        
+
         if (dh == null)
         {
-            
+
             Class sc = null;
-            
+
             for (Class s : this.handlers.keySet ())
             {
-                
+
                 if (s.isAssignableFrom (c))
                 {
-                    
+
                     sc = s;
-                    
+
                     break;
-                    
+
                 }
-                
+
             }
 
             if (sc != null)
             {
-                
+
                 dh = this.handlers.get (sc);
-                
+
                 this.handlers.put (c,
                                    dh);
-                
+
             }
-            
+
         }
 
         return dh;
-        
-        
+
+
     }
-    
+
     public void deleteObject (DataObject d,
                               boolean    deleteChildObjects,
                               Connection conn)
@@ -1453,15 +1453,15 @@ public class ObjectManager
 
             if (closeConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
         }
-            
+
     }
-    
+
     public void deleteObjects (Collection<? extends DataObject> objs,
                                Connection                       conn)
                         throws GeneralException
@@ -1491,36 +1491,36 @@ public class ObjectManager
 
         try
         {
-        
+
             for (DataObject o : objs)
             {
-    
+
                 this.deleteObject (o,
                                    true,
                                    conn);
-    
+
             }
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to delete objects: " +
                                  objs,
                                  e);
-            
+
         } finally {
-            
+
             if (closeConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
         }
-            
-    }    
-    
+
+    }
+
     public void saveObjects (List<? extends DataObject> objs,
                              Connection       conn)
                       throws GeneralException
@@ -1551,33 +1551,33 @@ public class ObjectManager
 
         try
         {
-        
+
             for (DataObject d : objs)
             {
-    
+
                 this.saveObject (d,
                                  conn);
-    
+
             }
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to save objects: " +
                                  objs,
                                  e);
-            
+
         } finally {
-            
+
             if (closeConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
         }
-            
+
     }
 
     public void createActionLogEntry (NamedObject n,
@@ -1670,30 +1670,30 @@ public class ObjectManager
             // This is just stupid.  Go duck a stick sql...
             try
             {
-        
+
                 this.throwException (conn,
                                      "Unable to create action log entry for: " +
                                      n,
                                      e);
 
             } catch (Exception ee) {
-                
+
                 Environment.logError ("Cant create action log entry, see cause for details.",
                                       ee);
-                                     
+
             }
-            
+
         } finally {
 
             if (closeConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
         }
-            
+
     }
 
     public void setLatestVersion (DataObject d,
@@ -1701,26 +1701,26 @@ public class ObjectManager
                                   Connection conn)
                            throws GeneralException
     {
-        
+
         if (d == null)
         {
-            
+
             throw new IllegalArgumentException ("No object provided.");
-            
+
         }
-        
+
         if (d.getVersion () == null)
         {
-            
+
             throw new IllegalArgumentException ("Object has no version.");
-            
+
         }
-        
+
         if (d.getKey () == null)
         {
-            
+
             throw new IllegalArgumentException ("Object has no key.");
-            
+
         }
 
         boolean closeConn = false;
@@ -1744,10 +1744,10 @@ public class ObjectManager
             }
 
         }
-        
+
         try
         {
-        
+
             List params = new ArrayList ();
             params.add (latest);
             params.add (d.getKey ());
@@ -1757,27 +1757,27 @@ public class ObjectManager
             this.executeStatement ("UPDATE dataobject SET latest = ? WHERE dbkey = ? AND objecttype = ? AND version = ?",
                                    params,
                                    conn);
-    
+
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to update object to latest version: " +
                                  d,
                                  e);
-    
+
         } finally {
-    
+
             if (closeConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
-        } 
-        
+        }
+
     }
-    
+
     public void saveObject (DataObject d,
                             Connection conn)
                      throws GeneralException
@@ -1808,28 +1808,28 @@ public class ObjectManager
         DataHandler dh = this.getHandler (d.getClass ());
         /*
         Class c = d.getClass ();
-        
+
         while (true)
         {
 
             dh = this.getHandler (c);
-        
+
             if (dh != null)
             {
-                
+
                 break;
-                
+
             }
-            
+
             c = c.getSuperclass ();
-            
+
             if (c == null)
             {
-                
+
                 break;
-                
+
             }
-            
+
         }
         */
         //DataHandler dh = this.handlers.get (d.getClass ().getName ());
@@ -1847,53 +1847,53 @@ public class ObjectManager
 
         try
         {
-        
+
             if (d instanceof DataObject)
             {
-    
+
                 if (d.getKey () == null)
                 {
-    
+
                     create = true;
-    
+
                     // Create the relevant items in dataobject and namedobject.
                     d.setKey (this.getNewKey (conn));
-    
+
                     if (d.getId () == null)
                     {
-                        
+
                         // Set the id/version.
                         String id = this.getNewId (conn);
-                        
+
                         if (id == null)
                         {
-                            
+
                             throw new GeneralException ("Unable to get new id for object: " +
                                                         d);
-                            
+
                         }
-                        
+
                         d.setId (id);
-    
+
                     }
-     
+
                     if (d.getVersion () == null)
                     {
-                        
+
                         String ver = this.getNewVersion (conn);
-                        
+
                         if (ver == null)
                         {
-                            
+
                             throw new GeneralException ("Unable to get new version for object: " +
                                                         d);
-                            
+
                         }
-        
+
                         d.setVersion (ver);
-    
+
                     }
-                    
+
                     // Maybe check for the combo being unique?
                     List params = new ArrayList ();
                     params.add (d.getKey ());
@@ -1915,31 +1915,31 @@ public class ObjectManager
                         params = new ArrayList ();
                         params.add (n.getKey ());
                         params.add (n.getName ());
-                        
+
                         StringWithMarkup descm = n.getDescription ();
-                        
+
                         String desc = null;
                         String markup = null;
-                        
+
                         if (descm != null)
                         {
-                            
+
                             desc = descm.getText ();
-                            
+
                             if (descm.getMarkup () != null)
                             {
-                            
+
                                 markup = descm.getMarkup ().toString ();
-                                
+
                             }
-                            
+
                         }
-                        
+
                         params.add (desc);
                         params.add (markup);
 
                         params.add (Utils.getFilesAsXML (n.getFiles ()));
-                        
+
                         this.executeStatement ("INSERT INTO namedobject (dbkey, name, description, markup, files) VALUES (?, ?, ?, ?, ?)",
                                                params,
                                                conn);
@@ -1973,10 +1973,10 @@ public class ObjectManager
                         }
 
                     }
-        
+
                 } else
                 {
-    
+
                     // Update the dataobject and namedobject.
                     List params = new ArrayList ();
                     params.add (d.getPropertiesAsString ());
@@ -2015,32 +2015,33 @@ public class ObjectManager
                         }
 
                         StringWithMarkup descm = n.getDescription ();
-                        
+
                         String desc = null;
                         String markup = null;
-                        
+
                         if (descm != null)
                         {
-                            
+
                             desc = descm.getText ();
-                            
+
                             if (descm.getMarkup () != null)
                             {
-                            
+
                                 markup = descm.getMarkup ().toString ();
-                                
+
                             }
-                            
+
                         }
-                        
+
                         params = new ArrayList ();
                         params.add (n.getName ());
+                        params.add (n.getLastModified ());
                         params.add (desc);
                         params.add (markup);
                         params.add (Utils.getFilesAsXML (n.getFiles ()));
                         params.add (n.getKey ());
 
-                        this.executeStatement ("UPDATE namedobject SET name = ?, description = ?, markup = ?, files = ? WHERE dbkey = ?",
+                        this.executeStatement ("UPDATE namedobject SET name = ?, lastmodified = ?, description = ?, markup = ?, files = ? WHERE dbkey = ?",
                                                params,
                                                conn);
 
@@ -2053,66 +2054,66 @@ public class ObjectManager
                         }
 
                     }
-        
+
                 }
-    
+
             }
 
             if (create)
             {
-    
+
                 dh.createObject (d,
                                  conn);
-    
+
             } else
             {
-    
+
                 dh.updateObject (d,
                                  conn);
-    
+
             }
-    
+
         } catch (Exception e)
         {
-        
+
             this.throwException (conn,
                                  "Unable to create/update object: " +
                                  d,
                                  e);
 
         } finally {
-    
+
             if (closeConn)
             {
-    
+
                 this.releaseConnection (conn);
-    
+
             }
 
-        } 
-            
+        }
+
     }
 
     public Project getProjectAtVersion (ProjectVersion pv)
                                  throws GeneralException
     {
-        
+
         if (pv == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         Connection conn = null;
-        
+
         try
         {
 
             conn = this.getConnection ();
 
             long start = System.currentTimeMillis ();
-            
+
             ProjectDataHandler pdh = (ProjectDataHandler) this.getHandler (Project.class);
 
             Project proj = pdh.getProjectAtVersion (pv,
@@ -2121,9 +2122,9 @@ public class ObjectManager
             Environment.logDebugMessage ("Project db read for version: " +
                                          pv +
                                          " took: " + (System.currentTimeMillis () - start));
-            
+
             return proj;
-            
+
         } catch (Exception e)
         {
 
@@ -2133,67 +2134,67 @@ public class ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public void setProject (Project p)
     {
-        
+
         if (this.project != null)
         {
-            
+
             throw new IllegalStateException ("Already have a project: " +
                                              this.project);
-            
+
         }
-        
-        p.setProjectDirectory (this.dir);        
-        
+
+        p.setProjectDirectory (this.dir);
+
         this.project = p;
-        
+
     }
-    
+
     public Project getProject ()
                         throws GeneralException
     {
 
         if (this.project != null)
         {
-            
+
             return this.project;
-            
+
         }
-    
+
         Project proj = null;
-        
+
         Connection conn = null;
-        
+
         try
         {
 
             conn = this.getConnection ();
 
             long start = System.currentTimeMillis ();
-            
+
             ProjectDataHandler pdh = (ProjectDataHandler) this.getHandler (Project.class);
 
             proj = pdh.getProject (conn);
 
             Environment.logDebugMessage ("Project db read took: " + (System.currentTimeMillis () - start));
-            
+
             if (proj == null)
             {
-                
+
                 return null;
-                
+
             }
-            
+
         } catch (Exception e)
         {
 
@@ -2202,15 +2203,15 @@ public class ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (conn);
-            
+
         }
-        
+
         proj.setProjectDirectory (this.dir);
 
         this.project = proj;
-        
+
         return this.project;
 
     }
@@ -2254,7 +2255,7 @@ public class ObjectManager
 
         } finally
         {
-        
+
             Environment.logSQLStatement (sql,
                                          params);
 
@@ -2274,7 +2275,7 @@ public class ObjectManager
         {
 
             releaseConn = true;
-        
+
             try
             {
 
@@ -2352,7 +2353,7 @@ public class ObjectManager
         }
 
     }
-    
+
     private void createSchema ()
                         throws GeneralException
     {
@@ -2374,32 +2375,32 @@ public class ObjectManager
 
         try
         {
-        
+
             // Get the schema creation script.
             this.runUpgradeScript (0,
                                    1,
                                    conn,
                                    false);
-    
+
             this.runCreateViewsScript (conn);
 
             // Finally update the schema version to the current version (we do 0-1 here to get
             // things rolling but it may not be the latest version).
             this.updateSchemaVersion (this.getLatestSchemaVersion (),
                                       conn);
-            
+
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to create schema",
                                  e);
-            
-        } finally {            
-        
+
+        } finally {
+
             this.releaseConnection (conn);
 
         }
-            
+
     }
 
     /**
@@ -2411,11 +2412,11 @@ public class ObjectManager
      */
     public int getLatestSchemaVersion ()
     {
-        
+
         return Environment.getSchemaVersion ();
-        
+
     }
-    
+
     private void updateSchema (int oldVersion,
                                int newVersion)
                         throws GeneralException
@@ -2441,46 +2442,46 @@ public class ObjectManager
 
         try
         {
-        
+
             // Get the update script.
             while (nVer < (newVersion + 1))
             {
-    
+
                 // Get the script.
                 this.runUpgradeScript (oVer,
                                        nVer,
                                        conn,
                                        false);
-    
+
                 oVer = nVer;
                 nVer++;
-    
+
             }
-    
+
             // Run the create views script.
             this.runCreateViewsScript (conn);
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to run update script: " + oVer + "-" + nVer,
-                                 e);            
-            
-        } finally {            
-        
+                                 e);
+
+        } finally {
+
             this.releaseConnection (conn);
 
         }
-            
+
     }
 
     public String getCreateViewsFile ()
     {
-        
+
         return Constants.UPDATE_SCRIPTS_DIR + "/create-views.xml";
-        
+
     }
-    
+
     private void runCreateViewsScript (Connection conn)
                                 throws GeneralException
     {
@@ -2518,12 +2519,12 @@ public class ObjectManager
     public void forceRunUpgradeScript (int version)
                                        throws GeneralException
     {
-        
+
         if (!Environment.isDebugModeEnabled ())
         {
-            
+
             throw new GeneralException ("This is a debug method and can only be called in debug mode.");
-            
+
         }
 
         Connection conn = null;
@@ -2543,7 +2544,7 @@ public class ObjectManager
 
         try
         {
-        
+
             this.runUpgradeScript ((version - 1),
                                    version,
                                    conn,
@@ -2553,27 +2554,27 @@ public class ObjectManager
             this.runCreateViewsScript (conn);
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to force run upgrade script: " + (version - 1) + "-" + version,
                                  e);
-            
-        } finally {            
-        
+
+        } finally {
+
             this.releaseConnection (conn);
 
         }
-            
+
     }
-    
+
     public String getUpgradeScriptFile (int oldVersion,
                                         int newVersion)
     {
-        
+
         return Constants.UPDATE_SCRIPTS_DIR + "/" + oldVersion + "-" + newVersion + ".xml";
-        
+
     }
-        
+
     private void runUpgradeScript (int        oldVersion,
                                    int        newVersion,
                                    Connection conn,
@@ -2626,7 +2627,7 @@ public class ObjectManager
 
             this.updateSchemaVersion (newVersion,
                                       conn);
-            
+
         } catch (Exception e)
         {
 
@@ -2644,38 +2645,38 @@ public class ObjectManager
                                      Connection conn)
                               throws Exception
     {
-    
+
         List params = new ArrayList ();
         params.add (newVersion);
 
         this.executeStatement ("UPDATE project SET schema_version = ?",
                                params,
                                conn);
-                    
+
     }
-    
+
     public String getSchemaFile (String file)
     {
-        
+
         return Constants.SCHEMA_DIR + file;
-        
+
     }
-    
+
     private void runScriptElements (Element    root,
                                     Connection conn,
                                     boolean    allowAllToFail)
                              throws GeneralException,
                                     JDOMException
     {
-        
+
         if ((allowAllToFail)
             &&
             (!Environment.isDebugModeEnabled ())
            )
         {
-            
+
             throw new IllegalStateException ("allowAllToFail can only be set to true when in debug mode.");
-            
+
         }
 
         List itemEls = JDOMUtils.getChildElements (root,
@@ -2696,7 +2697,7 @@ public class ObjectManager
             boolean canFail = JDOMUtils.getAttributeValueAsBoolean (el,
                                                                     XMLConstants.canFail,
                                                                     false);
-            
+
             // See if there is a file attribute.
             String file = JDOMUtils.getAttributeValue (sqlEl,
                                                        XMLConstants.file,
@@ -2779,18 +2780,18 @@ public class ObjectManager
     private List<File> getBackupFiles (Project project)
                                 throws Exception
     {
-        
+
         File dir = project.getBackupDirectory ();
-        
+
         if (dir == null)
         {
-            
+
             return null;
-            
+
         }
 
         List<File> ret = new ArrayList ();
-        
+
         File[] files = dir.listFiles ();
 
         if (files != null)
@@ -2806,131 +2807,131 @@ public class ObjectManager
                 {
 
                     ret.add (f);
-                    
+
                 }
-                
+
             }
-            
+
         }
 
         Query q = new Query ();
         q.parse (String.format ("SELECT * FROM %s ORDER BY lastModified DESC",
                                 File.class.getName ()));
-        
+
         QueryResults qr = q.execute (ret);
-        
+
         ret = (List<File>) qr.getResults ();
-        
+
         return ret;
-        
+
     }
-    
+
     public File getLastBackupFile (Project project)
                             throws Exception
     {
-        
+
         List<File> files = this.getBackupFiles (project);
-        
+
         if (files == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         if (files.size () > 0)
         {
-            
+
             return files.get (0);
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public void pruneBackups (Project project,
                               int     keepCount)
                        throws Exception
     {
-        
+
         File dir = project.getBackupDirectory ();
-        
+
         if (dir == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         if (keepCount < 1)
         {
-            
+
             return;
-            
+
         }
-        
+
         List<File> files = this.getBackupFiles (project);
-        
+
         if (files == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         if (files.size () > keepCount)
         {
-            
+
             files = files.subList (keepCount,
                                    files.size ());
-            
+
             // Delete the files.
             for (File f : files)
             {
-                
+
                 if (f.delete ())
                 {
-                
+
                     this.createActionLogEntry (project,
                                                "Pruned backup, file: " + f.getPath (),
                                                null,
                                                null);
 
                 }
-                
+
             }
-            
+
         }
-                
+
     }
-    
+
     public File createBackup (Project project,
                               int     keepCount)
                        throws Exception
     {
 
         File dir = project.getBackupDirectory ();
-        
+
         if (dir == null)
         {
-            
+
             return null;
-            
+
         }
-    
+
         dir.mkdirs ();
 
         // Indicate that this directory can be deleted.
         Utils.createQuollWriterDirFile (dir);
 
         File last = this.getLastBackupFile (project);
-        
+
         int ver = 0;
 
         if (last != null)
         {
-            
+
             // Split the filename, get the version.
             String n = last.getName ().substring (6,
                                                   last.getName ().length () - 4);
@@ -2959,7 +2960,7 @@ public class ObjectManager
         File f = new File (dir.getPath () + "/backup" + ver + ".zip");
 
         Connection conn = null;
-        
+
         try
         {
 
@@ -2967,9 +2968,9 @@ public class ObjectManager
 
             List params = new ArrayList ();
             params.add (f.getPath ());
-            
-            this.executeStatement ("BACKUP TO ?", 
-                                   params, 
+
+            this.executeStatement ("BACKUP TO ?",
+                                   params,
                                    conn);
 
             this.releaseConnection (conn);
@@ -2980,7 +2981,7 @@ public class ObjectManager
                                        null);
 
             // Test the backup?
-                                       
+
         } catch (Exception e)
         {
 
@@ -2989,18 +2990,18 @@ public class ObjectManager
                                  f,
                                  e);
 
-        } 
+        }
 
         this.pruneBackups (project,
                            keepCount);
-        
+
         return f;
 
     }
-    
+
     public void closeConnectionPool ()
     {
-    
+
         if (this.connectionPool != null)
         {
 
@@ -3012,7 +3013,7 @@ public class ObjectManager
 
             } catch (Exception e)
             {
-                
+
                 Environment.logError ("Unable to close pool",
                                       e);
 
@@ -3084,17 +3085,17 @@ public class ObjectManager
 
             try
             {
-        
+
                 this.throwException (conn,
                                      "Unable to save session word counts for project: " +
                                      this.project,
                                      e);
-                
+
             } catch (Exception ee) {
-                
+
                 Environment.logError ("Unable to save session word counts, see cause for details",
                                       ee);
-                
+
             }
 
         } finally
