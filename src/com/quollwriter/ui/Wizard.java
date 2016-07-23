@@ -36,84 +36,84 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
     private Header                  header = null;
     private JTextPane               helpText = null;
     protected E                     viewer = null;
-    
+
     public Wizard (E viewer)
     {
-        
+
         super (BoxLayout.Y_AXIS);
-        
+
         this.contentPanel = new Box (BoxLayout.Y_AXIS);
-        
+
         this.viewer = viewer;
-        
+
     }
 
     public int getContentPreferredHeight ()
     {
-        
+
         return 250;
-        
+
     }
-    
+
     public void addButtonListener (String         type,
                                    ActionListener l)
     {
-        
+
         if (NEXT_BUTTON_ID.equals (type))
         {
-            
+
             this.nextBut.addActionListener (l);
-            
+
         }
-        
+
         if (PREVIOUS_BUTTON_ID.equals (type))
         {
-            
+
             this.prevBut.addActionListener (l);
-            
+
         }
 
         if (CANCEL_BUTTON_ID.equals (type))
         {
-            
+
             this.cancelBut.addActionListener (l);
-            
+
         }
 
     }
-    
+
     public String getCurrentStage ()
     {
-        
+
         return this.currentStage;
-        
+
     }
-    
+
     public void resize ()
     {
-        
+
         UIUtils.resizeParent (this.getParent ());
-        
+
     }
-    
+
     public void init ()
     {
 
         if (this.inited)
         {
-            
+
             return;
-            
+
         }
-    
+
         final Wizard _this = this;
-    
+
         this.helpText = UIUtils.createHelpTextPane (this.viewer);
 
         this.helpText.setBorder (null);
-                                                    
+
         this.add (this.helpText);
-        this.add (Box.createVerticalStrut (10));        
+        this.add (Box.createVerticalStrut (10));
         this.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
         this.header = UIUtils.createHeader ("",
@@ -122,7 +122,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                                          null);
 
         this.header.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 2, 0));
-        
+
         this.header.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         this.add (Box.createVerticalStrut (10));
         this.add (this.header);
@@ -134,8 +134,8 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
         this.contentPanel.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                            this.getContentPreferredHeight ()));
 
-        this.add (Box.createVerticalStrut (10));        
-        
+        this.add (Box.createVerticalStrut (10));
+
         this.prevBut = new JButton ();
         this.prevBut.setText ("< Back");
         this.prevBut.setEnabled (false);
@@ -147,11 +147,11 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                 {
 
                     Map<String, WizardStep> _stages = _this.stages;
-                
+
                     WizardStep ws = null;
 
                     String prev = _this.getPreviousStage (_this.currentStage);
-                    
+
                     if (prev != null)
                     {
 
@@ -189,16 +189,16 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
                         if (_this.current.panel != null)
                         {
-                        
+
                             _this.contentPanel.remove (_this.current.panel);
-                            
+
                         }
 
                         _this.current = ws;
                         _this.currentStage = prev;
 
-                        _this.enableButtons ();
-                        
+                        _this.enableButtons (_this.currentStage);
+
                         _this.initUI ();
 
                     }
@@ -225,12 +225,12 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                     WizardStep ws = null;
 
                     String next = _this.getNextStage (_this.currentStage);
-                    
+
                     if (next != null)
                     {
 
-                        Map<String, WizardStep> _stages = _this.stages;                    
-                    
+                        Map<String, WizardStep> _stages = _this.stages;
+
                         ws = _stages.get (next);
 
                         if (ws == null)
@@ -270,16 +270,16 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
                         if (_this.current.panel != null)
                         {
-                            
+
                             _this.contentPanel.remove (_this.current.panel);
-                            
+
                         }
 
                         _this.current = ws;
                         _this.currentStage = next;
 
-                        _this.enableButtons ();
-                        
+                        _this.enableButtons (_this.currentStage);
+
                         _this.initUI ();
 
                     } else
@@ -291,7 +291,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                             _this.setVisible (false);
 
                             UIUtils.closePopupParent (_this.getParent ());
-                            
+
                             return;
 
                         }
@@ -316,9 +316,9 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                 _this.handleCancel ();
 
                 _this.setVisible (false);
-                
+
                 UIUtils.closePopupParent (_this.getParent ());
-                
+
             }
 
         };
@@ -337,8 +337,8 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
         bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         this.add (bp);
 
-        //this.add (Box.createVerticalStrut (5));        
-        
+        //this.add (Box.createVerticalStrut (5));
+
         String startStage = this.getStartStage ();
 
         // Get the stage.
@@ -351,26 +351,26 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
         this.initUI ();
 
-        this.enableButtons ();
+        this.enableButtons (this.currentStage);
 
         this.handleStageChange (null,
                                 this.currentStage);
 
         this.inited = true;
-                                
+
     }
 
     public void showStage (String stage)
     {
-        
+
         WizardStep ws = this.stages.get (stage);
-        
+
         if ((ws == null)
             ||
             (ws.alwaysRefreshPanel)
            )
-        {        
-        
+        {
+
             try
             {
 
@@ -388,7 +388,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
             this.stages.put (stage,
                              ws);
 
-        } 
+        }
 
         if (!this.handleStageChange (this.currentStage,
                                      stage))
@@ -397,23 +397,23 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
             return;
 
         }
-        
+
         if (this.current.panel != null)
         {
-        
+
             this.contentPanel.remove (this.current.panel);
-            
+
         }
 
         this.current = ws;
         this.currentStage = stage;
 
-        this.enableButtons ();
-        
+        this.enableButtons (this.currentStage);
+
         this.initUI ();
-                        
+
     }
-    
+
     public JButton[] getButtons ()
     {
 
@@ -470,15 +470,15 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
         if (this.current.panel != null)
         {
-        
+
             this.current.panel.setOpaque (false);
             this.current.panel.setAlignmentY (Component.TOP_ALIGNMENT);
             this.contentPanel.add (this.current.panel);
 
         }
-        
-        UIUtils.resizeParent (this.getParent ());        
-            
+
+        UIUtils.resizeParent (this.getParent ());
+
     }
 
     //public abstract int getMaximumContentHeight ();
@@ -497,30 +497,30 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
     public abstract void handleCancel ();
 
     public abstract String getFirstHelpText ();
-    
+
     public abstract WizardStep getStage (String stage);
-    
+
     public String getNextButtonLabel (String currStage)
     {
-        
+
         String next = this.getNextStage (currStage);
-        
+
         if (next == null)
         {
-            
+
             return "Finish";
-        
+
         }
-        
+
         return "Next >";
-        
+
     }
-    
-    protected void enableButtons ()
+
+    protected void enableButtons (String currentStage)
     {
 
-        String prev = this.getPreviousStage (this.currentStage);
-        String next = this.getNextStage (this.currentStage);
+        String prev = this.getPreviousStage (currentStage);
+        String next = this.getNextStage (currentStage);
 
         if (this.current != null)
         {
@@ -536,8 +536,8 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
             this.nextBut.setEnabled (true);
 
         }
-        
-        this.nextBut.setText (this.getNextButtonLabel (this.currentStage));
+
+        this.nextBut.setText (this.getNextButtonLabel (currentStage));
 
     }
 
