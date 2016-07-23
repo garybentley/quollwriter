@@ -1488,6 +1488,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         this.finder.setFindText (text);
 
+        this.finder.onShow ();
+
     }
 
     public boolean isMainSideBarName (String n)
