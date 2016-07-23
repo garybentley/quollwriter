@@ -77,6 +77,7 @@ import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.synonyms.*;
+import com.quollwriter.db.*;
 
 import com.quollwriter.text.*;
 
@@ -1195,6 +1196,50 @@ public class UIUtils
         }
 
         return root;
+
+    }
+
+    public static JRadioButton createRadioButton (String text)
+    {
+
+        return UIUtils.createRadioButton (text,
+                                          null);
+
+    }
+
+    public static JRadioButton createRadioButton (String         text,
+                                                  ActionListener onClick)
+    {
+
+        JRadioButton b = new JRadioButton ()
+        {
+
+            @Override
+            public void setText (String t)
+            {
+
+                super.setText (String.format ("<html>%s</html>",
+                                              Environment.replaceObjectNames (t)));
+
+            }
+
+        };
+
+        b.setText (text);
+        b.setBackground (null);
+        b.setOpaque (false);
+
+        if (onClick != null)
+        {
+
+            b.addActionListener (onClick);
+
+        }
+
+        b.setVerticalTextPosition (SwingConstants.TOP);
+        b.setVerticalAlignment (SwingConstants.TOP);
+
+        return b;
 
     }
 
@@ -8211,6 +8256,34 @@ public class UIUtils
 
     }
 
+    public static QPopup createPasswordInputPopup (final AbstractViewer  viewer,
+                                                   String                title,
+                                                   String                icon,
+                                                   String                message,
+                                                   String                confirmButtonLabel,
+                                                   String                cancelButtonLabel,
+                                                   String                initValue,
+                                                   final ValueValidator  validator,
+                                                   final ActionListener  onConfirm,
+                                                   final ActionListener  onCancel,
+                                                   Point                 showAt)
+    {
+
+        return UIUtils.createTextInputPopup (viewer,
+                                             title,
+                                             icon,
+                                             message,
+                                             UIUtils.createPasswordField (),
+                                             confirmButtonLabel,
+                                             cancelButtonLabel,
+                                             initValue,
+                                             validator,
+                                             onConfirm,
+                                             onCancel,
+                                             showAt);
+
+    }
+
     public static QPopup createTextInputPopup (final AbstractViewer  viewer,
                                                String                title,
                                                String                icon,
@@ -8222,6 +8295,35 @@ public class UIUtils
                                                final ActionListener  onConfirm,
                                                final ActionListener  onCancel,
                                                Point                 showAt)
+    {
+
+        return UIUtils.createTextInputPopup (viewer,
+                                             title,
+                                             icon,
+                                             message,
+                                             UIUtils.createTextField (),
+                                             confirmButtonLabel,
+                                             cancelButtonLabel,
+                                             initValue,
+                                             validator,
+                                             onConfirm,
+                                             onCancel,
+                                             showAt);
+
+    }
+
+    private static QPopup createTextInputPopup (final AbstractViewer  viewer,
+                                                String                title,
+                                                String                icon,
+                                                String                message,
+                                                JTextField            textField,
+                                                String                confirmButtonLabel,
+                                                String                cancelButtonLabel,
+                                                String                initValue,
+                                                final ValueValidator  validator,
+                                                final ActionListener  onConfirm,
+                                                final ActionListener  onCancel,
+                                                Point                 showAt)
     {
 
         final QPopup qp = UIUtils.createPopup (Environment.replaceObjectNames (title),
@@ -8250,7 +8352,7 @@ public class UIUtils
                                           5,
                                           0));
 
-        final JTextField text = UIUtils.createTextField ();
+        final JTextField text = textField;
 
         text.setMinimumSize (new Dimension (300,
                                             text.getPreferredSize ().height));
@@ -9048,9 +9150,10 @@ public class UIUtils
 
     }
 
-    public static void openProjectAndDoAction (ProjectInfo    proj,
-                                               ActionListener onOpen,
-                                               AbstractViewer parentViewer)
+    public static void askForPasswordForProject (final ProjectInfo            proj,
+                                                       ValueValidator<String> validator,
+                                                 final ActionListener         onProvided,
+                                                 final AbstractViewer         parentViewer)
     {
 
         AbstractProjectViewer pv = Environment.getProjectViewer (proj);
@@ -9061,49 +9164,86 @@ public class UIUtils
            )
         {
 
-            UIUtils.createTextInputPopup (parentViewer,
+            if (validator == null)
+            {
+
+                validator = new ValueValidator<String> ()
+                {
+
+                    public String isValid (String v)
+                    {
+
+                        if ((v == null)
+                            ||
+                            (v.trim ().equals (""))
+                           )
+                        {
+
+                            return "Please enter the password.";
+
+                        }
+
+                        ObjectManager om = null;
+
+                        try
+                        {
+
+                            om = Environment.getProjectObjectManager (proj,
+                                                                      v);
+
+                        } catch (Exception e) {
+
+                            if (ObjectManager.isDatabaseAlreadyInUseException (e))
+                            {
+
+                                return "Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
+
+                            }
+
+                            if (ObjectManager.isEncryptionException (e))
+                            {
+
+                                return "Password is not valid.";
+
+                            }
+
+                            Environment.logError ("Cant open project: " +
+                                                  proj,
+                                                  e);
+
+                            UIUtils.showErrorMessage (parentViewer,
+                                                      "Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
+
+                            return null;
+
+                        } finally {
+
+                            if (om != null)
+                            {
+
+                                om.closeConnectionPool ();
+
+                            }
+
+                        }
+
+                        return null;
+
+                    }
+
+                };
+
+            }
+
+            UIUtils.createPasswordInputPopup (parentViewer,
                                           "Password required",
                                           Constants.PROJECT_ICON_NAME,
-                                          String.format ("{Project} %s is encrypted, please enter the password to unlock it below.",
+                                          String.format ("{Project} <b>%s</b> is encrypted, please enter the password to unlock it below.",
                                                          proj.getName ()),
                                           "Open",
                                           Constants.CANCEL_BUTTON_LABEL_ID,
                                           null,
-                                          null,
-                                          onOpen,
-                                          null,
-                                          null);
-
-        } else {
-
-            onOpen.actionPerformed (new ActionEvent ("", 1, ""));
-
-        }
-
-    }
-
-    public static void askForPasswordForProject (final ProjectInfo    proj,
-                                                 final ActionListener onProvided,
-                                                 final AbstractViewer parentViewer)
-    {
-
-        AbstractProjectViewer pv = Environment.getProjectViewer (proj);
-
-        if ((pv == null)
-            &&
-            (proj.isEncrypted ())
-           )
-        {
-
-            UIUtils.createTextInputPopup (parentViewer,
-                                          "Password required",
-                                          Constants.PROJECT_ICON_NAME,
-                                          String.format ("{Project} %s is encrypted, please enter the password to unlock it below.",
-                                                         proj.getName ()),
-                                          "Open",
-                                          Constants.CANCEL_BUTTON_LABEL_ID,
-                                          null,
-                                          null,
+                                          validator,
                                           new ActionListener ()
                                           {
 
@@ -9111,7 +9251,7 @@ public class UIUtils
                                               public void actionPerformed (ActionEvent ev)
                                               {
 
-                                                  proj.setFilePassword ((String) ev.getSource ());
+                                                  proj.setFilePassword (ev.getActionCommand ());
 
                                                   if (onProvided != null)
                                                   {
