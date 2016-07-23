@@ -4089,6 +4089,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         Environment.incrStartupProgress ();
 
         // Get the project.
+
         try
         {
 
@@ -8017,18 +8018,35 @@ xxx
 
 	}
 
-	public void updateChapterCounts (Chapter c)
+	public void updateChapterCounts (final Chapter c)
 	{
 
-		String t = this.getCurrentChapterText (c);
+		final String t = this.getCurrentChapterText (c);
 
-		ChapterCounts cc = new ChapterCounts (t);
-
-        cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                 t);
+		final ChapterCounts cc = new ChapterCounts (t);
 
 		this.chapterCounts.put (c,
 								cc);
+
+        this.schedule (new TimerTask ()
+        {
+
+            @Override
+            public void run ()
+            {
+
+                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+
+                cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
+                                                                         t);
+
+            }
+
+        },
+        // Start in 2 seconds
+        2 * Constants.SEC_IN_MILLIS,
+        // Do it once.
+        0);
 
 	}
 
