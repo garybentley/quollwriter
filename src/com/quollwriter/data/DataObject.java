@@ -42,13 +42,13 @@ public abstract class DataObject
 
     // Just used in the maps above as a placeholder for the listeners.
     private static final Object listenerFillObj = new Object ();
-    
+
     public DataObject(String objType)
     {
 
         // We use a synchronized weak hash map here so that we don't have to worry about all the
         // references since they will be transient compared to the potential lifespan of the object.
-        
+
         // Where possible listeners should de-register as normal but this just ensure that objects
         // that don't have a controlled pre-defined lifecycle.
         this.listeners = Collections.synchronizedMap (new WeakHashMap ());
@@ -81,34 +81,34 @@ public abstract class DataObject
     @Override
     public String toString ()
     {
-                
-        return Environment.formatObjectToStringProperties (this);        
-        
+
+        return Environment.formatObjectToStringProperties (this);
+
     }
-    
+
     protected void addToStringProperties (Map<String, Object> props,
                                           String              name,
                                           Object              value)
     {
-        
+
         if (props.containsKey (name))
         {
-            
+
             throw new IllegalArgumentException ("Already have a toString property with name: " +
                                                 name +
                                                 ", props: " +
                                                 props);
-            
+
         }
-        
+
         props.put (name,
                    value);
-        
+
     }
-    
+
     public void fillToStringProperties (Map<String, Object> props)
     {
-        
+
         this.addToStringProperties (props,
                                     "objType",
                                     this.objType);
@@ -130,60 +130,63 @@ public abstract class DataObject
         this.addToStringProperties (props,
                                     "parent",
                                     this.parent);
-        
+
     }
-    
+
     public abstract DataObject getObjectForReference (ObjectReference r);
 
     public void setLatest (boolean v)
     {
-        
+
         this.latest = v;
-        
+
     }
-    
+
     public boolean isLatest ()
     {
-        
+
         return this.latest;
-        
+
     }
-    
+
     public void setVersion (String v)
     {
-        
+
         this.version = v;
-        
+
     }
-    
+
     public String getVersion ()
     {
-        
+
         return this.version;
-        
+
     }
-    
+
     public void setId (String id)
     {
-        
-        if (this.id != null)
+
+        if ((this.id != null)
+            &&
+            (id != null)
+           )
         {
-            
+
             throw new IllegalStateException ("Once the id for an object is set it cannot be set again.");
-            
+
         }
-        
+
         this.id = id;
-        
+
     }
-    
+
     public String getId ()
     {
-        
+
         return this.id;
-        
+
     }
-    
+
     public Date getDateCreated ()
     {
 
@@ -255,19 +258,19 @@ public abstract class DataObject
             return;
 
         }
-        
+
         Object o = new Object ();
-                
+
         Set<PropertyChangedListener> ls = null;
-                        
+
         // Get a copy of the current valid listeners.
         synchronized (this.listeners)
         {
-                            
+
             ls = new HashSet (this.listeners.keySet ());
-            
+
         }
-        
+
         PropertyChangedEvent ev = new PropertyChangedEvent (this,
                                                             type,
                                                             oldValue,
@@ -275,7 +278,7 @@ public abstract class DataObject
 
         for (PropertyChangedListener l : ls)
         {
-            
+
             l.propertyChanged (ev);
 
         }
@@ -303,7 +306,7 @@ public abstract class DataObject
      * {
      *
      *    public void propertyChanged (PropertyChangedEvent ev) {}
-     *       
+     *
      * });
      * </code>
      *
@@ -315,7 +318,7 @@ public abstract class DataObject
      * {
      *
      *    public void propertyChanged (PropertyChangedEvent ev) {}
-     *   
+     *
      * };
      * </code>
      *
@@ -341,11 +344,11 @@ public abstract class DataObject
 
     public DataObject getParent ()
     {
-        
+
         return this.parent;
-        
+
     }
-    
+
     public void setParent (DataObject d)
     {
 
@@ -353,9 +356,9 @@ public abstract class DataObject
         {
 
             this.parent = null;
-            
+
             //this.props.setParentProperties (null);
-        
+
             return;
 
         }
@@ -473,11 +476,11 @@ public abstract class DataObject
 
     public void removeProperty (String name)
     {
-        
+
         this.props.removeProperty (name);
-        
+
     }
-    
+
     public void setProperty (String  name,
                              boolean value)
                       throws IOException
