@@ -2715,6 +2715,61 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (15));
 
+        c = this.createHelpText ("When I do a find");
+        this.setAsMainItem (c);
+
+        box.add (c);
+
+        final JRadioButton eachChap = UIUtils.createRadioButton ("Expand all {chapters} to show all results");
+        final JRadioButton justChap = UIUtils.createRadioButton ("Just show the {chapter}");
+
+        boolean showEachChapResult = UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME);
+
+        eachChap.setSelected (showEachChapResult);
+        justChap.setSelected (!showEachChapResult);
+
+        ButtonGroup g = new ButtonGroup ();
+        g.add (eachChap);
+        g.add (justChap);
+
+        eachChap.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
+                                    true);
+
+            }
+
+        });
+
+        justChap.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
+                                    false);
+
+            }
+
+        });
+
+        c = this.createWrapper (eachChap);
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        c = this.createWrapper (justChap);
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        box.add (Box.createVerticalStrut (10));
+
         final JCheckBox playSound = new JCheckBox (UIUtils.formatForUser ("Play a typewriter sound when editing a {chapter}."));
 
         boolean playSoundEnabled = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);

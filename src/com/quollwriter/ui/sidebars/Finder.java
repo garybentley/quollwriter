@@ -40,99 +40,99 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     private JLabel noMatches = null;
     private String currentSearch = null;
     private Set<FindResultsBox> results = null;
-        
+
     public Finder (AbstractProjectViewer v)
     {
-        
+
         super (v);
-        
+
     }
 
     public void setText (String t)
     {
-        
+
         this.text.setText (t);
-        
+
         this.search ();
-        
+
     }
 
     public boolean canClose ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public String getTitle ()
     {
-        
+
         return TITLE_PREFIX + (this.currentSearch != null ? ": " + this.currentSearch : "");
-        
+
     }
-    
+
     public boolean removeOnClose ()
     {
-        
+
         return false;
-        
+
     }
-    
+
     @Override
     public void onHide ()
     {
-        
+
         this.clearHighlight ();
-        
+
     }
-    
+
     @Override
     public void onClose ()
     {
-        
+
         this.removeListeners ();
-        
+
     }
-    
+
     private void removeListeners ()
     {
-        
+
         // Remove the listeners.
         if (this.results != null)
         {
-            
+
             for (FindResultsBox b : this.results)
             {
-                
+
                 b.getTree ().removeTreeSelectionListener (this);
-                
+
             }
-            
-        }        
-        
+
+        }
+
     }
-    
+
     public String getIconType ()
     {
-        
+
         return Constants.FIND_ICON_NAME;
-        
+
     }
-    
+
     public List<JComponent> getHeaderControls ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     public JComponent getContent ()
     {
-        
+
         Box b = new Box (BoxLayout.Y_AXIS);
 
         final Finder _this = this;
-        
+
         this.text = UIUtils.createTextField ();
         this.text.setBorder (new CompoundBorder (UIUtils.createPadding (5, 10, 5, 10),
                                                  this.text.getBorder ()));
@@ -165,10 +165,10 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
                 // If enter was pressed then search, don't start the timer.
                 if (ev.getKeyCode () == KeyEvent.VK_ENTER)
                 {
-                    
+
                     _this.search ();
                     return;
-                    
+
                 }
 
                 this.searchT.start ();
@@ -193,95 +193,104 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
         this.noMatches = UIUtils.createInformationLabel ("No matches found.");
 
         this.noMatches.setVisible (false);
-        
+
         this.noMatches.setBorder (UIUtils.createPadding (5, 10, 0, 5));
-        
+
         b.add (this.noMatches);
-                                         
+
         b.add (this.wrapInScrollPane (this.content));
 
-        return b;        
-        
+        return b;
+
     }
-        
+
     public void init ()
                throws GeneralException
     {
 
         super.init ();
-                    
+
     }
 
     public void setFindText (String text)
     {
-        
+
         if (text != null)
         {
 
             if (text.trim ().length () == 0)
             {
-                
+
                 return;
-                
+
             }
-            
+
             this.text.setText (text);
-            
+
             this.search ();
-            
+
         }
-        
+
     }
-    
+
     @Override
     public void onShow ()
     {
-        
-        this.text.grabFocus ();        
-        
+
+        this.text.grabFocus ();
+
     }
-    
+
     private void search ()
     {
 
         this.removeListeners ();
-    
+
         this.content.removeAll ();
-    
+
         this.clearHighlight ();
 
         String t = this.text.getText ().trim ();
-        
+
         if (t.length () == 0)
         {
-            
+
             this.setTitle (this.getTitle ());
-            
+
             this.currentSearch = null;
-            
+
             return;
-            
+
         }
-        
+
         this.results = this.viewer.findText (t);
-        
+
+        boolean expandSearchResults = UserProperties.getAsBoolean (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME);
+
         for (FindResultsBox r : this.results)
         {
-            
+
             r.getTree ().addTreeSelectionListener (this);
-            
+
             r.init ();
-            
+
+            if (expandSearchResults)
+            {
+
+                r.exapndAllResultsInTree ();
+
+            }
+
             this.content.add (r);
-            
+
         }
 
         this.noMatches.setVisible (this.results.size () == 0);
-                
+
         this.currentSearch = t;
 
         this.setTitle (this.getTitle ());
-        
+
         this.validate ();
         this.repaint ();
 
@@ -290,47 +299,47 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     @Override
     public void valueChanged (TreeSelectionEvent ev)
     {
-        
+
         if (this.results == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         if (!ev.isAddedPath ())
         {
-            
+
             return;
-            
+
         }
-        
+
         for (FindResultsBox b : this.results)
         {
-            
+
             if (ev.getSource () == b.getTree ())
             {
-                
+
                 continue;
-                
+
             }
-            
+
             b.clearSelectedItemInTree ();
-            
+
         }
-                
+
     }
-    
+
     public void clearHighlight ()
     {
-        
+
         if (this.highlightedEditor != null)
         {
-            
+
             this.highlightedEditor.removeHighlight (this.highlightId);
 
         }
-        
+
     }
 /*
     public JButton[] getButtons ()
@@ -366,70 +375,70 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     {
 
         this.clearHighlight ();
-                
+
         if (o instanceof Chapter)
         {
-        
-            final Chapter c = (Chapter) o;        
 
-            final Finder _this = this;            
-                
+            final Chapter c = (Chapter) o;
+
+            final Finder _this = this;
+
             this.viewer.viewObject ((DataObject) o,
                                     new ActionListener ()
             {
 
                 public void actionPerformed (ActionEvent ev)
                 {
-            
+
                     AbstractEditorPanel p = null;
 
                     if (_this.viewer instanceof ProjectViewer)
                     {
-                    
+
                         ProjectViewer pv = (ProjectViewer) _this.viewer;
-                
+
                         p = pv.getEditorForChapter (c);
-                
+
                     }
-        
+
                     if (_this.viewer instanceof WarmupsViewer)
                     {
-                        
+
                         WarmupsViewer wv = (WarmupsViewer) _this.viewer;
-                        
+
                         p = wv.getEditorForWarmup (c);
-                        
+
                     }
-                        
+
                     try
                     {
-                        
+
                         p.scrollToPosition (s.getBeginIndex ());
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to scroll to: " + s.getBeginIndex (),
                                               e);
-                        
+
                         return;
-                        
+
                     }
 
                     final QTextEditor ed = p.getEditor ();
-                                
+
                     _this.highlightId = ed.addHighlight (s.getBeginIndex (),
                                                          s.getEndIndex (),
                                                          null,
                                                          true);
-            
+
                     _this.highlightedEditor = ed;
-                    
+
                 }
-                
+
             });
 
         }
-        
+
     }
 
 }

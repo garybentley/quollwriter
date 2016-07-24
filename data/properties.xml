@@ -590,4 +590,9 @@ This message will only be shown once during your current session using Quoll Wri
     <value>false</value>
   </property>
 
+  <property id="showEachChapterFindResult" type="boolean">
+    <description>When a find is performed should the chapter results be expanded to show all results.</description>
+    <value>false</value>
+  </property>
+
 </properties>

@@ -111,6 +111,8 @@ public class Constants
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
 
+    public static final String SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME = "showEachChapterFindResult";
+
     public static final String CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME = "closeProjectsWindowWhenProjectOpened";
 
     public static final String SHOW_PROJECTS_WINDOW_WHEN_NO_OPEN_PROJECTS_PROPERTY_NAME = "showProjectsWindowWhenNoOpenProjects";
