@@ -10121,6 +10121,17 @@ public class UIUtils
                                                     AbstractProjectViewer viewer)
     {
 
+        // If there is no key or null chapter then return.
+        if ((c == null)
+            ||
+            (c.getKey () == null)
+           )
+        {
+
+            return null;
+
+        }
+
         String lastEd = "";
 
         if (c.getLastModified () != null)
@@ -10216,10 +10227,19 @@ public class UIUtils
 
         ChapterCounts cc = viewer.getChapterCounts (c);
 
+        if (cc == null)
+        {
+
+            // Get the current text instead.
+            cc = new ChapterCounts (c.getChapterText ());
+
+        }
+
         text = StringUtils.replaceString (text,
                                           Constants.WORDS_TAG,
                                           String.format ("%s words",
                                                          Environment.formatNumber (cc.wordCount)));
+
         text = StringUtils.replaceString (text,
                                           Constants.LAST_EDITED_TAG,
                                           lastEd);
@@ -10285,12 +10305,34 @@ public class UIUtils
         }
 
         ReadabilityIndices ri = viewer.getReadabilityIndices (c);
+
+        if (ri == null)
+        {
+
+            ri = new ReadabilityIndices ();
+            ri.add (c.getChapterText ());
+
+        }
+
+        String GL = "N/A";
+        String RE = "N/A";
+        String GF = "N/A";
+
+        if (cc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
+        {
+
+            GL = Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ()));
+            RE = Environment.formatNumber (Math.round (ri.getFleschReadingEase ()));
+            GF = Environment.formatNumber (Math.round (ri.getGunningFogIndex ()));
+
+        }
+
         text = StringUtils.replaceString (text,
                                           Constants.READABILITY_TAG,
                                           String.format ("GL: %s, RE: %s, GF: %s",
-                                                         Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())),
-                                                         Environment.formatNumber (Math.round (ri.getFleschReadingEase ())),
-                                                         Environment.formatNumber (Math.round (ri.getGunningFogIndex ()))));
+                                                         GL,
+                                                         RE,
+                                                         GF));
 
          JEditorPane p = UIUtils.createHelpTextPane (text,
                                                      null);
