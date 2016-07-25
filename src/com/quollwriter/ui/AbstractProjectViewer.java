@@ -7739,6 +7739,13 @@ xxx
 
         java.util.Set<NamedObject> otherObjects = o.getOtherObjectsInLinks ();
 
+        if (this.dBMan == null)
+        {
+
+            throw new IllegalStateException ("No object manager available.");
+
+        }
+
         this.dBMan.saveObject (o,
                                null);
 
