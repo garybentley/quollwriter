@@ -1224,6 +1224,9 @@ public class ImportProject extends Wizard implements ImportCallback
 
                     _this.proj = p;
 
+                    _this.enableButton (NEXT_BUTTON_ID,
+                                        true);
+
                 }
 
             }
@@ -1519,6 +1522,14 @@ public class ImportProject extends Wizard implements ImportCallback
                                    false);
 
             }
+
+        }
+
+        if (SELECT_ITEMS_STAGE.equals (currentStage))
+        {
+
+            this.enableButton (NEXT_BUTTON_ID,
+                               false);
 
         }
 
