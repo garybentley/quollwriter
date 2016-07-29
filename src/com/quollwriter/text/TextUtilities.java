@@ -17,7 +17,8 @@ public class TextUtilities
     public static String DEFAULT_OPEN_Q = "\"";
     public static String DEFAULT_CLOSE_Q = "\"";
     public static String DEFAULT_APOS = "'";
-    
+    public static String DEFAULT_ELLIPSIS = "...";
+
     private static Map<String, Integer> wordSyllableCounts = null;
     private static Map<String, String>  contractionEnds = new HashMap ();
     private static Map<Character, Set<Character>> openCloseQs = new HashMap ();
@@ -38,7 +39,7 @@ public class TextUtilities
                "");
 
         m = TextUtilities.openCloseQs;
-        
+
         // Taken from: http://en.wikipedia.org/wiki/International_variation_in_quotation_marks
         // The assumption here is (perhaps erroneously) that any text will be language consistent
         // and that clashes (i.e. a closing quote will also be an opening quote) doesn't occur.
@@ -49,10 +50,10 @@ public class TextUtilities
         // "And I said, «Bonjour Monsieur»"
         // In theory it could happen but then you have a potential reader confusion problem and thus
         // outside of what QW can deal with anyway.
-        
+
         // Note: this only supports ltr/rtl writing, vertical text flow quotation marks aren't supported
         // since QW doesn't support it.
-        
+
         // The other issue here is that due to some of the language combinations AND the fact that QW
         // doesn't know what language the text is in (it could possibly try and detect it, maybe using cue or similar)
         // then user error in matching pairs of quotations can lead to problems.
@@ -61,27 +62,27 @@ public class TextUtilities
         // In this case "Hello Sir" would not appear to be speech, however this kind of user error cannot be
         // fixed and the problem finder could, in theory, actually point the user to the error.  The planned "text checker"
         // would be able to detect this kind of problem though due to unbalanced quotation marks.
-        
+
         // And sorry Lojban, you're on your own!
-        
+
         // \u201c
         TextUtilities.addToOpenQCloseQ ('\u201c', '\u201d');
-               
+
         // \u201d
         TextUtilities.addToOpenQCloseQ ('\u201d', '\u201d', '\u201e');
 
         // \u2018
         TextUtilities.addToOpenQCloseQ ('\u2018', '\u2019');
-               
+
         // \u201e
         TextUtilities.addToOpenQCloseQ ('\u201e', '\u201d');
-        
+
         // \u201a
         TextUtilities.addToOpenQCloseQ ('\u201a', '\u2019', '\u2018');
 
         // \u201e
         TextUtilities.addToOpenQCloseQ ('\u201e', '\u201c');
-               
+
         // \u00ab
         TextUtilities.addToOpenQCloseQ ('\u00ab', '\u00bb');
 
@@ -117,91 +118,91 @@ public class TextUtilities
 
         // '
         TextUtilities.addToOpenQCloseQ ('\'', '\'');
-        
+
         // "
         TextUtilities.addToOpenQCloseQ ('"', '"');
 
     }
-    
+
     private static void addToOpenQCloseQ (char    openQ,
                                           char... closeQs)
     {
-        
+
         Set<Character> s = new HashSet ();
-        
+
         for (int i = 0; i < closeQs.length; i++)
         {
-            
+
             s.add (closeQs[i]);
-            
+
         }
-        
+
         TextUtilities.openCloseQs.put (openQ,
                                        s);
-        
+
     }
-    
+
     public static boolean isCloseQForOpenQ (char      c,
                                             Character openQ)
     {
-        
+
         Set<Character> nc = TextUtilities.openCloseQs.get (openQ);
-        
+
         if (nc == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return nc.contains (c);
-        
+
     }
-    
+
     public static boolean isContractionEnd (String v)
     {
-                
+
         if (v == null)
         {
-            
-            return false;            
-                
+
+            return false;
+
         }
-        
+
         return TextUtilities.contractionEnds.containsKey (v.toLowerCase ());
-        
+
     }
-    
+
     public static boolean isOpenQ (Word w)
     {
-        
+
         if (w == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         if (!w.isPunctuation ())
         {
-            
+
             return false;
-            
+
         }
-        
+
         String t = w.getText ();
-        
+
         if (t.length () != 1)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return TextUtilities.isOpenQ (t.charAt (0));
-        
+
     }
-    
+
     public static boolean isOpenQ (char c)
     {
 
@@ -211,34 +212,34 @@ public class TextUtilities
 
     public static boolean isCloseQ (Word w)
     {
-        
+
         if (w == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         if (!w.isPunctuation ())
         {
-            
+
             return false;
-            
+
         }
-        
+
         String t = w.getText ();
-        
+
         if (t.length () != 1)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return TextUtilities.isCloseQ (t.charAt (0));
-        
+
     }
-    
+
     public static boolean isCloseQ (char c)
     {
 
@@ -252,63 +253,63 @@ public class TextUtilities
     public static List<Markup.MarkupItem> getParagraphMarkup (Paragraph para,
                                                               Markup    mu)
     {
-        
+
         // Get the markup from the start of the paragraph (all text) to the end of the text.
         List<Markup.MarkupItem> items = new ArrayList ();
-        
+
         //int end = -1;
-        
+
         int textStart = para.getAllTextStartOffset ();
         int textEnd = para.getAllTextEndOffset ();
-        
+
         for (Markup.MarkupItem it : mu.items)
         {
-            
+
             if (it.start >= textEnd)
             {
 
                 break;
-                
+
             }
 
             if (it.end >= textStart)
             {
-                
+
                 // This falls in this paragraph.
                 int start = it.start;
                 int end = it.end;
-                
+
                 if (start < textStart)
                 {
-                    
+
                     // It starts in a previous paragraph.
                     start = textStart;
-                    
-                    
+
+
                 }
-                
+
                 if (end > textEnd)
                 {
-                    
+
                     // It ends in another paragraph.
                     end = textEnd;
-                    
+
                 }
-                
+
                 items.add (mu.createItem (start - textStart,
                                           end - textStart,
                                           it.bold,
                                           it.italic,
                                           it.underline));
-                
+
             }
-                        
+
         }
-        
+
         return items;
-        
+
     }
-    
+
     public static boolean isWord (String w)
     {
 
@@ -356,58 +357,58 @@ public class TextUtilities
 
     public static int getSentenceCount (String text)
     {
-        
+
         return new TextIterator (text).getSentenceCount ();
-        
-    }    
-   
+
+    }
+
     public static int getWordCount (String l)
     {
-        
+
         return new TextIterator (l).getWordCount ();
-                
+
     }
-    
+
     public static String capitalize (String l)
     {
-        
+
         char[] chars = l.toCharArray ();
-        
+
         boolean lastWhiteSpace = false;
-        
+
         for (int i = 0; i < chars.length; i++)
         {
-                        
+
             if (Character.isWhitespace (chars[i]))
             {
-                
+
                 lastWhiteSpace = true;
-                
+
                 continue;
-                
+
             }
-        
+
             if (lastWhiteSpace)
             {
-                
+
                 // This char should be upper cased.
                 chars[i] = Character.toUpperCase (chars[i]);
-                
+
             }
-            
+
             lastWhiteSpace = false;
-            
+
         }
-        
+
         return new String (chars);
-        
+
     }
 
     public static List<Word> getAsWords (String l)
     {
 
         return new TextIterator (l).getWords ();
-    
+
     }
 
     public static int charCount (String l,
@@ -459,9 +460,9 @@ public class TextUtilities
     /*
     public static int getSyllableCount (String text)
     {
-        
+
         int c = 0;
-        
+
         List<String> words = TextUtilities.getAsWords (text);
 
         words = TextUtilities.stripPunctuation (words);
@@ -472,11 +473,11 @@ public class TextUtilities
             int cc = TextUtilities.getSyllableCountForWord (w);
 
             c += cc;
-            
+
         }
 
         return c;
-        
+
     }
     */
     /**
@@ -683,16 +684,16 @@ public class TextUtilities
      */
     public static String stripNonValidXMLCharacters (String in)
     {
-    
+
         StringBuilder out = new StringBuilder (); // Used to hold the output.
         char current; // Used to reference the current character.
-  
+
         if (in == null || ("".equals(in)))
         {
             return ""; // vacancy test.
-        
+
         }
-        
+
         for (int i = 0; i < in.length(); i++) {
             current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
             if ((current == 0x9) ||
@@ -703,25 +704,25 @@ public class TextUtilities
                 ((current >= 0x10000) && (current <= 0x10FFFF)))
                 out.append(current);
         }
-        
+
         return out.toString ();
-    
-    }       
+
+    }
 
     public static String sanitizeText (String t)
     {
-        
+
         if (t == null)
         {
-            
+
             return t;
-            
+
         }
 
         t = StringUtils.replaceString (t,
                                        String.valueOf ('\r'),
                                        "");
-        
+
         t = StringUtils.replaceString (t,
                                        String.valueOf ('\u201c'),
                                        DEFAULT_OPEN_Q);
@@ -731,77 +732,84 @@ public class TextUtilities
         t = StringUtils.replaceString (t,
                                        String.valueOf ('\u2019'),
                                        DEFAULT_APOS);
-        
+        t = StringUtils.replaceString (t,
+                                       String.valueOf ('\u2018'),
+                                       DEFAULT_APOS);
+        // Ellipsis
+        t = StringUtils.replaceString (t,
+                                       String.valueOf ('\u2026'),
+                                       DEFAULT_ELLIPSIS);
+
         return t.replaceAll ("[\\p{Cntrl}&&[^\r\n\t]]", "");
-        
+
     }
-    
+
     public static NavigableSet<Integer> find (List<Word> words,
                                               List<Word> findWords,
                                               boolean    ignoreCase)
     {
 
         List<String> _words = new ArrayList ();
-        
+
         for (Word w : words)
         {
-            
+
             _words.add ((ignoreCase ? w.getText ().toLowerCase () : w.getText ()));
-            
+
         }
-    
+
         List<String> _findWords = new ArrayList ();
-        
+
         for (Word w : findWords)
         {
-            
+
             _findWords.add ((ignoreCase ? w.getText ().toLowerCase () : w.getText ()));
-            
+
         }
 
         int fws = _findWords.size ();
         int c = 0;
-        
+
         NavigableSet<Integer> ret = new TreeSet ();
 
         while (true)
         {
-            
+
             int ind = Collections.indexOfSubList (_words,
                                                   _findWords);
-            
+
             if (ind > -1)
             {
-                
+
                 c += ind;
-                
+
                 ret.add (c);
-                
+
                 int next = ind + fws;
-                
+
                 c+= fws;
-                
+
                 if (next < _words.size ())
                 {
-                
+
                     _words = _words.subList (next,
                                              _words.size ());
-                
+
                 } else {
-                    
+
                     break;
-                    
+
                 }
-                
+
             } else {
-                
+
                 break;
-                
+
             }
-            
+
         }
-        
+
         return ret;
-                
+
     }
 }
