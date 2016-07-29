@@ -1,5 +1,16 @@
 <whatsnew>
 
+    <version id="2.5.2">
+      <item>
+        <title>Improved {chapter} previews</title>
+        <description><![CDATA[The popup displayed when you hold your mouse over a {chapter} in the {chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href="help:">for more details</a>.<br /><br /><a href="action:options.look">Click here to change what is displayed.</a>]]></description>
+      </item>
+      <item>
+        <title>Importing from your other {projects}</title>
+        <description><![CDATA[You can now import {characters}, {chapters} from other {projects} into your {project}.  So if you are writing a series you can bring your old {characters} into your new book.<br /><br /><a href="action:import">Click here to import now.</a>]]></description>
+      </item>
+    </version>
+
   <version id="2.5.1">
     <item onlyIfCurrentVersion="true">
       <title>Bug squashing</title>
