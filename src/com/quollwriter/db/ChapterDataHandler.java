@@ -47,7 +47,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
     {
 
         Connection conn = null;
-    
+
         try
         {
 
@@ -82,9 +82,9 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
 
     }
@@ -97,7 +97,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         Set<Issue> ret = new HashSet (); //new TreeSet (new IssueSorter ());
 
         Connection conn = null;
-        
+
         try
         {
 
@@ -131,14 +131,14 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
                 // Legacy, pre v2.3
                 String issueId = rs.getString (ind++);
-                
+
                 if (issueId == null)
                 {
-                    
+
                     issueId = startPos + "";
-                    
+
                 }
-                
+
                 Issue iss = new Issue (null,
                                        wordPos,
                                        -1,
@@ -150,9 +150,9 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 ret.add (iss);
 
             }
-            
+
             return ret;
-            
+
         } catch (Exception e)
         {
 
@@ -162,9 +162,9 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
 
         return null;
@@ -191,26 +191,26 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             c.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
             c.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
-                                                    
+
             c.setLastModified (rs.getTimestamp (ind++));
             c.setDateCreated (rs.getTimestamp (ind++));
             c.setPropertiesAsString (rs.getString (ind++));
-            
+
             String t = rs.getString (ind++);
-            
+
             c.setText (new StringWithMarkup (t,
                                              rs.getString (ind++)));
-            
+
             c.setGoals (new StringWithMarkup (rs.getString (ind++),
                                               rs.getString (ind++)));
-                        
+
             c.setPlan (new StringWithMarkup (rs.getString (ind++),
                                              rs.getString (ind++)));
             c.setEditPosition (rs.getInt (ind++));
             c.setEditComplete (rs.getBoolean (ind++));
             c.setId (rs.getString (ind++));
             c.setVersion (rs.getString (ind++));
-            
+
             if (book != null)
             {
 
@@ -220,26 +220,26 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             }
             /*
             long pvkey = rs.getInt (ind++);
-            
+
             if (pvkey > 0)
             {
-            
+
                 ProjectVersion pv = (ProjectVersion) this.objectManager.getObjectByKey (ProjectVersion.class,
                                                                    bookKey,
                                                                    rs.getStatement ().getConnection (),
                                                                    false);
-                
+
                 c.setProjectVersion (pv);
-                
+
             }
             */
             c.setLatest (rs.getBoolean (ind++));
-            
+
             if (loadChildObjects)
             {
-                
+
                 Connection conn = rs.getStatement ().getConnection ();
-                
+
                 this.objectManager.getObjects (Scene.class,
                                                c,
                                                conn,
@@ -248,14 +248,14 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 // Get all the notes.
                 this.objectManager.loadNotes (c,
                                               conn);
-                    
+
                 this.objectManager.getObjects (OutlineItem.class,
                                                c,
                                                conn,
                                                loadChildObjects);
-                
+
             }
-            
+
             return c;
 
         } catch (Exception e)
@@ -275,130 +275,130 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                         throws GeneralException
     {
 
-        Set<Chapter> ret = new LinkedHashSet ();        
-        
+        Set<Chapter> ret = new LinkedHashSet ();
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
 
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
 
         try
         {
-        
+
             List params = new ArrayList ();
             params.add (pv.getKey ());
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE projectversiondbkey = ? ORDER BY index",
                                                             params,
                                                             conn);
-        
+
             while (rs.next ())
             {
-                
+
                 ret.add (this.getChapter (rs,
                                           parent,
                                           loadChildObjects));
-        
+
             }
 
             rs.close ();
 
             return ret;
-            
+
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (conn,
                                                "Unable to get chapters with version: " +
                                                pv.getKey (),
                                                e);
-            
+
         } finally {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
-            }            
-            
+
+            }
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public Set<Chapter> getVersionedChapters (Collection<Chapter> chaps)
                                         throws Exception
     {
-                
+
         List params = new ArrayList ();
-        
+
         StringBuilder b = new StringBuilder ();
-        
+
         for (Chapter c : chaps)
         {
-            
+
             if (b.length () > 0)
             {
-                
+
                 b.append (" OR ");
-                
+
             }
-            
+
             b.append ("(id = ? AND version = ?)");
-            
+
             params.add (c.getId ());
             params.add (c.getVersion ());
-            
+
         }
-        
-        Set<Chapter> ret = new LinkedHashSet ();        
-        
+
+        Set<Chapter> ret = new LinkedHashSet ();
+
         Connection conn = null;
-        
+
         try
         {
 
             conn = this.objectManager.getConnection ();
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE " + b + " ORDER BY index",
                                                             params,
                                                             conn);
-        
+
             while (rs.next ())
             {
-                
+
                 ret.add (this.getChapter (rs,
                                           null,
                                           false));
-        
+
             }
 
             return ret;
-            
+
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (conn,
                                                "Unable to get versioned chapters for: " +
                                                chaps,
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
 
         return null;
-        
+
     }
-    
+
     @Override
     public List<Chapter> getObjects (Book        book,
                                      Connection  conn,
@@ -407,49 +407,49 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
     {
 
         ProjectVersion pv = book.getProject ().getProjectVersion ();
-        
+
         if ((pv != null)
             &&
             (!pv.isLatest ())
            )
         {
-            
+
             // Get the chapters at the specific version.
             return new ArrayList<Chapter> (this.getChaptersForVersion (pv,
                                                                        book,
                                                                        conn,
                                                                        loadChildObjects));
-            
+
         }
-        
+
         try
         {
-        
+
             List<Chapter> ret = new ArrayList ();
-            
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE latest = TRUE ORDER BY index",
                                                             null,
                                                             conn);
-        
+
             while (rs.next ())
             {
-                
+
                 ret.add (this.getChapter (rs,
                                           book,
                                           loadChildObjects));
-        
+
             }
-    
+
             rs.close ();
-    
+
             return ret;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get latest chapters for book: " +
                                         book,
                                         e);
-            
+
         }
 
     }
@@ -463,33 +463,33 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         try
         {
-    
+
             List params = new ArrayList ();
             params.add (key);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + "WHERE dbkey = ?",
                                                             params,
                                                             conn);
-        
+
             if (rs.next ())
             {
-                
+
                 return this.getChapter (rs,
                                         book,
                                         loadChildObjects);
-        
+
             }
-                
+
             return null;
-        
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to get chapter with key: " +
                                         key,
                                         e);
-            
+
         }
-        
+
     }
 
     // TODO: Pass in a list of pre-calculated ChapterCounts.
@@ -556,17 +556,17 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
             try
             {
-        
+
                 this.objectManager.throwException (conn,
                                                    "Unable to save session word counts for project: " +
                                                    project,
                                                    e);
-                
+
             } catch (Exception ee) {
-                
+
                 Environment.logError ("Unable to save session word counts, see cause for details",
                                       ee);
-                
+
             }
 
         } finally
@@ -576,15 +576,15 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         }
 
-    }    
-    
+    }
+
     public List<WordCount> getWordCounts (Chapter ch,
                                           int     daysPast)
                                    throws GeneralException
     {
 
         Connection conn = null;
-    
+
         try
         {
 
@@ -636,11 +636,11 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
 
     }
@@ -654,64 +654,70 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         List params = new ArrayList ();
         params.add (c.getKey ());
         params.add (c.getBook ().getKey ());
-        
+
         StringWithMarkup d = c.getText ();
-        
+
         String t = null;
         String m = null;
-        
+
         if (d != null)
         {
-            
+
             t = d.getText ();
             m = (d.getMarkup () != null ? d.getMarkup ().toString () : null);
-            
+
         }
-        
+
         params.add (t);
-        params.add (m);        
+        params.add (m);
         params.add (c.getBook ().getChapterIndex (c));
-                
+
+        t = null;
+        m = null;
+
         StringWithMarkup g = c.getGoals ();
-        
+
         if (g != null)
         {
-            
+
             t = g.getText ();
             m = (g.getMarkup () != null ? g.getMarkup ().toString () : null);
-            
+
         }
-        
+
         params.add (t);
         params.add (m);
+
+        t = null;
+        m = null;
 
         StringWithMarkup p = c.getPlan ();
-        
+
         if (p != null)
         {
-            
+
             t = p.getText ();
             m = (p.getMarkup () != null ? p.getMarkup ().toString () : null);
-            
+
         }
 
         params.add (t);
         params.add (m);
-        
+
         params.add (c.getEditPosition ());
         params.add (c.isEditComplete ());
 
         if (c.getProjectVersion () != null)
         {
-            
+
             params.add (c.getProjectVersion ().getKey ());
-            
+
         } else {
-            
+
             params.add (null);
-            
+
         }
-      
+
         this.objectManager.executeStatement ("INSERT INTO chapter (dbkey, bookdbkey, text, markup, index, goals, goalsmarkup, plan, planmarkup, editposition, editcomplete, projectversiondbkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);
@@ -746,39 +752,39 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         if (pv == null)
         {
-            
+
             throw new GeneralException ("Expected a project version");
-            
+
         }
-        
+
         Set<Chapter> newChapters = new LinkedHashSet ();
-    
+
         Connection conn = null;
-        
+
         try
         {
 
             conn = this.objectManager.getConnection ();
-            
+
             if (pv.getKey () == null)
             {
-                
+
                 this.objectManager.saveObject (pv,
                                                conn);
-                
+
             }
-            
+
             for (Chapter c : chapters)
             {
-                                
+
                 newChapters.add (this.snapshot (c,
                                                 pv,
                                                 conn));
-                
+
             }
-            
+
             return newChapters;
-            
+
         } catch (Exception e)
         {
 
@@ -787,57 +793,57 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public Chapter getChapterById (String     id,
                                    Connection conn)
                             throws GeneralException
     {
-        
+
         if (id == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
-            
+
             closeConn = true;
-            
+
         }
-        
+
         try
         {
-        
+
             List params = new ArrayList ();
             params.add (id);
-        
+
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE id = ?",
                                                             params,
                                                             conn);
-        
+
             if (rs.next ())
             {
-                
+
                 return this.getChapter (rs,
                                         null,
                                         false);
-        
+
             }
-            
+
         } catch (Exception e)
         {
 
@@ -847,29 +853,29 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                e);
 
         } finally {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
-            
+
         }
-        
+
         return null;
-                
+
     }
-    
+
     public Set<Chapter> updateToNewVersions (ProjectVersion      pv,
                                              Collection<Chapter> chapters)
                                       throws GeneralException
     {
-        
+
         Set<Chapter> newChapters = new LinkedHashSet ();
-    
+
         Connection conn = null;
-        
+
         try
         {
 
@@ -877,12 +883,12 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
             if (pv != null)
             {
-            
+
                 this.objectManager.saveObject (pv,
                                                conn);
 
             }
-            
+
             // Need to set all existing chapters to be not the latest.
             List params = new ArrayList ();
             params.add (Chapter.OBJECT_TYPE);
@@ -890,32 +896,32 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             this.objectManager.executeStatement ("UPDATE dataobject SET latest = FALSE WHERE objecttype = ? AND dbkey IN (SELECT dbkey FROM chapter)",
                                                  params,
                                                  conn);
-            
+
             final List<Chapter> chaps = new ArrayList (chapters);
-            
+
             // TODO: Handle multiple books.  This is "ok" for now, i.e. assume a single book.
             Book b = this.objectManager.getProject ().getBook (0);
-                        
+
             for (Chapter c : chaps)
             {
-            
+
                 Chapter oc = this.getChapterById (c.getId (),
                                                   conn);
-            
+
                 if (oc != null)
                 {
-            
+
                     c.setProjectVersion (pv);
                     c.setBook (b);
-                                
+
                     newChapters.add (this.updateToNewVersion (c,
                                                               conn));
-                    
+
                 } else {
-                    
+
                     // Create an entirely new chapter.
                     Chapter newc = new Chapter ();
-            
+
                     newc.setBook (b);
                     newc.setName (c.getName ());
                     newc.setDescription (c.getDescription ());
@@ -926,18 +932,18 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                     newc.setGoals (c.getGoals ());
                     newc.setLatest (true);
                     newc.setProjectVersion (pv);
-                    
+
                     this.objectManager.saveObject (newc,
                                                    conn);
-                    
+
                     newChapters.add (newc);
-                    
+
                 }
-                
+
             }
-            
+
             return newChapters;
-            
+
         } catch (Exception e)
         {
 
@@ -946,15 +952,15 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
-        }        
+
+        }
 
         return null;
-        
+
     }
-    
+
     /**
      * Updates an existing chapter (<b>oldVer</b>) to a new version given the information in <b>newVer</b>.
      * The id and version of the chapter are taken from <b>newVer</b> but a new key is assigned thus creating a new object.
@@ -968,27 +974,27 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
      */
     public Chapter updateToNewVersion (final Chapter    newVer,
                                        final Connection conn)
-                                throws GeneralException    
+                                throws GeneralException
     {
-        
+
         if (conn == null)
         {
-            
+
             throw new IllegalArgumentException ("No connection provided.");
-            
+
         }
-        
+
         Chapter oldVer = this.getChapterById (newVer.getId (),
                                               conn);
-        
+
         if (oldVer == null)
         {
-            
+
             throw new GeneralException ("Unable to find existing chapter with id: " +
                                         newVer.getId ());
-            
+
         }
-                
+
         Chapter newc = new Chapter ();
 
         newc.setBook (newVer.getBook ());
@@ -1001,7 +1007,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         newc.setGoals (newVer.getGoals ());
         newc.setProjectVersion (newVer.getProjectVersion ());
         newc.setLatest (true);
-        
+
         this.objectManager.saveObject (newc,
                                        conn);
 
@@ -1009,47 +1015,47 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         ((NoteDataHandler) this.objectManager.getHandler (Note.class)).setObjectNotesToLatest (oldVer,
                                                                                                false,
                                                                                                conn);
-                                       
+
         this.objectManager.setLatestVersion (oldVer,
                                              false,
                                              conn);
-                                       
+
         this.objectManager.setLatestVersion (newc,
                                              true,
                                              conn);
-                                               
+
         return newc;
-        
-        
+
+
     }
-    
+
     public Chapter snapshot (final Chapter        c,
                              final ProjectVersion pv,
                                    Connection     conn)
                       throws GeneralException
     {
-        
+
         if (conn == null)
         {
-            
+
             throw new IllegalArgumentException ("No connection provided.");
-            
+
         }
-        
+
         Book b = new Book ()
         {
-            
+
             public int getChapterIndex (Chapter chap)
             {
-                
+
                 return c.getBook ().getChapterIndex (c);
-                
+
             }
-            
+
         };
-        
+
         b.setKey (c.getBook ().getKey ());
-        
+
         Chapter newc = new Chapter ();
         newc.setBook (b);
         newc.setName (c.getName ());
@@ -1062,18 +1068,18 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
         newc.setEditComplete (c.isEditComplete ());
         newc.setLatest (false);
         newc.setProjectVersion (pv);
-        
+
         this.objectManager.saveObject (newc,
                                        conn);
 
         this.objectManager.setLatestVersion (newc,
                                              false,
                                              conn);
-                                               
+
         return newc;
-        
+
     }
-    
+
     @Override
     public void deleteObject (Chapter    c,
                               // Always ignored here.
@@ -1084,7 +1090,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         if (!c.isLatest ())
         {
-            
+
             List params = new ArrayList ();
             params.add (c.getKey ());
 
@@ -1092,41 +1098,41 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                                  params,
                                                  conn);
 
-            return; 
-            
+            return;
+
         }
-        
+
         List params = new ArrayList ();
         params.add (c.getId ());
-            
+
         try
         {
-    
+
             // Delete any "other" versions.
             ResultSet rs = this.objectManager.executeQuery (STD_SELECT_PREFIX + " WHERE id = ? AND latest = FALSE",
                                                             params,
                                                             conn);
-    
+
             while (rs.next ())
             {
-                
+
                 this.objectManager.deleteObject (this.getChapter (rs,
                                                                   null,
                                                                   false),
                                                  true,
                                                  conn);
-        
+
             }
 
             rs.close ();
-            
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to delete versioned chapters",
                                         e);
-            
+
         }
-                
+
         // Delete the outline items.
         for (OutlineItem i : c.getOutlineItems ())
         {
@@ -1177,44 +1183,50 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
     {
 
         StringWithMarkup d = c.getText ();
-        
+
         String t = null;
         String m = null;
-        
+
         if (d != null)
         {
-            
+
             t = d.getText ();
             m = (d.getMarkup () != null ? d.getMarkup ().toString () : null);
-            
+
         }
-    
+
         List params = new ArrayList ();
         params.add (t);
-        params.add (m);        
+        params.add (m);
         params.add (c.getBook ().getChapterIndex (c));
-        
+
+        t = null;
+        m = null;
+
         StringWithMarkup g = c.getGoals ();
-        
+
         if (g != null)
         {
-            
+
             t = g.getText ();
             m = (g.getMarkup () != null ? g.getMarkup ().toString () : null);
-            
+
         }
-        
+
         params.add (t);
         params.add (m);
-        
+
+        t = null;
+        m = null;
+
         StringWithMarkup p = c.getPlan ();
-        
+
         if (p != null)
         {
-            
+
             t = p.getText ();
             m = (p.getMarkup () != null ? p.getMarkup ().toString () : null);
-            
+
         }
 
         params.add (t);
