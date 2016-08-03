@@ -4298,6 +4298,7 @@ public class Options extends Box
                                             Constants.DEFAULT_CHAPTER_INFO_PREVIEW_FORMAT));
 
         final Chapter _bogus = new Chapter ();
+        _bogus.setKey (1L);
         _bogus.setDescription (new StringWithMarkup ("This chapter will be really, really good once I actually start to write it."));
         _bogus.setText (new StringWithMarkup ("Once upon a time there was a little chapter that wanted to be written."));
 

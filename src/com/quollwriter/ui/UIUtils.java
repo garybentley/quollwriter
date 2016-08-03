@@ -4772,7 +4772,7 @@ public class UIUtils
         desc.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
         desc.setSize (new Dimension (500,
-                                     500));
+                                     Short.MAX_VALUE));
 
         desc.setText (text);
 
@@ -10336,9 +10336,10 @@ public class UIUtils
 
          JEditorPane p = UIUtils.createHelpTextPane (text,
                                                      null);
-
+/*
          p.setSize (new Dimension (380,
-                                   500));
+                                   0));
+                                   */
          p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return p;

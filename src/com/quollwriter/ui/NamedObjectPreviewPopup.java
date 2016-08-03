@@ -38,7 +38,7 @@ public class NamedObjectPreviewPopup extends Box
 
         //this.setOpaque (false);
 
-        this.setMaximumSize (new Dimension (380, Short.MAX_VALUE));
+        //this.setMaximumSize (new Dimension (380, Short.MAX_VALUE));
 
         this.setOpaque (true);
         this.setBackground (UIUtils.getComponentColor ());
@@ -225,9 +225,14 @@ public class NamedObjectPreviewPopup extends Box
 
             Chapter c = (Chapter) obj;
 
-            content.add (UIUtils.getChapterInfoPreview (c,
+            JComponent t = UIUtils.getChapterInfoPreview (c,
                                                         null,
-                                                        this.viewer));
+                                                        this.viewer);
+
+            t.setSize (new Dimension (300,
+                                         Short.MAX_VALUE));
+
+            content.add (t);
 
         } else {
 
@@ -271,6 +276,10 @@ public class NamedObjectPreviewPopup extends Box
             content.add (p);
 
         }
+
+        // For some reason we need to set the size manually.
+        content.setPreferredSize (new Dimension (310,
+                                                 content.getPreferredSize ().height));
 
         this.viewer.showPopupAt (this,
                                  showAt,
