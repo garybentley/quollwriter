@@ -3,7 +3,7 @@
     <version id="2.5.2">
       <item>
         <title>Improved {chapter} previews</title>
-        <description><![CDATA[The popup displayed when you hold your mouse over a {chapter} in the {chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href="help:">for more details</a>.<br /><br /><a href="action:options.look">Click here to change what is displayed.</a>]]></description>
+        <description><![CDATA[The popup displayed when you hold your mouse over a {chapter} in the {chapter} list has been improved and can be configured to display a variety of information.<br /><br />See <a href="help:chapters/overview">for more details</a>.<br /><br /><a href="action:options.look">Click here to change what is displayed.</a>]]></description>
       </item>
       <item>
         <title>Importing from your other {projects}</title>
