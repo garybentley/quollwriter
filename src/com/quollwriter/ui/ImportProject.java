@@ -1525,7 +1525,10 @@ public class ImportProject extends Wizard implements ImportCallback
 
         }
 
-        if (SELECT_ITEMS_STAGE.equals (currentStage))
+        if ((SELECT_ITEMS_STAGE.equals (currentStage))
+            &&
+            (this.proj == null)
+           )
         {
 
             this.enableButton (NEXT_BUTTON_ID,
