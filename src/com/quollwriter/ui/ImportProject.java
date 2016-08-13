@@ -78,7 +78,7 @@ public class ImportProject extends Wizard implements ImportCallback
         {
 
             this.pv = pv;
-            this.proj = pv.getProject ();
+            //this.proj = pv.getProject ();
 
         }
 
@@ -967,10 +967,10 @@ public class ImportProject extends Wizard implements ImportCallback
 
             String def = null;
 
-            if (this.proj != null)
+            if (this.pv != null)
             {
 
-                def = this.proj.getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
+                def = this.pv.getProject ().getProperty (Constants.EXPORT_DIRECTORY_PROPERTY_NAME);
 
             }
 
