@@ -260,6 +260,19 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
                         }
 
+                        if (ws == null)
+                        {
+
+                            Environment.logError ("Unable to get stage view component for: " +
+                                                  next);
+
+                            UIUtils.showErrorMessage (this,
+                                                      "Unable to show next stage.");
+
+                            return;
+
+                        }
+
                         if (!_this.handleStageChange (_this.currentStage,
                                                       next))
                         {
