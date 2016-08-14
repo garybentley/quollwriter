@@ -703,6 +703,13 @@ public class ImportProject extends Wizard implements ImportCallback
         if (SELECT_ITEMS_STAGE.equals (newStage))
         {
 
+            if (this.importFromProject.isSelected ())
+            {
+
+                return true;
+
+            }
+
             if (!SELECT_PROJECT_STAGE.equals (oldStage))
             {
 
@@ -1043,6 +1050,60 @@ public class ImportProject extends Wizard implements ImportCallback
             this.importFromFile.setSelected (false);
             this.importFromProject.setSelected (false);
 
+            this.importFromFile.addActionListener (new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.proj = null;
+
+                    if (_this.itemsTree != null)
+                    {
+
+                        _this.itemsTree.setModel (null);
+
+                    }
+
+                    if (_this.projectList != null)
+                    {
+
+                        _this.projectList.clearSelection ();
+
+                    }
+
+                }
+
+            });
+
+            this.importFromProject.addActionListener (new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.proj = null;
+
+                    if (_this.itemsTree != null)
+                    {
+
+                        _this.itemsTree.setModel (null);
+
+                    }
+
+                    if (_this.projectList != null)
+                    {
+
+                        _this.projectList.clearSelection ();
+
+                    }
+
+                }
+
+            });
+
             ButtonGroup g = new ButtonGroup ();
             g.add (this.importFromFile);
             g.add (this.importFromProject);
@@ -1097,7 +1158,12 @@ public class ImportProject extends Wizard implements ImportCallback
 
             }
 
-            projs.remove (Environment.getProjectInfo (this.pv.getProject ()));
+            if (this.pv != null)
+            {
+
+                projs.remove (Environment.getProjectInfo (this.pv.getProject ()));
+
+            }
 
             Collections.sort (projs,
                               new ProjectInfoSorter ());
