@@ -72,6 +72,7 @@ public class FirstUseWizard extends PopupWizard
 
         this.fileFindError = UIUtils.createErrorLabel ("Please select a file to import.");
         this.fileFind = new FileFinder ();
+        this.fileFind.setFileFilter (ImportProject.fileFilter);
         this.fileFind.setClearOnCancel (true);
         this.fileFind.showCancel (true,
                                   new ActionListener ()
