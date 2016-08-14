@@ -1151,7 +1151,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			im.setFile (f);
 			im.setNewProjectOnly (true);
 
-			QPopup popup = UIUtils.createWizardPopup ("Import a File",
+			QPopup popup = UIUtils.createWizardPopup ("Import a File or {Project}",
 													  Constants.PROJECT_IMPORT_ICON_NAME,
 													  null,
 													  im);
@@ -3327,7 +3327,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-        popup.add (this.createMenuItem ("Import File",
+        popup.add (this.createMenuItem ("Import File/{Project}",
                                              Constants.PROJECT_IMPORT_ICON_NAME,
                                              new ActionAdapter ()
                                              {
