@@ -35,7 +35,11 @@ import com.quollwriter.ui.components.*;
 
 import org.jdom.*;
 
-
+/**
+ * @Deprecated
+ * Has been superceeded by the QuollWriterUpdater interface mechanism.
+ * Will be removed in a future version.
+ */
 public class GetLatestVersion implements Runnable
 {
 
@@ -63,7 +67,7 @@ public class GetLatestVersion implements Runnable
         this.progressBar = new JProgressBar ();
 
         this.progressBar.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         int ind = 0;
 
         this.version = version;
@@ -71,7 +75,7 @@ public class GetLatestVersion implements Runnable
         this.digest = com.quollwriter.Base64.decode (digest);
 
         this.size = size;
-        
+
         Box c = new Box (BoxLayout.Y_AXIS);
 
         this.help = UIUtils.createHelpTextPane (String.format ("Downloading upgrade file for new version: <b>%s</b>",
@@ -82,27 +86,27 @@ public class GetLatestVersion implements Runnable
         this.help.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                  Short.MAX_VALUE));
         this.help.setBorder (null);
-        
+
         c.add (this.help);
-        
+
         c.add (Box.createVerticalStrut (5));
 
         Box pb = new Box (BoxLayout.X_AXIS);
-        
+
         pb.setAlignmentX (Component.LEFT_ALIGNMENT);
         pb.add (this.progressBar);
-        
+
         pb.add (Box.createHorizontalStrut (5));
-                
+
         this.progressBar.setPreferredSize (new Dimension (500,
                                                           20));
         this.progressBar.setMaximumSize (new Dimension (500,
                                                         20));
-                
+
         this.cancel = new JButton ("Cancel");
 
         pb.add (this.cancel);
-        
+
         pb.add (Box.createHorizontalGlue ());
 
         this.cancel.addActionListener (new ActionAdapter ()
@@ -112,36 +116,36 @@ public class GetLatestVersion implements Runnable
             {
 
                 _this.stop = true;
-            
+
                 _this.notification.removeNotification ();
 
             }
 
         });
-        
-        c.add (pb);        
-        
+
+        c.add (pb);
+
         this.notification = viewer.addNotification (c,
                                                     Constants.DOWNLOAD_ICON_NAME,
                                                     -1);
-        
+
         this.notification.setOnRemove (new ActionListener ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 _this.stop = true;
-                
+
             }
-            
+
         });
-                
+
     }
 
     public void start ()
     {
-        
+
         Thread t = new Thread (this);
 
         t.setDaemon (true);
@@ -156,27 +160,27 @@ public class GetLatestVersion implements Runnable
                                   m);
 
         this.notification.removeNotification ();
-                                  
+
     }
 
     private void showGeneralError ()
     {
-        
+
         this.showError (String.format ("Unable to download/install the new version.  <a href='%s'>Click here to download the latest version from the Quoll Writer website</a>",
                                        Environment.getProperty (Constants.QUOLLWRITER_DOWNLOADS_URL_PROPERTY_NAME)));
-                                       
+
     }
-    
+
     private void showUnableToInstallError ()
     {
-        
+
         this.showError ("Unable to install new version, please contact Quoll Writer support for assistance.");
-        
+
     }
-    
+
     public void run ()
     {
-        
+
         // .zip
         String fileSuff = ".zip";
 
@@ -198,7 +202,7 @@ public class GetLatestVersion implements Runnable
                                   e);
 
             this.showGeneralError ();
-                        
+
             return;
 
         }
@@ -251,18 +255,18 @@ public class GetLatestVersion implements Runnable
                     // Update the progress bar.
                     UIUtils.doLater (new ActionListener ()
                     {
-                        
+
                         @Override
                         public void actionPerformed (ActionEvent ev)
                         {
-                        
+
                             int length = (int) outFile.length ();
 
                             _this.help.setText (String.format ("Downloading upgrade file for new version <b>%s</b> - %s of %s bytes",
                                                                version,
                                                                Environment.formatNumber (length),
                                                                Environment.formatNumber (size)));
-                            
+
                             float v = (float) length / (float) _this.size;
 
                             float perc = v * 90f;
@@ -358,18 +362,18 @@ public class GetLatestVersion implements Runnable
             }
 
             this.help.setText ("Installing new version...");
-            
+
             this.cancel.setVisible (false);
-            
+
             ZipFile zf = new ZipFile (outFile);
 
             Enumeration<? extends ZipEntry> en = zf.entries ();
 
             File path = Environment.getQuollWriterJarsDir ();
-            
+
             if (path == null)
             {
-            
+
                 this.showUnableToInstallError ();
 
                 return;
@@ -378,23 +382,23 @@ public class GetLatestVersion implements Runnable
 
             // Create the .new directory.
             File newDir = new File (path + "/.new");
-            
+
             if (!newDir.exists ())
             {
-            
+
                 newDir.mkdirs ();
-                
+
             }
-            
+
             if (!newDir.exists ())
             {
-                
+
                 this.showUnableToInstallError ();
-                
+
                 return;
-             
+
             }
-            
+
             ZipEntry ze = null;
             File     newFile = null;
 
@@ -405,7 +409,7 @@ public class GetLatestVersion implements Runnable
                 {
 
                     ze = en.nextElement ();
-                    
+
                     newFile = new File (newDir + "/" + ze.getName ());
 
                     BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (newFile));
@@ -436,16 +440,16 @@ public class GetLatestVersion implements Runnable
             }
 
             this.setProgress (100);
-                                                
+
             this.notification.removeNotification ();
-                                                 
+
             UIUtils.showMessage ((PopupsSupported) this.viewer,
                                  "Upgrade complete",
                                  String.format ("Quoll Writer has been upgraded to version: <b>%s</b>.\n\nThe changes will be available once you restart Quoll Writer.",
                                                 this.version));
 
-            Environment.setUpgradeRequired ();
-                                 
+            //Environment.setUpgradeRequired ();
+
         } catch (Exception e)
         {
 
@@ -454,7 +458,7 @@ public class GetLatestVersion implements Runnable
 
             this.showGeneralError ();
 
-        } 
+        }
 
     }
 

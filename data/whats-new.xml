@@ -1,5 +1,16 @@
 <whatsnew>
 
+    <version id="2.5.3">
+      <item onlyIfCurrentVersion="true">
+        <title>Project import bug fixes</title>
+        <description><![CDATA[A number of fixes for the {project}/file import have been made.]]></description>
+      </item>
+      <item onlyIfCurrentVersion="true">
+        <title>The way updates are handled is changing</title>
+        <description><![CDATA[The way that Quoll Writer is updated is changing.  The next time you update an installer will run to handle the updating for you, don't worry, it's just a couple of extra clicks.  <a href="http://wp.me/p1AW9p-7H">Click here for more detail about this change.</a>]]></description>
+      </item>
+    </version>
+
     <version id="2.5.2">
       <item>
         <title>Improved {chapter} previews</title>

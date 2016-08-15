@@ -116,8 +116,6 @@ public class Environment
 
     private static Map<String, UserPropertyHandler> userPropertyHandlers = new HashMap ();
 
-    private static boolean upgradeRequired = false;
-
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
     private static DecimalFormat floatNumFormat = new DecimalFormat ("###,##0.0");
 
@@ -157,6 +155,8 @@ public class Environment
 
     private static ProjectTextProperties projectTextProps = null;
     private static FullScreenTextProperties fullScreenTextProps = null;
+
+    private static List<Runnable> doOnShutdown = new ArrayList ();
 
     static
     {
@@ -508,13 +508,6 @@ public class Environment
         }
 
         return o.compareTo (n) != 0;
-
-    }
-
-    public static void setUpgradeRequired ()
-    {
-
-        Environment.upgradeRequired = true;
 
     }
 
@@ -1222,43 +1215,24 @@ public class Environment
 
         Environment.projectInfoManager.closeConnectionPool ();
 
-        if (Environment.isWindows)
+        if (Environment.doOnShutdown.size () > 0)
         {
 
-            File userDir = Environment.getQuollWriterJarsDir ();
-
-            if ((userDir != null)
-                &&
-                (Environment.upgradeRequired)
-               )
+            for (Runnable r : Environment.doOnShutdown)
             {
-
-                Environment.upgradeRequired = false;
 
                 try
                 {
 
-                    List args = new ArrayList ();
-                    args.add (System.getProperty ("java.home") + "\\bin\\java.exe");
-                    args.add ("-jar");
-                    args.add (userDir + "\\QuollWriter-upgrade.jar");
+                    r.run ();
 
-                    ProcessBuilder pb = new ProcessBuilder (args);
-                    pb.start ();
+                } catch (Exception e) {
 
-                    return;
-
-                } catch (Exception e)
-                {
+                    Environment.logError ("Unable to run on shutdown.",
+                                          e);
 
                 }
 
-/*
-
-            } else {
-
-                System.exit (0);
-*/
             }
 
         }
@@ -5307,10 +5281,67 @@ public class Environment
 
         }
 
-        if (UserProperties.getAsBoolean (Constants.DO_AUTO_UPDATE_CHECK_PROPERTY_NAME))
+        String updaterClass = UserProperties.get (Constants.UPDATER_CLASS_PROPERTY_NAME,
+                                                  null);
+
+        Class updaterCl = null;
+
+        try
+        {
+
+            updaterCl = Class.forName (updaterClass);
+
+            if (!QuollWriterUpdater.class.isAssignableFrom (updaterCl))
+            {
+
+                Environment.logError (String.format ("Expected class: %s, given by property: %s to be an instance of: %s",
+                                                     updaterClass,
+                                                     Constants.UPDATER_CLASS_PROPERTY_NAME,
+                                                     QuollWriterUpdater.class.getName ()));
+
+                updaterCl = null;
+
+            }
+
+        } catch (Exception e) {
+
+            Environment.logError (String.format ("Unable to load class: %s given by property: %s",
+                                                 updaterClass,
+                                                 Constants.UPDATER_CLASS_PROPERTY_NAME),
+                                  e);
+
+        }
+
+        QuollWriterUpdater updater = null;
+
+        if (updaterCl != null)
+        {
+
+            try
+            {
+
+                updater = (QuollWriterUpdater) updaterCl.newInstance ();
+
+            } catch (Exception e) {
+
+                Environment.logError (String.format ("Unable to create new instance of: %s, given by property: %s",
+                                                     updaterClass,
+                                                     Constants.UPDATER_CLASS_PROPERTY_NAME),
+                                      e);
+
+            }
+
+        }
+
+        if ((UserProperties.getAsBoolean (Constants.DO_AUTO_UPDATE_CHECK_PROPERTY_NAME))
+            &&
+            (updater != null)
+           )
         {
 
             Environment.doneVersionCheck = true;
+
+            final QuollWriterUpdater _updater = updater;
 
             Runner r = new Runner ()
             {
@@ -5321,113 +5352,11 @@ public class Environment
                     try
                     {
 
-                        URL u = Environment.getNewsAndVersionCheckURL ();
+                        _updater.doUpdate (viewer);
 
-                        HttpURLConnection conn = (HttpURLConnection) u.openConnection ();
-
-                        conn.setDoInput (true);
-                        conn.setDoOutput (true);
-
-                        conn.connect ();
-
-                        BufferedInputStream bin = new BufferedInputStream (conn.getInputStream ());
-
-                        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
-
-                        IOUtils.streamTo (bin,
-                                          bout,
-                                          8192);
-
-                        UserProperties.set (Constants.LAST_VERSION_CHECK_TIME_PROPERTY_NAME,
-                                            String.valueOf (System.currentTimeMillis ()));
-
-                        String info = new String (bout.toByteArray (),
-                                                  "utf-8");
-
-                        // Should be json.
-                        Map data = (Map) JSONDecoder.decode (info);
-
-                        Map version = (Map) data.get ("version");
-
-                        if (version != null)
-                        {
-
-                            final Version newVersion = new Version ((String) version.get ("version"));
-
-                            final long size = ((Number) version.get ("size")).longValue ();
-
-                            final String digest = (String) version.get ("digest");
-
-                            if (Environment.getQuollWriterVersion ().isNewer (newVersion))
-                            {
-
-                                UIUtils.doLater (new ActionListener ()
-                                {
-
-                                    public void actionPerformed (ActionEvent ev)
-                                    {
-
-                                        Box ib = new Box (BoxLayout.Y_AXIS);
-                                        ib.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                                          Short.MAX_VALUE));
-
-                                        JTextPane p = UIUtils.createHelpTextPane (String.format ("A new version of %s is available.  <a href='help:version-changes/%s'>View the changes.</a>",
-                                                                                                 Constants.QUOLL_WRITER_NAME,
-                                                                                                 newVersion.getVersion ().replace (".",
-                                                                                                                                   "_")),
-                                                                                  viewer);
-                                        p.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                                        p.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                                         Short.MAX_VALUE));
-                                        p.setBorder (null);
-
-                                        ib.add (p);
-                                        ib.add (Box.createVerticalStrut (5));
-
-                                        JButton installNow = new JButton ("Install now");
-                                        JButton installLater = new JButton ("Later");
-
-                                        Box bb = new Box (BoxLayout.X_AXIS);
-                                        bb.add (installNow);
-                                        bb.add (Box.createHorizontalStrut (5));
-                                        bb.add (installLater);
-                                        bb.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                                        ib.add (bb);
-                                        ib.add (Box.createVerticalStrut (5));
-
-                                        final ActionListener removeNot = viewer.addNotification (ib,
-                                                                                                 "notify",
-                                                                                                 600);
-
-                                        installNow.addActionListener (new ActionAdapter ()
-                                        {
-
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
-
-                                                removeNot.actionPerformed (ev);
-
-                                                new GetLatestVersion (viewer,
-                                                                      newVersion,
-                                                                      size,
-                                                                      digest).start ();
-
-                                            }
-
-                                        });
-
-                                        installLater.addActionListener (removeNot);
-
-                                    }
-
-                                });
-
-                            }
-
-                        }
-
+/*
+Removed for now
+TODO: Add back in when appropriate.
                         // Get the news.
                         List news = (List) data.get ("news");
 
@@ -5534,7 +5463,7 @@ public class Environment
                             }
 
                         }
-
+*/
                     } catch (Exception e)
                     {
 
@@ -6493,9 +6422,9 @@ public class Environment
      * @param delay The delay, in millis.
      * @param repeat The repeat time, in millis.
      */
-    public static void schedule (TimerTask t,
-                                 long      delay,
-                                 long      repeat)
+    public static void schedule (final TimerTask t,
+                                 final long      delay,
+                                 final long      repeat)
     {
 
         if (Environment.generalTimer == null)
@@ -6505,19 +6434,50 @@ public class Environment
 
         }
 
+        TimerTask tt = new TimerTask ()
+        {
+
+            @Override
+            public void run ()
+            {
+
+                try
+                {
+
+                    t.run ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to run timer: " +
+                                          t,
+                                          e);
+
+                }
+
+            }
+
+        };
+
         if (repeat < 1)
         {
 
-            Environment.generalTimer.schedule (t,
+            Environment.generalTimer.schedule (tt,
                                                delay);
 
         } else {
 
-            Environment.generalTimer.schedule (t,
+            Environment.generalTimer.schedule (tt,
                                                delay,
                                                repeat);
 
         }
+
+    }
+
+    public static void addDoOnShutdown (Runnable r)
+    {
+
+        Environment.doOnShutdown.add (r);
 
     }
 

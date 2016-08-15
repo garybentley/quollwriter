@@ -240,6 +240,11 @@ Removed so that the full screen properties will inherit from the standard editor
     <value>Information|To Do</value>
   </property>
 
+  <property id="quollWriterUpdaterClassName" type="string">
+    <description>The class that will check for updates.</description>
+    <value>com.quollwriter.ui.DefaultQuollWriterUpdater</value>
+  </property>
+
   <property id="synonymProviderClass" type="string">
     <description>The synonym provider.</description>
     <value>com.quollwriter.synonyms.providers.BuiltInSynonymProvider</value>
@@ -434,7 +439,7 @@ This message will only be shown once during your current session using Quoll Wri
 
   <property id="quollWriterDownloadsUrl" type="string">
     <description>The url for downloading Quoll Writer.</description>
-    <value>http://quollwriter.com/downloads.html</value>
+    <value>https://quollwriter.com/downloads.html</value>
   </property>
 
   <property id="writingGenres" type="string">

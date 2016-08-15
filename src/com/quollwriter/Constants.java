@@ -111,6 +111,8 @@ public class Constants
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
 
+    public static final String UPDATER_CLASS_PROPERTY_NAME = "quollWriterUpdaterClassName";
+
     public static final String SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME = "showEachChapterFindResult";
 
     public static final String CLOSE_PROJECTS_WINDOW_WHEN_PROJECT_OPENED_PROPERTY_NAME = "closeProjectsWindowWhenProjectOpened";
@@ -378,6 +380,8 @@ public class Constants
     public static final String SEND_MESSAGE_TO_SUPPORT_PAGE_PROPERTY_NAME = "sendMessageToSupportPage";
 
     public static final String GET_LATEST_VERSION_PAGE_PROPERTY_NAME = "getLatestVersionPage";
+
+    public static final String GET_UPGRADE_FILE_PAGE_POST_V2_5_3_PROPERTY_NAME = "getUpgradeFilePagePostV2.5.3";
 
     public static final String GET_UPGRADE_FILE_PAGE_PROPERTY_NAME = "getUpgradeFilePage";
 
