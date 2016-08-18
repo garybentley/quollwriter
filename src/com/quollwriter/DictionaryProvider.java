@@ -150,14 +150,14 @@ public class DictionaryProvider
                 if (word == null)
                 {
 
-                    return ret;
+                    return null;
 
                 }
 
                 if (this.isCorrect (word))
                 {
 
-                    return ret;
+                    return null;
 
                 }
 
