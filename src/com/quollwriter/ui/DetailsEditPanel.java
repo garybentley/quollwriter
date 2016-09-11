@@ -40,27 +40,51 @@ public abstract class DetailsEditPanel extends EditPanel
 
         this.descEdit.setCanFormat (true);
         this.descEdit.setAutoGrabFocus (false);
-        
+
         try
         {
-        
+
             this.descEdit.setSynonymProvider (pv.getSynonymProvider ());
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set synonym provider for details edit panel for: " +
                                   n,
                                   e);
-            
+
         }
 
         this.nameEdit = UIUtils.createTextField ();
-        
+
         UIUtils.addDoActionOnReturnPressed (this.descEdit,
                                             this.getDoSaveAction ());
         UIUtils.addDoActionOnReturnPressed (this.nameEdit,
                                             this.getDoSaveAction ());
-                                             
+
+        InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        im.put (KeyStroke.getKeyStroke (KeyEvent.VK_S,
+                                        InputEvent.CTRL_MASK),
+                "save");
+
+        final DetailsEditPanel _this = this;
+
+        ActionMap am = this.getActionMap ();
+
+        am.put ("save",
+                new ActionAdapter ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.getDoSaveAction ().actionPerformed (ev);
+
+            }
+
+        });
+
     }
     public void init (AbstractObjectViewPanel avp)
     {
@@ -103,7 +127,7 @@ public abstract class DetailsEditPanel extends EditPanel
                 }
 
             });
-        
+
     }
 
     public abstract String getEditHelpText ();
@@ -123,14 +147,14 @@ public abstract class DetailsEditPanel extends EditPanel
      * changes via the property the view description is updated.
      */
     public abstract Set<String> getObjectChangeEventTypes ();
-    
+
     public String getViewDescription ()
     {
-        
+
         return (this.object.getDescription () != null ? this.object.getDescription ().getMarkedUpText () : null);
-        
+
     }
-    
+
     public void refreshViewPanel ()
     {
 
@@ -162,29 +186,29 @@ public abstract class DetailsEditPanel extends EditPanel
 
         if (this.object != null)
         {
-            
+
             Asset a = this.projectViewer.getProject ().getAssetByName (n,
                                                                        this.object.getObjectType ());
-            
+
             if ((a != null)
                 &&
                 (this.object.getKey () != a.getKey ())
                )
             {
-                
+
                 this.showEditError (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
                                                                                    a.getObjectType (),
                                                                                    a.getName ())));
-                                    
+
                 //this.nameEdit.setText (this.object.getName ());
                 //this.nameEdit.selectAll ();
-    
-                return false;                
-                
+
+                return false;
+
             }
-            
+
         }
-                
+
         if (!this.canSave ())
         {
 
@@ -209,7 +233,7 @@ public abstract class DetailsEditPanel extends EditPanel
             this.projectViewer.fireProjectEvent (this.object.getObjectType (),
                                                  ProjectEvent.EDIT,
                                                  this.object);
-                                           
+
         } catch (Exception e)
         {
 
@@ -227,10 +251,10 @@ public abstract class DetailsEditPanel extends EditPanel
         // Update the names in the project dictionary.
         if (this.object instanceof Asset)
         {
-            
+
             this.projectViewer.updateProjectDictionaryForNames (oldNames,
                                                                 this.object);
-            
+
         }
 
         // May need to invoke this later since it might be labour intensive.
@@ -257,9 +281,9 @@ public abstract class DetailsEditPanel extends EditPanel
 
         if (this.object.getDescription () != null)
         {
-    
+
             this.descEdit.setTextWithMarkup (this.object.getDescription ());
-            
+
         }
 
         this.nameEdit.grabFocus ();
@@ -275,24 +299,24 @@ public abstract class DetailsEditPanel extends EditPanel
 
         DefaultIconProvider iconProv = new DefaultIconProvider ()
         {
-          
+
             @Override
             public ImageIcon getIcon (String name,
                                       int    type)
             {
-                
+
                 if (name.equals ("header"))
                 {
-                    
+
                     name = Constants.INFO_ICON_NAME;
-                    
+
                 }
-                
+
                 return super.getIcon (name,
                                       type);
-                
+
             }
-            
+
         };
 
         return iconProv;
