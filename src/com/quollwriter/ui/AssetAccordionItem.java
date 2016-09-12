@@ -18,32 +18,32 @@ import com.quollwriter.ui.renderers.*;
 
 public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer>
 {
-                
+
     public AssetAccordionItem (String        objType,
                                ProjectViewer pv)
     {
-        
+
         super (Environment.getObjectTypeNamePlural (objType),
                objType,
                objType,
                pv);
-                                                
+
     }
-        
+
     @Override
     public void initTree ()
     {
 
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
                                                                                      this.projectViewer.getProject ()));
-        
+
     }
 
     @Override
     public void fillHeaderPopupMenu (JPopupMenu m,
                                      MouseEvent ev)
     {
-    
+
         final AssetAccordionItem _this = this;
 
         ActionListener addNewItem = new ActionAdapter ()
@@ -82,58 +82,58 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
             }
 
         };
-    
+
         m.add (UIUtils.createMenuItem ("Add New " + Environment.getObjectTypeName (this.forObjType),
                                        Constants.ADD_ICON_NAME,
                                        addNewItem));
 
         if (this.forObjType.equals (QObject.OBJECT_TYPE))
         {
-                    
+
             // Add New Type
             m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("New {Object} Type"),
                                            Constants.ADD_ICON_NAME,
                                            this.projectViewer.getAction (ProjectViewer.NEW_ITEM_TYPE_ACTION)));
-    
+
             m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("Manage {Object} Types"),
                                            Constants.EDIT_ICON_NAME,
                                            this.projectViewer.getAction (ProjectViewer.MANAGE_ITEM_TYPES_ACTION)));
 
-        }       
+        }
 
     }
-    
+
     @Override
     public void reloadTree ()
     {
-        
+
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
                                                                                      this.projectViewer.getProject ()));
-        
+
     }
-        
+
     public boolean showItemCountOnHeader ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public int getItemCount ()
     {
-        
+
         int c = this.projectViewer.getProject ().getAllNamedChildObjects (Asset.getAssetClass (this.forObjType)).size ();
-        
+
         return c;
-                
+
     }
-    
+
     @Override
     public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
     {
-        
+
         return null;
-        
+
     }
 
     @Override
@@ -173,10 +173,16 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             m.add (mi);
 
+            m.add (UIUtils.createMenuItem ("Edit",
+                                           Constants.EDIT_ICON_NAME,
+                                           AssetViewPanel.getEditAssetAction (this.projectViewer,
+                                                                              (Asset) d)));
+/*
             m.add (UIUtils.createMenuItem ("Rename",
                                            Constants.EDIT_ICON_NAME,
                                            AssetViewPanel.getRenameAssetAction (this.projectViewer,
                                                                                 (Asset) d)));
+                                                                                */
             /*
             mi = new JMenuItem ("Rename",
                                 Environment.getIcon ("edit",
@@ -213,31 +219,31 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     @Override
     public TreeCellEditor getTreeCellEditor (ProjectViewer pv)
     {
-        
+
         return new ProjectTreeCellEditor (pv,
                                           tree);
-        
+
     }
 
     public int getViewObjectClickCount (Object d)
     {
-        
+
         return 1;
-        
+
     }
-    
+
     public boolean isTreeEditable ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public boolean isDragEnabled ()
     {
-        
+
         return false;
-        
+
     }
-        
+
 }

@@ -69,7 +69,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
         super (pv,
                a);
-               
+
     }
 
     public static DetailsEditPanel getEditDetailsPanel (Asset         a,
@@ -85,7 +85,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
             Class c = AssetViewPanel.detailsEditPanels.get (a.getClass ());
 
             Constructor con = c.getConstructor (Asset.class,
-                                                AbstractProjectViewer.class);
+                                                ProjectViewer.class);
 
             adep = (DetailsEditPanel) con.newInstance (a,
                                                        pv);
@@ -125,11 +125,11 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
     public String getTitle ()
     {
-        
+
         return this.obj.getName ();
-        
+
     }
-    
+
     public String getIconType ()
     {
 
@@ -144,6 +144,19 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
     }
 */
+    public static ActionListener getEditAssetAction (final ProjectViewer pv,
+                                                     final Asset         a)
+    {
+
+        // Put the edit panel into a popup.
+        AbstractActionHandler aah = new AssetActionHandler (a,
+                                                            pv,
+                                                            AbstractActionHandler.EDIT);
+
+        return aah;
+
+    }
+
     public static ActionListener getRenameAssetAction (final ProjectViewer pv,
                                                        final Asset         a)
     {
@@ -152,7 +165,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                                              pv);
 
     }
-    
+
     public static ActionListener getDeleteAssetAction (final ProjectViewer pv,
                                                        final Asset         a)
     {
@@ -176,28 +189,28 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                                              null,
                                              new ActionListener ()
                                              {
-                                                
+
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
-                                                    
+
                                                     try
                                                     {
-                                                
+
                                                         pv.deleteObject (a);
-                                                        
+
                                                     } catch (Exception e) {
-                                                        
+
                                                         Environment.logError ("Unable to delete asset: " +
                                                                               a,
                                                                               e);
-                                                        
+
                                                         UIUtils.showErrorMessage (pv,
-                                                                                  "Unable to delete");                        
-                                                        
-                                                    }                                                    
-                                                    
+                                                                                  "Unable to delete");
+
+                                                    }
+
                                                 }
-                                                
+
                                              },
                                              null,
                                              null,
@@ -206,6 +219,15 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
             }
 
         };
+
+    }
+
+    public ActionListener getEditObjectAction (ProjectViewer pv,
+                                               NamedObject   n)
+    {
+
+        return AssetViewPanel.getEditAssetAction (pv,
+                                                  (Asset) n);
 
     }
 
@@ -232,7 +254,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
     {
 
         final AssetViewPanel _this = this;
-    
+
         final JButton b = UIUtils.createToolBarButton ("new",
                                                        "Click to add a new " + Environment.getObjectTypeName (QCharacter.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (Location.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (QObject.OBJECT_TYPE) + " etc.",
                                                        "new",
@@ -265,14 +287,14 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
         b.addActionListener (ab);
 
         tb.add (b);
-    
+
     }
 
     public void doInit ()
     {
 
         this.obj.addPropertyChangedListener (this);
-    
+
     }
 
     @Override
@@ -280,53 +302,53 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
     {
 
         DetailsEditPanel edPan = this.getDetailsPanel ();
-               
+
         final Set<String> objChangeEventTypes = edPan.getObjectChangeEventTypes ();
-        
+
         if ((objChangeEventTypes == null)
             ||
             (objChangeEventTypes.size () == 0)
            )
         {
-            
+
             return;
-            
+
         }
 
         boolean update = false;
-    
+
         for (String t : objChangeEventTypes)
         {
-        
+
             if (ev.getChangeType ().equals (t))
             {
-                
+
                 update = true;
-                
+
                 break;
-                                
+
             }
-        
+
         }
 
         if (!update)
         {
-            
+
             return;
-            
+
         }
-        
+
         this.getDetailsPanel ().refreshViewPanel ();
-    
+
         if (this.appearsInPanel != null)
         {
-            
+
             this.appearsInPanel.refreshViewPanel ();
-            
+
         }
-    
-    }    
-   
+
+    }
+
     public EditPanel getBottomEditPanel ()
     {
 
@@ -341,17 +363,17 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
     public AppearsInChaptersEditPanel getAppearsInChaptersEditPanel ()
     {
-        
+
         return this.appearsInPanel;
-        
+
     }
-    
+
     private EditPanel createAppearsInChaptersPanel ()
     {
 
         this.appearsInPanel = new AppearsInChaptersEditPanel (this.viewer,
                                                               this.obj);
-        
+
         return this.appearsInPanel;
 
     }
@@ -365,7 +387,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
     {
 
         this.obj.removePropertyChangedListener (this);
-    
+
         this.appearsInPanel.close ();
 
     }

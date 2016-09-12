@@ -22,65 +22,65 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
     private JTextField urlEdit = null;
 
-    public ResearchItemDetailsEditPanel (Asset                 a,
-                                         AbstractProjectViewer pv)
+    public ResearchItemDetailsEditPanel (Asset         a,
+                                         ProjectViewer pv)
     {
 
         super (a,
                pv);
 
         this.urlEdit = UIUtils.createTextField ();
-        
+
     }
 
     public Set<String> getObjectChangeEventTypes ()
     {
-        
+
         Set<String> types = new HashSet ();
         types.add (ResearchItem.URL);
-        
+
         return types;
-        
-    }    
-    
+
+    }
+
     public String getViewDescription ()
     {
-        
+
         String d = super.getViewDescription ();
-        
+
         ResearchItem r = (ResearchItem) this.object;
-        
+
         String url = r.getUrl ();
-        
+
         if ((url != null)
             &&
             (url.trim ().length () > 0)
            )
         {
-                            
+
             if (!url.toLowerCase ().trim ().startsWith ("http://"))
             {
-                
+
                 url = "http://" + url;
-                
+
             }
-            
+
             // Add a space after the url to ensure that the markup code finds the "end".
             d = url + " <br /><br />" + d;
-            
+
         }
-        
+
         if (d == null)
         {
-            
+
             d = "<i>No description.</i>";
-            
+
         }
 
         return d;
-        
-    }    
-    
+
+    }
+
     public String getEditHelpText ()
     {
 
@@ -106,6 +106,25 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
     }
 
+    @Override
+    public boolean hasChanges ()
+    {
+
+        ResearchItem r = (ResearchItem) this.object;
+
+        String u = r.getUrl ();
+
+        if (u == null)
+        {
+
+            u = "";
+
+        }
+
+        return !this.urlEdit.getText ().equals (u);
+
+    }
+
     public boolean canSave ()
     {
 
@@ -122,7 +141,7 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
         UIUtils.addDoActionOnReturnPressed (this.urlEdit,
                                             onSave);
-                                 
+
         return items;
 
     }

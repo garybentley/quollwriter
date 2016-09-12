@@ -30,8 +30,8 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
     private JComboBox types = null;
 
-    public ObjectDetailsEditPanel (Asset                 a,
-                                   AbstractProjectViewer pv)
+    public ObjectDetailsEditPanel (Asset         a,
+                                   ProjectViewer pv)
     {
 
         super (a,
@@ -42,19 +42,39 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
         this.types.setMaximumSize (this.types.getPreferredSize ());
         this.types.setToolTipText ("Add a new Type by entering a value in the field.");
-                
+
+    }
+
+    @Override
+    public boolean hasChanges ()
+    {
+
+        QObject o = (QObject) this.object;
+
+        String t = o.getType ();
+
+        if (t == null)
+        {
+
+            t = "";
+
+        }
+
+        return !this.types.getEditor ().getItem ().toString ().equals (t);
+
+
     }
 
     public Set<String> getObjectChangeEventTypes ()
     {
-        
+
         Set<String> types = new HashSet ();
         types.add (QObject.TYPE);
-        
+
         return types;
-        
+
     }
-    
+
     public String getEditHelpText ()
     {
 
@@ -233,32 +253,32 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
     public String getViewDescription ()
     {
-        
+
         String s = super.getViewDescription ();
-        
+
         QObject o = (QObject) this.object;
-        
+
         String type = o.getType ();
-        
+
         if ((type != null)
             &&
             (type.trim ().length () > 0)
            )
         {
-                
+
             s = "<b>Type: </b>" + type + "<br /><br />" + s;
-            
+
         }
-        
+
         if (s == null)
         {
-            
+
             s = "<i>No description.</i>";
-            
+
         }
-        
+
         return s;
-        
+
     }
-    
+
 }

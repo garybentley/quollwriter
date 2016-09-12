@@ -78,18 +78,18 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
     public ObjectDocumentsEditPanel getObjectDocumentsEditPanel ()
     {
-        
+
         return this.objDocsEditPanel;
-        
+
     }
-    
+
     public DetailsEditPanel getDetailsPanel ()
     {
-        
+
         return this.detailsPanel;
-        
+
     }
-    
+
     public void initDividers ()
     {
 
@@ -100,7 +100,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
     public void init ()
                throws GeneralException
     {
-    
+
         this.viewer.setLinks (this.obj);
 
         this.title = UIUtils.createHeader (this.obj.getName (),
@@ -109,7 +109,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
                                            null);
 
         final AbstractObjectViewPanel _this = this;
-                                           
+
         final Header tTitle = this.title;
 
         this.addObjectPropertyChangedListener (new PropertyChangedAdapter ()
@@ -120,11 +120,11 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
                 if (ev.getChangeType ().equals (NamedObject.NAME))
                 {
-            
+
                     _this.refresh (_this.obj);
-                    
+
                 }
-                
+
             }
 
         });
@@ -162,21 +162,21 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         this.mainSplitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                              false);
         this.mainSplitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.mainSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
+        this.mainSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 2);
         this.mainSplitPane.setBorder (null);
         this.mainSplitPane.setOpaque (false);
         this.mainSplitPane.setContinuousLayout (true);
         this.mainSplitPane.setBorder (UIUtils.createPadding (0, 0, 3, 0));
         this.mainSplitPane.setResizeWeight (1);
-        
+
         this.leftSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
                                              false);
-        this.leftSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
+        this.leftSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 2);
         this.leftSplitPane.setBorder (null);
         this.leftSplitPane.setOpaque (false);
         this.leftSplitPane.setContinuousLayout (true);
         this.leftSplitPane.setResizeWeight (1);
-        
+
         this.rightSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
                                               false);
         this.rightSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
@@ -186,7 +186,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         this.rightSplitPane.setResizeWeight (1);
 
         //this.mainSplitPane.
-        
+
         this.mainSplitPane.setLeftComponent (this.leftSplitPane);
         this.mainSplitPane.setRightComponent (this.rightSplitPane);
 
@@ -196,27 +196,27 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         {
 
             botEp.init ();
-            
+
             this.bottomDetailsPanel = botEp;
 
         }
 
         this.detailsPanel = this.getDetailEditPanel (this.viewer,
                                                      this.obj);
-                                                     
+
         this.detailsPanel.init (this);
-                
+
         this.leftSplitPane.setTopComponent (this.detailsPanel);
         this.leftSplitPane.setBottomComponent (botEp);
-        
+
         this.linkedToPanel = this.createLinkedToPanel ();
 
         this.rightSplitPane.setBottomComponent (this.linkedToPanel);
-        
+
         this.linkedToPanel.init ();
 
         this.linkedToPanel.setMinimumSize (new Dimension (200, 100));
-        
+
         this.linkedToPanel.addActionListener (new ActionAdapter ()
             {
 
@@ -244,12 +244,12 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
                 }
 
             });
-                
+
         this.objDocsEditPanel = new ObjectDocumentsEditPanel (this.viewer,
                                                               this.obj);
-        
+
         this.objDocsEditPanel.init ();
-        
+
         this.rightSplitPane.setTopComponent (this.objDocsEditPanel);
 
         b.add (this.mainSplitPane);
@@ -265,7 +265,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         this.doInit ();
 
         ActionMap actions = this.getActionMap ();
-        
+
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_E,
@@ -277,44 +277,44 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_L,
                                         Event.CTRL_MASK),
                 "editlinkedto");
-        
+
         actions.put ("edit",
                 new ActionAdapter ()
                 {
-  
+
                     public void actionPerformed (ActionEvent ev)
                     {
-  
+
                         _this.detailsPanel.showEditPanel ();
-                        
+
                     }
-                    
+
                 });
-        
+
         actions.put ("adddocument",
                 new ActionAdapter ()
                 {
-  
+
                     public void actionPerformed (ActionEvent ev)
                     {
-  
+
                         _this.objDocsEditPanel.showAddDocument ();
-                        
+
                     }
-                    
+
                 });
 
         actions.put ("editlinkedto",
                 new ActionAdapter ()
                 {
-  
+
                     public void actionPerformed (ActionEvent ev)
                     {
-  
+
                         _this.linkedToPanel.showEditPanel ();
-                        
+
                     }
-                    
+
                 });
 
     }
@@ -477,26 +477,26 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
                 DefaultIconProvider iconProv = new DefaultIconProvider ()
                 {
-                  
+
                     @Override
                     public ImageIcon getIcon (String name,
                                               int    type)
                     {
-                        
+
                         if (name.equals ("header"))
                         {
-                            
+
                             name = Link.OBJECT_TYPE;
-                            
+
                         }
-                        
+
                         return super.getIcon (name,
                                               type);
-                        
+
                     }
-                    
+
                 };
-                
+
                 return iconProv;
 
             }
@@ -537,9 +537,9 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
                 treeScroll.setBorder (null);
                 UIUtils.expandAllNodesWithChildren (_this.linkedToViewTree);
-                
-                treeScroll.setMinimumSize (new Dimension (150, 0));                
-                
+
+                treeScroll.setMinimumSize (new Dimension (150, 0));
+
                 return treeScroll;
 
             }
@@ -620,18 +620,18 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             if (v <= 0)
             {
-                
+
                 return;
-                
+
             }
 
             this.mainSplitPane.setDividerLocation (v);
-            
+
         } catch (Exception e)
         {
 
             return;
-        
+
         }
 
         try
@@ -641,16 +641,16 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             if (v > 0)
             {
-                
+
                 this.leftSplitPane.setDividerLocation (v);
 
             }
-            
+
         } catch (Exception e)
         {
 
         }
-        
+
         try
         {
 
@@ -658,18 +658,18 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             if (v > 0)
             {
-                
+
                 this.rightSplitPane.setDividerLocation (v);
 
             }
-            
+
         } catch (Exception e)
         {
 
         }
-    
+
         this.panesInited = true;
-        
+
         this.setReadyForUse (true);
 
     }
