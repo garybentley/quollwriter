@@ -39,26 +39,25 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
     protected boolean userRule = false;
     private String defaultSummary = null;
 
-    public AbstractRule(boolean userRule)
+    public AbstractRule ()
     {
-
-        this.userRule = userRule;
 
     }
 
     public abstract String getEditFormTitle (boolean add);
-    
+
     public abstract List<FormItem> getFormItems ();
 
-    public abstract String getFormError ();    
-    
+    public abstract String getFormError ();
+
     public String getDefaultSummary ()
     {
-        
+
         return this.defaultSummary;
-        
+
     }
-    
+
+    @Override
     public void setSummary (String s)
     {
 
@@ -66,6 +65,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
+    @Override
     public String getSummary ()
     {
 
@@ -73,6 +73,15 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
+    @Override
+    public void setUserRule (boolean u)
+    {
+
+        this.userRule = u;
+
+    }
+
+    @Override
     public boolean isUserRule ()
     {
 
@@ -129,11 +138,11 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         if (!this.userRule)
         {
-            
+
             this.defaultSummary = this.summary;
-                                                         
+
         }
-        
+
     }
 
     public Element getAsElement ()
@@ -144,7 +153,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
         root.setAttribute (XMLConstants.id,
                            this.id);
         root.setAttribute (XMLConstants.createType,
-                           this.getCreateType ());
+                           this.getClass ().getName ());
 
         if (this.userRule)
         {
@@ -179,115 +188,115 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                              final ActionListener onCancel,
                              final boolean        add)
     {
-        
+
         final AbstractRule _this = this;
-        
+
         List<FormItem> items = new ArrayList ();
 
         final JTextField summary = com.quollwriter.ui.UIUtils.createTextField ();
 
-        summary.setText (this.getSummary ());        
-        
+        summary.setText (this.getSummary ());
+
         items.add (new FormItem ("Summary",
                                  summary));
-        
+
         items.addAll (this.getFormItems ());
-        
+
         final TextArea desc = com.quollwriter.ui.UIUtils.createTextArea (null,
                                                                          3,
                                                                          -1);
-        
+
         desc.setText (this.getDescription ());
 
         items.add (new FormItem ("Description",
-                                 desc));        
-        
+                                 desc));
+
         String title = this.getEditFormTitle (add);
-        
+
         if (title == null)
         {
-            
+
             title = (add ? "Add Rule" : "Edit Rule");
-            
+
         }
-        
+
         final Form f = new Form (title,
                                  null,
                                  items,
                                  null,
                                  Form.SAVE_CANCEL_BUTTONS);
-        
+
         f.addFormListener (new FormAdapter ()
         {
 
             public void actionPerformed (FormEvent ev)
             {
-                
+
                 if (ev.getActionCommand ().equals (FormEvent.CANCEL_ACTION_NAME))
                 {
-                    
+
                     if (onCancel != null)
                     {
-                        
-                        onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));                        
-                        
+
+                        onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));
+
                     }
-                    
+
                 }
-                
+
                 String error = _this.getFormError ();
-                
+
                 if (error != null)
                 {
-                    
+
                     f.showError (error);
-                    
+
                     return;
-                    
+
                 }
-                
+
                 _this.setDescription (desc.getText ().trim ());
-                
+
                 String summ = summary.getText ().trim ();
-                
+
                 if (summ.length () == 0)
                 {
-                    
+
                     summ = _this.getSummary ();
-                    
+
                 }
-                
+
                 if (summ == null)
                 {
-                    
+
                     summ = _this.getDefaultSummary ();
-                    
+
                 }
-                
+
                 if (summ == null)
                 {
-                    
+
                     f.showError ("Please enter a summary.");
-                    
+
                     return;
-                    
+
                 }
-                
+
                 _this.setSummary (summ);
-                
+
                 if (onSaveComplete != null)
                 {
-                    
+
                     onSaveComplete.actionPerformed (new ActionEvent (_this, 1, "saved"));
-                    
+
                 }
-                
+
             }
-        
+
         });
-        
+
         return f;
-        
-    }    
+
+    }
 
 }

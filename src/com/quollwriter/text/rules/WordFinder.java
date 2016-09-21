@@ -17,10 +17,8 @@ import com.quollwriter.ui.components.*;
 import org.jdom.*;
 
 
-public class WordFinder extends AbstractDialogueRule 
+public class WordFinder extends AbstractDialogueRule
 {
-
-    public static final String CREATE_TYPE = "wordFinder";
 
     public class XMLConstants
     {
@@ -29,8 +27,6 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
-    // private List words = null;
-
     private String word = null;
 
     private JTextField words = null;
@@ -38,26 +34,24 @@ public class WordFinder extends AbstractDialogueRule
     private JCheckBox ignoreInDialogueCB = null;
     private JCheckBox onlyInDialogueCB = null;
     private JComboBox whereCB = null;
-    
-    public WordFinder(boolean user)
-    {
 
-        super (user);
+    public WordFinder ()
+    {
 
     }
 
     public boolean isForLanguage (String language)
     {
-        
+
         return Environment.isEnglish (language);
-        
+
     }
-    
+
     public String toString ()
     {
-        
-        return "rule(word=" + this.word + ")"; 
-        
+
+        return "rule(word=" + this.word + ")";
+
     }
 
     public String getCategory ()
@@ -73,20 +67,21 @@ public class WordFinder extends AbstractDialogueRule
         this.word = w;
 
         this.tWords = TextUtilities.getAsWords (this.word.toLowerCase ());
-        
+
     }
 
+    @Override
     public String getSummary ()
     {
 
         if (this.word == null)
         {
-            
+
             return null;
-            
+
         }
-        
-        return String.format ("\"<b>%s</b>\"%s",
+
+        return String.format ("\"<b>%s</b>\" %s",
                               this.word,
                               this.getWhereDesc ());
 
@@ -94,9 +89,9 @@ public class WordFinder extends AbstractDialogueRule
 
     private String getWhereDesc ()
     {
-        
+
         String suffix = "";
-        
+
         if (this.where != null)
         {
 
@@ -115,31 +110,25 @@ public class WordFinder extends AbstractDialogueRule
 
             if (this.ignoreInDialogue)
             {
-                
+
                 suffix += ", ignore in dialogue";
-                
+
             }
-            
+
             if (this.onlyInDialogue)
             {
-                
+
                 suffix += ", but only in dialogue";
-                
-            }            
-            
+
+            }
+
         }
 
         return suffix;
-        
-    }
-    
-    public String getCreateType ()
-    {
-
-        return WordFinder.CREATE_TYPE;
 
     }
 
+    @Override
     public void init (Element root)
                throws JDOMException
     {
@@ -148,7 +137,7 @@ public class WordFinder extends AbstractDialogueRule
 
         this.setWord (JDOMUtils.getAttributeValue (root,
                                                    XMLConstants.word));
-                                                 
+
     }
 
     public String getWord ()
@@ -158,6 +147,7 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
+    @Override
     public Element getAsElement ()
     {
 
@@ -169,42 +159,8 @@ public class WordFinder extends AbstractDialogueRule
         return root;
 
     }
-/*
-    public List<Issue> getIssues (String  sentence,
-                                  boolean inDialogue)
-    {
 
-        // Check our list of words.
-        sentence = sentence.toLowerCase ();
-
-        List<String> swords = TextUtilities.getAsWords (sentence);
-        List<Issue>  issues = new ArrayList ();
-
-        List<Integer> inds = TextUtilities.indexOf (swords,
-                                                    TextUtilities.getAsWords (this.word.toLowerCase ()),
-                                                    inDialogue,
-                                                    this.getConstraints ());
-
-        if (inds != null)
-        {
-
-            for (Integer i : inds)
-            {
-
-                Issue iss = new Issue ("Contains: <b>" + this.word + "</b>",
-                                       i,
-                                       (this.word + "").length (),
-                                       this);
-                issues.add (iss);
-
-            }
-
-        }
-
-        return issues;
-
-    }
-*/
+    @Override
     public List<Issue> getIssues (Sentence sentence)
     {
 
@@ -225,44 +181,45 @@ public class WordFinder extends AbstractDialogueRule
             {
 
                 Word w = sentence.getWord (i);
-              
+
                 int l = w.getText ().length ();
-                
+
                 if (this.tWords.size () > 1)
                 {
-                    
+
                     Word nw = w.getWordsAhead (this.tWords.size () - 1);
-                    
+
                     l = nw.getAllTextEndOffset () - w.getAllTextStartOffset ();
-                    
+
                 }
-            
+
                 String suffix = "";
 
                 if (this.onlyInDialogue)
                 {
-                    
+
                     suffix = " (in dialogue)";
-                    
+
                 }
-            
+
                 if (!this.where.equals (DialogueConstraints.ANYWHERE))
                 {
-    
+
                     suffix = String.format (" (%s of sentence)",
                                             this.where);
-    
+
                     if (this.onlyInDialogue)
                     {
-                        
+
                         suffix = String.format (" (%s of sentence, in dialogue)",
                                                 this.where);
-                        
+
                     }
-    
+
                 }
-            
+
                 Issue iss = new Issue ("Contains: <b>" + this.word + "</b>" + suffix,
+                                       sentence,
                                        w.getAllTextStartOffset (),
                                        l,
                                        w.getAllTextStartOffset () + "-" + this.word,
@@ -281,8 +238,8 @@ public class WordFinder extends AbstractDialogueRule
     {
 
         this.setOnlyInDialogue (this.onlyInDialogueCB.isSelected ());
-        this.setIgnoreInDialogue (this.ignoreInDialogueCB.isSelected ());                
-        
+        this.setIgnoreInDialogue (this.ignoreInDialogueCB.isSelected ());
+
         int ws = this.whereCB.getSelectedIndex ();
 
         if (ws == 0)
@@ -307,9 +264,10 @@ public class WordFinder extends AbstractDialogueRule
         }
 
         this.setWord (this.words.getText ().trim ());
-        
+
     }
 
+    @Override
     public String getDescription ()
     {
 
@@ -317,11 +275,11 @@ public class WordFinder extends AbstractDialogueRule
 
         if (d == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return StringUtils.replaceString (d,
                                           "[WORD]",
                                           ((this.word == null) ? "[WORD]" : this.word));
@@ -346,7 +304,7 @@ public class WordFinder extends AbstractDialogueRule
         whereVals.add ("End of sentence");
 
         final WordFinder _this = this;
-        
+
         this.whereCB = new JComboBox (whereVals);
 
         String loc = this.getWhere ();
@@ -366,8 +324,8 @@ public class WordFinder extends AbstractDialogueRule
         }
 
         items.add (new FormItem ("Where",
-                                 this.whereCB));        
-                
+                                 this.whereCB));
+
         this.ignoreInDialogueCB = new JCheckBox ("Ignore in dialogue");
         this.onlyInDialogueCB = new JCheckBox ("Only in dialogue");
 
@@ -404,7 +362,7 @@ public class WordFinder extends AbstractDialogueRule
             }
 
         });
-                                 
+
         this.ignoreInDialogueCB.setSelected (this.isIgnoreInDialogue ());
         this.onlyInDialogueCB.setSelected (this.isOnlyInDialogue ());
 
@@ -413,25 +371,25 @@ public class WordFinder extends AbstractDialogueRule
 
         items.add (new FormItem (null,
                                  this.onlyInDialogueCB));
-        
+
         return items;
 
     }
-    
+
     public String getFormError ()
     {
-        
+
         String newWords = words.getText ().trim ();
-        
+
         if (newWords.length () == 0)
         {
-            
+
             return "Please enter at least one word or symbol.";
-        
+
         }
-        
+
         return null;
-        
+
     }
 
 }

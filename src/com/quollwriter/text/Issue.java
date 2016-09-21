@@ -4,6 +4,7 @@ import java.util.*;
 import javax.swing.text.*;
 
 import com.quollwriter.*;
+import com.quollwriter.data.*;
 
 public class Issue
 {
@@ -16,6 +17,8 @@ public class Issue
     private String   ruleId = null;
     private Rule     rule = null;
     private String   issueId = null;
+    private TextBlock text = null;
+    private Chapter   chapter = null;
 
     public Issue (String    desc,
                   TextBlock text,
@@ -24,6 +27,7 @@ public class Issue
     {
 
         this (desc,
+              text,
               text.getAllTextStartOffset (),
               text.getText ().length (),
               issueId,
@@ -32,6 +36,7 @@ public class Issue
     }
 
     public Issue (String    desc,
+                  TextBlock text,
                   int       startIssuePosition,
                   int       length,
                   String    issueId,
@@ -44,15 +49,37 @@ public class Issue
         this.rule = rule;
         this.ruleId = rule.getId ();
         this.issueId = issueId;
+        this.text = text;
 
     }
-    
+
+    public void setChapter (Chapter c)
+    {
+
+        this.chapter = c;
+
+    }
+
+    public Chapter getChapter ()
+    {
+
+        return this.chapter;
+
+    }
+
+    public TextBlock getTextBlock ()
+    {
+
+        return this.text;
+
+    }
+
     @Override
     public String toString ()
     {
-                
+
         Map<String, Object> props = new LinkedHashMap ();
-        
+
         props.put ("ruleId",
                    this.ruleId);
         props.put ("ruleSummary",
@@ -71,18 +98,18 @@ public class Issue
                    (this.endPos == null ? "null" : this.endPos.getOffset ()));
         props.put ("length",
                    this.length);
-                
-        return Environment.formatObjectToStringProperties (props);        
-        
+
+        return Environment.formatObjectToStringProperties (props);
+
     }
-    
+
     public String getIssueId ()
     {
-        
+
         return this.issueId;
-        
+
     }
-    
+
     public String getRuleId ()
     {
 
@@ -100,20 +127,20 @@ public class Issue
     @Override
     public int hashCode ()
     {
-        
+
         int hash = 7;
         hash = (31 * hash) + ((null == this.issueId) ? 0 : this.issueId.hashCode ());
         hash = (31 * hash) + ((null == this.ruleId) ? 0 : this.ruleId.hashCode ());
         hash = (31 * hash) + this.startIssuePosition;
 
         return hash;
-    
+
     }
-    
+
     public boolean equals (Issue iss)
     {
 
-        if ((this.startPos.getOffset () == iss.startPos.getOffset ())
+        if ((this.getStartPosition ().getOffset () == iss.getStartPosition ().getOffset ())
             &&
             (this.startIssuePosition == iss.startIssuePosition)
             &&
@@ -137,9 +164,9 @@ public class Issue
 
         if (o instanceof Issue)
         {
-            
+
             return this.equals ((Issue) o);
-            
+
         }
 
         return false;
@@ -162,11 +189,11 @@ public class Issue
 
     public int getEndIssuePosition ()
     {
-        
+
         return this.startIssuePosition + this.getLength ();
-        
+
     }
-    
+
     public int getLength ()
     {
 
@@ -176,6 +203,26 @@ public class Issue
 
     public Position getStartPosition ()
     {
+
+        if (this.startPos == null)
+        {
+
+            final Issue _this = this;
+
+            return new Position ()
+            {
+
+                @Override
+                public int getOffset ()
+                {
+
+                    return _this.startIssuePosition;
+
+                }
+
+            };
+
+        }
 
         return this.startPos;
 

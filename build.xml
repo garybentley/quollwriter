@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.5.3" />
+  <property name="currVersion" value="2.5.4" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -64,7 +64,6 @@
     <java classname="com.quollwriter.Startup"
           maxmemory="512m"
           fork="yes">
-        <arg value="_debugMode" />
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xnoagent" />
         <!--

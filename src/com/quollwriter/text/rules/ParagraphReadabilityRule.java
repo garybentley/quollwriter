@@ -21,8 +21,6 @@ import org.jdom.JDOMException;
 
 public class ParagraphReadabilityRule extends AbstractParagraphRule
 {
-    
-    public static final String CREATE_TYPE = "paragraphreadability";
 
     public class XMLConstants
     {
@@ -40,10 +38,8 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     private JSpinner fkF = null;
     private JSpinner frF = null;
 
-    public ParagraphReadabilityRule (boolean user)
+    public ParagraphReadabilityRule ()
     {
-
-        super (user);
 
     }
 
@@ -53,14 +49,14 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                                      boolean user)
     {
 
-        this (user);
-
         this.fleschKincaid = fleschKincaid;
         this.fleschReading = fleschReading;
         this.gunningFog = gunningFog;
-        
+        this.setUserRule (user);
+
     }
 
+    @Override
     public String getDescription ()
     {
 
@@ -69,7 +65,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         d = StringUtils.replaceString (d,
                                        "[FLESCH_KINCAID]",
                                        this.fleschKincaid + "");
-        
+
         d = StringUtils.replaceString (d,
                                        "[FLESCH_READING]",
                                        this.fleschReading + "");
@@ -77,11 +73,12 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         d = StringUtils.replaceString (d,
                                        "[GUNNING_FOG]",
                                        this.gunningFog + "");
-                                       
+
         return d;
 
     }
 
+    @Override
     public String getSummary ()
     {
 
@@ -96,18 +93,12 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         t = StringUtils.replaceString (t,
                                        "[GUNNING_FOG]",
                                        this.gunningFog + "");
-        
+
         return t;
-                                              
-    }
-
-    public String getCreateType ()
-    {
-
-        return ParagraphReadabilityRule.CREATE_TYPE;
 
     }
 
+    @Override
     public void init (Element root)
                throws JDOMException
     {
@@ -123,6 +114,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public Element getAsElement ()
     {
 
@@ -138,79 +130,15 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         return root;
 
     }
-/*
-    public List<Issue> getIssues (String  paragraph,
-                                  boolean inDialogue)
-    {
 
-        List<Issue> issues = new ArrayList ();
-    
-        int wc = TextUtilities.getWordCount (paragraph);
-        
-        if (wc > 100)
-        {
-
-            ReadabilityIndices ri = new ReadabilityIndices ();
-            ri.add (paragraph);
-
-            if ((this.fleschKincaid > 0)
-                &&
-                (ri.getFleschKincaidGradeLevel () > this.fleschKincaid)
-               )
-            {
-                
-                Issue iss = new Issue ("Paragraph has a Flesch Kincaid grade level of: <b>" + Environment.formatNumber (ri.getFleschKincaidGradeLevel ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschKincaid) + ")",
-                                       -1,
-                                       -1,
-                                       this);
-                
-                issues.add (iss);
-                
-            }
-
-            if ((this.fleschReading > 0)
-                &&
-                (ri.getFleschReadingEase () > this.fleschReading)
-               )
-            {
-                
-                Issue iss = new Issue ("Paragraph has a Flesch Reading ease level of: <b>" + Environment.formatNumber (ri.getFleschReadingEase ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschReading) + ")",
-                                       -1,
-                                       -1,
-                                       this);
-                
-                issues.add (iss);
-                
-            }
-            
-            if ((this.gunningFog > 0)
-                &&
-                (ri.getGunningFogIndex () > this.gunningFog)
-               )
-            {
-                
-                Issue iss = new Issue ("Paragraph has a Gunning Fog index of: <b>" + Environment.formatNumber (ri.getGunningFogIndex ()) + "</b>.  (Max is: " + Environment.formatNumber (this.gunningFog) + ")",
-                                       -1,
-                                       -1,
-                                       this);
-                
-                issues.add (iss);
-                
-            }
-
-        }
-        
-        return issues;
-
-    }
-*/
+    @Override
     public List<Issue> getIssues (Paragraph paragraph)
     {
 
         List<Issue> issues = new ArrayList ();
-    
+
         //int wc = TextUtilities.getWordCount (paragraph);
-        
+
         if (paragraph.getWordCount () > 100)
         {
 
@@ -222,14 +150,14 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                 (ri.getFleschKincaidGradeLevel () > this.fleschKincaid)
                )
             {
-                
+
                 Issue iss = new Issue ("Paragraph has a Flesch Kincaid grade level of: <b>" + Environment.formatNumber (ri.getFleschKincaidGradeLevel ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschKincaid) + ")",
                                        paragraph,
                                        paragraph.getAllTextStartOffset () + "-fkgl-" + ri.getFleschKincaidGradeLevel (),
                                        this);
-                
+
                 issues.add (iss);
-                
+
             }
 
             if ((this.fleschReading > 0)
@@ -237,33 +165,33 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                 (ri.getFleschReadingEase () > this.fleschReading)
                )
             {
-                
+
                 Issue iss = new Issue ("Paragraph has a Flesch Reading ease level of: <b>" + Environment.formatNumber (ri.getFleschReadingEase ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschReading) + ")",
                                        paragraph,
-                                       paragraph.getAllTextStartOffset () + "-fre-" + ri.getFleschReadingEase (),                                       
+                                       paragraph.getAllTextStartOffset () + "-fre-" + ri.getFleschReadingEase (),
                                        this);
-                
+
                 issues.add (iss);
-                
+
             }
-            
+
             if ((this.gunningFog > 0)
                 &&
                 (ri.getGunningFogIndex () > this.gunningFog)
                )
             {
-                
+
                 Issue iss = new Issue ("Paragraph has a Gunning Fog index of: <b>" + Environment.formatNumber (ri.getGunningFogIndex ()) + "</b>.  (Max is: " + Environment.formatNumber (this.gunningFog) + ")",
                                        paragraph,
-                                       paragraph.getAllTextStartOffset () + "-gfi-" + ri.getGunningFogIndex (),                                       
+                                       paragraph.getAllTextStartOffset () + "-gfi-" + ri.getGunningFogIndex (),
                                        this);
-                
+
                 issues.add (iss);
-                
+
             }
 
         }
-        
+
         return issues;
 
     }
@@ -301,7 +229,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                                                          1));
 
         b = new Box (BoxLayout.X_AXIS);
-                                                            
+
         b.add (this.frF);
         b.add (Box.createHorizontalGlue ());
 
@@ -316,7 +244,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                                                          1));
 
         b = new Box (BoxLayout.X_AXIS);
-                                                            
+
         b.add (this.gfF);
         b.add (Box.createHorizontalGlue ());
 
@@ -324,7 +252,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         items.add (new FormItem ("Gunning Fog index",
                                  b));
-                                 
+
         return items;
 
     }
@@ -332,11 +260,11 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     @Override
     public String getFormError ()
     {
-        
+
         return null;
-        
-    }    
-    
+
+    }
+
     @Override
     public void updateFromForm ()
     {
@@ -345,6 +273,6 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         this.fleschReading = ((SpinnerNumberModel) this.frF.getModel ()).getNumber ().intValue ();
         this.gunningFog = ((SpinnerNumberModel) this.gfF.getModel ()).getNumber ().intValue ();
 
-    }    
-    
+    }
+
 }

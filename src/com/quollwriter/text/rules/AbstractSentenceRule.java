@@ -5,10 +5,8 @@ import com.quollwriter.text.*;
 public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implements SentenceRule
 {
 
-    public AbstractSentenceRule(boolean userRule)
+    public AbstractSentenceRule ()
     {
-
-        super (userRule);
 
     }
 
@@ -29,9 +27,9 @@ public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implem
     @Override
     public String getEditFormTitle (boolean add)
     {
-        
+
         return (add ? "Add new Sentence Structure rule" : null);
-        
+
     }
-    
+
 }

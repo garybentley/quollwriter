@@ -22,8 +22,6 @@ import org.jdom.JDOMException;
 public class SentenceComplexityRule extends AbstractSentenceRule
 {
 
-    public static final String CREATE_TYPE = "sentencecomplexity";
-
     public class XMLConstants
     {
 
@@ -37,10 +35,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     private JSpinner ratioF = null;
     private JSpinner wordCountF = null;
 
-    public SentenceComplexityRule (boolean user)
+    public SentenceComplexityRule ()
     {
-
-        super (user);
 
     }
 
@@ -49,10 +45,9 @@ public class SentenceComplexityRule extends AbstractSentenceRule
                                    boolean user)
     {
 
-        this (user);
-        
         this.ratio = syllableWordRatio;
         this.wordCount = wordCount;
+        this.setUserRule (user);
 
     }
 
@@ -64,7 +59,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
         d = StringUtils.replaceString (d,
                                        "[RATIO]",
                                        Environment.formatNumber (this.ratio) + "");
-        
+
         d = StringUtils.replaceString (d,
                                        "[COUNT]",
                                        this.wordCount + "");
@@ -83,18 +78,12 @@ public class SentenceComplexityRule extends AbstractSentenceRule
         t = StringUtils.replaceString (t,
                                        "[COUNT]",
                                        this.wordCount + "");
-        
+
         return t;
-                                              
-    }
-
-    public String getCreateType ()
-    {
-
-        return SentenceComplexityRule.CREATE_TYPE;
 
     }
 
+    @Override
     public void init (Element root)
                throws JDOMException
     {
@@ -108,6 +97,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public Element getAsElement ()
     {
 
@@ -121,70 +111,31 @@ public class SentenceComplexityRule extends AbstractSentenceRule
         return root;
 
     }
-/*
-    public List<Issue> getIssues (String  sentence,
-                                  boolean inDialogue)
-    {
 
-        List<Issue> issues = new ArrayList ();
-    
-        // Check our list of words.
-        sentence = sentence.toLowerCase ();
-
-        float wordC = (float) TextUtilities.getWordCount (sentence);
-
-        if (wordC <= this.wordCount)
-        {
-            
-            return issues;
-            
-        }
-        
-        float syllC = (float) TextUtilities.getSyllableCount (sentence);
-
-        float r = syllC / wordC;
-        
-        r = (float) Math.round (r * 10) / 10;
-        
-        if (r > this.ratio)
-        {
-            
-            Issue iss = new Issue ("Sentence syllable/word ratio is: <b>" + Environment.formatNumber (r) + "</b>.  (Max is: " + Environment.formatNumber (this.ratio) + ")",
-                                   -1,
-                                   -1,
-                                   this);
-
-            issues.add (iss);
-
-        }
-
-        return issues;
-
-    }
-*/
+    @Override
     public List<Issue> getIssues (Sentence sentence)
     {
 
         List<Issue> issues = new ArrayList ();
-    
+
         float wordC = (float) sentence.getWordCount ();
 
         if (wordC <= this.wordCount)
         {
-            
+
             return issues;
-            
+
         }
-        
+
         float syllC = (float) sentence.getSyllableCount ();
 
         float r = syllC / wordC;
-        
+
         r = (float) Math.round (r * 10) / 10;
-        
+
         if (r > this.ratio)
         {
-            
+
             Issue iss = new Issue ("Sentence syllable/word ratio is: <b>" + Environment.formatNumber (r) + "</b>.  (Max is: " + Environment.formatNumber (this.ratio) + ")",
                                    sentence,
                                    sentence.getAllTextStartOffset () + "-sentencetoocomplex-" + r,
@@ -230,7 +181,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
                                                             1));
 
         b = new Box (BoxLayout.X_AXIS);
-                                                            
+
         b.add (this.wordCountF);
         b.add (Box.createHorizontalGlue ());
 
@@ -238,18 +189,18 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         items.add (new FormItem ("Sentence length (words)",
                                  b));
-                                 
+
         return items;
 
     }
 
     public String getFormError ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     public void updateFromForm ()
     {
 

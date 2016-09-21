@@ -1,7 +1,7 @@
 <rules>
   <rule id="word-that"
         category="word"
-        createType="wordFinder"        
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="that">
@@ -11,7 +11,7 @@
   <rule id="word-hopefully"
         category="word"
         ignoreInDialogue="true"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         location="start"
         word="hopefully">
     <summary>Use of "hopefully"</summary>
@@ -19,165 +19,165 @@
   </rule>
   <rule id="word-suddenly"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="start"
         word="suddenly">
-    <summary>Use of "suddenly"</summary>    
+    <summary>Use of "suddenly"</summary>
     <description><![CDATA[Care should be taken when using "[WORD]" at the start of a sentence, overuse can lead to reader fatigue.  When everything is sudden, nothing is and it rarely portrays the sense of urgency you intended.]]></description>
   </rule>
   <rule id="word-exclamation"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         location="anywhere"
         word="!">
-    <summary>Use of "!"</summary>    
+    <summary>Use of "!"</summary>
     <description><![CDATA[It is sometimes said that the number of exclamation points used in prose is in direct proportion to the insanity of the author!  Don't overuse them.  <a href="http://www.associatedcontent.com/article/136032/using_exclamation_points_in_professional.html">More details.</a>]]></description>
   </rule>
   <rule id="word-rather"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="rather">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-quite"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="quite">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-a-little"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="a little">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger phrase.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-a-bit"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="a bit">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger phrase.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-somewhat"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="somewhat">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-perhaps"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="perhaps">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-very"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="very">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-really"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="really">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-often"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="often">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-extremely"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="extremely">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[An overused qualifier that has lost it's potency.  Consider replacing with a stronger word.  <a href="http://www.wilbers.com/style.htm">More details</a>, <a href="http://www.brighthub.com/education/homework-tips/articles/33496.aspx">yet more</a> and <a href="http://web.uvic.ca/wguide/Pages/SentWordiness.html">finally</a>.]]></description>
   </rule>
   <rule id="word-there-are"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="there are">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[A passive construction that often adds words but little else to the sentence.  Where possible show the reader rather than tell.  <a href="http://web.uvic.ca/wguide/Pages/SentPassiveVoice.html">More details.</a>]]></description>
   </rule>
   <rule id="word-it-is"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="it is">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[A passive construction that often adds words but little else to the sentence.  Where possible show the reader rather than tell.  <a href="http://web.uvic.ca/wguide/Pages/SentPassiveVoice.html">More details.</a>]]></description>
   </rule>
   <rule id="word-it-was"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="it was">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[A passive construction that often adds words but little else to the sentence.  Where possible show the reader rather than tell.  <a href="http://web.uvic.ca/wguide/Pages/SentPassiveVoice.html">More details.</a>]]></description>
   </rule>
   <rule id="word-this-is"
         category="word"
-        createType="wordFinder"
+        createType="com.quollwriter.text.rules.WordFinder"
         ignoreInDialogue="true"
         location="anywhere"
         word="this is">
-    <summary>Use of "[WORD]"</summary>    
+    <summary>Use of "[WORD]"</summary>
     <description><![CDATA[A passive construction that adds words but little else to the sentence.  Where possible show the reader rather than tell.  <a href="http://web.uvic.ca/wguide/Pages/SentPassiveVoice.html">More details.</a>]]></description>
   </rule>
   <rule id="adverb"
         category="sentence"
         speechVerbs="reported,questioned,read,added,said,asked,replied,shouted,suggested,commented,described,explained,mentioned,offered,warned,wondered,told,requested"
-        createType="adverb">
+        createType="com.quollwriter.text.rules.AdverbRule">
     <summary><![CDATA[Use of an adverb as a modifier for a speech verb]]></summary>
     <description><![CDATA[Can interrupt the rhythm of the exchange and be distracting.  Is also considered by some to be "bad writing".  Use sparingly and where possible describe how the character feels/is behaving rather than using the modifier.  Examples: "he said loudly", "Mark added gruffly", "she replied seriously".  <a href="http://www.users.qwest.net/~yarnspnr/writing/adverbs/adverbs.htm">More details.</a>]]></description>
   </rule>
   <rule id="sentencelength"
         category="sentence"
         wordCount="30"
-        createType="sentencelength">
+        createType="com.quollwriter.text.rules.SentenceLengthRule">
     <summary><![CDATA[Sentences are over <b>[LIMIT]</b> words in length]]></summary>
     <description><![CDATA[Overly long sentence, greater than [LIMIT] words in length.]]></description>
   </rule>
   <rule id="toomanyclauses"
         category="sentence"
         clauseCount="5"
-        createType="toomanyclauses">
+        createType="com.quollwriter.text.rules.TooManyClausesRule">
     <summary><![CDATA[Sentences with more than <b>[LIMIT]</b> clauses]]></summary>
     <description><![CDATA[More than [LIMIT] commas (,) or dashes (-) can indicate that a sentence has too many clauses.]]></description>
   </rule>
@@ -185,7 +185,7 @@
         category="sentence"
         beWords="be,been,is,are,was,were"
         irregularForms="arose,awoke,bore,beat,became,began,bent,bet,bade,bid,bound,bit,bled,blew,broke,broken,bred,brought,built,burned,burnt,burst,bought,cast,caught,chose,came,cost,crept,cut,dealt,dug,dived,dove,did,drew,dreamed,dreamt,drank,drove,dwelt,ate,eaten,fell,fed,fought,found,fled,flew,forbade,forbad,forgot,forgave,forsook,froze,got,gave,went,ground,grew,hanged,hung,had,heard,hid,hit,held,hurt,kept,knelt,knitted,knit,knew,laid,led,leaned,leant,leaped,learned,learnt,left,lent,let,lay,lighted,lit,lost,made,meant,met,mistook,partook,paid,put,read,rent,rid,rode,rose,ran,said,saw,sought,sold,sent,set,shook,shed,shone,shot,shrank,shut,sang,sank,sat,slew,slept,slid,slung,slit,spoke,sped,speeded,spun,spat,split,sprang,stood,stole,stuck,stung,stank,strode,strove,swore,swept,swam,swung,took,taught,tore,told,thought,threw,thrown,trod,understood,upset,woke,wore,wove,wept,won,wound,wrung,wrote"
-        createType="passivesentence">
+        createType="com.quollwriter.text.rules.PassiveSentenceRule">
     <summary><![CDATA[Passive sentences]]></summary>
     <description><![CDATA[Looks for passive sentences that use the form <b>be/been/is/are/was/were</b>, i.e. the past participle.  <a href="http://rfptemplates.technologyevaluation.com/readability-scores/passive-sentences-readability-score.html">More details.</a>  <i>Note: due to the complexities of the English language and the rather fluid definition of "passive voice" this rule may only find a subset of the passive sentences within the text.]]></description>
   </rule>
@@ -193,35 +193,35 @@
         category="sentence"
         ratio="1.5"
         wordCount="10"
-        createType="sentencecomplexity">
+        createType="com.quollwriter.text.rules.SentenceComplexityRule">
     <summary><![CDATA[Complex sentences]]></summary>
     <description><![CDATA[Sentences that have a syllable to word ratio of <b>[RATIO]</b> or greater for sentences longer than [COUNT] words.  Sentences with a high syllable to word ratio may be confusing for the reader, a ratio of 1 can be too low, 1.5 is generally high too.]]></description>
+  </rule>
+
+  <rule id="doubleword"
+        category="sentence"
+        createType="com.quollwriter.text.rules.DoubleWordRule">
+    <summary><![CDATA[Double words]]></summary>
+    <description><![CDATA[Checks for sentences that contain double words such as <b>and and</b> or <b>that that</b>.  Also checks for duplicated punctuation.]]></description>
   </rule>
 
   <rule id="paragraphlength"
         category="paragraph"
         sentenceCount="20"
         wordCount="300"
-        createType="paragraphlength">
+        createType="com.quollwriter.text.rules.ParagraphLengthRule">
     <summary><![CDATA[Paragraph length, max <b>[WORD_COUNT]</b> words or max <b>[SENTENCE_COUNT]</b> sentences.]]></summary>
     <description><![CDATA[Paragraphs that have a word count greater than <b>[WORD_COUNT]</b> or have more than <b>[SENTENCE_COUNT]</b> sentences.]]></description>
   </rule>
-  
+
   <rule id="paragraphreadability"
         category="paragraph"
         fleschReading="0"
         fleschKincaid="0"
         gunningFog="0"
-        createType="paragraphreadability">
+        createType="com.quollwriter.text.rules.ParagraphReadabilityRule">
     <summary><![CDATA[Paragraph readability]]></summary>
     <description><![CDATA[Paragraphs, with over 100 words that have a Flesch-Kincaid grade level greater than [FLESCH_KINCAID], a Flesch Reading level greater than [FLESCH_READING] or a Gunning Fog index greater than [GUNNING_FOG].  Zero indicates the item won't be checked.]]></description>
   </rule>
 
-  <!--
-  <rule id="samewords"
-        category="sentence"
-        createType="samewords">
-    <description><![CDATA[Looks for sentences that are close to each other within the text and start with the same words.]]></description>
-  </rule>
-  -->
 </rules>

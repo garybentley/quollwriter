@@ -140,7 +140,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     private java.util.List<MainPanelListener> mainPanelListeners = new ArrayList ();
     private java.util.List<FullScreenListener> fullScreenListeners = new ArrayList ();
     //private Map<String, QPopup> popups = new HashMap ();
-    private ProblemFinderRuleConfig problemFinderRuleConfig = null;
 
     private Timer achievementsHideTimer = null;
 
@@ -179,27 +178,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     {
 
         final AbstractProjectViewer _this = this;
-/*
-        this.addWindowListener (new WindowAdapter ()
-            {
 
-                public void windowClosing (WindowEvent ev)
-                {
-
-                    // Save the open tabs.
-                    _this.close (false,
-                                 null);
-
-                }
-
-            });
-  */
         this.wordCountTimer = new WordCountTimer (this,
                                                   -1,
                                                   -1);
-
-        // XXX Changed for AbstractViewer
-        //this.getContentPane ().setBackground (UIUtils.getComponentColor ());
 
         this.setDefaultCloseOperation (WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -300,341 +282,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         this.splitPane.setLeftComponent (this.sideBar);
         this.splitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-/*
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        this.title = new Header ();
-        this.title.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        // new
-        Header h = this.title;
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (22)).deriveFont (Font.PLAIN));
-        h.setPaintProvider (null);
-        h.setTitleColor (UIUtils.getTitleColor ());
-        h.setIcon (null);
-        h.setPadding (new Insets (3, 3, 3, 7));
-
-        JToolBar titleC = UIUtils.createButtonBar (new ArrayList ());
-
-        if (Environment.isDebugModeEnabled ())
-        {
-
-            titleC.add (UIUtils.createButton (Constants.BUG_ICON_NAME,
-                                              Constants.ICON_TITLE_ACTION,
-                                              "Click to provide feedback/report a problem with the beta",
-                                              new ActionAdapter ()
-                                              {
-
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
-
-                                                        try
-                                                        {
-                                                      Environment.showLanding ();
-                                                        }catch (Exception e) {
-                                                            e.printStackTrace ();
-                                                        }
-
-                                                  }
-
-                                              }));
-
-        }
-
-        if (Environment.getQuollWriterVersion ().isBeta ())
-        {
-
-            titleC.add (UIUtils.createButton (Constants.BUG_ICON_NAME,
-                                              Constants.ICON_TITLE_ACTION,
-                                              "Click to provide feedback/report a problem with the beta",
-                                              new ActionAdapter ()
-                                              {
-
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
-
-                                                      _this.showReportProblem ();
-
-                                                  }
-
-                                              }));
-
-        }
-
-        this.fillTitleToolbar (titleC);
-
-        if (EditorsEnvironment.isEditorsServiceAvailable ())
-        {
-
-            String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
-
-            titleC.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
-                                               Constants.ICON_TITLE_ACTION,
-                                               toolTip,
-                                               new ActionAdapter ()
-                                               {
-
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-
-                                                        AbstractSideBar sb = _this.sideBars.get (EditorsSideBar.NAME);
-
-                                                        if ((sb != null)
-                                                            &&
-                                                            (sb.isShowing ())
-                                                            &&
-                                                            (!EditorsEnvironment.isUserLoggedIn ())
-                                                           )
-                                                        {
-
-                                                            EditorsEnvironment.goOnline (null,
-                                                                                         null,
-                                                                                         null,
-                                                                                         null);
-
-                                                            return;
-
-                                                        }
-
-                                                        try
-                                                        {
-
-                                                            _this.viewEditors ();
-
-                                                        } catch (Exception e) {
-
-                                                            Environment.logError ("Unable to view editors",
-                                                                                  e);
-
-                                                            UIUtils.showErrorMessage (_this,
-                                                                                      "Unable to show the {editors}.");
-
-                                                        }
-
-                                                    }
-
-                                               }));
-
-        }
-
-        titleC.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to open the find",
-                                          new ActionAdapter ()
-                                          {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-                                                  _this.showFind (null);
-
-                                              }
-
-                                          }));
-
-        titleC.add (UIUtils.createButton (Constants.FULLSCREEN_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to work in full screen mode",
-                                          new ActionAdapter ()
-                                          {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-                                                  _this.enterFullScreen ();
-
-                                              }
-
-                                          }));
-
-        titleC.add (UIUtils.createButton (Constants.SETTINGS_ICON_NAME,
-                                           Constants.ICON_TITLE_ACTION,
-                                           "Click to view the {Project} menu",
-                                           new ActionAdapter ()
-                                           {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    final JPopupMenu titlePopup = new JPopupMenu ();
-
-                                                    try
-                                                    {
-
-                                                        _this.fillSettingsPopup (titlePopup);
-
-                                                    } catch (Exception e)
-                                                    {
-
-                                                        Environment.logError ("Unable to fill popup",
-                                                                              e);
-
-                                                    }
-
-                                                    titlePopup.addSeparator ();
-
-                                                    JMenuItem mi = null;
-
-                                                    titlePopup.add (_this.createMenuItem ("Find",
-                                                                                          Constants.FIND_ICON_NAME,
-                                                                                          new ActionAdapter ()
-                                                                                          {
-
-                                                                                            public void actionPerformed (ActionEvent ev)
-                                                                                            {
-
-                                                                                                _this.showFind (null);
-
-                                                                                            }
-
-                                                                                         }));
-
-                                                    titlePopup.add (_this.createMenuItem ("Options",
-                                                                                          Constants.OPTIONS_ICON_NAME,
-                                                                                          ProjectViewer.EDIT_PROJECT_PROPERTIES_ACTION));
-
-                                                    titlePopup.add (_this.createMenuItem ("Achievements",
-                                                                                          Constants.ACHIEVEMENT_ICON_NAME,
-                                                                                          new ActionAdapter ()
-                                                                                          {
-
-                                                                                            public void actionPerformed (ActionEvent ev)
-                                                                                            {
-
-                                                                                                _this.viewAchievements ();
-
-                                                                                            }
-
-                                                                                         }));
-
-                                                    titlePopup.addSeparator ();
-
-                                                    titlePopup.add (_this.createMenuItem ("What's New in this version",
-                                                                                          Constants.WHATS_NEW_ICON_NAME,
-                                                                                          new ActionAdapter ()
-                                                                                          {
-
-                                                                                            public void actionPerformed (ActionEvent ev)
-                                                                                            {
-
-                                                                                                _this.showWhatsNew (true);
-
-                                                                                            }
-
-                                                                                         }));
-
-                                                    // Help
-                                                    JMenu m = new JMenu ("Help");
-                                                    m.setIcon (Environment.getIcon (Constants.HELP_ICON_NAME,
-                                                                                    Constants.ICON_MENU));
-
-                                                    titlePopup.add (m);
-
-                                                    // Report Bug/Problem
-                                                    m.add (_this.createMenuItem ("Report Bug/Problem",
-                                                                                 Constants.BUG_ICON_NAME,
-                                                                                 AbstractProjectViewer.REPORT_BUG_ACTION));
-
-                                                    // Contact Support
-                                                    m.add (_this.createMenuItem ("Contact Support",
-                                                                                 Constants.EMAIL_ICON_NAME,
-                                                                                 AbstractProjectViewer.CONTACT_SUPPORT_ACTION));
-
-                                                    // View the User Guide
-                                                    m.add (_this.createMenuItem ("View the User Guide",
-                                                                                 Constants.HELP_ICON_NAME,
-                                                                                 new ActionAdapter ()
-                                                                                 {
-
-                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                    {
-
-                                                                                        UIUtils.openURL (_this,
-                                                                                                         "help:index");
-
-                                                                                    }
-
-                                                                                 }));
-
-                                                    m.add (_this.createMenuItem ("Keyboard Shortcuts",
-                                                                                 null,
-                                                                                 new ActionAdapter ()
-                                                                                 {
-
-                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                    {
-
-                                                                                        UIUtils.openURL (_this,
-                                                                                                         "help:main-window/keyboard-shortcuts");
-
-                                                                                    }
-
-                                                                                 }));
-
-                                                    // About Quoll Writer
-                                                    titlePopup.add (_this.createMenuItem ("About Quoll Writer",
-                                                                                          Constants.ABOUT_ICON_NAME,
-                                                                                          AbstractProjectViewer.ABOUT_ACTION));
-
-                                                    if (Environment.isDebugModeEnabled ())
-                                                    {
-
-                                                        // Debug Console
-                                                        titlePopup.add (_this.createMenuItem ("Debug Console",
-                                                                                              Constants.CONSOLE_ICON_NAME,
-                                                                                              new ActionAdapter ()
-                                                                                              {
-
-                                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                                    {
-
-                                                                                                        new DebugConsole (_this);
-
-                                                                                                    }
-
-                                                                                              }));
-
-                                                    }
-
-                                                    JComponent s = (JComponent) ev.getSource ();
-
-                                                    titlePopup.show (s,
-                                                                     s.getWidth () / 2,
-                                                                     s.getHeight ());
-
-
-                                                }
-
-                                           }));
-
-
-        this.title.setControls (titleC);
-
-        Box tb = new Box (BoxLayout.X_AXIS);
-        tb.setAlignmentX (Component.LEFT_ALIGNMENT);
-        tb.add (this.title);
-
-        tb.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                           0,
-                                                           1,
-                                                           0,
-                                                           Environment.getBorderColor ()),
-                                          new EmptyBorder (0,
-                                                           5,
-                                                           0,
-                                                           0)
-                                          ));
-
-        b.add (tb);
-
-        // Create the "notifications" area.
-        this.notifications = new Box (BoxLayout.Y_AXIS);
-        this.notifications.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.notifications.setBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()));
-
-        this.notifications.setVisible (false);
-        b.add (this.notifications);
-*/
 		this.cardsLayout = new CardLayout (0, 0);
 
 		this.cards = new JPanel (this.cardsLayout);
@@ -643,98 +290,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
 		this.cards.add (this.splitPane, "main");
 
-/*
-		Box importOverlay = new Box (BoxLayout.Y_AXIS);
-		importOverlay.setBackground (UIUtils.getComponentColor ());
-		importOverlay.setOpaque (true);
-
-		Box bb = new Box (BoxLayout.X_AXIS);
-
-		bb.add (Box.createHorizontalGlue ());
-
-		Header h = UIUtils.createHeader ("Drop the file to begin the import",
-										 Constants.PANEL_TITLE,
-										 Constants.PROJECT_IMPORT_ICON_NAME,
-										 null);
-		h.setMaximumSize (h.getPreferredSize ());
-		h.setAlignmentX (Component.CENTER_ALIGNMENT);
-
-		bb.setAlignmentX (Component.CENTER_ALIGNMENT);
-
-		bb.add (h);
-
-		importOverlay.add (Box.createVerticalGlue ());
-
-		importOverlay.add (bb);
-
-		importOverlay.add (Box.createVerticalGlue ());
-
-		this.cards.add (importOverlay, "import");
-		*/
-        /*
-		this.setTransferHandler (new ImportTransferHandler (new ActionListener ()
-		{
-
-			public void actionPerformed (ActionEvent ev)
-			{
-
-				_this.cardsLayout.show (_this.cards,
-										"import");
-
-				_this.validate ();
-				_this.repaint ();
-
-			}
-
-		},
-		new ActionListener ()
-		{
-
-			public void actionPerformed (ActionEvent ev)
-			{
-
-				_this.cardsLayout.show (_this.cards,
-										"main");
-
-				_this.validate ();
-				_this.repaint ();
-
-				File f = (File) ev.getSource ();
-
-                _this.showImportProject (f);
-
-			}
-
-		},
-		new ActionListener ()
-		{
-
-			public void actionPerformed (ActionEvent ev)
-			{
-
-				_this.cardsLayout.show (_this.cards,
-										"main");
-
-				_this.validate ();
-				_this.repaint ();
-
-			}
-
-		}));
-        */
-/*
-        try
-        {
-
-            this.tips = new Tips (this);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to init tips",
-                                  e);
-
-        }
-  */
         this.addTabChangeListener (new ChangeAdapter ()
         {
 
@@ -754,11 +309,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         });
 
-        //this.getContentPane ().add (b);
-
         this.setContent (this.cards);
-
-        this.problemFinderRuleConfig  = new ProblemFinderRuleConfig (this);
 
     }
 
@@ -2113,6 +1664,19 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         return this.getAction (name,
                                null);
+
+    }
+
+    /**
+     * Get the correct text properties depending on whether the viewer is in full screen or not.
+     *
+     * @returns Normal project text properties if we are in normal mode or full screen text properties
+     *          if we are in full screen mode.
+     */
+    public TextProperties getTextProperties ()
+    {
+
+        return (this.fsf != null ? Environment.getFullScreenTextProperties () : Environment.getProjectTextProperties ());
 
     }
 
@@ -8611,58 +8175,6 @@ xxx
 
     }
 
-    public ProblemFinderRuleConfig getProblemFinderRuleConfig ()
-    {
-
-        return this.problemFinderRuleConfig;
-
-    }
-
-    public void showProblemFinderRuleConfig ()
-    {
-
-        String popupName = "problemfinderruleconfig";
-        QPopup popup = this.getNamedPopup (popupName);
-
-        if (popup == null)
-        {
-
-            popup = UIUtils.createClosablePopup ("Configure the Problem Finder rules",
-                                                 Environment.getIcon (Constants.CONFIG_ICON_NAME,
-                                                                      Constants.ICON_POPUP),
-                                                 null);
-
-            popup.setPopupName (popupName);
-
-            this.addNamedPopup (popupName,
-                                popup);
-
-            this.problemFinderRuleConfig.init ();
-
-            this.problemFinderRuleConfig.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                                  this.problemFinderRuleConfig.getPreferredSize ().height));
-            this.problemFinderRuleConfig.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-            popup.setContent (this.problemFinderRuleConfig);
-
-            popup.setDraggable (this);
-
-            popup.resize ();
-            this.showPopupAt (popup,
-                              UIUtils.getCenterShowPosition (this,
-                                                             popup),
-                              false);
-
-        } else {
-
-            popup.setVisible (true);
-
-        }
-
-        this.fireProjectEvent (ProjectEvent.PROBLEM_FINDER_RULE_CONFIG,
-                               ProjectEvent.SHOW);
-
-    }
 /*
     public void setViewerControls (JComponent c)
     {
@@ -9113,6 +8625,100 @@ xxx
         }
 
         return chaps;
+
+    }
+
+    public Map<Chapter, Set<Issue>> getProblemsForAllChapters ()
+    {
+
+        return this.getProblemsForAllChapters (null);
+
+    }
+
+    public Map<Chapter, Set<Issue>> getProblemsForAllChapters (Rule limitToRule)
+    {
+
+        Map<Chapter, Set<Issue>> probs = new LinkedHashMap ();
+
+        if (this.getProject () == null)
+        {
+
+            // Closing down.
+            return probs;
+
+        }
+
+        for (Book book : this.getProject ().getBooks ())
+        {
+
+            for (Chapter c : book.getChapters ())
+            {
+
+                Set<Issue> issues = null;
+
+                if (limitToRule != null)
+                {
+
+                    issues = this.getProblems (c,
+                                               limitToRule);
+
+                } else {
+
+                    issues = this.getProblems (c);
+
+                }
+
+                if (issues.size () > 0)
+                {
+
+                    probs.put (c, issues);
+
+                }
+
+            }
+
+        }
+
+        return probs;
+
+    }
+
+    public Set<Issue> getProblems (Chapter c,
+                                   Rule    r)
+    {
+
+        Set<Issue> ret = new LinkedHashSet ();
+
+        String ct = this.getCurrentChapterText (c);
+
+        if (ct != null)
+        {
+
+            TextBlockIterator ti = new TextBlockIterator (ct);
+
+            TextBlock b = null;
+
+            while ((b = ti.next ()) != null)
+            {
+
+                java.util.List<Issue> issues = RuleFactory.getIssues (b,
+                                                                      r,
+                                                                      this.proj.getProperties ());
+
+                for (Issue i : issues)
+                {
+
+                    ret.add (i);
+
+                    i.setChapter (c);
+
+                }
+
+            }
+
+        }
+
+        return ret;
 
     }
 

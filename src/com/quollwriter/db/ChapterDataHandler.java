@@ -27,9 +27,9 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
     }
 
-    public void deleteProblemFinderIgnores (Chapter    c,
-                                            Connection conn)
-                                     throws GeneralException
+    private void deleteProblemFinderIgnores (Chapter    c,
+                                             Connection conn)
+                                      throws GeneralException
     {
 
         List params = new ArrayList ();
@@ -42,22 +42,28 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
     }
 
     public void saveProblemFinderIgnores (Chapter    c,
-                                          Set<Issue> ignores)
+                                          Connection conn)
                                    throws GeneralException
     {
 
-        Connection conn = null;
+        boolean releaseConn = false;
 
-        try
+        if (conn == null)
         {
 
             conn = this.objectManager.getConnection ();
+            releaseConn = true;
+
+        }
+
+        try
+        {
 
             // Delete everything for this chapter first.
             this.deleteProblemFinderIgnores (c,
                                              conn);
 
-            for (Issue iss : ignores)
+            for (Issue iss : c.getProblemFinderIgnores ())
             {
 
                 List params = new ArrayList ();
@@ -83,25 +89,48 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         } finally {
 
-            this.objectManager.releaseConnection (conn);
+            if (releaseConn)
+            {
+
+                this.objectManager.releaseConnection (conn);
+
+            }
 
         }
 
     }
 
-    public Set<Issue> getProblemFinderIgnores (Chapter  c,
-                                               Document doc)
-                                        throws GeneralException
+    private Set<Issue> getProblemFinderIgnores (Chapter  c,
+                                                Document doc)
+                                         throws GeneralException
+    {
+
+        return this.getProblemFinderIgnores (c,
+                                             doc,
+                                             null);
+
+    }
+
+    private Set<Issue> getProblemFinderIgnores (Chapter    c,
+                                                Document   doc,
+                                                Connection conn)
+                                         throws GeneralException
     {
 
         Set<Issue> ret = new HashSet (); //new TreeSet (new IssueSorter ());
 
-        Connection conn = null;
+        boolean releaseConn = false;
 
-        try
+        if (conn == null)
         {
 
             conn = this.objectManager.getConnection ();
+            releaseConn = true;
+
+        }
+
+        try
+        {
 
             List params = new ArrayList ();
             params.add (c.getKey ());
@@ -140,12 +169,20 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 }
 
                 Issue iss = new Issue (null,
+                                       null,
                                        wordPos,
                                        -1,
                                        issueId,
                                        r);
 
-                iss.setStartPosition (doc.createPosition (startPos));
+                if (doc != null)
+                {
+
+                    iss.setStartPosition (doc.createPosition (startPos));
+
+                }
+
+                iss.setChapter (c);
 
                 ret.add (iss);
 
@@ -163,7 +200,12 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
         } finally {
 
-            this.objectManager.releaseConnection (conn);
+            if (releaseConn)
+            {
+
+                this.objectManager.releaseConnection (conn);
+
+            }
 
         }
 
@@ -218,6 +260,11 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 book.addChapter (c);
 
             }
+
+            c.setProblemFinderIgnores (this.getProblemFinderIgnores (c,
+                                                                     null,
+                                                                     rs.getStatement ().getConnection ()));
+
             /*
             long pvkey = rs.getInt (ind++);
 
@@ -1259,6 +1306,9 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                                            conn);
 
         }
+
+        this.saveProblemFinderIgnores (c,
+                                       conn);
 
     }
 

@@ -1070,8 +1070,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     public void initEditor (TextProperties props)
     {
 
-        Project proj = this.viewer.getProject ();
-
         this.ignoreDocumentChange = true;
 
         this.setLineSpacing (props.getLineSpacing ());
@@ -1095,6 +1093,10 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         this.ignoreDocumentChange = true;
 
+        TextProperties props = this.viewer.getTextProperties ();
+
+        this.initEditor (props);
+/*
         this.editor.setLineSpacing (UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
 
         this.setFontSize (UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME));
@@ -1106,7 +1108,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.setTextBorder (UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
         this.setTextColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)));
         this.setBackgroundColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_BGCOLOR_PROPERTY_NAME)));
-
+*/
         //this.restoreBackgroundColor ();
         //this.restoreFontColor ();
 

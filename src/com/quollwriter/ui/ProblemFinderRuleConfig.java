@@ -65,7 +65,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         }
     }
 
-    private class RuleBox extends Box 
+    private class RuleBox extends Box
     {
 
         public Rule rule = null;
@@ -82,7 +82,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             this.rule = rule;
 
         }
-        
+
         public void init (final ProblemFinderRuleConfig conf)
         {
 
@@ -96,7 +96,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             this.setOpaque (false);
             main.setAlignmentX (Component.LEFT_ALIGNMENT);
             main.setOpaque (false);
-            
+
             this.setBorder (new CompoundBorder (new MatteBorder (0,
                                                                  0,
                                                                  1,
@@ -113,39 +113,54 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
             this.info = UIUtils.createHelpTextPane (this.rule.getSummary (),
                                                     ProblemFinderRuleConfig.this.projectViewer);
-        
+
             main.add (this.info);
             main.add (Box.createHorizontalGlue ());
 
             this.desc.setVisible (false);
             this.desc.setAlignmentX (Component.LEFT_ALIGNMENT);
-            
+
             // We use this here so that the "desc" doesn't need a border, if we have a border then it screws
             // up the height when rendered.
             Box descWrap = new Box (BoxLayout.Y_AXIS);
             descWrap.setAlignmentX (Component.LEFT_ALIGNMENT);
             descWrap.add (this.desc);
-            
+
             descWrap.setBorder (UIUtils.createPadding (0, 10, 0, 10));
-                        
+
             this.add (descWrap);
-            
+
             java.util.List<JButton> buttons = new ArrayList ();
-            
+
+            buttons.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
+                                               Constants.ICON_MENU,
+                                               "Click to find all problems for this rule",
+                                               new ActionAdapter ()
+                                               {
+
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+
+                                                        conf.getProjectViewer ().showProblemFinderRuleSideBar (_this.rule);
+
+                                                    }
+
+                                               }));
+
             buttons.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                                Constants.ICON_MENU,
                                                "Click to edit this rule",
                                                new ActionAdapter ()
                                                {
-                                                
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
+
                                                         conf.editRule (_this.rule,
                                                                        false);
-                                                        
+
                                                     }
-                                                
+
                                                }));
 
             buttons.add (UIUtils.createButton (Constants.INFO_ICON_NAME,
@@ -153,22 +168,22 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                "Click to show/hide the description of this rule",
                                                new ActionAdapter ()
                                                {
-                                                
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
+
                                                         _this.desc.setVisible (!_this.desc.isVisible ());
 
                                                     }
-                                                    
+
                                                }));
-                                               
+
             buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                Constants.ICON_MENU,
                                                "Click to remove this rule",
                                                new ActionAdapter ()
                                                {
-                                                
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
@@ -177,46 +192,46 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                                                     conf.getProjectViewer ().getProject ().getProperties (),
                                                                                                     new ActionListener ()
                                                         {
-                                
+
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                                
+
                                                                  conf.removeRuleBox (_this);
-                                     
+
                                                                  if (_this.rule.getCategory ().equals (Rule.SENTENCE_CATEGORY))
                                                                  {
-                                     
+
                                                                      conf.sentenceControl.setVisible (true);
-                                     
+
                                                                  }
-                                     
+
                                                                  if (_this.rule.getCategory ().equals (Rule.PARAGRAPH_CATEGORY))
                                                                  {
-                                     
+
                                                                      conf.paragraphControl.setVisible (true);
-                                     
+
                                                                  }
-                                                                
+
                                                                  Environment.fireUserProjectEvent (conf,
                                                                                                    ProjectEvent.PROBLEM_FINDER,
                                                                                                    ProjectEvent.REMOVE_RULE,
                                                                                                    _this.rule);
-                                                                
+
                                                             }
 
                                                         });
-                                                                                                                
+
                                                     }
-                                                
+
                                                }));
-            
+
             this.buttons = UIUtils.createButtonBar (buttons);
 
             //this.buttons.setVisible (false);
             this.buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
-            
+
             main.add (this.buttons);
-            
+
         }
 
         public void update ()
@@ -245,30 +260,30 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
     private JPanel           paragraphWrapper = null;
     private Box              paragraphControl = null;
     private DnDTabbedPane    tabs = null;
-    private AbstractProjectViewer projectViewer = null;
+    private ProjectViewer projectViewer = null;
     private boolean inited = false;
-    
-     public ProblemFinderRuleConfig (AbstractProjectViewer pv)
+
+     public ProblemFinderRuleConfig (ProjectViewer pv)
      {
- 
+
          super (BoxLayout.Y_AXIS);
-         
+
          this.projectViewer = pv;
-                  
+
          Environment.addUserProjectEventListener (this);
-                     
+
      }
 
      public void eventOccurred (ProjectEvent ev)
      {
- 
+
           if (!ev.getType ().equals (ProjectEvent.PROBLEM_FINDER))
           {
-               
+
                return;
-               
+
           }
- 
+
           if ((!ev.getAction ().equals (ProjectEvent.NEW_RULE))
               &&
               (!ev.getAction ().equals (ProjectEvent.EDIT_RULE))
@@ -276,22 +291,22 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
               (!ev.getAction ().equals (ProjectEvent.REMOVE_RULE))
              )
           {
-  
+
               return;
-          
+
           }
-  
+
           this.addWordRules ();
           this.addSentenceRules ();
           this.addParagraphRules ();
-         
+
      }
-    
+
     private void createSentenceWrapper ()
     {
 
         final ProblemFinderRuleConfig _this = this;
-     
+
         this.sentenceBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.sentenceBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.sentenceBox.setOpaque (false);
@@ -306,7 +321,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         this.sentenceBoxSP.getViewport ().setPreferredSize (new Dimension (450,
                                                                            400));
 
-        
+
         this.sentenceWrapper = new JPanel ();
         this.sentenceWrapper.setLayout (new CardLayout ());
         this.sentenceWrapper.setOpaque (false);
@@ -328,65 +343,65 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                              3)));
 
         List<JButton> buts = new ArrayList ();
-        
+
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
                                         "Click to add a new Sentence Structure rule",
                                         new ActionAdapter ()
                                         {
-                                                
+
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
                                                 final JPopupMenu popup = new JPopupMenu ();
-                            
+
                                                 List<Rule> igs = _this.getSentenceIgnores ();
-                            
+
                                                 for (Rule r : igs)
                                                 {
-                            
+
                                                     JMenuItem mi = new JMenuItem ("<html>" + r.getSummary () + "</html>");
                                                     mi.setActionCommand (r.getId ());
                                                     mi.setToolTipText ("Click to add this rule");
-                            
+
                                                     mi.addActionListener (new ActionAdapter ()
                                                         {
-                            
+
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                            
+
                                                                 Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
-                            
+
                                                                 RuleBox rb = new RuleBox (r);
-                            
+
                                                                 _this.sentenceBox.add (rb,
                                                                                        0);
-                            
+
                                                                 rb.init (_this);
-                            
+
                                                                 _this.removeIgnore (r,
                                                                                     (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
-                            
+
                                                                 _this.repaint ();
-                            
+
                                                             }
-                            
+
                                                         });
-                            
+
                                                     popup.add (mi);
-                            
+
                                                 }
-                            
+
                                                 Point p = _this.sentenceControl.getMousePosition ();
-                            
+
                                                 popup.show (_this.sentenceControl,
                                                             p.x,
                                                             p.y);
-                                            
+
                                             }
-                                            
+
                                         }));
-        
+
         this.sentenceControl.add (UIUtils.createButtonBar (buts));
 
         this.sentenceControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -412,67 +427,67 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                "view");
 
           this.addSentenceRules ();
-                                                                         
+
     }
 
     private void addSentenceRules ()
     {
-     
+
           final int val = this.sentenceBoxSP.getVerticalScrollBar ().getValue ();
-     
+
           this.sentenceBox.removeAll ();
-     
+
           List<Rule> senRules = RuleFactory.getSentenceRules ();
-  
+
           if (senRules != null)
           {
-  
+
               Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
                                                                     this.projectViewer.getProject ().getProperties ());
-          
+
               for (Rule r : senRules)
               {
-  
+
                   if (ignores.containsKey (r.getId ()))
                   {
-  
+
                       continue;
-  
+
                   }
-  
+
                   RuleBox rb = new RuleBox (r);
-  
+
                   this.sentenceBox.add (rb);
-  
+
                   rb.init (this);
-  
+
               }
-  
+
           }
-  
-          this.sentenceBox.add (Box.createVerticalGlue ());     
-     
+
+          this.sentenceBox.add (Box.createVerticalGlue ());
+
           final ProblemFinderRuleConfig _this = this;
-          
+
           UIUtils.doLater (new ActionListener ()
           {
-  
+
               public void actionPerformed (ActionEvent ev)
               {
-                  
+
                   _this.sentenceBoxSP.getVerticalScrollBar ().setValue (val);
-                  
+
               }
-              
+
           });
-     
+
     }
-    
+
     private void createParagraphWrapper ()
     {
 
         final ProblemFinderRuleConfig _this = this;
-     
+
         this.paragraphBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.paragraphBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.paragraphBox.setOpaque (false);
@@ -487,7 +502,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         this.paragraphBoxSP.getViewport ().setPreferredSize (new Dimension (450,
                                                                             400));
 
-        
+
         this.paragraphWrapper = new JPanel ();
         this.paragraphWrapper.setLayout (new CardLayout ());
         this.paragraphWrapper.setOpaque (false);
@@ -509,65 +524,65 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                              3)));
 
         List<JButton> buts = new ArrayList ();
-        
+
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
                                         "Click to add a new Paragraph Structure rule",
                                         new ActionAdapter ()
                                         {
-                                                
+
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
                                                 final JPopupMenu popup = new JPopupMenu ();
-                            
+
                                                 List<Rule> igs = _this.getParagraphIgnores ();
-                            
+
                                                 for (Rule r : igs)
                                                 {
-                            
+
                                                     JMenuItem mi = new JMenuItem ("<html>" + r.getSummary () + "</html>");
                                                     mi.setActionCommand (r.getId ());
                                                     mi.setToolTipText ("Click to add this rule");
-                            
+
                                                     mi.addActionListener (new ActionAdapter ()
                                                         {
-                            
+
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                            
+
                                                                 Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
-                            
+
                                                                 RuleBox rb = new RuleBox (r);
-                            
+
                                                                 _this.paragraphBox.add (rb,
                                                                                         0);
-                            
+
                                                                 rb.init (_this);
-                            
+
                                                                 _this.removeIgnore (r,
                                                                                     (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
-                            
+
                                                                 _this.repaint ();
-                            
+
                                                             }
-                            
+
                                                         });
-                            
+
                                                     popup.add (mi);
-                            
+
                                                 }
-                            
+
                                                 Point p = _this.paragraphControl.getMousePosition ();
-                            
+
                                                 popup.show (_this.paragraphControl,
                                                             p.x,
                                                             p.y);
-                                            
+
                                             }
-                                            
+
                                         }));
-        
+
         this.paragraphControl.add (UIUtils.createButtonBar (buts));
 
         this.paragraphControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -593,66 +608,66 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                 "view");
 
           this.addParagraphRules ();
-          
+
      }
-    
+
      private void addParagraphRules ()
      {
-     
-          final int val = this.paragraphBoxSP.getVerticalScrollBar ().getValue ();     
-     
+
+          final int val = this.paragraphBoxSP.getVerticalScrollBar ().getValue ();
+
           this.paragraphBox.removeAll ();
-     
+
           List<Rule> paraRules = RuleFactory.getParagraphRules ();
-  
+
           if (paraRules != null)
           {
-  
+
               Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
                                                                     this.projectViewer.getProject ().getProperties ());
-          
+
               for (Rule r : paraRules)
               {
-  
+
                   if (ignores.containsKey (r.getId ()))
                   {
-  
+
                       continue;
-  
+
                   }
-  
+
                   RuleBox rb = new RuleBox (r);
                   this.paragraphBox.add (rb);
-  
+
                   rb.init (this);
-  
+
               }
-  
+
           }
 
-          this.paragraphBox.add (Box.createVerticalGlue ());     
-     
+          this.paragraphBox.add (Box.createVerticalGlue ());
+
           final ProblemFinderRuleConfig _this = this;
-     
+
           UIUtils.doLater (new ActionListener ()
           {
-  
+
                @Override
                public void actionPerformed (ActionEvent ev)
                {
-                  
+
                     _this.paragraphBoxSP.getVerticalScrollBar ().setValue (val);
                }
-              
+
           });
-       
+
      }
-    
+
     private void createWordsWrapper ()
     {
 
         final ProblemFinderRuleConfig _this = this;
-     
+
         this.wordsBox = new ScrollableBox (BoxLayout.Y_AXIS);
         this.wordsBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.wordsBox.setOpaque (false);
@@ -685,31 +700,32 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                      3,
                                                                      3,
                                                                      3)));
-        
+
         List<JButton> buts = new ArrayList ();
-        
+
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
                                         "Click to add a new Words/Phrases rule",
                                         new ActionAdapter ()
                                         {
-                                                
+
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
                                                 _this.wordsEditBox.removeAll ();
-                            
-                                                WordFinder wf = new WordFinder (true);
-                            
+
+                                                WordFinder wf = new WordFinder ();
+                                                wf.setUserRule (true);
+
                                                 _this.editRule (wf,
                                                                 true);
-                            
+
                                                 _this.repaint ();
-                                                
+
                                             }
-                                            
+
                                         }));
-        
+
         wordsControl.add (UIUtils.createButtonBar (buts));
 
         wordsControl.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -730,127 +746,127 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                "edit");
 
         ((CardLayout) this.wordsWrapper.getLayout ()).show (this.wordsWrapper,
-                                                            "view");     
+                                                            "view");
 
           this.addWordRules ();
-     
+
     }
-    
+
     private void addWordRules ()
     {
-     
-          final int val = this.wordsBoxSP.getVerticalScrollBar ().getValue ();     
-     
+
+          final int val = this.wordsBoxSP.getVerticalScrollBar ().getValue ();
+
           this.wordsBox.removeAll ();
-     
+
           // Get all the "word" rules.
           List<Rule> wordRules = RuleFactory.getWordRules ();
-  
+
           Query q = new Query ();
-  
+
           try
           {
-  
+
               q.parse ("SELECT * FROM com.quollwriter.text.rules.WordFinder ORDER BY word.toLowerCase");
-  
+
               QueryResults qr = q.execute (wordRules);
-  
+
               wordRules = (List<Rule>) qr.getResults ();
-  
+
           } catch (Exception e)
           {
-  
+
               Environment.logError ("Unable to sort word rules",
                                     e);
-  
+
               // Just carry on.
-  
-          }
-  
-          if (wordRules != null)
-          {
-  
-              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                                    this.projectViewer.getProject ().getProperties ());
-                  
-              for (Rule r : wordRules)
-              {
-  
-                  if (ignores.containsKey (r.getId ()))
-                  {
-  
-                      continue;
-  
-                  }
-  
-                  RuleBox rb = new RuleBox (r);
-  
-                  this.wordsBox.add (rb);
-  
-                  rb.init (this);
-                  
-              }
-  
+
           }
 
-          this.wordsBox.add (Box.createVerticalGlue ());        
-     
+          if (wordRules != null)
+          {
+
+              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                    this.projectViewer.getProject ().getProperties ());
+
+              for (Rule r : wordRules)
+              {
+
+                  if (ignores.containsKey (r.getId ()))
+                  {
+
+                      continue;
+
+                  }
+
+                  RuleBox rb = new RuleBox (r);
+
+                  this.wordsBox.add (rb);
+
+                  rb.init (this);
+
+              }
+
+          }
+
+          this.wordsBox.add (Box.createVerticalGlue ());
+
           final ProblemFinderRuleConfig _this = this;
-          
+
           UIUtils.doLater (new ActionListener ()
           {
-  
+
               public void actionPerformed (ActionEvent ev)
               {
-                  
+
                   _this.wordsBoxSP.getVerticalScrollBar ().setValue (val);
-                  
+
               }
-              
+
           });
-     
+
     }
-    
+
     public void init ()
     {
 
         if (this.inited)
         {
-          
+
            return;
-          
+
         }
-    
+
         final ProblemFinderRuleConfig _this = this;
 
         this.tabs = new DnDTabbedPane ();
         // Load the "rules to ignore".
 
-        this.tabs.setAlignmentX (Component.LEFT_ALIGNMENT);        
+        this.tabs.setAlignmentX (Component.LEFT_ALIGNMENT);
         // Get the to ignore from the user properties.
 
         this.tabs.setTabLayoutPolicy (JTabbedPane.SCROLL_TAB_LAYOUT);
 
         this.createWordsWrapper ();
-        
+
         this.tabs.add ("Words/Phrases",
                        this.wordsWrapper);
 
         this.createSentenceWrapper ();
-                       
+
         this.tabs.add ("Sentence Structure",
                        this.sentenceWrapper);
 
         this.createParagraphWrapper ();
-                       
+
         this.tabs.add ("Paragraph Structure",
                        this.paragraphWrapper);
-                       
+
         this.tabs.setBorder (new EmptyBorder (10,
                                               5,
                                               0,
                                               5));
-                     
+
         this.add (this.tabs);
 
         JButton finish = new JButton ("Finish");
@@ -870,16 +886,16 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         JButton[] buts = new JButton[] { finish };
 
         JPanel bp = UIUtils.createButtonBar2 (buts,
-                                              Component.CENTER_ALIGNMENT); 
+                                              Component.CENTER_ALIGNMENT);
         bp.setOpaque (false);
 
-        bp.setAlignmentX (Component.LEFT_ALIGNMENT);        
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.add (Box.createVerticalStrut (10));
-        
+
         this.add (bp);
-        
+
         this.inited = true;
-        
+
     }
 
     private List<Rule> getParagraphIgnores ()
@@ -916,7 +932,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         return rules;
 
     }
-    
+
     private List<Rule> getSentenceIgnores ()
     {
 
@@ -970,7 +986,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         // Don't like this but there aren't many other ways to do it.
         this.sentenceControl.setVisible (this.getSentenceIgnores ().size () != 0);
-        
+
         this.paragraphControl.setVisible (this.getParagraphIgnores ().size () != 0);
 
     }
@@ -996,7 +1012,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             editBox = this.paragraphEditBox;
 
         }
-        
+
         if (r instanceof WordFinder)
         {
 
@@ -1006,62 +1022,62 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         editBox.removeAll ();
 
-        final Box _editBox = editBox;        
-        
+        final Box _editBox = editBox;
+
           Form f = r.getEditForm (new ActionListener ()
           {
-               
+
                @Override
                public void actionPerformed (ActionEvent ev)
                {
-                    
+
                     r.updateFromForm ();
-                    
+
                     try
                     {
-     
+
                         RuleFactory.saveUserRule (r);
-     
+
                     } catch (Exception e)
                     {
-     
+
                         Environment.logError ("Unable to save user rule: " +
                                               r,
                                               e);
-     
+
                         UIUtils.showErrorMessage (_this,
                                                   "Unable to save rule");
-     
+
                     }
-     
+
                     _this.restoreToView (_editBox,
                                          r,
                                          add);
-     
+
                     Environment.fireUserProjectEvent (_this,
                                                       ProjectEvent.PROBLEM_FINDER,
                                                       (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
                                                       r);
-                    
+
                }
-               
+
           },
           new ActionListener ()
           {
-               
+
                @Override
                public void actionPerformed (ActionEvent ev)
                {
-                    
+
                     _this.restoreToView (_editBox,
                                          r,
                                          add);
-                    
+
                }
-               
+
           },
           add);
-        
+
         f.addFormListener (new FormAdapter ()
         {
 
@@ -1078,61 +1094,61 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                     return;
 
                 }
-                
+
             }
-            
+
         });
-        
+
         f.setAlignmentX (Component.LEFT_ALIGNMENT);
         f.setBorder (null);
         editBox.add (f);
 
         f.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          f.getPreferredSize ().height));
-      
-        editBox.add (Box.createVerticalGlue ());        
-        
+
+        editBox.add (Box.createVerticalGlue ());
+
         if (r instanceof WordFinder)
         {
-           
+
             this.tabs.setSelectedIndex (0);
-   
+
             ((CardLayout) this.wordsWrapper.getLayout ()).show (this.wordsWrapper,
                                                                 "edit");
 
             this.wordsWrapper.validate ();
             this.wordsWrapper.repaint ();
-               
+
         } else {
-          
+
             if (r instanceof SentenceRule)
             {
-    
+
                 this.tabs.setSelectedIndex (1);
-    
+
                 ((CardLayout) this.sentenceWrapper.getLayout ()).show (this.sentenceWrapper,
                                                                        "edit");
-    
+
                 this.sentenceWrapper.validate ();
                 this.sentenceWrapper.repaint ();
-    
+
             }
-       
+
             if (r instanceof ParagraphRule)
             {
-    
+
                 this.tabs.setSelectedIndex (2);
-    
+
                 ((CardLayout) this.paragraphWrapper.getLayout ()).show (this.paragraphWrapper,
                                                                         "edit");
-    
+
                 this.paragraphWrapper.validate ();
                 this.paragraphWrapper.repaint ();
-    
+
             }
-               
+
         }
-        
+
         this.validate ();
         this.repaint ();
 
@@ -1171,7 +1187,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                 comps = this.paragraphBox.getComponents ();
 
             }
-            
+
             if (r instanceof WordFinder)
             {
 
@@ -1212,7 +1228,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
                 // Add a new one at the top.
                 rb = new RuleBox (r);
-                
+
                 parent.add (rb,
                             0);
 
@@ -1245,7 +1261,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                     "view");
 
         }
-        
+
         this.validate ();
         this.repaint ();
 
@@ -1274,7 +1290,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             this.paragraphBox.remove (r);
 
         }
-        
+
         this.validate ();
         this.repaint ();
 
@@ -1287,54 +1303,54 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
     {
 
         final Map<String, ActionListener> buttons = new LinkedHashMap ();
-    
+
         buttons.put ("From this {project} only",
                      new ActionListener ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 RuleFactory.addIgnore (r,
                                        RuleFactory.PROJECT,
                                        projProps);
-                
+
                 if (onRemove != null)
                 {
-                    
+
                     onRemove.actionPerformed (new ActionEvent (ev.getSource (),
                                                                RuleFactory.PROJECT,
                                                                "project"));
-                    
+
                 }
-                
-                
-                
+
+
+
             }
-            
+
         });
-        
+
         buttons.put ("All {projects}",
                      new ActionListener ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 RuleFactory.addIgnore (r,
                                        RuleFactory.USER,
                                        projProps);
                 if (onRemove != null)
                 {
-                    
+
                     onRemove.actionPerformed (new ActionEvent (ev.getSource (),
                                                                RuleFactory.USER,
                                                                "user"));
-                    
+
                 }
-                
+
             }
-            
+
         });
 
         buttons.put (Environment.getButtonLabel (null,
@@ -1348,14 +1364,14 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                        buttons,
                                        null,
                                        null);
-        
+
     }
-    
-    public AbstractProjectViewer getProjectViewer ()
+
+    public ProjectViewer getProjectViewer ()
     {
-     
+
         return this.projectViewer;
-     
+
     }
-    
+
 }

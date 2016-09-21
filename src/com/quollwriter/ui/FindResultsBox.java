@@ -7,15 +7,15 @@ import javax.swing.tree.*;
 
 import com.quollwriter.data.*;
 
-public abstract class FindResultsBox extends ProjectObjectsAccordionItem
+public abstract class FindResultsBox<E extends AbstractProjectViewer> extends ProjectObjectsAccordionItem<E>
 {
 
     protected int count = 0;
 
-    public FindResultsBox (String                title,
-                           String                iconType,
-                           String                forObjType,
-                           AbstractProjectViewer viewer)
+    public FindResultsBox (String title,
+                           String iconType,
+                           String forObjType,
+                           E      viewer)
     {
 
         super (title,

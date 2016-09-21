@@ -3583,12 +3583,14 @@ public class Environment
         Environment.userSession = new UserSession ();
 
         // Override the debug mode.
+        /*
         if (UserProperties.get (Constants.DEBUG_MODE_PROPERTY_NAME) != null)
         {
 
             Environment.setDebugModeEnabled (UserProperties.getAsBoolean (Constants.DEBUG_MODE_PROPERTY_NAME));
 
         }
+*/
 
         // Get the system default project properties.
         com.gentlyweb.properties.Properties sysDefProjProps = new com.gentlyweb.properties.Properties (Environment.class.getResourceAsStream (Constants.DEFAULT_PROJECT_PROPERTIES_FILE),

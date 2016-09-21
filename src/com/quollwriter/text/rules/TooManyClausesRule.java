@@ -19,8 +19,6 @@ import org.jdom.*;
 public class TooManyClausesRule extends AbstractSentenceRule
 {
 
-    public static final String CREATE_TYPE = "toomanyclauses";
-
     public class XMLConstants
     {
 
@@ -32,10 +30,8 @@ public class TooManyClausesRule extends AbstractSentenceRule
     private JSpinner            count = null;
     private Map<String, String> separators = new HashMap ();
 
-    public TooManyClausesRule(boolean user)
+    public TooManyClausesRule ()
     {
-
-        super (user);
 
         this.separators.put (",",
                              ",");
@@ -47,13 +43,12 @@ public class TooManyClausesRule extends AbstractSentenceRule
     public TooManyClausesRule (int     clauseCount,
                                boolean user)
     {
-        
-        this (user);
-        
+
         this.clauseCount = clauseCount;
-        
+        this.setUserRule (user);
+
     }
-    
+
     public String getDescription ()
     {
 
@@ -65,7 +60,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     }
 
-    @Override    
+    @Override
     public String getSummary ()
     {
 
@@ -75,13 +70,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     }
 
-    public String getCreateType ()
-    {
-
-        return TooManyClausesRule.CREATE_TYPE;
-
-    }
-
+    @Override
     public void init (Element root)
                throws JDOMException
     {
@@ -93,6 +82,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public Element getAsElement ()
     {
 
@@ -104,60 +94,14 @@ public class TooManyClausesRule extends AbstractSentenceRule
         return root;
 
     }
-/*
-    public List<Issue> getIssues (String  sentence,
-                                  boolean inDialogue)
-    {
 
-        // Check our list of words.
-        sentence = sentence.toLowerCase ();
-
-        List<String> swords = TextUtilities.getAsWords (sentence);
-
-        int c = 1;
-
-        for (int i = 0; i < swords.size (); i++)
-        {
-
-            if (this.separators.containsKey (swords.get (i)))
-            {
-
-                if (i > 0)
-                {
-                    
-                    c++;
-                    
-                }
-
-            }
-
-        }
-
-        // Look for , ; or -.
-        List<Issue> issues = new ArrayList ();
-
-        if (c > this.clauseCount)
-        {
-
-            Issue iss = new Issue ("Sentence contains: <b>" + c + "</b> clauses.",
-                                   -1,
-                                   -1,
-                                   this);
-
-            issues.add (iss);
-
-        }
-
-        return issues;
-
-    }
-*/
+    @Override
     public List<Issue> getIssues (Sentence sentence)
     {
 
         int c = 1;
         int i = 0;
-        
+
         for (Word w : sentence.getWords ())
         {
 
@@ -166,15 +110,15 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
                 if (i > 0)
                 {
-                    
+
                     c++;
-                    
+
                 }
 
             }
 
             i++;
-            
+
         }
 
         // Look for , ; or -.
@@ -195,7 +139,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
         return issues;
 
     }
-        
+
     @Override
     public List<FormItem> getFormItems ()
     {
@@ -223,11 +167,11 @@ public class TooManyClausesRule extends AbstractSentenceRule
     @Override
     public String getFormError ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     @Override
     public void updateFromForm ()
     {

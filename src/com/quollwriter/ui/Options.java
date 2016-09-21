@@ -789,7 +789,7 @@ public class Options extends Box
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    ((AbstractProjectViewer) _this.viewer).showProblemFinderRuleConfig ();
+                    ((ProjectViewer) _this.viewer).showProblemFinderRuleConfig ();
 
                 }
 

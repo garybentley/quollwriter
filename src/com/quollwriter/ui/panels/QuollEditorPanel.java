@@ -44,7 +44,7 @@ import com.quollwriter.ui.renderers.*;
 import com.swabunga.spell.engine.*;
 import com.swabunga.spell.event.*;
 
-public class QuollEditorPanel extends AbstractEditableEditorPanel implements ChapterItemViewer
+public class QuollEditorPanel extends AbstractEditableEditorPanel implements ChapterItemViewer, ProjectEventListener
 {
 
     public static final String SHOW_WORD_CLOUD_ACTION_NAME = "show-word-cloud";
@@ -88,6 +88,8 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                c);
 
         this.projectViewer = pv;
+
+        this.viewer.addProjectEventListener (this);
 
         final QuollEditorPanel _this = this;
 
@@ -1791,7 +1793,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         this.problemFinderPanel.setVisible (false);
         this.problemFinderPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        this.problemFinder = new ProblemFinder (this);
+        this.problemFinder = new ProblemFinder (this,
+                                                // This is a duplicate reference that overlaps with parent viewer reference.
+                                                // TODO: Resolve the duplication, make generic and fix this class with ProjectViewer.
+                                                this.projectViewer);
         this.problemFinder.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.problemFinderPanel.add (this.problemFinder);
@@ -1907,12 +1912,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         buts.add (finish);
 
-        buts.add (Box.createHorizontalGlue ());
-
         this.ignoredProblemsLabel = UIUtils.createClickableLabel ("",
                                                                   Environment.getIcon ("warning",
                                                                                        Constants.ICON_MENU));
         this.ignoredProblemsLabel.setVisible (false);
+        this.ignoredProblemsLabel.setBorder (UIUtils.createPadding (0, 10, 0, 0));
 
         this.updateIgnoredProblemsLabel ();
 
@@ -1957,6 +1961,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         });
 
         buts.add (this.ignoredProblemsLabel);
+        buts.add (Box.createHorizontalGlue ());
 
         buts.setBorder (new EmptyBorder (10,
                                          10,
@@ -2070,6 +2075,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     private void updateIgnoredProblemsLabel ()
     {
 
+        if (this.ignoredProblemsLabel == null)
+        {
+
+            return;
+
+        }
+
         int s = this.problemFinder.getIgnoredIssues ().size ();
 
         if (s > 0)
@@ -2089,6 +2101,19 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
     }
 
+    @Override
+    public void eventOccurred (ProjectEvent ev)
+    {
+
+        if (ev.getType ().equals (ProjectEvent.PROBLEM_FINDER))
+        {
+
+            this.updateIgnoredProblemsLabel ();
+
+        }
+
+    }
+
    @Override
    public void close ()
    {
@@ -2096,6 +2121,8 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
        super.close ();
 
        this.problemFinder.saveIgnores ();
+
+       this.viewer.removeProjectEventListener (this);
 
    }
 /*

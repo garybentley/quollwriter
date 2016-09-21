@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
+import java.util.Collections;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -64,7 +66,7 @@ import com.quollwriter.editors.ui.sidebars.*;
 
 import com.quollwriter.text.*;
 
-public class ProjectViewer extends AbstractProjectViewer
+public class ProjectViewer extends AbstractProjectViewer implements DocumentListener
 {
 
     public static final String IDEA_BOARD_HEADER_CONTROL_ID = "ideaBoard";
@@ -98,6 +100,10 @@ public class ProjectViewer extends AbstractProjectViewer
     private ImportTransferHandlerOverlay   importOverlay = null;
 	private PropertyChangedListener objectTypePropChangedListener = null;
 	private PropertyChangedListener noteTypePropChangedListener = null;
+    private Map<DocumentListener, Object> chapterDocumentListeners = Collections.synchronizedMap (new WeakHashMap ());
+    private static final Object listenerFillObj = new Object ();
+    private ProblemFinderSideBar   problemFinderSideBar = null;
+    private ProblemFinderRuleConfig problemFinderRuleConfig = null;
 
     public ProjectViewer ()
     {
@@ -106,6 +112,8 @@ public class ProjectViewer extends AbstractProjectViewer
 
         this.iconProvider = new DefaultIconProvider ();
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
+
+        this.problemFinderRuleConfig  = new ProblemFinderRuleConfig (this);
 
 		InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 		ActionMap actions = this.getActionMap ();
@@ -1674,6 +1682,44 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    public boolean closePanel (QuollPanel qp)
+    {
+
+        if (qp instanceof QuollEditorPanel)
+        {
+
+            ((QuollEditorPanel) qp).getEditor ().getDocument ().removeDocumentListener (this);
+
+        }
+
+        return super.closePanel (qp);
+
+    }
+
+    @Override
+    public void insertUpdate (DocumentEvent ev)
+    {
+
+        this.fireChaperDocumentChangedEvent (ev);
+
+    }
+
+    @Override
+    public void changedUpdate (DocumentEvent ev)
+    {
+
+        this.fireChaperDocumentChangedEvent (ev);
+
+    }
+
+    @Override
+    public void removeUpdate (DocumentEvent ev)
+    {
+
+        this.fireChaperDocumentChangedEvent (ev);
+
+    }
+
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the chapter has been opened for editing.
@@ -1691,6 +1737,8 @@ public class ProjectViewer extends AbstractProjectViewer
             this.setPanelVisible (qep);
 
             this.getEditorForChapter (c).getEditor ().grabFocus ();
+
+            this.getEditorForChapter (c).getEditor ().getDocument ().addDocumentListener (this);
 
             if (doAfterView != null)
             {
@@ -2991,27 +3039,43 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
-    public void saveProblemFinderIgnores (Chapter    c,
-                                          Set<Issue> issues)
+    public void saveProblemFinderIgnores (Chapter    c)
                                    throws GeneralException
     {
 
         ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.class);
 
         dh.saveProblemFinderIgnores (c,
-                                     issues);
+                                     null);
 
     }
 
-    public Set<Issue> getProblemFinderIgnores (Chapter  c,
-                                               Document doc)
-                                               throws GeneralException
+    public Set<Issue> getProblemFinderIgnores (Rule r)
+                                        throws GeneralException
     {
 
-        ChapterDataHandler dh = (ChapterDataHandler) this.getDataHandler (Chapter.class);
+        Set<Issue> ignores = new HashSet ();
 
-        return dh.getProblemFinderIgnores (c,
-                                           doc);
+        for (Chapter c : this.getProject ().getBook (0).getChapters ())
+        {
+
+            Set<Issue> ignored = c.getProblemFinderIgnores ();
+
+            for (Issue i : ignored)
+            {
+
+                if (i.getRuleId ().equals (r.getId ()))
+                {
+
+                    ignores.add (i);
+
+                }
+
+            }
+
+        }
+
+        return ignores;
 
     }
 
@@ -3022,6 +3086,7 @@ public class ProjectViewer extends AbstractProjectViewer
 
     }
 
+    @Override
     public Set<FindResultsBox> findText (String t)
     {
 
@@ -3387,5 +3452,180 @@ public class ProjectViewer extends AbstractProjectViewer
 
 
 	}
+
+    private void fireChaperDocumentChangedEvent (final DocumentEvent dev)
+    {
+
+        final ProjectViewer _this = this;
+
+        UIUtils.doActionLater (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent aev)
+            {
+
+                Set<DocumentListener> ls = null;
+
+                // Get a copy of the current valid listeners.
+                synchronized (_this.chapterDocumentListeners)
+                {
+
+                    ls = new LinkedHashSet (_this.chapterDocumentListeners.keySet ());
+
+                }
+
+                for (DocumentListener l : ls)
+                {
+
+                    // Is this the right way to do this?
+                    // TODO: Find a better way
+                    if (dev.getType () == DocumentEvent.EventType.INSERT)
+                    {
+
+                        l.insertUpdate (dev);
+
+                    }
+
+                    if (dev.getType () == DocumentEvent.EventType.CHANGE)
+                    {
+
+                        l.changedUpdate (dev);
+
+                    }
+
+                    if (dev.getType () == DocumentEvent.EventType.REMOVE)
+                    {
+
+                        l.removeUpdate (dev);
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+    public void removeChapterDocumentListener (DocumentListener l)
+    {
+
+        this.chapterDocumentListeners.remove (l);
+
+    }
+
+    /**
+     * This provides a mechanism for classes to listen to document events from the chapter editors
+     * without having to explicitly add/remove themselves from the document.  This class listens
+     * for events and will fire to registered listeners.  A weak map is used so that listeners
+     * can fall out of scope without having to worry about removing themselves as listeners (but they
+     * should if they can to prevent possible leaks).
+     *
+     * @param l The listener.
+     */
+    public void addChapterDocumentListener (DocumentListener l)
+    {
+
+        this.chapterDocumentListeners.put (l,
+                                           ProjectViewer.listenerFillObj);
+
+    }
+
+    public ProblemFinderSideBar getProblemFinderSideBar ()
+    {
+
+        return this.problemFinderSideBar;
+
+    }
+
+    public void showProblemFinderRuleSideBar (Rule rule)
+    {
+
+        try
+        {
+
+            if (this.problemFinderSideBar == null)
+            {
+
+                this.problemFinderSideBar = new ProblemFinderSideBar (this,
+                                                                      rule);
+
+                this.addSideBar ("problemfinderrule",
+                                 this.problemFinderSideBar);
+
+            } else {
+
+                this.problemFinderSideBar.setRule (rule);
+
+            }
+
+            this.showSideBar ("problemfinderrule");
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to create/init problem finder sidebar for rule: " +
+                                  rule,
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to show problem finder sidebar.");
+
+        }
+
+    }
+
+    public ProblemFinderRuleConfig getProblemFinderRuleConfig ()
+    {
+
+        return this.problemFinderRuleConfig;
+
+    }
+
+    public void showProblemFinderRuleConfig ()
+    {
+
+        String popupName = "problemfinderruleconfig";
+        QPopup popup = this.getNamedPopup (popupName);
+
+        if (popup == null)
+        {
+
+            popup = UIUtils.createClosablePopup ("Configure the Problem Finder rules",
+                                                 Environment.getIcon (Constants.CONFIG_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+
+            popup.setPopupName (popupName);
+
+            this.addNamedPopup (popupName,
+                                popup);
+
+            this.problemFinderRuleConfig.init ();
+
+            this.problemFinderRuleConfig.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                                  this.problemFinderRuleConfig.getPreferredSize ().height));
+            this.problemFinderRuleConfig.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
+            popup.setContent (this.problemFinderRuleConfig);
+
+            popup.setDraggable (this);
+
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+        } else {
+
+            popup.setVisible (true);
+
+        }
+
+        this.fireProjectEvent (ProjectEvent.PROBLEM_FINDER_RULE_CONFIG,
+                               ProjectEvent.SHOW);
+
+    }
 
 }

@@ -36,9 +36,9 @@ public class IgnoreCheckbox extends JCheckBox
 
             if (d.length () > 0)
             {
-                
+
                 d = d + "<br /><br />";
-                
+
             }
 
             JEditorPane desc = UIUtils.createHelpTextPane (d + "Check the box to ignore this problem.",
@@ -66,10 +66,12 @@ public class IgnoreCheckbox extends JCheckBox
 
     public Issue             issue = null;
     private QuollEditorPanel qp = null;
+    private ProjectViewer viewer = null;
 
-    public IgnoreCheckbox(String                 s,
-                          Issue                  i,
-                          final QuollEditorPanel qp)
+    public IgnoreCheckbox (final String           s,
+                           final Issue            i,
+                           final QuollEditorPanel qp,
+                           final ProjectViewer    viewer)
     {
 
         super (s);
@@ -77,8 +79,9 @@ public class IgnoreCheckbox extends JCheckBox
         this.issue = i;
 
         this.setText (s);
-        
+
         this.qp = qp;
+        this.viewer = viewer;
 
         final IgnoreCheckbox _this = this;
 
@@ -167,53 +170,81 @@ public class IgnoreCheckbox extends JCheckBox
             public void fillPopup (JPopupMenu m,
                                    MouseEvent ev)
             {
-
-                m.add (UIUtils.createMenuItem ("Ignore this type of problem",
-                                               null,
+/*
+                m.add (UIUtils.createMenuItem ("Find next problem of this type",
+                                               Constants.NEXT_ICON_NAME,
                                                new ActionAdapter ()
                                                {
-                    
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                    
+
+                                                       _this.qp.getViewer ().showProblemFinderRuleSideBar (_this.issue.getRule ());
+
+                                                    }
+
+                                               }));
+*/
+                m.add (UIUtils.createMenuItem ("Find all problems of this type",
+                                               Constants.FIND_ICON_NAME,
+                                               new ActionAdapter ()
+                                               {
+
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+
+                                                       _this.viewer.showProblemFinderRuleSideBar (_this.issue.getRule ());
+
+                                                    }
+
+                                               }));
+
+                m.add (UIUtils.createMenuItem ("Ignore this type of problem",
+                                               Constants.ERROR_ICON_NAME,
+                                               new ActionAdapter ()
+                                               {
+
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+
                                                         ProblemFinderRuleConfig.confirmRuleRemoval (qp.getViewer (),
                                                                                                     _this.issue.getRule (),
-                                                                                                    _this.qp.getViewer ().getProject ().getProperties (),
+                                                                                                    _this.viewer.getProject ().getProperties (),
                                                                                                     new ActionListener ()
                                                         {
-                    
+
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
-                    
+
                                                                 _this.qp.removeIgnoreCheckboxesForRule (_this.issue.getRule ());
-                                                                
+
                                                             }
-                    
+
                                                         });
-                    
+
                                                     }
-                    
+
                                                }));
 
                 m.add (UIUtils.createMenuItem ("Edit this rule",
-                                               null,
+                                               Constants.EDIT_ICON_NAME,
                                                new ActionAdapter ()
                                                {
-                    
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                    
+
                                                         _this.qp.showProblemFinderRuleConfig ();
-                    
-                                                        _this.qp.getViewer ().getProblemFinderRuleConfig ().editRule (_this.issue.getRule (),
-                                                                                                                             false);
-                    
+
+                                                        _this.viewer.getProblemFinderRuleConfig ().editRule (_this.issue.getRule (),
+                                                                                                             false);
+
                                                     }
-                    
+
                                                }));
-                
+
             }
-        
+
             @Override
             public void mouseExited (MouseEvent ev)
             {
@@ -235,14 +266,14 @@ public class IgnoreCheckbox extends JCheckBox
         });
 
     }
-    
+
     @Override
     public void setText (String t)
     {
-        
+
         super.setText (String.format ("<html>%s</html>",
                                       Environment.replaceObjectNames (t)));
-        
+
     }
 
 }

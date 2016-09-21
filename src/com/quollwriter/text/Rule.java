@@ -24,7 +24,7 @@ public interface Rule<E extends TextBlock>
     public void setDescription (String d);
 
     public String getDefaultSummary ();
-    
+
     public String getSummary ();
 
     public void setSummary (String i);
@@ -46,14 +46,14 @@ public interface Rule<E extends TextBlock>
 
     public String getCategory ();
 
-    public boolean isUserRule ();
+    public void setUserRule (boolean u);
 
-    public String getCreateType ();
+    public boolean isUserRule ();
 
     public Form getEditForm (ActionListener onSaveComplete,
                              ActionListener onCancel,
                              boolean        add);
-                                 
+
     public void updateFromForm ();
-    
+
 }

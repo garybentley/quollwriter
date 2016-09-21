@@ -24,8 +24,6 @@ import org.jdom.*;
 public class AdverbRule extends AbstractSentenceRule
 {
 
-    public static final String CREATE_TYPE = "adverb";
-
     public class XMLConstants
     {
 
@@ -37,10 +35,8 @@ public class AdverbRule extends AbstractSentenceRule
     private JTextField          newVerbs = null;
     private DefaultListModel    listModel = null;
 
-    public AdverbRule(boolean user)
+    public AdverbRule ()
     {
-
-        super (user);
 
     }
 
@@ -51,13 +47,7 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
-    public String getCreateType ()
-    {
-
-        return AdverbRule.CREATE_TYPE;
-
-    }
-
+    @Override
     public void init (Element root)
                throws JDOMException
     {
@@ -81,25 +71,26 @@ public class AdverbRule extends AbstractSentenceRule
 
     public void setSpeechVerbs (Set<String> verbs)
     {
-        
+
         this.speechVerbs = verbs;
-        
+
     }
-    
+
     public boolean isSpeechVerb (String w)
     {
-        
+
         if (w == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return this.speechVerbs.contains (w.toLowerCase ());
-        
+
     }
-    
+
+    @Override
     public Element getAsElement ()
     {
 
@@ -112,11 +103,11 @@ public class AdverbRule extends AbstractSentenceRule
 
             if (b.length () > 0)
             {
-                
+
                 b.append (",");
-                
+
             }
-        
+
             b.append (w);
 
         }
@@ -128,30 +119,31 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public List<Issue> getIssues (Sentence sentence)
     {
 
         List<Issue>  issues = new ArrayList ();
-    
+
         String adverbWT = String.valueOf (Synonyms.ADVERB);
 
         List<Word> swords = sentence.getWords ();
-        
+
         for (Word w : swords)
         {
-        
+
             if (w.isInDialogue ())
             {
-                
+
                 continue;
-                
+
             }
-        
+
             if (this.isSpeechVerb (w.getText ()))
             {
 
                 Word nw = w.getNext ();
-                
+
                 if (nw != null)
                 {
 
@@ -204,6 +196,7 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public List<FormItem> getFormItems ()
     {
 
@@ -304,11 +297,11 @@ public class AdverbRule extends AbstractSentenceRule
     @Override
     public String getFormError ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     public void updateFromForm ()
     {
 

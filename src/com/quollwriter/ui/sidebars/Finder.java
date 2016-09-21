@@ -57,6 +57,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 
+    @Override
     public boolean canClose ()
     {
 
@@ -64,6 +65,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 
+    @Override
     public String getTitle ()
     {
 
@@ -71,18 +73,11 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 
-    public boolean removeOnClose ()
-    {
-
-        return false;
-
-    }
-
     @Override
     public void onHide ()
     {
 
-        this.clearHighlight ();
+        //this.clearHighlight ();
 
     }
 
@@ -204,6 +199,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 
+    @Override
     public void init ()
                throws GeneralException
     {
@@ -332,14 +328,14 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     public void clearHighlight ()
     {
-
+/*
         if (this.highlightedEditor != null)
         {
 
             this.highlightedEditor.removeHighlight (this.highlightId);
 
         }
-
+*/
     }
 /*
     public JButton[] getButtons ()
@@ -370,6 +366,7 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 */
+/*
     public void showSegment (final Object  o,
                              final Segment s)
     {
@@ -440,5 +437,5 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
         }
 
     }
-
+*/
 }

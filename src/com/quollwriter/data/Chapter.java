@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.text.Position;
+import javax.swing.text.Document;
 
 import com.gentlyweb.utils.*;
 
@@ -33,6 +34,7 @@ public class Chapter extends NamedObject
     private int editPosition = -1;
     private Position textEditPos = null;
     private boolean editComplete = false;
+    private Set<Issue> problemFinderIgnores = new HashSet ();
 
     private ProjectVersion projVersion = null;
 
@@ -66,6 +68,54 @@ public class Chapter extends NamedObject
     {
 
         super (objType);
+
+    }
+
+    public void initProblemFinderIgnoreDocumentPositions (Document doc)
+                                                   throws Exception
+    {
+
+        for (Issue i : this.problemFinderIgnores)
+        {
+
+            i.setStartPosition (doc.createPosition (i.getStartIssuePosition ()));
+
+        }
+
+    }
+
+    public Set<Issue> getProblemFinderIgnores (Rule forRule)
+    {
+
+        Set<Issue> ignores = new LinkedHashSet ();
+
+        for (Issue i : this.problemFinderIgnores)
+        {
+
+            if (i.getRuleId ().equals (forRule.getId ()))
+            {
+
+                ignores.add (i);
+
+            }
+
+        }
+
+        return ignores;
+
+    }
+
+    public Set<Issue> getProblemFinderIgnores ()
+    {
+
+        return this.problemFinderIgnores;
+
+    }
+
+    public void setProblemFinderIgnores (Set<Issue> ignores)
+    {
+
+        this.problemFinderIgnores = ignores;
 
     }
 

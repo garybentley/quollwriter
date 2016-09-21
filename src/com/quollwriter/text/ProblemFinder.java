@@ -29,10 +29,7 @@ public class ProblemFinder extends Box
 
     private QuollEditorPanel     editor = null;
     private int                  lastCaret = -1;
-    private BlockPainter         lineHighlight = new BlockPainter (Environment.getHighlightColor ());
-    private TextUnderlinePainter issueHighlight = new TextUnderlinePainter (Color.RED);
     private List<IgnoreCheckbox>  ignores = new ArrayList ();
-    private Set<Issue>           issuesToIgnore = new HashSet ();//new TreeSet (new IssueSorter ());
     private ActionListener       showIgnores = null;
     private boolean              endReached = false;
     private boolean              startReached = false;
@@ -51,26 +48,37 @@ public class ProblemFinder extends Box
     private int origEnd = -1;
     private Box issuesBox = null;
     private boolean inited = false;
+    private BlockPainter lineHighlight = null;
+    private TextUnderlinePainter issueHighlight = null;
+    private ProjectViewer viewer = null;
 
-    public ProblemFinder(QuollEditorPanel editor)
+    public ProblemFinder (QuollEditorPanel editor,
+                          ProjectViewer    viewer)
     {
 
         super (BoxLayout.Y_AXIS);
+
+        this.lineHighlight = ProblemFinder.getTextBlockHighlighter ();
+        this.issueHighlight = ProblemFinder.getIssueHighlighter ();
 
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));
 
         this.editor = editor;
-        
+        this.viewer = viewer;
+
         // Load the ignores.
         try
         {
 
-            this.issuesToIgnore = ((ProjectViewer) this.editor.getViewer ()).getProblemFinderIgnores (this.editor.getChapter (),
-                                                                                                             this.editor.getEditor ().getDocument ());
+            this.editor.getChapter ().initProblemFinderIgnoreDocumentPositions (this.editor.getEditor ().getDocument ());
 
-        } catch (GeneralException e)
+/*
+            ((ProjectViewer) this.editor.getViewer ()).getProblemFinderIgnores (this.editor.getChapter (),
+                                                                                                             this.editor.getEditor ().getDocument ());
+*/
+        } catch (Exception e)
         {
 
             Environment.logError ("Unable to load problem finder ignores for chapter: " +
@@ -83,34 +91,34 @@ public class ProblemFinder extends Box
 
         this.editor.getEditor ().getCaret ().addChangeListener (new javax.swing.event.ChangeListener ()
         {
-           
+
             public void stateChanged (javax.swing.event.ChangeEvent ev)
             {
 
                 if (!_this.isShowing ())
                 {
-                    
+
                     return;
-                    
+
                 }
-                            
+
                 _this.inited = false;
-                                        
+
                 _this.start = _this.editor.getEditor ().getSelectionStart ();
                 _this.end = _this.editor.getEditor ().getSelectionEnd ();
-                                                                         
+
             }
-            
+
         });
-        
+
         this.limitLabel = new JLabel ("Limiting find to selected text.",
                                       Environment.getIcon ("information",
                                                            Constants.ICON_MENU),
                                       SwingConstants.TRAILING);
 
         this.limitLabel.setVisible (false);
-        
-        this.limitLabel.setBorder (UIUtils.createPadding (5, 10, 3, 3));        
+
+        this.limitLabel.setBorder (UIUtils.createPadding (5, 10, 3, 3));
 
         this.noProblemsLabel = new JLabel ("No problems found.",
                                            Environment.getIcon ("information",
@@ -121,63 +129,75 @@ public class ProblemFinder extends Box
         this.noProblemsLabel.setOpaque (false);
         this.noProblemsLabel.setBorder (UIUtils.createPadding (5, 10, 3, 3));
         this.noProblemsLabel.setVisible (false);
-        
+
         this.issuesBox = new Box (BoxLayout.Y_AXIS);
         this.issuesBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         this.add (this.limitLabel);
         this.add (this.noProblemsLabel);
         this.add (this.issuesBox);
-                
+
     }
 
     public void removeAllIgnores ()
     {
-        
-        this.issuesToIgnore = new HashSet (); //new TreeSet (new IssueSorter ());
-        
+
+        this.editor.getChapter ().getProblemFinderIgnores ().clear ();
+
+        try
+        {
+
+            this.viewer.saveProblemFinderIgnores (this.editor.getChapter ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to save problem finder ignores for chapter: " +
+                                  this.editor.getChapter (),
+                                  e);
+
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to remove all ignores.");
+
+            return;
+
+        }
+
         if (this.showIgnores != null)
         {
-        
+
             this.showIgnores.actionPerformed (new ActionEvent (this,
                                                                0,
                                                                ""));
-            
+
         }
 
-        this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                   ProjectEvent.UNIGNORE);
-        
+        this.viewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                      ProjectEvent.UNIGNORE);
+
     }
-    
+
     public Set<Issue> getIgnoredIssues ()
     {
-        
-        return this.issuesToIgnore;
-        
+
+        return this.editor.getChapter ().getProblemFinderIgnores ();
+
     }
 
     public void saveIgnores ()
     {
 
-        if (this.issuesToIgnore != null)
+        // Check to see if they are still valid.
+        try
         {
 
-            // Check to see if they are still valid.
-            try
-            {
+            this.viewer.saveProblemFinderIgnores (this.editor.getChapter ());
 
-                ((ProjectViewer) this.editor.getViewer ()).saveProblemFinderIgnores (this.editor.getChapter (),
-                                                                                     this.issuesToIgnore);
+        } catch (GeneralException e)
+        {
 
-            } catch (GeneralException e)
-            {
-
-                Environment.logError ("Unable to save problem finder ignores for chapter: " +
-                                      this.editor.getChapter (),
-                                      e);
-
-            }
+            Environment.logError ("Unable to save problem finder ignores for chapter: " +
+                                  this.editor.getChapter (),
+                                  e);
 
         }
 
@@ -189,60 +209,60 @@ public class ProblemFinder extends Box
         this.getIgnores ();
 
         this.clearHighlights ();
-        
+
     }
 
     private void init (int start,
                        int end)
     {
-    
+
         this.start = start;
         this.end = end;
-    
+
         this.getIgnores ();
         this.clearHighlights ();
-             
+
         if (this.end < this.start)
         {
-            
+
             this.end = -1;
-             
+
         }
-        
+
         if (this.start == this.end)
         {
-            
+
             this.end = -1;
-            
-        } 
-        
+
+        }
+
         this.noProblemsLabel.setVisible (false);
         this.clearIssuesBox ();
-        
+
         this.limitLabel.setVisible (this.end > -1);
-        
+
         this.iter = new TextBlockIterator (this.editor.getEditor ().getText (),
                                            this.start,
                                            this.end);
 
         this.inited = true;
-                                           
+
     }
-    
+
     public int start ()
                       throws Exception
     {
-               
+
         this.origStart = this.editor.getEditor ().getSelectionStart ();
         this.origEnd = this.editor.getEditor ().getSelectionEnd ();
-                
+
         this.init (this.origStart,
                    this.origEnd);
-               
+
         return this.next ();
-                
+
     }
-            
+
     private void clearHighlights ()
     {
 
@@ -254,43 +274,43 @@ public class ProblemFinder extends Box
     private int processTextBlock (TextBlock b)
                            throws Exception
     {
-        
+
         if (b == null)
         {
-            
+
             return 0;
-            
+
         }
-        
+
         if (b instanceof Paragraph)
         {
-            
+
             return this.handleParagraph ((Paragraph) b);
-            
+
         }
-        
+
         if (b instanceof Sentence)
         {
-            
+
             return this.handleSentence ((Sentence) b);
-            
+
         }
-        
+
         throw new GeneralException ("Type: " +
                                     b.getClass ().getName () +
                                     " not supported.");
-        
+
     }
-    
+
     private int handleParagraph (Paragraph p)
                                  throws    Exception
     {
-        
+
         List<Issue> issues = RuleFactory.getParagraphIssues (p,
-                                                             this.editor.getViewer ().getProject ().getProperties ());
+                                                             this.viewer.getProject ().getProperties ());
 
         this.setPositions (issues);
-        
+
         if ((issues.size () != 0)
             &&
             (!this.allIgnores (issues))
@@ -299,24 +319,24 @@ public class ProblemFinder extends Box
 
             this.handleIssues (issues,
                                p);
-            
+
             return issues.size ();
-            
+
         }
-        
+
         return 0;
-        
+
     }
-    
+
     private int handleSentence (Sentence s)
                                 throws   Exception
     {
-        
+
         List<Issue> issues = RuleFactory.getSentenceIssues (s,
-                                                            this.editor.getViewer ().getProject ().getProperties ());
-        
+                                                            this.viewer.getProject ().getProperties ());
+
         this.setPositions (issues);
-        
+
         if ((issues.size () != 0)
             &&
             (!this.allIgnores (issues))
@@ -325,102 +345,102 @@ public class ProblemFinder extends Box
 
             this.handleIssues (issues,
                                s);
-            
+
             return issues.size ();
-            
+
         }
-        
+
         return 0;
-        
+
     }
 
     public int next ()
               throws Exception
     {
-        
+
         if (!this.inited)
         {
-            
+
             this.init (this.start,
                        this.end);
-            
+
         }
-        
-        this.noProblemsLabel.setVisible (false);        
-        
+
+        this.noProblemsLabel.setVisible (false);
+
         // Prevent the block being highlighted but ensure that inited is still true since the caret
         // change will set it to false.
-        this.editor.getEditor ().setSelectionEnd (this.start);        
-        
+        this.editor.getEditor ().setSelectionEnd (this.start);
+
         this.inited = true;
-        
-        final ProblemFinder _this = this;        
+
+        final ProblemFinder _this = this;
 
         this.getIgnores ();
 
         this.clearHighlights ();
-        
+
         TextBlock b = null;
-        
+
         while ((b = this.iter.next ()) != null)
         {
-            
+
             Environment.logDebugMessage ("Looking for problems in: " + b);
-            
+
             int c = this.processTextBlock (b);
-            
+
             if (c > 0)
             {
-                
+
                 Environment.logDebugMessage ("Got: " + c + " problems for text: " + b);
-                
+
                 return c;
-                
+
             }
 
         }
 
-        this.addNoProblems ();        
-                
+        this.addNoProblems ();
+
         if (this.end > -1)
         {
-            
-            UIUtils.showMessage (this.editor.getViewer (),
+
+            UIUtils.showMessage (this.viewer,
                                  "No more problems found",
                                  "No more problems found in selected text.",
                                  "Finish",
                                  new ActionListener ()
                                  {
-                                    
+
                                     public void actionPerformed (ActionEvent ev)
                                     {
-                                        
+
                                         _this.editor.getEditor ().select (_this.start,
                                                                           _this.end);
-                                        
+
                                         _this.inited = false;
-                                        
+
                                     }
-                                    
+
                                  });
-            
+
             return 0;
 
         }
-        
+
         ActionListener onCancel = new ActionListener ()
         {
-           
+
            public void actionPerformed (ActionEvent ev)
            {
-               
+
                _this.reset ();
-               
+
            }
-           
+
         };
-        
-        UIUtils.createQuestionPopup (this.editor.getViewer (),
+
+        UIUtils.createQuestionPopup (this.viewer,
                                      "No more problems found",
                                      Constants.INFO_ICON_NAME,
                                      "No more problems found.  Return to the start of the {chapter}?",
@@ -428,122 +448,122 @@ public class ProblemFinder extends Box
                                      null,
                                      new ActionListener ()
                                      {
-                                        
+
                                         public void actionPerformed (ActionEvent ev)
                                         {
-                                            
+
                                             UIUtils.doLater (new ActionListener ()
                                             {
-                                            
+
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
                                                     try
                                                     {
-                                                        
+
                                                         _this.init (0,
                                                                     -1);
-                                                        
+
                                                         _this.next ();
-                                                        
+
                                                     } catch (Exception e) {
-                                                        
+
                                                         Environment.logError ("Unable to move back to start",
                                                                               e);
-                                                        
-                                                        UIUtils.showErrorMessage (_this.editor.getViewer (),
+
+                                                        UIUtils.showErrorMessage (_this.viewer,
                                                                                   "Unable to move back to start of {chapter}");
-                                                        
+
                                                     }
-                                                    
+
                                                 }
-                                                
+
                                             });
-                                            
+
                                         }
-                                        
+
                                      },
                                      onCancel,
                                      onCancel,
                                      null);
-        
+
         return 0;
-        
+
     }
 
     public int previous ()
                   throws Exception
     {
-        
+
         if (!this.inited)
         {
-            
+
             this.init (this.start,
                        this.end);
-            
+
         }
-        
-        this.noProblemsLabel.setVisible (false);        
-        
-        final ProblemFinder _this = this;        
+
+        this.noProblemsLabel.setVisible (false);
+
+        final ProblemFinder _this = this;
 
         this.getIgnores ();
 
         this.clearHighlights ();
-        
+
         TextBlock b = null;
-        
+
         while ((b = this.iter.previous ()) != null)
         {
-            
+
             Environment.logDebugMessage ("Looking for problems in: " + b);
-            
+
             int c = this.processTextBlock (b);
-            
+
             if (c > 0)
             {
-                
+
                 Environment.logDebugMessage ("Got: " + c + " problems for text: " + b);
-                
+
                 return c;
-                
+
             }
 
         }
 
-        this.addNoProblems ();        
+        this.addNoProblems ();
 
         if (this.end > -1)
         {
-            
-            UIUtils.showMessage (this.editor.getViewer (),
+
+            UIUtils.showMessage (this.viewer,
                                  "No more problems found",
                                  "No more problems found in selected text.",
                                  "Finish",
                                  null);
-            
+
             return 0;
 
         }
-        
+
         UIUtils.showMessage ((PopupsSupported) this.editor,
                              "No more problems",
                              "No more problems found");
-        
+
         return 0;
-        
+
     }
 
     private void addNoProblems ()
     {
-        
+
         this.clearIssuesBox ();
-        
+
         this.noProblemsLabel.setVisible (true);
-        
+
         this.getParent ().getParent ().validate ();
         this.getParent ().getParent ().repaint ();
-                
+
     }
 
     public void removeCheckboxesForRule (Rule r)
@@ -575,21 +595,21 @@ public class ProblemFinder extends Box
             if (b.isSelected ())
             {
 
-                this.issuesToIgnore.add (b.issue);
+                this.editor.getChapter ().getProblemFinderIgnores ().add (b.issue);
 
-                this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                           ProjectEvent.IGNORE);
+                this.viewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                              ProjectEvent.IGNORE);
 
             } else {
 
-                if (this.issuesToIgnore.remove (b.issue))
+                if (this.editor.getChapter ().getProblemFinderIgnores ().remove (b.issue))
                 {
 
-                    this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                               ProjectEvent.UNIGNORE);
+                    this.viewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                  ProjectEvent.UNIGNORE);
 
                 }
-                
+
             }
 
         }
@@ -599,21 +619,21 @@ public class ProblemFinder extends Box
     }
 
     private IgnoreCheckbox createSentenceIssueItem (final Issue     iss,
-                                                    final TextBlock textBlock)
+                                                    final Sentence  sentence)
     {
 
         final ProblemFinder _this = this;
 
         final QTextEditor ed = this.editor.getEditor ();
-        
+
         IgnoreCheckbox cb = this.createIssueItem (iss);
-        
+
         //final int sentenceStart = sentence.getAllTextStartOffset ();
         //final int sentenceEnd = sentence.getAllTextEndOffset ();
 
         //final int sentenceStart = textBlock.getAllTextStartOffset ();
         //final int sentenceEnd = textBlock.getAllTextEndOffset ();
-        
+
         final Issue issue = iss;
 
         cb.addMouseListener (new MouseAdapter ()
@@ -624,9 +644,9 @@ public class ProblemFinder extends Box
 
                 try
                 {
-
+                
                     ed.addHighlight (iss.getStartIssuePosition (),
-                                     iss.getEndIssuePosition (),
+                                     sentence.getLastWord ().getAllTextEndOffset (),
                                      _this.issueHighlight,
                                      false);
 
@@ -647,17 +667,18 @@ public class ProblemFinder extends Box
             }
 
         });
-        
+
         return cb;
-        
+
     }
 
     private IgnoreCheckbox createIssueItem (Issue iss)
     {
-        
+
         IgnoreCheckbox cb = new IgnoreCheckbox (iss.getDescription (),
                                                 iss,
-                                                this.editor);
+                                                this.editor,
+                                                this.viewer);
         cb.setAlignmentX (Component.LEFT_ALIGNMENT);
         cb.setOpaque (false);
         cb.setBorder (new EmptyBorder (5,
@@ -669,12 +690,12 @@ public class ProblemFinder extends Box
         this.ignores.add (cb);
 
         return cb;
-        
+
     }
 
     private void setPositions (List<Issue> issues)
     {
-        
+
         try
         {
 
@@ -693,22 +714,22 @@ public class ProblemFinder extends Box
 
             // Ignore.
 
-        }        
-        
+        }
+
     }
-    
+
     private void clearIssuesBox ()
     {
-        
+
         this.issuesBox.removeAll ();
-        
+
     }
-    
+
     private void handleIssues (final List<Issue> issues,
                                final TextBlock   textBlock)
                         throws Exception
     {
-    
+
         Collections.sort (issues,
                           new IssueSorter ());
 
@@ -731,22 +752,22 @@ public class ProblemFinder extends Box
 
                 public void actionPerformed (ActionEvent ev)
                 {
-                    
+
                     try
                     {
-                        
+
                         _this.editor.scrollToPosition (textBlock.getAllTextStartOffset ());//selStart);//_this.sentIter.getOffset ());
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to scroll to: " +
                                               textBlock.getAllTextStartOffset (), //selStart, //_this.sentIter.getOffset (),
                                               e);
-                        
+
                     }
-                    
+
                 }
-                
+
             });
 
             final QTextEditor ed = this.editor.getEditor ();
@@ -756,14 +777,14 @@ public class ProblemFinder extends Box
 
                 if (i.getRule () instanceof SentenceRule)
                 {
-            
+
                     this.issuesBox.add (this.createSentenceIssueItem (i,
-                                                                      textBlock));
-                    
+                                                                      (Sentence) textBlock));
+
                 } else {
-                    
+
                     this.issuesBox.add (this.createIssueItem (i));
-                    
+
                 }
 
             }
@@ -774,7 +795,7 @@ public class ProblemFinder extends Box
                 final JLabel l = UIUtils.createClickableLabel (ignored.size () + " ignored problem" + (ignored.size () == 1 ? "" : "s") + ".  Click to view.",
                                                                Environment.getIcon ("warning",
                                                                                     Constants.ICON_MENU));
-                
+
                 l.setBorder (new EmptyBorder (5,
                                               10,
                                               3,
@@ -793,41 +814,41 @@ public class ProblemFinder extends Box
                     icb.setVisible (false);
                     icb.setSelected (true);
                     this.issuesBox.add (icb);
-                                        
+
                 }
 
                 this.showIgnores = new ActionAdapter ()
                 {
-                  
+
                     public void actionPerformed (ActionEvent ev)
                     {
-                        
+
                         for (IgnoreCheckbox icb : ignoredItems)
                         {
-                            
+
                             icb.setVisible (true);
 
                             icb.setSelected ("selected".equals (ev.getActionCommand ()));
 
                             //_this.issuesToIgnore.remove (icb.issue);
-                                
+
                         }
 
                         l.setVisible (false);
 
-                        _this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                    ProjectEvent.UNIGNORE);
-                        
+                        _this.viewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                       ProjectEvent.UNIGNORE);
+
                         _this.getParent ().getParent ().validate ();
                         _this.getParent ().getParent ().repaint ();
-                        
+
                     }
-                    
+
                 };
 
                 l.addMouseListener (new MouseAdapter ()
                 {
-                    
+
                     public void mousePressed (MouseEvent ev)
                     {
 
@@ -835,17 +856,26 @@ public class ProblemFinder extends Box
                                                                             0,
                                                                             "selected"));
 
-                        _this.editor.getViewer ().fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
-                                                                    ProjectEvent.UNIGNORE);
-                        
+                        _this.viewer.fireProjectEvent (ProjectEvent.PROBLEM_FINDER,
+                                                       ProjectEvent.UNIGNORE);
+
                     }
-                    
+
                 });
-                
+
             }
 
-            ed.addHighlight (textBlock.getAllTextStartOffset (), //sentenceStart,
-                             textBlock.getAllTextEndOffset () + 1, //sentenceEnd,
+            int end = textBlock.getAllTextEndOffset () + 1;
+
+            if (textBlock instanceof Sentence)
+            {
+
+                end = ((Sentence) textBlock).getLastWord ().getAllTextEndOffset ();
+
+            }
+
+            ed.addHighlight (textBlock.getAllTextStartOffset (),
+                             end,
                              this.lineHighlight,
                              false);
 
@@ -861,18 +891,18 @@ public class ProblemFinder extends Box
 
         for (Issue i : issues)
         {
-            
+
             if (!this.shouldIgnore (i))
             {
-                
+
                 return false;
-                
+
             }
-            
+
         }
-        
+
         return true;
-        
+
     }
 
     private List<Issue> removeIgnores (List<Issue> issues)
@@ -904,7 +934,7 @@ public class ProblemFinder extends Box
     private boolean shouldIgnore (Issue iss)
     {
 
-        for (Issue i : this.issuesToIgnore)
+        for (Issue i : this.editor.getChapter ().getProblemFinderIgnores ())
         {
 
             if (i.equals (iss))
@@ -922,191 +952,205 @@ public class ProblemFinder extends Box
 
     private class TextBlockIterator
     {
-        
+
         private TextIterator iter = null;
         private Paragraph para = null;
         private Sentence sent = null;
         private int endAt = -1;
         private int startAt = -1;
         private TextBlock current = null;
-        
+
         public TextBlockIterator (String text,
                                   int    startAt,
                                   int    endAt)
         {
-            
+
             this.iter = new TextIterator (text);
-            this.startAt = startAt;            
-            
+            this.startAt = startAt;
+
             this.endAt = endAt;
-            
+
         }
-        
+
         public TextBlock next ()
         {
-            
+
             if (this.para == null)
             {
-                
+
                 this.para = this.iter.getNextClosestParagraphTo (this.startAt);
-                
+
                 if (this.para == null)
                 {
-                    
+
                     // At the end.
                     return null;
-                    
+
                 }
-                
+
                 if (this.startAt > this.para.getStart ())
                 {
-                    
+
                     this.sent = this.para.getNextClosestSentenceTo (this.startAt - this.para.getStart ());
-                    
+
                     return this.sent;
-                    
+
                 }
-                                
+
             } else {
-            
+
                 if (this.sent == null)
                 {
-                    
+
                     this.sent = this.para.getFirstSentence ();
-                    
+
                 } else {
-                    
+
                     this.sent = this.sent.getNext ();
-                    
+
                 }
-                
+
                 if (this.sent == null)
                 {
-                    
+
                     // Get the next paragraph.
                     this.para = this.para.getNext ();
-                        
+
                 } else {
-                    
+
                     if ((this.sent.getAllTextStartOffset () > this.endAt)
                         &&
                         (this.endAt > -1)
                        )
                     {
-                        
+
                         return null;
-                        
+
                     }
-                    
+
                     return this.sent;
-                    
+
                 }
-                
+
                 if (this.para == null)
                 {
-                    
+
                     // Reached the end;
                     return null;
-                    
+
                 }
-                                
+
             }
-            
+
             if ((this.para.getAllTextStartOffset () > this.endAt)
                 &&
                 (this.endAt > -1)
                )
             {
-                
+
                 return null;
-                
+
             }
-            
+
             return this.para;
-                        
+
         }
-        
+
         public TextBlock previous ()
         {
-            
+
             if (this.para == null)
             {
-                
+
                 this.para = this.iter.getPreviousClosestParagraphTo (this.startAt);
 
                 if (this.para == null)
                 {
-                    
+
                     return null;
-                    
+
                 }
-                
+
                 if (this.startAt > this.para.getEnd ())
                 {
-                    
+
                     this.sent = this.para.getLastSentence ();
-                    
+
                 } else {
-                
+
                     this.sent = this.para.getPreviousClosestSentenceTo (this.startAt - this.para.getStart ());
-                    
+
                 }
-                
+
             } else {
-                
+
                 if (this.sent == null)
                 {
-                    
+
                     this.para = this.para.getPrevious ();
-                    
+
                     if (this.para == null)
                     {
-                        
+
                         return null;
-                        
+
                     }
-                    
+
                     this.sent = this.para.getLastSentence ();
-                    
+
                 } else {
-                
+
                     this.sent = this.sent.getPrevious ();
-                 
+
                 }
 
                 if (this.sent == null)
                 {
-                    
+
                     if ((this.startAt > this.para.getAllTextStartOffset ())
                         &&
                         (this.endAt > -1)
                        )
                     {
-                        
+
                         return null;
-                        
+
                     }
-                    
+
                     return this.para;
-                    
-                } 
-                
+
+                }
+
             }
-            
+
             if ((this.startAt > this.sent.getAllTextStartOffset ())
                 &&
                 (this.endAt > 1)
                )
             {
-                
+
                 return null;
-                
+
             }
 
             return this.sent;
-            
+
         }
-        
+
     }
-    
+
+    public static BlockPainter getTextBlockHighlighter ()
+    {
+
+        return new BlockPainter (Environment.getHighlightColor ());
+
+    }
+
+    public static TextUnderlinePainter getIssueHighlighter ()
+    {
+
+        return new TextUnderlinePainter (Color.RED);
+
+    }
+
 }

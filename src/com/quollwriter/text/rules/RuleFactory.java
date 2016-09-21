@@ -23,6 +23,7 @@ public class RuleFactory
     public static final int ALL = 4;
 
     private static Map<String, Map<String, Rule>> rules = new HashMap ();
+    private static Map<String, Class> ruleTypes = new HashMap ();
 
     private static int lastUserRuleIndex = 0;
 
@@ -45,22 +46,22 @@ public class RuleFactory
             Element el = (Element) els.get (i);
 
             Rule r = null;
-            
+
             try
             {
-                
+
                 r = RuleFactory.createRule (el,
                                             false);
-                
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to create rule",
                                       new GeneralException ("Unable to create rule from element: " +
                                                             JDOMUtils.getPath (el),
                                                             e));
-                
+
                 continue;
-                
+
             }
 
             Map<String, Rule> l = RuleFactory.rules.get (r.getCategory ());
@@ -118,7 +119,7 @@ public class RuleFactory
 
                     // Delete the rule.
                     files[i].delete ();
-                
+
                     Environment.logError ("Unable to load user rule: " +
                                           files[i],
                                           e);
@@ -309,10 +310,10 @@ public class RuleFactory
             StringProperty p = new StringProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
                                                    b.toString ());
             p.setDescription ("N/A");
-    
+
             projProps.setProperty (Constants.PROBLEM_FINDER_RULES_TO_IGNORE_PROPERTY_NAME,
                                    p);
-            
+
         }
 
 
@@ -354,25 +355,25 @@ public class RuleFactory
 
         if (fn.startsWith ("user-"))
         {
-            
+
             int ind = fn.lastIndexOf ('.');
-            
+
             if (ind > 1)
             {
-                
+
                 try
                 {
-                    
+
                     RuleFactory.lastUserRuleIndex = Integer.parseInt (fn.substring (5,
                                                                       fn.length () - 4));
-                    
+
                 } catch (Exception e) {
-                    
-                    
+
+
                 }
 
             }
-            
+
         }
 
         return r;
@@ -463,21 +464,73 @@ public class RuleFactory
 
     }
 
+    public static List<Issue> getIssues (TextBlock                           block,
+                                         Rule                                rule,
+                                         com.gentlyweb.properties.Properties projProps)
+    {
+
+        List<Issue> issues = new ArrayList ();
+
+        if ((rule == null)
+            ||
+            (block == null)
+           )
+        {
+
+            return issues;
+
+        }
+
+        if ((block instanceof Paragraph)
+            &&
+            (!(rule instanceof ParagraphRule))
+           )
+        {
+
+            return issues;
+
+        }
+
+        if ((block instanceof Sentence)
+            &&
+            (!(rule instanceof SentenceRule))
+           )
+        {
+
+            return issues;
+
+        }
+
+        // Get the ignores.
+        Map<String, String> ignores = RuleFactory.getIgnores (ALL,
+                                                              projProps);
+
+        if (ignores.containsKey (rule.getId ()))
+        {
+
+            return issues;
+
+        }
+
+        return rule.getIssues (block);
+
+    }
+
     public static List<Issue> getParagraphIssues (Paragraph                           para,
                                                   com.gentlyweb.properties.Properties projProps)
     {
 
         List<Issue> issues = new ArrayList ();
-    
+
         Map<String, Rule> rules = RuleFactory.rules.get (Rule.PARAGRAPH_CATEGORY);
-        
+
         if (rules == null)
         {
-            
+
             return issues;
-            
+
         }
-    
+
         Collection<Rule> iss = rules.values ();
 
         // Get the ignores.
@@ -495,13 +548,13 @@ public class RuleFactory
             }
 
             ParagraphRule pr = (ParagraphRule) r;
-            
+
             issues.addAll (r.getIssues (para));
 
         }
-        
+
         return issues;
-        
+
     }
 
     public static List<Issue> getSentenceIssues (Sentence                            sentence,
@@ -509,61 +562,61 @@ public class RuleFactory
     {
 
         List<Issue> issues = new ArrayList ();
-    
+
         // Get the ignores.
         Map<String, String> ignores = RuleFactory.getIgnores (ALL,
                                                               projProps);
 
         Map<String, Rule> rules = RuleFactory.rules.get (Rule.WORD_CATEGORY);
-    
+
         if (rules != null)
         {
-    
+
             Collection<Rule> wordIss = rules.values ();
-            
+
             for (Rule r : wordIss)
             {
-    
+
                 if (ignores.containsKey (r.getId ()))
                 {
-    
+
                     continue;
-    
+
                 }
-    
+
                 SentenceRule sr = (SentenceRule) r;
-    
+
                 issues.addAll (sr.getIssues (sentence));
-    
+
             }
 
         }
-            
+
         rules = RuleFactory.rules.get (Rule.SENTENCE_CATEGORY);
-        
+
         if (rules != null)
         {
-            
+
             Collection<Rule> sRules = rules.values ();
-    
+
             for (Rule r : sRules)
             {
-    
+
                 if (ignores.containsKey (r.getId ()))
                 {
-    
+
                     continue;
-    
+
                 }
-    
+
                 SentenceRule sr = (SentenceRule) r;
-                
+
                 issues.addAll (r.getIssues (sentence));
-    
+
             }
 
         }
-            
+
         return issues;
 
     }
@@ -576,64 +629,142 @@ public class RuleFactory
         String type = JDOMUtils.getAttributeValue (root,
                                                    AbstractRule.XMLConstants.createType);
 
+        Class c = null;
+
+        try
+        {
+
+            c = Class.forName (type);
+
+        } catch (Exception e) {
+
+            // Search for an existing type with the same id.
+            Rule r = RuleFactory.createLegacyRule (root,
+                                                   userRule);
+
+            if (r != null)
+            {
+
+                return r;
+
+            }
+
+            throw new JDOMException (String.format ("Unable to load class: %s, referenced by: %s",
+                                                    type,
+                                                    JDOMUtils.getPath (JDOMUtils.getAttribute (root,
+                                                                                               AbstractRule.XMLConstants.createType))),
+                                     e);
+
+        }
+
         Rule r = null;
 
-        if (type.equals (WordFinder.CREATE_TYPE))
+        try
         {
 
-            r = new WordFinder (userRule);
+            r = (Rule) c.newInstance ();
+
+        } catch (Exception e) {
+
+            throw new JDOMException (String.format ("Unable to create new instance of rule for class: %s, referenced by: %s",
+                                                    type,
+                                                    JDOMUtils.getPath (JDOMUtils.getAttribute (root,
+                                                                                               AbstractRule.XMLConstants.createType))),
+                                     e);
 
         }
 
-        if (type.equals (AdverbRule.CREATE_TYPE))
+        r.setUserRule (userRule);
+
+        r.init (root);
+
+        return r;
+
+    }
+
+    /**
+     * Creates rules based on the old "createType" values that were used prior to version 2.5.4.
+     * The values are now hard-coded since they have been removed from the classes themselves.
+     *
+     * @param root The root element to use to create the rule.
+     * @param userRule Is this a user rule.
+     * @returns The created rule.
+     */
+    private static Rule createLegacyRule (Element root,
+                                          boolean userRule)
+                                   throws JDOMException
+    {
+
+        Rule r = null;
+
+        String type = JDOMUtils.getAttributeValue (root,
+                                                   AbstractRule.XMLConstants.createType);
+
+        if (type.equals ("wordFinder"))
         {
 
-            r = new AdverbRule (userRule);
+            r = new WordFinder ();
 
         }
 
-        if (type.equals (PassiveSentenceRule.CREATE_TYPE))
+        if (type.equals ("adverb"))
         {
 
-            r = new PassiveSentenceRule (userRule);
+            r = new AdverbRule ();
 
         }
 
-        if (type.equals (TooManyClausesRule.CREATE_TYPE))
+        if (type.equals ("passivesentence"))
         {
 
-            r = new TooManyClausesRule (userRule);
+            r = new PassiveSentenceRule ();
 
         }
 
-        if (type.equals (SentenceLengthRule.CREATE_TYPE))
+        if (type.equals ("toomanyclauses"))
         {
 
-            r = new SentenceLengthRule (userRule);
+            r = new TooManyClausesRule ();
 
         }
 
-        if (type.equals (SentenceComplexityRule.CREATE_TYPE))
+        if (type.equals ("sentencelength"))
         {
 
-            r = new SentenceComplexityRule (userRule);
+            r = new SentenceLengthRule ();
 
         }
 
-        if (type.equals (ParagraphLengthRule.CREATE_TYPE))
+        if (type.equals ("sentencecomplexity"))
         {
 
-            r = new ParagraphLengthRule (userRule);
+            r = new SentenceComplexityRule ();
 
         }
 
-        if (type.equals (ParagraphReadabilityRule.CREATE_TYPE))
+        if (type.equals ("paragraphlength"))
         {
 
-            r = new ParagraphReadabilityRule (userRule);
+            r = new ParagraphLengthRule ();
 
         }
-        
+
+        if (type.equals ("paragraphreadability"))
+        {
+
+            r = new ParagraphReadabilityRule ();
+
+        }
+
+        if (r == null)
+        {
+
+            return null;
+
+        }
+
+        r.setUserRule (userRule);
+
         r.init (root);
 
         return r;
@@ -660,7 +791,7 @@ public class RuleFactory
         return RuleFactory.getRules (Rule.PARAGRAPH_CATEGORY);
 
     }
-    
+
     public static List<Rule> getRules (String category)
     {
 

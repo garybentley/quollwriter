@@ -20,8 +20,6 @@ import org.jdom.JDOMException;
 
 public class ParagraphLengthRule extends AbstractParagraphRule
 {
-    
-    public static final String CREATE_TYPE = "paragraphlength";
 
     public class XMLConstants
     {
@@ -36,10 +34,8 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     private JSpinner sentCountF = null;
     private JSpinner wordCountF = null;
 
-    public ParagraphLengthRule (boolean user)
+    public ParagraphLengthRule ()
     {
-
-        super (user);
 
     }
 
@@ -48,41 +44,41 @@ public class ParagraphLengthRule extends AbstractParagraphRule
                                 boolean user)
     {
 
-        this (user);
-
         this.sentenceCount = sentenceCount;
         this.wordCount = wordCount;
-        
+        this.setUserRule (user);
+
     }
 
     public int getSentenceCount ()
     {
-        
+
         return this.sentenceCount;
-        
-    }
-    
-    public void setSentenceCount (int c)
-    {
-        
-        this.sentenceCount = c;
-        
-    }
-    
-    public int getWordCount ()
-    {
-        
-        return this.wordCount;
-        
-    }
-    
-    public void setWordCount (int c)
-    {
-        
-        this.wordCount = c;
-        
+
     }
 
+    public void setSentenceCount (int c)
+    {
+
+        this.sentenceCount = c;
+
+    }
+
+    public int getWordCount ()
+    {
+
+        return this.wordCount;
+
+    }
+
+    public void setWordCount (int c)
+    {
+
+        this.wordCount = c;
+
+    }
+
+    @Override
     public String getDescription ()
     {
 
@@ -91,7 +87,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
         d = StringUtils.replaceString (d,
                                        "[SENTENCE_COUNT]",
                                        this.sentenceCount + "");
-        
+
         d = StringUtils.replaceString (d,
                                        "[WORD_COUNT]",
                                        this.wordCount + "");
@@ -100,6 +96,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public String getSummary ()
     {
 
@@ -110,18 +107,12 @@ public class ParagraphLengthRule extends AbstractParagraphRule
         t = StringUtils.replaceString (t,
                                        "[WORD_COUNT]",
                                        this.wordCount + "");
-        
+
         return t;
-                                              
-    }
-
-    public String getCreateType ()
-    {
-
-        return ParagraphLengthRule.CREATE_TYPE;
 
     }
 
+    @Override
     public void init (Element root)
                throws JDOMException
     {
@@ -135,6 +126,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public Element getAsElement ()
     {
 
@@ -148,58 +140,21 @@ public class ParagraphLengthRule extends AbstractParagraphRule
         return root;
 
     }
-/*
-    public List<Issue> getIssues (String  paragraph,
-                                  boolean inDialogue)
-    {
 
-        List<Issue> issues = new ArrayList ();
-    
-        int wc = TextUtilities.getWordCount (paragraph);
-        
-        if (wc > this.wordCount)
-        {
-            
-            Issue iss = new Issue ("Paragraph word count is: <b>" + Environment.formatNumber (wc) + "</b>.  (Max is: " + Environment.formatNumber (this.wordCount) + ")",
-                                   -1,
-                                   -1,
-                                   this);
-
-            issues.add (iss);
-
-        }
-
-        int sc = TextUtilities.getSentenceCount (paragraph);
-        
-        if (sc > this.sentenceCount)
-        {
-            
-            Issue iss = new Issue ("Paragraph sentence count is: <b>" + Environment.formatNumber (sc) + "</b>.  (Max is: " + Environment.formatNumber (this.sentenceCount) + ")",
-                                   -1,
-                                   -1,
-                                   this);
-
-            issues.add (iss);
-
-        }
-        
-        return issues;
-
-    }
-*/
+    @Override
     public List<Issue> getIssues (Paragraph paragraph)
     {
 
         List<Issue> issues = new ArrayList ();
-            
+
         int wc = paragraph.getWordCount ();
-            
+
         if ((this.wordCount > 0)
             &&
             (wc > this.wordCount)
            )
         {
-            
+
             Issue iss = new Issue ("Paragraph word count is: <b>" + Environment.formatNumber (wc) + "</b>.  (Max is: " + Environment.formatNumber (this.wordCount) + ")",
                                    paragraph,
                                    paragraph.getAllTextStartOffset () + "-wordcount-" + wc,
@@ -210,13 +165,13 @@ public class ParagraphLengthRule extends AbstractParagraphRule
         }
 
         int sc = paragraph.getSentenceCount ();
-        
+
         if ((this.sentenceCount > 0)
             &&
             (sc > this.sentenceCount)
            )
         {
-            
+
             Issue iss = new Issue ("Paragraph sentence count is: <b>" + Environment.formatNumber (sc) + "</b>.  (Max is: " + Environment.formatNumber (this.sentenceCount) + ")",
                                    paragraph,
                                    paragraph.getAllTextStartOffset () + "-sentencecount-" + sc,
@@ -225,7 +180,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
             issues.add (iss);
 
         }
-        
+
         return issues;
 
     }
@@ -240,11 +195,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     @Override
     public String getFormError ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     @Override
     public List<FormItem> getFormItems ()
     {
@@ -271,7 +226,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
                                                                 1));
 
         b = new Box (BoxLayout.X_AXIS);
-                                                            
+
         b.add (this.sentCountF);
         b.add (Box.createHorizontalGlue ());
 
@@ -279,7 +234,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         items.add (new FormItem ("Sentences",
                                  b));
-                                 
+
         return items;
 
     }
@@ -291,6 +246,6 @@ public class ParagraphLengthRule extends AbstractParagraphRule
         this.sentenceCount = ((SpinnerNumberModel) this.sentCountF.getModel ()).getNumber ().intValue ();
         this.wordCount = ((SpinnerNumberModel) this.wordCountF.getModel ()).getNumber ().intValue ();
 
-    }    
-    
+    }
+
 }

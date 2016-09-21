@@ -18,7 +18,7 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
     public ProjectTextProperties ()
     {
-        
+
         this.initInternal (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME),
                            UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME),
@@ -29,50 +29,50 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
                            UIUtils.getColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)),
                            UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME),
                            UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
-        
+
     }
 
     public ProjectTextProperties (TextProperties props)
     {
-                        
+
         this.initInternal (props);
-        
+
     }
 
     @Override
     public void stopSetting ()
     {
-        
+
         this.allowSet = false;
-        
+
     }
-    
+
     @Override
     public void startSetting ()
     {
-        
+
         this.allowSet = true;
-        
+
     }
-    
+
     public void setBackgroundColor (Color c)
     {
-        
+
         super.setBackgroundColor (c);
-                        
+
         this.setProperty (new StringProperty (Constants.EDITOR_BGCOLOR_PROPERTY_NAME,
-                                              UIUtils.colorToHex (this.getBackgroundColor ())));        
-        
+                                              UIUtils.colorToHex (this.getBackgroundColor ())));
+
 /*
  *
  *
         if (this.sideBar != null)
         {
-            
+
             this.sideBar.backgroundChanged ();
-            
+
         }
-        
+
         if (c.equals (this.getTextColor ()))
         {
 
@@ -97,132 +97,132 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 /*
         this.setProperty (new StringProperty (Constants.EDITOR_FONT_BGCOLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getBackgroundColor ())));
-  */      
+  */
     }
-    
+
     public void setHighlightWritingLine (boolean v)
     {
-        
+
         super.setHighlightWritingLine (v);
-        
+
         this.setProperty (new BooleanProperty (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME,
                                                v));
-        
+
     }
-    
+
     public void setWritingLineColor (Color c)
     {
-        
+
         super.setWritingLineColor (c);
-        
+
         this.setProperty (new StringProperty (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
-                                             UIUtils.colorToHex (this.getWritingLineColor ())));        
-        
+                                             UIUtils.colorToHex (this.getWritingLineColor ())));
+
     }
-    
+
     public void setTextColor (Color c)
     {
-        
+
         super.setTextColor (c);
-                
+
         this.setProperty (new StringProperty (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME,
                                               UIUtils.colorToHex (this.getTextColor ())));
 
     }
-    
+
     public void setLineSpacing (float v)
     {
-        
+
         super.setLineSpacing (v);
-        
+
         this.setProperty (new FloatProperty (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME,
                                              this.getLineSpacing ()));
-        
+
     }
-    
+
     public void setFirstLineIndent (boolean v)
     {
-        
+
         super.setFirstLineIndent (v);
-        
+
         this.setProperty (new BooleanProperty (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME,
                                                this.getFirstLineIndent ()));
-        
+
     }
-    
+
     public void setAlignment (String v)
     {
-        
+
         super.setAlignment (v);
 
         this.setProperty (new StringProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME,
                                               this.getAlignment ()));
-        
+
     }
-    
+
     public void setFontSize (int v)
     {
-        
+
         super.setFontSize (v);
-        
+
         this.setProperty (new IntegerProperty (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME,
                                                this.getFontSize ()));
-                
+
     }
-    
+
     public void setFontFamily (String f)
     {
-    
+
         super.setFontFamily (f);
-     
+
         this.setProperty (new StringProperty (Constants.EDITOR_FONT_PROPERTY_NAME,
                                               this.getFontFamily ()));
-    
+
     }
-    
+
     public void setTextBorder (int v)
     {
-    
+
         super.setTextBorder (v);
-     
+
         this.setProperty (new IntegerProperty (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME,
                                               this.getTextBorder ()));
-    
+
     }
 
     private void reinitViewers ()
     {
-        
+
         Environment.doForOpenProjects (null, // all project types
                                        new ProjectViewerAction ()
         {
-            
+
             @Override
             public void doAction (AbstractProjectViewer v)
             {
-                
+
                 v.reinitAllChapterEditors ();
-                
+
             }
-            
+
         });
 
     }
-    
+
     private void setProperty (AbstractProperty prop)
     {
-        
+
         if (!this.allowSet)
         {
-            
+
             return;
-            
+
         }
-        
+
         UserProperties.set (prop.getID (),
                             prop);
-        
-        this.reinitViewers ();
+
+        //this.reinitViewers ();
 
     }
 
@@ -239,9 +239,9 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
         this.setLineSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME));
         this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
         this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
-    
+
         this.reinitViewers ();
-                           
+
     }
-   
+
 }
