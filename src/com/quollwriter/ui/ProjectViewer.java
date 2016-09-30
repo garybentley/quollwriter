@@ -1297,6 +1297,15 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         }
 
+        if (v.equals ("problemfinderconfig"))
+        {
+            
+            this.showProblemFinderRuleConfig ();
+         
+            return;
+            
+        }        
+        
         if (v.equals ("ideaboard"))
         {
 

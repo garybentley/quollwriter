@@ -5384,7 +5384,7 @@ xxx
                 return;
 
             }
-
+            
             if (v.equals ("projectsidebar"))
             {
 

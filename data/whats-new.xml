@@ -1,5 +1,20 @@
 <whatsnew>
 
+    <version id="2.5.4">
+      <item onlyIfCurrentVersion="true">
+        <title>Asset editing changed</title>
+        <description><![CDATA[The way that {characters}, {locations}, {objects} and {researchitems} are edited has been changed.  Editing is now performed via a popup, just like when the asset is created.  If you feel that this change doesn't fit with how you wish to work please <a href='action:contact'>let me know</a>.]]></description>
+      </item>
+      <item>
+        <title>New way to interact with the Problem Finder</title>
+        <description><![CDATA[The <a href='action:problemfinderconfig'>Problem Finder</a> is great at finding all the problems within a {chapter} but sometimes you want to hone in on a particular type of problem.  Now you can!  Either right click on a the checkbox for a found problem and select <b>Find all problems of this type</b> or use the <a href='action:problemfinderconfig'>Problem Finder rule config popup</a>.]]></description>
+      </item>
+      <item onlyIfCurrentVersion="true">
+        <title>New double word rule</title>
+        <description><![CDATA[A new Problem Finder rule to find double word or double punctuation has been added.]]></description>
+      </item>
+    </version>
+
     <version id="2.5.3">
       <item onlyIfCurrentVersion="true">
         <title>Project import bug fixes</title>
