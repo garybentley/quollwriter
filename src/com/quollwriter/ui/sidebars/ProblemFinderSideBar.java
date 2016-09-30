@@ -25,7 +25,7 @@ import com.quollwriter.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
-public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> implements TreeSelectionListener, DocumentListener, ProjectEventListener
+public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> implements DocumentListener, ProjectEventListener
 {
 
     private static final String TITLE_PREFIX = "Find Problems";
@@ -36,6 +36,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     private JLabel noMatches = null;
     private JLabel ruleSummary = null;
     private JLabel ignoredProblemsLabel = null;
+    private JLabel searchingLabel = null;
     private java.util.Timer updateTimer = null;
     private Set<Issue> ignored = null;
     
@@ -90,23 +91,9 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     public void onClose ()
     {
 
-        this.removeListeners ();
         this.viewer.removeChapterDocumentListener (this);
         this.updateTimer.cancel ();
         this.viewer.removeProjectEventListener (this);
-
-    }
-
-    private void removeListeners ()
-    {
-
-        // Remove the listeners.
-        if (this.results != null)
-        {
-
-            this.results.getTree ().removeTreeSelectionListener (this);
-
-        }
 
     }
 
@@ -313,7 +300,16 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 
         });        
         
+        this.ignoredProblemsLabel.setVisible (false);
+        
         b.add (this.ignoredProblemsLabel);
+        
+        this.searchingLabel = UIUtils.createLoadingLabel ("Finding problems... please wait...");
+        this.searchingLabel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
+        
+        this.searchingLabel.setVisible (false);
+        
+        b.add (this.searchingLabel);
         
         b.add (this.noMatches);
 
@@ -379,6 +375,8 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 
         final ProblemFinderSideBar _this = this;
 
+         this.searchingLabel.setVisible (false);
+        
         boolean expandSearchResults = false;
 
         java.util.List<TreePath> openPaths = new ArrayList ();
@@ -486,8 +484,6 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 
         this.results = r;
 
-        r.getTree ().addTreeSelectionListener (this);
-
         r.init ();
 
         DefaultTreeModel dtm = (DefaultTreeModel) this.results.getTree ().getModel ();
@@ -523,15 +519,26 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     public void find ()
     {
 
-        boolean immediate = (this.updateTimer == null);
-
-        if (!immediate)
-        {
-
-            this.updateTimer.cancel ();
-
-        }
-
+         boolean immediate = (this.updateTimer == null);
+ 
+         if (!immediate)
+         {
+ 
+             this.updateTimer.cancel ();
+ 
+         }
+ 
+         this.searchingLabel.setVisible (true);
+         this.ignoredProblemsLabel.setVisible (false);
+         
+         if (this.results != null)
+         {
+            
+            this.results.clearHighlight ();
+            this.results.setVisible (false);
+            
+         }
+              
         this.updateTimer = new java.util.Timer ("problem-finder-side-bar", true);
 
         final ProblemFinderSideBar _this = this;
@@ -569,7 +576,7 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
                     @Override
                     public void actionPerformed (ActionEvent ev)
                     {
-
+                    
                         _this.update (probs,
                                       ignored);
 
@@ -581,28 +588,6 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 
         },
         (immediate ? 0 : 750));
-
-    }
-
-    @Override
-    public void valueChanged (TreeSelectionEvent ev)
-    {
-
-        if (this.results == null)
-        {
-
-            return;
-
-        }
-
-        if (!ev.isAddedPath ())
-        {
-
-            return;
-
-        }
-
-        this.results.clearSelectedItemInTree ();
 
     }
 

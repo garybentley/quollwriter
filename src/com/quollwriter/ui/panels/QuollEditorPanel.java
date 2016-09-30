@@ -2105,7 +2105,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     public void eventOccurred (ProjectEvent ev)
     {
 
-        if (ev.getType ().equals (ProjectEvent.PROBLEM_FINDER))
+        if (ProjectEvent.PROBLEM_FINDER.equals (ev.getType ()))
         {
 
             this.updateIgnoredProblemsLabel ();

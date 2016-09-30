@@ -36,7 +36,7 @@ public class NamedObjectFindResultsBox<E extends NamedObject> extends FindResult
     {
         
         // Let subclasses override for their own behaviour.
-        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.projectViewer.getProject ());
+        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.viewer.getProject ());
 
         UIUtils.createTree (this.objs,
                             tn);

@@ -1,4 +1,4 @@
-package com.quollwriter.ui.sidebars;
+package com.quollwriter.ui;
 
 import java.awt.Cursor;
 import java.awt.Rectangle;
@@ -137,7 +137,7 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
 
                 Paint p = null;
                 
-                Object bg = _this.fsf.getBackgroundObject ();
+                Object bg = (_this.fsf != null ? _this.fsf.getBackgroundObject () : null);
                 
                 if (bg != null)
                 {

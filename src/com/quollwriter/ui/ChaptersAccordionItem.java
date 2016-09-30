@@ -38,8 +38,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
         m.add (UIUtils.createMenuItem ("Add New {Chapter}",
                                        Constants.ADD_ICON_NAME,
-                                       this.projectViewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
-                                                                     this.projectViewer.getProject ().getBooks ().get (0))));
+                                       this.viewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
+                                                              this.viewer.getProject ().getBooks ().get (0))));
     
     }
     
@@ -47,7 +47,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     public void initTree ()
     {
     
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.viewer.getProject (),
                                                                                         null,
                                                                                         null,
                                                                                         false));
@@ -58,7 +58,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     public void reloadTree ()
     {
         
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.viewer.getProject (),
                                                                                         null,
                                                                                         null,
                                                                                         false));        
@@ -75,7 +75,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     public int getItemCount ()
     {
         
-        int c = this.projectViewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
+        int c = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
         
         return c;
                 
@@ -91,8 +91,6 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
         
         final ChaptersAccordionItem _this = this;
 
-        final AbstractProjectViewer pv = this.projectViewer;
-        
         JMenuItem mi = null;
 
         if (tp != null)
@@ -115,7 +113,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                 
-                                                        pv.viewObject (n);
+                                                        _this.viewer.viewObject (n);
                                 
                                                     }
                                 
@@ -123,13 +121,13 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Edit",
                                                Constants.EDIT_ICON_NAME,
-                                               pv.getAction (ProjectViewer.EDIT_NOTE_ACTION,
-                                                             n)));
+                                               _this.viewer.getAction (ProjectViewer.EDIT_NOTE_ACTION,
+                                                                       n)));
 
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
-                                               pv.getAction (ProjectViewer.DELETE_NOTE_ACTION,
-                                                             n)));
+                                               _this.viewer.getAction (ProjectViewer.DELETE_NOTE_ACTION,
+                                                                       n)));
                 
             }
             
@@ -142,13 +140,13 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Edit {Chapter}",
                                                Constants.EDIT_ICON_NAME,
-                                               pv.getAction (ProjectViewer.EDIT_CHAPTER_ACTION,
-                                                             c)));
+                                               _this.viewer.getAction (ProjectViewer.EDIT_CHAPTER_ACTION,
+                                                                       c)));
 
                 m.add (UIUtils.createMenuItem ("View {Chapter} Information",
                                                Constants.INFO_ICON_NAME,
-                                               pv.getAction (ProjectViewer.VIEW_CHAPTER_INFO_ACTION,
-                                                             c)));
+                                               _this.viewer.getAction (ProjectViewer.VIEW_CHAPTER_INFO_ACTION,
+                                                                       c)));
 
                 if (!c.isEditComplete ())
                 {                                                             
@@ -164,8 +162,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                             try
                             {
 
-                                pv.setChapterEditComplete (c,
-                                                           true);
+                                _this.viewer.setChapterEditComplete (c,
+                                                                     true);
                                 
                             } catch (Exception e) {
                                 
@@ -173,7 +171,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                       c,
                                                       e);
                                 
-                                UIUtils.showErrorMessage (pv,
+                                UIUtils.showErrorMessage (_this.viewer,
                                                           "Unable to set {chapter} as edit complete.");
                                 
                             }
@@ -208,8 +206,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                             try
                             {
 
-                                pv.setChapterEditComplete (c,
-                                                           false);
+                                _this.viewer.setChapterEditComplete (c,
+                                                                     false);
                                 
                             } catch (Exception e) {
                                 
@@ -217,7 +215,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                       c,
                                                       e);
                                 
-                                UIUtils.showErrorMessage (pv,
+                                UIUtils.showErrorMessage (_this.viewer,
                                                           "Unable to set {chapter} as not edit complete.");
                                 
                             }
@@ -242,7 +240,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                             try
                             {
 
-                                pv.removeChapterEditPosition (c);
+                                _this.viewer.removeChapterEditPosition (c);
                                 
                             } catch (Exception e) {
                                 
@@ -250,7 +248,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                       c,
                                                       e);
                                 
-                                UIUtils.showErrorMessage (pv,
+                                UIUtils.showErrorMessage (_this.viewer,
                                                           "Unable to remove {chapter} edit position.");
                                 
                             }
@@ -271,7 +269,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                         AddChapterActionHandler ah = new AddChapterActionHandler (c.getBook (),
                                                                                   c,
-                                                                                  (ProjectViewer) pv);
+                                                                                  (ProjectViewer) _this.viewer);
 
 
                         DefaultTreeModel dtm = (DefaultTreeModel) _this.tree.getModel ();
@@ -298,8 +296,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Rename {Chapter}",
                                                Constants.RENAME_ICON_NAME,
-                                               pv.getAction (ProjectViewer.RENAME_CHAPTER_ACTION,
-                                                             c)));
+                                               _this.viewer.getAction (ProjectViewer.RENAME_CHAPTER_ACTION,
+                                                                       c)));
 
                 m.add (UIUtils.createMenuItem ("Close {Chapter}",
                                                Constants.CLOSE_ICON_NAME,
@@ -309,7 +307,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        pv.closePanel (c);
+                        _this.viewer.closePanel (c);
 
                     }
 
@@ -317,8 +315,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Delete {Chapter}",
                                                Constants.DELETE_ICON_NAME,
-                                               pv.getAction (ProjectViewer.DELETE_CHAPTER_ACTION,
-                                                             c)));
+                                               _this.viewer.getAction (ProjectViewer.DELETE_CHAPTER_ACTION,
+                                                                       c)));
 
             }
 
@@ -335,7 +333,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        pv.viewObject (oi);
+                        _this.viewer.viewObject (oi);
 
                     }
 
@@ -343,13 +341,13 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Edit",
                                                Constants.EDIT_ICON_NAME,
-                                               pv.getAction (ProjectViewer.EDIT_PLOT_OUTLINE_ITEM_ACTION,
-                                                             oi)));
+                                               _this.viewer.getAction (ProjectViewer.EDIT_PLOT_OUTLINE_ITEM_ACTION,
+                                                                       oi)));
 
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
-                                               pv.getAction (ProjectViewer.DELETE_PLOT_OUTLINE_ITEM_ACTION,
-                                                             oi)));
+                                               _this.viewer.getAction (ProjectViewer.DELETE_PLOT_OUTLINE_ITEM_ACTION,
+                                                                       oi)));
 
             }
 
@@ -366,7 +364,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        pv.viewObject (s);
+                        _this.viewer.viewObject (s);
 
                     }
 
@@ -374,13 +372,13 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 m.add (UIUtils.createMenuItem ("Edit",
                                                Constants.EDIT_ICON_NAME,
-                                               pv.getAction (ProjectViewer.EDIT_SCENE_ACTION,
-                                                             s)));
+                                               _this.viewer.getAction (ProjectViewer.EDIT_SCENE_ACTION,
+                                                                       s)));
 
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
-                                               pv.getAction (ProjectViewer.DELETE_SCENE_ACTION,
-                                                             s)));
+                                               _this.viewer.getAction (ProjectViewer.DELETE_SCENE_ACTION,
+                                                                       s)));
                 
             }
 
@@ -389,8 +387,8 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
             m.add (UIUtils.createMenuItem ("Add New {Chapter}",
                                            Constants.ADD_ICON_NAME,
-                                           pv.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
-                                                         pv.getProject ().getBooks ().get (0))));        
+                                           _this.viewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
+                                                                   _this.viewer.getProject ().getBooks ().get (0))));        
 
         }
 
@@ -412,13 +410,23 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
         
     }
     
-    public boolean isTreeEditable ()
+    @Override
+    public boolean isAllowObjectPreview ()
     {
         
         return true;
         
     }
     
+    @Override
+    public boolean isTreeEditable ()
+    {
+        
+        return false;
+        
+    }
+    
+    @Override
     public boolean isDragEnabled ()
     {
         

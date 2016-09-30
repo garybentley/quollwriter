@@ -58,7 +58,7 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
 
         }
 
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.viewer.getProject (),
                                                                                        null,
                                                                                        null,
                                                                                        false));        
@@ -81,7 +81,7 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
     public void initTree ()
     {
 
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.viewer.getProject (),
                                                                                        null,
                                                                                        null,
                                                                                        false));
@@ -162,7 +162,7 @@ public class EditorChaptersAccordionItem extends ChaptersAccordionItem
 
         final EditorChaptersAccordionItem _this = this;
 
-        final AbstractProjectViewer pv = this.projectViewer;
+        final AbstractProjectViewer pv = this.viewer;
 
         final TreePath tp = this.tree.getPathForLocation (ev.getX (),
                                                           ev.getY ());

@@ -24,7 +24,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     
     protected JTree tree = null;
     protected String forObjType = null;
-    protected E projectViewer = null;
+    protected E viewer = null;
     
     public ProjectObjectsAccordionItem (String title,
                                         String iconType,
@@ -39,12 +39,19 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                objType);
         */
         this.forObjType = forObjType;
-        this.projectViewer = pv;
+        this.viewer = pv;
 
         this.tree = this.createTree ();
     
     }
 
+    public E getViewer ()
+    {
+        
+        return this.viewer;
+        
+    }
+    
     public boolean isContentVisible ()
     {
         
@@ -137,6 +144,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     public abstract boolean isTreeEditable ();
     
     public abstract boolean isDragEnabled ();
+    
+    public abstract boolean isAllowObjectPreview ();
     
     public abstract void reloadTree ();
     
@@ -255,14 +264,19 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
         this.tree = UIUtils.createTree ();
 
-        this.tree.setCellEditor (this.getTreeCellEditor (this.projectViewer));
+        this.tree.setCellEditor (this.getTreeCellEditor (this.viewer));
 
         this.tree.setEditable (this.isTreeEditable ());
 
         PopupPreviewListener mm = new PopupPreviewListener (this);
         
-        this.tree.addMouseMotionListener (mm);
-        this.tree.addMouseListener (mm);
+        if (this.isAllowObjectPreview ())
+        {
+                
+            this.tree.addMouseMotionListener (mm);
+            this.tree.addMouseListener (mm);
+
+        }
         
         this.tree.addMouseListener (new MouseEventHandler ()
         {
@@ -301,7 +315,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                     {
                         
                         _this.tree.expandPath (tp);
-                        
+                                                
                     } else {
                         
                         _this.tree.collapsePath (tp);
@@ -318,7 +332,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
                     _this.handleViewObject (tp,
                                             d);
-                
+             
                 }
                 /*
                 if (ev.isPopupTrigger ())
@@ -340,8 +354,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                                      DataObjectTransferHandler.getDropHandler ()));
 
             this.tree.setDropMode (DropMode.ON);
-            this.tree.setTransferHandler (new DataObjectTransferHandler (this.projectViewer,
-                                                                         this.getTreeDragActionHandler (this.projectViewer)));
+            this.tree.setTransferHandler (new DataObjectTransferHandler (this.viewer,
+                                                                         this.getTreeDragActionHandler (this.viewer)));
 
         }
 
@@ -355,7 +369,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                      Object   obj)
     {
         
-        this.projectViewer.viewObject ((DataObject) obj);
+        this.viewer.viewObject ((DataObject) obj);
         
     }
     
@@ -374,7 +388,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
             
             this.item = item;   
                   
-            this.popup = new NamedObjectPreviewPopup (this.item.projectViewer);
+            this.popup = new NamedObjectPreviewPopup (this.item.viewer);
                   
         }
         
@@ -391,7 +405,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         {
 
             // Should be an achievement for having such a long var name...
-            if (!this.item.projectViewer.getProject ().getPropertyAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME))
+            if (!this.item.viewer.getProject ().getPropertyAsBoolean (Constants.SHOW_QUICK_OBJECT_PREVIEW_IN_PROJECT_SIDEBAR_PROPERTY_NAME))
             {
                 
                 return;
@@ -447,9 +461,9 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                             
             this.lastObject = (NamedObject) d;
             
-            Point po = this.item.projectViewer.convertPoint (this.item.tree,
-                                                             new Point (ev.getX () + 10,
-                                                                        this.item.tree.getPathBounds (tp).y + this.item.tree.getPathBounds (tp).height - 5));
+            Point po = this.item.viewer.convertPoint (this.item.tree,
+                                                      new Point (ev.getX () + 10,
+                                                                 this.item.tree.getPathBounds (tp).y + this.item.tree.getPathBounds (tp).height - 5));
             
             // Show the first line of the description.
             this.popup.show ((NamedObject) d,
@@ -473,32 +487,11 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         @Override
         public void mouseExited (MouseEvent ev)
         {
-/*
-            Point p = new Point (0,
-                                 0);
-*/
+
             this.lastObject = null;
         
             this.popup.hidePopup ();
-/*
- *No idea what was going on down here... leave for now, clean up if not used
-            SwingUtilities.convertPointToScreen (p,
-                                                 this.item.tree);
 
-            java.awt.Rectangle tBounds = this.item.tree.getBounds (null);
-
-            tBounds.x = p.x;
-            tBounds.y = p.y;
-
-            if (!tBounds.contains (ev.getLocationOnScreen ()))
-            {
-
-                this.lastObject = null;
-            
-                this.popup.hidePopup ();
-
-            }
-            */
         }        
         
     }

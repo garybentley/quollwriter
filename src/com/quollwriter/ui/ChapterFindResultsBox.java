@@ -43,7 +43,7 @@ public class ChapterFindResultsBox extends FindResultsBox
         
         this.tree.setCellRenderer (new ChapterSnippetsTreeCellRenderer ());//new MultiLineTreeCellRenderer (this));
 
-        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.projectViewer.getProject ());
+        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.viewer.getProject ());
 
         UIUtils.createTree (this.snippets,
                             tn);
@@ -68,10 +68,42 @@ public class ChapterFindResultsBox extends FindResultsBox
         
     }
         
-    public void handleViewObject (TreePath tp,
-                                  Object   o)
+    @Override
+    protected void handleViewObject (TreePath tp,
+                                     Object   o)
     {
                
+        if (o instanceof Chapter)
+        {
+
+            this.toggleTreePath (tp);        
+        
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+            
+            // Damn son this is fugly.
+            if ((node.getChildCount () == 1)
+                &&
+                (this.tree.isExpanded (UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) this.tree.getModel ().getRoot (),
+                                                                         node.getUserObject ())))
+               )
+            {
+                
+                DefaultMutableTreeNode n = node.getFirstLeaf ();
+                
+                TreePath tpp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) this.tree.getModel ().getRoot (),
+                                                                 n.getUserObject ());
+                
+                this.handleViewObject (tpp,
+                                       n.getUserObject ());                
+                                
+                this.tree.setSelectionPath (tpp);
+                    
+            }
+            
+            return;
+            
+        }
+                  
         if (o instanceof Segment)
         {
 
@@ -115,14 +147,14 @@ public class ChapterFindResultsBox extends FindResultsBox
     
         final ChapterFindResultsBox _this = this;
     
-        this.projectViewer.viewObject (c,
-                                       new ActionListener ()
+        this.viewer.viewObject (c,
+                                new ActionListener ()
         {
 
             public void actionPerformed (ActionEvent ev)
             {
         
-                AbstractEditorPanel p = _this.projectViewer.getEditorForChapter (c);
+                AbstractEditorPanel p = _this.viewer.getEditorForChapter (c);
                                 
                 try
                 {

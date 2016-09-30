@@ -57,7 +57,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
             
                 Note n = c.getNotes ().iterator ().next ();
                 
-                this.projectViewer.viewObject (n);
+                this.viewer.viewObject (n);
                 
                 this.tree.expandPath (UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) this.tree.getModel ().getRoot (),
                                                                         c));
@@ -68,7 +68,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
             
         }
         
-        this.projectViewer.viewObject ((DataObject) obj);
+        this.viewer.viewObject ((DataObject) obj);
         
     }        
         
@@ -76,7 +76,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
     public void reloadTree ()
     {
         
-        ((DefaultTreeModel) tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) tree.getModel ()).setRoot (EditorsUIUtils.createTree (this.viewer.getProject (),
                                                                                   null,
                                                                                   null,
                                                                                   false));        
@@ -87,7 +87,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
     public void initTree ()
     {
 
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) EditorsUIUtils.createTree (this.projectViewer.getProject (),
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) EditorsUIUtils.createTree (this.viewer.getProject (),
                                                                                           null,
                                                                                           null,
                                                                                           false);
@@ -95,7 +95,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (root);
 
         this.tree.expandPath (UIUtils.getTreePathForUserObject (root,
-                                                                this.projectViewer.getProject ().getBook (0).getChapters ().get (0)));
+                                                                this.viewer.getProject ().getBook (0).getChapters ().get (0)));
                                                            
     }
 
@@ -116,7 +116,7 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
 
         final ProjectCommentsChaptersAccordionItem _this = this;
 
-        final AbstractProjectViewer pv = this.projectViewer;
+        final AbstractProjectViewer pv = this.viewer;
         
         JMenuItem mi = null;
 
@@ -203,6 +203,14 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
         return 1;
         
     }
+             
+    @Override
+    public boolean isAllowObjectPreview ()
+    {
+        
+        return true;
+        
+    }             
                     
     @Override
     public boolean isTreeEditable ()

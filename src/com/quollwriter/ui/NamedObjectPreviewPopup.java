@@ -21,77 +21,30 @@ import com.quollwriter.data.*;
 import com.quollwriter.text.*;
 import com.quollwriter.ui.components.ActionAdapter;
 
-public class NamedObjectPreviewPopup extends Box
+public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer>
 {
 
-    private AbstractProjectViewer viewer = null;
-    private Timer showTimer = null;
-    private Timer hideTimer = null;
-    private boolean hidden = false;
+    private NamedObject obj = null;
 
     public NamedObjectPreviewPopup (AbstractProjectViewer viewer)
     {
 
-        super (BoxLayout.Y_AXIS);
+        super (viewer);
 
-        this.viewer = viewer;
+    }
 
-        //this.setOpaque (false);
-
-        //this.setMaximumSize (new Dimension (380, Short.MAX_VALUE));
-
-        this.setOpaque (true);
-        this.setBackground (UIUtils.getComponentColor ());
-        this.setBorder (new CompoundBorder (com.quollwriter.ui.components.UIUtils.internalPanelDropShadow,
-                                            UIUtils.createLineBorder ()));
-
-        final NamedObjectPreviewPopup _this = this;
-
-        this.addMouseListener (new MouseAdapter ()
-        {
-
-            public void mouseEntered (MouseEvent ev)
-            {
-
-                if (_this.hideTimer != null)
-                {
-
-                    _this.hideTimer.stop ();
-
-                }
-
-            }
-
-            public void mouseExited (MouseEvent ev)
-            {
-
-                if (_this.hideTimer != null)
-                {
-
-                    Point p = new Point (0,
-                                         0);
-
-                    SwingUtilities.convertPointToScreen (p,
-                                                         _this);
-
-                    Rectangle tBounds = _this.getBounds (null);
-
-                    tBounds.x = p.x;
-                    tBounds.y = p.y;
-
-                    if (!tBounds.contains (ev.getLocationOnScreen ()))
-                    {
-
-                        _this.hideTimer.start ();
-
-                    }
-
-                }
-
-            }
-
-        });
-
+    /**
+     * Not supported, call show with NamedObject instead.
+     */
+    @Override
+    public void show (final int         showDelay,
+                      final int         hideDelay,
+                      final Point       po,
+                      final ActionListener onHide)
+    {
+     
+        throw new UnsupportedOperationException ("Not supported, use show(NamedObject,int,int,Point,ActionListener) instead.");
+        
     }
 
     public void show (final NamedObject obj,
@@ -108,131 +61,40 @@ public class NamedObjectPreviewPopup extends Box
 
         }
 
-        final NamedObjectPreviewPopup _this = this;
+        this.obj = obj;
 
-        if (showDelay > 0)
-        {
-
-            if (this.showTimer != null)
-            {
-
-                this.showTimer.stop ();
-
-            }
-
-            this.showTimer = new Timer (showDelay,
-                            new ActionAdapter ()
-                            {
-
-                                 public void actionPerformed (ActionEvent ev)
-                                 {
-
-                                     _this.show (obj,
-                                                 po);
-
-                                 }
-
-                            });
-
-            this.showTimer.setRepeats (false);
-            this.showTimer.start ();
-
-            if (hideDelay > 0)
-            {
-
-                if (this.hideTimer == null)
-                {
-
-                    this.hideTimer = new Timer (hideDelay,
-                                                new ActionAdapter ()
-                                                {
-
-                                                     public void actionPerformed (ActionEvent ev)
-                                                     {
-
-                                                         _this.hidePopup ();
-
-                                                         if (onHide != null)
-                                                         {
-
-                                                            onHide.actionPerformed (ev);
-
-                                                         }
-
-                                                     }
-
-                                                 });
-
-                    this.hideTimer.setRepeats (false);
-
-                } else {
-
-                    this.hideTimer.stop ();
-
-                    this.hideTimer = null;
-
-                }
-
-            }
-
-        }
-
+        super.show (showDelay,
+                    hideDelay,
+                    po,
+                    onHide);
+        
     }
 
-    public void hidePopup ()
+    @Override
+    public JComponent getContent ()
     {
-
-        if (this.showTimer != null)
+        
+        if (this.obj == null)
         {
-
-            this.showTimer.stop ();
+            
+            throw new IllegalStateException ("No object set.");
+            
         }
-
-        if (this.hideTimer != null)
-        {
-
-            this.hideTimer.stop ();
-
-        }
-
-        this.setVisible (false);
-
-        if (this.getParent () != null)
-        {
-
-            this.viewer.removePopup (this);
-
-        }
-
-        this.showTimer = null;
-        this.hideTimer = null;
-
-    }
-
-    public void show (NamedObject obj,
-                      Point       showAt)
-    {
-
-        this.removeAll ();
-
-        Box content = new Box (BoxLayout.Y_AXIS);
-        UIUtils.setPadding (content, 5, 5, 5, 5);
-        this.add (content);
-
+        
         // TODO: Make this nicer later.
-        if (obj instanceof Chapter)
+        if (this.obj instanceof Chapter)
         {
 
-            Chapter c = (Chapter) obj;
+            Chapter c = (Chapter) this.obj;
 
             JComponent t = UIUtils.getChapterInfoPreview (c,
-                                                        null,
-                                                        this.viewer);
+                                                          null,
+                                                          this.viewer);
 
             t.setSize (new Dimension (300,
-                                         Short.MAX_VALUE));
+                                      Short.MAX_VALUE));
 
-            content.add (t);
+            return t;
 
         } else {
 
@@ -268,39 +130,10 @@ public class NamedObjectPreviewPopup extends Box
             p.setOpaque (true);
             p.setBackground (UIUtils.getComponentColor ());
 
-            p.setBorder (new EmptyBorder (3,
-                                          3,
-                                          3,
-                                          3));
+            return p;
 
-            content.add (p);
-
-        }
-
-        // For some reason we need to set the size manually.
-        content.setPreferredSize (new Dimension (310,
-                                                 content.getPreferredSize ().height));
-
-        this.viewer.showPopupAt (this,
-                                 showAt,
-                                 true);
-
+        }        
+        
     }
-
-    public static JComponent getObjectPreviewPanel (NamedObject obj)
-    {
-
-        if (obj instanceof Chapter)
-        {
-
-            Chapter c = (Chapter) obj;
-
-
-
-        }
-
-        return null;
-
-    }
-
+    
 }

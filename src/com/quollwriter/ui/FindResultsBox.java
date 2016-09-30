@@ -26,7 +26,7 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
         this.getTree ().getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
     }
-
+    
     public boolean showItemCountOnHeader ()
     {
 
@@ -75,6 +75,14 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
 
     }
 
+    @Override
+    public boolean isAllowObjectPreview ()
+    {
+        
+        return true;
+        
+    }
+    
     public boolean isTreeEditable ()
     {
 

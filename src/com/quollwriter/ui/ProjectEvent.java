@@ -38,6 +38,7 @@ public class ProjectEvent extends EventObject
     public static final String WHATS_NEW = "whatsnew";
     public static final String STATISTICS = "statistics";
     public static final String BACKUPS = "backups";
+    public static final String TEXT_PROPERTIES = "textproperties";
     
     public static final String CHANGE_BACKGROUND = "changebackground";
     public static final String CHANGE_LANGUAGE = "changelanguage";

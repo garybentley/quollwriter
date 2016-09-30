@@ -35,7 +35,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     {
 
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
-                                                                                     this.projectViewer.getProject ()));
+                                                                                     this.viewer.getProject ()));
 
     }
 
@@ -71,7 +71,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 }
 
                 AssetActionHandler aah = new AssetActionHandler (a,
-                                                                 (ProjectViewer) _this.projectViewer,
+                                                                 _this.viewer,
                                                                  AbstractActionHandler.ADD);
 
                 aah.setShowPopupAt (_this.getHeader (),
@@ -93,11 +93,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
             // Add New Type
             m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("New {Object} Type"),
                                            Constants.ADD_ICON_NAME,
-                                           this.projectViewer.getAction (ProjectViewer.NEW_ITEM_TYPE_ACTION)));
+                                           this.viewer.getAction (ProjectViewer.NEW_ITEM_TYPE_ACTION)));
 
             m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("Manage {Object} Types"),
                                            Constants.EDIT_ICON_NAME,
-                                           this.projectViewer.getAction (ProjectViewer.MANAGE_ITEM_TYPES_ACTION)));
+                                           this.viewer.getAction (ProjectViewer.MANAGE_ITEM_TYPES_ACTION)));
 
         }
 
@@ -108,7 +108,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     {
 
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createAssetTree (this.forObjType,
-                                                                                     this.projectViewer.getProject ()));
+                                                                                     this.viewer.getProject ()));
 
     }
 
@@ -122,7 +122,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public int getItemCount ()
     {
 
-        int c = this.projectViewer.getProject ().getAllNamedChildObjects (Asset.getAssetClass (this.forObjType)).size ();
+        int c = this.viewer.getProject ().getAllNamedChildObjects (Asset.getAssetClass (this.forObjType)).size ();
 
         return c;
 
@@ -165,7 +165,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    _this.projectViewer.viewObject (d);
+                    _this.viewer.viewObject (d);
 
                 }
 
@@ -175,7 +175,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             m.add (UIUtils.createMenuItem ("Edit",
                                            Constants.EDIT_ICON_NAME,
-                                           AssetViewPanel.getEditAssetAction (this.projectViewer,
+                                           AssetViewPanel.getEditAssetAction (this.viewer,
                                                                               (Asset) d)));
 /*
             m.add (UIUtils.createMenuItem ("Rename",
@@ -209,7 +209,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             m.add (mi);
 
-            mi.addActionListener (AssetViewPanel.getDeleteAssetAction ((ProjectViewer) _this.projectViewer,
+            mi.addActionListener (AssetViewPanel.getDeleteAssetAction ((ProjectViewer) _this.viewer,
                                                                        (Asset) d));
 
         }
@@ -232,13 +232,23 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
     }
 
+    @Override
+    public boolean isAllowObjectPreview ()
+    {
+        
+        return true;
+        
+    }
+    
+    @Override
     public boolean isTreeEditable ()
     {
 
-        return true;
+        return false;
 
     }
 
+    @Override
     public boolean isDragEnabled ()
     {
 

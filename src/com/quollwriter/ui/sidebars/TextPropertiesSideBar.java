@@ -54,7 +54,6 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
     
     private TextPropertiesEditPanel props = null;
     private FullScreenPropertiesEditPanel fsprops = null;
-    private Box fscontainer = null;
     
     public TextPropertiesSideBar (AbstractProjectViewer pv,
                                   PopupsSupported       popupParent,
@@ -69,7 +68,7 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
                      
         this.props = new TextPropertiesEditPanel (pv,
                                                   props,
-                                                  null,
+                                                  ProjectEvent.TEXT_PROPERTIES,
                                                   true,
                                                   popupParent)
         {

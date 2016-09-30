@@ -31,7 +31,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
     public void reloadTree ()
     {
 
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.viewer.getProject (),
                                                                                         null,
                                                                                         null,
                                                                                         false));        
@@ -42,7 +42,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
     public void initTree ()
     {
 
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.projectViewer.getProject (),
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.viewer.getProject (),
                                                                                         null,
                                                                                         null,
                                                                                         false));        
@@ -55,8 +55,8 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
 
         m.add (UIUtils.createMenuItem ("Add New " + Environment.getObjectTypeName (Warmup.OBJECT_TYPE),
                                        "add",
-                                       this.projectViewer.getAction (WarmupsViewer.NEW_WARMUP_ACTION,
-                                                                     this.projectViewer.getProject ().getBooks ().get (0))));
+                                       this.viewer.getAction (WarmupsViewer.NEW_WARMUP_ACTION,
+                                                              this.viewer.getProject ().getBooks ().get (0))));
     
     }    
     
@@ -70,7 +70,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
     public int getItemCount ()
     {
         
-        int c = this.projectViewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
+        int c = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
         
         return c;
                 
@@ -83,7 +83,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
 
         final WarmupsAccordionItem _this = this;
 
-        final AbstractProjectViewer pv = this.projectViewer;
+        final AbstractProjectViewer pv = this.viewer;
         
         final TreePath tp = this.tree.getPathForLocation (ev.getX (),
                                                           ev.getY ());
@@ -158,6 +158,15 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
     }
     
+    @Override
+    public boolean isAllowObjectPreview ()
+    {
+        
+        return true;
+        
+    }
+    
+    @Override
     public boolean isTreeEditable ()
     {
         
@@ -165,6 +174,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
     }
     
+    @Override
     public boolean isDragEnabled ()
     {
         

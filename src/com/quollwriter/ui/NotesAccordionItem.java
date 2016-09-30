@@ -33,7 +33,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public void reloadTree ()
     {
         
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createNoteTree (this.viewer));
 
     }
     
@@ -44,11 +44,11 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 
         m.add (UIUtils.createMenuItem ("Add New Type",
                                        Constants.ADD_ICON_NAME,
-                                       this.projectViewer.getAction (ProjectViewer.NEW_NOTE_TYPE_ACTION)));
+                                       this.viewer.getAction (ProjectViewer.NEW_NOTE_TYPE_ACTION)));
 
         m.add (UIUtils.createMenuItem ("Manage Types",
                                        Constants.EDIT_ICON_NAME,
-                                       this.projectViewer.getAction (ProjectViewer.MANAGE_NOTE_TYPES_ACTION)));
+                                       this.viewer.getAction (ProjectViewer.MANAGE_NOTE_TYPES_ACTION)));
 
     }    
     
@@ -56,7 +56,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public void initTree ()
     {
 
-        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createNoteTree (this.projectViewer));
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createNoteTree (this.viewer));
 
     }
 
@@ -70,7 +70,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     public int getItemCount ()
     {
         
-        int c = this.projectViewer.getProject ().getAllNamedChildObjects (Note.class).size ();
+        int c = this.viewer.getProject ().getAllNamedChildObjects (Note.class).size ();
         
         return c;
                 
@@ -116,7 +116,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                                             NamedObject nt = (NamedObject) n.getUserObject ();
                                 
                                                             new RenameNoteTypeActionHandler (nt.getName (),
-                                                                                             _this.projectViewer).actionPerformed (ev);
+                                                                                             _this.viewer).actionPerformed (ev);
                                                                 
                                                         }
                                 
@@ -163,7 +163,7 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                 
-                                                        _this.projectViewer.viewObject (d);
+                                                        _this.viewer.viewObject (d);
                                 
                                                     }
                                 
@@ -171,13 +171,13 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
                 m.add (UIUtils.createMenuItem ("Edit",
                                                Constants.EDIT_ICON_NAME,
-                                               _this.projectViewer.getAction (ProjectViewer.EDIT_NOTE_ACTION,
-                                                                              d)));
+                                               _this.viewer.getAction (ProjectViewer.EDIT_NOTE_ACTION,
+                                                                       d)));
 
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
-                                               _this.projectViewer.getAction (ProjectViewer.DELETE_NOTE_ACTION,
-                                                                              d)));
+                                               _this.viewer.getAction (ProjectViewer.DELETE_NOTE_ACTION,
+                                                                       d)));
 
             }
 
@@ -201,13 +201,23 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         
     }
     
-    public boolean isTreeEditable ()
+    @Override
+    public boolean isAllowObjectPreview ()
     {
         
         return true;
         
     }
     
+    @Override
+    public boolean isTreeEditable ()
+    {
+        
+        return false;
+        
+    }
+    
+    @Override
     public boolean isDragEnabled ()
     {
         
