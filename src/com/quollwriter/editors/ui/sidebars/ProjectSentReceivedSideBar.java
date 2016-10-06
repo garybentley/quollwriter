@@ -122,7 +122,7 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
                                                     messageC.getPreferredSize ().height));
             messageC.setOpaque (false);
             messageC.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            messageC.setBorder (UIUtils.createPadding (5, 5, 0, 5));
+            messageC.setBorder (UIUtils.createPadding (5, 0, 0, 5));
 
             this.content.add (messageC);
 
@@ -160,7 +160,7 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
                                           300));
 
         this.content.add (sp);
-        this.chapters.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+        this.chapters.setBorder (UIUtils.createPadding (0, 0, 0, 0));
 
     }
 

@@ -228,7 +228,7 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
                                                                 
                                                                 });
         
-        this.otherCommentsLabel.setBorder (UIUtils.createPadding (5, 10, 5, 5));
+        this.otherCommentsLabel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
         
         this.showOtherCommentsLabel ();
         
