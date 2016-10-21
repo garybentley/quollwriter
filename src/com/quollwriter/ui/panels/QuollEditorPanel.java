@@ -1203,6 +1203,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                          "Find Problems",
                                          PROBLEM_FINDER_ACTION_NAME));
 
+            buts.add (this.createButton (Constants.EDIT_PROPERTIES_ICON_NAME,
+                                         Constants.ICON_MENU,
+                                         "Edit Text Properties",
+                                         EDIT_TEXT_PROPERTIES_ACTION_NAME));
+
             buts.add (this.createButton (Constants.FIND_ICON_NAME,
                                          Constants.ICON_MENU,
                                          "Find",
@@ -1363,7 +1368,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                             Constants.PROBLEM_FINDER_ICON_NAME,
                                             PROBLEM_FINDER_ACTION_NAME,
                                             null));
-
+                                            
             JMenu nm = new JMenu ("New");
             nm.setIcon (Environment.getIcon (Constants.NEW_ICON_NAME,
                                              Constants.ICON_MENU));
@@ -1375,6 +1380,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                           pos,
                                           compress);
 
+            popup.add (this.createMenuItem ("Edit Text Properties",
+                                            Constants.EDIT_PROPERTIES_ICON_NAME,
+                                            EDIT_TEXT_PROPERTIES_ACTION_NAME,
+                                            null));                                            
+                                          
         }
 
     }

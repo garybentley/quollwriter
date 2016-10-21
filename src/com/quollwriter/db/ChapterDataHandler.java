@@ -249,6 +249,21 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             c.setPlan (new StringWithMarkup (rs.getString (ind++),
                                              rs.getString (ind++)));
             c.setEditPosition (rs.getInt (ind++));
+            
+            // Ensure that the edit position is valid (not sure why this can happen).
+            // If it's not then set it to the end of the text.
+            if ((c.getEditPosition () > 0)
+                &&
+                (c.getText ().hasText ())
+                &&
+                (c.getEditPosition () > c.getText ().getText ().length ())
+               )
+            {
+                
+                c.setEditPosition (c.getText ().getText ().length ());
+                
+            }
+            
             c.setEditComplete (rs.getBoolean (ind++));
             c.setId (rs.getString (ind++));
             c.setVersion (rs.getString (ind++));
