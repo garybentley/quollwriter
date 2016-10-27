@@ -29,6 +29,7 @@ import com.quollwriter.ui.*;
 import com.quollwriter.editors.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.data.*;
+import com.quollwriter.events.*;
 
 import com.quollwriter.text.*;
 import com.quollwriter.text.rules.*;
@@ -82,22 +83,15 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                           this.projectViewer.getIconProvider (),
                                           this.projectViewer.getChapterItemViewPopupProvider ());
 
-        this.iconColumn.addMouseListener (this);
-
-        this.iconColumn.addMouseListener (new MouseAdapter ()
+        this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
 
-            public void mouseClicked (MouseEvent ev)
+            public void handleDoublePress (MouseEvent ev)
             {
                
-               if (ev.getClickCount () == 2)
-               {
-                    
-                  _this.getActionListenerForTextPosition (NEW_COMMENT_ACTION_NAME,
-                                                          ev.getPoint ()).actionPerformed (new ActionEvent (_this, 1, "show"));
+               _this.getActionListenerForTextPosition (NEW_COMMENT_ACTION_NAME,
+                                                       ev.getPoint ()).actionPerformed (new ActionEvent (_this, 1, "show"));
                   
-               }
-               
             }
          
         });

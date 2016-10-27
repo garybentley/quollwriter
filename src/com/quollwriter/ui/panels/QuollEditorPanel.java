@@ -130,86 +130,81 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                           this.projectViewer.getIconProvider (),
                                           this.projectViewer.getChapterItemViewPopupProvider ());
 
-        this.iconColumn.addMouseListener (this);
-
-        this.iconColumn.addMouseListener (new MouseAdapter ()
+        //this.iconColumn.addMouseListener (this);
+        
+        this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
 
-            public void mouseClicked (MouseEvent ev)
+            public void handleDoublePress (MouseEvent ev)
             {
 
-               if (ev.getClickCount () == 2)
-               {
+                JPopupMenu popup = new JPopupMenu ();
 
-                  JPopupMenu popup = new JPopupMenu ();
+                // Convert the mouse position to a point in the text.
 
-                  // Convert the mouse position to a point in the text.
+                String pref = "Shortcut: Ctrl+Shift+";
 
-                  String pref = "Shortcut: Ctrl+Shift+";
+                JMenuItem mi = null;
 
-                  JMenuItem mi = null;
+                mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
+                                             Scene.OBJECT_TYPE,
+                                             _this.getActionListenerForTextPosition (NEW_SCENE_ACTION_NAME,
+                                                                                     ev.getPoint ()),
+                                             null,
+                                             null);
 
-                  mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
-                                               Scene.OBJECT_TYPE,
-                                               _this.getActionListenerForTextPosition (NEW_SCENE_ACTION_NAME,
-                                                                                       ev.getPoint ()),
-                                               null,
-                                               null);
+                popup.add (mi);
 
-                  popup.add (mi);
+                char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
 
-                  char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
+                mi.setMnemonic (fc);
+                mi.setToolTipText (pref + fc);
 
-                  mi.setMnemonic (fc);
-                  mi.setToolTipText (pref + fc);
+                mi = UIUtils.createMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
+                                             OutlineItem.OBJECT_TYPE,
+                                             _this.getActionListenerForTextPosition (NEW_OUTLINE_ITEM_ACTION_NAME,
+                                                                                     ev.getPoint ()),
+                                             null,
+                                             null);
 
-                  mi = UIUtils.createMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
-                                               OutlineItem.OBJECT_TYPE,
-                                               _this.getActionListenerForTextPosition (NEW_OUTLINE_ITEM_ACTION_NAME,
-                                                                                       ev.getPoint ()),
-                                               null,
-                                               null);
+                popup.add (mi);
 
-                  popup.add (mi);
+                fc = Character.toUpperCase ("O".charAt (0));
 
-                  fc = Character.toUpperCase ("O".charAt (0));
+                mi.setMnemonic (fc);
+                mi.setToolTipText (pref + fc);
 
-                  mi.setMnemonic (fc);
-                  mi.setToolTipText (pref + fc);
+                mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                             Note.OBJECT_TYPE,
+                                             _this.getActionListenerForTextPosition (NEW_NOTE_ACTION_NAME,
+                                                                                     ev.getPoint ()),
+                                             null,
+                                             null);
 
-                  mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
-                                               Note.OBJECT_TYPE,
-                                               _this.getActionListenerForTextPosition (NEW_NOTE_ACTION_NAME,
-                                                                                       ev.getPoint ()),
-                                               null,
-                                               null);
+                popup.add (mi);
 
-                  popup.add (mi);
+                fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
 
-                  fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+                mi.setMnemonic (fc);
+                mi.setToolTipText (pref + fc);
 
-                  mi.setMnemonic (fc);
-                  mi.setToolTipText (pref + fc);
+                mi = UIUtils.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                                             Constants.EDIT_NEEDED_NOTE_ICON_NAME,
+                                             _this.getActionListenerForTextPosition (NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
+                                                                                     ev.getPoint ()),
+                                             null,
+                                             null);
 
-                  mi = UIUtils.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
-                                               Constants.EDIT_NEEDED_NOTE_ICON_NAME,
-                                               _this.getActionListenerForTextPosition (NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
-                                                                                       ev.getPoint ()),
-                                               null,
-                                               null);
+                popup.add (mi);
 
-                  popup.add (mi);
+                fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
 
-                  fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+                mi.setMnemonic (fc);
+                mi.setToolTipText (pref + fc);
 
-                  mi.setMnemonic (fc);
-                  mi.setToolTipText (pref + fc);
-
-                  popup.show ((Component) ev.getSource (),
-                              ev.getPoint ().x,
-                              ev.getPoint ().y);
-
-               }
+                popup.show ((Component) ev.getSource (),
+                            ev.getPoint ().x,
+                            ev.getPoint ().y);
 
             }
 

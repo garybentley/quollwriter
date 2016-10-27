@@ -378,11 +378,13 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
     }
 
+    @Override
     public void doRefresh ()
     {
 
     }
 
+    @Override
     public void close ()
     {
 
@@ -392,4 +394,39 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
     }
 
+    @Override
+    public void fillPopupMenu (MouseEvent ev,
+                               JPopupMenu popup)
+    {
+
+        final AssetViewPanel _this = this;
+    
+        popup.add (UIUtils.createMenuItem ("Edit",
+                                           Constants.EDIT_ICON_NAME,
+                                           this.getEditObjectAction (this.viewer,
+                                                                     (Asset) this.obj)));
+
+        popup.add (UIUtils.createMenuItem ("Add File/Document",
+                                           Constants.ADD_ICON_NAME,
+                                           new ActionListener ()
+                                           {
+                                            
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    _this.getObjectDocumentsEditPanel ().showAddDocument ();
+                                                    
+                                                }
+                                            
+                                           }));
+
+        popup.add (UIUtils.createMenuItem ("Delete",
+                                           Constants.DELETE_ICON_NAME,
+                                           this.getDeleteObjectAction (this.viewer,
+                                                                       (Asset) this.obj)));
+
+    
+    }
+    
 }

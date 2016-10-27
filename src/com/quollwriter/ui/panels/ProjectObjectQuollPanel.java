@@ -41,6 +41,7 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
     public static final String NO_CHANGES_COMMAND = "noChanges";
 
     protected Box                                   content = null;
+    // TODO: Make this generic...
     protected NamedObject                           obj = null;
     private java.util.List                          actionListeners = new ArrayList ();
     private java.util.List<PropertyChangedListener> propertyChangedListeners = new ArrayList ();

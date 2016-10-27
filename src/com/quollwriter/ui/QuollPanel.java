@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.plaf.LayerUI;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
@@ -29,9 +30,8 @@ import com.quollwriter.events.*;
 
 import com.quollwriter.ui.actionHandlers.*;
 
-public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*Box*/ implements Stateful,
-                                                                                                MouseListener,
-                                                                                                PopupsSupported
+public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane implements Stateful,
+                                                                                        PopupsSupported
 {
 
     public static final int UNSAVED_CHANGES_ACTION_EVENT = 0;
@@ -50,15 +50,12 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*B
     private boolean                                 hasUnsavedChanges = false;
     private JToolBar                                toolBar = null;
     private boolean                                 readyForUse = false;
+    private MouseEventHandler mouseEventHandler = null;
     
     public QuollPanel (E viewer)
-                      //NamedObject           obj)
     {
 
-        // super (BoxLayout.PAGE_AXIS);
-
         this.viewer = viewer;
-        //this.obj = obj;
 
         this.setOpaque (false);
         this.setBackground (null);
@@ -69,9 +66,164 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*B
         this.getContentPane ().setBackground (UIUtils.getComponentColor ());
         
         this.getContentPane ().add (this.content);
+
+        final QuollPanel _this = this;
+        
+        this.mouseEventHandler = this.getDefaultMouseEventHandler ();
+        
+        this.getContentPane ().add (new JLayer<JComponent> (this.content, new LayerUI<JComponent> ()
+        {
+            
+            @Override
+            public void installUI(JComponent c) {
+                super.installUI(c);
+                // enable mouse motion events for the layer's subcomponents
+                ((JLayer) c).setLayerEventMask(AWTEvent.MOUSE_EVENT_MASK|AWTEvent.MOUSE_MOTION_EVENT_MASK);
+            }
+
+            @Override
+            public void uninstallUI(JComponent c) {
+                super.uninstallUI(c);
+                // reset the layer event mask
+                ((JLayer) c).setLayerEventMask(0);
+            }
+             
+            @Override
+            public void processMouseEvent (MouseEvent                   ev,
+                                           JLayer<? extends JComponent> l)
+            {
+                
+                if (_this.mouseEventHandler == null)
+                {
+                    
+                    return;
+                    
+                }
+                
+                if (ev.getID () == MouseEvent.MOUSE_MOVED)
+                {
+                    
+                    _this.mouseEventHandler.mouseMoved (ev);
+                    
+                    return;
+                    
+                }
+                
+                if (ev.getID () == MouseEvent.MOUSE_RELEASED)
+                {
+                    
+                    _this.mouseEventHandler.mouseReleased (ev);
+                    
+                    return;
+                    
+                }
+
+                if (ev.getID () == MouseEvent.MOUSE_PRESSED)
+                {
+                    
+                    _this.mouseEventHandler.mousePressed (ev);
+                    
+                    return;
+                    
+                }
+
+                if (ev.getID () == MouseEvent.MOUSE_DRAGGED)
+                {
+                    
+                    _this.mouseEventHandler.mousePressed (ev);
+                    
+                    return;
+                    
+                }
+
+                if (ev.getID () == MouseEvent.MOUSE_ENTERED)
+                {
+                    
+                    _this.mouseEventHandler.mouseEntered (ev);
+                    
+                    return;
+                    
+                }
+                
+                if (ev.getID () == MouseEvent.MOUSE_EXITED)
+                {
+                    
+                    _this.mouseEventHandler.mouseExited (ev);
+                    
+                    return;
+                    
+                }
+
+                if (ev.getID () == MouseEvent.MOUSE_CLICKED)
+                {
+                    
+                    _this.mouseEventHandler.mouseClicked (ev);
+                    
+                    return;
+                    
+                }
+                                
+            }   
+            
+        }));
                 
     }
 
+    /**
+     * Set a mouse event handler for the panel, mouse events are forwarded to the handler
+     * which should makes it's own checks to determine what event should be handled.
+     *
+     * Set to null to prevent the default behavior which is to fill the popup menu.
+     *
+     * @param m The mouse event handler.
+     */
+    public void setMouseEventHandler (MouseEventHandler m)
+    {
+        
+        this.mouseEventHandler = m;
+        
+    }
+    
+    /**
+     * Get the current mouse event handler.
+     *
+     * @return The current mouse event handler.
+     */
+    public MouseEventHandler getMouseEventHandler ()
+    {
+        
+        return this.mouseEventHandler;
+        
+    }
+    
+    /**
+     * Creates a default mouse event handler that just fills the popup menu for the panel by calling
+     * this.fillPopupMenu.
+     *
+     * @return A default mouse event handler.
+     */
+    public MouseEventHandler getDefaultMouseEventHandler ()
+    {
+        
+        final QuollPanel _this = this;
+        
+        return new MouseEventHandler ()
+        {
+            
+            @Override
+            public void fillPopup (JPopupMenu m,
+                                   MouseEvent ev)
+            {
+
+                _this.fillPopupMenu (ev,
+                                     m);
+                
+            }
+
+        };
+        
+    }
+    
     public E getViewer ()
     {
         
@@ -196,55 +348,7 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*B
         }
 
     }
-/*
-    public java.util.List<PropertyChangedListener> getObjectPropertyChangedListeners ()
-    {
 
-        return this.propertyChangedListeners;
-
-    }
-
-    public void removeObjectPropertyChangedListener (PropertyChangedListener l)
-    {
-
-        this.propertyChangedListeners.remove (l);
-
-    }
-
-    public void addObjectPropertyChangedListener (PropertyChangedListener l)
-    {
-
-        this.propertyChangedListeners.add (l);
-
-        this.obj.addPropertyChangedListener (l);
-
-    }
-
-    public NamedObject getForObject ()
-    {
-
-        return this.obj;
-
-    }
-
-    public void saveObject ()
-                     throws Exception
-    {
-
-        this.projectViewer.saveObject (this.obj,
-                                       true);
-
-        this.setHasUnsavedChanges (false);
-
-        // Fire an event to interested parties.
-        this.fireActionEvent (new ActionEvent (this,
-                                               QuollPanel.SAVED,
-
-                                               // QuollEditorPanel.CHAPTER_SAVED,
-                                               "chapterSaved"));
-
-    }
-*/
     public void removeActionListener (ActionListener a)
     {
 
@@ -272,49 +376,7 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*B
         }
 
     }
-
-    public void mouseClicked (MouseEvent ev)
-    {
-    }
-
-    public void mouseEntered (MouseEvent ev)
-    {
-    }
-
-    public void mouseExited (MouseEvent ev)
-    {
-    }
-
-    public void mousePressed (MouseEvent ev)
-    {
-
-        this.mouseReleased (ev);
-
-    }
-
-    public void mouseReleased (MouseEvent ev)
-    {
-
-        if (!ev.isPopupTrigger ())
-        {
-
-            return;
-
-        }
-
-        final JPopupMenu popup = new JPopupMenu ();
-
-        this.fillPopupMenu (ev,
-                            popup);
-
-        popup.pack ();
-
-        popup.show ((Component) ev.getSource (),
-                    ev.getPoint ().x,
-                    ev.getPoint ().y);
-
-    }
-
+    
     private JToolBar createToolBar ()
     {
         
@@ -341,14 +403,7 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane /*B
         return tb;
 
     }
-    /*
-    public String getPanelId ()
-    {
 
-        return this.obj.getObjectReference ().asString ();
-
-    }
-*/
     public void setToolBarButtonIcon (String actionCommand,
                                       String toolTipText,
                                       String icon)

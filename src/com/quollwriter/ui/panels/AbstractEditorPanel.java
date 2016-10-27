@@ -188,7 +188,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         });
 
         this.editor.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.editor.addMouseListener (this);
+        //this.editor.addMouseListener (this);
         //this.initEditor ();
 
         this.actions = this.editor.getActionMap ();

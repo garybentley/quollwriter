@@ -73,7 +73,6 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
                                           this.projectViewer.getChapterItemViewPopupProvider ());
 
         this.iconColumn.setItemMoveAllowed (false);
-        this.iconColumn.addMouseListener (this);
                 
         this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
         
