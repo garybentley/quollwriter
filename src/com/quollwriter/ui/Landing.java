@@ -191,6 +191,23 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
+				p.add (this.createMenuItem ("Find your {Projects}",
+											Constants.FIND_ICON_NAME,
+											"findprojects",
+											null,
+											new ActionListener ()
+											{
+
+												@Override
+												public void actionPerformed (ActionEvent ev)
+												{
+
+                                                    _this.showFindProjects ();
+
+												}
+
+											}));
+                                            
             }
 
 		});
@@ -280,7 +297,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
-				p.add (this.createMenuItem ("Import file",
+				p.add (this.createMenuItem ("Import File/{Project}",
 											Constants.PROJECT_IMPORT_ICON_NAME,
 											"import",
 											null,
@@ -297,6 +314,23 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
+				p.add (this.createMenuItem ("Find your {Projects}",
+											Constants.FIND_ICON_NAME,
+											"findprojects",
+											null,
+											new ActionListener ()
+											{
+
+												@Override
+												public void actionPerformed (ActionEvent ev)
+												{
+
+                                                    _this.showFindProjects ();
+
+												}
+
+											}));
+                                            
 				p.addSeparator ();
 
 				JMenu m = new JMenu (Environment.replaceObjectNames ("Sort {Projects} by"));
