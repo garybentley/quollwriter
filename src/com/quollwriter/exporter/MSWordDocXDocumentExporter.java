@@ -1216,7 +1216,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 }
 
-                rf.setAscii (this.proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
+                rf.setAscii (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
 
                 rf.setAsciiTheme (null);
 
@@ -1228,7 +1228,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                     // Size is 1/144 of an inch, so just double the value.
 
-                    int fontSize = this.proj.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME);
+                    int fontSize = UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME);
 
                     m.setVal (java.math.BigInteger.valueOf ((long) fontSize * 2));
 
@@ -1247,7 +1247,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                     // Alignment is "jc" (so obvious!)
                     Jc jc = factory.createJc ();
 
-                    String align = this.proj.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toUpperCase ();
+                    String align = UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toUpperCase ();
 
                     if (align.equals ("JUSTIFIED"))
                     {
@@ -1270,7 +1270,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                     }
 
-                    float spacing = this.proj.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME);
+                    float spacing = UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME);
 
                     spac.setAfterLines (java.math.BigInteger.valueOf ((long) (100 * spacing)));
                     // spac.setBeforeLines (java.math.BigInteger.valueOf ((long) 300));
@@ -1282,7 +1282,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                     // ind - paragraph indentation.
                     if ((indent) &&
-                        (this.proj.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME)))
+                        (UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME)))
                     {
 
                         PPrBase.Ind ind = ppr.getInd ();
