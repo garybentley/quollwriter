@@ -31,7 +31,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.*;
 
 import org.docx4j.wml.*;
-
+import org.docx4j.fonts.*;
 
 public class PDFDocumentExporter extends MSWordDocXDocumentExporter
 {
@@ -50,6 +50,8 @@ public class PDFDocumentExporter extends MSWordDocXDocumentExporter
                              
         FileOutputStream out = new FileOutputStream (new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.PDF_FILE_EXTENSION));
 
+        wordMLPackage.setFontMapper (new IdentityPlusMapper (), true);
+        
         Docx4J.toPDF (wordMLPackage,
                       out);
         

@@ -236,20 +236,20 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
     
             css = StringUtils.replaceString (css,
                                              "[[FONT_NAME]]",
-                                             this.proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME));
+                                             UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
             css = StringUtils.replaceString (css,
                                              "[[FONT_SIZE]]",
-                                             this.proj.getPropertyAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME) + "pt");
+                                             UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME) + "pt");
             css = StringUtils.replaceString (css,
                                              "[[LINE_SPACING]]",
-                                             (100 * this.proj.getPropertyAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME)) + "%");
+                                             (100 * UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME)) + "%");
             css = StringUtils.replaceString (css,
                                              "[[ALIGN]]",
-                                             this.proj.getProperty (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toLowerCase ());
+                                             UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME).toLowerCase ());
     
             String indent = "0px";
     
-            if (this.proj.getPropertyAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
+            if (UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
             {
     
                 indent = "5em";

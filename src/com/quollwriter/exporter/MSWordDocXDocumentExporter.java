@@ -223,10 +223,17 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         }
 
-        P para = null;//this.createParagraph (style);
-
         Body b = mp.getContents ().getBody ();
 
+        ObjectFactory factory = Context.getWmlObjectFactory ();
+
+        Br br = new Br ();
+        br.setType (STBrType.PAGE);
+        P brp = factory.createP ();
+        brp.getContent ().add (br);
+
+        b.getContent ().add (brp);
+        
         mp.addStyledParagraphOfText (HEADING1,
                                      c.getName ());
 
@@ -783,7 +790,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 for (Chapter c : chapters)
                 {
-
+                
                     this.addTo (mp,
                                 c);
 
@@ -1217,7 +1224,11 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 }
 
                 rf.setAscii (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
+                rf.setHAnsi (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
+                rf.setCs (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
 
+                rf.setHAnsiTheme (null);
+                rf.setCstheme (null);
                 rf.setAsciiTheme (null);
 
                 // rpr.sz - font size.

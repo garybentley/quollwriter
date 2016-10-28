@@ -58,9 +58,9 @@ public class ExportProject extends Wizard<ProjectViewer>
                PDFDocumentExporter.class);
         m.put (Constants.HTML_FILE_EXTENSION,
                HTMLDocumentExporter.class);
-/*
         m.put (Constants.PDF_FILE_EXTENSION,
                PDFDocumentExporter.class);
+        /*
         m.put (Constants.TXT_FILE_EXTENSION,
                TextDocumentExporter.class);
 */
@@ -71,7 +71,7 @@ public class ExportProject extends Wizard<ProjectViewer>
                Constants.DOCX_FILE_EXTENSION);
         m.put ("EPUB (.epub)",
                Constants.EPUB_FILE_EXTENSION);
-/*
+        /*
         m.put ("PDF (.pdf)",
                Constants.PDF_FILE_EXTENSION);
                */
