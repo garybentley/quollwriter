@@ -26,10 +26,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.renderers.*;
 
-import org.docx4j.convert.out.pdf.viaXSLFO.*;
-
-import org.docx4j.jaxb.*;
-
+import org.docx4j.*;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.*;
 
@@ -51,15 +48,11 @@ public class PDFDocumentExporter extends MSWordDocXDocumentExporter
                              '_');
         name = Utils.sanitizeForFilename (name);
                              
-        Conversion c = new Conversion (wordMLPackage);
-
         FileOutputStream out = new FileOutputStream (new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.PDF_FILE_EXTENSION));
 
-        c.output (out);
-
-        out.flush ();
-        out.close ();
-
+        Docx4J.toPDF (wordMLPackage,
+                      out);
+        
     }
 
 }

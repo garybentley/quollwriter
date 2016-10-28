@@ -16,8 +16,7 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 
-import org.docx4j.convert.out.html.*;
-
+import org.docx4j.*;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.*;
 
@@ -51,16 +50,12 @@ public class HTMLDocumentExporter extends MSWordDocXDocumentExporter
 
         name = Utils.sanitizeForFilename (name);                             
                              
-        HtmlExporterNG export = new HtmlExporterNG ();
-
-        export.setWmlPackage (wordMLPackage);
-
         FileOutputStream out = new FileOutputStream (new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.HTML_FILE_EXTENSION));
 
-        export.output (new javax.xml.transform.stream.StreamResult (out));
-
-        out.flush ();
-        out.close ();
+        Docx4J.toHTML (wordMLPackage,
+                       null,
+                       null,
+                       out);
 
     }
 }

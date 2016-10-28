@@ -190,14 +190,26 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             (sm.getText () == null)
            )
         {
-        
+
             return;
-            
+
         }
-        
+
         PPrBase.PStyle style = null;
 
-        Styles styles = mp.getStyleDefinitionsPart ().getJaxbElement ();
+        Styles styles = null;
+        
+        try
+        {
+            
+            styles = mp.getStyleDefinitionsPart ().getContents ();
+            
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to get styles",
+                                        e);
+            
+        }
 
         for (Style s : styles.getStyle ())
         {
@@ -210,27 +222,27 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             }
 
         }
-        
+
         P para = null;//this.createParagraph (style);
 
-        Body b = mp.getJaxbElement ().getBody ();
+        Body b = mp.getContents ().getBody ();
 
         mp.addStyledParagraphOfText (HEADING1,
                                      c.getName ());
 
         // Get the markup, if present.
         TextIterator iter = new TextIterator (sm.getText ());
-        
+
         for (Paragraph p : iter.getParagraphs ())
         {
-            
+
             this.addParagraph (p,
                                sm.getMarkup (),
                                style,
                                b);
 
         }
-        
+
     }
 
     private void addParagraph (Paragraph      para,
@@ -241,54 +253,54 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         P p = this.createParagraph (style);
 
-        body.getEGBlockLevelElts ().add (p);
+        body.getContent ().add (p);
 
         Markup pm = new Markup (markup,
                                 para.getAllTextStartOffset (),
                                 para.getAllTextEndOffset ());
-                    
-        pm.shiftBy (-1 * para.getAllTextStartOffset ());        
-        
+
+        pm.shiftBy (-1 * para.getAllTextStartOffset ());
+
         // Get the markup items.
         List<Markup.MarkupItem> items = pm.items;
 
         String ptext = para.getText ();
         int textLength = ptext.length ();
-        
+
         if (items.size () > 0)
         {
 
             Markup.MarkupItem last = null;
-            
+
             int start = -1;
             int end = -1;
 
             int lastEnd = 0;
-            
+
             // Check the first item.
             Markup.MarkupItem fitem = items.get (0);
-            
+
             if (fitem.start > 0)
             {
-                
+
                 start = 0;
                 end = fitem.start;
-                
+
                 if (end > textLength)
                 {
-                    
+
                     end = textLength;
-                    
+
                 }
-                
+
                 // Add the start text.
-                p.getParagraphContent ().add (this.createRun (ptext.substring (0, end),
-                                                              null));
-                
+                p.getContent ().add (this.createRun (ptext.substring (0, end),
+                                                     null));
+
                 lastEnd = end;
-                
+
             }
-            
+
             for (Markup.MarkupItem item : items)
             {
 
@@ -300,59 +312,60 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 {
 
                     // Add some normal text.
-                    p.getParagraphContent ().add (this.createRun (ptext.substring (lastEnd, Math.min(item.start, textLength)),
-                                                                  null));            
-                                                                  
+                    p.getContent ().add (this.createRun (ptext.substring (lastEnd, Math.min(item.start, textLength)),
+                                                         null));
+
                 }
-                
+
                 if ((end >= textLength)
                     ||
                     (end == -1)
                    )
                 {
-                    
+
                     end = textLength;
-                    
+
                 }
 
-                p.getParagraphContent ().add (this.createRun (ptext.substring (start, end),
-                                                              item));            
-            
+                p.getContent ().add (this.createRun (ptext.substring (start, end),
+                                                     item));
+
                 lastEnd = end;
-            
+
             }
-            
+
             // Check the last item.
             Markup.MarkupItem litem = items.get (items.size () - 1);
-            
+
             // Does it end before the end of the text, if so then add normal text.
             if (litem.end < textLength)
             {
-                
+
                 // Add the last text.
-                p.getParagraphContent ().add (this.createRun (ptext.substring (litem.end),
-                                                              null));                            
-                
+                p.getContent ().add (this.createRun (ptext.substring (litem.end),
+                                                     null));
+
             }
-                            
+
         } else {
-            
-            p.getParagraphContent ().add (this.createRun (ptext,
-                                                          null));
-            
+
+            p.getContent ().add (this.createRun (ptext,
+                                                 null));
+
         }
-        
+
     }
-                
+
     private org.docx4j.wml.R createRun (String            text,
                                         Markup.MarkupItem item)
     {
-        
+
         // Create the text element
         ObjectFactory factory = Context.getWmlObjectFactory ();
 
         org.docx4j.wml.Text tel = factory.createText ();
-
+        tel.setSpace ("preserve");
+        
         tel.setValue (text);
 
         org.docx4j.wml.R run = factory.createR ();
@@ -393,12 +406,12 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         run.setRPr (pr);
 
-        run.getRunContent ().add (tel);
+        run.getContent ().add (tel);
 
         return run;
-        
+
     }
-    
+
     private void addText (String            chapterText,
                           int               start,
                           int               end,
@@ -421,19 +434,19 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
             t = chapterText.substring (start,
                                        end);
-            Environment.logMessage ("T: " + t);
+
         }
-        
+
         if ((start > -1)
             &&
             (end == -1)
            )
         {
-            
+
             t = chapterText.substring (start);
-            
+
         }
-               
+
         tel.setValue (t);
 
         org.docx4j.wml.R run = factory.createR ();
@@ -474,9 +487,9 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         run.setRPr (pr);
 
-        run.getRunContent ().add (tel);
+        run.getContent ().add (tel);
 
-        para.getParagraphContent ().add (run);
+        para.getContent ().add (run);
 
     }
 
@@ -525,21 +538,21 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             {
 
                 List l = c.getAliasesAsList ();
-        
+
                 StringBuilder b = new StringBuilder ("Aliases: ");
-        
+
                 for (int i = 0; i < l.size (); i++)
                 {
-    
+
                     if (i > 0)
                     {
-    
+
                         b.append (", ");
-    
+
                     }
-    
+
                     b.append (l.get (i));
-    
+
                 }
 
                 text = b.toString () + "\n\n" + text;
@@ -591,9 +604,9 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                     (!url.startsWith ("https://"))
                    )
                 {
-                    
+
                     url = "http://" + url;
-                    
+
                 }
 
                 text = url + "\n\n" + text;
@@ -636,12 +649,12 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             {
 
                 StringWithMarkup t = ((Chapter) n).getText ();
-                
+
                 if (t.getText () != null)
                 {
-            
+
                     text = t.getText ();
-                    
+
                 }
 
             }
@@ -690,7 +703,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                              '_');
 
         name = Utils.sanitizeForFilename (name);
-                             
+
         File f = new File (this.settings.outputDirectory.getPath () + "/" + name + Constants.DOCX_FILE_EXTENSION);
 
         wordMLPackage.save (f);
@@ -753,7 +766,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                                     p.getName () + " - Scenes and Plot Outline");
 
                 boolean hasOutline = false;
-                                                    
+
                 WordprocessingMLPackage chapterInfoWordMLPackage = WordprocessingMLPackage.createPackage ();
 
                 MainDocumentPart chapinfmp = chapterInfoWordMLPackage.getMainDocumentPart ();
@@ -765,7 +778,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                                     p.getName () + " - Chapter Information");
 
                 boolean hasChapInf = false;
-                                                    
+
                 List<Chapter> chapters = p.getBooks ().get (0).getChapters ();
 
                 for (Chapter c : chapters)
@@ -785,22 +798,22 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                           notesmp,
                                           outlinemp,
                                           chapinfmp);
-                    
+
                     if ((c.getGoals () != null)
                         ||
                         (c.getPlan () != null)
                        )
                     {
-                        
+
                         hasChapInf = true;
-                        
+
                     }
-                    
+
                     if (c.getNotes ().size () > 0)
                     {
-                        
+
                         hasNotes = true;
-                        
+
                     }
 
                     if ((c.getOutlineItems ().size () > 0)
@@ -808,9 +821,9 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                         (c.getScenes ().size () > 0)
                        )
                     {
-                        
+
                         hasOutline = true;
-                        
+
                     }
 
                 }
@@ -841,7 +854,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                p.getName () + " - Chapter Information");
 
                 }
-                
+
             }
 
             if (settings.chapterExportType == ExportSettings.INDIVIDUAL_FILE)
@@ -868,7 +881,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                     notesmp.addStyledParagraphOfText (TITLE,
                                                       c.getName () + " - Notes");
-                                                      
+
                     WordprocessingMLPackage outlineWordMLPackage = WordprocessingMLPackage.createPackage ();
 
                     MainDocumentPart outlinemp = outlineWordMLPackage.getMainDocumentPart ();
@@ -887,30 +900,30 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                     true);
 
                     chapinfmp.addStyledParagraphOfText (TITLE,
-                                                        c.getName () + " - Chapter Information");                        
-                                                        
+                                                        c.getName () + " - Chapter Information");
+
                     this.addTo (mp,
                                 c);
 
                     this.save (wordMLPackage,
                                c.getName ());
-                               
+
                     this.addChapterItems (c,
                                           notesmp,
                                           outlinemp,
                                           chapinfmp);
-                          
+
                     if ((c.getGoals () != null)
                         ||
                         (c.getPlan () != null)
                        )
                     {
-                        
+
                         this.save (chapterInfoWordMLPackage,
                                    c.getName () + " - Chapter Information");
-                                          
+
                     }
-                    
+
                     if (c.getNotes ().size () > 0)
                     {
 
@@ -924,10 +937,10 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                         (c.getOutlineItems ().size () > 0)
                        )
                     {
-                        
+
                         this.save (notesWordMLPackage,
                                    c.getName () + " - Notes");
-                        
+
                     }
 
                 }
@@ -951,23 +964,23 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
                 if (objs.size () > 0)
                 {
-                
+
                     Collections.sort (objs,
                                       new NamedObjectSorter ());
-    
+
                     for (NamedObject n : objs)
                     {
-    
+
                         this.addTo (mp,
                                     n);
-    
+
                     }
-    
+
                     this.save (wordMLPackage,
                                p.getName () + " - Assets");
 
                 }
-                               
+
             }
 
             if (settings.otherExportType == ExportSettings.INDIVIDUAL_FILE)
@@ -1014,41 +1027,41 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         {
 
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage ();
-    
+
             MainDocumentPart mp = wordMLPackage.getMainDocumentPart ();
-    
+
             this.setStyles (mp,
                             false);
-    
+
             mp.addStyledParagraphOfText (TITLE,
                                          title);
-            
+
             List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (cl));
-    
+
             Collections.sort (objs,
                               new NamedObjectSorter ());
-    
+
             for (NamedObject n : objs)
             {
-    
+
                 this.addTo (mp,
                             n);
-    
-            }        
-    
+
+            }
+
             this.save (wordMLPackage,
                        title);
 
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to write items of type: " +
                                         cl.getName () +
                                         " to file with title: " +
                                         title,
                                         e);
-            
+
         }
-        
+
     }
 
     private void addChapterItems (Chapter c,
@@ -1057,108 +1070,121 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                   MainDocumentPart chapinfmp)
                                   throws           GeneralException
     {
-        
+
         try
         {
 
-            String goals = (c.getGoals () != null ? c.getGoals ().getText () : null);            
-            String plan = (c.getPlan () != null ? c.getPlan ().getText () : null);        
-        
+            String goals = (c.getGoals () != null ? c.getGoals ().getText () : null);
+            String plan = (c.getPlan () != null ? c.getPlan ().getText () : null);
+
             if (goals != null)
             {
-                
+
                 chapinfmp.addStyledParagraphOfText (HEADING2,
                                                     "Goals");
 
                 StringTokenizer t = new StringTokenizer (goals,
                                                          String.valueOf ('\n'));
-        
+
                 while (t.hasMoreTokens ())
                 {
-        
+
                     String tok = t.nextToken ();
-        
+
                     chapinfmp.addStyledParagraphOfText (NORMAL,
                                                         "* " + tok);
-        
+
                 }
-                
+
             }
 
             if (plan != null)
             {
-                
+
                 chapinfmp.addStyledParagraphOfText (HEADING1,
                                                     "Plan");
 
                 StringTokenizer t = new StringTokenizer (plan,
                                                          String.valueOf ('\n'));
-        
+
                 while (t.hasMoreTokens ())
                 {
-        
+
                     String tok = t.nextToken ();
-        
+
                     chapinfmp.addStyledParagraphOfText (NORMAL,
                                                         "* " + tok);
-        
+
                 }
-                
+
             }
-        
+
             Set<NamedObject> items = c.getAllNamedChildObjects ();
-            
+
             for (NamedObject n : items)
             {
-    
+
                 if (n instanceof Note)
                 {
-    
+
                     this.addTo (notesmp,
                                 n);
-    
+
                 } else {
-                                    
+
                     this.addTo (outlinemp,
                                 n);
-                    
+
                     if (n instanceof Scene)
                     {
-                        
+
                         Scene s = (Scene) n;
-                        
+
                         Set<OutlineItem> its = s.getOutlineItems ();
-                        
+
                         for (OutlineItem it : its)
                         {
-                            
+
                             this.addTo (outlinemp,
                                         it);
-                            
+
                         }
-                        
+
                     }
-                    
+
                 }
-    
-            }        
+
+            }
 
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to write items for chapter: " +
                                         c,
                                         e);
-            
+
         }
-        
+
     }
 
     private void setStyles (MainDocumentPart mp,
                             boolean          indent)
+                     throws Exception
     {
 
         // Sort out the styles.
-        Styles styles = mp.getStyleDefinitionsPart ().getJaxbElement ();
+        Styles styles = null;
+        
+        try
+        {
+            
+            styles = mp.getStyleDefinitionsPart ().getContents ();
+            
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to get styles",
+                                        e);
+            
+        }
 
         ObjectFactory factory = Context.getWmlObjectFactory ();
 

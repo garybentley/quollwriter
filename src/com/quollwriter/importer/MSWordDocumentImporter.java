@@ -109,11 +109,11 @@ public class MSWordDocumentImporter implements DocumentImporter
 
         MainDocumentPart mp = wordMLPackage.getMainDocumentPart ();
 
-        org.docx4j.wml.Document wmlDocumentEl = (org.docx4j.wml.Document) mp.getJaxbElement ();
+        org.docx4j.wml.Document wmlDocumentEl = (org.docx4j.wml.Document) mp.getContent ();
 
         Body body = wmlDocumentEl.getBody ();
 
-        List<Object> bodyChildren = body.getEGBlockLevelElts ();
+        List<Object> bodyChildren = body.getContent (); //getEGBlockLevelElts ();
 
         for (Object o : bodyChildren)
         {
