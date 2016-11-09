@@ -54,7 +54,7 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
         this.showLinks = v;
         
     }
-    
+        
     public boolean canDelete (ChapterItem item)
     {
         
@@ -268,7 +268,7 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
 
             }
 
-            List<JButton> buts = new ArrayList ();
+            List<JComponent> buts = new ArrayList ();
                            
             JButton mb = null;
 
@@ -311,6 +311,19 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
 
             }
                 
+            Set<JComponent> tools = formatter.getTools (it,
+                                                        panel);
+            
+            if ((tools != null)
+                &&
+                (tools.size () > 0)
+               )
+            {
+                
+                buts.addAll (tools);    
+                
+            }
+            
             if (this.canDelete (it))
             {                
             
@@ -337,7 +350,7 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
             if (count < its.size () - 1)
             {
 
-                pan.setBorder (UIUtils.createBottomLineWithPadding (0, 5, 0, 5));
+                pan.setBorder (UIUtils.createBottomLineWithPadding (0, 5, 3, 5));
 
             } else
             {

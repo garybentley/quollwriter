@@ -171,13 +171,24 @@ public class ChapterFindResultsBox extends FindResultsBox
                 }
 
                 final QTextEditor ed = p.getEditor ();
-                            
-                _this.highlightId = ed.addHighlight (s.getBeginIndex (),
-                                                     s.getEndIndex (),
-                                                     null,
-                                                     true);
-        
-                _this.highlightedEditor = ed;
+                
+                UIUtils.doLater (new ActionListener ()
+                {                           
+                
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                
+                        _this.highlightId = ed.addHighlight (s.getBeginIndex (),
+                                                             s.getEndIndex (),
+                                                             null,
+                                                             true);
+                
+                        _this.highlightedEditor = ed;
+                        
+                    }
+                    
+                });
                 
             }
             

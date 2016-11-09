@@ -5096,6 +5096,9 @@ public class EditorsUIUtils
 
                         kchaps.put (c.getId (),
                                     c);
+                        
+                        c.setEditPosition (-1);
+                        c.setEditComplete (false);
 
                     }
 

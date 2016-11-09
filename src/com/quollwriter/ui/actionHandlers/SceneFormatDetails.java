@@ -1,5 +1,7 @@
 package com.quollwriter.ui.actionHandlers;
 
+import java.util.Set;
+
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
@@ -34,6 +36,15 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene>
         return item.getDescription ().getMarkedUpText ();
 
     }
+    
+    @Override
+    public Set<JComponent> getTools (Scene               item,
+                                     AbstractEditorPanel qep)
+    {
+        
+        return null;
+        
+    }    
     
     public AbstractActionHandler getEditItemActionHandler (Scene               item,
                                                            AbstractEditorPanel ep)

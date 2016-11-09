@@ -24,7 +24,7 @@ import com.quollwriter.editors.messages.*;
 public class EditorMessageDataHandler implements DataHandler<EditorMessage, EditorEditor>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, type, when, sentbyme, editordbkey, forprojectid, messageid, message, dealtwith FROM message_v";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, type, when, sentbyme, editordbkey, forprojectid, messageid, message, properties, dealtwith FROM message_v";
 
     private ObjectManager objectManager = null;
     
@@ -358,6 +358,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
             am.setForProjectId (rs.getString (ind++));
             am.setMessageId (rs.getString (ind++));            
             am.setMessage (rs.getString (ind++));
+            am.setPropertiesAsString (rs.getString (ind++));
             am.setDealtWith (rs.getBoolean (ind++));
             
             this.messageCache.put (key,

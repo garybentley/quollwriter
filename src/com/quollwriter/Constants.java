@@ -665,6 +665,8 @@ public class Constants
     public static final String STAR_ICON_NAME = "star";
     public static final String SORT_ICON_NAME = "sort";
     public static final String TARGET_ICON_NAME = "goals";
+    public static final String SET_DEALT_WITH_ICON_NAME = "save" ;//"accepted";
+    public static final String SET_UNDEALT_WITH_ICON_NAME = "cancel"; //"clear";
 
     public static final String SHOW_FIND_ACTION = "find-show";
 

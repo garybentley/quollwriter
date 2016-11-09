@@ -16,7 +16,7 @@ public class Startup
 
     public static void main (String[] argv)
     {
-    
+
         if ((argv != null) &&
             (argv.length > 0))
         {
@@ -31,7 +31,7 @@ public class Startup
         }
 
         SplashScreen ss = null;
-        
+
         try
         {
 
@@ -45,20 +45,20 @@ public class Startup
 
             if (Environment.isFirstUse ())
             {
-                
+
                 new FirstUseWizard ().init ();
-                
+
                 return;
-                
+
             }
-            
+
             if (Environment.getAllProjectInfos ().size () == 0)
             {
 
                 ss.finish ();
 
                 Environment.showLanding ();
-                
+
                 return;
 
             }
@@ -69,13 +69,13 @@ public class Startup
             {
 
                 Environment.showLanding ();
-            
+
             }
 
             // See if the user property is to open the last edited project.
             if (UserProperties.getAsBoolean (Constants.OPEN_LAST_EDITED_PROJECT_PROPERTY_NAME))
             {
-            
+
                 try
                 {
 
@@ -83,7 +83,7 @@ public class Startup
                     {
 
                         showError = true;
-                        
+
                     }
 
                 } catch (Exception e)
@@ -93,7 +93,7 @@ public class Startup
 
                 }
 
-            } 
+            }
 
             // Need to do this here since, if there is no visible frame (somewhere) then showErrorMessage will throw an error that crashes the jvm... nice...
             if (showError)
@@ -106,30 +106,30 @@ public class Startup
                                      "Unable to open last edited {project}, please select another {project} or create a new one.");
 
             }
-            
+
         } catch (Exception eee)
         {
 
             if (eee instanceof OverlappingFileLockException)
             {
-                
+
                 UIUtils.showErrorMessage (null,
                                           "It appears that Quoll Writer is already running.  Please close the other instance before starting Quoll Writer again.");
-                
-                
+
+
             } else {
-        
+
                 Environment.logError ("Unable to open Quoll Writer",
                                       eee);
-    
+
                 UIUtils.showErrorMessage (null,
                                           "Unable to start Quoll Writer");
 
             }
-                                          
+
         } finally
-        {        
-        
+        {
+
             if (ss != null)
             {
 
@@ -138,7 +138,7 @@ public class Startup
             }
 
             Environment.startupComplete ();
-            
+
         }
 
     }

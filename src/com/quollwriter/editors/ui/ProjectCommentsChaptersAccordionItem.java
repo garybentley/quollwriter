@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.awt.dnd.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -132,6 +133,23 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
                 
                 final Note n = (Note) d;
                 
+                m.add (UIUtils.createMenuItem (String.format ("Set %s with",
+                                                              (n.isDealtWith () ? "Undealt" : "Dealt")),
+                                               Constants.VIEW_ICON_NAME,
+                                               new ActionAdapter ()
+                                               {
+                                
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                
+                                                        n.setDealtWith (n.isDealtWith () ? null : new Date ());
+                                
+                                                        _this.update ();
+                                
+                                                    }
+                                
+                                               }));
+
                 m.add (UIUtils.createMenuItem ("View",
                                                Constants.VIEW_ICON_NAME,
                                                new ActionAdapter ()

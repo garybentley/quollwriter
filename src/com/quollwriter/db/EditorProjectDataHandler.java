@@ -154,7 +154,6 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
 
             p.setKey (key);
             p.setId (rs.getString (ind++));
-            Environment.logMessage ("GOT PROJ ID AT LOAD: " + p.getId ());
             p.setName (rs.getString (ind++));
             
             String genres = rs.getString (ind++);

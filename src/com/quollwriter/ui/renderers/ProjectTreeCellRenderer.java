@@ -2,6 +2,7 @@ package com.quollwriter.ui.renderers;
 
 import java.awt.*;
 
+import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -230,13 +231,13 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
         if (d instanceof Note)
         {
 
+            Note n = (Note) d;
+
             //DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
             
             if (par.getUserObject () instanceof TreeParentNode)
             {
-                
-                Note n = (Note) d;
-                
+                                
                 if (n.isEditNeeded ())
                 {
                     
@@ -251,6 +252,13 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
             } else {
         
                 ot = Constants.BULLET_BLACK_ICON_NAME;
+                
+            }
+            
+            if (n.isDealtWith ())
+            {
+                
+                ot = Constants.SET_DEALT_WITH_ICON_NAME;
                 
             }
 
@@ -295,7 +303,39 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                 ot = Constants.EDIT_COMPLETE_ICON_NAME;
                 
             }
+            
+            boolean allDealtWith = true;
+             
+            Set<Note> notes = c.getNotes ();
+            
+            for (Note n : notes)
+            {
+                
+                if (!n.isDealtWith ())
+                {
                           
+                    allDealtWith = false;
+                    
+                    break;
+                          
+                }
+
+            }
+            
+            if (notes.size () == 0)
+            {
+                
+                allDealtWith = false;
+                
+            }
+            
+            if (allDealtWith)
+            {
+                
+                ot = Constants.SET_DEALT_WITH_ICON_NAME;
+                
+            }
+            
         }
         
         if (d instanceof TreeParentNode)

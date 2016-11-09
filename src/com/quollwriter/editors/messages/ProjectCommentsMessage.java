@@ -18,6 +18,7 @@ public class ProjectCommentsMessage extends EditorMessage
     private Set<Note> comments = null;
     private String generalComment = null;
     private ProjectVersion projVer = null;
+    private Map<String, Date> commentsDealtWith = new HashMap ();
     
     public ProjectCommentsMessage ()
     {
@@ -65,6 +66,58 @@ public class ProjectCommentsMessage extends EditorMessage
         
     }
         
+    @Override
+    public void setPropertiesAsString (String p)
+                                throws Exception
+    {
+        
+        super.setPropertiesAsString (p);
+
+        String d = this.getProperty ("dealtwithcomments");
+        
+        if (d != null)
+        {
+            
+            // Decode the json.
+            Map m = (Map) JSONDecoder.decode (d);
+            
+            this.commentsDealtWith.putAll (m);
+            
+        }
+        
+    }
+    
+    public void setCommentDealtWith (String id,
+                                     Date   date)
+                              throws Exception
+    {
+        
+        Map<String, Date> dealtWith = this.getCommentsDealtWith ();
+        
+        if (date == null)
+        {
+            
+            dealtWith.remove (id);
+            
+        } else {
+            
+            dealtWith.put (id,
+                           date);
+
+        }
+        
+        this.setProperty ("dealtwithcomments",
+                          JSONEncoder.encode (dealtWith));
+        
+    }
+    
+    public Map<String, Date> getCommentsDealtWith ()
+    {
+                
+        return this.commentsDealtWith;
+                
+    }
+    
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {

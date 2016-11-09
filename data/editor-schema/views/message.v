@@ -12,6 +12,7 @@ SELECT m.dbkey dbkey,
        d.datecreated datecreated,
        d.objecttype objecttype,
        d.id id,
+       d.properties properties,
        m.editordbkey editordbkey
 FROM   dataobject d,
        message    m

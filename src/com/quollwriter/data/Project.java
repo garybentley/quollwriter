@@ -1774,6 +1774,13 @@ public class Project extends NamedObject
 
         Project po = (Project) o;
 
+        if (this.projectDirectory == null)
+        {
+            
+            return false;
+            
+        }
+        
         return this.projectDirectory.equals (po.projectDirectory);
 
     }

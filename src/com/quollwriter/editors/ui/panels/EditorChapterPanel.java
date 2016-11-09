@@ -82,7 +82,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         this.iconColumn = new IconColumn (this,
                                           this.projectViewer.getIconProvider (),
                                           this.projectViewer.getChapterItemViewPopupProvider ());
-
+                                          
         this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
 

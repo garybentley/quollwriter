@@ -4383,7 +4383,7 @@ public class UIUtils
                 super.setText (Environment.replaceObjectNames (t));
 
             }
-
+            
         };
 
         UIUtils.setAsButton (bt);

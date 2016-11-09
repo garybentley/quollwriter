@@ -64,6 +64,8 @@ public class IconColumn extends JPanel implements DocumentListener
     private ChapterItemViewPopupProvider popupProvider = null;
     private boolean itemMoveAllowed = true;
     private PropertyChangedListener editPosChange = null;
+    private QPopup currentPopup = null;
+    private boolean singlePopupOnly = false;
         
     public IconColumn (AbstractEditorPanel          ep,
                        IconProvider                 iconProv,
@@ -126,6 +128,20 @@ public class IconColumn extends JPanel implements DocumentListener
                          
     }
 
+    public void setSinglePopupOnly (boolean v)
+    {
+        
+        this.singlePopupOnly = v;
+        
+    }
+    
+    public boolean isSinglePopupOnly ()
+    {
+        
+        return this.singlePopupOnly;
+        
+    }
+    
     public void setItemMoveAllowed (boolean v)
     {
         
@@ -187,6 +203,18 @@ public class IconColumn extends JPanel implements DocumentListener
     public void showItem (ChapterItem it)
     {
 
+        if (this.singlePopupOnly)
+        {
+            
+            if (this.currentPopup != null)
+            {
+                
+                this.currentPopup.removeFromParent ();
+                
+            }
+
+        }
+    
         if (this.ep.getViewer ().isDistractionFreeModeEnabled ())
         {
             
@@ -329,6 +357,8 @@ public class IconColumn extends JPanel implements DocumentListener
                                             y),
                                  true);
             popup.setDraggable (this.ep);
+            
+            this.currentPopup = popup;
             
         }
 

@@ -77,7 +77,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </java>
@@ -101,7 +101,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </java>
@@ -117,7 +117,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
         <fileset dir="./installer"
                  includes="log4j.xml" />
@@ -382,7 +382,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </javac>
@@ -412,7 +412,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
 
@@ -435,7 +435,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </java>
@@ -450,7 +450,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </java>
@@ -465,7 +465,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </java>
@@ -481,7 +481,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </javac>
@@ -493,7 +493,7 @@
       <classpath>
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
     </java>
@@ -510,7 +510,7 @@
                  includes="*.jar" />
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
       </classpath>
       <formatter type="plain" />
@@ -540,7 +540,7 @@
                  includes="*.jar" />
         <fileset dir="./3rd-party-jars/"
                  includes="*.jar" />
-        <fileset dir="./3rd-party-jars/docx4j-jars"
+        <fileset dir="./3rd-party-jars/docx4j"
                  includes="*.jar" />
         <fileset dir="${testBinDir}"
                  includes="*.jar" />

@@ -1,5 +1,7 @@
 package com.quollwriter.ui.actionHandlers;
 
+import java.util.Set;
+
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -17,6 +19,9 @@ public interface ChapterItemFormatDetails<E extends ChapterItem>
     public abstract ActionListener getDeleteItemActionHandler (E                   item,
                                                                AbstractEditorPanel qep,
                                                                boolean             showAtItem);
+
+    public abstract Set<JComponent> getTools  (E                   item,
+                                               AbstractEditorPanel qep);
 
     public abstract String getItemDescription (E item);
 

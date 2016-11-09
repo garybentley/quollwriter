@@ -1,5 +1,6 @@
 package com.quollwriter.ui.actionHandlers;
 
+import java.util.Set;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -78,6 +79,16 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
 
     }    
     
+    @Override
+    public Set<JComponent> getTools (Note                item,
+                                     AbstractEditorPanel ep)
+    {
+        
+        return null;
+        
+    }
+    
+    @Override
     public AbstractActionHandler getEditItemActionHandler (Note                item,
                                                            AbstractEditorPanel ep)
     {
@@ -87,6 +98,7 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
 
     }
 
+    @Override
     public ActionListener getDeleteItemActionHandler (Note                item,
                                                       AbstractEditorPanel ep,
                                                       boolean             showAtItem)

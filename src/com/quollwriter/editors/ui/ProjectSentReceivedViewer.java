@@ -149,6 +149,61 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                             
                                                                 }
                                                                 
+                                                                @Override
+                                                                public Set<JComponent> getTools (Note                item,
+                                                                                                 AbstractEditorPanel ep)
+                                                                {
+                                                                    
+                                                                    if (_this.message.isSentByMe ())
+                                                                    {
+                                                                        
+                                                                        return null;
+                                                                        
+                                                                    }
+                                                                    
+                                                                    Set<JComponent> buts = new LinkedHashSet ();
+                                                                    
+                                                                    final JButton but = UIUtils.createButton ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
+                                                                                                              Constants.ICON_MENU,
+                                                                                                              "Click to mark the {comment} as dealt with",
+                                                                                                              null);
+                                                                    
+                                                                    ActionListener aa = new ActionListener ()
+                                                                    {
+                                                                        
+                                                                        @Override
+                                                                        public void actionPerformed (ActionEvent ev)
+                                                                        {
+                                                            
+                                                                            Date d = null;
+                                                            
+                                                                            if (!item.isDealtWith ())
+                                                                            {
+                                                                                
+                                                                                d = new Date ();
+                                                                                
+                                                                            }
+                                                            
+                                                                            item.setDealtWith (d);
+                                                                            
+                                                                            but.setIcon (Environment.getIcon ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
+                                                                                                              Constants.ICON_MENU));
+                                                            
+                                                                            // Inform the sidebar of the change.
+                                                                            _this.sideBar.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+                                                            
+                                                                        }
+
+                                                                    };
+
+                                                                    but.addActionListener (aa);
+                                                                    
+                                                                    buts.add (but);
+                                                                                                                                            
+                                                                    return buts;
+                                                                    
+                                                                }
+                                                                                                                                
                                                             });
         
         this.iconProvider = new DefaultIconProvider ()

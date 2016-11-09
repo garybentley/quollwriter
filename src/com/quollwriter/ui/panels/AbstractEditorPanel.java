@@ -69,6 +69,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     private int softCaret = -1;
     private TimerTask wordCountUpdate = null;
     private long lastWordCountUpdateTime = 0;
+    private boolean isScrolling = false;
 
     public AbstractEditorPanel(final AbstractProjectViewer pv,
                                final Chapter               c)
@@ -280,7 +281,12 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
             public void componentResized (ComponentEvent ev)
             {
 
-                _this.scrollCaretIntoView ();
+                if (_this.isReadyForUse ())
+                {
+            
+                    _this.scrollCaretIntoView ();
+                    
+                }
 
             }
 
@@ -935,7 +941,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
     }
 
-    public void scrollToPosition (int p)
+    public void scrollToPosition (final int p)
                            throws GeneralException
     {
 
@@ -947,43 +953,86 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         }
 
-        Rectangle r = null;
-
+        if (this.isScrolling)
+        {
+            
+            final AbstractEditorPanel _this = this;
+            
+            UIUtils.doLater (new ActionListener ()
+            {
+                
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                
+                    try
+                    {
+                
+                        _this.scrollToPosition (p);
+                        
+                    } catch (Exception e) {
+                     
+                        Environment.logError ("Unable to scroll to: " + p,
+                                              e);
+                        
+                    }
+                    
+                }
+                
+            });
+            
+            return;
+            
+        }
+        
         try
         {
-
-            r = this.editor.modelToView (p);
-
-        } catch (Exception e)
-        {
-
-            // BadLocationException!
-            throw new GeneralException ("Position: " +
-                                        p +
-                                        " is not valid.",
-                                        e);
-
+            
+            this.isScrolling = true;
+        
+            Rectangle r = null;
+    
+            try
+            {
+    
+                r = this.editor.modelToView (p);
+    
+            } catch (Exception e)
+            {
+    
+                // BadLocationException!
+                throw new GeneralException ("Position: " +
+                                            p +
+                                            " is not valid.",
+                                            e);
+    
+            }
+    
+            if (r == null)
+            {
+    
+                throw new GeneralException ("Position: " +
+                                            p +
+                                            " is not valid.");
+    
+            }
+    
+            int y = r.y - r.height;
+    
+            if (y < 0)
+            {
+    
+                y = 0;
+    
+            }
+    
+            this.scrollPane.getVerticalScrollBar ().setValue (y);
+            
+        } finally {
+            
+            this.isScrolling = false;
+            
         }
-
-        if (r == null)
-        {
-
-            throw new GeneralException ("Position: " +
-                                        p +
-                                        " is not valid.");
-
-        }
-
-        int y = r.y - r.height;
-
-        if (y < 0)
-        {
-
-            y = 0;
-
-        }
-
-        this.scrollPane.getVerticalScrollBar ().setValue (y);
 
     }
 

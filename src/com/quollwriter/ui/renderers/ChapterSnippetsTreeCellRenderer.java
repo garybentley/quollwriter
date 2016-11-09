@@ -61,10 +61,10 @@ public class ChapterSnippetsTreeCellRenderer extends DefaultTreeCellRenderer
             this.setText (c.getName () + " (" + node.getChildCount () + ")");
 
         } else {
-            
+
             this.setIcon (Environment.getIcon (Chapter.OBJECT_TYPE,
-                                               Constants.ICON_TREE));            
-            
+                                               Constants.ICON_TREE));
+
         }
 
         this.setToolTipText ("Click to view");

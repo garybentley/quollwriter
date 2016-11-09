@@ -1,5 +1,9 @@
 package com.quollwriter.ui.actionHandlers;
 
+import java.util.Set;
+
+import javax.swing.*;
+
 import java.awt.event.ActionListener;
 
 import com.quollwriter.*;
@@ -42,6 +46,15 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
 
     }
 
+    @Override
+    public Set<JComponent> getTools (OutlineItem         item,
+                                     AbstractEditorPanel qep)
+    {
+        
+        return null;
+        
+    }
+    
     public AbstractActionHandler getEditItemActionHandler (OutlineItem         item,
                                                            AbstractEditorPanel qep)
     {
