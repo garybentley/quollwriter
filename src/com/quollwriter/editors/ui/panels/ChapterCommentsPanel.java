@@ -19,6 +19,8 @@ import javax.swing.text.*;
 import javax.swing.undo.*;
 import java.awt.datatransfer.*;
 
+//import org.incava.util.diff.*;
+
 import com.gentlyweb.properties.*;
 
 import com.jgoodies.forms.builder.*;
@@ -97,6 +99,87 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
                 
     }
     
+    /*
+    public void showDifferences (Chapter c)
+    {
+      
+         BlockPainter newp = new BlockPainter (Color.GREEN);              
+         BlockPainter modp = new BlockPainter (Color.YELLOW);              
+         BlockPainter oldp = new BlockPainter (Color.RED);
+      
+         String ot = TextUtilities.stripNonValidXMLCharacters (this.editor.getTextWithMarkup ().getText ());
+
+         String nt = TextUtilities.stripNonValidXMLCharacters (c.getText ().getText ());      
+         
+         this.editor.setTextWithMarkup (c.getText ());
+      
+         String[] oldText = ot.split ("\\n");
+         String[] newText = nt.split ("\\n");
+System.out.println ("OT: " + ot);
+System.out.println ("NT: " + nt);
+//LinkedList<Diff>
+diff_match_patch dmp = new diff_match_patch ();
+   System.out.println ("DIFF2: " + dmp.patch_make(ot, nt));
+
+         List diffs = new Diff (oldText,
+                                newText).diff ();
+System.out.println ("DIFF: " + diffs);
+         for (int i = 0; i < diffs.size (); i++)
+         {
+
+             Difference d = (Difference) diffs.get (i);
+
+             if (d.getDeletedEnd () == Difference.NONE)
+             {
+
+                 // This is an addition.
+                 for (int k = d.getAddedStart (); k < (d.getAddedEnd () + 1); k++)
+                 {
+
+                     this.editor.addHighlight (d.getAddedStart (),
+                                               d.getAddedEnd (),
+                                               newp,
+                                               false);                                     
+
+                 }
+
+                 continue;
+
+             }
+
+             if (d.getAddedEnd () == Difference.NONE)
+             {
+
+                 // This is a deletion.
+                 for (int k = d.getDeletedStart (); k < (d.getDeletedEnd () + 1); k++)
+                 {
+
+                     this.editor.addHighlight (d.getDeletedStart (),
+                                               d.getDeletedEnd (),
+                                               oldp,
+                                               false);                                     
+
+                 }
+
+                 continue;
+
+             }
+
+             // This is a modification.
+             for (int k = d.getAddedStart (); k < (d.getAddedEnd () + 1); k++)
+             {
+
+                  this.editor.addHighlight (d.getAddedStart (),
+                                            d.getAddedEnd (),
+                                            modp,
+                                            false);                                     
+
+             }
+
+         }      
+      
+    }
+    */
     @Override
      public void setState (final Map<String, String> s,
                           boolean                   hasFocus)

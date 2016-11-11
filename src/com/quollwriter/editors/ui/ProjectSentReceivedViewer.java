@@ -165,7 +165,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                     
                                                                     final JButton but = UIUtils.createButton ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
                                                                                                               Constants.ICON_MENU,
-                                                                                                              "Click to mark the {comment} as dealt with",
+                                                                                                              String.format ("Click to mark the {comment} as %s with",
+                                                                                                               (item.isDealtWith () ? "undealt" : "dealt")),
                                                                                                               null);
                                                                     
                                                                     ActionListener aa = new ActionListener ()
@@ -186,6 +187,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                             
                                                                             item.setDealtWith (d);
                                                                             
+                                                                            but.setToolTipText (String.format ("Click to mark the {comment} as %s with",
+                                                                                                               (item.isDealtWith () ? "undealt" : "dealt")));
                                                                             but.setIcon (Environment.getIcon ((item.isDealtWith () ? Constants.SET_UNDEALT_WITH_ICON_NAME : Constants.SET_DEALT_WITH_ICON_NAME),
                                                                                                               Constants.ICON_MENU));
                                                             
@@ -231,7 +234,14 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         this.sideBar = this.getSideBar ();
                         
     }
+     
+    public E getMessage ()
+    {
         
+        return this.message;
+        
+    }
+    
     public abstract ProjectSentReceivedSideBar getSideBar ();
   
     public void close ()

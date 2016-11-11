@@ -72,6 +72,76 @@ public class UpdateProjectMessage extends AbstractProjectMessage
           */      
     }
         
+    private boolean hasChapterText ()
+    {
+                
+        for (Chapter c : this.chapters)
+        {
+            
+            if (c.getText () != null)
+            {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        return false;
+        
+    }
+        
+    /**
+     * Creates a new Project object from the data held within the message.
+     */
+    @Override
+    public Project createProject ()
+                           throws Exception
+    {
+        
+        Set<Chapter> chaps = this.chapters;
+        
+        /*
+        if (!this.hasChapterText ())
+        {
+            
+            chaps = this.getChaptersWithText ();
+            
+        }
+        */        
+        chaps = this.getChaptersWithText ();
+
+        Project proj = new Project ();
+        proj.setType (Project.EDITOR_PROJECT_TYPE);
+        proj.setId (this.getForProjectId ());
+        proj.setName (this.getForProjectName ());
+        proj.setForEditor (this.getEditor ().getEmail ());
+       
+        proj.setProjectVersion (this.getProjectVersion ());
+       
+        if (this.responseMessage != null)
+        {
+            
+            proj.setEditResponseMessage (this.responseMessage);
+       
+        }
+       
+        Book b = new Book (proj,
+                           proj.getName ());
+        
+        proj.addBook (b);
+        
+        for (Chapter c : chaps)
+        {
+            
+            b.addChapter (c);
+            
+        }
+       
+        return proj; 
+        
+    }
+        
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {

@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.awt.dnd.*;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -119,12 +120,12 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
 
         final AbstractProjectViewer pv = this.viewer;
         
+        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
         JMenuItem mi = null;
 
         if (tp != null)
         {
-
-            final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
             final DataObject d = (DataObject) node.getUserObject ();
 
@@ -133,22 +134,28 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
                 
                 final Note n = (Note) d;
                 
-                m.add (UIUtils.createMenuItem (String.format ("Set %s with",
-                                                              (n.isDealtWith () ? "Undealt" : "Dealt")),
-                                               Constants.VIEW_ICON_NAME,
-                                               new ActionAdapter ()
-                                               {
-                                
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                
-                                                        n.setDealtWith (n.isDealtWith () ? null : new Date ());
-                                
-                                                        _this.update ();
-                                
-                                                    }
-                                
-                                               }));
+                // Is this a project we have sent?
+                if (!this.viewer.getMessage ().isSentByMe ())
+                {
+                
+                    m.add (UIUtils.createMenuItem (String.format ("Set %s with",
+                                                                  (n.isDealtWith () ? "undealt" : "dealt")),
+                                                   Constants.VIEW_ICON_NAME,
+                                                   new ActionAdapter ()
+                                                   {
+                                    
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                    
+                                                            n.setDealtWith (n.isDealtWith () ? null : new Date ());
+                                    
+                                                            _this.update ();
+                                    
+                                                        }
+                                    
+                                                   }));
+                    
+                }
 
                 m.add (UIUtils.createMenuItem ("View",
                                                Constants.VIEW_ICON_NAME,
@@ -173,6 +180,84 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
 
                 final String chapterObjTypeName = Environment.getObjectTypeName (c);
 
+                // Is this a project we have sent?
+                if (!this.viewer.getMessage ().isSentByMe ())
+                {                
+                
+                    int nc = 0;
+                    
+                    final Set<Note> notes = c.getNotes ();
+                    
+                    for (Note n : notes)
+                    {
+                    
+                        if (n.isDealtWith ())
+                        {
+                            
+                            nc++;
+                            
+                        }
+                        
+                    }
+
+                    if (nc > 0)
+                    {
+    
+                        m.add (UIUtils.createMenuItem ("Set all undealt with",
+                                                       Constants.SET_UNDEALT_WITH_ICON_NAME,
+                                                       new ActionListener ()
+                                                       {
+                                                        
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+                                                                
+                                                                for (Note n : notes)
+                                                                {
+                                                                    
+                                                                    n.setDealtWith (null);
+                                                                    
+                                                                }
+                                                                
+                                                                _this.update ();
+                                                                
+                                                            }
+                                                        
+                                                       }));
+                        
+                    }
+
+                    if (nc != notes.size ())
+                    {
+    
+                        m.add (UIUtils.createMenuItem ("Set all dealt with",
+                                                       Constants.SET_DEALT_WITH_ICON_NAME,
+                                                       new ActionListener ()
+                                                       {
+                                                        
+                                                            @Override
+                                                            public void actionPerformed (ActionEvent ev)
+                                                            {
+
+                                                                Date d = new Date ();
+                                                            
+                                                                for (Note n : notes)
+                                                                {
+                                                                    
+                                                                    n.setDealtWith (d);
+                                                                    
+                                                                }
+                                                                
+                                                                _this.update ();
+                                                                
+                                                            }
+                                                        
+                                                       }));
+                        
+                    }
+
+                }
+                
                 m.add (UIUtils.createMenuItem ("View {Chapter}",
                                                Constants.EDIT_ICON_NAME,
                                                pv.getAction (ProjectViewer.EDIT_CHAPTER_ACTION,

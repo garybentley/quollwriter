@@ -9160,6 +9160,8 @@ public class UIUtils
 
         if ((pv == null)
             &&
+            (proj != null)
+            &&
             (proj.isEncrypted ())
            )
         {

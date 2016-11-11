@@ -78,6 +78,10 @@ public abstract class AbstractProjectMessage extends EditorMessage
     
     }
 
+    public abstract Project createProject ()
+                                    throws Exception;
+
+    
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {

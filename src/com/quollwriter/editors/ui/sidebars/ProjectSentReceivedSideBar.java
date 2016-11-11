@@ -97,6 +97,14 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
         {
 
             @Override
+            public boolean isAllowObjectPreview ()
+            {
+                
+                return false;
+                
+            }
+        
+            @Override
             public int getItemCount ()
             {
 
@@ -105,7 +113,7 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
             }
 
         };
-
+        
         this.chapters.setIconType (this.getItemsIconType ());
         this.chapters.setTitle (this.getItemsTitle ());
 

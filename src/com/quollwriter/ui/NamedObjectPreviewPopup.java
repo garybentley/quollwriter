@@ -91,6 +91,14 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
                                                           null,
                                                           this.viewer);
 
+            if (t == null)
+            {
+            
+                // May be a fake chapter, return null.    
+                return null;
+                                                          
+            }
+            
             t.setSize (new Dimension (300,
                                       Short.MAX_VALUE));
 

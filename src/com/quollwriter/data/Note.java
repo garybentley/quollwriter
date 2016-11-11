@@ -9,6 +9,7 @@ import com.quollwriter.text.*;
 public class Note extends ChapterItem
 {
 
+    public static final String DEALT_WITH = "dealtWith";
     public static final String EDIT_NEEDED_NOTE_TYPE = "Edit Needed";
     public static final String OBJECT_TYPE = "note";
 
@@ -84,7 +85,13 @@ public class Note extends ChapterItem
     public void setDealtWith (Date d)
     {
         
+        Date oldd = this.dealtWith;
+        
         this.dealtWith = d;
+        
+        this.firePropertyChangedEvent (Note.DEALT_WITH,
+                                       oldd,
+                                       this.dealtWith);        
         
     }
     

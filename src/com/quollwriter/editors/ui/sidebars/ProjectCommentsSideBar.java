@@ -55,7 +55,8 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
     public String getTitle ()
     {
         
-        return "{Comments} from";
+        return String.format ("{Comments} %s",
+                              (this.message.isSentByMe () ? "to" : "from"));
         
     }
     
@@ -127,7 +128,8 @@ public class ProjectCommentsSideBar extends ProjectSentReceivedSideBar<ProjectCo
 
         int row = 1;
                 
-        builder.addLabel (Environment.replaceObjectNames ("<html><i>{Received}</i></html>"),
+        builder.addLabel (Environment.replaceObjectNames (String.format ("<html><i>{%s}</i></html>",
+                                                                         (this.message.isSentByMe () ? "Sent" : "Received"))),
                           cc.xy (1,
                                  row));
         

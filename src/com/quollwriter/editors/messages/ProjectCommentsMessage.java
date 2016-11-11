@@ -3,6 +3,7 @@ package com.quollwriter.editors.messages;
 import java.util.*;
 
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.text.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
@@ -10,7 +11,7 @@ import com.quollwriter.editors.*;
 
 /**
  */
-public class ProjectCommentsMessage extends EditorMessage
+public class ProjectCommentsMessage extends EditorMessage implements PropertyChangedListener
 {
     
     public static final String MESSAGE_TYPE = "project-comments";
@@ -186,6 +187,32 @@ public class ProjectCommentsMessage extends EditorMessage
             
     }
     
+    @Override
+    public void propertyChanged (PropertyChangedEvent ev)
+    {
+        
+        if (ev.getChangeType ().equals (Note.DEALT_WITH))
+        {
+            
+            Note n = (Note) ev.getSource ();
+            
+            try
+            {
+            
+                this.setCommentDealtWith (n.getId (),
+                                          (Date) ev.getNewValue ());
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to set comment as dealt with: " +
+                                      n,
+                                      e);
+                        
+            }
+        }
+        
+    }
+    
     protected void fillMap (Map data)
                      throws GeneralException
     {
@@ -295,6 +322,8 @@ public class ProjectCommentsMessage extends EditorMessage
             Map cm = (Map) co;
 
             Note n = TypeEncoder.decodeToNote (cm);
+            
+            n.addPropertyChangedListener (this);
             
             comments.add (n);
             

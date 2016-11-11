@@ -355,19 +355,24 @@ public class NewProjectMessage extends AbstractProjectMessage
     /**
      * Creates a new Project object from the data held within the message.
      */
+    @Override
     public Project createProject ()
                            throws Exception
     {
         
         Set<Chapter> chaps = this.chapters;
         
+        /*
         if (!this.hasChapterText ())
         {
             
             chaps = this.getChaptersWithText ();
             
         }
+        */
                 
+        chaps = this.getChaptersWithText ();
+
         Project proj = new Project ();
         proj.setType (Project.EDITOR_PROJECT_TYPE);
         proj.setId (this.getForProjectId ());
