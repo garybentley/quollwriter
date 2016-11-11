@@ -1,5 +1,12 @@
 <whatsnew>
 
+    <version id="2.5.5">
+      <item onlyIfCurrentVersion="true">
+        <title>New double word rule</title>
+        <description><![CDATA[A new Problem Finder rule to find double word or double punctuation has been added.]]></description>
+      </item>        
+    </version>
+
     <version id="2.5.4">
       <item onlyIfCurrentVersion="true">
         <title>Asset editing changed</title>
@@ -8,10 +15,6 @@
       <item>
         <title>New way to interact with the Problem Finder</title>
         <description><![CDATA[The <a href='action:problemfinderconfig'>Problem Finder</a> is great at finding all the problems within a {chapter} but sometimes you want to hone in on a particular type of problem.  Now you can!  Either right click on a the checkbox for a found problem and select <b>Find all problems of this type</b> or use the <a href='action:problemfinderconfig'>Problem Finder rule config popup</a>.]]></description>
-      </item>
-      <item onlyIfCurrentVersion="true">
-        <title>New double word rule</title>
-        <description><![CDATA[A new Problem Finder rule to find double word or double punctuation has been added.]]></description>
       </item>
     </version>
 
