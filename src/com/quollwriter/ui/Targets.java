@@ -566,7 +566,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
             this.checkReadability ();
             this.checkChapters ();
 
-            this.viewer.schedule (new TimerTask ()
+            this.viewer.schedule (new Runnable ()
             {
 
                 @Override

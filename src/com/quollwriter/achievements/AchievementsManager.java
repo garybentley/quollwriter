@@ -569,11 +569,11 @@ public class AchievementsManager implements ProjectEventListener
             pv.saveProject ();
      
         }
-     
+          
         if (t != null)
         {
-            
-            t.cancel ();
+     
+            Environment.unschedule (t);
             
         }
         
@@ -1118,7 +1118,7 @@ public class AchievementsManager implements ProjectEventListener
         
     }
     
-    public class AchievementsChecker extends TimerTask
+    public class AchievementsChecker implements Runnable
     {
         
         public AbstractProjectViewer viewer = null;
@@ -1153,9 +1153,7 @@ public class AchievementsManager implements ProjectEventListener
         
         public void run ()
         {
-            
-            Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
-            
+                        
             try{
             this.count++;
 

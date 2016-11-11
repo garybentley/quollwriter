@@ -169,8 +169,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 	private JPanel                cards = null;
 	private CardLayout            cardsLayout = null;
 
-	//private java.util.Timer autoBackupsTimer = null;
-	private TimerTask autoSaveTask = null;
+	private Runnable autoSaveTask = null;
 	private TargetsData targets = null;
 	private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
 
@@ -3942,7 +3941,7 @@ xxx
 
 		});
 
-		this.schedule (new TimerTask ()
+		this.schedule (new Runnable ()
 		{
 
 			@Override
@@ -4156,13 +4155,7 @@ xxx
 
 		final AbstractProjectViewer _this = this;
 
-/*
-		// TODO: Change to use a thread pool executor, although that requires creating
-		// our own threadpoolfactory which is overkill for our needs.
-		this.autoBackupsTimer = new java.util.Timer ("auto-backups-" + this.proj.getName (),
-													 true);
-	*/
-		this.schedule (new TimerTask ()
+		this.schedule (new Runnable ()
 		{
 
 			public void run ()
@@ -4170,8 +4163,6 @@ xxx
 
 				try
 				{
-
-					Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
 
 					// Get references first so that they can't change further on.
 					Project proj = _this.proj;
@@ -7601,18 +7592,37 @@ xxx
 		this.chapterCounts.put (c,
 								cc);
 
-        this.schedule (new TimerTask ()
+        this.schedule (new Runnable ()
         {
 
             @Override
             public void run ()
             {
 
-                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+                UIUtils.doLater (new ActionListener ()
+                {
+                    
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+                        
+                        try
+                        {
+        
+                            cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
+                                                                                     t);
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to get a4 page count for chapter: " +
+                                                  c,
+                                                  e);
+                                                                                     
+                        }
 
-                cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                         t);
-
+                    }
+                                                                                 
+                });
+                
             }
 
         },
@@ -8391,7 +8401,7 @@ xxx
 		if (this.autoSaveTask != null)
 		{
 
-			this.autoSaveTask.cancel ();
+			this.unschedule (this.autoSaveTask);
 
 			this.autoSaveTask = null;
 
@@ -8408,45 +8418,55 @@ xxx
 				final AbstractProjectViewer _this = this;
 
                 // Create our auto save
-                this.autoSaveTask = new BlankTimerTask ()
+                this.autoSaveTask = new Runnable ()
                 {
 
 					@Override
                     public void run ()
                     {
 
-						_this.doForPanels (AbstractEditableEditorPanel.class,
-										  new QuollPanelAction<AbstractEditableEditorPanel> ()
-										  {
-
-											  @Override
-											  public void doAction (AbstractEditableEditorPanel p)
-											  {
-
-												if (!p.hasUnsavedChanges ())
-												{
-
-													return;
-
-												}
-
-												try
-												{
-
-													p.saveChapter ();
-
-												} catch (Exception e)
-												{
-
-													Environment.logError ("Unable to auto save chapter: " +
-																		  p.getChapter (),
-																		  e);
-
-												}
-
-											  }
-
-										  });
+                        try
+                        {
+                    
+                            _this.doForPanels (AbstractEditableEditorPanel.class,
+                                              new QuollPanelAction<AbstractEditableEditorPanel> ()
+                                              {
+    
+                                                  @Override
+                                                  public void doAction (AbstractEditableEditorPanel p)
+                                                  {
+    
+                                                    if (!p.hasUnsavedChanges ())
+                                                    {
+    
+                                                        return;
+    
+                                                    }
+    
+                                                    try
+                                                    {
+    
+                                                        p.saveChapter ();
+    
+                                                    } catch (Exception e)
+                                                    {
+    
+                                                        Environment.logError ("Unable to auto save chapter: " +
+                                                                              p.getChapter (),
+                                                                              e);
+    
+                                                    }
+    
+                                                  }
+    
+                                              });
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable update panels",
+                                                  e);
+                            
+                        }
 
                     }
 

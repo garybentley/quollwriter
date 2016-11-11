@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Stack;
 import java.util.SortedSet;
 import java.util.TimerTask;
+import java.util.concurrent.*;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -97,7 +98,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     private QPopup                achievementsPopup = null;
     private Map<String, QPopup> popups = new HashMap ();
 
-    private java.util.Timer generalTimer = null;
+    private ScheduledThreadPoolExecutor generalTimer = null;    
 
     private Timer achievementsHideTimer = null;
 
@@ -113,9 +114,26 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
-        this.generalTimer = new java.util.Timer ("Viewer-general-" + this.hashCode (),
-												 true);
-
+        this.generalTimer = new ScheduledThreadPoolExecutor (2,
+                                                             new ThreadFactory ()
+        {
+            
+            @Override
+            public Thread newThread (Runnable r)
+            {
+                
+                Thread t = new Thread (r);
+                
+                t.setDaemon (true);
+                t.setPriority (Thread.MIN_PRIORITY);
+                t.setName ("Viewer-general-" + t.getId ());
+                
+                return t;
+                
+            }
+            
+        });                                                
+        
         this.addWindowListener (new WindowAdapter ()
             {
 
@@ -2494,9 +2512,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.dispose ();
 
-        this.generalTimer.cancel ();
-        this.generalTimer.purge ();
-
+        this.generalTimer.shutdown ();        
+        
 		UIUtils.doLater (afterClose);
 
         return true;
@@ -3283,38 +3300,106 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     }
 
     /**
-     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
+     * Un-schedule the runnable.
      *
-     * @param t The task to run.
+     * @param r The runnable to remove from the executor service.
+     * @returns Whether it was successfully removed.
+     */
+    public boolean unschedule (Runnable r)
+    {
+                
+        return this.generalTimer.remove (r);
+        
+    }
+    
+    /**
+     * Schedule the runnable to run after delay and repeat (use -1 or 0 for no repeat).
+     *
+     * @param r The runnable to run.
      * @param delay The delay, in millis.
      * @param repeat The repeat time, in millis.
      */
-    public void schedule (TimerTask t,
-                          long      delay,
-                          long      repeat)
+    public void schedule (final Runnable r,
+                          final long     delay,
+                          final long     repeat)
     {
 
-		if (this.generalTimer == null)
-		{
+        if (this.generalTimer == null)
+        {
 
-			return;
-
-		}
-
+            Environment.logError ("Unable to schedule timer is no longer valid.");
+            
+            return;
+        
+        }
+                
         if (repeat < 1)
         {
 
-            this.generalTimer.schedule (t,
-                                        delay);
+            this.generalTimer.schedule (r,
+                                        delay,
+                                        TimeUnit.MILLISECONDS);
 
         } else {
 
-            this.generalTimer.schedule (t,
-                                        delay,
-                                        repeat);
+            this.generalTimer.scheduleAtFixedRate (r,
+                                                   delay,
+                                                   repeat,
+                                                   TimeUnit.MILLISECONDS);
 
         }
 
     }
+        
+    /**
+     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
+     *
+     * @deprecated - should use schedule(Runnable) instead.
+     * @param t The task to run.
+     * @param delay The delay, in millis.
+     * @param repeat The repeat time, in millis.
+     */
+    @Deprecated 
+    public void schedule (final TimerTask t,
+                          final long      delay,
+                          final long      repeat)
+    {
 
+        if (t == null)
+        {
+            
+            throw new NullPointerException ("Task must be provided.");
+            
+        }
+    
+        Runnable r = new Runnable ()
+        {
+          
+            @Override
+            public void run ()
+            {
+                
+                try
+                {
+
+                    t.run ();
+
+                } catch (Exception e) {
+
+                    Environment.logError ("Unable to run timer: " +
+                                          t,
+                                          e);
+
+                }                
+                
+            }
+            
+        };
+        
+        this.schedule (r,
+                       delay,
+                       repeat);
+
+    }
+    
 }

@@ -67,7 +67,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     private int scrollOffset = 0;
     private Insets origEditorMargin = null;
     private int softCaret = -1;
-    private TimerTask wordCountUpdate = null;
+    private Runnable wordCountUpdate = null;
     private long lastWordCountUpdateTime = 0;
     private boolean isScrolling = false;
 
@@ -327,14 +327,12 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         }
 
-        this.wordCountUpdate = new TimerTask ()
+        this.wordCountUpdate = new Runnable ()
         {
 
             @Override
             public void run ()
             {
-
-                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
 
                 try
                 {
@@ -374,7 +372,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     @Override
     public void close ()
     {
-
 
     }
 

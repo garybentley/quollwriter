@@ -3337,119 +3337,127 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
 		final ProjectViewer _this = this;
 
-        this.schedule (new TimerTask ()
+        this.schedule (new Runnable ()
         {
 
 			@Override
             public void run ()
             {
 
-                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+                try
+                {
 
-				_this.doForSideBars (AppearsInChaptersSideBar.class,
-									 new QuollSideBarAction<AppearsInChaptersSideBar> ()
-									 {
-
-										public void doAction (final AppearsInChaptersSideBar sb)
-										{
-
-											final NamedObject n = sb.getForObject ();
-
-											try
-											{
-
-												final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
-																														_this);
-
-												UIUtils.doLater (new ActionListener ()
-												{
-
-													@Override
-													public void actionPerformed (ActionEvent ev)
-													{
-
-														try
-														{
-
-															sb.updateSnippets (snippets);
-
-														} catch (Exception e) {
-
-															Environment.logError ("Unable to update appears in chapters sidebar for object: " +
-																				  n,
-																				  e);
-
-														}
-
-													}
-
-												});
-
-											} catch (Exception e) {
-
-												Environment.logError ("Unable to update appears in chapters sidebar for object: " +
-																	  n,
-																	  e);
-
-											}
-
-										}
-
-									 });
-
-				_this.doForPanels (AssetViewPanel.class,
-								   new QuollPanelAction<AssetViewPanel> ()
-								   {
-
-									public void doAction (final AssetViewPanel vp)
-									{
-
-										final NamedObject n = vp.getForObject ();
-
-										final AppearsInChaptersEditPanel p = vp.getAppearsInChaptersEditPanel ();
-
-										try
-										{
-
-											final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
-																													_this);
-
-											UIUtils.doLater (new ActionListener ()
-											{
-
-												@Override
-												public void actionPerformed (ActionEvent ev)
-												{
-
-													try
-													{
-
-														p.updateChapterTree (snippets);
-
-													} catch (Exception e) {
-
-														Environment.logError ("Unable to update appears in chapters tree(2) for object: " +
-																			  n,
-																			  e);
-
-													}
-
-												}
-
-											});
-
-										} catch (Exception e) {
-
-											Environment.logError ("Unable to update appears in chapters tree for object: " +
-																  n,
-																  e);
-
-										}
-
-									}
-
-								   },
-								   false);
+                    _this.doForSideBars (AppearsInChaptersSideBar.class,
+                                         new QuollSideBarAction<AppearsInChaptersSideBar> ()
+                                         {
+    
+                                            public void doAction (final AppearsInChaptersSideBar sb)
+                                            {
+    
+                                                final NamedObject n = sb.getForObject ();
+    
+                                                try
+                                                {
+    
+                                                    final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
+                                                                                                                            _this);
+    
+                                                    UIUtils.doLater (new ActionListener ()
+                                                    {
+    
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+    
+                                                            try
+                                                            {
+    
+                                                                sb.updateSnippets (snippets);
+    
+                                                            } catch (Exception e) {
+    
+                                                                Environment.logError ("Unable to update appears in chapters sidebar for object: " +
+                                                                                      n,
+                                                                                      e);
+    
+                                                            }
+    
+                                                        }
+    
+                                                    });
+    
+                                                } catch (Exception e) {
+    
+                                                    Environment.logError ("Unable to update appears in chapters sidebar for object: " +
+                                                                          n,
+                                                                          e);
+    
+                                                }
+    
+                                            }
+    
+                                         });
+    
+                    _this.doForPanels (AssetViewPanel.class,
+                                       new QuollPanelAction<AssetViewPanel> ()
+                                       {
+    
+                                        public void doAction (final AssetViewPanel vp)
+                                        {
+    
+                                            final NamedObject n = vp.getForObject ();
+    
+                                            final AppearsInChaptersEditPanel p = vp.getAppearsInChaptersEditPanel ();
+    
+                                            try
+                                            {
+    
+                                                final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
+                                                                                                                        _this);
+    
+                                                UIUtils.doLater (new ActionListener ()
+                                                {
+    
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+    
+                                                        try
+                                                        {
+    
+                                                            p.updateChapterTree (snippets);
+    
+                                                        } catch (Exception e) {
+    
+                                                            Environment.logError ("Unable to update appears in chapters tree(2) for object: " +
+                                                                                  n,
+                                                                                  e);
+    
+                                                        }
+    
+                                                    }
+    
+                                                });
+    
+                                            } catch (Exception e) {
+    
+                                                Environment.logError ("Unable to update appears in chapters tree for object: " +
+                                                                      n,
+                                                                      e);
+    
+                                            }
+    
+                                        }
+    
+                                       },
+                                       false);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to update sidebars/panels",
+                                          e);
+                    
+                }
 
             }
 

@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.logging.*;
 import java.util.prefs.*;
+import java.util.concurrent.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -151,8 +152,8 @@ public class Environment
     private static UserSession userSession = null;
     private static TargetsData targets = null;
 
-    private static java.util.Timer generalTimer = null;
-
+    private static ScheduledThreadPoolExecutor generalTimer = null;
+    
     private static ProjectTextProperties projectTextProps = null;
     private static FullScreenTextProperties fullScreenTextProps = null;
 
@@ -1186,9 +1187,8 @@ public class Environment
 
         }
 
-        Environment.generalTimer.cancel ();
-        Environment.generalTimer.purge ();
-
+        Environment.generalTimer.shutdown ();
+        
         if (Environment.landingViewer != null)
         {
 
@@ -3622,9 +3622,26 @@ public class Environment
 
         // Start the timer, it is done here so that any other code that needs it can start running things
         // straightaway.
-        Environment.generalTimer = new java.util.Timer ("Environment-general",
-                                                        true);
-
+        Environment.generalTimer = new ScheduledThreadPoolExecutor (5,
+                                                                    new ThreadFactory ()
+        {
+            
+            @Override
+            public Thread newThread (Runnable r)
+            {
+                
+                Thread t = new Thread (r);
+                
+                t.setDaemon (true);
+                t.setPriority (Thread.MIN_PRIORITY);
+                t.setName ("Environment-general-" + t.getId ());
+                
+                return t;
+                
+            }
+            
+        });                                                
+                                                        
         // Load the default object type names.
         try
         {
@@ -3736,16 +3753,24 @@ public class Environment
 
         }
 
-        Environment.schedule (new TimerTask ()
+        Environment.schedule (new Runnable ()
         {
 
             @Override
             public void run ()
             {
 
-                Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
+                try
+                {
 
-                Importer.init ();
+                    Importer.init ();
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to init importer",
+                                          e);
+                    
+                }
 
             }
 
@@ -3870,7 +3895,7 @@ public class Environment
 
                     d = Utils.zeroTimeFields (d);
 
-                    Environment.generalTimer.schedule (new TimerTask ()
+                    Environment.schedule (new Runnable ()
                     {
 
                         @Override
@@ -3892,41 +3917,50 @@ public class Environment
                         }
 
                     },
-                    d,
+                    d.getTime (),
                     // Run every 24 hours.  It will drift over the days but not by much.
                     Constants.DAY_IN_MILLIS);
 
-                    Environment.schedule (new TimerTask ()
+                    Environment.schedule (new Runnable ()
                     {
 
                         @Override
                         public void run ()
                         {
 
-                            Thread.currentThread ().setPriority (Thread.MIN_PRIORITY);
-
-                            if (!Environment.targets.isShowMessageWhenSessionTargetReached ())
+                            Set<String> met = new LinkedHashSet ();                        
+                            int sessWC = 0;
+                        
+                            try
                             {
 
-                                return;
-
-                            }
-
-                            Set<String> met = new LinkedHashSet ();
-
-                            int sessWC = Environment.userSession.getCurrentSessionWordCount ();
-
-                            // See if the user session has exceeded the session count.
-                            if ((sessWC >= Environment.targets.getMySessionWriting ())
-                                &&
-                                (Environment.userSession.shouldShowSessionTargetReachedPopup ())
-                               )
-                            {
-
-                                met.add ("Session");
-
-                                Environment.userSession.shownSessionTargetReachedPopup ();
-
+                                if (!Environment.targets.isShowMessageWhenSessionTargetReached ())
+                                {
+    
+                                    return;
+    
+                                }
+        
+                                sessWC = Environment.userSession.getCurrentSessionWordCount ();
+    
+                                // See if the user session has exceeded the session count.
+                                if ((sessWC >= Environment.targets.getMySessionWriting ())
+                                    &&
+                                    (Environment.userSession.shouldShowSessionTargetReachedPopup ())
+                                   )
+                                {
+    
+                                    met.add ("Session");
+    
+                                    Environment.userSession.shownSessionTargetReachedPopup ();
+    
+                                }
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable show session target reached popup",
+                                                      e);
+                                
                             }
 
                             // Check for the daily count.
@@ -4034,29 +4068,39 @@ public class Environment
 
                             }
 
-                            if (met.size () > 0)
+                            try
                             {
-
-                                StringBuilder b = new StringBuilder ();
-
-                                for (String m : met)
+                                
+                                if (met.size () > 0)
                                 {
-
-                                    b.append (String.format ("<li>%s</li>",
-                                                             m));
-
+    
+                                    StringBuilder b = new StringBuilder ();
+    
+                                    for (String m : met)
+                                    {
+    
+                                        b.append (String.format ("<li>%s</li>",
+                                                                 m));
+    
+                                    }
+    
+                                    AbstractViewer viewer = Environment.getFocusedViewer ();
+    
+                                    UIUtils.showMessage ((PopupsSupported) viewer,
+                                                         "Writing targets reached",
+                                                         String.format ("You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
+                                                                        Environment.formatNumber (sessWC),
+                                                                        b.toString ()),
+                                                         UIUtils.defaultLeftCornerShowPopupAt);
+    
+    
                                 }
-
-                                AbstractViewer viewer = Environment.getFocusedViewer ();
-
-                                UIUtils.showMessage ((PopupsSupported) viewer,
-                                                     "Writing targets reached",
-                                                     String.format ("You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
-                                                                    Environment.formatNumber (sessWC),
-                                                                    b.toString ()),
-                                                     UIUtils.defaultLeftCornerShowPopupAt);
-
-
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to show writing targets reached popup",
+                                                      e);
+                                
                             }
 
                         }
@@ -6418,31 +6462,85 @@ TODO: Add back in when appropriate.
     }
 
     /**
-     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
+     * Un-schedule the runnable.
      *
-     * @param t The task to run.
+     * @param r The runnable to remove from the executor service.
+     * @returns Whether it was successfully removed.
+     */
+    public static boolean unschedule (Runnable r)
+    {
+                
+        return Environment.generalTimer.remove (r);
+        
+    }
+    
+    /**
+     * Schedule the runnable to run after delay and repeat (use -1 or 0 for no repeat).
+     *
+     * @param r The runnable to run.
      * @param delay The delay, in millis.
      * @param repeat The repeat time, in millis.
      */
-    public static void schedule (final TimerTask t,
-                                 final long      delay,
-                                 final long      repeat)
+    public static void schedule (final Runnable r,
+                                 final long     delay,
+                                 final long     repeat)
     {
 
         if (Environment.generalTimer == null)
         {
 
-            Environment.generalTimer = new java.util.Timer (true);
+            Environment.logError ("Unable to schedule timer is no longer valid.");
+            
+            return;
+        
+        }
+                
+        if (repeat < 1)
+        {
+
+            Environment.generalTimer.schedule (r,
+                                               delay,
+                                               TimeUnit.MILLISECONDS);
+
+        } else {
+
+            Environment.generalTimer.scheduleAtFixedRate (r,
+                                                          delay,
+                                                          repeat,
+                                                          TimeUnit.MILLISECONDS);
 
         }
 
-        TimerTask tt = new TimerTask ()
-        {
+    }
+        
+    /**
+     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
+     *
+     * @deprecated - should use schedule(Runnable) instead.
+     * @param t The task to run.
+     * @param delay The delay, in millis.
+     * @param repeat The repeat time, in millis.
+     */
+    @Deprecated 
+    public static void schedule (final TimerTask t,
+                                 final long      delay,
+                                 final long      repeat)
+    {
 
+        if (t == null)
+        {
+            
+            throw new NullPointerException ("Task must be provided.");
+            
+        }
+    
+        Runnable r = new Runnable ()
+        {
+          
             @Override
             public void run ()
             {
-
+                
                 try
                 {
 
@@ -6454,25 +6552,15 @@ TODO: Add back in when appropriate.
                                           t,
                                           e);
 
-                }
-
+                }                
+                
             }
-
+            
         };
-
-        if (repeat < 1)
-        {
-
-            Environment.generalTimer.schedule (tt,
-                                               delay);
-
-        } else {
-
-            Environment.generalTimer.schedule (tt,
-                                               delay,
-                                               repeat);
-
-        }
+        
+        Environment.schedule (r,
+                              delay,
+                              repeat);
 
     }
 
