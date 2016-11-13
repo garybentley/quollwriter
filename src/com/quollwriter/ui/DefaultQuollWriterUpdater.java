@@ -178,7 +178,7 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
             tf = File.createTempFile ("QuollWriter-install-" + _this.version.getVersion () + ".",
                                       ".exe");
 
-            tf.deleteOnExit ();
+//            tf.deleteOnExit ();
 
         } catch (Exception e)
         {
@@ -433,13 +433,13 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                             try
                             {
-
+Environment.logMessage ("RUNNING: " + outFile.getPath ());
                                 java.util.List args = new ArrayList ();
                                 args.add (outFile.getPath ());
 
                                 ProcessBuilder pb = new ProcessBuilder (args);
                                 pb.start ();
-
+Environment.logMessage ("STARTED: " + outFile.getPath ());
                             } catch (Exception e) {
 
                                 Environment.logError ("Unable to run upgrade file: " +
@@ -682,6 +682,10 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                 Environment.getLanding ().close (false,
                                                  null);
 
+            } else {
+                
+                Environment.closeDown ();
+                
             }
             
         }

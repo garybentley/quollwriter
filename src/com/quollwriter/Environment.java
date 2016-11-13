@@ -1177,7 +1177,7 @@ public class Environment
 
     }
 
-    private static void closeDown ()
+    public static void closeDown ()
     {
 
         if (Environment.openProjects.size () > 0)
@@ -1237,7 +1237,8 @@ public class Environment
 
         }
 
-        System.exit (0);
+        // XXX
+        //System.exit (0);
 
     }
 
@@ -3486,7 +3487,7 @@ public class Environment
 
         // See if this is first use.
         Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
-
+        
         // Get the username and password.
         String username = Environment.getProperty (Constants.DB_USERNAME_PROPERTY_NAME);
         String password = Environment.getProperty (Constants.DB_PASSWORD_PROPERTY_NAME);
