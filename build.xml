@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.5.7" />
+  <property name="currVersion" value="2.5.8" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />

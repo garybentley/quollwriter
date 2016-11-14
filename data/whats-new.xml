@@ -1,5 +1,12 @@
 <whatsnew>
 
+    <version id="2.5.8">
+      <item onlyIfCurrentVersion="true">
+        <title>Bug fix</title>
+        <description><![CDATA[Fixed a bug that prevented a project from being exported.]]></description>
+      </item>
+    </version>
+
     <version id="2.5.7">
       <item onlyIfCurrentVersion="true">
         <title>Bug fix</title>
