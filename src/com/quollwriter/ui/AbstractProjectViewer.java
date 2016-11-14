@@ -170,6 +170,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 	private CardLayout            cardsLayout = null;
 
 	private Runnable autoSaveTask = null;
+    private Runnable chapterCountsUpdater = null;
 	private TargetsData targets = null;
 	private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
 
@@ -7592,6 +7593,39 @@ xxx
 		this.chapterCounts.put (c,
 								cc);
 
+        this.unschedule (this.chapterCountsUpdater);
+                                
+        this.chapterCountsUpdater = new Runnable ()
+        {
+
+            @Override
+            public void run ()
+            {
+
+                try
+                {
+
+                    cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
+                                                                             t);
+
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get a4 page count for chapter: " +
+                                          c,
+                                          e);
+                                                                             
+                }
+                
+            }
+            
+        };                                
+                       
+        this.schedule (this.chapterCountsUpdater,
+                       // Start in 2 seconds
+                       2 * Constants.SEC_IN_MILLIS,
+                       // Do it once.
+                       0);
+/*                                
         this.schedule (new Runnable ()
         {
 
@@ -7608,9 +7642,10 @@ xxx
                         
                         try
                         {
-        
+
                             cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
                                                                                      t);
+
                         } catch (Exception e) {
                             
                             Environment.logError ("Unable to get a4 page count for chapter: " +
@@ -7630,7 +7665,7 @@ xxx
         2 * Constants.SEC_IN_MILLIS,
         // Do it once.
         0);
-
+*/
 	}
 
 	public int getChapterA4PageCount (Chapter c)
