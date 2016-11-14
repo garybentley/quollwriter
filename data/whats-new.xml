@@ -1,5 +1,12 @@
 <whatsnew>
 
+    <version id="2.5.7">
+      <item onlyIfCurrentVersion="true">
+        <title>Bug fix</title>
+        <description><![CDATA[Fixed a bug that could cause performance issues when calculating the A4 page count.]]></description>
+      </item>
+    </version>
+
     <version id="2.5.6">
       <item onlyIfCurrentVersion="true">
         <title>Bug fix for future versions</title>
