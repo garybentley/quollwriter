@@ -7610,10 +7610,11 @@ xxx
 
                 } catch (Exception e) {
                     
+                    /*
                     Environment.logError ("Unable to get a4 page count for chapter: " +
                                           c,
                                           e);
-                                                                             
+                      */                                                       
                 }
                 
             }
