@@ -53,33 +53,6 @@ public abstract class AssetDetailsEditPanel<E extends Asset> extends DetailsEdit
         
     }
     
-    /*
-    @Override
-    public void showEditPanel ()
-    {
-
-        ActionListener a = AssetViewPanel.getEditAssetAction (this.viewer,
-                                                              this.object);
-        
-        if (a == null)
-        {
-            
-            Environment.logError ("Unable to get edit asset action for: " +
-                                  this.object,
-                                  null);
-            
-            UIUtils.showErrorMessage (this.viewer,
-                                      String.format ("Unable to edit the {%s}",
-                                                     Environment.getObjectTypeName (this.object)));
-            
-            return;
-            
-        }
-        
-        UIUtils.doLater (a);
-    
-    }
-    */
     @Override
     public boolean canSave ()
     {

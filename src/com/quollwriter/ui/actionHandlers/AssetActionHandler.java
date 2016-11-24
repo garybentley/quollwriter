@@ -351,7 +351,7 @@ public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer
 
             try
             {
-    
+
                 this.projectViewer.saveObject (asset,
                                                true);
 

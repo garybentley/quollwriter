@@ -167,6 +167,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         
         java.util.List<TreePath> openPaths = new ArrayList ();
         
+        TreePath[] selPaths = this.tree.getSelectionPaths ();
+
         Enumeration<TreePath> paths = this.tree.getExpandedDescendants (new TreePath (this.tree.getModel ().getRoot ()));
 
         if (paths != null)
@@ -197,7 +199,20 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                                                     //((DefaultMutableTreeNode) p.getLastPathComponent ()).getUserObject ()));
 
 
-        }                
+        }
+        
+        if (selPaths != null)
+        {
+        
+            for (TreePath p : selPaths)
+            {
+        
+                this.tree.setSelectionPath (UIUtils.getTreePathForUserObjects (root,
+                                                                               p));
+            
+            }
+            
+        }
         
     }
     

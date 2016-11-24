@@ -44,15 +44,6 @@ public class ObjectDetailsEditPanel extends AssetDetailsEditPanel<QObject>
         this.types.setToolTipText ("Add a new Type by entering a value in the field.");
 
     }
-
-    @Override
-    public void showEditPanel ()
-    {
-
-        this.viewer.editAsset (this.object,
-                               null);
-    
-    }
     
     @Override
     public boolean hasChanges ()

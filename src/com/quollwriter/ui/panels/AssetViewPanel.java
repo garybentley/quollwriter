@@ -147,7 +147,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
     public static ActionListener getEditAssetAction (final ProjectViewer pv,
                                                      final Asset         a)
     {
-
+    
         if (!UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME))
         {
             
@@ -168,6 +168,20 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                         {
                             
                             AssetViewPanel p = (AssetViewPanel) pv.getQuollPanelForObject (a);
+                            
+                            if (p == null)
+                            {
+                                
+                                Environment.logError ("Unable to edit asset: " +
+                                                      a);
+                                
+                                UIUtils.showErrorMessage (pv,
+                                                          Environment.replaceObjectNames (String.format ("Unable to edit {%s}",
+                                                                                                         a.getObjectType ())));
+                                
+                                return;
+                                
+                            }
                             
                             p.editObject ();
                             
