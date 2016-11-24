@@ -110,7 +110,9 @@ public class Constants
     public static final String QUOLLWRITER_PROTOCOL = "qw";
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
-
+    
+    public static final String EDIT_ASSETS_IN_POPUP_PROPERTY_NAME = "editAssetsInPopup";
+    
     public static final String UPDATER_CLASS_PROPERTY_NAME = "quollWriterUpdaterClassName";
 
     public static final String SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME = "showEachChapterFindResult";

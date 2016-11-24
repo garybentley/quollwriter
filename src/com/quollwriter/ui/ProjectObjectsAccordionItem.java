@@ -290,7 +290,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                          ev);
                 
             }
-        
+                
             @Override
             public void handlePress (MouseEvent ev)
             {
@@ -325,7 +325,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                     return;
                     
                 }
-                
+                                
                 if ((ev.getClickCount () == _this.getViewObjectClickCount (d)) &&
                     (!ev.isPopupTrigger ()))
                 {

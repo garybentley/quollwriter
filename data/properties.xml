@@ -600,4 +600,9 @@ This message will only be shown once during your current session using Quoll Wri
     <value>false</value>
   </property>
 
+  <property id="editAssetsInPopup" type="boolean">
+    <description>Edit assets in a popup.</description>
+    <value>true</value>
+  </property>
+
 </properties>

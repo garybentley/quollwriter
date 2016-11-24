@@ -13,27 +13,27 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.panels.*;
 
-public abstract class DetailsEditPanel extends EditPanel
+public abstract class DetailsEditPanel<V extends AbstractProjectViewer, O extends NamedObject> extends EditPanel
 {
 
     private AbstractObjectViewPanel viewPanel = null;
     private TextArea                descEdit = null;
     private JTextField              nameEdit = null;
     private JTextPane               desc = null;
-    protected ProjectViewer projectViewer = null;
-    protected NamedObject           object = null;
+    protected V viewer = null;
+    protected O object = null;
     private boolean changeConfirm = false;
 
-    public DetailsEditPanel (NamedObject   n,
-                             ProjectViewer pv)
+    public DetailsEditPanel (O n,
+                             V v)
     {
 
         super (false);
 
-        this.projectViewer = pv;
+        this.viewer = v;
         this.object = n;
 
-        this.descEdit = UIUtils.createTextArea (pv,
+        this.descEdit = UIUtils.createTextArea (v,
                                                 String.format ("Describe the {%s} here.",
                                                                n.getObjectType ()),
                                                 -1,
@@ -45,7 +45,7 @@ public abstract class DetailsEditPanel extends EditPanel
         try
         {
 
-            this.descEdit.setSynonymProvider (pv.getSynonymProvider ());
+            this.descEdit.setSynonymProvider (v.getSynonymProvider ());
 
         } catch (Exception e) {
 
@@ -88,27 +88,12 @@ public abstract class DetailsEditPanel extends EditPanel
 
     }
 
-    @Override
-    public void showEditPanel ()
-    {
-
-        // Put the edit panel into a popup.
-        AbstractActionHandler aah = new AssetActionHandler ((Asset) this.object,
-                                                            this.projectViewer,
-                                                            AbstractActionHandler.EDIT);
-
-        aah.setPopupOver (this.projectViewer);
-
-        aah.actionPerformed (new ActionEvent (this, 1, "shown"));
-
-    }
-
     public void init (AbstractObjectViewPanel avp)
     {
 
         this.desc = UIUtils.createObjectDescriptionViewPane (this.getViewDescription (),
                                                              this.object,
-                                                             this.projectViewer,
+                                                             this.viewer,
                                                              avp);
 
         this.viewPanel = avp;
@@ -186,7 +171,7 @@ public abstract class DetailsEditPanel extends EditPanel
 
         this.desc.setText (UIUtils.getWithHTMLStyleSheet (this.desc,
                                                           UIUtils.markupStringForAssets (this.getViewDescription (),
-                                                                                         this.projectViewer.getProject (),
+                                                                                         this.viewer.getProject (),
                                                                                          this.object)));
 
     }
@@ -213,8 +198,8 @@ public abstract class DetailsEditPanel extends EditPanel
         if (this.object != null)
         {
 
-            Asset a = this.projectViewer.getProject ().getAssetByName (n,
-                                                                       this.object.getObjectType ());
+            Asset a = this.viewer.getProject ().getAssetByName (n,
+                                                                this.object.getObjectType ());
 
             if ((a != null)
                 &&
@@ -253,12 +238,12 @@ public abstract class DetailsEditPanel extends EditPanel
         try
         {
 
-            this.projectViewer.saveObject (this.object,
+            this.viewer.saveObject (this.object,
                                            true);
 
-            this.projectViewer.fireProjectEvent (this.object.getObjectType (),
-                                                 ProjectEvent.EDIT,
-                                                 this.object);
+            this.viewer.fireProjectEvent (this.object.getObjectType (),
+                                          ProjectEvent.EDIT,
+                                          this.object);
 
         } catch (Exception e)
         {
@@ -267,7 +252,7 @@ public abstract class DetailsEditPanel extends EditPanel
                                   this.object,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to save.");
 
             return false;
@@ -278,8 +263,8 @@ public abstract class DetailsEditPanel extends EditPanel
         if (this.object instanceof Asset)
         {
 
-            this.projectViewer.updateProjectDictionaryForNames (oldNames,
-                                                                this.object);
+            this.viewer.updateProjectDictionaryForNames (oldNames,
+                                                         this.object);
 
         }
 
@@ -356,7 +341,7 @@ public abstract class DetailsEditPanel extends EditPanel
            )
         {
 
-            UIUtils.createQuestionPopup (this.projectViewer,
+            UIUtils.createQuestionPopup (this.viewer,
                                          "Discard changes?",
                                          Constants.HELP_ICON_NAME,
                                          "You have made some changes, do you want to discard them?",

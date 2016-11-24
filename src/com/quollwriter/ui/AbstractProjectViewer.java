@@ -3581,10 +3581,60 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         }
 
+        this.scheduleA4PageCountUpdate ();        
+        
 		UIUtils.doLater (onOpen);
-
+                
     }
 
+    private void scheduleA4PageCountUpdate ()
+    {
+        
+        final AbstractProjectViewer _this = this;
+        
+        // Generate the A4 page counts.
+        this.schedule (new Runnable ()
+        {
+            
+            @Override
+            public void run ()
+            {
+                
+                Book b = _this.proj.getBooks ().get (0);
+        
+                java.util.List<Chapter> chapters = b.getChapters ();
+    
+                for (Chapter c : chapters)
+                {
+        
+                    String t = _this.getCurrentChapterText (c);
+
+					ChapterCounts cc = _this.getChapterCounts (c);        
+        
+                    try
+                    {
+    
+                        cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
+                                                                                 t);
+    
+                    } catch (Exception e) {
+    
+                        Environment.logError ("Unable to get a4 page count for chapter: " +
+                                              c,
+                                              e);
+    
+                    }
+        
+                }                
+                
+            }
+            
+        },
+        1,
+        0);        
+        
+    }
+    
     public void setToolbarVisible (boolean v)
     {
 
@@ -3760,20 +3810,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         final AbstractProjectViewer _this = this;
 
-/*
-        UIUtils.doLater (new ActionListener ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                // Get the word counts, don't calc the a4 pages count.
-                _this.startWordCounts = _this.getAllChapterCounts (false);
-xxx
-            }
-
-        });
-*/
         // Check the font used for the project and inform the user if we don't have it.
         // We do it here so it's done once.
         String f = this.proj.getProperty (Constants.EDITOR_FONT_PROPERTY_NAME);
@@ -3821,7 +3857,9 @@ xxx
                                   e);
 
         }
-
+        
+        this.scheduleA4PageCountUpdate ();        
+        
 		UIUtils.doLater (onOpen);
 
 		// Check to see if any chapters have overrun the target.
@@ -3831,7 +3869,7 @@ xxx
 			@Override
 			public void actionPerformed (ActionEvent ev)
 			{
-
+            
 				try
 				{
 
@@ -7582,10 +7620,12 @@ xxx
 		return t;
 
 	}
-
+    
 	public void updateChapterCounts (final Chapter c)
 	{
 
+        final AbstractProjectViewer _this = this;
+    
 		final String t = this.getCurrentChapterText (c);
 
 		final ChapterCounts cc = new ChapterCounts (t);
@@ -7593,8 +7633,17 @@ xxx
 		this.chapterCounts.put (c,
 								cc);
 
+        if (!Environment.isStartupComplete ())
+        {
+        
+            return;
+            
+        }
+
+        // Don't try and calculate the a4 page count before the window is ready otherwise
+        // strange errors result.  The initChapterCounts and scheduleA4PageCountUpdate will handle the initial counts.
         this.unschedule (this.chapterCountsUpdater);
-                                
+                          
         this.chapterCountsUpdater = new Runnable ()
         {
 
@@ -7609,64 +7658,23 @@ xxx
                                                                              t);
 
                 } catch (Exception e) {
-                    
-                    /*
+
                     Environment.logError ("Unable to get a4 page count for chapter: " +
                                           c,
                                           e);
-                      */                                                       
+
                 }
                 
             }
             
         };                                
-                       
-        this.schedule (this.chapterCountsUpdater,
-                       // Start in 2 seconds
-                       2 * Constants.SEC_IN_MILLIS,
-                       // Do it once.
-                       0);
-/*                                
-        this.schedule (new Runnable ()
-        {
+                                   
+        _this.schedule (_this.chapterCountsUpdater,
+                        // Start in 2 seconds
+                        2 * Constants.SEC_IN_MILLIS,
+                        // Do it once.
+                        0);                    
 
-            @Override
-            public void run ()
-            {
-
-                UIUtils.doLater (new ActionListener ()
-                {
-                    
-                    @Override
-                    public void actionPerformed (ActionEvent ev)
-                    {
-                        
-                        try
-                        {
-
-                            cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
-                                                                                     t);
-
-                        } catch (Exception e) {
-                            
-                            Environment.logError ("Unable to get a4 page count for chapter: " +
-                                                  c,
-                                                  e);
-                                                                                     
-                        }
-
-                    }
-                                                                                 
-                });
-                
-            }
-
-        },
-        // Start in 2 seconds
-        2 * Constants.SEC_IN_MILLIS,
-        // Do it once.
-        0);
-*/
 	}
 
 	public int getChapterA4PageCount (Chapter c)

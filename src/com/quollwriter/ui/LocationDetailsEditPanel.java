@@ -13,18 +13,18 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.*;
 
 
-public class LocationDetailsEditPanel extends DetailsEditPanel
+public class LocationDetailsEditPanel extends AssetDetailsEditPanel<Location>
 {
 
-    public LocationDetailsEditPanel (Asset         a,
+    public LocationDetailsEditPanel (Location      l,
                                      ProjectViewer pv)
     {
 
-        super (a,
+        super (l,
                pv);
 
     }
-
+    
     public Set<String> getObjectChangeEventTypes ()
     {
 
@@ -54,13 +54,6 @@ public class LocationDetailsEditPanel extends DetailsEditPanel
 
     public void fillForEdit ()
     {
-
-    }
-
-    public boolean canSave ()
-    {
-
-        return true;
 
     }
 

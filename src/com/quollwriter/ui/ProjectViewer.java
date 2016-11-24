@@ -2225,6 +2225,24 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
+    public void editAsset (final Asset          a,
+                           final ActionListener doAfterEdit)
+    {
+        
+        ActionListener ah = AssetViewPanel.getEditAssetAction (this,
+                                                              a);
+        
+        ah.actionPerformed (new ActionEvent (this, 0, "edit"));
+        
+        if (doAfterEdit != null)
+        {
+            
+            UIUtils.doLater (doAfterEdit);
+            
+        }
+                
+    }
+    
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the asset is viewed.

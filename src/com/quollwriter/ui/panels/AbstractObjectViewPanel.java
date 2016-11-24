@@ -65,6 +65,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
     private ActionListener         deleteObjectAction = null;
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
     private ObjectDocumentsEditPanel objDocsEditPanel = null;
+    private int bottomPanelHeight = 0;
 
     public AbstractObjectViewPanel (E           pv,
                                     NamedObject n)
@@ -162,7 +163,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         this.mainSplitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                              false);
         this.mainSplitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.mainSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 2);
+        this.mainSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 3);
         this.mainSplitPane.setBorder (null);
         this.mainSplitPane.setOpaque (false);
         this.mainSplitPane.setContinuousLayout (true);
@@ -171,26 +172,24 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         this.leftSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
                                              false);
-        this.leftSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 2);
+        this.leftSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 3);
         this.leftSplitPane.setBorder (null);
         this.leftSplitPane.setOpaque (false);
         this.leftSplitPane.setContinuousLayout (true);
-        this.leftSplitPane.setResizeWeight (1);
-
+        this.leftSplitPane.setResizeWeight (1d);
+        
         this.rightSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
                                               false);
         this.rightSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
         this.rightSplitPane.setBorder (null);
         this.rightSplitPane.setOpaque (false);
         this.rightSplitPane.setContinuousLayout (true);
-        this.rightSplitPane.setResizeWeight (1);
-
-        //this.mainSplitPane.
+        this.rightSplitPane.setResizeWeight (0.5d);
 
         this.mainSplitPane.setLeftComponent (this.leftSplitPane);
         this.mainSplitPane.setRightComponent (this.rightSplitPane);
 
-        EditPanel botEp = this.getBottomEditPanel ();
+        final EditPanel botEp = this.getBottomEditPanel ();
 
         if (botEp != null)
         {
@@ -206,6 +205,35 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         this.detailsPanel.init (this);
 
+        this.detailsPanel.addActionListener (new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (ev.getActionCommand ().equals ("edit-visible"))
+                {
+                    
+                    botEp.setVisible (false);
+                    _this.bottomPanelHeight = botEp.getSize ().height;
+                    
+                }
+                
+                if (ev.getActionCommand ().equals ("view-visible"))
+                {
+                  
+                    botEp.setPreferredSize (new Dimension (botEp.getPreferredSize ().width,
+                                                           _this.bottomPanelHeight));
+                    botEp.setVisible (true);
+                    _this.leftSplitPane.resetToPreferredSizes ();
+                    
+                }
+
+            }
+            
+        });
+        
         this.leftSplitPane.setTopComponent (this.detailsPanel);
         this.leftSplitPane.setBottomComponent (botEp);
 
@@ -263,7 +291,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         this.repaint ();
 
         this.doInit ();
-
+        
         ActionMap actions = this.getActionMap ();
 
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -285,8 +313,8 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        _this.detailsPanel.showEditPanel ();
-
+                        _this.editObject ();
+                        
                     }
 
                 });
@@ -316,9 +344,32 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
                     }
 
                 });
+        
+        this.setReadyForUse (true);        
+        
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                _this.leftSplitPane.setDividerLocation (0.8d);
+                _this.rightSplitPane.setDividerLocation (0.5d);
+                
+            }
+            
+        });
 
     }
 
+    public void editObject ()
+    {
+        
+        this.detailsPanel.showEditPanel ();
+        
+    }
+    
     public abstract EditPanel getBottomEditPanel ();
 
     public abstract String getIconType ();
@@ -669,8 +720,6 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         }
 
         this.panesInited = true;
-
-        this.setReadyForUse (true);
 
     }
 

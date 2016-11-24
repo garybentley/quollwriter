@@ -3016,7 +3016,76 @@ public class Options extends Box
         this.setAsSubItem (c);
 
         box.add (c);
+        
+        box.add (Box.createVerticalStrut (10));
 
+        c = this.createHelpText ("Edit Assets ({Characters}, {Locations}, etc) in");
+        this.setAsMainItem (c);
+
+        box.add (c);
+        
+        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("A Popup");
+        final JRadioButton rbAssetInTab = UIUtils.createRadioButton ("Their own tab");
+
+        boolean editAssetInPopup = UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME);
+
+        rbAssetInPopup.setSelected (editAssetInPopup);
+        rbAssetInTab.setSelected (!editAssetInPopup);
+
+        g = new ButtonGroup ();
+        g.add (rbAssetInPopup);
+        g.add (rbAssetInTab);
+        
+        rbAssetInPopup.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
+                                    true);
+
+            }
+
+        });        
+        
+        rbAssetInTab.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
+                                    false);
+
+            }
+
+        });        
+
+        c = this.createWrapper (rbAssetInPopup);
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        c = this.createWrapper (rbAssetInTab);
+        this.setAsSubItem (c);
+
+        box.add (c);        
+/*
+        eachChap.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
+                                    true);
+
+            }
+
+        });
+  */      
+        
         return new SectionInfo ("How things look and sound",
                                 "eye",
                                 "Want a sound to play whenever a key is pressed?  Want to move the tabs or sidebar around?  Want to show useful tips when Quoll Writer starts?  This is the section for you.",

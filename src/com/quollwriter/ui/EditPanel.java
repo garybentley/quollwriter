@@ -39,6 +39,7 @@ public abstract class EditPanel extends Box
     protected JComponent                   viewPanel = null;
     protected JComponent                   cancel = null;
     protected JComponent                   edit = null;
+    protected JComponent                   save = null;
     private JComponent                     help = null;
     private JComponent                     helpBox = null;
     protected Header                         header = null;
@@ -333,13 +334,21 @@ public abstract class EditPanel extends Box
 
             java.util.List<JComponent> buttons = new ArrayList ();
 
-            this.edit = UIUtils.createButton (ip.getIcon ("edit",
-                                                           Constants.ICON_PANEL_SECTION_ACTION),
-                                               "Click to edit this section",
-                                               null);
+            this.edit = UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
+                                                          Constants.ICON_PANEL_SECTION_ACTION),
+                                              "Click to edit this section",
+                                              null);
 
             buttons.add (this.edit);
 
+            this.save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
+                                                          Constants.ICON_PANEL_SECTION_ACTION),
+                                              "Click to edit this section",
+                                              null);
+
+            buttons.add (this.save);
+            this.save.setVisible (false);
+            
             this.cancel = UIUtils.createButton (ip.getIcon ("cancel",
                                                             Constants.ICON_PANEL_SECTION_ACTION),
                                                "Click to cancel editing",
@@ -386,22 +395,21 @@ public abstract class EditPanel extends Box
                 public void handlePress (MouseEvent ev)
                 {
 
-                    _this.editError.setVisible (false);
+                    _this.doEdit ();
+                                
+                }
 
-                    if (_this.editPanel.isVisible ())
-                    {
+            });
 
-                        _this.doSave ();
+            this.save.addMouseListener (new MouseEventHandler ()
+            {
 
-                        _this.fireActionEvent (EditPanel.SAVED,
-                                               "saved");
+                @Override
+                public void handlePress (MouseEvent ev)
+                {
 
-                        return;
-
-                    }
-
-                    _this.showEditPanel ();
-
+                    _this.doSave ();
+                                
                 }
 
             });
@@ -473,7 +481,14 @@ public abstract class EditPanel extends Box
         this.inited = true;
 
     }
-
+    
+    public void doEdit ()
+    {
+                    
+        this.showEditPanel ();        
+        
+    }
+    
     public void doCancel ()
     {
 
@@ -509,6 +524,8 @@ public abstract class EditPanel extends Box
         this.editPanel.setVisible (false);
         this.edit.setToolTipText ("Click to edit this section");
 
+        this.edit.setVisible (true);
+        this.save.setVisible (false);
         this.cancel.setVisible (false);
         this.help.setVisible (false);
         this.helpBox.setVisible (false);
@@ -538,7 +555,16 @@ public abstract class EditPanel extends Box
 
     public void showEditPanel ()
     {
-
+        
+        if (this.editPanel.isVisible ())
+        {
+            
+            return;
+            
+        }
+        
+        this.editError.setVisible (false);        
+        
         this.editPanel.setVisible (true);
 
         this.fireActionEvent (EditPanel.EDIT_VISIBLE,
@@ -555,6 +581,8 @@ public abstract class EditPanel extends Box
 
         this.edit.setToolTipText ("Click to save the changes");
 
+        this.edit.setVisible (false);
+        this.save.setVisible (true);
         this.cancel.setVisible (true);
         this.help.setVisible (true);
 
@@ -652,6 +680,8 @@ public abstract class EditPanel extends Box
         }
 
         this.edit.setToolTipText ("Click to edit this section");
+        this.edit.setVisible (true);
+        this.save.setVisible (false);
         this.cancel.setVisible (false);
         this.help.setVisible (false);
         this.helpBox.setVisible (false);
@@ -674,7 +704,7 @@ public abstract class EditPanel extends Box
     public abstract java.util.List<FormItem> getEditItems ();
 
     public abstract java.util.List<FormItem> getViewItems ();
-
+    
     public abstract boolean handleSave ();
 
     public abstract boolean handleCancel ();

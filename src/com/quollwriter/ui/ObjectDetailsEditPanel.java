@@ -23,18 +23,18 @@ import com.quollwriter.events.*;
 
 import com.quollwriter.ui.components.*;
 
-public class ObjectDetailsEditPanel extends DetailsEditPanel
+public class ObjectDetailsEditPanel extends AssetDetailsEditPanel<QObject>
 {
 
     public static final String DEFAULT_TYPE = "Enter a new Type";
 
     private JComboBox types = null;
 
-    public ObjectDetailsEditPanel (Asset         a,
+    public ObjectDetailsEditPanel (QObject       o,
                                    ProjectViewer pv)
     {
 
-        super (a,
+        super (o,
                pv);
 
         this.types = new JComboBox ();
@@ -46,10 +46,19 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
     }
 
     @Override
+    public void showEditPanel ()
+    {
+
+        this.viewer.editAsset (this.object,
+                               null);
+    
+    }
+    
+    @Override
     public boolean hasChanges ()
     {
 
-        QObject o = (QObject) this.object;
+        QObject o =this.object;
 
         String t = o.getType ();
 
@@ -85,7 +94,7 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
     public void fillForSave ()
     {
 
-        QObject o = (QObject) this.object;
+        QObject o = this.object;
 
         String t = null;
 
@@ -256,7 +265,7 @@ public class ObjectDetailsEditPanel extends DetailsEditPanel
 
         String s = super.getViewDescription ();
 
-        QObject o = (QObject) this.object;
+        QObject o = this.object;
 
         String type = o.getType ();
 

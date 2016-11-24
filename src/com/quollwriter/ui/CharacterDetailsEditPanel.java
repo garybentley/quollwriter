@@ -12,18 +12,18 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.panels.*;
 
-
-public class CharacterDetailsEditPanel extends DetailsEditPanel
+public class CharacterDetailsEditPanel extends AssetDetailsEditPanel<QCharacter>
 {
 
     private TextArea aliasesEdit = null;
 
-    public CharacterDetailsEditPanel (Asset         a,
+    public CharacterDetailsEditPanel (QCharacter    c,
                                       ProjectViewer pv)
     {
 
-        super (a,
+        super (c,
                pv);
 
         this.aliasesEdit = new TextArea (this.getEditHelpText (),
@@ -33,12 +33,12 @@ public class CharacterDetailsEditPanel extends DetailsEditPanel
         this.aliasesEdit.setAutoGrabFocus (false);
 
     }
-
+        
     @Override
     public boolean hasChanges ()
     {
 
-        QCharacter character = (QCharacter) this.object;
+        QCharacter character = this.object;
 
         String as = character.getAliases ();
 

@@ -1,5 +1,13 @@
 <whatsnew>
 
+  <version id="2.5.9" class="com.quollwriter.ui.whatsnewcomps.version_2_5_9">
+    <item id="editingassets">
+      <title>Editing Assets</title>
+      <description><![CDATA[You now have a choice for how assets ({characters}, {locations} etc) are edited.  If you like more space when editing then select <b>Edit in their own tab</b> below to edit the asset in its own tab.  Alternatively, if you prefer to edit assets in a popup then select <b>Edit in a Popup</b>.  These options are also in the Options panel, under <b>How things look &amp; sound</b>.<br /><br />Additionally, some changes have been made to tab editing to provide more vertical space and a couple of tweaks to buttons to make things more consistent.]]></description>
+    </item>
+
+    </version>
+
     <version id="2.5.8">
       <item onlyIfCurrentVersion="true">
         <title>Bug fix</title>

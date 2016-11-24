@@ -17,22 +17,22 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.components.*;
 
 
-public class ResearchItemDetailsEditPanel extends DetailsEditPanel
+public class ResearchItemDetailsEditPanel extends AssetDetailsEditPanel<ResearchItem>
 {
 
     private JTextField urlEdit = null;
 
-    public ResearchItemDetailsEditPanel (Asset         a,
+    public ResearchItemDetailsEditPanel (ResearchItem  r,
                                          ProjectViewer pv)
     {
 
-        super (a,
+        super (r,
                pv);
 
         this.urlEdit = UIUtils.createTextField ();
 
     }
-
+    
     public Set<String> getObjectChangeEventTypes ()
     {
 
@@ -48,7 +48,7 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
 
         String d = super.getViewDescription ();
 
-        ResearchItem r = (ResearchItem) this.object;
+        ResearchItem r = this.object;
 
         String url = r.getUrl ();
 
@@ -91,7 +91,7 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
     public void fillForSave ()
     {
 
-        ResearchItem r = (ResearchItem) this.object;
+        ResearchItem r = this.object;
 
         r.setUrl (this.urlEdit.getText ().trim ());
 
@@ -100,7 +100,7 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
     public void fillForEdit ()
     {
 
-        ResearchItem r = (ResearchItem) this.object;
+        ResearchItem r = this.object;
 
         this.urlEdit.setText (r.getUrl ());
 
@@ -110,7 +110,7 @@ public class ResearchItemDetailsEditPanel extends DetailsEditPanel
     public boolean hasChanges ()
     {
 
-        ResearchItem r = (ResearchItem) this.object;
+        ResearchItem r = this.object;
 
         String u = r.getUrl ();
 

@@ -84,7 +84,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
             Class c = AssetViewPanel.detailsEditPanels.get (a.getClass ());
 
-            Constructor con = c.getConstructor (Asset.class,
+            Constructor con = c.getConstructor (a.getClass (),
                                                 ProjectViewer.class);
 
             adep = (DetailsEditPanel) con.newInstance (a,
@@ -148,13 +148,48 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                                                      final Asset         a)
     {
 
-        // Put the edit panel into a popup.
-        AbstractActionHandler aah = new AssetActionHandler (a,
-                                                            pv,
-                                                            AbstractActionHandler.EDIT);
+        if (!UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME))
+        {
+            
+            return new ActionListener ()
+            {
+                
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    // Display the object then edit it.
+                    pv.viewObject (a,
+                                   new ActionListener ()
+                    {
+              
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                            
+                            AssetViewPanel p = (AssetViewPanel) pv.getQuollPanelForObject (a);
+                            
+                            p.editObject ();
+                            
+                        }
+                        
+                    });
+                    
+                }
+                
+            };
+            
+        } else {
+    
+            // Put the edit panel into a popup.
+            AbstractActionHandler aah = new AssetActionHandler (a,
+                                                                pv,
+                                                                AbstractActionHandler.EDIT);
+    
+            return aah;
 
-        return aah;
-
+        }
+            
     }
 
     public static ActionListener getRenameAssetAction (final ProjectViewer pv,

@@ -120,7 +120,7 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
 
             }
 
-            JEditorPane desc = UIUtils.createHelpTextPane (t,
+            JEditorPane desc = UIUtils.createHelpTextPane (firstLine,
                                                            null);
 
             FormLayout fl = new FormLayout ("380px",
