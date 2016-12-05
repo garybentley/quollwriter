@@ -2,8 +2,10 @@ package com.quollwriter.ui;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Insets;
 import java.awt.event.*;
 import java.awt.dnd.*;
+import java.awt.datatransfer.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -42,7 +44,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         this.viewer = pv;
 
         this.tree = this.createTree ();
-    
+        
     }
 
     public E getViewer ()
@@ -56,6 +58,14 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     {
         
         return this.tree.isVisible ();
+        
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return this.getForObjectType ();
         
     }
     
@@ -364,16 +374,467 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         if (this.isDragEnabled ())
         {
 
-            this.tree.setDragEnabled (this.isDragEnabled ());        
+            this.tree.setDragEnabled (this.isDragEnabled ());
+            /*
             this.tree.setDropTarget (new DropTarget (this.tree,
                                                      DataObjectTransferHandler.getDropHandler ()));
-
+*/
             this.tree.setDropMode (DropMode.ON);
+                        
+            this.tree.setTransferHandler (new TransferHandler ()
+            {
+                
+                final DataFlavor flavor = new DataFlavor (DataObject.class, "data object");
+                
+                @Override
+                public int getSourceActions (JComponent c)
+                {
+                                      
+                    JTree tree = (JTree) c;
+                    
+                    Point p = tree.getMousePosition ();
+                    
+                    TreePath tp = tree.getPathForLocation (p.x, p.y);
+                                        
+                    final NamedObject o = (NamedObject) UIUtils.getUserObjectForTreePath (tp);
+
+                    JLabel l = new JLabel (o.getName ());
+                    
+                    this.setDragImage (UIUtils.getImageOfComponent (l,
+                                                                    l.getPreferredSize ().width,
+                                                                    l.getPreferredSize ().height));
+            
+                    return MOVE;
+                
+                }
+                                
+                @Override
+                public Transferable createTransferable (JComponent c)
+                {
+                    
+                    if (c instanceof JTree)
+                    {
+
+                        JTree tree = (JTree) c;
+                        
+                        TreePath tp = tree.getSelectionPath ();
+                        
+                        final Object o = UIUtils.getUserObjectForTreePath (tp);
+                        
+                        Transferable t = new Transferable ()
+                        {
+                            
+                            @Override
+                            public Object getTransferData (DataFlavor f)
+                            {
+                                
+                                if (f == flavor)
+                                {
+                                    
+                                    return o;
+                                    
+                                }
+                              
+                                return null;
+                                
+                            }
+                            
+                            @Override
+                            public DataFlavor[] getTransferDataFlavors ()
+                            {
+                                
+                                return new DataFlavor[] { flavor };
+                                
+                            }
+                            
+                            @Override
+                            public boolean isDataFlavorSupported (DataFlavor flavor)
+                            {
+                                
+                                return flavor == flavor;
+                                
+                            }
+                            
+                        };
+                        
+                        return t;
+                        
+                    }
+                    
+                    return null;
+                    
+                }
+                                
+                @Override
+                public boolean canImport (TransferSupport supp)
+                {
+                                        
+                    DataFlavor[] f = supp.getDataFlavors ();
+                                
+                    if (f[0] == flavor)
+                    {
+                        
+                        supp.setShowDropLocation (true);
+                        
+                        return true;
+                                        
+                    }
+                    
+                    JComponent comp = (JComponent) supp.getComponent ();
+                    
+                    while ((comp = (JComponent) comp.getParent ()) != null)
+                    {
+                        
+                        TransferHandler th = comp.getTransferHandler ();
+                        
+                        if (th != null)
+                        {
+                            
+                            return th.canImport (supp);
+                                
+                        }
+                    
+                    }
+                    
+                    return false;
+                                        
+                }
+                
+                @Override
+                public boolean importData (TransferSupport supp)
+                {
+                    
+                    if (supp.getDataFlavors ()[0] != flavor)
+                    {
+                        
+                        JComponent comp = (JComponent) supp.getComponent ();
+                        
+                        while ((comp = (JComponent) comp.getParent ()) != null)
+                        {
+                            
+                            TransferHandler th = comp.getTransferHandler ();
+                            
+                            if (th != null)
+                            {
+
+                                return th.importData (supp);
+                                    
+                            }
+                        
+                        }                        
+                        
+                        return false;
+                        
+                    }
+                    
+                    Transferable t = supp.getTransferable ();
+                    
+                    NamedObject obj = null;
+                    
+                    try
+                    {
+                    
+                        obj = (NamedObject) t.getTransferData (flavor);
+                        
+                    } catch (Exception e) {
+                        
+                        UIUtils.showErrorMessage (_this.viewer,
+                                                  "Unable to move item.");
+
+                        return false;
+                        
+                    }
+                    
+                    JTree tree = (JTree) supp.getComponent ();
+
+                    JTree.DropLocation dl = tree.getDropLocation ();
+                    
+                    if (dl.getPath () == null)
+                    {
+                        
+                        return false;
+                        
+                    }
+                    
+                    int insertRow = -1;
+
+                    Point dp = dl.getDropPoint ();
+                    
+                    if (dp != null)
+                    {
+
+                        insertRow = tree.getRowForLocation (dp.x,
+                                                            dp.y);
+
+                    } 
+
+                    DefaultTreeModel model = ((DefaultTreeModel) tree.getModel ());
+
+                    TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
+                                                                    obj);
+
+                    int removeRow = -1;
+                                      
+                    removeRow = tree.getRowForPath (tp);
+                                                                    
+                    DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
+                    DefaultMutableTreeNode p = (DefaultMutableTreeNode) n.getParent ();
+
+                    model.removeNodeFromParent (n);
+
+                    model.insertNodeInto (n,
+                                          p,
+                                          insertRow);
+
+                    tree.getSelectionModel ().clearSelection ();
+
+                    tree.setSelectionRow (insertRow);
+                    
+                    tree.requestFocus ();
+                                        
+                    DragActionHandler handler = _this.getTreeDragActionHandler (_this.viewer);
+
+                    if (handler != null)
+                    {
+                    
+                        try
+                        {
+                            
+                            if (!handler.handleMove (removeRow,
+                                                     insertRow,
+                                                     obj))
+                            {
+                            
+                                System.out.println ("CANT");
+                                
+                                return false;
+                                
+                            }
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to move: " +
+                                                  obj +
+                                                  " from row: " +
+                                                  removeRow +
+                                                  " to row: " +
+                                                  insertRow,
+                                                  e);
+
+                            UIUtils.showErrorMessage (_this.viewer,
+                                                      "Unable to move.");
+
+                            return false;
+                            
+                        }
+                        
+                    }
+                    
+                    return true;
+                    
+                }
+                   
+                @Override
+                public void exportDone (JComponent   c,
+                                        Transferable t,
+                                        int          action)
+                {
+                    System.out.println ("EXPORT");
+                    /*
+                    Transferable t = supp.getTransferable ();
+                    
+                    Object obj = null;
+                    
+                    try
+                    {
+                    
+                        obj = t.getTransferData (flavor);
+                        
+                    } catch (Exception e) {
+                        
+                        UIUtils.showErrorMessage (_this.viewer,
+                                                  "Unable to move item.");
+
+                        return false;
+                        
+                    }                    
+                    
+                    TreePath removeTreePath = (TreePath) data.getTransferData (DataFlavor.stringFlavor);
+
+                    JTree tree = (JTree) source;
+
+                    DefaultTreeModel model = ((DefaultTreeModel) tree.getModel ());
+
+                    if (source != getDropComponent ())
+                    {
+
+                        model.removeNodeFromParent ((DefaultMutableTreeNode) removeTreePath.getLastPathComponent ());
+
+                    } else
+                    {
+
+                        int insertRow = tree.getRowForLocation (getDropPoint ().x,
+                                                                getDropPoint ().y);
+
+                        int removeRow = tree.getRowForPath (removeTreePath);
+
+                        TreePath insertTreePath = tree.getPathForRow (insertRow);
+
+                        DefaultMutableTreeNode removeNode = (DefaultMutableTreeNode) removeTreePath.getLastPathComponent ();
+
+                        DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) insertTreePath.getLastPathComponent ();
+
+                        NamedObject removeObject = (NamedObject) removeNode.getUserObject ();
+
+                        NamedObject insertObject = (NamedObject) insertNode.getUserObject ();
+
+                        try
+                        {
+
+                            if (!this.dragActionHandler.performAction (removeRow,
+                                                                       removeObject,
+                                                                       insertRow,
+                                                                       insertObject))
+                            {
+
+                                return;
+
+                            }
+
+                        } catch (Exception e)
+                        {
+
+                            Environment.logError ("Unable to move: " +
+                                                  removeObject +
+                                                  " from row: " +
+                                                  removeRow +
+                                                  " to row: " +
+                                                  insertRow,
+                                                  e);
+
+                            UIUtils.showErrorMessage (this.projectViewer,
+                                                      "Unable to move.");
+
+                            return;
+
+                        }
+
+                    }
+                    */
+                }
+                                
+            });
+            
+            DropTargetListener dropTargetListener = new DropTargetAdapter ()
+            {
+                     
+                @Override
+                public void drop (DropTargetDropEvent ev)
+                {
+    
+                }                 
+                                
+                @Override
+                public void dragOver (DropTargetDragEvent ev)
+                {
+                    
+                    JComponent comp = (JComponent) ev.getDropTargetContext ().getComponent ();
+                    
+                    // Get the parents of the tree until we get to a scrollpane.
+                    while ((comp = (JComponent) comp.getParent ()) != null)
+                    {
+                        
+                        if (comp instanceof JScrollPane)
+                        {
+                            
+                            break;
+                            
+                        }
+                        
+                    }
+                    
+                    if (comp == null)
+                    {
+                        
+                        return;
+                        
+                    }
+                    
+                    JScrollPane sp = (JScrollPane) comp;
+                    
+                    java.awt.Point mp = sp.getMousePosition ();
+                    
+                    if (mp == null)
+                    {
+                        
+                        return;
+                        
+                    }
+                    
+                    int a = sp.getVerticalScrollBar ().getUnitIncrement ();
+                    
+                    java.awt.Point vp = sp.getViewport ().getViewPosition ();
+    
+                    if (mp.y <= 5 * a)
+                    {
+                                                
+                        int newy = vp.y - (a / 2);
+                        
+                        if (newy < 0)
+                        {
+                            
+                            newy = 0;
+                            
+                        }
+                        
+                        sp.getViewport ().setViewPosition (new java.awt.Point (vp.x, newy));
+                        
+                        return;
+                        
+                    }
+    
+                    int h = sp.getViewport ().getExtentSize ().height;
+    
+                    if (mp.y >= (h - (5 * a)))
+                    {
+                                                
+                        int newy = vp.y + (a / 2);
+                        
+                        if (newy > (vp.y + h))
+                        {
+                            
+                            newy = (vp.y + h);
+                            
+                        }
+                        
+                        sp.getViewport ().setViewPosition (new java.awt.Point (vp.x, newy));
+                        
+                        return;                        
+                                        
+                    }
+                    
+                }
+                            
+            };        
+            
+            try
+            {
+            
+                this.tree.getDropTarget ().addDropTargetListener (dropTargetListener);
+    
+            } catch (Exception e) {
+                
+                e.printStackTrace ();
+                
+            }        
+            
+/*
             this.tree.setTransferHandler (new DataObjectTransferHandler (this.viewer,
                                                                          this.getTreeDragActionHandler (this.viewer)));
-
+*/
         }
-
+        
         this.tree.setBorder (new EmptyBorder (0, 7, 0, 0));
         
         return this.tree;

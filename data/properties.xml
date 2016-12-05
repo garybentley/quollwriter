@@ -605,4 +605,14 @@ This message will only be shown once during your current session using Quoll Wri
     <value>true</value>
   </property>
 
+  <property id="projectSidebarSections" type="string">
+    <description>The sections that the project sidebar should display.</description>
+    <value>chapter|character|location|object|researchitem|note|projecteditor</value>
+  </property>
+
+  <property id="defaultProjectSidebarSections" type="string">
+    <description>The default sections that the project sidebar should display.</description>
+    <value>chapter|character|location|object|researchitem|note|projecteditor</value>
+  </property>
+
 </properties>

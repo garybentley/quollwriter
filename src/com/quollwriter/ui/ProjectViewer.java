@@ -169,18 +169,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
 					 });
 
-
-        Set<String> objTypes = new LinkedHashSet ();
-        objTypes.add (Chapter.OBJECT_TYPE);
-        objTypes.add (QCharacter.OBJECT_TYPE);
-        objTypes.add (Location.OBJECT_TYPE);
-        objTypes.add (QObject.OBJECT_TYPE);
-        objTypes.add (ResearchItem.OBJECT_TYPE);
-        objTypes.add (Note.OBJECT_TYPE);
-        objTypes.add (ProjectEditor.OBJECT_TYPE);
-
-        this.sideBar = new ProjectSideBar (this,
-                                           objTypes);
+        this.sideBar = new ProjectSideBar (this);
 
 		this.importOverlay = new ImportTransferHandlerOverlay ();
 

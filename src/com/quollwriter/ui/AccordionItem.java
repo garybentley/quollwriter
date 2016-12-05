@@ -3,6 +3,7 @@ package com.quollwriter.ui;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.Cursor;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.*;
 
@@ -58,9 +59,9 @@ public class AccordionItem extends Box
         // end new
         h.setAlignmentX (Component.LEFT_ALIGNMENT);        
         h.setAlignmentY (Component.TOP_ALIGNMENT);        
-
+        
         this.header = h;
-                
+                                
     }
 
     public AccordionItem (Header     h,
@@ -85,6 +86,13 @@ public class AccordionItem extends Box
     
         this.content = content;
     
+    }
+        
+    public String getId ()
+    {
+        
+        return null;
+        
     }
     
     public boolean isContentVisible ()

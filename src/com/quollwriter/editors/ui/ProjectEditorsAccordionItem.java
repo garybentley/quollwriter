@@ -1,6 +1,7 @@
 package com.quollwriter.editors.ui;
 
 import java.awt.Component;
+import java.awt.Insets;
 import java.awt.event.*;
 import java.util.Set;
 import java.util.LinkedHashSet;
@@ -74,6 +75,9 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
         EditorsEnvironment.addProjectEditorChangedListener (this);        
         EditorsEnvironment.addEditorMessageListener (this);        
             
+        //this.getHeader ().setPadding (new Insets (0, 0, 2, 0));
+        //this.getHeader ().getLabel ().setBorder (UIUtils.createPadding (0, 5, 0, 0));            
+            
     }
       
     @Override
@@ -101,6 +105,14 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
         this.setContentVisible (true);
       
     }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return ProjectEditor.OBJECT_TYPE;
+        
+    }    
     
     @Override
     public void projectEditorChanged (ProjectEditorChangedEvent ev)

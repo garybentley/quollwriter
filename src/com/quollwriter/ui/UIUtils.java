@@ -143,6 +143,17 @@ public class UIUtils
 
     }
 
+    public static Object getUserObjectForTreePath (TreePath p)
+    {
+        
+        Object[] objs = p.getPath ();
+
+        DefaultMutableTreeNode n = (DefaultMutableTreeNode) objs[objs.length -1];
+        
+        return n.getUserObject ();
+        
+    }
+    
     public static TreePath getTreePathForUserObjects (DefaultMutableTreeNode node,
                                                       TreePath               p)
     {
@@ -7049,10 +7060,15 @@ public class UIUtils
 
         BufferedImage image = new BufferedImage (width,
                                                  height,
-                                                 BufferedImage.TYPE_INT_ARGB);
+                                                 BufferedImage.TYPE_INT_ARGB_PRE);
 
-        Graphics g = image.getGraphics ();
+        Graphics2D g = (Graphics2D) image.getGraphics ();
 
+        RenderingHints rh = new RenderingHints(
+             RenderingHints.KEY_TEXT_ANTIALIASING,
+             RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHints(rh);        
+        
         if (c.isOpaque ())
         {
 

@@ -450,7 +450,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
         
     }
 
-    public class ChapterTreeDragActionHandler implements DragActionHandler
+    public class ChapterTreeDragActionHandler implements DragActionHandler<Chapter>
     {
     
         private AbstractProjectViewer projectViewer = null;
@@ -480,35 +480,23 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     
             }
     
-            // Get the path for the insert row.
-            TreePath insertTp = this.tree.getPathForRow (insertRow);
-            
-            if (insertTp == null)
-            {
-                
-                return false;
-                
-            }
+            Chapter ic = (Chapter) insertObject;
     
-            Chapter c = (Chapter) removeObject;
-    
-            Book b = c.getBook ();
-    
-            Chapter insertC = (Chapter) ((DefaultMutableTreeNode) insertTp.getPathComponent (1)).getUserObject ();
-    
-            b.moveChapter (c,
-                           b.getChapterIndex (insertC) - 1);
+            Book bb = ic.getBook ();
+        
+            bb.moveChapter (ic,
+                           insertRow);
     
             try
             {
     
-                this.projectViewer.updateChapterIndexes (c.getBook ());
+                this.projectViewer.updateChapterIndexes (bb);
     
             } catch (Exception e)
             {
     
                 throw new GeneralException ("Unable to update chapter indexes for book: " +
-                                            c.getBook (),
+                                            bb,
                                             e);
     
             }
@@ -517,11 +505,45 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                  ProjectEvent.MOVE);
     
             this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
-    
+                
             return true;
     
         }
     
+        public boolean handleMove (int     fromRow,
+                                   int     toRow,
+                                   Chapter chapter)
+                            throws GeneralException
+        {
+            
+            Book b = chapter.getBook ();
+        
+            b.moveChapter (chapter,
+                           toRow);
+    
+            try
+            {
+    
+                this.projectViewer.updateChapterIndexes (b);
+    
+            } catch (Exception e)
+            {
+    
+                throw new GeneralException ("Unable to update chapter indexes for book: " +
+                                            b,
+                                            e);
+    
+            }
+    
+            this.projectViewer.fireProjectEvent (Chapter.OBJECT_TYPE,
+                                                 ProjectEvent.MOVE);
+    
+            this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+                
+            return true;
+    
+        }
+
     }
     
 }

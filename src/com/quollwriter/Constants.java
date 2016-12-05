@@ -435,7 +435,9 @@ public class Constants
     public static final String AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME = "autoSendErrorsToSupport";
 
     public static final String BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME = "backupsToKeepCount";
-
+    public static final String PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME = "projectSidebarSections";
+    public static final String DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME = "defaultProjectSidebarSections";
+    
     public static final String TARGET_SESSION_WRITING_PROPERTY_NAME = "targetSessionWriting";
     public static final String TARGET_DAILY_WRITING_PROPERTY_NAME = "targetDailyWriting";
     public static final String TARGET_WEEKLY_WRITING_PROPERTY_NAME = "targetWeeklyWriting";
