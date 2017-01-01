@@ -1,0 +1,8 @@
+<update-script from="3" to="4">
+  <item>
+    <log>Add the userobjecttypedbkey to namedobject.</log>
+    <sql>
+ALTER TABLE namedobject ADD userobjecttypedbkey BIGINT              
+    </sql>
+  </item>  
+</update-script>

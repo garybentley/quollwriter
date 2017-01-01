@@ -12,7 +12,7 @@ import com.quollwriter.data.*;
 public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjecttypedbkey, name, description, markup, files, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
 
     private ObjectManager objectManager = null;
 
@@ -34,11 +34,25 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
             int ind = 1;
 
-            QCharacter c = new QCharacter ();
+            QCharacter c = p.createQCharacter ();
 
             long key = rs.getLong (ind++);
 
             c.setKey (key);
+            
+            long userObjTypeKey = rs.getLong (ind++);
+            
+            // Get the object fields.
+            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
+                                                                                                      c,
+                                                                                                      rs.getStatement ().getConnection ());
+            
+            c.setUserConfigurableObjectType (configType);
+            
+            // Load the object fields.
+            c.setFields (this.objectManager.getUserConfigurableObjectFields (c,
+                                                                             rs.getStatement ().getConnection ()));
+            
             c.setName (rs.getString (ind++));
             c.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
@@ -52,14 +66,14 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
             c.setId (rs.getString (ind++));
             c.setVersion (rs.getString (ind++));            
-            
+                        
             if (p != null)
             {
 
                 p.addCharacter (c);
-                
+                                
             }
-            
+                        
             // Get all the notes.
             if (loadChildObjects)
             {
@@ -130,7 +144,7 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
     }
 
-    public QCharacter getObjectByKey (int        key,
+    public QCharacter getObjectByKey (long       key,
                                       Project    proj,
                                       Connection conn,
                                       boolean    loadChildObjects)

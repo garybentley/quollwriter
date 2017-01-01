@@ -11,6 +11,7 @@ import java.text.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.actionHandlers.*;
 //import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.components.QPopup;
 
 public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> implements PropertyChangedListener
 {
@@ -475,7 +477,89 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                                            this.getDeleteObjectAction (this.viewer,
                                                                        (Asset) this.obj)));
 
+        popup.add (UIUtils.createMenuItem (Environment.replaceObjectNames (String.format ("Edit the {%s} fields",
+                                                                                          this.obj.getObjectType ())),
+                                           Constants.ADD_ICON_NAME,
+                                           new ActionListener ()
+                                           {
+                                            
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    _this.showObjectFieldsEdit ();
+                                                    
+                                                }
+                                            
+                                           }));
     
+    }
+    
+    private void showObjectFieldsEdit ()
+    {
+        
+        final QPopup p = UIUtils.createClosablePopup ("Edit the {%s} fields",
+                                                      Environment.getIcon (Constants.EDIT_ICON_NAME, Constants.ICON_POPUP),
+                                                      null);        
+        
+        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+                
+        JTextPane m = UIUtils.createHelpTextPane (String.format ("Use this popup to add or edit the fields for this {%s}.  Drag-n-drop the fields to change the order of them.",
+                                                                 this.obj.getObjectType ()),
+                                                  viewer);
+
+        m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                  m.getPreferredSize ().height));
+        m.setBorder (null);
+        
+        b.add (m);
+        
+        b.add (Box.createVerticalStrut (5));        
+        
+        UserConfigurableObjectTypeEdit ed = new UserConfigurableObjectTypeEdit (this.viewer,
+                                                                                this.obj.getObjectType ());
+        
+        b.add (ed);
+        ed.init ();
+                                
+        JButton finish = new JButton ("Finish");
+
+        finish.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.closePopupParent (p);
+
+            }
+
+        });
+
+        JButton[] fbuts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (fbuts,
+                                              Component.CENTER_ALIGNMENT);
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        b.add (Box.createVerticalStrut (10));
+
+        b.add (bp);
+        
+        p.setContent (b);
+        
+        b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                           b.getPreferredSize ().height));                
+        
+        this.viewer.showPopupAt (p,
+                                 UIUtils.getCenterShowPosition (this,
+                                                                p),
+                                 false);
+        p.setDraggable (this.viewer);        
+        
     }
     
 }

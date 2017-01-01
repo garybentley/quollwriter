@@ -2,6 +2,7 @@ CREATE VIEW location_v
 AS
 SELECT l.dbkey dbkey,
        n.name name,
+       n.userobjecttypedbkey userobjecttypedbkey,
        n.description description,
        n.markup markup,
        n.files  files,

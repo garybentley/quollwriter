@@ -640,7 +640,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                         Transferable t,
                                         int          action)
                 {
-                    System.out.println ("EXPORT");
+                    
                     /*
                     Transferable t = supp.getTransferable ();
                     

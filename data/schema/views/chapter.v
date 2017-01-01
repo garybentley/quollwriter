@@ -22,7 +22,8 @@ SELECT c.dbkey        dbkey,
        n.properties   properties,
        n.id           id,
        n.version      version,
-       n.latest       latest       
+       n.latest       latest,
+       n.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v  n,
        chapter        c
 WHERE  c.dbkey        = n.dbkey

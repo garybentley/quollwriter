@@ -11,7 +11,7 @@ import com.quollwriter.data.*;
 public class LocationDataHandler implements DataHandler<Location, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, id, version FROM location_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjecttypedbkey, name, description, markup, files, lastmodified, datecreated, properties, id, version FROM location_v ";
 
     private ObjectManager objectManager = null;
 
@@ -35,9 +35,25 @@ public class LocationDataHandler implements DataHandler<Location, Project>
 
             long key = rs.getLong (ind++);
 
-            Location l = new Location ();
+            Location l = proj.createLocation (); //new Location ();
             l.setKey (key);
+
+            long userObjTypeKey = rs.getLong (ind++);
+
+            // Getting the type may no longer be needed.
+            // Get the object fields.
+            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
+                                                                                                      l,
+                                                                                                      rs.getStatement ().getConnection ());
+            
+            l.setUserConfigurableObjectType (configType);
+
+            // Load the object fields.
+            l.setFields (this.objectManager.getUserConfigurableObjectFields (l,
+                                                                             rs.getStatement ().getConnection ()));
+            
             l.setName (rs.getString (ind++));
+                        
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
             l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
@@ -47,14 +63,14 @@ public class LocationDataHandler implements DataHandler<Location, Project>
             l.setPropertiesAsString (rs.getString (ind++));
             l.setId (rs.getString (ind++));
             l.setVersion (rs.getString (ind++));            
-
+                                    
             if (proj != null)
             {
-                
+                                
                 proj.addLocation (l);
                 
             }
-            
+                        
             // Get all the notes.
             if (loadChildObjects)
             {
@@ -125,7 +141,7 @@ public class LocationDataHandler implements DataHandler<Location, Project>
 
     }
 
-    public Location getObjectByKey (int        key,
+    public Location getObjectByKey (long       key,
                                     Project    proj,
                                     Connection conn,
                                     boolean    loadChildObjects)

@@ -119,7 +119,7 @@ public class NoteDataHandler implements DataHandler<Note, NamedObject>
             
     }
 
-    public Note getObjectByKey (int         key,
+    public Note getObjectByKey (long        key,
                                 NamedObject parent,
                                 Connection conn,
                                 boolean    loadChildObjects)

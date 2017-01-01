@@ -120,7 +120,7 @@ public class BookDataHandler implements DataHandler<Book, Project>
     }
 
     @Override
-    public Book getObjectByKey (int        key,
+    public Book getObjectByKey (long       key,
                                 Project    proj,
                                 Connection conn,
                                 boolean    loadChildObjects)

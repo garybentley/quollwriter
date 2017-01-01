@@ -18,8 +18,13 @@ import org.jdom.*;
 
 import com.quollwriter.text.*;
 
-public class Chapter extends NamedObject
+public class Chapter extends LegacyUserConfigurableObject
 {
+
+    public static final String PLAN_LEGACY_FIELD_ID = "plan";
+    public static final String PLAN_LEGACY_FIELD_FORM_NAME = "Plan";
+    public static final String GOALS_LEGACY_FIELD_ID = "goals";
+    public static final String GOALS_LEGACY_FIELD_FORM_NAME = "Goals";
 
     public static final String OBJECT_TYPE = "chapter";
     public static final String INFORMATION_OBJECT_TYPE = "chapterinformation";
@@ -51,7 +56,7 @@ public class Chapter extends NamedObject
         this ();
 
         this.setBook (b);
-
+        
     }
 
     public Chapter(Book   b,
@@ -71,6 +76,27 @@ public class Chapter extends NamedObject
 
     }
 
+    public boolean isFieldSupported (String id)
+    {
+        
+        if ((id.equals (DESCRIPTION_LEGACY_FIELD_ID))
+            ||
+            (id.equals (ALIASES_LEGACY_FIELD_ID))
+            ||
+            (id.equals (PLAN_LEGACY_FIELD_ID))
+            ||
+            (id.equals (GOALS_LEGACY_FIELD_ID))
+           )
+        {
+            
+            return true;
+            
+        }
+        
+        return false;
+        
+    }
+    
     public void initProblemFinderIgnoreDocumentPositions (Document doc)
                                                    throws Exception
     {
@@ -1002,6 +1028,33 @@ public class Chapter extends NamedObject
 
         }
 
+        UserConfigurableObjectField f = this.getLegacyField (GOALS_LEGACY_FIELD_ID);
+                
+        if (f == null)
+        {
+            
+            UserConfigurableObjectTypeField type = this.getLegacyTypeField (GOALS_LEGACY_FIELD_ID);            
+            
+            f = new UserConfigurableObjectField (type);
+            
+            f.setParent (this);            
+            this.fields.add (f);
+            
+        }
+            
+        try
+        {
+    
+            f.setValue (JSONEncoder.encode (t));
+            
+        } catch (Exception e) {
+            
+            throw new IllegalArgumentException ("Unable to json encode string with markup: " +
+                                                t,
+                                                e);
+            
+        }
+        
         this.goals = t;
 
         this.setLastModified (new Date ());
@@ -1029,6 +1082,33 @@ public class Chapter extends NamedObject
                                                  ""),
                       t.getMarkup ());
 
+        }
+
+        UserConfigurableObjectField f = this.getLegacyField (PLAN_LEGACY_FIELD_ID);
+                
+        if (f == null)
+        {
+            
+            UserConfigurableObjectTypeField type = this.getLegacyTypeField (PLAN_LEGACY_FIELD_ID);            
+            
+            f = new UserConfigurableObjectField (type);
+            
+            f.setParent (this);
+            this.fields.add (f);
+            
+        }
+            
+        try
+        {
+    
+            f.setValue (JSONEncoder.encode (t));
+            
+        } catch (Exception e) {
+            
+            throw new IllegalArgumentException ("Unable to json encode string with markup: " +
+                                                t,
+                                                e);
+            
         }
 
         this.plan = t;

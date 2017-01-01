@@ -222,4 +222,24 @@ DROP VIEW IF EXISTS namedobject_v
     <sql file="views/projectversion.v" />
   </item>
 
+  <item>
+    <log>Create userobjecttype_v view</log>
+    <sql file="views/userobjecttype.v" />
+  </item>
+
+  <item>
+    <log>Create userobjecttypefield_v view</log>
+    <sql file="views/userobjecttypefield.v" />
+  </item>
+
+  <item>
+    <log>Create userobject_v view</log>
+    <sql file="views/userobject.v" />
+  </item>
+
+  <item>
+    <log>Create userobjectfield_v view</log>
+    <sql file="views/userobjectfield.v" />
+  </item>
+
 </update-script>

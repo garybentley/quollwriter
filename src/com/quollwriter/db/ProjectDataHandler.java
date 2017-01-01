@@ -96,6 +96,24 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             if (loadChildObjects)
             {
 
+                this.objectManager.getObjects (UserConfigurableObjectType.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
+                        
+                // If we have no user config object types then create the ones we need.
+                // We should always have at least the chapter type!
+                UserConfigurableObjectType chapT = p.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+                
+                if (chapT.getKey () == null)
+                {
+                    
+                    // Init the user config object types.
+                    this.createUserConfigurableObjectTypes (p,
+                                                            conn);
+                    
+                }
+            
                 this.objectManager.getObjects (Book.class,
                                                p,
                                                conn,
@@ -248,6 +266,77 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
     }
     
+    private void createUserConfigurableObjectTypes (Project    p,
+                                                    Connection conn)
+                                             throws GeneralException
+    {
+        
+        UserConfigurableObjectType chapterType = p.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+        
+        this.objectManager.saveObject (chapterType,
+                                       conn);        
+        
+        // Save the chapter type against all current chapters.
+        this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (Chapter.OBJECT_TYPE,
+                                                                          chapterType,
+                                                                          conn);
+                                
+        UserConfigurableObjectType characterType = p.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE);
+
+        this.objectManager.saveObject (characterType,
+                                       conn);        
+                        
+        // Save the character type against all current characters.
+        this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (QCharacter.OBJECT_TYPE,
+                                                                          characterType,
+                                                                          conn);
+                        
+        UserConfigurableObjectType locType = p.getUserConfigurableObjectType (Location.OBJECT_TYPE);
+        
+        this.objectManager.saveObject (locType,
+                                       conn);        
+                
+        // Save the location type against all current locations.
+        this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (Location.OBJECT_TYPE,
+                                                                          locType,
+                                                                          conn);
+
+        UserConfigurableObjectType qobjType = p.getUserConfigurableObjectType (QObject.OBJECT_TYPE);
+        
+        this.objectManager.saveObject (qobjType,
+                                       conn);        
+                
+        // Save the location type against all current locations.
+        this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (QObject.OBJECT_TYPE,
+                                                                          qobjType,
+                                                                          conn);
+
+        UserConfigurableObjectType riType = p.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE);
+        
+        this.objectManager.saveObject (riType,
+                                       conn);        
+                
+        // Save the research item type against all current research items.
+        this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (ResearchItem.OBJECT_TYPE,
+                                                                          riType,
+                                                                          conn);
+        
+        // Notes
+        
+        // Links?
+        
+        // Idea Type
+        
+        // Ideas
+        
+        // Editors?
+        
+        // Outline items
+        
+        // Scenes
+                
+    }
+    
     @Override
     public List<Project> getObjects (NamedObject parent,
                                      Connection  conn,
@@ -260,7 +349,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
     }
 
     @Override
-    public Project getObjectByKey (int         key,
+    public Project getObjectByKey (long        key,
                                    NamedObject parent,
                                    Connection  conn,
                                    boolean     loadChildObjects)
@@ -467,6 +556,9 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                            conn);
             
         }
+               
+        this.createUserConfigurableObjectTypes (p,
+                                                conn);
                                              
         // Get all the other objects.
         for (QCharacter c : p.getCharacters ())

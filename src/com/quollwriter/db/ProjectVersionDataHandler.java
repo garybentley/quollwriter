@@ -115,7 +115,7 @@ public class ProjectVersionDataHandler implements DataHandler<ProjectVersion, Pr
     }
 
     @Override
-    public ProjectVersion getObjectByKey (int        key,
+    public ProjectVersion getObjectByKey (long       key,
                                           Project    proj,
                                           Connection conn,
                                           boolean    loadChildObjects)

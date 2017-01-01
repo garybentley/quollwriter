@@ -179,7 +179,7 @@ public class ProjectInfoDataHandler implements DataHandler<ProjectInfo, NamedObj
     }
 
     @Override
-    public ProjectInfo getObjectByKey (int         key,
+    public ProjectInfo getObjectByKey (long        key,
                                        NamedObject parent,
                                        Connection  conn,
                                        boolean     loadChildObjects)

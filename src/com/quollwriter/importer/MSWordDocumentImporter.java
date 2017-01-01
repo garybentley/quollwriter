@@ -60,7 +60,7 @@ public class MSWordDocumentImporter implements DocumentImporter
     }
 
     private void importFromDOC (InputStream in)
-                         throws IOException
+                         throws Exception
     {
 
         HWPFDocument doc = new HWPFDocument (in);
@@ -307,6 +307,7 @@ public class MSWordDocumentImporter implements DocumentImporter
 
     private void addItem (String style,
                           String text)
+                   throws GeneralException
     {
 
         if (text.trim ().length () == 0)
@@ -359,7 +360,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                 {
 
                     // Create a character.
-                    this.n = new QCharacter ();
+                    this.n = this.p.createQCharacter ();
 
                     name = text.substring (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
 
@@ -368,8 +369,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                 if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (Location.OBJECT_TYPE).toLowerCase () + ":"))
                 {
 
-                    // Create a character.
-                    this.n = new Location ();
+                    this.n = this.p.createLocation ();
 
                     name = text.substring (Environment.getObjectTypeName (Location.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
                 }
@@ -377,8 +377,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                 if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).toLowerCase () + ":"))
                 {
 
-                    // Create a character.
-                    this.n = new ResearchItem ();
+                    this.n = this.p.createResearchItem ();
 
                     name = text.substring (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
                 }
@@ -386,8 +385,7 @@ public class MSWordDocumentImporter implements DocumentImporter
                 if (text.toLowerCase ().startsWith (Environment.getObjectTypeName (QObject.OBJECT_TYPE).toLowerCase () + ":"))
                 {
 
-                    // Create a character.
-                    this.n = new QObject ();
+                    this.n = this.p.createQObject ();
 
                     name = text.substring (Environment.getObjectTypeName (QObject.OBJECT_TYPE).toLowerCase ().length () + 1).trim ();
 

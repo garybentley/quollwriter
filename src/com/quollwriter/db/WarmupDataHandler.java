@@ -118,7 +118,7 @@ public class WarmupDataHandler implements DataHandler<Warmup, NamedObject>
     }
 
     @Override
-    public Warmup getObjectByKey (int         key,
+    public Warmup getObjectByKey (long        key,
                                   NamedObject parent,
                                   Connection  conn,
                                   boolean     loadChildObjects)

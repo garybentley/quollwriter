@@ -239,7 +239,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
     }
 
     @Override
-    public OutlineItem getObjectByKey (int         key,
+    public OutlineItem getObjectByKey (long        key,
                                        NamedObject parent,
                                        Connection  conn,
                                        boolean     loadChildObjects)

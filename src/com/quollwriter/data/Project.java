@@ -71,6 +71,9 @@ public class Project extends NamedObject
     //private EditorEditor       forEditor = null;
     private Set<ProjectEditor> projectEditors = null;
     private ProjectVersion     projVer = null;
+    
+    // Key is the object type string, maps to a user config object type.
+    private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap ();
 
     public Project (Element pEl)
                     throws  Exception
@@ -222,6 +225,8 @@ public class Project extends NamedObject
 
         super (Project.OBJECT_TYPE);
 
+        this.initLegacyObjectTypes ();
+        
     }
 
     public Project(String name)
@@ -230,6 +235,242 @@ public class Project extends NamedObject
         super (Project.OBJECT_TYPE,
                name);
 
+        this.initLegacyObjectTypes ();
+               
+    }
+    
+    /**
+     * Create the user configurable object types we need, namely for:
+     *   - Chapter
+     *   - QCharacter
+     *   - QObject
+     *   - ResearchItem
+     *   - Location
+     *
+     * It will create each object and the minimum required fields.
+     */    
+    private void initLegacyObjectTypes ()
+    {
+        
+        // Create the chapter type.
+        UserConfigurableObjectType chapterType = new UserConfigurableObjectType ();
+        
+        chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
+        chapterType.setObjectTypePluralName (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+        chapterType.setLayout (null);
+        chapterType.setUserObjectType (Chapter.OBJECT_TYPE);
+        
+        // Add the fields.
+        // The chapter doesn't have a name field.
+                
+        // Description
+        MultiTextUserConfigurableObjectTypeField descF = new MultiTextUserConfigurableObjectTypeField ();
+        
+        descF.setSearchable (true);
+        descF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        descF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        chapterType.addConfigurableField (descF);
+        
+        // Plan
+        MultiTextUserConfigurableObjectTypeField planF = new MultiTextUserConfigurableObjectTypeField ();
+        
+        planF.setSearchable (true);
+        planF.setDisplayAsBullets (true);
+        planF.setFormName (Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
+        planF.setLegacyFieldId (Chapter.PLAN_LEGACY_FIELD_ID);
+        
+        chapterType.addConfigurableField (planF);
+
+        MultiTextUserConfigurableObjectTypeField goalsF = new MultiTextUserConfigurableObjectTypeField ();
+        
+        goalsF.setSearchable (true);
+        goalsF.setDisplayAsBullets (true);
+        goalsF.setFormName (Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
+        goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
+        
+        chapterType.addConfigurableField (goalsF);
+        
+        this.addUserConfigurableObjectType (Chapter.OBJECT_TYPE,
+                                            chapterType);
+                
+        // Now characters.
+        UserConfigurableObjectType characterType = new UserConfigurableObjectType ();
+        
+        characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
+        characterType.setObjectTypePluralName (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
+        characterType.setLayout (null);
+        characterType.setUserObjectType (QCharacter.OBJECT_TYPE);
+        
+        // Name
+        TextUserConfigurableObjectTypeField nameF = new TextUserConfigurableObjectTypeField ();
+        
+        nameF.setPrimaryNameField (true);
+        nameF.setNameField (true);
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+        
+        characterType.addConfigurableField (nameF);
+                        
+        // Aliases
+        UserConfigurableObjectTypeField aliasesF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+        
+        aliasesF.setNameField (true);
+        aliasesF.setSearchable (true);
+        aliasesF.setFormName (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
+        aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
+        
+        characterType.addConfigurableField (aliasesF);
+                
+        // Description
+        UserConfigurableObjectTypeField cdescF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+        
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        
+        characterType.addConfigurableField (cdescF);
+        
+        this.addUserConfigurableObjectType (QCharacter.OBJECT_TYPE,
+                                            characterType);
+                        
+        // Now locations.
+        UserConfigurableObjectType locType = new UserConfigurableObjectType ();
+        
+        locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
+        locType.setObjectTypePluralName (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
+        locType.setLayout (null);
+        locType.setUserObjectType (Location.OBJECT_TYPE);
+        
+        // Name
+        nameF = new TextUserConfigurableObjectTypeField ();
+        
+        nameF.setPrimaryNameField (true);
+        nameF.setNameField (true);
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
+        
+        locType.addConfigurableField (nameF);
+                                        
+        // Description
+        cdescF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+        
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        locType.addConfigurableField (cdescF);
+        
+        this.addUserConfigurableObjectType (Location.OBJECT_TYPE,
+                                            locType);
+                
+        // Now qobjects.
+        UserConfigurableObjectType qobjType = new UserConfigurableObjectType ();
+        
+        qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
+        qobjType.setObjectTypePluralName (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
+        qobjType.setLayout (null);
+        qobjType.setUserObjectType (QObject.OBJECT_TYPE);
+        
+        // Name
+        nameF = new TextUserConfigurableObjectTypeField ();
+        
+        nameF.setPrimaryNameField (true);
+        nameF.setNameField (true);
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
+        
+        qobjType.addConfigurableField (nameF);
+        
+        // Type
+        SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
+        
+        typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
+        typeF.setFormName (QObject.TYPE_LEGACY_FIELD_FORM_NAME);
+        
+        // Get the pre-defined types, they are stored in the user prefs.
+        String nt = Environment.getProperty (Constants.OBJECT_TYPES_PROPERTY_NAME);
+
+        List<String> ts = new ArrayList ();
+
+        if (nt != null)
+        {
+
+            StringTokenizer t = new StringTokenizer (nt,
+                                                     "|");
+
+            while (t.hasMoreTokens ())
+            {
+
+                String tok = t.nextToken ().trim ();
+
+                if (!ts.contains (tok))
+                {
+
+                    ts.add (tok);
+
+                }
+
+            }
+
+        }
+
+        Collections.sort (ts);
+
+        typeF.setItems (ts);
+        
+        qobjType.addConfigurableField (typeF);
+                                        
+        // Description
+        cdescF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+        
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        qobjType.addConfigurableField (cdescF);
+        
+        this.addUserConfigurableObjectType (QObject.OBJECT_TYPE,
+                                            qobjType);
+        
+        // Research items
+        UserConfigurableObjectType riType = new UserConfigurableObjectType ();
+        
+        riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
+        riType.setObjectTypePluralName (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
+        riType.setLayout (null);
+        riType.setUserObjectType (ResearchItem.OBJECT_TYPE);
+        
+        // Name
+        nameF = new TextUserConfigurableObjectTypeField ();
+        
+        nameF.setPrimaryNameField (true);
+        nameF.setNameField (true);
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
+        
+        riType.addConfigurableField (nameF);
+        
+        // Web link
+        WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
+        
+        webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
+        webF.setFormName (ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
+                
+        riType.addConfigurableField (webF);
+                                        
+        // Description
+        cdescF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+        
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        riType.addConfigurableField (cdescF);
+        
+        this.addUserConfigurableObjectType (ResearchItem.OBJECT_TYPE,
+                                            riType);
+        
     }
 
     public ProjectEditor getProjectEditor (EditorEditor ed)
@@ -1246,8 +1487,7 @@ public class Project extends NamedObject
         if (this.ideaTypes.contains (it))
         {
             
-            throw new IllegalStateException ("Already have idea type: " +
-                                             it);            
+            return;
             
         }        
         
@@ -1295,8 +1535,6 @@ public class Project extends NamedObject
 
         }
 
-        a.setProject (this);
-
     }
 
     public void addResearchItem (ResearchItem c)
@@ -1305,13 +1543,19 @@ public class Project extends NamedObject
         if (this.researchItems.contains (c))
         {
             
-            throw new IllegalStateException ("Already have research item: " +
-                                             c);            
+            return;
             
         }
     
         c.setProject (this);
 
+        if (c.getUserConfigurableObjectType () == null)
+        {        
+        
+            c.setUserConfigurableObjectType (this.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE));
+            
+        }
+        
         this.researchItems.add (c);
 
     }
@@ -1322,13 +1566,19 @@ public class Project extends NamedObject
         if (this.objects.contains (c))
         {
             
-            throw new IllegalStateException ("Already have object: " +
-                                             c);
+            return;
             
         }
 
         c.setProject (this);
 
+        if (c.getUserConfigurableObjectType () == null)
+        {
+        
+            c.setUserConfigurableObjectType (this.getUserConfigurableObjectType (QObject.OBJECT_TYPE));
+            
+        }
+        
         this.objects.add (c);
 
     }
@@ -1339,12 +1589,18 @@ public class Project extends NamedObject
         if (this.characters.contains (c))
         {
             
-            throw new IllegalStateException ("Already have character: " +
-                                             c);
+            return;
             
         }
     
         c.setProject (this);
+
+        if (c.getUserConfigurableObjectType () == null)
+        {
+        
+            c.setUserConfigurableObjectType (this.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE));
+            
+        }
 
         this.getCharacters ().add (c);
 
@@ -1356,13 +1612,19 @@ public class Project extends NamedObject
         if (this.locations.contains (c))
         {
             
-            throw new IllegalStateException ("Already have location: " +
-                                             c);            
+            return;
             
         }
     
         c.setProject (this);
 
+        if (c.getUserConfigurableObjectType () == null)
+        {
+
+            c.setUserConfigurableObjectType (this.getUserConfigurableObjectType (Location.OBJECT_TYPE));
+            
+        }
+        
         this.locations.add (c);
 
     }
@@ -1730,8 +1992,7 @@ public class Project extends NamedObject
         if (this.books.contains (b))
         {
             
-            throw new IllegalStateException ("Already have book: " +
-                                             b);            
+            return;
             
         }    
     
@@ -1875,6 +2136,109 @@ public class Project extends NamedObject
         }
   */      
         return pEl;
+        
+    }
+    
+    public void addUserConfigurableObjectType (String                     objType,
+                                               UserConfigurableObjectType uc)
+    {
+        
+        this.userConfigObjTypes.put (objType,
+                                     uc);
+        
+    }
+    
+    public void removeUserConfigurableObjectType (String objType)
+    {
+        
+        this.userConfigObjTypes.remove (objType);
+        
+    }
+    
+    public UserConfigurableObjectType getUserConfigurableObjectType (String objType)
+    {
+        
+        return this.userConfigObjTypes.get (objType);
+        
+    }
+
+    /**
+     * Create a new location, this only creates the object and doesn't add it to the list of
+     * locations we have.  It also doesn't set the parent.  It WILL setup the correct config object type.
+     *
+     * @returns The new location.
+     * @throws An exception if the location can't be created.
+     */
+    public Location createLocation ()
+                             throws GeneralException
+    {
+        
+        return (Location) this.createAsset (Location.OBJECT_TYPE);
+        
+    }
+    
+    /**
+     * Create a new object, this only creates the object and doesn't add it to the list of
+     * object we have.  It also doesn't set the parent.  It WILL setup the correct config object type.
+     *
+     * @returns The new object.
+     * @throws An exception if the object can't be created.
+     */
+    public QObject createQObject ()
+                           throws GeneralException
+    {
+        
+        return (QObject) this.createAsset (QObject.OBJECT_TYPE);
+        
+    }
+
+    /**
+     * Create a new research item, this only creates the object and doesn't add it to the list of
+     * research items we have.  It also doesn't set the parent.  It WILL setup the correct config object type.
+     *
+     * @returns The new research item.
+     * @throws An exception if the object can't be created.
+     */
+    public ResearchItem createResearchItem ()
+                                     throws GeneralException
+    {
+        
+        return (ResearchItem) this.createAsset (ResearchItem.OBJECT_TYPE);
+        
+    }
+
+    /**
+     * Create a new character, this only creates the object and doesn't add it to the list of
+     * characters we have.  It also doesn't set the parent.  It WILL setup the correct config object type.
+     *
+     * @returns The new character.
+     * @throws An exception if the object can't be created.
+     */
+    public QCharacter createQCharacter ()
+                                 throws GeneralException
+    {
+        
+        return (QCharacter) this.createAsset (QCharacter.OBJECT_TYPE);
+        
+    }
+
+    /**
+     * Create a new asset, this only creates the object and doesn't add it to the list of
+     * assets we have.  It also doesn't set the parent.  It WILL setup the correct config object type.
+     *
+     * @param objType The object type to create.
+     * @returns The new asset.
+     * @throws An exception if the asset type isn't supported or can't be created.
+     */
+    public Asset createAsset (String objType)
+                       throws GeneralException
+    {
+        
+        Asset a = Asset.createSubType (objType);
+        
+        a.setUserConfigurableObjectType (this.getUserConfigurableObjectType (objType));
+        
+        return a;
         
     }
     

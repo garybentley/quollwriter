@@ -32,7 +32,7 @@ public interface DataHandler<D extends DataObject, P extends DataObject>
                                boolean     loadChildObjects)
                         throws GeneralException;
 
-    public D getObjectByKey (int        key,
+    public D getObjectByKey (long       key,
                              P          parent,
                              Connection conn,
                              boolean    loadChildObjects)

@@ -250,25 +250,53 @@ public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer
 
         }
 
+        Set<Asset> matches = this.projectViewer.getProject ().getAllAssetsByName (n.toLowerCase (),
+                                                                                  this.dataObject.getObjectType ());
+                
+        Asset match = null;
+        
         if (mode == AbstractActionHandler.ADD)
         {
 
-            Asset other = this.projectViewer.getProject ().getAssetByName (n.toLowerCase (),
-                                                                           this.dataObject.getObjectType ());
-
-            if (other != null)
+            if (matches.size () > 0)
             {
-
-                f.showError (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
-                                                                            this.dataObject.getObjectType (),
-                                                                            other.getName ())));
-
-                return false;
+        
+                match = matches.iterator ().next ();
 
             }
 
+        } else {
+            
+            if (matches.size () > 0)
+            {
+                                
+                for (Asset a : matches)
+                {
+                    
+                    if (!a.getKey ().equals (this.dataObject.getKey ()))
+                    {
+                        
+                        match = a;
+                        
+                    }
+                    
+                }
+                
+            }
+            
         }
 
+        if (match != null)
+        {
+            
+            f.showError (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
+                                                                        this.dataObject.getObjectType (),
+                                                                        match.getName ())));
+
+            return false;            
+            
+        }
+        
         if (this.delegate != null)
         {
 

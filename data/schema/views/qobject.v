@@ -13,7 +13,8 @@ SELECT o.dbkey dbkey,
        o.type type,
        n.id           id,
        n.version      version,
-       n.latest       latest       
+       n.latest       latest,
+       n.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v n,
        qobject       o
 WHERE  o.dbkey = n.dbkey

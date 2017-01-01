@@ -186,10 +186,10 @@ public class EditorProjectDataHandler implements DataHandler<EditorProject, Name
     }
     
     @Override
-    public EditorProject getObjectByKey (int        key,
+    public EditorProject getObjectByKey (long        key,
                                          NamedObject parent,
-                                         Connection conn,
-                                         boolean    loadChildObjects)
+                                         Connection  conn,
+                                         boolean     loadChildObjects)
                                   throws GeneralException
     {
         

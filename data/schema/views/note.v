@@ -18,7 +18,8 @@ SELECT n.dbkey dbkey,
        nn.properties  properties,
        nn.id           id,
        nn.version      version,
-       nn.latest       latest       
+       nn.latest       latest,
+       nn.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v nn,
        note          n
 WHERE  n.dbkey = nn.dbkey

@@ -323,7 +323,7 @@ public class EditorEditorDataHandler implements DataHandler<EditorEditor, NamedO
     }
     
     @Override
-    public EditorEditor getObjectByKey (int         key,
+    public EditorEditor getObjectByKey (long        key,
                                         NamedObject parent,
                                         Connection  conn,
                                         boolean     loadChildObjects)

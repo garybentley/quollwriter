@@ -16,7 +16,7 @@ import com.quollwriter.text.rules.*;
 public class ChapterDataHandler implements DataHandler<Chapter, Book>
 {
 
-    private final String STD_SELECT_PREFIX = "SELECT bookdbkey, dbkey, name, description, descriptionmarkup, files, lastmodified, datecreated, properties, text, markup, goals, goalsmarkup, plan, planmarkup, editposition, editcomplete, id, version, latest FROM chapter_v ";
+    private final String STD_SELECT_PREFIX = "SELECT bookdbkey, dbkey, userobjecttypedbkey, name, description, descriptionmarkup, files, lastmodified, datecreated, properties, text, markup, goals, goalsmarkup, plan, planmarkup, editposition, editcomplete, id, version, latest FROM chapter_v ";
 
     private ObjectManager objectManager = null;
 
@@ -227,9 +227,24 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             int  bookKey = rs.getInt (ind++);
             long key = rs.getInt (ind++);
 
+            long userObjTypeKey = rs.getLong (ind++);
+            
             Chapter c = new Chapter ();
-            c.setName (rs.getString (ind++));
             c.setKey (key);
+                        
+            // Get the object fields.
+            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
+                                                                                                      c,
+                                                                                                      rs.getStatement ().getConnection ());
+            
+            c.setUserConfigurableObjectType (configType);
+
+            // Load the object fields.
+            c.setFields (this.objectManager.getUserConfigurableObjectFields (c,
+                                                                             rs.getStatement ().getConnection ()));
+            
+            c.setName (rs.getString (ind++));
+
             c.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
             c.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
@@ -275,7 +290,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
                 book.addChapter (c);
 
             }
-
+                        
             c.setProblemFinderIgnores (this.getProblemFinderIgnores (c,
                                                                      null,
                                                                      rs.getStatement ().getConnection ()));
@@ -516,7 +531,7 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
 
     }
 
-    public Chapter getObjectByKey (int        key,
+    public Chapter getObjectByKey (long       key,
                                    Book       book,
                                    Connection conn,
                                    boolean    loadChildObjects)

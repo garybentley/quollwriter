@@ -368,7 +368,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
-    private static Action getAddAssetActionListener (final Asset           as,
+    private static Action getAddAssetActionListener (final String          assetObjType,
                                                      final ProjectViewer   pv,
                                                      final PopupsSupported ps)
     {
@@ -379,6 +379,27 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             public void actionPerformed (ActionEvent ev)
             {
 
+                Asset as = null;
+                
+                try
+                {
+                    
+                    as = pv.getProject ().createAsset (assetObjType);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to create new asset of type: " +
+                                          assetObjType,
+                                          e);
+                    
+                    UIUtils.showErrorMessage (pv,
+                                              String.format ("Unable to create new %s.",
+                                                             Environment.getObjectTypeName (assetObjType)));
+                    
+                    return;
+                    
+                }
+            
                 AbstractActionHandler aah = new AssetActionHandler (as,
                                                                     pv,
                                                                     AbstractActionHandler.ADD);
@@ -463,22 +484,22 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                 "new" + ResearchItem.OBJECT_TYPE);
 
         actions.put ("new" + QObject.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (new QObject (),
+                     ProjectViewer.getAddAssetActionListener (QObject.OBJECT_TYPE,
                                                               ppv,
                                                               parent));
 
         actions.put ("new" + ResearchItem.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (new ResearchItem (),
+                     ProjectViewer.getAddAssetActionListener (ResearchItem.OBJECT_TYPE,
                                                               ppv,
                                                               parent));
 
         actions.put ("new" + QCharacter.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (new QCharacter (),
+                     ProjectViewer.getAddAssetActionListener (QCharacter.OBJECT_TYPE,
                                                               ppv,
                                                               parent));
 
         actions.put ("new" + Location.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (new Location (),
+                     ProjectViewer.getAddAssetActionListener (Location.OBJECT_TYPE,
                                                               ppv,
                                                               parent));
 
@@ -1307,10 +1328,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         super.handleHTMLPanelAction (v);
 
     }
-
+    
     public void handleOpenProject ()
     {
-
+    
         this.initProjectItemBoxes ();
 
 		final ProjectViewer _this = this;
@@ -3651,5 +3672,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                ProjectEvent.SHOW);
 
     }
-
+    
+    public UserConfigurableObjectType getUserConfigurableObjectType (String objType)
+    {
+        
+        return this.proj.getUserConfigurableObjectType (objType);
+        
+    }
+    
 }

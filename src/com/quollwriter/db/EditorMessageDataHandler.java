@@ -808,7 +808,7 @@ public class EditorMessageDataHandler implements DataHandler<EditorMessage, Edit
     }
     
     @Override
-    public EditorMessage getObjectByKey (int          key,
+    public EditorMessage getObjectByKey (long         key,
                                          EditorEditor ed,
                                          Connection   conn,
                                          boolean      loadChildObjects)

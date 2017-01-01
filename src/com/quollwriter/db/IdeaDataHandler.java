@@ -117,7 +117,7 @@ public class IdeaDataHandler implements DataHandler<Idea, IdeaType>
     }
 
     @Override
-    public Idea getObjectByKey (int        key,
+    public Idea getObjectByKey (long       key,
                                 IdeaType   it,
                                 Connection conn,
                                 boolean    loadChildObjects)

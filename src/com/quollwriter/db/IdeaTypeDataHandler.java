@@ -120,7 +120,7 @@ public class IdeaTypeDataHandler implements DataHandler<IdeaType, Project>
     }
 
     @Override
-    public IdeaType getObjectByKey (int        key,
+    public IdeaType getObjectByKey (long       key,
                                     Project    proj,
                                     Connection conn,
                                     boolean    loadChildObjects)

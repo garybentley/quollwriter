@@ -3619,10 +3619,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     
                     } catch (Exception e) {
     
+                        // Just ignore any errors, it's next to impossible to stop them.
+                        /*
                         Environment.logError ("Unable to get a4 page count for chapter: " +
                                               c,
                                               e);
-    
+                        */  
                     }
         
                 }                

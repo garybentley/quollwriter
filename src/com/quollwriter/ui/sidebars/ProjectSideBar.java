@@ -136,57 +136,21 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
                 _this.addAddSectionMenu (m,
                                          null);
-/*
-                // Get all the sections currently not visible.
-                Set<String> defSections = _this.getSections (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
-            
-                Set<String> sections = _this.getSections (Constants.PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
                 
-                defSections.removeAll (sections);
-
-                if (defSections.size () > 0)
-                {
-            
-                    JMenu sm = new JMenu ("Add");
-                    
-                    m.add (sm);
-                    
-                    for (String sect : defSections)
-                    {
-            
-                        final String _sect = sect;
-            
-                        sm.add (this.createMenuItem (Environment.getObjectTypeNamePlural (sect),
-                                                     sect,
-                                                     "add",
-                                                     null,
-                                                     new ActionListener ()
-                                                     {
+                m.add (UIUtils.createMenuItem ("Add New Type of Object",
+                                               Constants.NEW_ICON_NAME,
+                                               new ActionListener ()
+                                               {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
                                                         
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                            
-                                                            AccordionItem it = _this.createAccordionItemForObjectType (_sect);
-
-                                                            _this.addAccordionItem (it);
-                                                            
-                                                            _this.validate ();
-                                                            _this.repaint ();
-
-                                                            // Scroll the item into view.
-                                                            _this.contentBox.scrollRectToVisible (it.getBounds (null));
-                                                                                                                        
-                                                            _this.updateSectionsList ();
-                                                            
-                                                        }
+                                                        UIUtils.showAddNewObjectType (_this.viewer);
                                                         
-                                                     }));
-                        
-                    }
-                    
-                }
-                */
+                                                    }
+                                                
+                                               }));
             
             }
                 

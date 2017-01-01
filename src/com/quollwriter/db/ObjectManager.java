@@ -127,8 +127,24 @@ public class ObjectManager
         this.handlers.put (ProjectVersion.class,
                            new ProjectVersionDataHandler (this));
 
-        //this.handlers.put (Idea.class.getName (),
-        //                   this.handlers.get (Idea.OBJECT_TYPE));
+        this.handlers.put (UserConfigurableObjectType.class,
+                           new UserConfigurableObjectTypeDataHandler (this));
+        this.handlers.put (UserConfigurableObjectTypeField.class,
+                           new UserConfigurableObjectTypeFieldDataHandler (this));
+        this.handlers.put (TextUserConfigurableObjectTypeField.class,
+                           new UserConfigurableObjectTypeFieldDataHandler (this));
+        this.handlers.put (MultiTextUserConfigurableObjectTypeField.class,
+                           new UserConfigurableObjectTypeFieldDataHandler (this));
+        this.handlers.put (SelectUserConfigurableObjectTypeField.class,
+                           new UserConfigurableObjectTypeFieldDataHandler (this));
+        this.handlers.put (WebpageUserConfigurableObjectTypeField.class,
+                           new UserConfigurableObjectTypeFieldDataHandler (this));
+/*
+        this.handlers.put (UserConfigurableObject.class,
+                           new UserConfigurableObjectDataHandler (this));
+                           */
+        this.handlers.put (UserConfigurableObjectField.class,
+                           new UserConfigurableObjectFieldDataHandler (this));
 
         this.actionLogHandlers.put (ResearchItem.class,
                                     this.handlers.get (ResearchItem.class));
@@ -281,7 +297,7 @@ public class ObjectManager
     }
 
     public DataObject getObjectByKey (Class      c,
-                                      int        key,
+                                      long       key,
                                       DataObject parent,
                                       Connection conn,
                                       boolean    loadChildObjects)
@@ -635,13 +651,6 @@ public class ObjectManager
 
         }
 
-        if (this.project == null)
-        {
-
-            throw new IllegalStateException ("No project set yet, either call getProject or setProject first.");
-
-        }
-
         boolean closeConn = false;
 
         if (conn == null)
@@ -683,6 +692,14 @@ public class ObjectManager
             while (rs.next ())
             {
 
+                // Only really need the project when we have actually found something.
+                if (this.project == null)
+                {
+        
+                    throw new IllegalStateException ("No project set yet, either call getProject or setProject first.");
+        
+                }            
+            
                 long   o1key = rs.getLong (1);
                 String o1type = rs.getString (2);
                 long   o2key = rs.getLong (3);
@@ -1397,10 +1414,21 @@ public class ObjectManager
         try
         {
 
+            // Fields are first.
+            if (d instanceof UserConfigurableObject)
+            {
+                
+                UserConfigurableObject o = (UserConfigurableObject) d;
+                
+                this.deleteObjects (o.getFields (),
+                                    conn);
+                             
+            }
+
             dh.deleteObject (d,
                              deleteChildObjects,
                              conn);
-
+            
             PreparedStatement ps = null;
 
             if (d instanceof NamedObject)
@@ -1521,8 +1549,8 @@ public class ObjectManager
 
     }
 
-    public void saveObjects (List<? extends DataObject> objs,
-                             Connection       conn)
+    public void saveObjects (Collection<? extends DataObject> objs,
+                             Connection                       conn)
                       throws GeneralException
     {
 
@@ -1916,6 +1944,28 @@ public class ObjectManager
                         params.add (n.getKey ());
                         params.add (n.getName ());
 
+                        if (n instanceof UserConfigurableObject)
+                        {
+                            
+                            UserConfigurableObject o = (UserConfigurableObject) n;
+                            
+                            UserConfigurableObjectType t = o.getUserConfigurableObjectType ();
+                            
+                            if (t == null)
+                            {
+                                
+                                t = this.project.getUserConfigurableObjectType (o.getObjectType ());
+                                
+                            }                                     
+                              
+                            params.add (t.getKey ());
+                            
+                        } else {
+                            
+                            params.add (null);
+                            
+                        }
+                        
                         StringWithMarkup descm = n.getDescription ();
 
                         String desc = null;
@@ -1940,7 +1990,7 @@ public class ObjectManager
 
                         params.add (Utils.getFilesAsXML (n.getFiles ()));
 
-                        this.executeStatement ("INSERT INTO namedobject (dbkey, name, description, markup, files) VALUES (?, ?, ?, ?, ?)",
+                        this.executeStatement ("INSERT INTO namedobject (dbkey, name, userobjecttypedbkey, description, markup, files) VALUES (?, ?, ?, ?, ?, ?)",
                                                params,
                                                conn);
 
@@ -1971,7 +2021,7 @@ public class ObjectManager
                                               n.getLinks ());
 
                         }
-
+                        
                     }
 
                 } else
@@ -1996,7 +2046,7 @@ public class ObjectManager
 
                             NamedObject oldN = (NamedObject) this.getObjectByKey (n.getClass (),
                                                                                   n.getKey ().intValue (),
-                                                                                  null,
+                                                                                  n.getParent (),
                                                                                   conn,
                                                                                   false);
 
@@ -2055,6 +2105,16 @@ public class ObjectManager
 
                     }
 
+                }
+                
+                if (d instanceof UserConfigurableObject)
+                {
+                    
+                    UserConfigurableObject o = (UserConfigurableObject) d;
+                    
+                    this.saveObjects (o.getFields (),
+                                      conn);
+                    
                 }
 
             }
@@ -2999,6 +3059,150 @@ public class ObjectManager
 
     }
 
+    public void setUserConfigurableObjectTypeForObjectsOfType (String                     objType,
+                                                               UserConfigurableObjectType type,
+                                                               Connection                 conn)
+                                                        throws GeneralException
+    {
+        
+        boolean closeConn = false;
+        
+        if (conn == null)
+        {
+        
+            conn = this.getConnection ();
+
+            closeConn = true;
+            
+        }        
+        
+        try
+        {
+
+            List params = new ArrayList ();
+            params.add (type.getKey ());
+            params.add (objType);
+    
+            this.executeStatement ("UPDATE namedobject SET userobjecttypedbkey = ? WHERE dbkey IN (SELECT dbkey FROM dataobject WHERE objecttype = ?)",
+                                   params,
+                                   conn);
+
+        } catch (Exception e) {
+
+            this.throwException (conn,
+                                 "Unable to set user config object type for: " +
+                                 objType +
+                                 " and: " +
+                                 type,
+                                 e);
+
+        } finally {
+
+            if (closeConn)
+            {
+        
+                this.releaseConnection (conn);
+                
+            }
+
+        }
+        
+    }
+    
+    public Set<UserConfigurableObjectField> getUserConfigurableObjectFields (UserConfigurableObject obj,
+                                                                             Connection             conn)
+                                                                      throws GeneralException
+    {
+        
+        boolean closeConn = false;
+        
+        if (conn == null)
+        {
+        
+            conn = this.getConnection ();
+
+            closeConn = true;
+            
+        }        
+        
+        try
+        {
+
+            return new LinkedHashSet (this.getObjects (UserConfigurableObjectField.class,
+                                                       obj,
+                                                       conn,
+                                                       true));
+
+        } catch (Exception e) {
+
+            this.throwException (conn,
+                                 "Unable to get user object fields for: " +
+                                 obj,
+                                 e);
+
+        } finally {
+
+            if (closeConn)
+            {
+        
+                this.releaseConnection (conn);
+                
+            }
+
+        }
+
+        return null;
+     
+    }    
+    
+    public UserConfigurableObjectType getUserConfigurableObjectType (long        key,
+                                                                     NamedObject obj,
+                                                                     Connection  conn)
+                                                              throws GeneralException
+    {
+        
+        boolean closeConn = false;
+        
+        if (conn == null)
+        {
+        
+            conn = this.getConnection ();
+
+            closeConn = true;
+            
+        }        
+        
+        try
+        {
+
+            return (UserConfigurableObjectType) this.getObjectByKey (UserConfigurableObjectType.class,
+                                                                     key,
+                                                                     obj,
+                                                                     conn,
+                                                                     true);
+
+        } catch (Exception e) {
+
+            this.throwException (conn,
+                                 "Unable to get user config object type for: " +
+                                 obj,
+                                 e);
+
+        } finally {
+
+            if (closeConn)
+            {
+        
+                this.releaseConnection (conn);
+                
+            }
+
+        }
+
+        return null;
+     
+    }
+    
     public void closeConnectionPool ()
     {
 

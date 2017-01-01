@@ -690,6 +690,15 @@ public class Constants
     public static final String LAYOUT_OS_CH_PS = "layout-os-ch-ps";
     public static final String LAYOUT_CH_OS_PS = "layout-ch-os-ps";
 
+    public static final String ASSET_LAYOUT_1 = "asset-layout-1";
+    public static final String ASSET_LAYOUT_2 = "asset-layout-2";
+    public static final String ASSET_LAYOUT_3 = "asset-layout-3";
+    public static final String ASSET_LAYOUT_4 = "asset-layout-4";
+    public static final String ASSET_LAYOUT_5 = "asset-layout-5";
+    public static final String ASSET_LAYOUT_6 = "asset-layout-6";
+    public static final String ASSET_LAYOUT_7 = "asset-layout-7";
+    public static final String ASSET_LAYOUT_8 = "asset-layout-8";
+    
     public static final String TAB = String.valueOf ('\t');
 
     public static final String SECTION_BREAK_FIND = "***";

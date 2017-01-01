@@ -10,7 +10,7 @@ public class QCharacter extends Asset
 
     public static final String OBJECT_TYPE = "character";
 
-    public QCharacter()
+    protected QCharacter()
     {
 
         super (QCharacter.OBJECT_TYPE);

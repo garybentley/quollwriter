@@ -6,12 +6,15 @@ import org.jdom.*;
 public class ResearchItem extends Asset
 {
 
+    public static final String WEB_PAGE_LEGACY_FIELD_ID = "webpage";
+    public static final String WEB_PAGE_LEGACY_FIELD_FORM_NAME = "Web Page";
+
     public static final String OBJECT_TYPE = "researchitem";
     public static final String URL = "url";
     
     private String url = null;
 
-    public ResearchItem()
+    protected ResearchItem()
     {
 
         super (ResearchItem.OBJECT_TYPE);
@@ -29,6 +32,22 @@ public class ResearchItem extends Asset
     {
 
         String oldUrl = this.url;
+    
+        UserConfigurableObjectField f = this.getLegacyField (WEB_PAGE_LEGACY_FIELD_ID);
+                
+        if (f == null)
+        {
+            
+            UserConfigurableObjectTypeField type = this.getLegacyTypeField (WEB_PAGE_LEGACY_FIELD_ID);            
+            
+            f = new UserConfigurableObjectField (type);
+            
+            f.setParent (this);
+            this.fields.add (f);
+            
+        }
+            
+        f.setValue (url);
     
         this.url = url;
 

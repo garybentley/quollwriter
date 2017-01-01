@@ -242,7 +242,7 @@ public class ProjectEditorDataHandler implements DataHandler<ProjectEditor, Proj
     }
         
     @Override
-    public ProjectEditor getObjectByKey (int         key,
+    public ProjectEditor getObjectByKey (long        key,
                                          ProjectInfo p,
                                          Connection  conn,
                                          boolean     loadChildObjects)

@@ -14,7 +14,8 @@ SELECT p.dbkey dbkey,
        p.schema_version schema_version,
        n.id           id,
        n.version      version,
-       n.latest       latest       
+       n.latest       latest,
+       n.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v n,
        project       p
 WHERE  p.dbkey = n.dbkey 

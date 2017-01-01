@@ -33,10 +33,10 @@ public class LinkDataHandler implements DataHandler<Link, NamedObject>
     }
 
     @Override
-    public Link getObjectByKey (int         key,
+    public Link getObjectByKey (long        key,
                                 NamedObject parent,
-                                Connection conn,
-                                boolean    loadChildObjects)
+                                Connection  conn,
+                                boolean     loadChildObjects)
                          throws GeneralException
     {
 

@@ -438,8 +438,7 @@ public class Book extends NamedObject
         if (this.chapters.contains (c))
         {
             
-            throw new IllegalStateException ("Already have chapter: " +
-                                             c);
+            return;
             
         }
     
@@ -453,6 +452,13 @@ public class Book extends NamedObject
 
         c.setBook (this);
 
+        if (c.getUserConfigurableObjectType () == null)
+        {
+
+            c.setUserConfigurableObjectType (this.project.getUserConfigurableObjectType (Chapter.OBJECT_TYPE));
+
+        }        
+        
         this.chapters.add (where,
                            c);
 

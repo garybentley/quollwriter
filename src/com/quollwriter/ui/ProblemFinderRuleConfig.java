@@ -311,6 +311,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         this.sentenceBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.sentenceBox.setOpaque (false);
 
+        // TODO: Change to standard scrollpane.
         this.sentenceBoxSP = new JScrollPane (this.sentenceBox);
         this.sentenceBoxSP.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.sentenceBoxSP.getViewport ().setOpaque (false);
@@ -691,15 +692,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         Box wordsControl = new Box (BoxLayout.X_AXIS);
         wordsControl.setAlignmentX (Component.LEFT_ALIGNMENT);
-        wordsControl.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                                     0,
-                                                                     1,
-                                                                     0,
-                                                                     Environment.getBorderColor ()),
-                                                    new EmptyBorder (3,
-                                                                     3,
-                                                                     3,
-                                                                     3)));
+        wordsControl.setBorder (UIUtils.createBottomLineWithPadding (3, 3, 3, 3));
 
         List<JButton> buts = new ArrayList ();
 

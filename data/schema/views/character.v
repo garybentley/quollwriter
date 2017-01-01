@@ -13,7 +13,8 @@ SELECT c.dbkey dbkey,
        c.projectdbkey projectdbkey,
        n.id           id,
        n.version      version,
-       n.latest       latest       
+       n.latest       latest,
+       n.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v n,
        character     c
 WHERE  c.dbkey = n.dbkey

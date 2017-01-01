@@ -5594,8 +5594,8 @@ public class UIUtils
             try
             {
 
-                a = Asset.createSubType (type);
-
+                a = pv.getProject ().createAsset (type);
+            
             } catch (Exception e)
             {
 
@@ -5678,7 +5678,7 @@ public class UIUtils
             try
             {
 
-                a = Asset.createSubType (type);
+                a = pv.getProject ().createAsset (type);
 
             } catch (Exception e)
             {
@@ -10364,4 +10364,22 @@ public class UIUtils
 
     }
 
+    public static void showAddNewObjectType (ProjectViewer viewer)
+    {
+
+        QPopup popup = UIUtils.createWizardPopup ("Add a new object type",
+                                                  Constants.NEW_ICON_NAME,
+                                                  null,
+                                                  new NewObjectTypeWizard (viewer));
+
+        popup.setDraggable (viewer);
+
+        popup.resize ();
+        viewer.showPopupAt (popup,
+                            UIUtils.getCenterShowPosition (viewer,
+                                                           popup),
+                            false);
+    
+    }
+    
 }

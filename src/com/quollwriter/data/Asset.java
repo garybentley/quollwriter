@@ -7,7 +7,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.comparators.*;
 
 
-public abstract class Asset extends NamedObject
+public abstract class Asset extends LegacyUserConfigurableObject
 {
 
     public static Map<String, Class> supportedAssetTypes = new LinkedHashMap ();
@@ -27,9 +27,7 @@ public abstract class Asset extends NamedObject
                ResearchItem.class);
 
     }
-
-    private Project proj = null;
-
+/*
     public Asset(String objType,
                  String name)
     {
@@ -38,7 +36,7 @@ public abstract class Asset extends NamedObject
                name);
 
     }
-
+*/
     public Asset(String objType)
     {
 
@@ -77,20 +75,14 @@ public abstract class Asset extends NamedObject
 
     }
 
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
         return new HashSet (this.getNotes ());
 
     }
-
-    public Project getProject ()
-    {
-
-        return this.proj;
-
-    }
-
+    
     public static Class getAssetClass (String objType)
     {
         
@@ -98,13 +90,4 @@ public abstract class Asset extends NamedObject
         
     }
     
-    public void setProject (Project p)
-    {
-
-        this.proj = p;
-        
-        this.setParent (this.proj);
-
-    }
-
 }

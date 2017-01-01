@@ -10,7 +10,8 @@ SELECT p.dbkey dbkey,
        n.lastmodified lastmodified,
        n.objecttype objecttype,
        n.datecreated datecreated,
-       n.properties  properties
+       n.properties  properties,
+       n.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v n,
        editorproject p
 WHERE  p.dbkey = n.dbkey 

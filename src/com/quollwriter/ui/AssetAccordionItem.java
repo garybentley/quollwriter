@@ -57,7 +57,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 try
                 {
 
-                    a = Asset.createSubType (_this.forObjType);
+                    a = _this.viewer.getProject ().createAsset (_this.forObjType);
 
                 } catch (Exception e)
                 {

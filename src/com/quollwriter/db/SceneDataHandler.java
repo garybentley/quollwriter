@@ -132,7 +132,7 @@ public class SceneDataHandler implements DataHandler<Scene, Chapter>
     }
 
     @Override
-    public Scene getObjectByKey (int        key,
+    public Scene getObjectByKey (long       key,
                                  Chapter    parent,
                                  Connection conn,
                                  boolean    loadChildObjects)

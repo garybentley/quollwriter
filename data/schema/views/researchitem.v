@@ -13,7 +13,8 @@ SELECT r.dbkey dbkey,
        r.url url,
        n.id           id,
        n.version      version,
-       n.latest       latest       
+       n.latest       latest,
+       n.userobjecttypedbkey userobjecttypedbkey
 FROM   namedobject_v n,
        researchitem  r
 WHERE  r.dbkey = n.dbkey

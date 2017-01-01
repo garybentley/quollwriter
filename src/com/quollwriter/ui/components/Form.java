@@ -132,7 +132,7 @@ public class Form extends QPopup
                 
                 if (fi.component != null)
                 {
-                    
+                                    
                     rows.append (", 6px, ");
                     
                 }
@@ -172,7 +172,7 @@ public class Form extends QPopup
             if (i < (items.size () - 1))
             {
 
-                rows.append (", 6px, ");
+                rows.append (", 6px, ");                    
 
             }
 
@@ -206,7 +206,7 @@ public class Form extends QPopup
                 ((JComponent) c).setOpaque (false);
             
             }
-            
+                        
             if (c == null)
             {
 
@@ -411,45 +411,69 @@ public class Form extends QPopup
                 int            buttons,
                 boolean        addHideControl)
     {
+        
+        this (title,
+              icon,
+              items,
+              parent,
+              buttons,
+              addHideControl,
+              true);
+        
+    }
+
+    public Form(String         title,
+                Icon           icon,
+                List<FormItem> items,
+                Component      parent,
+                int            buttons,
+                boolean        addHideControl,
+                boolean        addPopupListener)
+    {
 
         super (title,
                icon,
                null);
 
-        this.addPopupListener (new PopupListener ()
-        {
-            
-            @Override
-            public void popupShown (PopupEvent ev)
+        if (addPopupListener)
+        {               
+        
+            this.addPopupListener (new PopupListener ()
             {
                 
-              
-            }
-            
-            @Override
-            public void popupResized (PopupEvent ev)
-            {
-                
-              
-            }
-
-            @Override
-            public void popupHidden (PopupEvent ev)
-            {
-                
-                Form.this.fireFormEvent (FormEvent.CANCEL,
-                                         FormEvent.CANCEL_ACTION_NAME);
-
-                if (Form.this.hideOnCancel)
+                @Override
+                public void popupShown (PopupEvent ev)
                 {
-
-                    Form.this.hideForm ();
-
-                }                    
+                    
+                  
+                }
                 
-            }
-            
-        });
+                @Override
+                public void popupResized (PopupEvent ev)
+                {
+                    
+                  
+                }
+    
+                @Override
+                public void popupHidden (PopupEvent ev)
+                {
+                    
+                    Form.this.fireFormEvent (FormEvent.CANCEL,
+                                             FormEvent.CANCEL_ACTION_NAME);
+    
+                    if (Form.this.hideOnCancel)
+                    {
+    
+                        Form.this.hideForm ();
+    
+                    }                    
+                    
+                }
+                
+            });
+
+        }
         
         if (addHideControl)
         {
@@ -500,7 +524,12 @@ public class Form extends QPopup
 
             FormItem fi = (FormItem) items.get (i);
 
-            if (fi.component instanceof JComboBox)
+            if ((fi.component instanceof JComboBox)
+                ||
+                (fi.component instanceof JSpinner)
+                ||
+                (fi.component instanceof com.toedter.calendar.JDateChooser)
+               )
             {
 
                 fi.component.setMaximumSize (fi.component.getPreferredSize ());
@@ -514,9 +543,9 @@ public class Form extends QPopup
             }
             
             if ((fi.component instanceof JTextArea)
-                ||
+                //||
                 // TODO: Fix this.
-                (fi.component instanceof com.quollwriter.ui.TextArea)
+                //(fi.component instanceof com.quollwriter.ui.TextArea)
                )
             {
 
@@ -532,7 +561,7 @@ public class Form extends QPopup
             {
 
                 rows.append (", 6px, ");
-
+  
             }
 
         }
@@ -613,7 +642,7 @@ public class Form extends QPopup
 
                 } else
                 {
-
+                
                     if ((l instanceof JTextArea) ||
                         (l instanceof JTextPane) ||
                         (l instanceof JList))
