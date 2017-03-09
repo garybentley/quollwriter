@@ -18,7 +18,9 @@ import com.quollwriter.DictionaryProvider;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.text.*;
 
-public class TextArea extends Box
+import com.quollwriter.ui.components.ScrollableBox;
+
+public class TextArea extends ScrollableBox
 {
 
     protected QTextEditor text = null;
@@ -28,6 +30,7 @@ public class TextArea extends Box
     private int maxChars = -1;
     private boolean autoGrabFocus = true;
     private boolean spellCheckEnabled = false;
+    private int rows = -1;
 
     public TextArea ()
     {
@@ -54,18 +57,24 @@ public class TextArea extends Box
         this.text.setFontColor (l.getForeground ());
         this.text.setFontFamily (l.getFont ().getName ());
         this.text.setFontSize (l.getFont ().getSize ());
-
+        this.rows = rows;
+/*
         if (rows > 0)
         {
 
-            this.text.setPreferredSize (new Dimension (0, (int) (this.text.getLineHeight () * (rows + 0.8))));
+            //this.text.setPreferredSize (new Dimension (0, (int) (this.text.getLineHeight () * (rows + 0.8))));
 
+        this.text.setMinimumSize (new Dimension (200,
+                                                 this.text.getLineHeight () * (int) (rows + 0.8)));
+        this.text.setPreferredSize (new Dimension (200,
+                                                 this.text.getLineHeight () * (int) (rows + 0.8)));
+            
         } else {
 
-            this.text.setMinimumSize (new Dimension (0, this.text.getLineHeight () * 1));
+            this.text.setMinimumSize (new Dimension (300, this.text.getLineHeight () * 1));
 
         }
-
+  */      
         if (placeholder != null)
         {
 
@@ -153,38 +162,8 @@ public class TextArea extends Box
         this.maxText = new JLabel ("Max " + Environment.formatNumber (maxChars) + " characters");
         this.maxText.setForeground (UIUtils.getHintTextColor ());
 
-        this.scrollPane = UIUtils.createScrollPane ((JComponent) this.text);
-
-        this.text.addMouseListener (new MouseEventHandler ()
-        {
-
-            @Override
-            public void performAction (ActionEvent ev)
-            {
-
-                Action aa = (Action) am.get (ev.getActionCommand ());
-
-                if (aa != null)
-                {
-
-                    aa.actionPerformed (ev);
-
-                }
-
-            }
-
-            @Override
-            public void fillPopup (JPopupMenu popup,
-                                   MouseEvent ev)
-            {
-
-                _this.fillPopupMenu (ev,
-                                     popup);
-
-            }
-
-        });
-
+        this.scrollPane = UIUtils.createScrollPane (this.text);
+        
         this.text.addKeyListener (new KeyAdapter ()
         {
 
@@ -225,6 +204,31 @@ public class TextArea extends Box
         this.text.addMouseListener (new MouseEventHandler ()
         {
 
+            @Override
+            public void performAction (ActionEvent ev)
+            {
+
+                Action aa = (Action) am.get (ev.getActionCommand ());
+
+                if (aa != null)
+                {
+
+                    aa.actionPerformed (ev);
+
+                }
+
+            }
+
+            @Override
+            public void fillPopup (JPopupMenu popup,
+                                   MouseEvent ev)
+            {
+
+                _this.fillPopupMenu (ev,
+                                     popup);
+
+            }
+        
             @Override
             public void mouseEntered (MouseEvent ev)
             {
@@ -295,15 +299,19 @@ public class TextArea extends Box
 
         if (rows > 0)
         {
-
-            this.scrollPane.setPreferredSize (this.text.getPreferredSize ());
+/*
+            //this.scrollPane.setPreferredSize (this.text.getPreferredSize ());
             this.scrollPane.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                            this.text.getPreferredSize ().height));
             this.scrollPane.setMinimumSize (new Dimension (250,
                                                            this.text.getPreferredSize ().height));
-
+*/
         }
 
+        //this.scrollPane.setPreferredSize (this.getPreferredSize ());
+        //this.scrollPane.setMaximumSize (this.getMaximumSize ());
+        //this.scrollPane.setMinimumSize (this.getMinimumSize ());
+        
         this.add (this.maxText);
 
         if (this.maxChars <= 0)
@@ -315,13 +323,63 @@ public class TextArea extends Box
 
     }
 
+    @Override
+    public Dimension getPreferredSize ()
+    {
+        
+        Dimension p = super.getPreferredSize ();
+        
+        if (this.rows > 0)
+        {
+        
+            int ph = this.text.getLineHeight () * (int) (this.rows + 0.8);
+            
+            p.height = ph;
+            /*
+            if (p.height < ph)
+            {
+                
+                p.height = ph;
+                
+            }
+*/
+        }
+
+        return p;        
+        
+    }
+  
+    @Override
+    public Dimension getMaximumSize ()
+    {
+        
+        Dimension p = this.getPreferredSize ();
+        
+        p.width = Short.MAX_VALUE;
+        
+        return p;
+        
+    }
+    
+    @Override
+    public Dimension getMinimumSize ()
+    {
+        
+        Dimension p = this.getPreferredSize ();
+        
+        p.width = 250;
+        
+        return p;
+        
+    }    
+    
     public void fillPopupMenuForSpellCheck (final MouseEvent ev,
                                             final JPopupMenu popup)
     {
 
         final TextArea _this = this;
 
-        Point p = this.text.getMousePosition ();
+        Point p = ev.getPoint (); 
 
         JMenuItem mi = null;
 
@@ -1018,14 +1076,21 @@ public class TextArea extends Box
 
     }
 
+    public void clearText ()
+    {
+        
+        this.setText ((StringWithMarkup) null);
+        
+    }
+    
     public void setText (String t)
     {
 
-        this.setTextWithMarkup (new StringWithMarkup (t));
+        this.setText (new StringWithMarkup (t));
 
     }
 
-    public void setTextWithMarkup (StringWithMarkup t)
+    public void setText (StringWithMarkup t)
     {
 
         this.text.setTextWithMarkup (t);
@@ -1105,8 +1170,6 @@ public class TextArea extends Box
     @Override
     public void setBorder (Border b)
     {
-
-        //super.setBorder (b);
 
         this.scrollPane.setBorder (b);
 

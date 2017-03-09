@@ -66,7 +66,7 @@ import com.quollwriter.editors.ui.sidebars.*;
 
 import com.quollwriter.text.*;
 
-public class ProjectViewer extends AbstractProjectViewer implements DocumentListener
+public class ProjectViewer extends AbstractProjectViewer implements DocumentListener, ProjectEventListener
 {
 
     public static final String IDEA_BOARD_HEADER_CONTROL_ID = "ideaBoard";
@@ -90,8 +90,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public static final int EDIT_SCENE_ACTION = 125; // "editScene";
     public static final int MANAGE_NOTE_TYPES_ACTION = 126; // "manageNoteTypes"
     public static final int NEW_NOTE_TYPE_ACTION = 127; // "newNoteType"
-    public static final int MANAGE_ITEM_TYPES_ACTION = 128; // "manageItemTypes"
-    public static final int NEW_ITEM_TYPE_ACTION = 129; // "newItemType"
+    //public static final int MANAGE_ITEM_TYPES_ACTION = 128; // "manageItemTypes"
+    //public static final int NEW_ITEM_TYPE_ACTION = 129; // "newItemType"
 
     private Date            sessionStart = new Date ();
     private ProjectSideBar  sideBar = null;
@@ -113,6 +113,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.iconProvider = new DefaultIconProvider ();
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
 
+        Environment.addUserProjectEventListener (this);
+        
         this.problemFinderRuleConfig  = new ProblemFinderRuleConfig (this);
 
 		InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -358,7 +360,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F2,
                                         0),
                 "ideaboard-show");
-
+                
     }
 
     public AbstractSideBar getMainSideBar ()
@@ -368,9 +370,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
-    private static Action getAddAssetActionListener (final String          assetObjType,
-                                                     final ProjectViewer   pv,
-                                                     final PopupsSupported ps)
+    private static Action getAddAssetActionListener (final UserConfigurableObjectType type,
+                                                     final ProjectViewer              pv)
     {
 
         return new ActionAdapter ()
@@ -384,30 +385,48 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                 try
                 {
                     
-                    as = pv.getProject ().createAsset (assetObjType);
+                    as = Asset.createAsset (type);
                     
                 } catch (Exception e) {
                     
                     Environment.logError ("Unable to create new asset of type: " +
-                                          assetObjType,
+                                          type,
                                           e);
                     
                     UIUtils.showErrorMessage (pv,
                                               String.format ("Unable to create new %s.",
-                                                             Environment.getObjectTypeName (assetObjType)));
+                                                             type.getObjectTypeName ()));
                     
                     return;
                     
                 }
             
-                AbstractActionHandler aah = new AssetActionHandler (as,
-                                                                    pv,
-                                                                    AbstractActionHandler.ADD);
+                String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
+                    
+                // Should we use a popup?
+                if (((addAsset.equals ("trypopup"))
+                     &&
+                     (type.getNonCoreFieldCount () == 0)
+                    )
+                    ||
+                    (addAsset.equals ("popup"))
+                   )
+                {
+            
+                    AssetActionHandler aah = new AssetActionHandler (as,
+                                                                     pv);
+    
+                    aah.setPopupOver (pv);
+    
+                    aah.actionPerformed (ev);
 
-                aah.setPopupOver (pv);
-
-                aah.actionPerformed (ev);
-
+                    return;
+                    
+                }
+                    
+                pv.showAddAsset (as,
+                                 null);
+                
             }
 
         };
@@ -474,35 +493,26 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         final ProjectViewer ppv = pv;
 
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (QObject.OBJECT_TYPE).charAt (0))),
-                "new" + QObject.OBJECT_TYPE);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE).charAt (0))),
-                "new" + QCharacter.OBJECT_TYPE);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (Location.OBJECT_TYPE).charAt (0))),
-                "new" + Location.OBJECT_TYPE);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE).charAt (0))),
-                "new" + ResearchItem.OBJECT_TYPE);
+        Set<UserConfigurableObjectType> assetObjTypes = Environment.getAssetUserConfigurableObjectTypes (true);
 
-        actions.put ("new" + QObject.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (QObject.OBJECT_TYPE,
-                                                              ppv,
-                                                              parent));
+        for (UserConfigurableObjectType type : assetObjTypes)
+        {
+        
+            if (type.getCreateShortcutKeyStroke () != null)
+            {
+        
+                String id = "newuserobject" + type.getKey ();
+                
+                im.put (type.getCreateShortcutKeyStroke (),
+                        id);
+                actions.put (id,
+                             ProjectViewer.getAddAssetActionListener (type,
+                                                                      ppv));
 
-        actions.put ("new" + ResearchItem.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (ResearchItem.OBJECT_TYPE,
-                                                              ppv,
-                                                              parent));
-
-        actions.put ("new" + QCharacter.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (QCharacter.OBJECT_TYPE,
-                                                              ppv,
-                                                              parent));
-
-        actions.put ("new" + Location.OBJECT_TYPE,
-                     ProjectViewer.getAddAssetActionListener (Location.OBJECT_TYPE,
-                                                              ppv,
-                                                              parent));
-
+            }
+        
+        }
+                                                                  
     }
 
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
@@ -769,14 +779,14 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             return new AddNewNoteTypeActionHandler (this);
 
         }
-
+/*
         if (name == ProjectViewer.NEW_ITEM_TYPE_ACTION)
         {
 
             return new AddNewItemTypeActionHandler (this);
 
         }
-
+*/
         if (name == ProjectViewer.MANAGE_NOTE_TYPES_ACTION)
         {
 
@@ -793,7 +803,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             };
 
         }
-
+/*
         if (name == ProjectViewer.MANAGE_ITEM_TYPES_ACTION)
         {
 
@@ -810,7 +820,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             };
 
         }
-
+*/
         if (name == ProjectViewer.NEW_CHAPTER_ACTION)
         {
 
@@ -1037,11 +1047,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                     pv.scrollTo (c,
                                  pos);
 
-                    AbstractActionHandler aah = new OutlineItemChapterActionHandler (c,
-                                                                                     qep,
-                                                                                     pos);
-
-                    aah.actionPerformed (ev);
+                    OutlineItem o = new OutlineItem (-1,
+                                                     c);
+        
+                    new ChapterItemActionHandler<OutlineItem> (o,
+                                                               qep,
+                                                               AbstractActionHandler.ADD,
+                                                               pos).actionPerformed (ev);
 
                 }
 
@@ -1079,12 +1091,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                     Scene s = new Scene (-1,
                                          c);
 
-                    AbstractActionHandler aah = new ChapterItemActionHandler (s,
-                                                                              qep,
-                                                                              AbstractActionHandler.ADD,
-                                                                              pos);
-
-                    aah.actionPerformed (ev);
+                    new ChapterItemActionHandler (s,
+                                                  qep,
+                                                  AbstractActionHandler.ADD,
+                                                  pos).actionPerformed (ev);
 
                 }
 
@@ -1122,12 +1132,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                     Scene s = new Scene (-1,
                                          c);
 
-                    AbstractActionHandler aah = new ChapterItemActionHandler (s,
-                                                                              qep,
-                                                                              AbstractActionHandler.ADD,
-                                                                              pos);
-
-                    aah.actionPerformed (ev);
+                    new ChapterItemActionHandler (s,
+                                                  qep,
+                                                  AbstractActionHandler.ADD,
+                                                  pos).actionPerformed (ev);
 
                 }
 
@@ -1162,11 +1170,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                     pv.scrollTo (c,
                                  pos);
 
-                    AbstractActionHandler aah = new NoteActionHandler (c,
-                                                                       qep,
-                                                                       pos);
-
-                    aah.actionPerformed (ev);
+                    new NoteActionHandler (c,
+                                           qep,
+                                           pos).actionPerformed (ev);
 
                 }
 
@@ -1179,11 +1185,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
             Chapter c = (Chapter) other;
 
-            AbstractActionHandler aah = new OutlineItemChapterActionHandler (c,
-                                                                             this.getEditorForChapter (c),
-                                                                             0);
+            OutlineItem o = new OutlineItem (-1,
+                                             c);
 
-            return aah;
+            return new ChapterItemActionHandler<OutlineItem> (o,
+                                                              this.getEditorForChapter (c),
+                                                              AbstractActionHandler.ADD,
+                                                              0);
 
         }
 
@@ -1332,10 +1340,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public void handleOpenProject ()
     {
     
-        this.initProjectItemBoxes ();
+        //this.initProjectItemBoxes ();
 
 		final ProjectViewer _this = this;
 
+        /**
+         *TODO: CHECK if needed still
 		this.objectTypePropChangedListener = new PropertyChangedListener ()
 		{
 
@@ -1396,7 +1406,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 		};
 
 		Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME).addPropertyChangedListener (this.objectTypePropChangedListener);
-
+        */
+        
 		// Called whenever a note type is changed.
 		this.noteTypePropChangedListener = new PropertyChangedListener ()
 		{
@@ -1465,6 +1476,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
+    /*
     private void initProjectItemBoxes ()
     {
 
@@ -1493,7 +1505,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.sideBar.initOpenObjectTypes (open);
 
     }
-
+*/
     public void handleItemChangedEvent (ItemChangedEvent ev)
     {
 
@@ -1542,7 +1554,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.sideBar.reloadTreeForObjectType (objType);
 
     }
-
+    
     public void reloadTreeForObjectType (NamedObject obj)
     {
 
@@ -1564,72 +1576,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
+    @Override
     public void doSaveState ()
     {
-
-        StringBuilder nts = new StringBuilder ();
-
-        Enumeration<TreePath> paths = this.getNoteTree ().getExpandedDescendants (new TreePath (this.getNoteTree ().getModel ().getRoot ()));
-
-        if (paths != null)
-        {
-
-            while (paths.hasMoreElements ())
-            {
-
-                NamedObject d = (NamedObject) ((DefaultMutableTreeNode) paths.nextElement ().getLastPathComponent ()).getUserObject ();
-
-                if (d instanceof TreeParentNode)
-                {
-
-                    String type = d.getName ();
-
-                    if (nts.length () > 0)
-                    {
-
-                        nts.append ("|");
-
-                    }
-
-                    nts.append (type);
-
-                }
-
-            }
-
-            try
-            {
-
-                this.proj.setProperty (Constants.NOTE_TREE_OPEN_TYPES_PROPERTY_NAME,
-                                       nts.toString ());
-
-            } catch (Exception e)
-            {
-
-                // Don't worry about this.
-                Environment.logError ("Unable to save note tree state for project: " +
-                                      this.proj,
-                                      e);
-
-            }
-
-        }
-
-        try
-        {
-
-            this.proj.setProperty (Constants.ASSETS_TREE_OPEN_TYPES_PROPERTY_NAME,
-                                   this.sideBar.getSaveState ());
-
-        } catch (Exception e)
-        {
-
-            // Don't worry about this.
-            Environment.logError ("Unable to save assets tree state for project: " +
-                                  this.proj,
-                                  e);
-
-        }
 
     }
 
@@ -2235,22 +2184,107 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
+    /**
+     * Add an asset in a tab.
+     *
+     * @param a The asset to add, if it already has a key then an exception is thrown.
+     */
+    public void showAddAsset (final Asset          a,
+                              final ActionListener doAfterAdd)
+    {
+
+        if (a.getKey () != null)
+        {
+            
+            throw new IllegalStateException ("Asset already has a key.");
+            
+        }
+    
+        AddAssetPanel avp = null;
+        
+        try
+        {
+
+            avp = new AddAssetPanel (this,
+                                     a);
+
+            avp.init ();
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Unable to add asset: " +
+                                  a,
+                                  e);
+
+            UIUtils.showErrorMessage (this,
+                                      "Unable to add " +
+                                      a.getObjectTypeName ());
+
+            return;
+
+        }
+
+        this.addPanel (avp);
+
+        this.setPanelVisible (avp);
+
+        if (doAfterAdd != null)
+        {
+
+            UIUtils.doActionWhenPanelIsReady (avp,
+                                              doAfterAdd,
+                                              a,
+                                              "afterview");
+
+        }
+        
+    }
+    
     public void editAsset (final Asset          a,
                            final ActionListener doAfterEdit)
     {
         
-        ActionListener ah = AssetViewPanel.getEditAssetAction (this,
-                                                              a);
+        final ProjectViewer _this = this;
         
-        ah.actionPerformed (new ActionEvent (this, 0, "edit"));
-        
-        if (doAfterEdit != null)
+        // Display the object then edit it.
+        this.viewAsset (a,
+                        new ActionListener ()
         {
-            
-            UIUtils.doLater (doAfterEdit);
-            
-        }
+  
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
                 
+                AssetViewPanel p = (AssetViewPanel) _this.getQuollPanelForObject (a);
+                
+                if (p == null)
+                {
+                    
+                    Environment.logError ("Unable to edit asset: " +
+                                          a);
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.replaceObjectNames (String.format ("Unable to edit %s",
+                                                                                             a.getObjectTypeName ())));
+                    
+                    return;
+                    
+                }
+                
+                p.editObject ();
+
+                if (doAfterEdit != null)
+                {
+                    
+                    UIUtils.doLater (doAfterEdit);
+                    
+                }
+                
+            }
+            
+        });
+                                
     }
     
     /**
@@ -2304,7 +2338,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
             UIUtils.showErrorMessage (_this,
                                       "Unable to view " +
-                                      Environment.getObjectTypeName (a) +
+                                      a.getObjectTypeName () +
                                       ": " +
                                       a.getName ());
 
@@ -2405,10 +2439,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         ChapterInformationSideBar cb = new ChapterInformationSideBar (this,
                                                                       c);
 
-        this.addSideBar (cb.getName (),
-                         cb);
+        this.addSideBar (cb);
 
-        this.showSideBar (cb.getName ());
+        this.showSideBar (cb.getId ());
 
         return true;
 
@@ -2421,6 +2454,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     }
 
+    public void openObjectSection (Asset a)
+    {
+        
+        this.sideBar.setObjectsOpen (a.getUserConfigurableObjectType ().getObjectTypeId ());
+        
+    }
+    
     public void openObjectSection (String objType)
     {
 
@@ -3144,29 +3184,21 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         }
 
-        Set<String> assetTypes = new LinkedHashSet ();
-        assetTypes.add (QCharacter.OBJECT_TYPE);
-        assetTypes.add (Location.OBJECT_TYPE);
-        assetTypes.add (QObject.OBJECT_TYPE);
-        assetTypes.add (ResearchItem.OBJECT_TYPE);
-
-        for (String type : assetTypes)
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+                
+        for (UserConfigurableObjectType type : types)
         {
 
-            Class c = Asset.getAssetClass (type);
-
             Set<Asset> objs = UIUtils.getAssetsContaining (t,
-                                                           c,
+                                                           type,
                                                            this.proj);
 
             if (objs.size () > 0)
             {
 
-                res.add (new NamedObjectFindResultsBox<Asset> (Environment.getObjectTypeNamePlural (type),
-                                                    type,
-                                                    type,
-                                                    this,
-                                                    objs));
+                res.add (new AssetFindResultsBox (type,
+                                                  this,
+                                                  objs));
 
             }
 
@@ -3596,8 +3628,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                 this.problemFinderSideBar = new ProblemFinderSideBar (this,
                                                                       rule);
 
-                this.addSideBar ("problemfinderrule",
-                                 this.problemFinderSideBar);
+                this.addSideBar (this.problemFinderSideBar);
 
             } else {
 
@@ -3605,7 +3636,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
             }
 
-            this.showSideBar ("problemfinderrule");
+            this.showSideBar (ProblemFinderSideBar.ID);
 
         } catch (Exception e) {
 
@@ -3672,11 +3703,115 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                ProjectEvent.SHOW);
 
     }
-    
-    public UserConfigurableObjectType getUserConfigurableObjectType (String objType)
+
+    public void showUserConfigurableObjectType (UserConfigurableObjectType type)
     {
         
-        return this.proj.getUserConfigurableObjectType (objType);
+        this.sideBar.addAccordionItem (this.sideBar.createAssetAccordionItem (type));
+        
+    }
+
+    @Override
+    public void eventOccurred (ProjectEvent ev)
+    {
+
+        if (ev.getType ().equals (ProjectEvent.TAG))
+        {
+
+            if (ev.getAction ().equals (ProjectEvent.DELETE))
+            {
+
+                Tag tag = (Tag) ev.getSource ();
+
+                this.removeTag (tag);
+            
+            }
+            
+        }
+            
+        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        {
+
+            if (ev.getAction ().equals (ProjectEvent.DELETE))
+            {
+                
+                UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
+                
+                // Removing an object type.
+                // Remove it from the project sidebar.
+                // Remove any tabs for objects of that type.
+                this.sideBar.removeSection (type);
+                
+                if (type.isAssetObjectType ())
+                {
+                
+                    this.removeAssetsOfType (type);
+                    
+                }
+                
+            }
+        
+        }
+
+    }
+    
+    private void removeAssetsOfType (UserConfigurableObjectType type)
+    {
+        
+        Set<Asset> assets = new HashSet (this.proj.getAssets (type));
+        
+        if (assets == null)
+        {
+            
+            return;
+            
+        }
+        
+        for (Asset a : assets)
+        {
+
+            this.deleteAsset (a);
+
+        }
+        
+    }
+    
+    /**
+     * Remove the specified tag from all objects in this project.
+     *
+     * @param tag The tag.
+     */
+    public void removeTag (Tag tag)
+    {
+        
+        try
+        {
+        
+            // Get all objects with the tag, remove the tag.
+            Set<NamedObject> objs = this.proj.getAllObjectsWithTag (tag);
+            
+            for (NamedObject o : objs)
+            {
+                
+                o.removeTag (tag);
+                
+            }
+            
+            this.saveObjects (new ArrayList (objs),
+                              true);
+            
+            this.sideBar.removeTagSection (tag);
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to remove tag: " +
+                                  tag,
+                                  e);
+            
+            UIUtils.showErrorMessage (this,
+                                      "Unable to remove tag.");
+            
+        }
         
     }
     

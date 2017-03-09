@@ -12,6 +12,21 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
 
     protected int count = 0;
 
+    private String forObjType = null;
+    
+    public FindResultsBox (String    title,
+                           ImageIcon icon,
+                           E         viewer)
+    {
+
+        super (title,
+               icon,
+               viewer);
+               
+        this.getTree ().getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+    }
+
     public FindResultsBox (String title,
                            String iconType,
                            String forObjType,
@@ -20,13 +35,23 @@ public abstract class FindResultsBox<E extends AbstractProjectViewer> extends Pr
 
         super (title,
                iconType,
-               forObjType,
                viewer);
 
+        this.forObjType = forObjType;
+               
         this.getTree ().getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
     }
     
+    @Override
+    public String getId ()
+    {
+        
+        return this.forObjType;
+        
+    }
+    
+    @Override
     public boolean showItemCountOnHeader ()
     {
 

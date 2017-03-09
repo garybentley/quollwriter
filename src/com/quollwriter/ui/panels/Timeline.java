@@ -1055,13 +1055,15 @@ System.out.println ("DX: " + sd);
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
         
-        return "timeline";
+        return Environment.getIcon ("timeline",
+                                    type);
         
     }
-
+    
     public void fillToolBar (JToolBar toolBar,
                              boolean  fullScreen)
     {

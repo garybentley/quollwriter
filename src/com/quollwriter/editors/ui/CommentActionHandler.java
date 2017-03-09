@@ -1,6 +1,7 @@
 package com.quollwriter.editors.ui;
 
-//import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.*;
 import java.awt.font.*;
 
@@ -9,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -24,9 +27,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.components.FormItem;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.renderers.*;
@@ -36,37 +37,44 @@ import com.quollwriter.editors.ui.panels.*;
 /**
  * A comment action handler is really just a tweaked note action handler.  A comment is a note but for
  * the editor project viewer behaves a little differently.
+ *
+ * TODO: Merge/extend from NoteActionHandler?
  */
-public class CommentActionHandler extends ProjectViewerActionHandler
+public class CommentActionHandler<V extends AbstractProjectViewer> extends AbstractFormPopup<AbstractProjectViewer, Note> //ProjectViewerActionHandler<AbstractProjectViewer, Note>
 {
 
-    private TextArea  comment = null;
+    private MultiLineTextFormItem comment = null;
     protected Chapter    chapter = null;
     protected int        showAt = -1;
-
-    public CommentActionHandler (final Note                n,
-                                 final AbstractEditorPanel qep)
+    private QTextEditor editor = null;
+    private ChapterItemViewer<V> itemViewer = null;
+    
+    public CommentActionHandler (final Note                 n,
+                                 final ChapterItemViewer<V> itemViewer)
     {
-
+    
         super (n,
-               qep,
-               AbstractActionHandler.EDIT,
-               true);
+               itemViewer.getViewer (),
+               EDIT);
 
         this.chapter = n.getChapter ();
         this.showAt = n.getPosition ();
 
-        this.initFormItems ();
-
-        this.setPopupOver (qep);
-
-        final QTextEditor editor = qep.getEditor ();
+        this.itemViewer = itemViewer;
         
-        final int origSelStart = editor.getSelectionStart ();
+        final EditorChapterPanel qep = (EditorChapterPanel) this.viewer.getEditorForChapter (this.chapter);
+        
+        this.setPopupOver (qep);
+        
+        this.editor = itemViewer.getEditor ();
+        
+        final int origSelStart = this.editor.getSelectionStart ();
         
         final BlockPainter highlight = new BlockPainter (Environment.getHighlightColor ());                
         
         final Caret origCaret = editor.getCaret ();
+        
+        final CommentActionHandler _this = this;
         
         this.setOnShowAction (new ActionListener ()
         {
@@ -75,7 +83,7 @@ public class CommentActionHandler extends ProjectViewerActionHandler
             public void actionPerformed (ActionEvent ev)
             {
                         
-                ((EditorChapterPanel) qep).setChapterItemEditVisible (true);
+                qep.setChapterItemEditVisible (true);
                             
                 editor.setCaret (new DefaultCaret ()
                 {
@@ -86,7 +94,7 @@ public class CommentActionHandler extends ProjectViewerActionHandler
                     public void setSelectionVisible (boolean vis)
                     {
                         
-                        editor.removeAllHighlights (highlight);
+                        _this.editor.removeAllHighlights (highlight);
                         
                         if (vis != this.isVis) {
                             this.isVis = vis;
@@ -101,10 +109,10 @@ public class CommentActionHandler extends ProjectViewerActionHandler
                 if (n.getEndPosition () > n.getStartPosition ())
                 {
                     
-                    editor.addHighlight (n.getStartPosition (),
-                                         n.getEndPosition (),
-                                         highlight,
-                                         false);
+                    _this.editor.addHighlight (n.getStartPosition (),
+                                               n.getEndPosition (),
+                                               highlight,
+                                               false);
                     
                 }                        
 
@@ -119,15 +127,15 @@ public class CommentActionHandler extends ProjectViewerActionHandler
             public void actionPerformed (ActionEvent ev)
             {
                 
-                ((EditorChapterPanel) qep).setChapterItemEditVisible (false);                
+                qep.setChapterItemEditVisible (false);                
                 
-                editor.removeAllHighlights (highlight);
+                _this.editor.removeAllHighlights (highlight);
                 
-                editor.setCaret (origCaret);
+                _this.editor.setCaret (origCaret);
 
-                editor.setSelectionStart (origSelStart);
+                _this.editor.setSelectionStart (origSelStart);
                 
-                editor.grabFocus ();
+                _this.editor.grabFocus ();
                 
             }
             
@@ -135,36 +143,139 @@ public class CommentActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public CommentActionHandler (Chapter             c,
-                                 AbstractEditorPanel qep,
-                                 int                 showAt)
+    public CommentActionHandler (Chapter              c,
+                                 ChapterItemViewer<V> itemViewer,
+                                 int                  showAt)
     {
 
         super (new Note (0,
                          c),
-               qep,
-               AbstractActionHandler.ADD,
-               true);
+               itemViewer.getViewer (),
+               ADD);
     
         this.showAt = showAt;
                
         this.chapter = c;
 
-        this.setPopupOver (qep); // pv.getEditorForChapter (c));
+        this.itemViewer = itemViewer;
+        
+        final EditorChapterPanel qep = (EditorChapterPanel) this.viewer.getEditorForChapter (this.chapter);
+        
+        this.setPopupOver (qep); 
                
-        ((Note) this.dataObject).setType (Note.EDIT_NEEDED_NOTE_TYPE);
-        
-        this.initFormItems ();
-        
+        this.object.setType (Note.EDIT_NEEDED_NOTE_TYPE);
+                
     }
     
     @Override
-    public int getShowAtPosition ()
+    public Point getShowAtPosition ()
     {
 
-        return this.showAt;
+        int y = 0;
 
-    }    
+        Point lastMousePosition = this.itemViewer.getLastMousePosition ();
+        
+        int at = this.showAt;
+
+        QTextEditor editor = this.itemViewer.getEditor ();
+
+        if (at == -1)
+        {
+
+            // Calculate where it should be displayed.
+            String sel = editor.getSelectedText ();
+
+            if ((sel != null) &&
+                (!sel.trim ().equals ("")))
+            {
+
+                // We have some text so use "at"...
+                at = editor.getSelectionStart ();
+
+            } else
+            {
+
+                int c = editor.getCaret ().getDot ();
+
+                if (c >= 0)
+                {
+
+                    at = c;
+
+                } else
+                {
+
+                    if (lastMousePosition != null)
+                    {
+
+                        at = editor.viewToModel (new Point (lastMousePosition.x,
+                                                            lastMousePosition.y));
+
+                    } else
+                    {
+
+                        at = editor.getText ().length () - 1;
+
+                    }
+
+                }
+
+            }
+
+        }
+            
+        this.object.setPosition (at);
+
+        Rectangle r = null;
+
+        try
+        {
+
+            r = editor.modelToView (at);
+
+        } catch (Exception e)
+        {
+
+            Environment.logError ("Position: " +
+                                  at +
+                                  " is not valid.",
+                                  e);
+
+            return super.getShowAtPosition ();
+
+        }
+
+        JScrollPane scrollPane = this.itemViewer.getScrollPane ();
+
+        y = r.y + 22 - scrollPane.getVerticalScrollBar ().getValue ();
+
+        if ((y < 0) ||
+            (y > (scrollPane.getViewport ().getViewRect ().height + scrollPane.getVerticalScrollBar ().getValue ())))
+        {
+
+            // Recalculate y since we have moved the scroll position.
+            y = r.y + 22; // - scrollPane.getVerticalScrollBar ().getValue ();
+
+        }
+/*
+        // Adjust the bounds so that the form is fully visible.
+        if ((y + this.f.getPreferredSize ().height) > (scrollPane.getViewport ().getViewRect ().height + scrollPane.getVerticalScrollBar ().getValue ()))
+        {
+
+            y = y - 22 - this.f.getPreferredSize ().height;
+
+        }
+
+        y -= this.f.getPreferredSize ().height;
+  */      
+        int xOffset = this.itemViewer.getIconColumnXOffset (this.object);
+            
+        Point p = new Point (this.itemViewer.getIconColumn ().getWidth () - xOffset,
+                             y);
+
+        return p;
+        
+    }
     
     @Override
     public JComponent getFocussedField ()
@@ -175,15 +286,16 @@ public class CommentActionHandler extends ProjectViewerActionHandler
     }
 
     @Override
-    public String getIcon (int mode)
+    public Icon getIcon (int iconTypeSize)
     {
 
-        return Constants.COMMENT_ICON_NAME;
+        return Environment.getIcon (Constants.COMMENT_ICON_NAME,
+                                    iconTypeSize);
 
     }
 
     @Override
-    public String getTitle (int mode)
+    public String getTitle ()
     {
 
         if (mode == AbstractActionHandler.EDIT)
@@ -197,80 +309,78 @@ public class CommentActionHandler extends ProjectViewerActionHandler
 
     }
 
-    private void initFormItems ()
-    {
-
-        final CommentActionHandler _this = this;
-
-        ActionListener doSave = new ActionAdapter ()
-        {
-          
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                _this.submitForm ();
-                
-            }
-            
-        };
-                
-        this.comment = new TextArea ("Enter your comment here...",
-                                     5,
-                                     -1);
-        
-        UIUtils.addDoActionOnReturnPressed (this.comment,
-                                            doSave);
-        
-    }
-
     @Override
-    public List<FormItem> getFormItems (int         mode,
-                                        String      selectedText,
-                                        NamedObject obj)
+    public Set<FormItem> getFormItems (String  selectedText)
     {
 
-        List<FormItem> f = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
+        
+        this.comment = new MultiLineTextFormItem (null,
+                                                  this.viewer,
+                                                  "Enter your comment here...",
+                                                  5,
+                                                  -1,
+                                                  false,
+                                                  null);
 
-        f.add (new FormItem (null,
-                             this.comment));
+        UIUtils.addDoActionOnReturnPressed (this.comment.getTextArea (),
+                                            this.getSaveAction ());
 
         if (mode == AbstractActionHandler.ADD)
         {
 
         } else
         {
-
-            Note n = (Note) obj;
             
-            this.comment.setTextWithMarkup (n.getDescription ());
+            this.comment.setText (this.object.getDescription ());
 
         }
 
-        return f;
+        return items;
 
     }
 
     @Override
-    public boolean handleSave (Form f,
-                               int  mode)
+    public Set<String> getFormErrors ()
     {
-
-        Note n = (Note) this.dataObject;
+        
+        Set<String> errs = new LinkedHashSet ();
+        
+        if (this.comment.getText () == null)
+        {
+            
+            errs.add ("Please enter a comment.");
+            
+        }
+        
+        return errs;
+        
+    }
+    
+    @Override
+    public void handleCancel ()
+    {
+        
+    }
+    
+    @Override
+    public boolean handleSave ()
+    {
 
         String c = this.comment.getText ();
         
-        n.setDescription (this.comment.getTextWithMarkup ());
+        this.object.setDescription (this.comment.getValue ());
 
         // Use the first line of the description as the summary.
         Paragraph p = new Paragraph (c,
                                      0);
 
-        n.setSummary (p.getFirstSentence ().getText ());
+        this.object.setSummary (p.getFirstSentence ().getText ());
         
-        String type = Note.EDIT_NEEDED_NOTE_TYPE;
-
-        int s = this.editorPanel.getEditor ().getSelectionStart ();
-        int e = this.editorPanel.getEditor ().getSelectionEnd ();
+        String type = Note.EDIT_NEEDED_NOTE_TYPE;        
+        
+        int s = this.editor.getSelectionStart ();
+        int e = this.editor.getSelectionEnd ();
     
         if ((mode == AbstractActionHandler.EDIT)
             &&
@@ -280,46 +390,46 @@ public class CommentActionHandler extends ProjectViewerActionHandler
            )
         {
     
-            n.setPosition (s);
-            n.setEndPosition (e);
+            this.object.setPosition (s);
+            this.object.setEndPosition (e);
 
         }
             
         if (mode == AbstractActionHandler.ADD)
         {
             
-            n.setPosition (s);
-            n.setEndPosition (e);                
+            this.object.setPosition (s);
+            this.object.setEndPosition (e);                
             
         }
             
         try
         {
 
-            this.projectViewer.saveObject (n,
-                                           true);
+            this.viewer.saveObject (this.object,
+                                    true);
 
             if (this.mode == AbstractActionHandler.ADD)
             {
     
                 // Add the item to the chapter.
-                this.chapter.addNote (n);
+                this.chapter.addNote (this.object);
     
             }
                                            
-            this.projectViewer.fireProjectEvent (n.getObjectType (),
-                                                 (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
-                                                 n);
+            this.viewer.fireProjectEvent (this.object.getObjectType (),
+                                          (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
+                                          this.object);
                                            
         } catch (Exception ex)
         {
 
             Environment.logError ("Unable to save/add comment: " +
-                                  n,
+                                  this.object,
                                   ex);
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + " comment.");
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + " comment.");
 
             return false;
 
@@ -328,14 +438,14 @@ public class CommentActionHandler extends ProjectViewerActionHandler
         try
         {
 
-            Position pos = this.editorPanel.getEditor ().getDocument ().createPosition (n.getPosition ());
+            Position pos = this.editor.getDocument ().createPosition (this.object.getPosition ());
 
-            n.setTextPosition (pos);            
+            this.object.setTextPosition (pos);            
 
-            if (n.getEndPosition () > -1)
+            if (this.object.getEndPosition () > -1)
             {
 
-                n.setEndTextPosition (this.editorPanel.getEditor ().getDocument ().createPosition (n.getEndPosition ()));
+                this.object.setEndTextPosition (this.editor.getDocument ().createPosition (this.object.getEndPosition ()));
 
             }                
             
@@ -346,31 +456,29 @@ public class CommentActionHandler extends ProjectViewerActionHandler
             
         }
 
-        if (n.getChapter () != null)
+        if (this.object.getChapter () != null)
         {
 
-            QTextEditor editor = this.editorPanel.getEditor ();
-
-            editor.grabFocus ();
+            this.editor.grabFocus ();
 
         }
         
         // Need to reindex the chapter to ensure that things are in the right order.    
-        n.getChapter ().reindex ();
+        this.chapter.reindex ();
             
         // Expand the note type.
-        this.projectViewer.showObjectInTree (Note.OBJECT_TYPE,
-                                             new TreeParentNode (Note.OBJECT_TYPE,
-                                                                 type));
+        this.viewer.showObjectInTree (Note.OBJECT_TYPE,
+                                      new TreeParentNode (Note.OBJECT_TYPE,
+                                                          type));
                                              
-        this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
+        this.viewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
-        this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+        this.viewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
         
         if (e > s)
         {
             
-            this.editorPanel.getEditor ().setSelectionEnd (s);
+            this.editor.setSelectionEnd (s);
             
         }
         

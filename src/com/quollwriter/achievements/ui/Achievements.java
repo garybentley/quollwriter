@@ -180,12 +180,20 @@ public class Achievements extends Box implements AchievementReachedListener
                 
         this.add (lscroll);
                 
-        AccordionItem gen = new AccordionItem ("General - " + achieved.get ("user").size () + " / " + userRules.size (),
-                                               null);
-        
-        gen.setContent (this.getAchievementsBox (userRules,
+        AccordionItem gen = new AccordionItem ("General - " + achieved.get ("user").size () + " / " + userRules.size ())
+        {
+            
+            @Override
+            public JComponent getContent ()
+            {
+                
+                return _this.getAchievementsBox (userRules,
                                                  achieved.get ("user"),
-                                                 "user"));
+                                                 "user");
+                
+            }
+            
+        };
         
         this.headers.put ("user",
                           gen.getHeader ());
@@ -196,12 +204,20 @@ public class Achievements extends Box implements AchievementReachedListener
         {
         
             gen.setBorder (new EmptyBorder (0, 10, 0, 0));
-            AccordionItem proj = new AccordionItem ("Project - " + achieved.get ("project").size () + " / " + projRules.size (),
-                                                    null);
+            AccordionItem proj = new AccordionItem ("Project - " + achieved.get ("project").size () + " / " + projRules.size ())
+            {
+                
+                @Override
+                public JComponent getContent ()
+                {
             
-            proj.setContent (this.getAchievementsBox (projRules,
-                                                      achieved.get ("project"),
-                                                      "project"));
+                    return _this.getAchievementsBox (projRules,
+                                                     achieved.get ("project"),
+                                                     "project");
+                                              
+                }
+                
+            };
             
             this.headers.put ("project",
                               proj.getHeader ());

@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -23,40 +25,29 @@ import com.quollwriter.text.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.components.FormItem;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.BlockPainter;
 import com.quollwriter.ui.renderers.*;
 
-public class NoteActionHandler extends ProjectViewerActionHandler
+public class NoteActionHandler extends ChapterItemActionHandler<Note> 
 {
 
-    private JTextField summaryField = null;
-    private TextArea descField = null;    
-    protected Chapter    chapter = null;
-    protected int        showAt = -1;
+    private TextFormItem summaryField = null;
+    private MultiLineTextFormItem descField = null;
     private JComboBox  types = null;
 
-    public NoteActionHandler (final Note                n,
-                              final AbstractEditorPanel qep)
+    public NoteActionHandler (final Note              n,
+                              final ChapterItemViewer viewer)
     {
-
+    
         super (n,
-               qep,
-               AbstractActionHandler.EDIT,
-               true);
-
-        this.chapter = n.getChapter ();
-        this.showAt = n.getPosition ();
-
-        this.initFormItems ();
-
-        this.setPopupOver (qep); 
+               viewer,
+               EDIT,
+               n.getPosition ());        
         
-        final QTextEditor editor = qep.getEditor ();        
+        final QTextEditor editor = this.itemViewer.getEditor ();        
         
         final int origSelStart = editor.getSelectionStart ();
         
@@ -127,61 +118,47 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         
     }
 
-    public NoteActionHandler(Chapter             c,
-                             AbstractEditorPanel qep,
-                             int                 showAt)
+    public NoteActionHandler(Chapter           c,
+                             ChapterItemViewer itemViewer,
+                             int               showAt)
     {
 
         this (c,
-              qep,
+              itemViewer,
               null,
               showAt);
 
-        this.setPopupOver (qep); // pv.getEditorForChapter (c));
-
     }
 
-    public NoteActionHandler(Chapter             c,
-                             AbstractEditorPanel qep,
-                             String              noteType,
-                             int                 showAt)
+    public NoteActionHandler(Chapter           c,
+                             ChapterItemViewer itemViewer,
+                             String            noteType,
+                             int               showAt)
     {
 
         super (new Note (0,
                          c),
-               qep,
-               AbstractActionHandler.ADD,
-               true);
+               itemViewer,
+               ADD,
+               showAt);
 
-        this.showAt = showAt;
-               
         this.chapter = c;
-
-        this.setPopupOver (qep); // pv.getEditorForChapter (c));
 
         if (noteType != null)
         {
 
-            Note n = (Note) this.dataObject;
+            Note n = this.object;
             n.setType (noteType);
 
         }
 
-        this.initFormItems ();
-
     }
 
-    public int getShowAtPosition ()
-    {
-
-        return this.showAt;
-
-    }
-
+    @Override
     public JComponent getFocussedField ()
     {
 
-        if (((Note) this.dataObject).isEditNeeded ())
+        if (this.object.isEditNeeded ())
         {
 
             return this.descField;
@@ -192,31 +169,36 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public String getIcon (int mode)
+    @Override
+    public Icon getIcon (int iconSizeType)
     {
 
-        if (((Note) this.dataObject).isEditNeeded ())
+        String t = Note.OBJECT_TYPE;
+    
+        if (this.object.isEditNeeded ())
         {
 
-            return "edit-needed-note";
+            t = "edit-needed-note";
 
         }
 
-        return Note.OBJECT_TYPE;
+        return Environment.getIcon (t,
+                                    iconSizeType);
 
     }
 
-    public String getTitle (int mode)
+    @Override
+    public String getTitle ()
     {
 
-        if (mode == AbstractActionHandler.EDIT)
+        if (this.mode == AbstractActionHandler.EDIT)
         {
 
             return "Edit Note";
 
         }
 
-        boolean editNeeded = ((Note) this.dataObject).isEditNeeded ();
+        boolean editNeeded = this.object.isEditNeeded ();
 
         if (editNeeded)
         {
@@ -229,50 +211,27 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
     }
 
-    private void initFormItems ()
+    @Override
+    public Set<FormItem> getFormItems (String selectedText)
     {
+
+        Set<FormItem> f = new LinkedHashSet ();
 
         final NoteActionHandler _this = this;
 
-        this.summaryField = UIUtils.createTextField ();
+        this.summaryField = new TextFormItem ("Summary",
+                                              null);
         
-        this.descField = UIUtils.createTextArea (this.projectViewer,
-                                                 null,
-                                                 5,
-                                                 -1);
-
+        this.descField = new MultiLineTextFormItem ("Description",
+                                                    this.viewer,
+                                                    5);
+        
         this.descField.setCanFormat (true);
-        this.descField.setAutoGrabFocus (false);
         
-        try
-        {
-        
-            this.descField.setSynonymProvider (this.projectViewer.getSynonymProvider ());
-            
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to set synonym provider for note edit: " +
-                                  this.dataObject,
-                                  e);
-            
-        }
-        
-        ActionListener doSave = new ActionAdapter ()
-        {
-          
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                _this.submitForm ();
-                
-            }
-            
-        };
-        
-        UIUtils.addDoActionOnReturnPressed (this.summaryField,
-                                            doSave);
-        UIUtils.addDoActionOnReturnPressed (this.descField,
-                                            doSave);
+        UIUtils.addDoActionOnReturnPressed (this.summaryField.getTextField (),
+                                            this.getSaveAction ());
+        UIUtils.addDoActionOnReturnPressed (this.descField.getTextArea (),
+                                            this.getSaveAction ());
         
         this.types = new JComboBox (new Vector (Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).getTypes ()));
         this.types.setEditable (true);
@@ -280,36 +239,23 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         this.types.setMaximumSize (this.types.getPreferredSize ());
         this.types.setToolTipText ("Add a new Type by entering a value in the field.");
 
-        Note n = (Note) this.dataObject;
-
-        if (n.getType () != null)
+        if (this.object.getType () != null)
         {
 
-            this.types.setSelectedItem (n.getType ());
+            this.types.setSelectedItem (this.object.getType ());
 
-        }
-
-    }
-
-    public List<FormItem> getFormItems (int         mode,
-                                        String      selectedText,
-                                        NamedObject obj)
-    {
-
-        List<FormItem> f = new ArrayList ();
-
-        boolean editNeeded = ((Note) obj).isEditNeeded ();
+        }        
+        
+        boolean editNeeded = this.object.isEditNeeded ();
 
         if (!editNeeded)
         {
 
-            f.add (new FormItem ("Summary",
-                                 this.summaryField));
+            f.add (this.summaryField);
 
         }
 
-        f.add (new FormItem ("Description",
-                             this.descField));
+        f.add (this.descField);
 
         if (!editNeeded)
         {
@@ -322,8 +268,8 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             
             m.removeElement (Note.EDIT_NEEDED_NOTE_TYPE);
 
-            f.add (new FormItem ("Type",
-                                 tb));
+            f.add (new AnyFormItem ("Type",
+                                    tb));
 
         }
 
@@ -343,7 +289,7 @@ public class NoteActionHandler extends ProjectViewerActionHandler
                 if (p.getSentenceCount () > 1)
                 {
 
-                    this.descField.setTextWithMarkup (new StringWithMarkup (selectedText.substring (p.getFirstSentence ().getNext ().getAllTextStartOffset ()).trim ()));
+                    this.descField.setText (new StringWithMarkup (selectedText.substring (p.getFirstSentence ().getNext ().getAllTextStartOffset ()).trim ()));
 
                 }
 
@@ -352,10 +298,8 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         } else
         {
 
-            Note n = (Note) obj;
-
-            this.summaryField.setText (n.getSummary ());
-            this.descField.setTextWithMarkup (n.getDescription ());
+            this.summaryField.setText (this.object.getSummary ());
+            this.descField.setText (this.object.getDescription ());
 
         }
 
@@ -363,13 +307,13 @@ public class NoteActionHandler extends ProjectViewerActionHandler
 
     }
 
-    public boolean handleSave (Form f,
-                               int  mode)
+    @Override
+    public Set<String> getFormErrors ()
     {
-
-        Note n = (Note) this.dataObject;
-
-        if (n.isEditNeeded ())
+        
+        Set<String> errs = new LinkedHashSet ();
+        
+        if (this.object.isEditNeeded ())
         {
 
             String text = this.descField.getText ();
@@ -380,44 +324,58 @@ public class NoteActionHandler extends ProjectViewerActionHandler
                )
             {
                 
-                f.showError ("Please enter a description.");
-                
-                return false;
-                
+                errs.add ("Please enter a description.");
+                                
             }
+            
+        } else
+        {
+
+            if (this.summaryField.getText () == null)
+            {
+
+                errs.add ("Please enter a summary.");
+
+            }
+
+        }
+        
+        return errs;
+        
+    }
+    
+    @Override
+    public boolean handleSave ()
+    {
+
+        if (this.object.isEditNeeded ())
+        {
+
+            String text = this.descField.getText ();
             
             Paragraph p = new Paragraph (text,
                                          0);
             
-            n.setSummary (p.getFirstSentence ().getText ());
+            this.object.setSummary (p.getFirstSentence ().getText ());
 
         } else
         {
 
-            if (this.summaryField.getText ().trim ().equals (""))
-            {
-
-                f.showError ("Please enter a summary.");
-
-                return false;
-
-            }
-
             // Fill up the note.
-            n.setSummary (this.summaryField.getText ().trim ());
+            this.object.setSummary (this.summaryField.getText ());
 
         }
 
-        n.setDescription (this.descField.getTextWithMarkup ());
+        this.object.setDescription (this.descField.getValue ());
 
         String type = null;
 
-        if (!n.isEditNeeded ())
+        if (!this.object.isEditNeeded ())
         {
 
             type = this.types.getSelectedItem ().toString ().trim ();
 
-            n.setType (type);
+            this.object.setType (type);
 
         } else
         {
@@ -427,13 +385,13 @@ public class NoteActionHandler extends ProjectViewerActionHandler
         }
 
         // If the type is "edit needed" then get any selectd text indices.
-        if (n.isEditNeeded ())
+        if (this.object.isEditNeeded ())
         {
 
-            int s = this.editorPanel.getEditor ().getSelectionStart ();
-            int e = this.editorPanel.getEditor ().getSelectionEnd ();
+            int s = this.itemViewer.getEditor ().getSelectionStart ();
+            int e = this.itemViewer.getEditor ().getSelectionEnd ();
         
-            if ((mode == AbstractActionHandler.EDIT)
+            if ((this.mode == AbstractActionHandler.EDIT)
                 &&
                 (s != e)
                 &&
@@ -441,33 +399,33 @@ public class NoteActionHandler extends ProjectViewerActionHandler
                )
             {
         
-                n.setPosition (s);
-                n.setEndPosition (e);
+                this.object.setPosition (s);
+                this.object.setEndPosition (e);
 
             }
             
-            if (mode == AbstractActionHandler.ADD)
+            if (this.mode == AbstractActionHandler.ADD)
             {
                 
-                n.setPosition (s);
-                n.setEndPosition (e);                
+                this.object.setPosition (s);
+                this.object.setEndPosition (e);                
                 
             }
             
         }
 
         // See if we are adding at the end of the chapter.
-        if (this.editorPanel.getEditor ().isPositionAtTextEnd (n.getPosition ()))
+        if (this.itemViewer.getEditor ().isPositionAtTextEnd (this.object.getPosition ()))
         {
             
             try
             {
 
                 // Add a newline to the end of the chapter.
-                this.editorPanel.getEditor ().insertText (n.getPosition (),
-                                                          "\n");
+                this.itemViewer.getEditor ().insertText (this.object.getPosition (),
+                                                         "\n");
 
-                n.setTextPosition (this.editorPanel.getEditor ().getDocument ().createPosition (n.getPosition () - 1));
+                this.object.setTextPosition (this.itemViewer.getEditor ().getDocument ().createPosition (this.object.getPosition () - 1));
                                                           
             } catch (Exception e) {
                 
@@ -485,48 +443,48 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             {
     
                 // Add the item to the chapter.
-                this.chapter.addNote (n);
+                this.chapter.addNote (this.object);
     
             }
 
-            this.projectViewer.saveObject (n,
-                                           true);
+            this.viewer.saveObject (this.object,
+                                    true);
 
-            this.projectViewer.fireProjectEvent (n.getObjectType (),
-                                                 (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
-                                                 n);
+            this.viewer.fireProjectEvent (this.object.getObjectType (),
+                                          (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
+                                          this.object);
                                            
                                            
         } catch (Exception e)
         {
 
-            this.chapter.removeNote (n);
+            this.chapter.removeNote (this.object);
         
             Environment.logError ("Unable to save/add note: " +
-                                  n,
+                                  this.object,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + Environment.getObjectTypeName (Note.OBJECT_TYPE).toLowerCase () + ".");
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + Environment.getObjectTypeName (Note.OBJECT_TYPE).toLowerCase () + ".");
 
             return false;
 
         }
         
-        if (n.isEditNeeded ())
+        if (this.object.isEditNeeded ())
         {
             
             try
             {
 
-                Position pos = this.editorPanel.getEditor ().getDocument ().createPosition (n.getPosition ());
+                Position pos = this.itemViewer.getEditor ().getDocument ().createPosition (this.object.getPosition ());
     
-                n.setTextPosition (pos);            
+                this.object.setTextPosition (pos);            
 
-                if (n.getEndPosition () > -1)
+                if (this.object.getEndPosition () > -1)
                 {
     
-                    n.setEndTextPosition (this.editorPanel.getEditor ().getDocument ().createPosition (n.getEndPosition ()));
+                    this.object.setEndTextPosition (this.itemViewer.getEditor ().getDocument ().createPosition (this.object.getEndPosition ()));
     
                 }                
                 
@@ -539,32 +497,32 @@ public class NoteActionHandler extends ProjectViewerActionHandler
             
         }
 
-        if (n.getChapter () != null)
+        if (this.object.getChapter () != null)
         {
 
-            QTextEditor editor = this.editorPanel.getEditor ();
+            QTextEditor editor = this.itemViewer.getEditor ();
 
             editor.grabFocus ();
 
         }
 
         // Need to reindex the chapter to ensure that things are in the right order.    
-        n.getChapter ().reindex ();
+        this.object.getChapter ().reindex ();
         
         Environment.getUserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME).addType (type,
                                                                                          true);
 
         // Expand the note type.
-        this.projectViewer.showObjectInTree (Note.OBJECT_TYPE,
-                                             new TreeParentNode (Note.OBJECT_TYPE,
-                                                                 type));
+        this.viewer.showObjectInTree (Note.OBJECT_TYPE,
+                                      new TreeParentNode (Note.OBJECT_TYPE,
+                                                          type));
                                              
-        this.projectViewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
+        this.viewer.reloadTreeForObjectType (Note.OBJECT_TYPE);
 
-        this.projectViewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+        this.viewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
         
         return true;
 
     }
-
+    
 }

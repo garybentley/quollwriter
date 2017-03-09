@@ -343,7 +343,7 @@ public class MSWordDocDocumentExporter extends MSWordDocXDocumentExporter
                 List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects ());
 
                 Collections.sort (objs,
-                                  new NamedObjectSorter ());
+                                  NamedObjectSorter.getInstance ());
 
                 for (NamedObject n : objs)
                 {
@@ -372,7 +372,7 @@ public class MSWordDocDocumentExporter extends MSWordDocXDocumentExporter
                 List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects ());
 
                 Collections.sort (objs,
-                                  new NamedObjectSorter ());
+                                  NamedObjectSorter.getInstance ());
 
                 for (NamedObject n : objs)
                 {

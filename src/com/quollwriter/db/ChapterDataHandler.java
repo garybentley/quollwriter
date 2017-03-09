@@ -232,16 +232,9 @@ public class ChapterDataHandler implements DataHandler<Chapter, Book>
             Chapter c = new Chapter ();
             c.setKey (key);
                         
-            // Get the object fields.
-            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
-                                                                                                      c,
-                                                                                                      rs.getStatement ().getConnection ());
-            
-            c.setUserConfigurableObjectType (configType);
-
             // Load the object fields.
-            c.setFields (this.objectManager.getUserConfigurableObjectFields (c,
-                                                                             rs.getStatement ().getConnection ()));
+            this.objectManager.setUserConfigurableObjectFields (c,
+                                                                rs.getStatement ().getConnection ());
             
             c.setName (rs.getString (ind++));
 

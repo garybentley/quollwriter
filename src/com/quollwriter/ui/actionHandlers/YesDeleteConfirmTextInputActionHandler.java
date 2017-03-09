@@ -24,12 +24,14 @@ public abstract class YesDeleteConfirmTextInputActionHandler<E extends AbstractV
 
         super (viewer);
         
+        /*
         if (n == null)
         {
             
             throw new IllegalArgumentException ("Object cannot be null");
             
         }
+        */
         
         this.object = n;
 

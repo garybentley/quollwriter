@@ -19,4 +19,11 @@ public interface DragActionHandler<E>
                                   NamedObject insertObject)
                            throws GeneralException;
 
+    public boolean canImportForeignObject (NamedObject obj)
+                                    throws GeneralException;
+    
+    public boolean importForeignObject (NamedObject obj,
+                                        int         insertRow)
+                                 throws GeneralException;
+                                 
 }

@@ -10,18 +10,18 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.*;
 
-public interface ChapterItemFormatDetails<E extends ChapterItem>
+public interface ChapterItemFormatDetails<E extends ChapterItem, V extends AbstractViewer>
 {
     
-    public abstract AbstractActionHandler getEditItemActionHandler (E                   item,
-                                                                    AbstractEditorPanel qep);
+    public abstract ActionListener getEditItemActionHandler (E                    item,
+                                                             ChapterItemViewer<V> qep);
 
-    public abstract ActionListener getDeleteItemActionHandler (E                   item,
-                                                               AbstractEditorPanel qep,
-                                                               boolean             showAtItem);
+    public abstract ActionListener getDeleteItemActionHandler (E                    item,
+                                                               ChapterItemViewer<V> qep,
+                                                               boolean              showAtItem);
 
-    public abstract Set<JComponent> getTools  (E                   item,
-                                               AbstractEditorPanel qep);
+    public abstract Set<JComponent> getTools  (E                    item,
+                                               ChapterItemViewer<V> qep);
 
     public abstract String getItemDescription (E item);
 

@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
+import java.util.Collection;
+import java.util.TreeMap;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -27,6 +29,8 @@ import javax.swing.border.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.userobjects.*;
+import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
 import com.quollwriter.data.editors.*;
@@ -37,15 +41,16 @@ import com.quollwriter.ui.components.DragEvent;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.ColorPainter;
+import com.quollwriter.ui.components.QPopup;
 
-public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
+public class ProjectSideBar extends AbstractSideBar<ProjectViewer> 
 {
 
     private JScrollPane content = null;
     private JComponent contentBox = null;
     
-    private static DataFlavor COMPONENT_FLAVOR = null;
-    private Set<String> assetObjTypes = null;
+    public static DataFlavor COMPONENT_FLAVOR = null;
+    private Set<String> legacyAssetObjTypes = null;
         
     public ProjectSideBar (ProjectViewer v)
     {
@@ -110,6 +115,14 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 _this.contentBox.revalidate ();
                 _this.contentBox.repaint ();
         
+                for (AccordionItem it : _this.getAccordionItems ())
+                {
+                    
+                    _this.setSelected (it,
+                                       false);
+                    
+                }
+        
                 return true;
             
             }
@@ -119,15 +132,23 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                     Transferable t,
                                     int          action)
             {
-
-                _this.updateSectionsList ();
                             
             }
 
         });
         
+        this.contentBox.setToolTipText ("Double click to add a new type of Object, right click to see the menu.");
+        
         this.contentBox.addMouseListener (new MouseEventHandler ()
         {
+            
+            @Override
+            public void handleDoublePress (MouseEvent ev)
+            {
+                
+                _this.showAddNewObjectType ();
+                   
+            }            
             
             @Override
             public void fillPopup (JPopupMenu m,
@@ -136,22 +157,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
                 _this.addAddSectionMenu (m,
                                          null);
-                
-                m.add (UIUtils.createMenuItem ("Add New Type of Object",
-                                               Constants.NEW_ICON_NAME,
-                                               new ActionListener ()
-                                               {
-                                                
-                                                    @Override
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        UIUtils.showAddNewObjectType (_this.viewer);
-                                                        
-                                                    }
-                                                
-                                               }));
-            
+                            
             }
                 
         });
@@ -172,37 +178,10 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         aObjTypes.add (QObject.OBJECT_TYPE);
         aObjTypes.add (ResearchItem.OBJECT_TYPE);
 
-        this.assetObjTypes = aObjTypes;        
+        this.legacyAssetObjTypes = aObjTypes;        
                 
     }
-    
-    private void updateSectionsList ()
-    {
-        
-        StringBuilder b = new StringBuilder ();
-    
-        // Need to save the ordering.
-        Set<AccordionItem> ais = this.getAccordionItems ();
-        
-        for (AccordionItem ai : ais)
-        {
-                                    
-            if (b.length () > 0)
-            {
-                
-                b.append ("|");
-                
-            }
-            
-            b.append (ai.getId ());
-            
-        }
-    
-        UserProperties.set (Constants.PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME,
-                            b.toString ());
-        
-    }
-            
+                            
     @Override
     public void onHide ()
     {
@@ -405,16 +384,53 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                     
     }
     
+    @Override
     public String getSaveState ()
     {
+        
+        Map ss = new HashMap ();
         
         StringBuilder ats = new StringBuilder ();
 
         Set<AccordionItem> ais = this.getAccordionItems ();
         
+        Map<String, String> aisState = new LinkedHashMap ();
+        
+        Set<String> aiIds = new LinkedHashSet ();
+        
+        ss.put ("ids", aiIds);
+        ss.put ("aistate", aisState);
+        
         for (AccordionItem ai : ais)
         {
             
+            if (ai.getId () != null)
+            {
+            
+                aiIds.add (ai.getId ());
+            
+                aisState.put (ai.getId (),
+                              ai.getSaveState ());
+
+            }
+            
+        }
+        
+        try
+        {
+        
+            return JSONEncoder.encode (ss);
+        
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to encode state: " +
+                                  aisState,
+                                  e);
+            
+            return "";
+            
+        }
+/*            
             if (ai.isContentVisible ())
             {
                 
@@ -432,7 +448,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         }
 
         return ats.toString ();        
-        
+  */      
     }
  
     public JComponent getContentBox ()
@@ -473,6 +489,31 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         
     }
   
+    private void setSelected (AccordionItem it,
+                              boolean       val)
+    {
+        
+        Header h = it.getHeader ();
+        
+        if (!val)
+        {
+            
+            h.setTitleColor (UIUtils.getTitleColor ());
+            h.setPaintProvider (new ColorPainter (UIUtils.getComponentColor ()));
+
+        } else {
+                    
+            h.setTitleColor (UIManager.getColor ("Tree.selectionForeground"));
+            h.setPaintProvider (new ColorPainter (UIManager.getColor ("Tree.selectionBackground")));            
+            
+        }
+    
+        this.validate ();
+        this.repaint ();
+    
+    }            
+  
+
     public void addAccordionItem (final AccordionItem item,
                                   final String        belowObjType)
     {
@@ -512,7 +553,6 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             this.contentBox.add (item);
                                  
         }
-        item.init ();
 
         final ProjectSideBar _this = this;
         
@@ -526,6 +566,10 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 
                 JComponent c = (JComponent) e.getSource ();
                 TransferHandler handler = item.getTransferHandler ();
+                handler.setDragImage (UIUtils.getImageOfComponent (item.getHeader (),
+                                                                item.getHeader ().getWidth (),
+                                                                item.getHeader ().getHeight ()));
+
                 handler.exportAsDrag (item,
                                       e,
                                       TransferHandler.MOVE);
@@ -534,9 +578,10 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
  
         };        
         
+        // TODO: Make this a single instance.
         TransferHandler transferHandler = new TransferHandler ()
         {
-        
+                
             private JComponent getParentOfType (JComponent comp,
                                                 Class      cl)
             {
@@ -639,9 +684,15 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
                 _this.contentBox.revalidate ();
                 _this.contentBox.repaint ();
-        
-                _this.updateSectionsList ();        
-
+                
+                for (AccordionItem _it : _this.getAccordionItems ())
+                {
+                    
+                    _this.setSelected (_it,
+                                       false);
+                    
+                }
+                
                 UIUtils.doLater (new ActionListener ()
                 {
                     
@@ -658,17 +709,33 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 return true;
 
             }
-        
+        /*
+            @Override
+            public java.awt.Image getDragImage ()
+            {
+                
+                JComponent c = item.getHeader ();
+                                    
+                this.dragImage = UIUtils.getImageOfComponent (c,
+                                                                c.getWidth (),
+                                                                c.getHeight ());                
+                
+                return this.dragImage;
+                
+            }
+        */
             @Override
             public int getSourceActions (JComponent c)
             {
-                                    
+                                    /*
                 c = item.getHeader ();
                                     
-                this.setDragImage (UIUtils.getImageOfComponent (c,
+                this.dragImage = UIUtils.getImageOfComponent (c,
                                                                 c.getWidth (),
-                                                                c.getHeight ()));
-        
+                                                                c.getHeight ());
+                                    
+                this.setDragImage (this.dragImage);
+        */
                 return MOVE;
             
             }
@@ -736,14 +803,14 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                     return;
                     
                 }
-                
+                                
                 int a = _this.content.getVerticalScrollBar ().getUnitIncrement ();
                 
                 java.awt.Point vp = _this.content.getViewport ().getViewPosition ();
 
                 if (mp.y <= 5 * a)
                 {
-                                            
+                                       
                     int newy = vp.y - (a / 2);
                     
                     if (newy < 0)
@@ -779,59 +846,22 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                     
                 }
                 
-                AccordionItem it = (AccordionItem) ev.getDropTargetContext ().getComponent ();
-                /*
-                this.setSelected (it,
-                                  true);
-                  */           
             }
-            
-            public void setSelected (AccordionItem it,
-                                     boolean       val)
-            {
-                
-                Header h = it.getHeader ();
-                
-                if (!val)
-                {
-                    
-                    h.setTitleColor (UIUtils.getTitleColor ());
-                    h.setPaintProvider (new ColorPainter (UIUtils.getComponentColor ()));
-        
-                } else {
-                            
-                    h.setTitleColor (UIManager.getColor ("Tree.selectionForeground"));
-                    h.setPaintProvider (new ColorPainter (UIManager.getColor ("Tree.selectionBackground")));            
-                    
-                }
-            
-                _this.validate ();
-                _this.repaint ();
-            
-            }            
-            
+                        
             @Override
             public void drop (DropTargetDropEvent ev)
             {
-                
-                AccordionItem it = (AccordionItem) ev.getDropTargetContext ().getComponent ();
+                                                          
+                for (AccordionItem it : _this.getAccordionItems ())
+                {
+                    
+                    _this.setSelected (it,
+                                       false);
+                    
+                }
              
-                this.setSelected (it,
-                                  false);
-
             }
-            
-            @Override
-            public void dragExit (DropTargetEvent ev)
-            {
-                
-                AccordionItem it = (AccordionItem) ev.getDropTargetContext ().getComponent ();
-
-                this.setSelected (it,
-                                  false);
-
-            }
-            
+                        
             @Override
             public void dragEnter (DropTargetDragEvent ev)
             {
@@ -841,7 +871,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 
                     if (ev.getTransferable ().getTransferData (COMPONENT_FLAVOR) == null)
                     {
-                        
+                      
                         return;
                         
                     }
@@ -852,31 +882,71 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                     
                 }
                 
+                for (AccordionItem it : _this.getAccordionItems ())
+                {
+                    
+                    _this.setSelected (it,
+                                       false);
+                    
+                }
+                
+                //Point l = ev.getLocation ();
+                
                 AccordionItem it = (AccordionItem) ev.getDropTargetContext ().getComponent ();
 
-                this.setSelected (it,
-                                  true);
-
+                _this.setSelected (it,
+                                   true);
+                
             }
 
         };
         
-        item.getHeader ().addMouseMotionListener (listener);
-
         item.setTransferHandler (transferHandler);
+        
+        item.init ();        
+                
+        item.getHeader ().addMouseMotionListener (listener);
         
         try
         {
         
             item.getDropTarget ().addDropTargetListener (dropTargetListener);
+            item.getHeader ().getDropTarget ().addDropTargetListener (dropTargetListener);
+            item.getContent ().getDropTarget ().addDropTargetListener (dropTargetListener);
 
         } catch (Exception e) {
+                        
+        }
+                
+    }
+ 
+    private AssetAccordionItem getAssetAccordionItemForObjectType (UserConfigurableObjectType type)
+    {
+        
+        Component[] comps = this.contentBox.getComponents ();
+        
+        for (int i = 0; i < comps.length; i++)
+        {
             
-            e.printStackTrace ();
+            Component comp = comps[i];
+            
+            if (comp instanceof AssetAccordionItem)
+            {
+            
+                AssetAccordionItem pi = (AssetAccordionItem) comp;
+
+                if (pi.getUserConfigurableObjectType ().equals (type))
+                {
+                    
+                    return pi;
+                    
+                }
+                
+            }
             
         }
         
-        item.setContentVisible (false);
+        return null;
         
     }
  
@@ -910,6 +980,35 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         
     }
  
+    public void removeTagSection (Tag tag)
+    {
+        
+        this.removeSection (TaggedObjectAccordionItem.ID_PREFIX + tag.getKey ());
+        
+    }
+ 
+    public void removeSection (UserConfigurableObjectType objType)
+    {
+        
+        if (objType.isAssetObjectType ())
+        {
+            
+            AssetAccordionItem aai = this.getAssetAccordionItemForObjectType (objType);
+            
+            if (aai != null)
+            {
+                
+                this.contentBox.remove (aai);
+                
+                this.validate ();
+                this.repaint ();                
+                
+            }
+            
+        }
+        
+    }
+ 
     private void removeSection (String objType)
     {
         
@@ -922,9 +1021,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             
             this.validate ();
             this.repaint ();
-            
-            this.updateSectionsList ();
-            
+                        
         }
         
     }
@@ -956,18 +1053,137 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         
     }
  
+    private void showAddNewObjectType ()
+    {
+        
+        UserConfigurableObjectType type = new UserConfigurableObjectType ();
+        
+        type.setObjectTypeName ("Widget");
+        type.setObjectTypeNamePlural ("Widgets");
+        type.setLayout (null);
+        type.setAssetObjectType (true);
+        type.setIcon24x24 (Environment.getIcon ("whats-new",
+                                                Constants.ICON_TITLE));
+        type.setIcon16x16 (Environment.getIcon ("whats-new",
+                                                Constants.ICON_SIDEBAR));
+
+        // Name
+        ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
+        
+        nameF.setFormName ("Name");
+        
+        type.addConfigurableField (nameF);
+                                                                                
+        // Description
+        ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+                
+        cdescF.setSearchable (true);
+        cdescF.setFormName ("Description");
+        
+        type.addConfigurableField (cdescF);
+                                        
+        Wizard w = UserConfigurableObjectTypeEdit.getAsWizard (this.viewer,
+                                                               type);
+        
+        final QPopup p = UIUtils.createWizardPopup ("Add a new type of Object",
+                                                    Constants.NEW_ICON_NAME,
+                                                    null,
+                                                    w);
+        w.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                              w.getPreferredSize ().height));
+        
+        this.viewer.showPopupAt (p,
+                                  UIUtils.getCenterShowPosition (this.viewer,
+                                                                 p),
+                                 false);
+        p.setDraggable (this.viewer);        
+                            
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                UIUtils.resizeParent (p);
+                
+            }
+            
+        });
+        
+        
+    }
+  
     private void addAddSectionMenu (final JPopupMenu m,
                                     final String     belowObjType)
     {
         
         final ProjectSideBar _this = this;
         
+        if (m.getComponentCount () > 0)
+        {
+        
+            m.addSeparator ();
+            
+        }
+        
+        m.add (UIUtils.createMenuItem ("Add New Type of Object",
+                                       Constants.NEW_ICON_NAME,
+                                       new ActionListener ()
+                                       {
+                                        
+                                            @Override
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                
+                                                _this.showAddNewObjectType ();
+                                                                                                
+                                            }
+                                        
+                                       }));
+        
         // Get all the sections currently not visible.
         Set<String> defSections = this.getSections (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
-    
-        Set<String> sections = this.getSections (Constants.PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
+
+        // Get all the user asset types.
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (false);
         
-        defSections.removeAll (sections);
+        for (UserConfigurableObjectType t : types)
+        {
+            
+            defSections.add (t.getObjectTypeId ());
+            
+        }
+        
+        Set<Tag> tags = null;
+        
+        try
+        {
+            
+            tags = Environment.getAllTags ();
+            
+        } catch (Exception e) {
+            
+            tags = new HashSet ();
+            
+            Environment.logError ("Unable to get all tags",
+                                  e);
+            
+        }
+        
+        for (Tag t : tags)
+        {
+            
+            defSections.add (TaggedObjectAccordionItem.ID_PREFIX + t.getKey ());
+            
+        }
+        
+        for (AccordionItem ai : this.getAccordionItems ())
+        {
+
+            defSections.remove (ai.getId ());
+        
+        }
         
         if (defSections.size () > 0)
         {
@@ -975,14 +1191,12 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             JMenu sm = new JMenu ("Add section" + (belowObjType != null ? " below" : ""));
             
             m.add (sm);
-            
-            for (String sect : defSections)
+                                    
+            for (final String sect : defSections)
             {
-    
-                final String _sect = sect;
-    
-                sm.add (UIUtils.createMenuItem (Environment.getObjectTypeNamePlural (sect),
-                                                sect,
+  
+                sm.add (UIUtils.createMenuItem (Environment.replaceObjectNames (this.getMenuNameForObjectType (sect)),
+                                                this.getMenuIconForObjectType (sect),
                                                 new ActionListener ()
                                                 {
                                                 
@@ -990,7 +1204,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
                                                         
-                                                        AccordionItem it = _this.createAccordionItemForObjectType (_sect);
+                                                        AccordionItem it = _this.createAccordionItemForObjectType (sect);
     
                                                         _this.addAccordionItem (it,
                                                                                 belowObjType);
@@ -1005,9 +1219,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                                             _this.contentBox.scrollRectToVisible (it.getBounds (null));
     
                                                         }
-                                                                                                                    
-                                                        _this.updateSectionsList ();
-                                                        
+                                                                                                                                                                            
                                                     }
                                                 
                                                 }));
@@ -1024,8 +1236,6 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         
         final ProjectSideBar _this = this;
         
-        m.addSeparator ();
-
         m.add (UIUtils.createMenuItem ("Hide this section",
                                        Constants.CLOSE_ICON_NAME,
                                        new ActionListener ()
@@ -1040,6 +1250,339 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                             }
                                         
                                        }));
+        
+    }
+  
+    private String getMenuNameForObjectType (String objType)
+    {
+
+        String name = null;
+        int count = -1;
+    
+        if (objType.startsWith (TaggedObjectAccordionItem.ID_PREFIX))
+        {
+                    
+            long key = 0;
+            
+            try
+            {
+                
+                key = Long.parseLong (objType.substring (TaggedObjectAccordionItem.ID_PREFIX.length ()));
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                Environment.logError ("Unable to get key for: " +
+                                      objType,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            Tag tag = null;
+            
+            try
+            {
+                
+                tag = Environment.getTagByKey (key);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get type for: " +
+                                      key,
+                                      e);
+                
+                return null;
+                
+            }
+
+            count = this.viewer.getProject ().getAllObjectsWithTag (tag).size ();
+            
+            name = tag.getName ();
+                        
+        } 
+        
+        if (ProjectEditor.OBJECT_TYPE.equals (objType))
+        {
+        
+            name = "{Editors}";
+        
+            Set eds = this.viewer.getProject ().getProjectEditors ();
+            
+            if (eds != null)
+            {
+                
+                count = eds.size ();
+                
+            }
+        
+        }
+        
+        if (Note.OBJECT_TYPE.equals (objType))
+        {
+            
+            name = Environment.getObjectTypeNamePlural (objType);
+            
+            count = this.viewer.getProject ().getAllNamedChildObjects (Note.class).size ();
+            
+        }
+        
+        if (Chapter.OBJECT_TYPE.equals (objType))
+        {
+            
+            UserConfigurableObjectType utype = Environment.getUserConfigurableObjectType (objType);
+        
+            name = utype.getObjectTypeNamePlural ();
+            
+            count = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
+
+        }
+        
+        if (this.legacyAssetObjTypes.contains (objType))
+        {
+
+            UserConfigurableObjectType utype = Environment.getUserConfigurableObjectType (objType);
+        
+            name = utype.getObjectTypeNamePlural ();
+
+            count = this.viewer.getProject ().getAllNamedChildObjects (utype).size ();
+                    
+        }
+        
+        if (objType.startsWith (AssetAccordionItem.ID_PREFIX))
+        {
+            
+            long key = 0;
+            
+            try
+            {
+                
+                key = Long.parseLong (objType.substring (AssetAccordionItem.ID_PREFIX.length ()));
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                Environment.logError ("Unable to get key for: " +
+                                      objType,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            UserConfigurableObjectType t = null;
+            
+            try
+            {
+                
+                t = Environment.getUserConfigurableObjectType (key);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get type for: " +
+                                      key,
+                                      e);
+                
+                return null;
+                
+            }
+
+            name = t.getObjectTypeNamePlural ();                
+            
+            count = this.viewer.getProject ().getAllNamedChildObjects (t).size ();
+            
+        }
+
+        if (count > -1)
+        {
+            
+            name = String.format ("%s (%s)",
+                                  name,
+                                  Environment.formatNumber (count));            
+            
+        }
+        
+        return name;
+    
+    }
+  
+    private ImageIcon getMenuIconForObjectType (String objType)
+    {
+        
+        if (objType.startsWith (TaggedObjectAccordionItem.ID_PREFIX))
+        {
+            
+            objType = Constants.TAG_ICON_NAME;
+            
+        }
+        
+        if (objType.startsWith (AssetAccordionItem.ID_PREFIX))
+        {
+            
+            long key = 0;
+            
+            try
+            {
+                
+                key = Long.parseLong (objType.substring (AssetAccordionItem.ID_PREFIX.length ()));
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                Environment.logError ("Unable to get key for: " +
+                                      objType,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            UserConfigurableObjectType t = null;
+            
+            try
+            {
+                
+                t = Environment.getUserConfigurableObjectType (key);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get type for: " +
+                                      key,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            if (t != null)
+            {
+
+                return t.getIcon16x16 ();
+            
+            }
+            
+        }
+        
+        if (ProjectEditor.OBJECT_TYPE.equals (objType))
+        {
+
+            objType = Constants.EDIT_ICON_NAME;
+        
+        }        
+        
+        if (this.legacyAssetObjTypes.contains (objType))
+        {
+            
+            return Environment.getUserConfigurableObjectType (objType).getIcon16x16 ();
+        
+        }
+        
+        return Environment.getIcon (objType,
+                                    Constants.ICON_MENU);
+        
+    }
+
+    public AccordionItem createAssetAccordionItem (final UserConfigurableObjectType type)
+    {
+        
+        if (!type.isAssetObjectType ())
+        {
+            
+            throw new IllegalArgumentException ("Type is not for assets: " +
+                                                type);
+            
+        }
+        
+        final ProjectSideBar _this = this;
+        
+        return new AssetAccordionItem (type,
+                                       this.viewer)
+        {
+
+            @Override                
+            public void fillHeaderPopupMenu (JPopupMenu m,
+                                             MouseEvent ev)
+            {
+            
+                super.fillHeaderPopupMenu (m,
+                                           ev);
+                
+                _this.addAddSectionMenu (m,
+                                         type.getObjectTypeId ());
+
+                _this.addHideSectionMenuItem (m,
+                                              type.getObjectTypeId ());
+                                              
+                m.add (UIUtils.createMenuItem ("Delete all " + type.getObjectTypeNamePlural (),
+                                               Constants.DELETE_ICON_NAME,
+                                               new ActionListener ()
+                                               {
+                                                
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+
+                                                        new YesDeleteConfirmTextInputActionHandler<ProjectViewer> (viewer,
+                                                                                                                   null)
+                                                        {
+                                                        
+                                                            @Override
+                                                            public String getHelp ()
+                                                            {
+                                                                
+                                                                return String.format ("To delete all <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%s</b> you have created will be deleted and <b>%s</b> won't be available in your other {projects}.",
+                                                                                      type.getObjectTypeNamePlural (),
+                                                                                      type.getObjectTypeNamePlural (),
+                                                                                      type.getObjectTypeNamePlural ());
+                                                                
+                                                            }
+                                                                
+                                                            @Override                                                    
+                                                            public String getDeleteType ()
+                                                            {
+                                                                
+                                                                return type.getObjectTypeNamePlural ();
+                                                                
+                                                            }
+                                                                                                                                    
+                                                            public boolean onConfirm (String v)
+                                                                                      throws Exception
+                                                            {
+                                                                         
+                                                                _this.removeSection (type);
+                                                                            
+                                                                try
+                                                                {                                                                            
+                                                                
+                                                                    Environment.removeUserConfigurableObjectType (type);
+                                                                    
+                                                                } catch (Exception e) {
+                                                                    
+                                                                    Environment.logError ("Unable to remove user object type: " +
+                                                                                          type,
+                                                                                          e);
+                                                                    
+                                                                    UIUtils.showErrorMessage (_this.viewer,
+                                                                                              "Unable to remove object.");
+                                                                    
+                                                                    return false;
+                                                                            
+                                                                }
+                                                                
+                                                                return true;
+                                                                                                                        
+                                                            }
+                                                            
+                                                        }.actionPerformed (new ActionEvent (type, 1, "show"));
+                                                        
+                                                    }
+                                                
+                                               }));
+                                
+            }
+        
+        };
         
     }
  
@@ -1100,11 +1643,46 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             
         }
         
-        if (this.assetObjTypes.contains (objType))
+        if (objType.startsWith (TaggedObjectAccordionItem.ID_PREFIX))
         {
             
-            return new AssetAccordionItem (objType,
-                                           this.viewer)
+            long key = 0;
+            
+            try
+            {
+                
+                key = Long.parseLong (objType.substring (TaggedObjectAccordionItem.ID_PREFIX.length ()));
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                Environment.logError ("Unable to get key for: " +
+                                      objType,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            Tag tag = null;
+            
+            try
+            {
+                
+                tag = Environment.getTagByKey (key);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get type for: " +
+                                      key,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            return new TaggedObjectAccordionItem (tag,
+                                                  this.viewer)
             {
 
                 @Override                
@@ -1120,11 +1698,70 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
                     _this.addAddSectionMenu (m,
                                              objType);
-                                    
+                                 
                 }
+                
+            };        
             
-            };
-                    
+        }
+        
+        if (objType.startsWith (AssetAccordionItem.ID_PREFIX))
+        {
+            
+            long key = 0;
+            
+            try
+            {
+                
+                key = Long.parseLong (objType.substring (AssetAccordionItem.ID_PREFIX.length ()));
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                Environment.logError ("Unable to get key for: " +
+                                      objType,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            UserConfigurableObjectType t = null;
+            
+            try
+            {
+                
+                t = Environment.getUserConfigurableObjectType (key);
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get type for: " +
+                                      key,
+                                      e);
+                
+                return null;
+                
+            }
+            
+            if (t != null)
+            {
+                
+                return this.createAssetAccordionItem (t);
+
+            } else {
+                
+                return null;
+                
+            }
+            
+        }
+        
+        // Pre-v2.6
+        if (this.legacyAssetObjTypes.contains (objType))
+        {
+            
+            return this.createAssetAccordionItem (Environment.getUserConfigurableObjectType (objType));
+
         }
 
         if (objType.equals (Note.OBJECT_TYPE))
@@ -1178,14 +1815,83 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         return objTypes;
         
     }
- 
+  
     @Override
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
         
-        super.init ();
+        super.init (saveState);
+
+        if (saveState != null)
+        {
+                        
+            Map<String, Object> stateO = (Map<String, Object>) JSONDecoder.decode (saveState);
+            
+            Collection<String> aiIds = (Collection<String>) stateO.get ("ids");
+            
+            if (aiIds == null)
+            {
+                
+                aiIds = this.getSections (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME);
+                
+            }
+            
+            Map<String, String> aiState = (Map<String, String>) stateO.get ("aistate");
+            
+            if (aiState == null)
+            {
+                
+                aiState = new HashMap ();
+                
+            }
+            
+            for (String aiId : aiIds)
+            {
+                
+                String state = (String) aiState.get (aiId);
+                
+                AccordionItem it = this.createAccordionItemForObjectType (aiId);
+                
+                if (it == null)
+                {
+                    
+                    continue;
+                    
+                }
+                
+                this.addAccordionItem (it);
+                
+                if (state != null)
+                {
+                    
+                    it.initFromSaveState (state);
+                    
+                }
+                                
+            }
+
+        } else {
+            
+            for (String objType : this.getSections (Constants.DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME))
+            {
+                
+                AccordionItem it = this.createAccordionItemForObjectType (objType);
+                
+                if (it == null)
+                {
+                    
+                    continue;
+                    
+                }
+                
+                this.addAccordionItem (it);
+                            
+            }
+            
+        }
         
+        /*
         for (String objType : this.getSections (Constants.PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME))
         {
             
@@ -1201,7 +1907,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             this.addAccordionItem (it);
                         
         }
-
+*/
     }
  
     public void setObjectsOpen (String objType)
@@ -1219,7 +1925,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         ai.setContentVisible (true);
 
     }
- 
+ /*
     public void initOpenObjectTypes (final Set<String> types)
     {
         
@@ -1231,6 +1937,14 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             ai.setContentVisible (types.contains (ai.getId ()));
 
         }
+        
+    }
+ */
+    @Override
+    public String getId ()
+    {
+        
+        return "project";
         
     }
     

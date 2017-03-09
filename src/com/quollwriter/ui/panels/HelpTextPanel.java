@@ -108,13 +108,15 @@ public class HelpTextPanel extends QuollPanel<AbstractViewer>
         
     }
 
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
         
-        return this.iconType;
+        return Environment.getIcon (this.iconType,
+                                    type);
         
     }
-
+    
     public String getTitle ()
     {
         

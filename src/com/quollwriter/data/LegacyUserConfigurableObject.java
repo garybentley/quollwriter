@@ -16,23 +16,30 @@ public abstract class LegacyUserConfigurableObject extends UserConfigurableObjec
     public static final String DESCRIPTION_LEGACY_FIELD_FORM_NAME = "Description";
     public static final String ALIASES_LEGACY_FIELD_ID = "aliases";
     public static final String ALIASES_LEGACY_FIELD_FORM_NAME = "Aliases";
-        
+                
     public LegacyUserConfigurableObject (String objType)
     {
         
-        super (objType);
-        
-    }
+        super (Environment.getUserConfigurableObjectType (objType));
                 
+    }
+                                
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "legacyObject",
+                                    true);        
+
+    }                                
+                                
     public boolean isFieldSupported (String id)
     {
         
-        if ((id.equals (NAME_LEGACY_FIELD_ID))
-            ||
-            (id.equals (DESCRIPTION_LEGACY_FIELD_ID))
-            ||
-            (id.equals (ALIASES_LEGACY_FIELD_ID))
-           )
+        if (id.equals (ALIASES_LEGACY_FIELD_ID))
         {
             
             return true;
@@ -42,39 +49,7 @@ public abstract class LegacyUserConfigurableObject extends UserConfigurableObjec
         return false;
         
     }
-    /*
-    @Override    
-    public void addField (UserConfigurableObjectField f)
-    {
-                         
-        if (f.isLegacyField ())
-        {
 
-            if (f.getLegacyFieldId ().equals (DESCRIPTION_LEGACY_FIELD_ID))
-            {
-                
-                Map m = (Map) JSONDecoder.decode (f.getValue ().toString ());
-                
-                // TODO: Have better constants.  See JSONEncoder
-                this.setDescription (new StringWithMarkup ((String) m.get ("text"), (String) m.get ("markup")));
-                
-            }
-        
-            if (f.getLegacyFieldId ().equals ("aliases"))
-            {
-                
-                this.setAliases (f.getValue ().toString ());
-                
-            }
-            
-        } else {
-            
-            super.addField (f);
-            
-        }
-                        
-    }
-      */      
     @Override
     public void setAliases (String a)
     {
@@ -103,74 +78,7 @@ public abstract class LegacyUserConfigurableObject extends UserConfigurableObjec
         super.setAliases (a);
         
     }
-    
-    @Override
-    public void setName (String n)
-    {
-        
-        if (this.isFieldSupported (NAME_LEGACY_FIELD_ID))
-        {
 
-            UserConfigurableObjectField f = this.getPrimaryNameField ();
-            
-            if (f == null)
-            {
-                
-                UserConfigurableObjectTypeField type = this.getPrimaryNameTypeField ();
-                
-                f = new UserConfigurableObjectField (type);
-                f.setParent (this);
-                this.fields.add (f);
-                
-            }
-        
-            f.setValue (n);
-            
-        }
-        
-        super.setName (n);
-        
-    }
-    
-    @Override
-    public void setDescription (StringWithMarkup s)
-    {
-        
-        if (this.isFieldSupported (DESCRIPTION_LEGACY_FIELD_ID))
-        {
-        
-            UserConfigurableObjectField f = this.getLegacyField ("description");
-                    
-            if (f == null)
-            {
-                
-                UserConfigurableObjectTypeField type = this.getLegacyTypeField ("description");            
-                
-                f = new UserConfigurableObjectField (type);
-                f.setParent (this);
-                this.fields.add (f);
-                
-            }
-                
-            try
-            {
-        
-                f.setValue (JSONEncoder.encode (s));
-                
-            } catch (Exception e) {
-                
-                throw new IllegalArgumentException ("Unable to json encode string with markup: " +
-                                                    s,
-                                                    e);
-                
-            }
-
-        }
-                                    
-        super.setDescription (s);
-        
-    }
-    
     public UserConfigurableObjectTypeField getLegacyTypeField (String id)
     {
         

@@ -161,7 +161,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         
         this.chapterItemViewPopupProvider.setShowLinks (false);
         this.chapterItemViewPopupProvider.setFormatDetails (Note.OBJECT_TYPE,
-                                                            new NoteFormatDetails ()
+                                                            new NoteFormatDetails<EditorProjectViewer> ()
                                                             {
                                                                                                                                 
                                                                 @Override
@@ -189,8 +189,8 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                 }
                                                                 
                                                                 @Override
-                                                                public AbstractActionHandler getEditItemActionHandler (Note                item,
-                                                                                                                       AbstractEditorPanel ep)
+                                                                public ActionListener getEditItemActionHandler (Note                                   item,
+                                                                                                                ChapterItemViewer<EditorProjectViewer> ep)
                                                                 {
                                                             
                                                                     return new CommentActionHandler (item,
@@ -199,14 +199,14 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                 }                                                                
                                                                 
                                                                 @Override
-                                                                public ActionListener getDeleteItemActionHandler (Note                item,
-                                                                                                                  AbstractEditorPanel ep,
-                                                                                                                  boolean             showAtItem)
+                                                                public ActionListener getDeleteItemActionHandler (Note                                   item,
+                                                                                                                  ChapterItemViewer<EditorProjectViewer> ep,
+                                                                                                                  boolean                                showAtItem)
                                                                 {
                                                             
                                                                     // Should really add generics for this.
                                                                     return new DeleteCommentActionHandler (item,
-                                                                                                           (EditorProjectViewer) ep.getViewer (),
+                                                                                                           ep.getViewer (),
                                                                                                            showAtItem);
                                                             
                                                                 }
@@ -393,7 +393,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         
             epb = new EditorProjectSideBar (this);
             
-            epb.init ();
+            epb.init (null);
             
         } catch (Exception e) {
             
@@ -859,11 +859,9 @@ public class EditorProjectViewer extends AbstractProjectViewer
                     pv.scrollTo (c,
                                  pos);
 
-                    AbstractActionHandler aah = new CommentActionHandler (c,
-                                                                          qep,
-                                                                          pos);
-
-                    aah.actionPerformed (ev);
+                    new CommentActionHandler<EditorProjectViewer> (c,
+                                                                   qep,
+                                                                   pos).actionPerformed (ev);
 
                 }
 
@@ -1037,7 +1035,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
                                                                           tpn));
 
     }
-
+/*
     private void initNoteTree (boolean restoreSavedOpenTypes)
     {
 
@@ -1075,7 +1073,7 @@ public class EditorProjectViewer extends AbstractProjectViewer
         }
 
     }
-
+*/
     public void handleItemChangedEvent (ItemChangedEvent ev)
     {
 

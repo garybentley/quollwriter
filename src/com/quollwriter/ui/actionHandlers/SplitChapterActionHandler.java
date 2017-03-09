@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 
@@ -14,19 +15,16 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.text.*;
 
-public class SplitChapterActionHandler extends AbstractActionHandler
+public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, Chapter>
 {
 
-    private JTextField    nameField = UIUtils.createTextField ();
-    private Form          f = null;
-    private ProjectViewer projectViewer = null;
+    private TextFormItem  nameField = null;
     private Chapter       addFrom = null;
 
     public SplitChapterActionHandler (Chapter       addFrom,
@@ -38,31 +36,19 @@ public class SplitChapterActionHandler extends AbstractActionHandler
                pv,
                AbstractActionHandler.ADD);
 
-        this.projectViewer = pv;
         this.addFrom = addFrom;
+        
+        this.nameField = new TextFormItem ("New {Chapter} Name",
+                                           null);
         
         final SplitChapterActionHandler _this = this;
 
-        this.nameField.addKeyListener (new KeyAdapter ()
-            {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        _this.submitForm ();
-
-                    }
-
-                }
-
-            });
+        this.nameField.setDoOnReturnPressed (this.getSaveAction ());
 
     }
 
-    public void handleCancel (int mode)
+    @Override
+    public void handleCancel ()
     {
 
         // Nothing to do.
@@ -70,25 +56,32 @@ public class SplitChapterActionHandler extends AbstractActionHandler
     }
 
     @Override
-    public boolean handleSave (Form f,
-                               int  mode)
+    public Set<String> getFormErrors ()
     {
+        
+        Set<String> errs = new LinkedHashSet ();
 
-        String n = this.nameField.getText ().trim ();
-
-        if (n.equals (""))
+        if (this.nameField.getValue () == null)
         {
 
-            f.showError ("Please select a {chapter} name.");
-
-            return false;
+            errs.add ("Please select a {chapter} name.");
 
         }
+
+        return errs;
+        
+    }
+    
+    @Override
+    public boolean handleSave ()
+    {
+
+        String n = this.nameField.getValue ();
         
         try
         {            
 
-            QuollEditorPanel panel = this.projectViewer.getEditorForChapter (this.addFrom);
+            QuollEditorPanel panel = this.viewer.getEditorForChapter (this.addFrom);
         
             QTextEditor ed = panel.getEditor ();
 
@@ -105,9 +98,9 @@ public class SplitChapterActionHandler extends AbstractActionHandler
             int shiftBy = -1 * start;
         
             Chapter c = this.addFrom.getBook ().createChapterAfter (this.addFrom,
-                                                                    this.nameField.getText ());
+                                                                    n);
 
-            this.dataObject = c;
+            this.object = c;
 
             StringWithMarkup edT = ed.getTextWithMarkup ();
             
@@ -123,8 +116,8 @@ public class SplitChapterActionHandler extends AbstractActionHandler
             c.setText (new StringWithMarkup (newText,
                                              newM));
                         
-            this.projectViewer.saveObject (c,
-                                           true);
+            this.viewer.saveObject (c,
+                                    true);
 
             List toSave = new ArrayList ();
                                            
@@ -146,15 +139,15 @@ public class SplitChapterActionHandler extends AbstractActionHandler
                 
             }                                           
             
-            this.projectViewer.saveObjects (toSave,
-                                            true);
+            this.viewer.saveObjects (toSave,
+                                     true);
                         
             ed.removeText (start,
                            end - start);
 
-            this.projectViewer.fireProjectEvent (this.dataObject.getObjectType (),
-                                                 ProjectEvent.NEW,
-                                                 this.dataObject);
+            this.viewer.fireProjectEvent (this.object.getObjectType (),
+                                          ProjectEvent.NEW,
+                                          this.object);
                             
             // Save the chapter.
             panel.saveObject ();
@@ -162,10 +155,10 @@ public class SplitChapterActionHandler extends AbstractActionHandler
             // Reload existing chapter?
             panel.reinitIconColumn ();
                                  
-            this.projectViewer.reloadChapterTree ();
+            this.viewer.reloadChapterTree ();
                                  
             // Open the new chapter.
-            this.projectViewer.editChapter (c);            
+            this.viewer.editChapter (c);            
                                                                                       
         } catch (Exception e)
         {
@@ -174,7 +167,7 @@ public class SplitChapterActionHandler extends AbstractActionHandler
                                   this.nameField.getText (),
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
+            UIUtils.showErrorMessage (this.viewer,
                                       "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE) + ".");
 
             return false;
@@ -212,7 +205,7 @@ public class SplitChapterActionHandler extends AbstractActionHandler
     private String getSelectedText ()
     {
 
-        QTextEditor ed = this.projectViewer.getEditorForChapter (this.addFrom).getEditor ();
+        QTextEditor ed = this.viewer.getEditorForChapter (this.addFrom).getEditor ();
             
         int start = ed.getSelectionStart ();
         int end = ed.getSelectionEnd ();
@@ -229,29 +222,31 @@ public class SplitChapterActionHandler extends AbstractActionHandler
         
     }
     
-    public String getTitle (int mode)
+    @Override
+    public String getTitle ()
     {
 
-        return "Split " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
+        return String.format ("Split %s",
+                              Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
 
     }
 
-    public String getIcon (int mode)
+    @Override
+    public Icon getIcon (int iconSizeType)
     {
-
-        return Chapter.OBJECT_TYPE + "-split";
+        
+        return Environment.getIcon (Chapter.OBJECT_TYPE + "-split",
+                                    iconSizeType);
 
     }
 
-    public List<FormItem> getFormItems (int         mode,
-                                        String      selectedText,
-                                        NamedObject obj)
+    @Override
+    public Set<FormItem> getFormItems (String selectedText)
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
-        items.add (new FormItem (Environment.replaceObjectNames ("New {Chapter} Name"),
-                                 this.nameField));
+        items.add (this.nameField);
         
         String text = this.getSelectedText ();
     
@@ -294,10 +289,10 @@ public class SplitChapterActionHandler extends AbstractActionHandler
             p.add (t);
             p.setOpaque (false);
             
-            items.add (new FormItem ("Start at",
-                                     p));
+            items.add (new AnyFormItem ("Start at",
+                                        p));
 
-            QTextEditor ed = this.projectViewer.getEditorForChapter (this.addFrom).getEditor ();
+            QTextEditor ed = this.viewer.getEditorForChapter (this.addFrom).getEditor ();
                 
             int start = ed.getSelectionStart ();
             int end = ed.getSelectionEnd ();
@@ -332,13 +327,13 @@ public class SplitChapterActionHandler extends AbstractActionHandler
                 ep.add (et);
                 ep.setOpaque (false);
                 
-                items.add (new FormItem ("End at",
-                                         ep));
+                items.add (new AnyFormItem ("End at",
+                                            ep));
                                      
             }
             
-            items.add (new FormItem ("Words",
-                                     new JLabel (Environment.formatNumber (count))));
+            items.add (new AnyFormItem ("Words",
+                                        UIUtils.createLabel (Environment.formatNumber (count))));
 
         }
         
@@ -351,17 +346,11 @@ public class SplitChapterActionHandler extends AbstractActionHandler
 
     }
 
+    @Override
     public JComponent getFocussedField ()
     {
 
         return this.nameField;
-
-    }
-
-    public int getShowAtPosition ()
-    {
-
-        return -1;
 
     }
 

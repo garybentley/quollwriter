@@ -101,7 +101,7 @@ public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
     public void init ()
                throws GeneralException
     {
-
+/*
         final RegisterAsAnEditorPanel _this = this;
 
         Header h = UIUtils.createHeader ("Register as an Editor",
@@ -428,7 +428,7 @@ public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
             }
             
         });
-        
+        */
     }
 
     private void createAccount ()
@@ -439,14 +439,14 @@ public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
         for (FormItem it : this.formItems.values ())
         {
             
-            it.setError (false);
+            //it.setError (false);
             
             if (it.hasError ())
             {
                 
-                it.updateRequireLabel ();
+                //it.updateRequireLabel ();
                 
-                it.setError (true);
+                //it.setError (true);
                 
                 if (error == null)
                 {
@@ -462,7 +462,7 @@ public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
         if (error != null)
         {
             
-            error.scrollIntoView ();
+            //error.scrollIntoView ();
 
             return;
             
@@ -475,7 +475,7 @@ public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
             
             public void run ()
             {
-
+/*
                 try
                 {
                     
@@ -484,10 +484,10 @@ public class RegisterAsAnEditorPanel extends QuollPanel<AbstractViewer>
                     
 System.out.println ("SAVING ACCOUNT");                
                     EditorsWebServiceHandler h = EditorsEnvironment.getEditorsWebServiceHandler ();
-                             /*           
-                    h.saveAccount (_this.emailF.getValue (),
-                                     _this.passF.getValue ());
-*/
+                                        
+                    //h.saveAccount (_this.emailF.getValue (),
+                    //                 _this.passF.getValue ());
+
         System.out.println ("CREATED/SAVED ACCOUNT");
 System.out.println ("AV FILE: " + _this.avatarF.getValue ());
                     h.saveEditor (_this.nameF.getValue (),
@@ -506,7 +506,7 @@ System.out.println ("AV FILE: " + _this.avatarF.getValue ());
                                           e);
                     
                 }
-                
+  */              
             }
             
         }).start ();
@@ -530,9 +530,7 @@ System.out.println ("AV FILE: " + _this.avatarF.getValue ());
     {
         
         Header h = UIUtils.createHeader (title,
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                         Constants.SUB_PANEL_TITLE);
         
         h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
                                                              new EmptyBorder (0, 0, 3, 0)));
@@ -641,6 +639,7 @@ System.out.println ("AV FILE: " + _this.avatarF.getValue ());
 
     }
 
+    @Override
     public String getTitle ()
     {
         
@@ -648,13 +647,15 @@ System.out.println ("AV FILE: " + _this.avatarF.getValue ());
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
 
-        return Constants.EDIT_ICON_NAME;
+        return Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                    type);
 
     }
-
+    
     public JScrollPane getScrollPane ()
     {
 

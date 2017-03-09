@@ -74,10 +74,13 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.sidebars.*;
+import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.editors.messages.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.db.*;
+import com.quollwriter.ui.forms.Form;
+import com.quollwriter.ui.forms.FormItem;
 
 import com.quollwriter.text.*;
 
@@ -145,6 +148,13 @@ public class UIUtils
 
     public static Object getUserObjectForTreePath (TreePath p)
     {
+        
+        if (p == null)
+        {
+            
+            return null;
+            
+        }
         
         Object[] objs = p.getPath ();
 
@@ -343,16 +353,56 @@ public class UIUtils
 
     }
 
-    public static DefaultMutableTreeNode createAssetTree (String  objType,
-                                                          Project p)
+    public static DefaultMutableTreeNode createAssetTree (UserConfigurableObjectType  objType,
+                                                          Project                     p)
     {
 
-        List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (Asset.getAssetClass (objType)));
+        return UIUtils.createAssetTree (objType,
+                                        p,
+                                        new Comparator<Asset> ()
+        {
+            
+            @Override
+            public boolean equals (Object o)
+            {
+                
+                return this == o;
+            
+            }
+            
+            @Override
+            public int compare (Asset o1,
+                                Asset o2)
+            {
+                
+                return NamedObjectSorter.getInstance ().compare (o1, o2);
+            
+            }
+            
+        });
+    
+    }
+    
+    public static DefaultMutableTreeNode createAssetTree (UserConfigurableObjectType        objType,
+                                                          Project                           p,
+                                                          Comparator<Asset> sorter)
+    {
+
+        List<Asset> objs = new ArrayList ();
+        
+        Set<Asset> assets = p.getAssets (objType);
+        
+        if (assets != null)
+        {
+            
+            objs.addAll (assets);
+            
+        }
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode (p);
 
         Collections.sort (objs,
-                          new NamedObjectSorter ());
+                          sorter);
 
         for (NamedObject obj : objs)
         {
@@ -384,6 +434,7 @@ public class UIUtils
 
     }
   */
+/*
     public static DefaultMutableTreeNode createAssetsTree (Project p)
     {
 
@@ -446,7 +497,7 @@ public class UIUtils
         tn = new DefaultMutableTreeNode (r);
 
         Collections.sort (p.getResearchItems (),
-                          new NamedObjectSorter ());
+                          NamedObjectSorter.getInstance ());
 
         for (ResearchItem rr : p.getResearchItems ())
         {
@@ -460,7 +511,7 @@ public class UIUtils
         return root;
 
     }
-
+*/
     public static void getSelectedObjects (DefaultMutableTreeNode n,
                                            NamedObject            addTo,
                                            Set                    s)
@@ -1368,14 +1419,18 @@ public class UIUtils
 
     }
 
-    public static void addAssetsToLinkToTree (DefaultMutableTreeNode root,
-                                              List<? extends Asset>  assets,
-                                              Collection             exclude,
-                                              Collection             init,
-                                              boolean                selectable)
+    public static void addAssetsToLinkToTree (DefaultMutableTreeNode     root,
+                                              UserConfigurableObjectType forType,
+                                              Set<Asset>                 assets,
+                                              Collection                 exclude,
+                                              Collection                 init,
+                                              boolean                    selectable)
     {
 
-        if (assets == null)
+        if ((assets == null)
+            ||
+            (assets.size () == 0)
+           )
         {
 
             return;
@@ -1384,69 +1439,49 @@ public class UIUtils
 
         DefaultMutableTreeNode charn = null;
 
-        if (assets.size () > 0)
+        if (selectable)
         {
 
-            if (selectable)
+            SelectableDataObject s = new SelectableDataObject (forType);
+            s.parentNode = true;
+
+            charn = new DefaultMutableTreeNode (s);
+
+            root.add (charn);
+
+            root = charn;
+
+        }
+
+        for (Asset a : assets)
+        {
+
+            if (!selectable)
             {
 
-                // Peek at the top to find out the type.
-                BlankNamedObject bdo = new BlankNamedObject (assets.get (0).getObjectType (),
-                                                             Environment.getObjectTypeNamePlural (assets.get (0)));
-
-                Object o = bdo;
-
-                SelectableDataObject s = new SelectableDataObject (bdo);
-                s.parentNode = true;
-
-                o = s;
-
-                charn = new DefaultMutableTreeNode (o);
-
-                root.add (charn);
-
-                root = charn;
-
-            }
-
-            for (Asset a : assets)
-            {
-
-                if (!selectable)
-                {
-
-                    if (!init.contains (a))
-                    {
-
-                        continue;
-
-                    }
-
-                }
-
-                DefaultMutableTreeNode node = UIUtils.createTreeNode (a,
-                                                                      exclude,
-                                                                      init,
-                                                                      selectable);
-
-                if (node == null)
+                if (!init.contains (a))
                 {
 
                     continue;
 
                 }
 
-                root.add (node);
-
             }
-/*
-            if (charn.getChildCount () > 0)
+
+            DefaultMutableTreeNode node = UIUtils.createTreeNode (a,
+                                                                  exclude,
+                                                                  init,
+                                                                  selectable);
+
+            if (node == null)
             {
 
-                root.add (charn);
+                continue;
 
             }
-*/
+
+            root.add (node);
+
         }
 
     }
@@ -1541,33 +1576,21 @@ public class UIUtils
 
         }
 
-        // Sort the characters.
+        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
 
-        // Get all the characters.
-        UIUtils.addAssetsToLinkToTree (root,
-                                       p.getCharacters (),
-                                       exclude,
-                                       init,
-                                       selectable);
+        for (UserConfigurableObjectType t : assetTypes)
+        {
+            
+            Set<Asset> as = p.getAssets (t);
 
-        // Get all the locations.
-        UIUtils.addAssetsToLinkToTree (root,
-                                       p.getLocations (),
-                                       exclude,
-                                       init,
-                                       selectable);
-
-        UIUtils.addAssetsToLinkToTree (root,
-                                       p.getQObjects (),
-                                       exclude,
-                                       init,
-                                       selectable);
-
-        UIUtils.addAssetsToLinkToTree (root,
-                                       p.getResearchItems (),
-                                       exclude,
-                                       init,
-                                       selectable);
+            UIUtils.addAssetsToLinkToTree (root,
+                                           t,
+                                           as,
+                                           exclude,
+                                           init,
+                                           selectable);
+        
+        }
 
         Map<String, Set<Note>> allNotes = new TreeMap ();
 
@@ -3499,7 +3522,7 @@ public class UIUtils
                                                          Project p)
     {
 
-        Set<NamedObject> ret = new TreeSet (new NamedObjectSorter ());
+        Set<NamedObject> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
         for (NamedObject n : p.getAllNamedChildObjects ())
         {
@@ -3521,7 +3544,7 @@ public class UIUtils
                                                   Project p)
     {
 
-        Set<Asset> ret = new TreeSet (new NamedObjectSorter ());
+        Set<Asset> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
         for (NamedObject n : p.getAllNamedChildObjects (Asset.class))
         {
@@ -3539,13 +3562,25 @@ public class UIUtils
 
     }
 
-    public static Set<Asset> getAssetsContaining (String  s,
-                                                  Class   limitTo,
-                                                  Project p)
+    public static Set<Asset> getAssetsContaining (String                     s,
+                                                  UserConfigurableObjectType limitTo,
+                                                  Project                    p)
     {
 
-        Set<Asset> ret = new TreeSet (new NamedObjectSorter ());
+        Set<Asset> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
+        if (limitTo != null)
+        {
+            
+            if (!limitTo.isAssetObjectType ())
+            {
+                
+                return ret;
+                
+            }
+            
+        }
+        
         for (NamedObject n : p.getAllNamedChildObjects (limitTo))
         {
 
@@ -3566,7 +3601,7 @@ public class UIUtils
                                                 Project p)
     {
 
-        Set<Note> ret = new TreeSet (new NamedObjectSorter ());
+        Set<Note> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
         for (NamedObject n : p.getAllNamedChildObjects (Note.class))
         {
@@ -3588,7 +3623,7 @@ public class UIUtils
                                                               Project p)
     {
 
-        Set<OutlineItem> ret = new TreeSet (new NamedObjectSorter ());
+        Set<OutlineItem> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
         for (NamedObject n : p.getAllNamedChildObjects (OutlineItem.class))
         {
@@ -3610,7 +3645,7 @@ public class UIUtils
                                                   Project p)
     {
 
-        Set<Scene> ret = new TreeSet (new NamedObjectSorter ());
+        Set<Scene> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
         for (NamedObject n : p.getAllNamedChildObjects (Scene.class))
         {
@@ -4548,21 +4583,28 @@ public class UIUtils
     }
 
     public static Header createHeader (String     title,
+                                       int        titleType)
+    {
+
+        return UIUtils.createHeader (title,
+                                     titleType,
+                                     (String) null,
+                                     null);
+    
+    }
+    
+    public static Header createHeader (String     title,
                                        int        titleType,
                                        String     icon,
                                        JComponent controls)
     {
 
         int iconType = Constants.ICON_MENU;
-        int fontSize = 10;
-        Insets ins = null;
 
         if (titleType == Constants.POPUP_WINDOW_TITLE)
         {
 
             iconType = Constants.ICON_POPUP;
-            fontSize = 16;
-            ins = null; //new Insets (3, 3, 3, 3);
 
         }
 
@@ -4570,8 +4612,6 @@ public class UIUtils
         {
 
             iconType = Constants.ICON_SUB_PANEL_MAIN;
-            fontSize = 14;
-            ins = new Insets (5, 5, 0, 0);
 
         }
 
@@ -4579,8 +4619,6 @@ public class UIUtils
         {
 
             iconType = Constants.ICON_PANEL_MAIN;
-            fontSize = 16;
-            ins = new Insets (5, 7, 5, 7);
 
 
         }
@@ -4589,9 +4627,6 @@ public class UIUtils
         {
 
             iconType = Constants.ICON_PANEL_MAIN;
-            fontSize = 18;
-            ins = new Insets (5, 10, 8, 5);
-
 
         }
 
@@ -4605,8 +4640,58 @@ public class UIUtils
 
         }
 
+        return UIUtils.createHeader (title,
+                                     titleType,
+                                     ii,
+                                     controls);
+
+    }
+
+    public static Header createHeader (String     title,
+                                       int        titleType,
+                                       Icon       icon,
+                                       JComponent controls)
+    {
+
+        int fontSize = 10;
+        Insets ins = null;
+
+        if (titleType == Constants.POPUP_WINDOW_TITLE)
+        {
+
+            fontSize = 16;
+            ins = null; //new Insets (3, 3, 3, 3);
+
+        }
+
+        if (titleType == Constants.SUB_PANEL_TITLE)
+        {
+
+            fontSize = 14;
+            ins = new Insets (5, 5, 0, 0);
+
+        }
+
+        if (titleType == Constants.PANEL_TITLE)
+        {
+
+            fontSize = 16;
+            ins = new Insets (5, 7, 5, 7);
+
+
+        }
+
+        if (titleType == Constants.FULL_SCREEN_TITLE)
+        {
+
+            fontSize = 18;
+            ins = new Insets (5, 10, 8, 5);
+
+
+        }
+
         Header h = new Header (Environment.replaceObjectNames (title),
-                               ii,
+                               icon,
                                controls);
 
         h.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -5266,6 +5351,160 @@ public class UIUtils
 
     }
 
+    public static JTextPane createTextViewPane (final StringWithMarkup        description,
+                                                final AbstractProjectViewer   pv)
+    {
+
+        // TODO: Markup to html?
+        return UIUtils.createTextViewPane ((description != null ? description.getMarkedUpText () : null),
+                                           pv);
+
+    }
+    
+    public static JTextPane createTextViewPane (final String                  description,
+                                                final AbstractProjectViewer   pv)
+    {
+
+        HTMLEditorKit kit = new HTMLEditorKit ();
+        HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
+
+        final JTextPane desc = new JTextPane (doc)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                if (t == null)
+                {
+                    
+                    t = "";
+                    
+                }
+                
+                super.setText (UIUtils.getWithHTMLStyleSheet (this,
+                                                              UIUtils.markupStringForAssets (t,
+                                                                                             pv.getProject (),
+                                                                                             null)));
+                
+            }
+            
+        };
+
+        desc.setEditorKit (kit);
+        desc.setEditable (false);
+        desc.setOpaque (false);
+
+        desc.setSize (new Dimension (500, Short.MAX_VALUE));
+        desc.addHyperlinkListener (new HyperlinkAdapter ()
+        {
+
+            public void hyperlinkUpdate (HyperlinkEvent ev)
+            {
+
+                if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
+                {
+
+                    URL url = ev.getURL ();
+
+                    if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
+                    {
+
+                        pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
+
+                        return;
+
+                    }
+
+                    if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
+                    {
+
+                        Set<Asset> objs = pv.getProject ().getAllAssetsByName (url.getHost (),
+                                                                               null);
+
+                        if ((objs == null)
+                            ||
+                            (objs.size () == 0)
+                           )
+                        {
+
+                            return;
+
+                        }
+
+                        if (objs.size () == 1)
+                        {
+
+                            pv.viewObject (objs.iterator ().next ());
+
+                            return;
+
+                        } else {
+
+                            try
+                            {
+
+                                Point point = desc.modelToView (ev.getSourceElement ().getStartOffset ()).getLocation ();
+
+                                point = SwingUtilities.convertPoint (desc,
+                                                                     point,
+                                                                     pv);
+
+                                UIUtils.showObjectSelectPopup (objs,
+                                                               pv,
+                                                               "Select an item to view",
+                                                               new ActionListener ()
+                                                               {
+
+                                                                    @Override
+                                                                    public void actionPerformed (ActionEvent ev)
+                                                                    {
+
+                                                                        pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (ev.getActionCommand ())));
+
+                                                                    }
+
+                                                               },
+                                                               true,
+                                                               point);
+
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to show popup",
+                                                      e);
+
+                                pv.viewObject (objs.iterator ().next ());
+
+                                return;
+
+                            }
+
+                        }
+
+                    }
+
+                    if (url.getProtocol ().equals ("mailto"))
+                    {
+
+                        return;
+
+                    }
+
+                    UIUtils.openURL (pv,
+                                     url);
+
+                }
+
+            }
+
+        });
+
+        desc.setText (description);
+
+        return desc;
+
+    }
+    
     public static JTextPane createObjectDescriptionViewPane (final StringWithMarkup        description,
                                                              final NamedObject             n,
                                                              final AbstractProjectViewer   pv,
@@ -5289,7 +5528,21 @@ public class UIUtils
         HTMLEditorKit kit = new HTMLEditorKit ();
         HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
 
-        final JTextPane desc = new JTextPane (doc);
+        final JTextPane desc = new JTextPane (doc)
+        {
+          
+            @Override
+            public void setText (String t)
+            {
+                
+                super.setText (UIUtils.getWithHTMLStyleSheet (this,
+                                                              UIUtils.markupStringForAssets (t,
+                                                                                             pv.getProject (),
+                                                                                             n)));
+                
+            }
+            
+        };
 
         desc.setEditorKit (kit);
         desc.setEditable (false);
@@ -5414,10 +5667,7 @@ public class UIUtils
                     if (ev.getChangeType ().equals (NamedObject.DESCRIPTION))
                     {
 
-                        desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
-                                                                     UIUtils.markupStringForAssets (description,
-                                                                                                    pv.getProject (),
-                                                                                                    n)));
+                        desc.setText (description);
 
                     }
 
@@ -5434,10 +5684,7 @@ public class UIUtils
 
         } else {
 
-            desc.setText (UIUtils.getWithHTMLStyleSheet (desc,
-                                                         UIUtils.markupStringForAssets (description,
-                                                                                        pv.getProject (),
-                                                                                        n)));
+            desc.setText (description);
 
         }
 
@@ -5577,24 +5824,122 @@ public class UIUtils
 
     }
 
-    public static void addNewAssetItemsToPopupMenu (Container     m,
-                                                    Component     showPopupAt,
-                                                    ProjectViewer pv,
-                                                    String        name,
-                                                    String        desc)
+    public static void addNewAssetItemsToPopupMenu (final Container     m,
+                                                    final Component     showPopupAt,
+                                                    final ProjectViewer pv,
+                                                    final String        name,
+                                                    final String        desc)
     {
 
-        String pref = "Shortcut: Ctrl+Shift+";
+        String pref = "Shortcut: ";
 
-        for (String type : Asset.supportedAssetTypes.keySet ())
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+                
+        for (UserConfigurableObjectType type : types)
         {
 
+            JMenuItem mi = new JMenuItem (type.getObjectTypeName (),
+                                          type.getIcon16x16 ());
+        
+            m.add (mi);
+            
+            KeyStroke k = type.getCreateShortcutKeyStroke ();
+            
+            if (k != null)
+            {
+                
+                mi.setMnemonic (k.getKeyChar ());
+                mi.setToolTipText (pref + Utils.keyStrokeToString (k));
+                
+            }
+        
+            final UserConfigurableObjectType _type = type;
+        
+            mi.addActionListener (new ActionListener ()
+            {
+               
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    Asset a = null;
+                    
+                    try
+                    {
+                        
+                        a = Asset.createAsset (_type);
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              _type,
+                                              e);
+                        
+                        UIUtils.showErrorMessage (pv,
+                                                  "Unable to create new asset type.");
+                        
+                        return;
+                        
+                    }
+                    
+                    if (a == null)
+                    {
+                        
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              _type);
+
+                        UIUtils.showErrorMessage (pv,
+                                                  "Unable to create new asset type.");
+                        
+                        return;
+                        
+                    }
+                    
+                    if (name != null)
+                    {
+        
+                        a.setName (name);
+        
+                    }
+        
+                    if (desc != null)
+                    {
+        
+                        a.setDescription (new StringWithMarkup (desc));
+        
+                    }
+                    
+                    AssetActionHandler aah = new AssetActionHandler (a,
+                                                                     pv);
+        
+                    if (showPopupAt instanceof PopupsSupported)
+                    {
+        
+                        aah.setPopupOver (pv);
+                        aah.setShowPopupAt (null,
+                                            "below");
+        
+                    } else
+                    {
+        
+                        aah.setShowPopupAt (showPopupAt,
+                                            "above");
+        
+                    }
+                    
+                    aah.actionPerformed (ev);
+                    
+                }
+                
+            });
+        
+        /*
             Asset a = null;
 
             try
             {
 
-                a = pv.getProject ().createAsset (type);
+                a = Asset.createSubType (type);
             
             } catch (Exception e)
             {
@@ -5654,7 +5999,7 @@ public class UIUtils
             mi.addActionListener (aah);
 
             m.add (mi);
-
+*/
         }
 
     }
@@ -5668,8 +6013,105 @@ public class UIUtils
 
         List<JComponent> buts = new ArrayList ();
 
-        String pref = "Shortcut: Ctrl+Shift+";
+        Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
+                
+        for (UserConfigurableObjectType type : types)
+        {
+        
+            JButton but = UIUtils.createButton (type.getIcon16x16 (),
+                                                String.format ("Click to add a new {%s}",
+                                                               type.getObjectTypeName ()),
+                                                null);
+        
+            buts.add (but);
+                    
+            final UserConfigurableObjectType _type = type;
+        
+            but.addActionListener (new ActionListener ()
+            {
+               
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    Asset a = null;
+                    
+                    try
+                    {
+                        
+                        a = Asset.createAsset (_type);
+                        
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              _type,
+                                              e);
+                        
+                        UIUtils.showErrorMessage (pv,
+                                                  "Unable to create new asset type.");
+                        
+                        return;
+                        
+                    }
+                    
+                    if (a == null)
+                    {
+                        
+                        Environment.logError ("Unable to create new asset for object type: " +
+                                              _type);
 
+                        UIUtils.showErrorMessage (pv,
+                                                  "Unable to create new asset type.");
+                        
+                        return;
+                        
+                    }
+                    
+                    if (name != null)
+                    {
+        
+                        a.setName (name);
+        
+                    }
+        
+                    if (desc != null)
+                    {
+        
+                        a.setDescription (new StringWithMarkup (desc));
+        
+                    }
+                    
+                    AssetActionHandler aah = new AssetActionHandler (a,
+                                                                     pv);
+        
+                    if (showPopupAt instanceof PopupsSupported)
+                    {
+        
+                        aah.setPopupOver (pv);
+                        aah.setShowPopupAt (null,
+                                            "below");
+        
+                    } else
+                    {
+        
+                        aah.setShowPopupAt (showPopupAt,
+                                            "above");
+        
+                    }
+                    
+                    aah.actionPerformed (ev);
+                    
+                }
+                
+            });
+            
+        }
+        
+        m.add (UIUtils.createPopupMenuButtonBar (null,
+                                                 m,
+                                                 buts));
+        
+/*
         for (String type : Asset.supportedAssetTypes.keySet ())
         {
 
@@ -5678,7 +6120,7 @@ public class UIUtils
             try
             {
 
-                a = pv.getProject ().createAsset (type);
+                a = Asset.createAsset (type);
 
             } catch (Exception e)
             {
@@ -5741,7 +6183,7 @@ public class UIUtils
         m.add (UIUtils.createPopupMenuButtonBar (null,
                                                  m,
                                                  buts));
-
+*/
     }
 
     public static Color getBorderHighlightColor ()
@@ -6057,6 +6499,15 @@ public class UIUtils
             public void setText (String t)
             {
 
+                if (t == null)
+                {
+                    
+                    super.setText (null);
+                    
+                    return;
+                    
+                }
+            
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
 
@@ -6066,6 +6517,15 @@ public class UIUtils
             public void setToolTipText (String t)
             {
 
+                if (t == null)
+                {
+                    
+                    super.setToolTipText (null);
+                    
+                    return;
+                    
+                }
+            
                 super.setToolTipText (String.format ("%s",
                                                      Environment.replaceObjectNames (t)));
 
@@ -6099,6 +6559,15 @@ public class UIUtils
             public void setText (String t)
             {
 
+                if (t == null)
+                {
+                    
+                    super.setText (null);
+                    
+                    return;
+                    
+                }
+            
                 super.setText (String.format ("<html>%s</html>",
                                               Environment.replaceObjectNames (t)));
 
@@ -6108,6 +6577,15 @@ public class UIUtils
             public void setToolTipText (String t)
             {
 
+                if (t == null)
+                {
+                    
+                    super.setToolTipText (null);
+                    
+                    return;
+                    
+                }
+            
                 super.setToolTipText (String.format ("%s",
                                                      Environment.replaceObjectNames (t)));
 
@@ -6230,21 +6708,71 @@ public class UIUtils
 
     }
 
+    public static JScrollPane createScrollPane (final JTree c)
+    {
+
+        return UIUtils.createScrollPane (c,
+                                         -1);
+    
+    }
+    
+    public static JScrollPane createScrollPane (final JTree c,
+                                                final int   maxHeight)
+    {
+
+        JScrollPane sp = new JScrollPane (c)
+        {
+        
+            public Dimension getPreferredSize ()
+            {
+                
+                Dimension d = c.getPreferredSize ();
+                                                                     
+                if (maxHeight > 0)
+                {
+                
+                    if (d.height > maxHeight)
+                    {
+                        
+                        d.height = maxHeight;
+                                                                                           
+                    }
+                    
+                }
+                
+                return d;
+                
+            }
+            
+        };
+    
+        //JScrollPane sp = new JScrollPane (c);
+        sp.setOpaque (true);
+        sp.getViewport ().setBackground (UIUtils.getComponentColor ());
+        sp.setBackground (UIUtils.getComponentColor ());
+        sp.setBorder (UIUtils.createLineBorder ());
+        sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        sp.getVerticalScrollBar ().setUnitIncrement (DEFAULT_SCROLL_BY_AMOUNT);
+
+        return sp;
+
+    }
+
     public static JScrollPane createScrollPane (JTextComponent t)
     {
 
         JScrollPane sp = new JScrollPane (t);
         sp.setOpaque (false);
-        sp.setBorder (new CompoundBorder (new EmptyBorder (5,
-                                                           5,
-                                                           5,
-                                                           5),
-                                          UIUtils.createLineBorder ()));
+        
+        sp.setBorder (new JScrollPane ().getBorder ());
+
+        t.setMargin (new Insets (3,
+                                 3,
+                                 3,
+                                 3));
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
         sp.getVerticalScrollBar ().setUnitIncrement (DEFAULT_SCROLL_BY_AMOUNT);
-        sp.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                          t.getPreferredSize ().height + sp.getInsets ().top + sp.getInsets ().bottom));
-        //sp.setPreferredSize (sp.getMaximumSize ());
 
         return sp;
 
@@ -6518,7 +7046,8 @@ public class UIUtils
 
         tb.setBackground (null);
         tb.setAlignmentX (Component.LEFT_ALIGNMENT);
-
+        tb.setBorder (null);
+        
         return tb;
 
     }
@@ -7196,7 +7725,7 @@ public class UIUtils
     }
 
     public static BufferedImage getImage (byte[] bytes)
-                                   throws Exception
+                                   throws GeneralException
     {
 
         if (bytes == null)
@@ -7206,12 +7735,22 @@ public class UIUtils
 
         }
 
-        return ImageIO.read (new ByteArrayInputStream (bytes));
+        try
+        {
+        
+            return ImageIO.read (new ByteArrayInputStream (bytes));
+        
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to convert bytes to an image",
+                                        e);
+            
+        }
 
     }
 
     public static byte[] getImageBytes (BufferedImage im)
-                                 throws Exception
+                                 throws GeneralException
     {
 
         if (im == null)
@@ -7221,19 +7760,44 @@ public class UIUtils
 
         }
 
-        ByteArrayOutputStream bout = new ByteArrayOutputStream ();
-        ImageIO.write (im,
-                       "jpeg",
-                       bout);
-        bout.flush ();
-        bout.close ();
-        return bout.toByteArray ();
+        try
+        {
+                        
+            ByteArrayOutputStream bout = new ByteArrayOutputStream ();
+        
+            // Shouldn't use png here, it is too slow.
+            if (!ImageIO.write (im,
+                                "png",
+                                bout))
+            {
+                
+                throw new GeneralException ("Unable to write image using png");
+                
+            }
 
+            bout.flush ();
+            bout.close ();
+            return bout.toByteArray ();
+
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to get bytes for image",
+                                        e);
+            
+        }
+        
     }
 
     public static BufferedImage getImage (File f)
     {
 
+        if (f == null)
+        {
+            
+            return null;
+            
+        }
+    
         try
         {
 
@@ -7318,21 +7882,31 @@ public class UIUtils
     public static BufferedImage iconToImage(Icon icon)
     {
 
-       if (icon instanceof ImageIcon) {
-          return (BufferedImage) ((ImageIcon)icon).getImage();
-       } else {
+        if (icon == null)
+        {
+            
+            return null;
+            
+        }
+    
+        if (icon instanceof ImageIcon)
+        {
+        
+            return (BufferedImage) ((ImageIcon)icon).getImage();
+       
+        } else {
 
-          int w = icon.getIconWidth();
-          int h = icon.getIconHeight();
-          GraphicsEnvironment ge =
-            GraphicsEnvironment.getLocalGraphicsEnvironment();
-          GraphicsDevice gd = ge.getDefaultScreenDevice();
-          GraphicsConfiguration gc = gd.getDefaultConfiguration();
-          BufferedImage image = gc.createCompatibleImage(w, h);
-          Graphics2D g = image.createGraphics();
-          icon.paintIcon(null, g, 0, 0);
-          g.dispose();
-          return image;
+            int w = icon.getIconWidth();
+            int h = icon.getIconHeight();
+            GraphicsEnvironment ge =
+              GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gd = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gd.getDefaultConfiguration();
+            BufferedImage image = gc.createCompatibleImage(w, h);
+            Graphics2D g = image.createGraphics();
+            icon.paintIcon(null, g, 0, 0);
+            g.dispose();
+            return image;
 
        }
 
@@ -7512,6 +8086,19 @@ public class UIUtils
         JMenuItem mi = new JMenuItem (Environment.replaceObjectNames (label),
                                       Environment.getIcon (icon,
                                                  Constants.ICON_MENU));
+        mi.addActionListener (action);
+
+        return mi;
+
+    }
+
+    public static JMenuItem createMenuItem (String         label,
+                                            ImageIcon      icon,
+                                            ActionListener action)
+    {
+
+        JMenuItem mi = new JMenuItem (Environment.replaceObjectNames (label),
+                                      icon);
         mi.addActionListener (action);
 
         return mi;
@@ -7752,6 +8339,13 @@ public class UIUtils
                                                     final ActionListener action)
     {
 
+        if (action == null)
+        {
+            
+            return;
+            
+        }
+    
         if (text instanceof JTextField)
         {
 
@@ -8762,9 +9356,9 @@ public class UIUtils
 
     }
 
-    public static void resizeParent (Container parent)
+    public static void resizeParent (final Container parent)
     {
-
+    
         if (parent == null)
         {
 
@@ -8789,7 +9383,7 @@ public class UIUtils
             return;
 
         }
-
+        
         UIUtils.resizeParent (parent.getParent ());
 
     }
@@ -10043,51 +10637,13 @@ public class UIUtils
 
     }
 
-    public static JComponent createForm (Set<FormItem> items)
+    public static Form createForm (Set<FormItem>                    items,
+                                   Map<Form.Button, ActionListener> buttons)
     {
-
-        Box addTo = new Box (BoxLayout.Y_AXIS);
-        addTo.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        for (FormItem it : items)
-        {
-
-            if (it.label != null)
-            {
-
-                if (it.label instanceof String)
-                {
-
-                    addTo.add (UIUtils.createLabel ((String) it.label));
-
-                } else {
-
-                    addTo.add ((JComponent) it.label);
-
-                }
-
-            }
-
-            if (it.component != null)
-            {
-
-                Box b = new Box (BoxLayout.X_AXIS);
-
-                b.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-                b.setBorder (UIUtils.createPadding ((it.label != null ? 5 : 0), 10, 10, 0));
-
-                it.component.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-                b.add (it.component);
-
-                addTo.add (b);
-
-            }
-
-        }
-
-        return addTo;
+        
+        return new Form (Form.Layout.stacked,
+                         items,
+                         buttons);
 
     }
 
@@ -10206,7 +10762,10 @@ public class UIUtils
 
         String chapText = viewer.getCurrentChapterText (c);
 
-        if (chapText != null)
+        if ((chapText != null)
+            &&
+            (chapText.length () > 0)
+           )
         {
 
             chapText  = new TextIterator (chapText).getFirstSentence ().getText ();
@@ -10364,22 +10923,176 @@ public class UIUtils
 
     }
 
-    public static void showAddNewObjectType (ProjectViewer viewer)
+    public static void showObjectTypeEdit (UserConfigurableObjectType type,
+                                           ProjectViewer              viewer)
     {
+        
+        final QPopup p = UIUtils.createClosablePopup (String.format ("Edit the {%s} information",
+                                                                     type.getObjectTypeName ()),
+                                                      Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                           Constants.ICON_POPUP),
+                                                      null);        
+        
+        Box b = new Box (BoxLayout.Y_AXIS);
+        
+        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+                
+        JTextPane m = UIUtils.createHelpTextPane (String.format ("Use this popup to add or edit the fields, layout and information for your {%s}.",
+                                                                 type.getObjectTypeNamePlural ()),
+                                                  viewer);
 
-        QPopup popup = UIUtils.createWizardPopup ("Add a new object type",
-                                                  Constants.NEW_ICON_NAME,
-                                                  null,
-                                                  new NewObjectTypeWizard (viewer));
+        m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                                  m.getPreferredSize ().height));
+        m.setBorder (null);
+        
+        b.add (m);
+        
+        b.add (Box.createVerticalStrut (5));        
+                
+        b.add (UserConfigurableObjectTypeEdit.getAsTabs (viewer,
+                                                         type));
+                                
+        JButton finish = new JButton ("Finish");
 
-        popup.setDraggable (viewer);
+        finish.addActionListener (new ActionAdapter ()
+        {
 
-        popup.resize ();
-        viewer.showPopupAt (popup,
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.closePopupParent (p);
+
+            }
+
+        });
+
+        JButton[] fbuts = new JButton[] { finish };
+
+        JPanel bp = UIUtils.createButtonBar2 (fbuts,
+                                              Component.CENTER_ALIGNMENT);
+        bp.setOpaque (false);
+
+        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
+        b.add (Box.createVerticalStrut (10));
+
+        b.add (bp);
+        
+        p.setContent (b);
+        
+        b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
+                                           b.getPreferredSize ().height));                
+        
+        viewer.showPopupAt (p,
                             UIUtils.getCenterShowPosition (viewer,
-                                                           popup),
-                            false);
-    
+                                                           p),
+                                 false);
+        p.setDraggable (viewer);        
+        
+    }
+
+    public static JMenu createTagsMenu (final NamedObject           obj,
+                                        final AbstractProjectViewer viewer)
+    {
+        
+        JMenu tagMenu = new JMenu ("Tags");
+        
+        tagMenu.setIcon (Environment.getIcon (Constants.TAG_ICON_NAME,
+                                              Constants.ICON_MENU));
+        
+        Set<Tag> allTags = null;
+        
+        try
+        {
+            
+            allTags = Environment.getAllTags ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get all tags",
+                                  e);
+            
+            return tagMenu;
+                    
+        }
+        
+        for (Tag t : allTags)
+        {
+            
+            final JCheckBox it = new JCheckBox (t.getName (),
+                                                obj.hasTag (t));
+            it.setBorder (UIUtils.createPadding (3, 3, 3, 3));
+            
+            it.addActionListener (new ActionListener ()
+            {
+               
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    if (it.isSelected ())
+                    {
+                        
+                        obj.addTag (t);
+                        
+                    } else {
+                        
+                        obj.removeTag (t);
+                        
+                    }
+                    
+                    try
+                    {
+                    
+                        viewer.saveObject (obj,
+                                           false);
+
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to update object: " +
+                                              obj,
+                                              e);
+                        
+                        UIUtils.showErrorMessage (viewer,
+                                                  "Unable to add/remove tag.");
+                        
+                        return;
+                        
+                    }
+                    
+                    viewer.reloadTreeForObjectType (TaggedObjectAccordionItem.ID_PREFIX + t);
+                    
+                }
+                
+            });
+            
+            tagMenu.add (it);                
+            
+        }
+
+        if (allTags.size () > 0)
+        {
+        
+            tagMenu.addSeparator ();
+            
+        }
+        
+        tagMenu.add (UIUtils.createMenuItem ("Edit the Tag(s)",
+                                            Constants.ADD_ICON_NAME,
+                                            new ActionListener ()
+                                            {
+                                             
+                                                 @Override
+                                                 public void actionPerformed (ActionEvent ev)
+                                                 {
+                                                     
+                                                    viewer.showEditTags ();
+                                                     
+                                                 }
+                                             
+                                            }));
+        
+        return tagMenu;
+        
     }
     
 }

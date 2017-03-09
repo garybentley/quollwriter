@@ -70,11 +70,9 @@ import com.quollwriter.editors.ui.sidebars.*;
 
 import com.quollwriter.achievements.rules.*;
 
-public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ implements PropertyChangedListener,
-                                                                      SpellCheckSupported,
-                                                                      /*PopupsSupported,*/
-                                                                      /*SideBarsSupported,*/
-                                                                      HTMLPanelActionHandler
+public abstract class AbstractProjectViewer extends AbstractViewer implements PropertyChangedListener,
+                                                                              SpellCheckSupported,
+                                                                              HTMLPanelActionHandler
 {
 
     public static final String IDEA_BOARD_HEADER_CONTROL_ID = "ideaBoard";
@@ -634,18 +632,15 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         this.finder = new Finder (this);
 
-        this.addSideBar ("find",
-                         this.finder);
+        this.addSideBar (this.finder);
 
         this.wordCounts = new WordCountsSideBar (this);
 
-        this.addSideBar ("wordcounts",
-                         this.wordCounts);
+        this.addSideBar (this.wordCounts);
 
         this.mainSideBar = this.getMainSideBar ();
 
-        this.addSideBar (this.getMainSideBarName (),
-                         this.mainSideBar);
+        this.addSideBar (this.mainSideBar);
 
     }
 
@@ -867,17 +862,17 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
     }
 
-    public AbstractSideBar getSideBar (String name)
+    public AbstractSideBar getSideBar (String id)
     {
 
-        return this.sideBars.get (name);
+        return this.sideBars.get (id);
 
     }
 
-    public void removeSideBar (String name)
+    public void removeSideBar (String id)
     {
 
-        this.removeSideBar (this.getSideBar (name));
+        this.removeSideBar (this.getSideBar (id));
 
     }
 
@@ -891,7 +886,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         }
 
-        this.sideBars.remove (sb.getName ());
+        this.sideBars.remove (sb.getId ());
 
         this.activeSideBars.remove (sb);
 
@@ -914,7 +909,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         } catch (Exception e) {
 
-            Environment.logError ("Unable to close sidebar: " + sb.getName (),
+            Environment.logError ("Unable to close sidebar: " + sb.getId (),
                                   e);
 
         }
@@ -928,7 +923,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         if (_sb != null)
         {
 
-            this.showSideBar (_sb.getName ());
+            this.showSideBar (_sb.getId ());
 
         } else {
 
@@ -943,23 +938,33 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
     }
 
-    public void addSideBar (String          name,
-                            AbstractSideBar sb)
+    public void addSideBar (AbstractSideBar sb)
                      throws GeneralException
     {
 
         if (sb == null)
         {
 
-            throw new IllegalArgumentException ("No sidebar provided for: " + name);
+            throw new IllegalArgumentException ("No sidebar provided.");
 
         }
 
-        sb.init ();
+        String state = null;
 
-        sb.setName (name);
+        String id = sb.getId ();
+        
+        if (id != null)
+        {
+        
+            state = this.proj.getProperty ("sidebarState-" + id);
+                        
+        }        
+        
+        sb.init (state);
+        
+        //sb.setName (name);
 
-        this.sideBars.put (name,
+        this.sideBars.put (id,
                            sb);
 
         this.addMainPanelListener (sb);
@@ -1043,10 +1048,17 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
     }
 
-    public boolean isMainSideBarName (String n)
+    public boolean isMainSideBar (AbstractSideBar sb)
+    {
+        
+        return this.mainSideBar == sb;
+        
+    }
+    
+    public boolean isMainSideBarId (String n)
     {
 
-        return (n.equals (this.getMainSideBarName ()));
+        return (n.equals (this.getMainSideBarId ()));
 
     }
 
@@ -1055,7 +1067,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         this.mainSideBar = sb;
 
-        this.sideBars.put (this.getMainSideBarName (),
+        this.sideBars.put (this.getMainSideBarId (),
                            sb);
 
         this.showMainSideBar ();
@@ -1065,14 +1077,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     public void showMainSideBar ()
     {
 
-        this.showSideBar (this.getMainSideBarName ());
+        this.showSideBar (this.getMainSideBarId ());
 
     }
 
-    public String getMainSideBarName ()
+    public String getMainSideBarId ()
     {
 
-        return "project";
+        return this.mainSideBar.getId ();
 
     }
     /*
@@ -1172,7 +1184,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
 
-                                                            _this.showSideBar (_sb.getName ());
+                                                            _this.showSideBar (_sb.getId ());
 
                                                         }
 
@@ -1186,12 +1198,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
     }
 
-    public void showSideBar (String name)
+    public void showSideBar (String id)
     {
 
         if ((this.currentOtherSideBar != null)
             &&
-            (this.currentOtherSideBar.getName ().equals (name))
+            (this.currentOtherSideBar.getId ().equals (id))
            )
         {
 
@@ -1199,14 +1211,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         }
 
-        AbstractSideBar b = this.sideBars.get (name);
+        AbstractSideBar b = this.sideBars.get (id);
 
         if (b == null)
         {
 
             throw new IllegalArgumentException ("Unable to show sidebar: " +
-                                                name +
-                                                ", no sidebar found with that name.");
+                                                id +
+                                                ", no sidebar found with that id.");
 
         }
 
@@ -1220,7 +1232,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         }
 
-        if (name.equals (this.getMainSideBarName ()))
+        if (id.equals (this.getMainSideBarId ()))
         {
 
             // Need to check the layout.  If we are only showing one sidebar then set the current other
@@ -1274,7 +1286,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         } catch (Exception e) {
 
             Environment.logError ("Unable to call onShow for sidebar: " +
-                                  name +
+                                  id +
                                   ", instance: " +
                                   b,
                                   e);
@@ -5853,7 +5865,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         if (this.currentOtherSideBar != null)
         {
 
-            return this.currentOtherSideBar.getName ().equals (TextPropertiesSideBar.NAME);
+            return this.currentOtherSideBar.getId ().equals (TextPropertiesSideBar.ID);
 
         }
 
@@ -5865,17 +5877,16 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                              throws GeneralException
     {
 
-        if (!this.sideBars.containsKey (TextPropertiesSideBar.NAME))
+        if (!this.sideBars.containsKey (TextPropertiesSideBar.ID))
         {
 
-            this.addSideBar (TextPropertiesSideBar.NAME,
-                             new TextPropertiesSideBar (this,
+            this.addSideBar (new TextPropertiesSideBar (this,
                                                         this,
                                                         Environment.getProjectTextProperties ()));
 
         }
 
-        this.showSideBar (TextPropertiesSideBar.NAME);
+        this.showSideBar (TextPropertiesSideBar.ID);
 
     }
 
@@ -5937,6 +5948,35 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
             return;
 
+        }
+
+        // Get the state from the sidebars.
+        for (AbstractSideBar sb : this.sideBars.values ())
+        {
+            
+            String id = sb.getId ();
+            
+            if (id == null)
+            {
+                
+                continue;
+                
+            }
+            
+            try
+            {
+                
+                this.proj.setProperty ("sidebarState-" + id,
+                                       sb.getSaveState ());
+
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to save state for sidebar: " +
+                                      id,
+                                      e);
+                
+            }
+            
         }
 
         // Set the open tab ids.
@@ -6649,8 +6689,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                             Environment.getTransparentImage (),
                                             qp.getTitle ());
 
-        th.setIcon (Environment.getIcon (qp.getIconType (),
-                                         Constants.ICON_TAB_HEADER));
+        th.setIcon (qp.getIcon (Constants.ICON_TAB_HEADER));
 
         final String panelId = qp.getPanelId ();
 
@@ -6693,23 +6732,26 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         });
 
-        qp.addActionListener (new ActionAdapter ()
+        if (qp instanceof ProjectObjectQuollPanel)
+        {
+            
+            qp.addActionListener (new ActionAdapter ()
             {
 
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    if (ev.getID () == QuollPanel.UNSAVED_CHANGES_ACTION_EVENT)
+                    if (ev.getID () == ProjectObjectQuollPanel.UNSAVED_CHANGES_ACTION_EVENT)
                     {
 
-                        if (ev.getActionCommand ().equals (QuollPanel.HAS_CHANGES_COMMAND))
+                        if (ev.getActionCommand ().equals (ProjectObjectQuollPanel.HAS_CHANGES_COMMAND))
                         {
 
                             th.setComponentChanged (true);
 
                         }
 
-                        if (ev.getActionCommand ().equals (QuollPanel.NO_CHANGES_COMMAND))
+                        if (ev.getActionCommand ().equals (ProjectObjectQuollPanel.NO_CHANGES_COMMAND))
                         {
 
                             th.setComponentChanged (false);
@@ -6718,7 +6760,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
                     }
 
-                    if (ev.getID () == QuollPanel.SAVED)
+                    if (ev.getID () == ProjectObjectQuollPanel.SAVED)
                     {
 
                         th.setComponentChanged (false);
@@ -6728,6 +6770,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                 }
 
             });
+            
+        }
 
         this.tabs.add (qp,
                        0);
@@ -6758,6 +6802,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
     public boolean closePanel (QuollPanel qp)
     {
+        
 /*
         if (!this.removePanel (qp))
         {
@@ -6849,7 +6894,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             };
 
             // Object already deleted, don't ask the question.
-            if (!this.proj.hasObject (p.getForObject ()))
+            if ((p.getForObject ().getKey () != null)
+                &&
+                (!this.proj.hasObject (p.getForObject ()))
+               )
             {
 
                 remove.actionPerformed (new ActionEvent (this,
@@ -6867,7 +6915,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                              "Save before closing?",
                                              Constants.SAVE_ICON_NAME,
                                              String.format ("The %s has unsaved changes.  Save before closing?",
-                                                            p.getForObject ().getObjectType ()),
+                                                            Environment.getObjectTypeName (p.getForObject ())),
                                              "Yes, save the changes",
                                              "No, discard the changes",
                                              new ActionListener ()
@@ -6879,7 +6927,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                                     try
                                                     {
 
-                                                        p.saveUnsavedChanges ();
+                                                        if (!p.saveUnsavedChanges ())
+                                                        {
+                                                            
+                                                            return;
+                                                            
+                                                        }
 
                                                     } catch (Exception e)
                                                     {
@@ -6891,9 +6944,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
                                                         UIUtils.showErrorMessage (_this,
                                                                                   "Unable to save " +
-                                                                                  Environment.getObjectTypeName (p.getForObject ()).toLowerCase () +
-                                                                                  ": " +
-                                                                                  p.getForObject ().getName ());
+                                                                                  Environment.getObjectTypeName (p.getForObject ()));
 
                                                         return;
 
@@ -6921,7 +6972,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
 
-                                                    remove.actionPerformed (ev);
+                                                    if (!p.hasUnsavedChanges ())
+                                                    {
+                                                
+                                                        remove.actionPerformed (ev);
+                                                        
+                                                    }
 
                                                 }
 
@@ -7244,7 +7300,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
         if (p != null)
         {
 
-            p.refresh (n);
+            p.refresh ();
 
         }
 
@@ -7275,7 +7331,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 						if (qp != null)
 						{
 
-							qp.refresh (n);
+							qp.refresh ();
 
 						}
 
@@ -7791,6 +7847,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 									  Options.Section.look,
 									  Options.Section.naming,
 									  Options.Section.editing,
+                                      Options.Section.assets,
 									  Options.Section.start,
 									  Options.Section.editors,
 									  Options.Section.itemsAndRules,
@@ -7989,7 +8046,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             public void actionPerformed (ActionEvent ev)
             {
 
-                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.NAME);
+                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.ID);
 
                 if (sb == null)
                 {
@@ -8037,7 +8094,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
             public void actionPerformed (ActionEvent ev)
             {
 
-                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.NAME);
+                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.ID);
 
                 if (sb == null)
                 {
@@ -8101,19 +8158,18 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         }
 
-        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.NAME);
+        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.ID);
 
         if (sb == null)
         {
 
             sb = new EditorsSideBar (this);
 
-            this.addSideBar (EditorsSideBar.NAME,
-                             sb);
+            this.addSideBar (sb);
 
         }
 
-        this.showSideBar (EditorsSideBar.NAME);
+        this.showSideBar (EditorsSideBar.ID);
 
         return true;
 
@@ -8250,7 +8306,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
     public boolean isEditorsSideBarVisible ()
     {
 
-        EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.NAME);
+        EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.ID);
 
         if (sb != null)
         {
@@ -8538,10 +8594,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         TargetsSideBar t = new TargetsSideBar (this);
 
-        this.addSideBar ("targets",
-                         t);
+        this.addSideBar (t);
 
-        this.showSideBar ("targets");
+        this.showSideBar (TargetsSideBar.ID);
 
 	}
 
@@ -8871,6 +8926,61 @@ public abstract class AbstractProjectViewer extends AbstractViewer /*JFrame*/ im
 
         return ret;
 
+    }
+
+    public File getProjectFile (String fileName)
+    {
+        
+        if (fileName == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return new File (this.getProjectFilesDirectory (),
+                         fileName);
+        
+    }
+    
+    public File getProjectFilesDirectory ()
+    {
+        
+        File d = new File (this.proj.getProjectDirectory (),
+                           Constants.PROJECT_FILES_DIR_NAME);
+        
+        if (!d.exists ())
+        {
+            
+            d.mkdir ();
+            
+        }
+        
+        return d;
+        
+    }
+    
+    public void saveToProjectFilesDirectory (File   file,
+                                             String fileName)
+                                      throws IOException
+    {
+        
+        if ((file == null)
+            ||
+            (!file.exists ())
+            ||
+            (file.isDirectory ())
+           )
+        {
+            
+            return;
+            
+        }
+
+        IOUtils.copyFile (file,
+                          this.getProjectFile (fileName),
+                          4096);
+                
     }
 
 }

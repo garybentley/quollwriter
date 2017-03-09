@@ -118,7 +118,7 @@ public class Environment
     private static Map<String, UserPropertyHandler> userPropertyHandlers = new HashMap ();
 
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
-    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,##0.0");
+    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.##########");
 
     private static Map<String, Image> backgroundImages = new HashMap ();
 
@@ -159,6 +159,10 @@ public class Environment
 
     private static List<Runnable> doOnShutdown = new ArrayList ();
 
+    private static Set<UserConfigurableObjectType> userConfigObjTypes = new HashSet ();
+        
+    private static PropertyChangedListener userConfigurableObjectTypeNameListener = null;
+        
     static
     {
 
@@ -428,13 +432,13 @@ public class Environment
 
     }
 
-    public static void removeSideBarFromAllProjectViewers (String name)
+    public static void removeSideBarFromAllProjectViewers (String id)
     {
 
         for (AbstractProjectViewer pv : Environment.openProjects.values ())
         {
 
-            pv.removeSideBar (pv.getSideBar (name));
+            pv.removeSideBar (pv.getSideBar (id));
 
         }
 
@@ -657,6 +661,15 @@ public class Environment
 
         }
 
+        if (t instanceof UserConfigurableObject)
+        {
+            
+            UserConfigurableObject ut = (UserConfigurableObject) t;
+            
+            return ut.getObjectTypeName ();
+            
+        }
+        
         return Environment.getObjectTypeName (t.getObjectType ());
 
     }
@@ -681,79 +694,7 @@ public class Environment
         }
 
         return Environment.objectTypeNamesSingular.get (t);
-/*
-        if (Warmup.OBJECT_TYPE.equals (t))
-        {
 
-            return "Warm-up";
-
-        }
-
-        if (QCharacter.OBJECT_TYPE.equals (t))
-        {
-
-            return "Character";
-
-        }
-
-        if (Location.OBJECT_TYPE.equals (t))
-        {
-
-            return "Location";
-
-        }
-
-        if (Chapter.OBJECT_TYPE.equals (t))
-        {
-
-            return "Chapter";
-
-        }
-
-        if (QObject.OBJECT_TYPE.equals (t))
-        {
-
-            return "Item";
-
-        }
-
-        if (ResearchItem.OBJECT_TYPE.equals (t))
-        {
-
-            return "Research Item";
-
-        }
-
-        if (OutlineItem.OBJECT_TYPE.equals (t))
-        {
-
-            return "Plot Outline Item";
-
-        }
-
-        if (Note.OBJECT_TYPE.equals (t))
-        {
-
-            return "Note";
-
-        }
-
-        if (Project.OBJECT_TYPE.equals (t))
-        {
-
-            return "Project";
-
-        }
-
-        if (Scene.OBJECT_TYPE.equals (t))
-        {
-
-            return "Scene";
-
-        }
-
-        return null;
-*/
     }
 
     public static int getPercent (float t,
@@ -774,6 +715,15 @@ public class Environment
 
         }
 
+        if (t instanceof UserConfigurableObject)
+        {
+            
+            UserConfigurableObject ut = (UserConfigurableObject) t;
+            
+            return ut.getObjectTypeName ();
+            
+        }
+        
         return Environment.getObjectTypeNamePlural (t.getObjectType ());
 
     }
@@ -3485,6 +3435,64 @@ public class Environment
 
         Environment.incrStartupProgress ();
 
+        // Load the default object type names.
+        // Object type names may be needed when initing the legacy object types.
+        try
+        {
+
+            Environment.loadObjectTypeNames (JDOMUtils.getStringAsElement (Environment.getResourceFileAsString (Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE)));
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to load default object type names from resource file: " +
+                                  Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE);
+
+        }
+
+        // Load the user specific ones, if present.
+        File otf = Environment.getUserObjectTypeNamesFile ();
+
+        if (otf.exists ())
+        {
+
+            try
+            {
+
+                Environment.loadObjectTypeNames (JDOMUtils.getFileAsElement (otf,
+                                                                             Environment.GZIP_EXTENSION));
+
+            } catch (Exception e) {
+
+                Environment.logError ("Unable to load user object type names from file: " +
+                                      otf,
+                                      e);
+
+            }
+
+        }        
+        
+        // Add a property listener for name changes to user config object types.
+        Environment.userConfigurableObjectTypeNameListener = new PropertyChangedListener ()
+        {
+            
+            @Override
+            public void propertyChanged (PropertyChangedEvent ev)
+            {
+                
+                UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
+                            
+                String id = type.getObjectTypeId ();
+            
+                Environment.objectTypeNamesSingular.put (id,
+                                                         type.getObjectTypeName ());
+
+                Environment.objectTypeNamesPlural.put (id,
+                                                       type.getObjectTypeNamePlural ());
+
+            }
+            
+        };
+        
         // See if this is first use.
         Environment.isFirstUse = (Environment.getProjectInfoSchemaVersion () == 0);
         
@@ -3580,6 +3588,9 @@ public class Environment
 
         }
 
+        // Init our legacy object types, if needed.
+        Environment.projectInfoManager.initLegacyObjectTypes ();
+        
         // The user session needs the properties.
         Environment.userSession = new UserSession ();
 
@@ -3643,41 +3654,6 @@ public class Environment
             
         });                                                
                                                         
-        // Load the default object type names.
-        try
-        {
-
-            Environment.loadObjectTypeNames (JDOMUtils.getStringAsElement (Environment.getResourceFileAsString (Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE)));
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to load default object type names from resource file: " +
-                                  Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE);
-
-        }
-
-        // Load the user specific ones, if present.
-        File otf = Environment.getUserObjectTypeNamesFile ();
-
-        if (otf.exists ())
-        {
-
-            try
-            {
-
-                Environment.loadObjectTypeNames (JDOMUtils.getFileAsElement (otf,
-                                                                             Environment.GZIP_EXTENSION));
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to load user object type names from file: " +
-                                      otf,
-                                      e);
-
-            }
-
-        }
-
         Environment.playSoundOnKeyStroke = UserProperties.getAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
 
         String sf = UserProperties.get (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
@@ -3706,14 +3682,19 @@ public class Environment
 
         Environment.incrStartupProgress ();
 
+/*
         Environment.userPropertyHandlers.put (Constants.OBJECT_TYPES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME,
                                                                        null));
+*/
         Environment.userPropertyHandlers.put (Constants.NOTE_TYPES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.NOTE_TYPES_PROPERTY_NAME,
                                                                        null));
         Environment.userPropertyHandlers.put (Constants.PROJECT_STATUSES_PROPERTY_NAME,
                                               new UserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME,
+                                                                       null));
+        Environment.userPropertyHandlers.put (Constants.TAGS_PROPERTY_NAME,
+                                              new UserPropertyHandler (Constants.TAGS_PROPERTY_NAME,
                                                                        null));
 
         try
@@ -4115,7 +4096,7 @@ public class Environment
             }
 
         });
-
+                  
     }
 
     public static File getUserEditorsPropertiesFile ()
@@ -4485,7 +4466,7 @@ public class Environment
         otf.delete ();
 
     }
-
+    
     public static void loadObjectTypeNames (Element root)
                                             throws  Exception
     {
@@ -4533,9 +4514,38 @@ public class Environment
 
         }
 
+        // Load the names from the configurable types.
+        for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
+        {
+            
+            if (t.getUserObjectType () != null)
+            {
+                
+                plural.put (t.getUserObjectType (),
+                            t.getObjectTypeNamePlural ());
+                
+                singular.put (t.getUserObjectType (),
+                              t.getObjectTypeName ());
+                
+            } else {
+                
+                if (t.isAssetObjectType ())
+                {
+                    
+                    plural.put ("asset:" + t.getKey (),
+                                t.getObjectTypeNamePlural ());
+                    singular.put ("asset:" + t.getKey (),
+                                  t.getObjectTypeName ());
+                    
+                }
+                
+            }
+            
+        }
+        
         Environment.objectTypeNamesSingular.putAll (singular);
         Environment.objectTypeNamesPlural.putAll (plural);
-
+        
     }
 
     public static URL getSupportUrl (String pagePropertyName)
@@ -4750,6 +4760,99 @@ public class Environment
 
     }
 
+    public static int getIconPixelWidthForType (int type)
+    {
+        
+        int size = 16;
+
+        if (type == Constants.ICON_EDITOR_MESSAGE)
+        {
+
+            size = 20;
+
+        }
+
+        if (type == Constants.ICON_TOOLBAR)
+        {
+
+            size = 20;
+
+        }
+
+        if (type == Constants.ICON_MENU_INNER)
+        {
+
+            size = 16;
+
+        }
+
+        if (type == Constants.ICON_PANEL_MAIN)
+        {
+
+            size = 24;
+
+        }
+
+        if (type == Constants.ICON_NOTIFICATION)
+        {
+
+            size = 24;
+
+        }
+
+        if (type == Constants.ICON_ACHIEVEMENT_HEADER)
+        {
+
+            size = 24;
+
+        }
+
+        if (type == Constants.ICON_PANEL_ACTION)
+        {
+
+            size = 20;
+
+        }
+
+        if (type == Constants.ICON_TITLE_ACTION)
+        {
+
+            size = 24;
+
+        }
+
+        if (type == Constants.ICON_BG_SWATCH)
+        {
+
+            size = 37;
+
+        }
+
+        if (type == Constants.ICON_FULL_SCREEN_ACTION)
+        {
+
+            size = 24;
+
+        }
+
+        if (type == Constants.ICON_TITLE)
+        {
+
+            size = 24;
+
+        }
+
+        if (type == Constants.ICON_EDITORS_LIST_TAB_HEADER)
+        {
+
+            size = 24;
+
+        }
+        
+        return size;
+        
+    }
+    
     public static URL getIconURL (String  name,
                                   int     type)
                                   //boolean large)
@@ -4765,91 +4868,7 @@ public class Environment
         if (name.indexOf ('.') == -1)
         {
 
-            int size = 16;
-
-            if (type == Constants.ICON_EDITOR_MESSAGE)
-            {
-
-                size = 20;
-
-            }
-
-            if (type == Constants.ICON_TOOLBAR)
-            {
-
-                size = 20;
-
-            }
-
-            if (type == Constants.ICON_MENU_INNER)
-            {
-
-                size = 16;
-
-            }
-
-            if (type == Constants.ICON_PANEL_MAIN)
-            {
-
-                size = 24;
-
-            }
-
-            if (type == Constants.ICON_NOTIFICATION)
-            {
-
-                size = 24;
-
-            }
-
-            if (type == Constants.ICON_ACHIEVEMENT_HEADER)
-            {
-
-                size = 24;
-
-            }
-
-            if (type == Constants.ICON_PANEL_ACTION)
-            {
-
-                size = 20;
-
-            }
-
-            if (type == Constants.ICON_TITLE_ACTION)
-            {
-
-                size = 24;
-
-            }
-
-            if (type == Constants.ICON_BG_SWATCH)
-            {
-
-                size = 37;
-
-            }
-
-            if (type == Constants.ICON_FULL_SCREEN_ACTION)
-            {
-
-                size = 24;
-
-            }
-
-            if (type == Constants.ICON_TITLE)
-            {
-
-                size = 24;
-
-            }
-
-            if (type == Constants.ICON_EDITORS_LIST_TAB_HEADER)
-            {
-
-                size = 24;
-
-            }
+            int size = Environment.getIconPixelWidthForType (type);
 
             name = Constants.IMGS_DIR + name + size + ".png";
 
@@ -5080,21 +5099,13 @@ public class Environment
     public static Color getBorderColor ()
     {
 
-        // #ABABAB
-        // return new Color (1, 8, 128, 128);
         return com.quollwriter.ui.UIUtils.getBorderColor ();
-        //return com.quollwriter.ui.UIUtils.getColor ("#aaaaaa");//"#CCCCCC");
-        /* old
-        return new Color (171,
-                          171,
-                          171);
-        */
 
     }
 
     public static Color getInnerBorderColor ()
     {
-
+    
         return com.quollwriter.ui.UIUtils.getColor ("#CCCCCC");
 
     }
@@ -5584,6 +5595,35 @@ TODO: Add back in when appropriate.
         return Environment.floatNumFormat.format (f);
 
     }
+    
+    public static Double parseToDouble (String v)
+                                 throws GeneralException
+    {
+        
+        if (v == null)
+        {
+            
+            return null;
+            
+        }
+        
+        try
+        {
+        
+            return Double.valueOf (Environment.floatNumFormat.parse (v,
+                                                                     new ParsePosition (0)).doubleValue ());
+
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to convert: " +
+                                        v +
+                                        " to a double.",
+                                        e);
+            
+        }
+        
+    }
+    
 /*
     public static String formatNumber (Number n)
     {
@@ -6220,7 +6260,7 @@ TODO: Add back in when appropriate.
 
     public static void addUserProjectEventListener (ProjectEventListener l)
     {
-
+        
         Environment.userProjectEventListeners.put (l,
                                                    Environment.listenerFillObj);
 
@@ -6572,4 +6612,330 @@ TODO: Add back in when appropriate.
 
     }
 
+    public static File getUserObjectTypeIconFile (String objType)
+    {
+    
+        return new File (Environment.getUserQuollWriterDir () + "/" + Constants.USER_OBJECT_TYPE_ICON_FILES_DIR + "/" + objType);
+            
+    }
+    
+    public static void setUserObjectTypeIcon (String        objType,
+                                              BufferedImage image)
+                                       throws Exception
+    {
+        
+        ImageIO.write (image,
+                       "png",
+                       Environment.getUserObjectTypeIconFile (objType));
+        
+    }
+    
+    public static Set<UserConfigurableObjectType> getAssetUserConfigurableObjectTypes (boolean sortOnName)
+    {
+        
+        Set<UserConfigurableObjectType> types = new LinkedHashSet ();
+        
+        for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
+        {
+            
+            if (t.isAssetObjectType ())
+            {
+                
+                types.add (t);
+                
+            }
+            
+        }
+
+        if (sortOnName)
+        {
+            
+            List<UserConfigurableObjectType> stypes = new ArrayList (types);
+            
+            Collections.sort (stypes,
+                              new Comparator<UserConfigurableObjectType> ()
+                              {
+                                
+                                  @Override
+                                  public int compare (UserConfigurableObjectType o1,
+                                                      UserConfigurableObjectType o2)
+                                  {
+                                    
+                                      return o1.getObjectTypeName ().compareTo (o2.getObjectTypeName ());
+                                    
+                                  }
+                                
+                              });
+
+            types = new LinkedHashSet (stypes);
+                              
+        }
+        
+        return types;
+        
+    }
+    
+    public static UserConfigurableObjectTypeField getUserConfigurableObjectTypeField (long key)
+                                                                               throws GeneralException
+    {
+        
+        return (UserConfigurableObjectTypeField) Environment.projectInfoManager.getObjectByKey (UserConfigurableObjectTypeField.class,
+                                                                                                key,
+                                                                                                null,
+                                                                                                null,
+                                                                                                true);        
+        
+    }
+    
+    public static UserConfigurableObjectType getUserConfigurableObjectType (long key)
+                                                                     throws GeneralException
+    {
+        
+        return (UserConfigurableObjectType) Environment.projectInfoManager.getObjectByKey (UserConfigurableObjectType.class,
+                                                                                           key,
+                                                                                           null,
+                                                                                           null,
+                                                                                           true);        
+        
+    }
+
+    public static UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
+    {
+        
+        for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
+        {
+            
+            if ((t.getUserObjectType () != null)
+                &&
+                (t.getUserObjectType ().equals (userObjType))
+               )
+            {
+                
+                return t;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+    
+    public static void removeUserConfigurableObjectType (UserConfigurableObjectType type)
+                                                  throws GeneralException
+    {
+        
+        Environment.userConfigObjTypes.remove (type);
+        
+        Environment.projectInfoManager.deleteObject (type,
+                                                     true);
+
+        type.removePropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
+                                                     
+        String id = type.getObjectTypeId ();
+    
+        Environment.objectTypeNamesSingular.remove (id);
+
+        Environment.objectTypeNamesPlural.remove (id);
+        
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.DELETE,
+                                          type);
+        
+    }
+    
+    public static void updateUserConfigurableObjectType (UserConfigurableObjectType type)
+                                                  throws GeneralException
+    {
+        
+        if (!Environment.userConfigObjTypes.contains (type))
+        {
+
+            Environment.addUserConfigurableObjectType (type);
+            
+            return;
+        
+        }
+                
+        Environment.projectInfoManager.saveObject (type);
+                    
+        String id = type.getObjectTypeId ();
+    
+        Environment.objectTypeNamesSingular.put (id,
+                                                 type.getObjectTypeName ());
+
+        Environment.objectTypeNamesPlural.put (id,
+                                               type.getObjectTypeNamePlural ());
+        
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.CHANGED,
+                                          type);
+        
+    }
+    
+    public static void addUserConfigurableObjectType (UserConfigurableObjectType type)
+                                               throws GeneralException
+    {
+        
+        if (type.getKey () == null)
+        {
+        
+            Environment.projectInfoManager.saveObject (type);
+            
+        } 
+        
+        Environment.userConfigObjTypes.add (type);
+        
+        // Register ourselves as a listener for the name changes.
+        type.addPropertyChangedListener (Environment.userConfigurableObjectTypeNameListener);
+                    
+        String id = type.getObjectTypeId ();
+    
+        Environment.objectTypeNamesSingular.put (id,
+                                                 type.getObjectTypeName ());
+
+        Environment.objectTypeNamesPlural.put (id,
+                                               type.getObjectTypeNamePlural ());
+        
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (type,
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.NEW,
+                                          type);
+        
+    }
+    
+    public static void removeUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
+                                                       throws GeneralException
+    {
+                                
+        Environment.projectInfoManager.deleteObject (field,
+                                                     true);
+        
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (field,
+                                          ProjectEvent.USER_OBJECT_TYPE_FIELD,
+                                          ProjectEvent.DELETE,
+                                          field);
+        
+        Environment.fireUserProjectEvent (field,
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.CHANGED,
+                                          field.getUserConfigurableObjectType ());
+
+    }
+    
+    public static void updateUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
+                                                       throws GeneralException
+    {
+        
+        String ev = ProjectEvent.CHANGED;
+        
+        if (field.getKey () == null)
+        {
+            
+            ev = ProjectEvent.NEW;
+                        
+        }
+        
+        Environment.projectInfoManager.saveObject (field);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (field,
+                                          ProjectEvent.USER_OBJECT_TYPE_FIELD,
+                                          ev,
+                                          field);
+        
+    }
+    
+    /**
+     * Save a tag, this will either create or update it.
+     *
+     * @param tag The tag.
+     * @throws GeneralException If the tag can't be saved.
+     */
+    public static void saveTag (Tag tag)
+                         throws GeneralException
+    {
+        
+        String ev = ProjectEvent.CHANGED;
+        
+        if (tag.getKey () == null)
+        {
+            
+            ev = ProjectEvent.NEW;
+                        
+        }
+        
+        Environment.projectInfoManager.saveObject (tag);
+
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (tag,
+                                          ProjectEvent.TAG,
+                                          ev,
+                                          tag);        
+        
+    }
+    
+    /**
+     * Delete a tag.
+     *
+     * @param tag The tag to delete.
+     * @throws GeneralException If the delete goes wrong.
+     */
+    public static void deleteTag (Tag tag)
+                           throws GeneralException
+    {
+    
+        Environment.projectInfoManager.deleteObject (tag,
+                                                     true);
+    
+        // Tell all projects about it.
+        Environment.fireUserProjectEvent (tag,
+                                          ProjectEvent.TAG,
+                                          ProjectEvent.DELETE,
+                                          tag);        
+    
+    }
+    
+    /**
+     * Get a tag by its key.
+     *
+     * @param key The key.
+     * @return The tag.
+     * @throws GeneralException If the tag can't be retrieved.
+     */
+    public static Tag getTagByKey (long key)
+                            throws GeneralException
+    {
+        
+        return (Tag) Environment.projectInfoManager.getObjectByKey (Tag.class,
+                                                                    key,
+                                                                    null,
+                                                                    null,
+                                                                    true);        
+        
+    }
+    
+    /**
+     * Get all the tags.
+     *
+     * @return The tags.
+     * @throws GeneralException if the tags can't be retrieved from the db.
+     */
+    public static Set<Tag> getAllTags ()
+                                throws GeneralException
+    {
+     
+        return new LinkedHashSet (Environment.projectInfoManager.getObjects (Tag.class,
+                                                                             null,
+                                                                             null,
+                                                                             true));
+                  
+    }
+    
 }

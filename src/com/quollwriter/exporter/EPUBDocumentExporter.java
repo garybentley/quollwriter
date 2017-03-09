@@ -310,29 +310,50 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
 
             String appendixTemp = Environment.getResourceFileAsString ("/data/export/epub/appendix-template.xml");
 
-            // Get the characters.
-            List<QCharacter> characters = p.getCharacters ();
-
-            if (characters.size () > 0)
+            Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+    
+            // Capital A.
+            int apxChar = 65;
+    
+            for (UserConfigurableObjectType type : assetTypes)
             {
+                
+                Set<Asset> as = p.getAssets (type);
+            
+                if ((as == null)
+                    &&
+                    (as.size () == 0)
+                   )
+                {
+                    
+                    continue;
+                    
+                }
+            
+                String apxC = Character.toString (Character.forDigit (apxChar++,
+                                                                      10));
+            
+                String cid = String.format ("appendix-%s-%s",
+                                            apxC,
+                                            type.getObjectTypeNamePlural ().replace (" ", "-"));
 
-                String cid = "appendix-a-characters";
-
-                String title = "Appendix A - Characters";
+                String title = String.format ("Appendix %s - %s",
+                                              apxC,
+                                              type.getObjectTypeNamePlural ());
 
                 String t = StringUtils.replaceString (appendixTemp,
                                                       "[[TITLE]]",
                                                       title);
                 t = StringUtils.replaceString (t,
                                                "[[CONTENT]]",
-                                               this.getAssetsPage (characters));
+                                               this.getAssetsPage (as));
 
                 book.addSection (title,
                                  new Resource (new ByteArrayInputStream (t.getBytes ()),
                                                cid + ".html"));
                                                
             }
-
+/*
             // Get the locations.
             List<Location> locs = p.getLocations ();
 
@@ -401,7 +422,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                cid + ".html"));
 
             }
-                      
+               */       
             // Create EpubWriter
             EpubWriter epubWriter = new EpubWriter ();
              
@@ -418,7 +439,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         
     }
     
-    private String getAssetsPage (List<? extends Asset> assets)
+    private String getAssetsPage (Set<Asset> assets)
     {
 
         StringBuilder buf = new StringBuilder ();

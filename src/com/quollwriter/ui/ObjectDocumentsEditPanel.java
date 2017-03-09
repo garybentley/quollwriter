@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.Font;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
@@ -27,9 +28,9 @@ import javax.swing.border.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.data.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.renderers.*;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.IconProvider;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -37,8 +38,9 @@ import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ScrollablePanel;
 import com.quollwriter.ui.components.ScrollableBox;
 import com.quollwriter.ui.components.VerticalLayout;
+import com.quollwriter.ui.components.GradientPainter;
 
-public class ObjectDocumentsEditPanel extends EditPanel 
+public class ObjectDocumentsEditPanel extends Box implements RefreshablePanel 
 {
 
     private AbstractProjectViewer viewer = null;
@@ -50,7 +52,7 @@ public class ObjectDocumentsEditPanel extends EditPanel
                                      NamedObject           obj)
     {
         
-        super (true);
+        super (BoxLayout.Y_AXIS);
         
         this.obj = obj;
         this.viewer = viewer;
@@ -84,7 +86,8 @@ public class ObjectDocumentsEditPanel extends EditPanel
                 
     }
 
-    public void refreshViewPanel ()
+    @Override
+    public void refresh ()
     {
 
     }
@@ -95,7 +98,7 @@ public class ObjectDocumentsEditPanel extends EditPanel
         return this.obj;
         
     }
-    
+    /*
     public boolean handleSave ()
     {
 
@@ -103,14 +106,16 @@ public class ObjectDocumentsEditPanel extends EditPanel
 
     }
 
-    public List<FormItem> getEditItems ()
+    @Override
+    public Set<FormItem> getEditItems ()
     {
 
         return null;
 
     }
 
-    public List<FormItem> getViewItems ()
+    @Override
+    public Set<FormItem> getViewItems ()
     {
 
         return null;
@@ -129,7 +134,7 @@ public class ObjectDocumentsEditPanel extends EditPanel
 
 
     }
-
+*/
     public IconProvider getIconProvider ()
     {
 
@@ -158,14 +163,14 @@ public class ObjectDocumentsEditPanel extends EditPanel
         return iconProv;
 
     }
-
+/*
     public String getHelpText ()
     {
 
         return null;
 
     }
-
+*/
     public String getTitle ()
     {
 
@@ -199,31 +204,55 @@ public class ObjectDocumentsEditPanel extends EditPanel
         }
         
     }
-    public JComponent getViewPanel ()
+    
+    @Override
+    public void init ()
     {
 
         final ObjectDocumentsEditPanel _this = this;
 
+        /*
+       Header header = new Header (Environment.replaceObjectNames (this.getTitle ()),
+                                    this.getIconProvider ().getIcon ("header",
+                                                                     Constants.ICON_PANEL_SECTION),
+                                    null);
+                                    
+        header.setAlignmentX (Component.LEFT_ALIGNMENT);
+        header.setOpaque (false);
+        header.setBorder (UIUtils.createBottomLineWithPadding (0, 3, 3, 3));
+        header.setFont (header.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+        header.setTitleColor (UIUtils.getTitleColor ());
+        header.setPaintProvider (new GradientPainter (com.quollwriter.ui.UIUtils.getComponentColor (),
+                                                      com.quollwriter.ui.UIUtils.getComponentColor ()));
+        
+        this.add (header);
+        */
         java.util.List<JComponent> buttons = new ArrayList ();
             
         JButton but = UIUtils.createButton (Environment.getIcon (Constants.ADD_ICON_NAME,
                                                           Constants.ICON_PANEL_SECTION_ACTION),
-                                               "Click to add a new {document}",
-                                               new ActionAdapter ()
-                                               {
-                                                
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        _this.showAddDocument ();
-                                                        
-                                                    }
-                                                
-                                               });
+                                            "Click to add a new {document}",
+                                            new ActionAdapter ()
+                                            {
+                                             
+                                                 @Override
+                                                 public void actionPerformed (ActionEvent ev)
+                                                 {
+                                                     
+                                                     _this.showAddDocument ();
+                                                     
+                                                 }
+                                             
+                                            });
 
         buttons.add (but);
         
-        this.header.setControls (UIUtils.createButtonBar (buttons));
+        this.add (EditPanel.createHeader (this.getTitle (),
+                                          this.getIconProvider ().getIcon ("header",
+                                                                           Constants.ICON_PANEL_SECTION),
+                                          UIUtils.createButtonBar (buttons)));
+        
+        //header.setControls (UIUtils.createButtonBar (buttons));
                 
         this.sp = UIUtils.createScrollPane (this.files);
                         
@@ -249,7 +278,7 @@ public class ObjectDocumentsEditPanel extends EditPanel
             
         }
                 
-        return sp;
+        this.add (sp);
     
     }
     

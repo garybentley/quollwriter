@@ -57,7 +57,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
    public static final String NEW_COMMENT_ACTION_NAME = "newcomment";
        
-   private IconColumn              iconColumn = null;
+   private IconColumn<EditorProjectViewer>              iconColumn = null;
    protected EditorProjectViewer   projectViewer = null;
    private int                     lastCaret = -1;
    private ChapterItemTransferHandler chItemTransferHandler = null;
@@ -79,9 +79,10 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         this.editor.setEditable (false);
         this.editor.setCanCopy (false);
                 
-        this.iconColumn = new IconColumn (this,
-                                          this.projectViewer.getIconProvider (),
-                                          this.projectViewer.getChapterItemViewPopupProvider ());
+        this.iconColumn = new IconColumn<EditorProjectViewer> (this,
+                                                               c,
+                                                               this.projectViewer.getIconProvider (),
+                                                               this.projectViewer.getChapterItemViewPopupProvider ());
                                           
         this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
@@ -396,11 +397,9 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         if (c.equals (NEW_COMMENT_ACTION_NAME))
         {
 
-            AbstractActionHandler aah = new CommentActionHandler (this.chapter,
-                                                                  this,
-                                                                  pos);
-
-            aah.actionPerformed (ev);
+            new CommentActionHandler<EditorProjectViewer> (this.chapter,
+                                                           this,
+                                                           pos).actionPerformed (ev);
 
             return;
 

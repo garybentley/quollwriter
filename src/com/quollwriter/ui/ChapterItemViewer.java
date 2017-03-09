@@ -8,8 +8,10 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.components.QTextEditor;
 
-public interface ChapterItemViewer
+public interface ChapterItemViewer<E extends AbstractViewer> extends PopupsSupported
 {
+    
+    public E getViewer ();
     
     public int getIconColumnXOffset (ChapterItem c);
     
@@ -23,10 +25,10 @@ public interface ChapterItemViewer
     
     public ChapterItemTransferHandler getChapterItemTransferHandler ();
  
-    public void removeItem (ChapterItem c);
+    public <T extends ChapterItem> void removeItem (T c);
 
-    public void addItem (ChapterItem c)
-                  throws GeneralException;
+    public <T extends ChapterItem> void addItem (T c)
+                                          throws GeneralException;
                   
     public void highlightItemTextInEditor (ChapterItem c);
     

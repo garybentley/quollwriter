@@ -16,7 +16,7 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ScrollableBox;
 
 public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectViewer>
-{
+{   
     
     private AppearsInChaptersEditPanel panel = null;
     private JTree tree = null;
@@ -28,6 +28,14 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         super (v);
         
         this.panel = p;
+        
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return "appearsinchapters" + this.panel.getForObject ().getObjectReference ().asString ();
         
     }
     

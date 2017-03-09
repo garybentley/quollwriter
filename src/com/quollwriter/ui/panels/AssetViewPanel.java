@@ -37,30 +37,13 @@ import com.quollwriter.ui.renderers.*;
 import com.quollwriter.events.*;
 
 import com.quollwriter.ui.actionHandlers.*;
+import com.quollwriter.ui.userobjects.*;
 //import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QPopup;
 
-public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> implements PropertyChangedListener
+public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset> implements PropertyChangedListener, ProjectEventListener
 {
-
-    private static Map<Class, Class> detailsEditPanels = new HashMap ();
-
-    static
-    {
-
-        Map m = AssetViewPanel.detailsEditPanels;
-
-        m.put (ResearchItem.class,
-               ResearchItemDetailsEditPanel.class);
-        m.put (Location.class,
-               LocationDetailsEditPanel.class);
-        m.put (QObject.class,
-               ObjectDetailsEditPanel.class);
-        m.put (QCharacter.class,
-               CharacterDetailsEditPanel.class);
-
-    }
 
     private AppearsInChaptersEditPanel appearsInPanel = null;
 
@@ -72,38 +55,51 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
         super (pv,
                a);
 
+        Environment.addUserProjectEventListener (this);
+               
     }
-
-    public static DetailsEditPanel getEditDetailsPanel (Asset         a,
-                                                        ProjectViewer pv)
-                                                 throws GeneralException
+    
+    @Override
+    public ImageIcon getIcon (int type)
     {
-
-        DetailsEditPanel adep = null;
-
-        try
+        
+        int w = Environment.getIconPixelWidthForType (type);
+        
+        ImageIcon im = null;
+        
+        if (w == 24)
         {
-
-            Class c = AssetViewPanel.detailsEditPanels.get (a.getClass ());
-
-            Constructor con = c.getConstructor (a.getClass (),
-                                                ProjectViewer.class);
-
-            adep = (DetailsEditPanel) con.newInstance (a,
-                                                       pv);
-
-            // adep.init ();
-
-        } catch (Exception e)
-        {
-
-            throw new GeneralException ("Unable to create asset details edit panel for object: " +
-                                        a,
-                                        e);
-
+        
+            im = this.getForObject ().getUserConfigurableObjectType ().getIcon24x24 ();
+        
         }
-
-        return adep;
+        
+        if (w == 16)
+        {
+            
+            im = this.getForObject ().getUserConfigurableObjectType ().getIcon16x16 ();
+            
+        }
+        
+        return im;
+        
+    }
+    
+    @Override
+    public void eventOccurred (ProjectEvent ev)
+    {
+        
+        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        {
+            
+            if (ev.getSource ().equals (this.getForObject ().getUserConfigurableObjectType ()))
+            {
+              
+                this.refresh ();
+                
+            }
+            
+        }
 
     }
 
@@ -115,97 +111,95 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
      * @returns The edit details panel.
      * @throws GeneralException If the panel cannot be created.
      */
-    public DetailsEditPanel getDetailEditPanel (ProjectViewer pv,
-                                                NamedObject   n)
-                                         throws GeneralException
+    @Override
+    public AssetDetailsEditPanel getDetailEditPanel (ProjectViewer pv,
+                                                     NamedObject   n)
+                                              throws GeneralException
     {
 
-        return AssetViewPanel.getEditDetailsPanel ((Asset) n,
-                                                   pv);
+        final AssetViewPanel _this = this;
+    
+        final AssetDetailsEditPanel p = new AssetDetailsEditPanel ((Asset) n,
+                                                                   pv);
 
+        p.addActionListener (new ActionListener ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (ev.getID () == EditPanel.EDIT_VISIBLE)
+                {
+
+                    _this.setHasUnsavedChanges (p,
+                                                true);
+
+                }
+
+                if ((ev.getID () == EditPanel.CANCELLED) ||
+                    (ev.getID () == EditPanel.VIEW_VISIBLE) ||
+                    (ev.getID () == EditPanel.SAVED))
+                {
+
+                    _this.setHasUnsavedChanges (p,
+                                                false);
+
+                }
+
+            }
+
+        });
+                                                             
+        return p;
+                                                             
     }
 
-    public String getTitle ()
-    {
-
-        return this.obj.getName ();
-
-    }
-
-    public String getIconType ()
-    {
-
-        return this.obj.getObjectType ();
-
-    }
-/*
-    public Color getHeaderColor ()
-    {
-
-        return AssetViewPanel.headerColors.get (this.obj.getClass ());
-
-    }
-*/
     public static ActionListener getEditAssetAction (final ProjectViewer pv,
                                                      final Asset         a)
     {
     
-        if (!UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME))
+        return new ActionListener ()
         {
             
-            return new ActionListener ()
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
                 
-                @Override
-                public void actionPerformed (ActionEvent ev)
+                // Display the object then edit it.
+                pv.viewObject (a,
+                               new ActionListener ()
                 {
-                    
-                    // Display the object then edit it.
-                    pv.viewObject (a,
-                                   new ActionListener ()
+          
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
                     {
-              
-                        @Override
-                        public void actionPerformed (ActionEvent ev)
+                        
+                        AssetViewPanel p = (AssetViewPanel) pv.getQuollPanelForObject (a);
+                        
+                        if (p == null)
                         {
                             
-                            AssetViewPanel p = (AssetViewPanel) pv.getQuollPanelForObject (a);
+                            Environment.logError ("Unable to edit asset: " +
+                                                  a);
                             
-                            if (p == null)
-                            {
-                                
-                                Environment.logError ("Unable to edit asset: " +
-                                                      a);
-                                
-                                UIUtils.showErrorMessage (pv,
-                                                          Environment.replaceObjectNames (String.format ("Unable to edit {%s}",
-                                                                                                         a.getObjectType ())));
-                                
-                                return;
-                                
-                            }
+                            UIUtils.showErrorMessage (pv,
+                                                      Environment.replaceObjectNames (String.format ("Unable to edit {%s}",
+                                                                                                     a.getObjectType ())));
                             
-                            p.editObject ();
+                            return;
                             
                         }
                         
-                    });
+                        p.editObject ();
+                        
+                    }
                     
-                }
+                });
                 
-            };
+            }
             
-        } else {
-    
-            // Put the edit panel into a popup.
-            AbstractActionHandler aah = new AssetActionHandler (a,
-                                                                pv,
-                                                                AbstractActionHandler.EDIT);
-    
-            return aah;
-
-        }
-            
+        };
+                        
     }
 
     public static ActionListener getRenameAssetAction (final ProjectViewer pv,
@@ -352,7 +346,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
     public void propertyChanged (PropertyChangedEvent ev)
     {
 
-        DetailsEditPanel edPan = this.getDetailsPanel ();
+    /*
+        EditPanel edPan = this.getDetailsPanel ();
 
         final Set<String> objChangeEventTypes = edPan.getObjectChangeEventTypes ();
 
@@ -389,21 +384,14 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
         }
 
-        this.getDetailsPanel ().refreshViewPanel ();
-
-        if (this.appearsInPanel != null)
-        {
-
-            this.appearsInPanel.refreshViewPanel ();
-
-        }
-
+        this.refresh ();
+*/
     }
 
-    public EditPanel getBottomEditPanel ()
+    public JComponent getBottomPanel ()
     {
 
-        final EditPanel ep = this.createAppearsInChaptersPanel ();
+        final AppearsInChaptersEditPanel ep = this.createAppearsInChaptersPanel ();
         final AssetViewPanel _this = this;
 
         ep.init ();
@@ -419,7 +407,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
     }
 
-    private EditPanel createAppearsInChaptersPanel ()
+    private AppearsInChaptersEditPanel createAppearsInChaptersPanel ()
     {
 
         this.appearsInPanel = new AppearsInChaptersEditPanel (this.viewer,
@@ -433,6 +421,15 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
     public void doRefresh ()
     {
 
+        this.getHeader ().setIcon (this.obj.getUserConfigurableObjectType ().getIcon24x24 ());    
+    
+        if (this.appearsInPanel != null)
+        {
+
+            this.appearsInPanel.refresh ();
+
+        }
+
     }
 
     @Override
@@ -441,8 +438,6 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
 
         this.obj.removePropertyChangedListener (this);
 
-        this.appearsInPanel.close ();
-
     }
 
     @Override
@@ -450,6 +445,14 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                                JPopupMenu popup)
     {
 
+        // Don't show the popup when we are editing the details.
+        if (this.getDetailsPanel ().isEditing ())
+        {
+            
+            return;
+            
+        }
+    
         final AssetViewPanel _this = this;
     
         popup.add (UIUtils.createMenuItem ("Edit",
@@ -476,90 +479,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer> imple
                                            Constants.DELETE_ICON_NAME,
                                            this.getDeleteObjectAction (this.viewer,
                                                                        (Asset) this.obj)));
-
-        popup.add (UIUtils.createMenuItem (Environment.replaceObjectNames (String.format ("Edit the {%s} fields",
-                                                                                          this.obj.getObjectType ())),
-                                           Constants.ADD_ICON_NAME,
-                                           new ActionListener ()
-                                           {
-                                            
-                                                @Override
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-                                                    
-                                                    _this.showObjectFieldsEdit ();
-                                                    
-                                                }
-                                            
-                                           }));
     
     }
-    
-    private void showObjectFieldsEdit ()
-    {
         
-        final QPopup p = UIUtils.createClosablePopup ("Edit the {%s} fields",
-                                                      Environment.getIcon (Constants.EDIT_ICON_NAME, Constants.ICON_POPUP),
-                                                      null);        
-        
-        Box b = new Box (BoxLayout.Y_AXIS);
-        
-        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-                
-        JTextPane m = UIUtils.createHelpTextPane (String.format ("Use this popup to add or edit the fields for this {%s}.  Drag-n-drop the fields to change the order of them.",
-                                                                 this.obj.getObjectType ()),
-                                                  viewer);
-
-        m.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                                  m.getPreferredSize ().height));
-        m.setBorder (null);
-        
-        b.add (m);
-        
-        b.add (Box.createVerticalStrut (5));        
-        
-        UserConfigurableObjectTypeEdit ed = new UserConfigurableObjectTypeEdit (this.viewer,
-                                                                                this.obj.getObjectType ());
-        
-        b.add (ed);
-        ed.init ();
-                                
-        JButton finish = new JButton ("Finish");
-
-        finish.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.closePopupParent (p);
-
-            }
-
-        });
-
-        JButton[] fbuts = new JButton[] { finish };
-
-        JPanel bp = UIUtils.createButtonBar2 (fbuts,
-                                              Component.CENTER_ALIGNMENT);
-        bp.setOpaque (false);
-
-        bp.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.add (Box.createVerticalStrut (10));
-
-        b.add (bp);
-        
-        p.setContent (b);
-        
-        b.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                           b.getPreferredSize ().height));                
-        
-        this.viewer.showPopupAt (p,
-                                 UIUtils.getCenterShowPosition (this,
-                                                                p),
-                                 false);
-        p.setDraggable (this.viewer);        
-        
-    }
-    
 }

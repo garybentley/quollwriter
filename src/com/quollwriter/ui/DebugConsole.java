@@ -132,9 +132,7 @@ public class DebugConsole extends JFrame
     {
 
         Header h = UIUtils.createHeader ("Schema Information",
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                         Constants.SUB_PANEL_TITLE);
         
         h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
                                                              new EmptyBorder (0, 0, 3, 0)));

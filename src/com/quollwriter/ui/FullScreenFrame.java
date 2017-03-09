@@ -189,7 +189,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
     public void sideBarShown (SideBarEvent ev)
     {
 
-        if (!this.projectViewer.isMainSideBarName (ev.getSideBar ().getName ()))
+        if (!this.projectViewer.isMainSideBar (ev.getSideBar ()))
         {
 
             //this.noHideSideBar = true;
@@ -1798,9 +1798,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                                                                   true));
 
         this.title = UIUtils.createHeader (null,
-                                           Constants.FULL_SCREEN_TITLE,
-                                           null,
-                                           null);
+                                           Constants.FULL_SCREEN_TITLE);
         this.title.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         JToolBar titleC = new JToolBar ();
@@ -2767,8 +2765,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         }
 
-        this.title.setIcon (Environment.getIcon (this.panel.getIconType (),
-                                                 Constants.ICON_PANEL_MAIN));
+        this.title.setIcon (this.panel.getIcon (Constants.ICON_PANEL_MAIN));
         this.title.setTitle (this.panel.getTitle ());
 
         final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();

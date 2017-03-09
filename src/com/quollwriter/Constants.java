@@ -112,6 +112,8 @@ public class Constants
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
     
     public static final String EDIT_ASSETS_IN_POPUP_PROPERTY_NAME = "editAssetsInPopup";
+
+    public static final String ADD_ASSETS_PROPERTY_NAME = "addAssets";
     
     public static final String UPDATER_CLASS_PROPERTY_NAME = "quollWriterUpdaterClassName";
 
@@ -162,8 +164,6 @@ public class Constants
     public static final String OPEN_TABS_PROPERTY_NAME = "openTabIds";
 
     public static final String NOTE_TREE_OPEN_TYPES_PROPERTY_NAME = "noteTreeOpenTypes";
-
-    public static final String ASSETS_TREE_OPEN_TYPES_PROPERTY_NAME = "assetsTreeOpenTypes";
 
     public static final String ACCORDION_STATE_PROPERTY_NAME = "accordionState";
 
@@ -349,6 +349,8 @@ public class Constants
 
     public static final String DEFAULT_PROJECTS_DIR_NAME = "projects";
 
+    public static final String PROJECT_FILES_DIR_NAME = "files";
+    
     public static final String SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "spellCheckLanugage";
 
     public static final String DEFAULT_SPELL_CHECK_LANGUAGE_PROPERTY_NAME = "defaultSpellCheckLanugage";
@@ -435,7 +437,6 @@ public class Constants
     public static final String AUTO_SEND_ERRORS_TO_SUPPORT_PROPERTY_NAME = "autoSendErrorsToSupport";
 
     public static final String BACKUPS_TO_KEEP_COUNT_PROPERTY_NAME = "backupsToKeepCount";
-    public static final String PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME = "projectSidebarSections";
     public static final String DEFAULT_PROJECT_SIDEBAR_SECTIONS_PROPERTY_NAME = "defaultProjectSidebarSections";
     
     public static final String TARGET_SESSION_WRITING_PROPERTY_NAME = "targetSessionWriting";
@@ -451,6 +452,8 @@ public class Constants
     public static final String TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetWeeklyTargetReachedPopupShownDate";
     public static final String TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetMonthlyTargetReachedPopupShownDate";
 
+    public static final String TAGS_PROPERTY_NAME = "tags";
+    
     public static final String PROMPTS_EXCLUDE_FILE = "prompts-exclude.txt";
     public static final String USER_PROMPTS_FILE = "own-prompts.xml";
 
@@ -485,6 +488,8 @@ public class Constants
     public static final String GENERAL_LOG_NAME = "general.log";
     public static final String EDITOR_MESSAGES_LOG_NAME = "editor-messages.log";
 
+    public static final String USER_OBJECT_TYPE_ICON_FILES_DIR = "userobjecttypeimages";
+    
     public static final String USER_PROMPTS_DIR = "prompts/";
 
     public static final String USER_PROBLEM_FINDER_RULES_DIR = "problem-finder-rules/";
@@ -580,6 +585,7 @@ public class Constants
     public static final String US_ENGLISH = "US English";
     public static final String ENGLISH = "English";
 
+    public static final String ASSETS_ICON_NAME = "assets";
     public static final String ONLINE_STATUS_ICON_NAME_PREFIX = "status-";
     public static final String MESSAGE_ICON_NAME = "left-quote";
     public static final String COMMENT_ICON_NAME = "comment";
@@ -671,6 +677,7 @@ public class Constants
     public static final String TARGET_ICON_NAME = "goals";
     public static final String SET_DEALT_WITH_ICON_NAME = "save" ;//"accepted";
     public static final String SET_UNDEALT_WITH_ICON_NAME = "cancel"; //"clear";
+    public static final String TAG_ICON_NAME = "tag";
 
     public static final String SHOW_FIND_ACTION = "find-show";
 
@@ -713,5 +720,5 @@ public class Constants
     public static final String SPELLING_ERROR_COUNT_TAG = "{sp}";
     public static final String CHAPTER_FIRST_LINE_TAG = "{fl}";
     public static final String DESCRIPTION_FIRST_LINE_TAG = "{df}";
-
+    
 }

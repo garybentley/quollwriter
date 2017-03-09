@@ -13,7 +13,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 
-public class SceneFormatDetails implements ChapterItemFormatDetails<Scene>
+public class SceneFormatDetails implements ChapterItemFormatDetails<Scene, ProjectViewer>
 {
 
     public String getIcon (Scene item)
@@ -38,16 +38,16 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene>
     }
     
     @Override
-    public Set<JComponent> getTools (Scene               item,
-                                     AbstractEditorPanel qep)
+    public Set<JComponent> getTools (Scene                            item,
+                                     ChapterItemViewer<ProjectViewer> qep)
     {
         
         return null;
         
     }    
     
-    public AbstractActionHandler getEditItemActionHandler (Scene               item,
-                                                           AbstractEditorPanel ep)
+    public ActionListener getEditItemActionHandler (Scene                            item,
+                                                    ChapterItemViewer<ProjectViewer> ep)
     {
 
         return new ChapterItemActionHandler (item,
@@ -57,9 +57,9 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene>
 
     }
 
-    public ActionListener getDeleteItemActionHandler (Scene               item,
-                                                      AbstractEditorPanel ep,
-                                                      boolean             showAtItem)
+    public ActionListener getDeleteItemActionHandler (Scene                            item,
+                                                      ChapterItemViewer<ProjectViewer> ep,
+                                                      boolean                          showAtItem)
     {
 
         return new DeleteChapterItemActionHandler (item,

@@ -47,7 +47,7 @@ import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
 
-public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<AbstractProjectViewer> implements SpellCheckSupported, TextStylable
+public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<AbstractProjectViewer, Chapter> implements SpellCheckSupported, TextStylable
 {
 
     public static final String TOGGLE_SPELLCHECK_ACTION_NAME = "toggle-spellcheck";
@@ -79,7 +79,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         super (pv,
                c);
 
-        this.chapter = c;
+        //this.chapter = c;
 
         final AbstractEditorPanel _this = this;
 
@@ -337,14 +337,14 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
                 try
                 {
 
-                    _this.viewer.updateChapterCounts (_this.chapter);
+                    _this.viewer.updateChapterCounts (_this.getChapter ());
 
                     _this.wordCountUpdate = null;
 
                 } catch (Exception e) {
 
                     Environment.logError ("Unable to determine word count for chapter: " +
-                                          _this.chapter,
+                                          _this.getChapter (),
                                           e);
 
                 }
@@ -539,7 +539,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         final DefaultStyledDocument doc = (DefaultStyledDocument) this.editor.getDocument ();
 
-        this.editor.setTextWithMarkup (this.chapter.getText ());
+        this.editor.setTextWithMarkup (this.getChapter ().getText ());
 
         this.editor.addStyleChangeListener (new StyleChangeAdapter ()
         {
@@ -913,7 +913,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     public Chapter getChapter ()
     {
 
-        return this.chapter;
+        return this.getForObject ();
 
     }
 
@@ -1172,7 +1172,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
     }
 
-    public void refresh (NamedObject n)
+    public void refresh ()
     {
 
         // No need to do anything.
@@ -1213,6 +1213,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
     }
 
+    @Override
     public String getTitle ()
     {
 
@@ -1220,13 +1221,15 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
     }
 
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
 
-        return this.obj.getObjectType ();
+        return Environment.getIcon (this.obj.getObjectType (),
+                                    type);
 
     }
-
+    
     public void setCaretPosition (int dot)
     {
 

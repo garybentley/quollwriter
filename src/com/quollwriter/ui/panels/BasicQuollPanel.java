@@ -239,10 +239,11 @@ public abstract class BasicQuollPanel<E extends AbstractViewer> extends QuollPan
     }
 
     @Override
-    public String getIconType ()
+    public ImageIcon getIcon (int type)
     {
         
-        return this.iconType;
+        return Environment.getIcon (this.iconType,
+                                    type);
         
     }
 

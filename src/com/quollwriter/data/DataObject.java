@@ -606,9 +606,17 @@ public abstract class DataObject
 
     }
 
+    @Override
     public int hashCode ()
     {
 
+        if (this.key == null)
+        {
+            
+            return super.hashCode ();
+            
+        }
+    
         int hash = 7;
         hash = (31 * hash) + ((null == this.objType) ? 0 : this.objType.hashCode ());
         hash = (31 * hash) + ((null == this.key) ? 0 : key.hashCode ());
@@ -617,6 +625,7 @@ public abstract class DataObject
 
     }
 
+    @Override
     public boolean equals (Object o)
     {
 
@@ -633,7 +642,9 @@ public abstract class DataObject
             (this.key == null))
         {
 
-            return false;
+            return d.hashCode () == this.hashCode ();
+        
+            //return false;
 
         }
 

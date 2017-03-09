@@ -50,7 +50,7 @@ import com.quollwriter.ui.components.TextProperties;
 public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer> implements MainPanelListener, FullScreenListener
 {
     
-    public static final String NAME = "textproperties";
+    public static final String ID = "textproperties";
     
     private TextPropertiesEditPanel props = null;
     private FullScreenPropertiesEditPanel fsprops = null;
@@ -88,6 +88,14 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
                        
     }
 
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
+        
+    }
+    
     @Override
     public void fullScreenExited (FullScreenEvent ev)
     {
@@ -237,11 +245,12 @@ public class TextPropertiesSideBar extends AbstractSideBar<AbstractProjectViewer
         
     }
     
-    public void init ()
+    @Override
+    public void init (String saveState)
                throws GeneralException
     {
         
-        super.init ();
+        super.init (saveState);
                 
     }
 

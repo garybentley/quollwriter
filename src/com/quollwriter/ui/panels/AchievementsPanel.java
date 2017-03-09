@@ -86,6 +86,7 @@ public class AchievementsPanel extends QuollPanel<AbstractViewer> //implements A
 
     }
 
+    @Override
     public String getTitle ()
     {
         
@@ -93,10 +94,12 @@ public class AchievementsPanel extends QuollPanel<AbstractViewer> //implements A
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
 
-        return "achievement";
+        return Environment.getIcon ("achievement",
+                                    type);
 
     }
 

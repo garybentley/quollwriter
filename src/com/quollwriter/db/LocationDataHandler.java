@@ -11,7 +11,7 @@ import com.quollwriter.data.*;
 public class LocationDataHandler implements DataHandler<Location, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjecttypedbkey, name, description, markup, files, lastmodified, datecreated, properties, id, version FROM location_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, id, version FROM location_v ";
 
     private ObjectManager objectManager = null;
 
@@ -35,27 +35,17 @@ public class LocationDataHandler implements DataHandler<Location, Project>
 
             long key = rs.getLong (ind++);
 
-            Location l = proj.createLocation (); //new Location ();
+            Location l = new Location ();
             l.setKey (key);
 
-            long userObjTypeKey = rs.getLong (ind++);
-
-            // Getting the type may no longer be needed.
-            // Get the object fields.
-            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
-                                                                                                      l,
-                                                                                                      rs.getStatement ().getConnection ());
-            
-            l.setUserConfigurableObjectType (configType);
-
             // Load the object fields.
-            l.setFields (this.objectManager.getUserConfigurableObjectFields (l,
-                                                                             rs.getStatement ().getConnection ()));
+            this.objectManager.setUserConfigurableObjectFields (l,
+                                                                rs.getStatement ().getConnection ());
             
             l.setName (rs.getString (ind++));
-                        
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
+
             l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
                                                     
             l.setLastModified (rs.getTimestamp (ind++));
@@ -67,7 +57,7 @@ public class LocationDataHandler implements DataHandler<Location, Project>
             if (proj != null)
             {
                                 
-                proj.addLocation (l);
+                proj.addAsset (l);
                 
             }
                         

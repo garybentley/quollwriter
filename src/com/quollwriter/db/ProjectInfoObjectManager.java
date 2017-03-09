@@ -5,6 +5,7 @@ import java.util.*;
 import java.sql.*;
 import javax.imageio.*;
 import java.awt.image.*;
+import javax.swing.*;
 
 import org.bouncycastle.bcpg.*;
 import org.bouncycastle.openpgp.*;
@@ -27,6 +28,9 @@ public class ProjectInfoObjectManager extends ObjectManager
 
     public static final String USER_PROPERTIES_OBJTYPE = "user-properties";
 
+    // Key is the object type string, maps to a user config object type.
+    private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap ();
+    
     public ProjectInfoObjectManager ()
     {
         
@@ -49,6 +53,12 @@ public class ProjectInfoObjectManager extends ObjectManager
                     filePassword,
                     newSchemaVersion);
                     
+        // Load the object types.  Each type will register itself with the Environment.
+        this.getObjects (UserConfigurableObjectType.class,
+                         null,
+                         null,
+                         true);
+                            
     }
 
     public void updateLinks (NamedObject d,
@@ -473,5 +483,270 @@ public class ProjectInfoObjectManager extends ObjectManager
         }        
         
     }
-    
+ 
+     /**
+     * Create the user configurable object types we need, namely for:
+     *   - Chapter
+     *   - QCharacter
+     *   - QObject
+     *   - ResearchItem
+     *   - Location
+     *
+     * It will create each object and the minimum required fields.
+     */    
+    public void initLegacyObjectTypes ()
+                                throws GeneralException
+    {
+        
+        // If we have no user config object types then create the ones we need.
+        // We should always have at least the chapter type!
+        UserConfigurableObjectType chapT = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+        
+        if (chapT != null)
+        {
+         
+            // Already inited.
+            return;
+            
+        }
+        
+        
+        // Create the chapter type.
+        UserConfigurableObjectType chapterType = new UserConfigurableObjectType ();
+        
+        chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
+        chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
+        chapterType.setLayout (null);
+        chapterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift H"));
+        chapterType.setIcon24x24 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
+                                                             Constants.ICON_TITLE));
+        chapterType.setIcon16x16 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
+                                                             Constants.ICON_SIDEBAR));
+        
+        chapterType.setUserObjectType (Chapter.OBJECT_TYPE);
+        
+        // Add the fields.
+        // The chapter doesn't have a name field.
+                
+        // Description
+        ObjectDescriptionUserConfigurableObjectTypeField descF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+        
+        descF.setSearchable (true);
+        descF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        descF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        chapterType.addConfigurableField (descF);
+        
+        // Plan
+        MultiTextUserConfigurableObjectTypeField planF = new MultiTextUserConfigurableObjectTypeField ();
+        
+        planF.setSearchable (true);
+        planF.setDisplayAsBullets (true);
+        planF.setFormName (Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
+        planF.setLegacyFieldId (Chapter.PLAN_LEGACY_FIELD_ID);
+        
+        chapterType.addConfigurableField (planF);
+
+        MultiTextUserConfigurableObjectTypeField goalsF = new MultiTextUserConfigurableObjectTypeField ();
+        
+        goalsF.setSearchable (true);
+        goalsF.setDisplayAsBullets (true);
+        goalsF.setFormName (Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
+        goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
+        
+        chapterType.addConfigurableField (goalsF);
+        
+        Environment.addUserConfigurableObjectType (chapterType);
+                
+        // Now characters.
+        UserConfigurableObjectType characterType = new UserConfigurableObjectType ();
+        
+        characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
+        characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
+        characterType.setLayout (null);
+        characterType.setAssetObjectType (true);
+        characterType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift C"));
+        characterType.setIcon24x24 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
+                                                               Constants.ICON_TITLE));
+        characterType.setIcon16x16 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
+                                                               Constants.ICON_SIDEBAR));
+        characterType.setUserObjectType (QCharacter.OBJECT_TYPE);
+        
+        // Name
+        ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
+        
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+        
+        characterType.addConfigurableField (nameF);
+                        
+        // Aliases
+        UserConfigurableObjectTypeField aliasesF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
+        
+        aliasesF.setNameField (true);
+        aliasesF.setSearchable (true);
+        aliasesF.setFormName (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
+        aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
+        
+        characterType.addConfigurableField (aliasesF);
+                
+        // Description
+        ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+                
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        
+        characterType.addConfigurableField (cdescF);
+        
+        Environment.addUserConfigurableObjectType (characterType);
+                        
+        // Now locations.
+        UserConfigurableObjectType locType = new UserConfigurableObjectType ();
+        
+        locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
+        locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
+        locType.setLayout (null);
+        locType.setAssetObjectType (true);
+        locType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift L"));
+        locType.setIcon24x24 (Environment.getObjectIcon (Location.OBJECT_TYPE,
+                                                         Constants.ICON_TITLE));
+        locType.setIcon16x16 (Environment.getObjectIcon (Location.OBJECT_TYPE,
+                                                         Constants.ICON_SIDEBAR));        
+        locType.setUserObjectType (Location.OBJECT_TYPE);
+        
+        // Name
+        nameF = new ObjectNameUserConfigurableObjectTypeField ();
+        
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
+        
+        locType.addConfigurableField (nameF);
+                                        
+        // Description
+        cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+        
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        locType.addConfigurableField (cdescF);
+        
+        Environment.addUserConfigurableObjectType (locType);
+                
+        // Now qobjects.
+        UserConfigurableObjectType qobjType = new UserConfigurableObjectType ();
+        
+        qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
+        qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
+        qobjType.setLayout (null);
+        qobjType.setAssetObjectType (true);
+        qobjType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift I"));
+        qobjType.setIcon24x24 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
+                                                          Constants.ICON_TITLE));
+        qobjType.setIcon16x16 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
+                                                          Constants.ICON_SIDEBAR));        
+        qobjType.setUserObjectType (QObject.OBJECT_TYPE);
+        
+        // Name
+        nameF = new ObjectNameUserConfigurableObjectTypeField ();
+        
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
+        
+        qobjType.addConfigurableField (nameF);
+        
+        // Type
+        SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
+        
+        typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
+        typeF.setFormName (QObject.TYPE_LEGACY_FIELD_FORM_NAME);
+        
+        // Get the pre-defined types, they are stored in the user prefs.
+        String nt = UserProperties.get (Constants.OBJECT_TYPES_PROPERTY_NAME);
+
+        List<String> ts = new ArrayList ();
+
+        if (nt != null)
+        {
+
+            StringTokenizer t = new StringTokenizer (nt,
+                                                     "|");
+
+            while (t.hasMoreTokens ())
+            {
+
+                String tok = t.nextToken ().trim ();
+
+                if (!ts.contains (tok))
+                {
+
+                    ts.add (tok);
+
+                }
+
+            }
+
+        }
+
+        Collections.sort (ts);
+
+        typeF.setItems (ts);
+        
+        qobjType.addConfigurableField (typeF);
+                                        
+        // Description
+        cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+        
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        qobjType.addConfigurableField (cdescF);
+        
+        Environment.addUserConfigurableObjectType (qobjType);
+        
+        // Research items
+        UserConfigurableObjectType riType = new UserConfigurableObjectType ();
+        
+        riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
+        riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
+        riType.setLayout (null);
+        riType.setAssetObjectType (true);
+        riType.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke ("ctrl shift R"));
+        riType.setIcon24x24 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
+                                                        Constants.ICON_TITLE));
+        riType.setIcon16x16 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
+                                                        Constants.ICON_SIDEBAR));        
+        riType.setUserObjectType (ResearchItem.OBJECT_TYPE);
+        
+        // Name
+        nameF = new ObjectNameUserConfigurableObjectTypeField ();
+        
+        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
+        
+        riType.addConfigurableField (nameF);
+        
+        // Web link
+        WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
+        
+        webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
+        webF.setFormName (ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
+                
+        riType.addConfigurableField (webF);
+                                        
+        // Description
+        cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+        
+        cdescF.setSearchable (true);
+        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
+        
+        riType.addConfigurableField (cdescF);
+        
+        Environment.addUserConfigurableObjectType (riType);
+        
+    }
+        
 }

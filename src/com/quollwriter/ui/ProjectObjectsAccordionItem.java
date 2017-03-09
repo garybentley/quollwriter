@@ -12,6 +12,7 @@ import javax.swing.border.*;
 import javax.swing.tree.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Enumeration;
 
 import com.quollwriter.data.*;
@@ -20,27 +21,39 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
+import com.quollwriter.ui.panels.*;
 
 public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewer> extends AccordionItem
 {
     
+    private final DataFlavor flavor = new DataFlavor (NamedObject.class, "named object");                                
+    
     protected JTree tree = null;
-    protected String forObjType = null;
     protected E viewer = null;
+    private boolean inited = false;
     
     public ProjectObjectsAccordionItem (String title,
                                         String iconType,
-                                        String forObjType,
                                         E      pv)
     {
         
         super (title,
                iconType);
-        /*
-        Environment.getObjectTypeNamePlural (objType),
-               objType);
-        */
-        this.forObjType = forObjType;
+        
+        this.viewer = pv;
+        
+        this.tree = this.createTree ();
+        
+    }
+    
+    public ProjectObjectsAccordionItem (String    title,
+                                        ImageIcon icon,
+                                        E         pv)
+    {
+        
+        super (title,
+               icon);
+
         this.viewer = pv;
 
         this.tree = this.createTree ();
@@ -62,20 +75,8 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     }
     
     @Override
-    public String getId ()
-    {
+    public abstract String getId ();
         
-        return this.getForObjectType ();
-        
-    }
-    
-    public String getForObjectType ()
-    {
-        
-        return this.forObjType;        
-        
-    }
-    
     public JTree getTree ()
     {
         
@@ -225,11 +226,20 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         }
         
     }
-    
+        
     @Override
     public void init ()
     {
 
+        if (this.inited)
+        {
+            
+            return;
+            
+        }
+    
+        this.inited = true;
+    
         super.init ();
     
         this.setContentVisible (true);
@@ -237,7 +247,281 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         this.tree.setOpaque (false);
                 
         this.initTree ();
+
+        final ProjectObjectsAccordionItem _this = this;
+        
+        final TransferHandler th = this.getTransferHandler ();
+        
+        // Allow for foreign object import.
+        this.setTransferHandler (new TransferHandler ()
+        {
+            
+            @Override
+            public int getSourceActions (JComponent c)
+            {
+                                    
+                if (th != null)
+                {
+                    
+                    return th.getSourceActions (c);
+                    
+                }
                 
+                return -1;
+            
+            }
+            
+            @Override
+            public Transferable createTransferable (final JComponent c)
+            {
+            
+                return new Transferable ()
+                {
+                    
+                    @Override
+                    public Object getTransferData (DataFlavor flavor)
+                    {
+                        
+                        Component[] components = new Component[1];
+                        components[0] = c;
+                        return components;
+                    
+                    }
+        
+                    @Override
+                    public DataFlavor[] getTransferDataFlavors()
+                    {
+                        
+                        DataFlavor[] flavors = new DataFlavor[1];
+                        flavors[0] = com.quollwriter.ui.sidebars.ProjectSideBar.COMPONENT_FLAVOR;
+                        return flavors;
+                    
+                    }
+        
+                    @Override
+                    public boolean isDataFlavorSupported (DataFlavor flavor)
+                    {
+                        
+                        return flavor.equals (com.quollwriter.ui.sidebars.ProjectSideBar.COMPONENT_FLAVOR);
+                    
+                    }
+                    
+                };
+/*            
+                if (th != null)
+                {
+                    
+                    return th.createTransferable (c);
+                    
+                }
+  */          
+                //return null;
+            
+            }
+            
+            @Override
+            public boolean importData (TransferSupport supp)
+            {
+                
+                Transferable t = supp.getTransferable ();
+                
+                Object o = null;
+                
+                try
+                {
+
+                    o = t.getTransferData (t.getTransferDataFlavors ()[0]);
+                    
+                } catch (Exception e) {
+                    
+                    return false;
+                    
+                }
+
+                JComponent comp = (JComponent) supp.getComponent ();
+                
+                if (!(o instanceof NamedObject))
+                {
+                    
+                    if (th != null)
+                    {
+                        
+                        return th.importData (supp);
+                        
+                    }
+                    /*
+                    while ((comp = (JComponent) comp.getParent ()) != null)
+                    {
+                        
+                        TransferHandler th = comp.getTransferHandler ();
+                        
+                        if (th != null)
+                        {
+                            
+                            return th.importData (supp);
+                                
+                        }
+                    
+                    }                        
+                    */
+                    return false;
+                    
+                }
+                
+                NamedObject obj = (NamedObject) o;
+                                
+                // Are we in our tree?
+                DataFlavor[] f = supp.getDataFlavors ();
+                            
+                if (f[0] != flavor)
+                {                    
+
+                    DragActionHandler handler = _this.getTreeDragActionHandler (_this.viewer);
+
+                    if (handler != null)
+                    {
+                    
+                        try
+                        {
+
+                            if (!handler.importForeignObject (obj,
+                                                              0))
+                            {
+                                
+                                UIUtils.showErrorMessage (_this.viewer,
+                                                          "Unable to move.");
+                                
+                                return false;
+                                
+                            }
+
+                            QuollPanel qp = _this.viewer.getCurrentlyVisibleTab ();
+                            
+                            if (qp instanceof ProjectObjectQuollPanel)
+                            {
+                                
+                                _this.viewer.viewObject (((ProjectObjectQuollPanel) qp).getForObject ());
+                                
+                            }                            
+                            
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to import foreign object: " +
+                                                  obj,
+                                                  e);
+                            
+                            return false;
+                            
+                        }
+                        
+                    }
+
+                    return true;
+                
+                }
+
+                return false;
+
+            }
+                
+            @Override
+            public boolean canImport (TransferSupport supp)
+            {
+                
+                Transferable t = supp.getTransferable ();
+                
+                Object o = null;
+                
+                try
+                {
+
+                    o = t.getTransferData (t.getTransferDataFlavors ()[0]);
+                    
+                } catch (Exception e) {
+                    
+                    return false;
+                    
+                }
+
+                JComponent comp = (JComponent) supp.getComponent ();
+                
+                if (!(o instanceof NamedObject))
+                {
+                    
+                    if (th != null)
+                    {
+                    
+                        return th.canImport (supp);
+                        
+                    }
+                    /*
+                    while ((comp = (JComponent) comp.getParent ()) != null)
+                    {
+                        
+                        TransferHandler th = comp.getTransferHandler ();
+                        
+                        if (th != null)
+                        {
+                            
+                            return th.canImport (supp);
+                                
+                        }
+                    
+                    }                        
+                    */
+                    
+                    return false;
+                    
+                }
+                
+                // Are we in our tree?
+                DataFlavor[] f = supp.getDataFlavors ();
+                            
+                if (f[0] == flavor)
+                {
+                                       
+                    return false;
+                                    
+                }
+                                                
+                NamedObject obj = (NamedObject) o;
+                
+                // Are we importing from a different tree/object.
+                DragActionHandler handler = _this.getTreeDragActionHandler (_this.viewer);
+
+                if (handler != null)
+                {
+                
+                    try
+                    {
+
+                        if (handler.canImportForeignObject (obj))
+                        {
+                        
+                            supp.setShowDropLocation (true);
+    
+                            return true;
+                        
+                        }
+
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to check if foreign object can be imported: " +
+                                              obj,
+                                              e);
+                        
+                        return false;
+                        
+                    }
+                    
+                }
+                
+                return false;
+                                    
+            }
+            
+        });
+               
     }
     
     public void clearSelectedItemInTree ()
@@ -373,19 +657,16 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
 
         if (this.isDragEnabled ())
         {
-
+        
             this.tree.setDragEnabled (this.isDragEnabled ());
-            /*
-            this.tree.setDropTarget (new DropTarget (this.tree,
-                                                     DataObjectTransferHandler.getDropHandler ()));
-*/
+
             this.tree.setDropMode (DropMode.ON);
                         
             this.tree.setTransferHandler (new TransferHandler ()
             {
-                
-                final DataFlavor flavor = new DataFlavor (DataObject.class, "data object");
-                
+                          
+                private java.awt.image.BufferedImage dragImage = null;
+                                                                
                 @Override
                 public int getSourceActions (JComponent c)
                 {
@@ -398,16 +679,52 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                         
                     final NamedObject o = (NamedObject) UIUtils.getUserObjectForTreePath (tp);
 
+                    if (o == null)
+                    {
+                        
+                        return -1;
+                        
+                    }
+                    
                     JLabel l = new JLabel (o.getName ());
                     
-                    this.setDragImage (UIUtils.getImageOfComponent (l,
-                                                                    l.getPreferredSize ().width,
-                                                                    l.getPreferredSize ().height));
+                    this.dragImage = UIUtils.getImageOfComponent (l,
+                                                                  l.getPreferredSize ().width,
+                                                                  l.getPreferredSize ().height);
+                    
+                    this.setDragImage (this.dragImage);
             
                     return MOVE;
                 
                 }
+                  
+                @Override
+                public java.awt.Image getDragImage ()
+                {
+                    
+                    Point p = _this.tree.getMousePosition ();
+                    
+                    TreePath tp = _this.tree.getPathForLocation (p.x, p.y);
+                                        
+                    final NamedObject o = (NamedObject) UIUtils.getUserObjectForTreePath (tp);
+
+                    if (o == null)
+                    {
+                        
+                        return null;
+                        
+                    }
+                    
+                    JLabel l = new JLabel (o.getName ());
+                    
+                    this.dragImage = UIUtils.getImageOfComponent (l,
+                                                                  l.getPreferredSize ().width,
+                                                                  l.getPreferredSize ().height);                    
                                 
+                    return this.dragImage;
+                                
+                }
+                
                 @Override
                 public Transferable createTransferable (JComponent c)
                 {
@@ -468,34 +785,95 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                 @Override
                 public boolean canImport (TransferSupport supp)
                 {
+                                    
+                    if (!supp.isDrop ())
+                    {
+                    
+                        return false;
+                    }                                        
                                         
+                    JComponent comp = (JComponent) supp.getComponent ();
+
+                    // Are we in our tree?
                     DataFlavor[] f = supp.getDataFlavors ();
                                 
                     if (f[0] == flavor)
                     {
                         
                         supp.setShowDropLocation (true);
-                        
+                    
                         return true;
                                         
                     }
                     
-                    JComponent comp = (JComponent) supp.getComponent ();
+                    Transferable t = supp.getTransferable ();
+                                        
+                    Object o = null;
                     
-                    while ((comp = (JComponent) comp.getParent ()) != null)
+                    try
+                    {
+
+                        o = t.getTransferData (t.getTransferDataFlavors ()[0]);
+                        
+                    } catch (Exception e) {
+                        
+                        return false;
+                        
+                    }
+
+                    if (!(o instanceof NamedObject))
                     {
                         
-                        TransferHandler th = comp.getTransferHandler ();
-                        
-                        if (th != null)
+                        while ((comp = (JComponent) comp.getParent ()) != null)
                         {
                             
-                            return th.canImport (supp);
+                            TransferHandler th = comp.getTransferHandler ();
+                            
+                            if (th != null)
+                            {
                                 
-                        }
-                    
+                                return th.canImport (supp);
+                                    
+                            }
+                        
+                        }                        
+                        
+                        return false;
+                        
                     }
                     
+                    NamedObject obj = (NamedObject) o;
+                    
+                    // Are we importing from a different tree/object.
+                    DragActionHandler handler = _this.getTreeDragActionHandler (_this.viewer);
+
+                    if (handler != null)
+                    {
+                    
+                        try
+                        {
+
+                            if (handler.canImportForeignObject (obj))
+                            {
+                            
+                                supp.setShowDropLocation (true);
+        
+                                return true;
+                            
+                            }
+
+                        } catch (Exception e) {
+                            
+                            Environment.logError ("Unable to check if foreign object can be imported: " +
+                                                  obj,
+                                                  e);
+                            
+                            return false;
+                            
+                        }
+                        
+                    }
+
                     return false;
                                         
                 }
@@ -504,9 +882,27 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                 public boolean importData (TransferSupport supp)
                 {
                     
-                    if (supp.getDataFlavors ()[0] != flavor)
+                    Transferable t = supp.getTransferable ();
+                    
+                    Object o = null;
+                                        
+                    try
                     {
+                    
+                        o = t.getTransferData (t.getTransferDataFlavors ()[0]);
                         
+                    } catch (Exception e) {
+                        
+                        UIUtils.showErrorMessage (_this.viewer,
+                                                  "Unable to move item.");
+
+                        return false;
+                        
+                    }
+                    
+                    if (!(o instanceof NamedObject))
+                    {
+
                         JComponent comp = (JComponent) supp.getComponent ();
                         
                         while ((comp = (JComponent) comp.getParent ()) != null)
@@ -526,28 +922,84 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                         return false;
                         
                     }
-                    
-                    Transferable t = supp.getTransferable ();
-                    
-                    NamedObject obj = null;
-                    
-                    try
-                    {
-                    
-                        obj = (NamedObject) t.getTransferData (flavor);
-                        
-                    } catch (Exception e) {
-                        
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to move item.");
 
-                        return false;
+                    NamedObject obj = (NamedObject) o;
+                    
+                    // Are we in our tree?
+                    DataFlavor[] f = supp.getDataFlavors ();
+                                
+                    if (f[0] != flavor)
+                    {                    
+                    
+                        JTree.DropLocation dl = _this.tree.getDropLocation ();
                         
+                        if (dl.getPath () == null)
+                        {
+                            
+                            return false;
+                            
+                        }
+
+                        int insertRow = -1;
+    
+                        Point dp = dl.getDropPoint ();
+                        
+                        if (dp != null)
+                        {
+    
+                            insertRow = _this.tree.getRowForPath (dl.getPath ());
+    
+                        }
+                        
+                        DragActionHandler handler = _this.getTreeDragActionHandler (_this.viewer);
+    
+                        if (handler != null)
+                        {
+                                                
+                            _this.tree.getSelectionModel ().clearSelection ();    
+                        
+                            try
+                            {
+                        
+                                if (!handler.importForeignObject (obj,
+                                                                  insertRow))
+                                {
+                                    
+                                    UIUtils.showErrorMessage (_this.viewer,
+                                                              "Unable to move.");
+                                    
+                                    return false;
+                                    
+                                }
+
+                                QuollPanel qp = _this.viewer.getCurrentlyVisibleTab ();
+                                
+                                if (qp instanceof ProjectObjectQuollPanel)
+                                {
+                                    
+                                    _this.viewer.viewObject (((ProjectObjectQuollPanel) qp).getForObject ());
+                                    
+                                }
+                                
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to import foreign object: " +
+                                                      obj,
+                                                      e);
+                                
+                                return false;
+                                
+                            }
+                            
+                        }
+                        
+                        return true;
+                    
                     }
-                    
-                    JTree tree = (JTree) supp.getComponent ();
+                                        
+                    //JTree tree = (JTree) supp.getComponent ();
 
-                    JTree.DropLocation dl = tree.getDropLocation ();
+                    JTree.DropLocation dl = _this.tree.getDropLocation ();
                     
                     if (dl.getPath () == null)
                     {
@@ -563,19 +1015,18 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                     if (dp != null)
                     {
 
-                        insertRow = tree.getRowForLocation (dp.x,
-                                                            dp.y);
+                        insertRow = _this.tree.getRowForPath (dl.getPath ());
 
                     } 
 
-                    DefaultTreeModel model = ((DefaultTreeModel) tree.getModel ());
+                    DefaultTreeModel model = ((DefaultTreeModel) _this.tree.getModel ());
 
                     TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
                                                                     obj);
 
                     int removeRow = -1;
                                       
-                    removeRow = tree.getRowForPath (tp);
+                    removeRow = _this.tree.getRowForPath (tp);
                                                                     
                     DefaultMutableTreeNode n = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
@@ -587,11 +1038,11 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                           p,
                                           insertRow);
 
-                    tree.getSelectionModel ().clearSelection ();
+                    _this.tree.getSelectionModel ().clearSelection ();
 
-                    tree.setSelectionRow (insertRow);
+                    _this.tree.setSelectionRow (insertRow);
                     
-                    tree.requestFocus ();
+                    _this.tree.requestFocus ();
                                         
                     DragActionHandler handler = _this.getTreeDragActionHandler (_this.viewer);
 
@@ -605,9 +1056,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                                      insertRow,
                                                      obj))
                             {
-                            
-                                System.out.println ("CANT");
-                                
+                                                            
                                 return false;
                                 
                             }
@@ -641,87 +1090,6 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                         int          action)
                 {
                     
-                    /*
-                    Transferable t = supp.getTransferable ();
-                    
-                    Object obj = null;
-                    
-                    try
-                    {
-                    
-                        obj = t.getTransferData (flavor);
-                        
-                    } catch (Exception e) {
-                        
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to move item.");
-
-                        return false;
-                        
-                    }                    
-                    
-                    TreePath removeTreePath = (TreePath) data.getTransferData (DataFlavor.stringFlavor);
-
-                    JTree tree = (JTree) source;
-
-                    DefaultTreeModel model = ((DefaultTreeModel) tree.getModel ());
-
-                    if (source != getDropComponent ())
-                    {
-
-                        model.removeNodeFromParent ((DefaultMutableTreeNode) removeTreePath.getLastPathComponent ());
-
-                    } else
-                    {
-
-                        int insertRow = tree.getRowForLocation (getDropPoint ().x,
-                                                                getDropPoint ().y);
-
-                        int removeRow = tree.getRowForPath (removeTreePath);
-
-                        TreePath insertTreePath = tree.getPathForRow (insertRow);
-
-                        DefaultMutableTreeNode removeNode = (DefaultMutableTreeNode) removeTreePath.getLastPathComponent ();
-
-                        DefaultMutableTreeNode insertNode = (DefaultMutableTreeNode) insertTreePath.getLastPathComponent ();
-
-                        NamedObject removeObject = (NamedObject) removeNode.getUserObject ();
-
-                        NamedObject insertObject = (NamedObject) insertNode.getUserObject ();
-
-                        try
-                        {
-
-                            if (!this.dragActionHandler.performAction (removeRow,
-                                                                       removeObject,
-                                                                       insertRow,
-                                                                       insertObject))
-                            {
-
-                                return;
-
-                            }
-
-                        } catch (Exception e)
-                        {
-
-                            Environment.logError ("Unable to move: " +
-                                                  removeObject +
-                                                  " from row: " +
-                                                  removeRow +
-                                                  " to row: " +
-                                                  insertRow,
-                                                  e);
-
-                            UIUtils.showErrorMessage (this.projectViewer,
-                                                      "Unable to move.");
-
-                            return;
-
-                        }
-
-                    }
-                    */
                 }
                                 
             });
@@ -821,15 +1189,14 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
             try
             {
             
-                this.tree.getDropTarget ().addDropTargetListener (dropTargetListener);
+                //this.tree.getDropTarget ().addDropTargetListener (dropTargetListener);
     
             } catch (Exception e) {
                 
                 e.printStackTrace ();
                 
             }        
-            
-/*
+            /*
             this.tree.setTransferHandler (new DataObjectTransferHandler (this.viewer,
                                                                          this.getTreeDragActionHandler (this.viewer)));
 */
@@ -840,7 +1207,7 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         return this.tree;
         
     }
-    
+        
     protected void handleViewObject (TreePath tp,
                                      Object   obj)
     {

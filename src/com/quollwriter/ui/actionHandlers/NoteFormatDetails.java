@@ -18,7 +18,7 @@ import com.quollwriter.data.comparators.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 
-public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
+public class NoteFormatDetails<V extends AbstractViewer> implements ChapterItemFormatDetails<Note, V>
 {
 
     public String getIcon (Note item)
@@ -80,8 +80,8 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
     }    
     
     @Override
-    public Set<JComponent> getTools (Note                item,
-                                     AbstractEditorPanel ep)
+    public Set<JComponent> getTools (Note                 item,
+                                     ChapterItemViewer<V> ep)
     {
         
         return null;
@@ -89,8 +89,8 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
     }
     
     @Override
-    public AbstractActionHandler getEditItemActionHandler (Note                item,
-                                                           AbstractEditorPanel ep)
+    public ActionListener getEditItemActionHandler (Note                 item,
+                                                    ChapterItemViewer<V> ep)
     {
 
         return new NoteActionHandler (item,
@@ -99,13 +99,14 @@ public class NoteFormatDetails implements ChapterItemFormatDetails<Note>
     }
 
     @Override
-    public ActionListener getDeleteItemActionHandler (Note                item,
-                                                      AbstractEditorPanel ep,
-                                                      boolean             showAtItem)
+    public ActionListener getDeleteItemActionHandler (Note                 item,
+                                                      ChapterItemViewer<V> ep,
+                                                      boolean              showAtItem)
     {
 
         return new DeleteChapterItemActionHandler (item,
-                                                   ep.getViewer (),
+                                                   // FOr now... to please the compiler...
+                                                   (AbstractProjectViewer) ep.getViewer (),
                                                    showAtItem);
 
     }

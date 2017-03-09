@@ -15,10 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
-
 import com.quollwriter.*;
 
 import com.gentlyweb.properties.*;

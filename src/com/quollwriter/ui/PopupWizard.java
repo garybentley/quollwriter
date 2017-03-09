@@ -55,9 +55,7 @@ public abstract class PopupWizard extends PopupWindow
                                                       10,
                                                       10));
         this.header = UIUtils.createHeader ("",
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                            Constants.SUB_PANEL_TITLE);
 
         this.header.setBorder (new CompoundBorder (new MatteBorder (0,
                                                                     0,

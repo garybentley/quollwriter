@@ -105,7 +105,7 @@ public class AdvertiseProjectPanel extends QuollPanel<AbstractViewer>
     public void init ()
                throws GeneralException
     {
-
+/*
         final AdvertiseProjectPanel _this = this;
 
         Header h = UIUtils.createHeader ("Advertise your {Project}",
@@ -470,7 +470,7 @@ public class AdvertiseProjectPanel extends QuollPanel<AbstractViewer>
         for (FormItem it : this.formItems.values ())
         {
             
-            it.init ();
+            //it.init ();
             
         }
 
@@ -485,7 +485,7 @@ public class AdvertiseProjectPanel extends QuollPanel<AbstractViewer>
             }
             
         });
-        
+        */
     }
 
     private void createAccount ()
@@ -496,14 +496,14 @@ public class AdvertiseProjectPanel extends QuollPanel<AbstractViewer>
         for (FormItem it : this.formItems.values ())
         {
             
-            it.setError (false);
+            //it.setError (false);
             
             if (it.hasError ())
             {
                 
-                it.updateRequireLabel ();
+                //it.updateRequireLabel ();
                 
-                it.setError (true);
+                //it.setError (true);
                 
                 if (error == null)
                 {
@@ -519,7 +519,7 @@ public class AdvertiseProjectPanel extends QuollPanel<AbstractViewer>
         if (error != null)
         {
             
-            error.scrollIntoView ();
+            //error.scrollIntoView ();
 
             return;
             
@@ -598,9 +598,7 @@ System.out.println ("CREATED/SAVED PROJECT");
     {
         
         Header h = UIUtils.createHeader (title,
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                         Constants.SUB_PANEL_TITLE);
         
         h.setBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, Environment.getBorderColor ()),
                                                              new EmptyBorder (0, 0, 3, 0)));
@@ -711,6 +709,7 @@ System.out.println ("CREATED/SAVED PROJECT");
 
     }
 
+    @Override
     public String getTitle ()
     {
         
@@ -718,13 +717,15 @@ System.out.println ("CREATED/SAVED PROJECT");
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
 
-        return Constants.NOTIFY_ICON_NAME;
+        return Environment.getIcon (Constants.NOTIFY_ICON_NAME,
+                                    type);
 
     }
-
+    
     public JScrollPane getScrollPane ()
     {
 

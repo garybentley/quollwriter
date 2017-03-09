@@ -119,9 +119,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         bb.add (Box.createHorizontalGlue ());
 
         Header h = UIUtils.createHeader ("You currently have no {projects}",
-                                         Constants.PANEL_TITLE,
-                                         null,
-                                         null);
+                                         Constants.PANEL_TITLE);
         h.setMaximumSize (h.getPreferredSize ());
         h.setAlignmentX (Component.CENTER_ALIGNMENT);
 
@@ -2794,7 +2792,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			final ProjectBox _this = this;
 
             return UIUtils.createMenuItem ((status != null ? status : "No Status"),
-                                           null,
+                                           (String) null,
                                            new ActionListener ()
                                            {
 
@@ -3098,21 +3096,20 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         }
 
-        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.NAME);
+        AbstractSideBar sb = this.sideBars.get (EditorsSideBar.ID);
 
         if (sb == null)
         {
 
             sb = new EditorsSideBar (this);
 
-			sb.init ();
+			//sb.init ();
 
-            this.addSideBar (EditorsSideBar.NAME,
-                             sb);
+            this.addSideBar (sb);
 
         }
 
-        this.showSideBar (EditorsSideBar.NAME);
+        this.showSideBar (EditorsSideBar.ID);
 
         return true;
 
@@ -3132,23 +3129,31 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
     }
 
-    public void addSideBar (String          name,
-                            AbstractSideBar sb)
+    public void addSideBar (AbstractSideBar sb)
                      throws GeneralException
     {
 
         if (sb == null)
         {
 
-            throw new IllegalArgumentException ("No sidebar provided for: " + name);
+            throw new IllegalArgumentException ("No sidebar provided.");
 
         }
 
-        sb.init ();
+        String id = sb.getId ();
+        
+        String state = null;
+        
+        if (id != null)
+        {
+        
+            state = UserProperties.get ("sidebarState-" + id);
+                        
+        }        
+        
+        sb.init (state);
 
-        sb.setName (name);
-
-        this.sideBars.put (name,
+        this.sideBars.put (id,
                            sb);
 
     }
@@ -3159,6 +3164,24 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		// Save the width/height of the split pane.
 
+        // Get the state from the sidebars.
+        for (AbstractSideBar sb : this.sideBars.values ())
+        {
+            
+            String id = sb.getId ();
+            
+            if (id == null)
+            {
+                
+                continue;
+                
+            }
+            
+            UserProperties.set ("sidebarState-" + id,
+                                sb.getSaveState ());
+            
+        }        
+        
 	}
 
 	@Override
@@ -3176,7 +3199,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
             public void actionPerformed (ActionEvent ev)
             {
 
-                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.NAME);
+                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.ID);
 
                 if (sb == null)
                 {
@@ -3213,7 +3236,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
     public boolean isEditorsVisible ()
     {
 
-        EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.NAME);
+        EditorsSideBar sb = (EditorsSideBar) this.sideBars.get (EditorsSideBar.ID);
 
         if (sb != null)
         {
@@ -4149,7 +4172,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
             public void actionPerformed (ActionEvent ev)
             {
 
-                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.NAME);
+                EditorsSideBar sb = (EditorsSideBar) _this.sideBars.get (EditorsSideBar.ID);
 
                 if (sb == null)
                 {
@@ -4444,10 +4467,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         TargetsSideBar t = new TargetsSideBar (this);
 
-        this.addSideBar ("targets",
-                         t);
+        this.addSideBar (t);
 
-        this.showSideBar ("targets");
+        this.showSideBar (TargetsSideBar.ID);
 
 	}
 

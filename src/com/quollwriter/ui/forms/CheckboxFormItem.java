@@ -5,114 +5,99 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 
 import java.awt.Dimension;
+import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
-public class CheckboxFormItem extends FormItem<Set<String>>
+import com.quollwriter.ui.*;
+
+public class CheckboxFormItem extends FormItem<Boolean>
 {
     
-    private Set<JCheckBox> boxes = null;
-    private int maxCount = 0;
-    private boolean required = false;
-    private Box container = new Box (BoxLayout.Y_AXIS);
-    
+    private JCheckBox checkbox = null;
+
     public CheckboxFormItem (String label,
-                             Vector<String> items,
-                             Set<String>    selected,
-                             boolean        itemsRequired,
-                             String         helpText)
+                             String checkboxText)
+    {
+        
+        this (label,
+              checkboxText,
+              false,
+              null);
+        
+    }
+    
+    public CheckboxFormItem (String  label,
+                             String  checkboxText,
+                             boolean selected,
+                             String  helpText)
     {
         
         super (label,
-               itemsRequired,
+               false,
                helpText);
 
-        this.boxes = new LinkedHashSet ();
-               
-        for (String s : items)
+        this.checkbox = UIUtils.createCheckBox (checkboxText);
+                   
+        if (helpText != null)
         {
             
-            if (this.boxes.size () > 0)
-            {
-                
-                this.container.add (Box.createVerticalStrut (5));
-                
-            }
-            
-            JCheckBox b = new JCheckBox (s, (selected != null ? selected.contains (s) : false));
-            
-            b.setOpaque (false);
-            
-            this.boxes.add (b);
-            
-            this.container.add (b);
-            
+            this.checkbox.setToolTipText (helpText);
+                   
         }
-            
-        this.required = itemsRequired;
-    
+        
     }
 
+    public void addItemListener (ItemListener l)
+    {
+        
+        this.checkbox.addItemListener (l);
+        
+    }
+    
+    public void removeItemListener (ItemListener l)
+    {
+        
+        this.checkbox.removeItemListener (l);
+        
+    }
+    
+    public void setSelected (boolean v)
+    {
+        
+        this.checkbox.setSelected (v);
+        
+    }
+    
+    public boolean isSelected ()
+    {
+        
+        return this.checkbox.isSelected ();
+        
+    }
+    
+    @Override
     public JComponent getComponent ()
     {
 
-        return this.container;
+        return this.checkbox;
 
     }
 
-    public Set<String> getValue ()
+    @Override
+    public Boolean getValue ()
     {
-                    
-        Set<String> ret = new LinkedHashSet ();
-        
-        for (JCheckBox b : this.boxes)
-        {
-            
-            if (b.isSelected ())
-            {
-            
-                ret.add (b.getText ());
-                
-            }
-            
-        }
-        
-        return ret;
+                  
+        return this.checkbox.isSelected ();
         
     }
     
     public boolean hasError ()
     {
         
-        if (!this.required)
-        {
-            
-            return false;
-            
-        }
-        
-        for (JCheckBox b : this.boxes)
-        {
-            
-            if (b.isSelected ())
-            {
-
-                return false;
-            
-            }
-            
-        }
-            
-        return true;
+        return false;
         
     }
-    
-    public void updateRequireLabel (JLabel requireLabel)
-    {
-    
-        this.setError (this.hasError ());
-    
-    }
-    
+        
 }

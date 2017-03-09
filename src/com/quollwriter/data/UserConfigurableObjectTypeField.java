@@ -4,6 +4,9 @@ import java.util.*;
 
 import org.jdom.*;
 
+import com.quollwriter.*;
+import com.quollwriter.ui.*;
+import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.ui.components.FormItem;
 
 public abstract class UserConfigurableObjectTypeField extends NamedObject
@@ -14,11 +17,15 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         
         text ("text"),
         multitext ("multitext"),
+        image ("image"),
         select ("select"),
         date ("date"),
         number ("number"),
         file ("file"),
-        webpage ("webpage");
+        webpage ("webpage"),
+        objectname ("objectname"),
+        objectdesc ("objectdesc"),
+        objectimage ("objectimage");
         
         private String type = null;
         
@@ -44,9 +51,14 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                 case text : return new TextUserConfigurableObjectTypeField ();
                 case multitext : return new MultiTextUserConfigurableObjectTypeField ();
                 case select : return new SelectUserConfigurableObjectTypeField ();
-                case date : return new DateUserObjectTypeField ();
-                case number : return new NumberUserObjectTypeField ();
+                case date : return new DateUserConfigurableObjectTypeField ();
+                case number : return new NumberUserConfigurableObjectTypeField ();
                 case webpage : return new WebpageUserConfigurableObjectTypeField ();
+                case file : return new FileUserConfigurableObjectTypeField ();
+                case image : return new ImageUserConfigurableObjectTypeField ();
+                case objectname : return new ObjectNameUserConfigurableObjectTypeField ();
+                case objectdesc : return new ObjectDescriptionUserConfigurableObjectTypeField ();
+                case objectimage : return new ObjectImageUserConfigurableObjectTypeField ();
                 default : return null;
                 
             }            
@@ -65,6 +77,9 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                 case "Number" : return Type.number;
                 case "Web page" : return Type.webpage;
                 case "File" : return Type.file;
+                case "Image" : return Type.image;
+                case "Object Image" : return Type.objectimage;
+                case "Object Description" : return Type.objectdesc;
                 default : return null;
                 
             }            
@@ -83,6 +98,10 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                 case number : return "Number";
                 case webpage : return "Web page";
                 case file : return "File";
+                case image : return "Image";
+                case objectname : return "Name";
+                case objectdesc : return "Object Description";
+                case objectimage : return "Object Image";
                 default : return "Unknown";
                 
             }
@@ -98,7 +117,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     private UserConfigurableObjectType userConfigType = null;
     private Map<String, Object> definition = new HashMap ();
     private String defValue = null;
-    private int order = 0;
+    private int order = -1;
     
     protected UserConfigurableObjectTypeField (Type type)
     {
@@ -132,7 +151,48 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
                                     this.definition);
                         
     }
+
+    /**
+     * The view/edit handler is used for viewing/editing the data of a field of this type.
+     *
+     * @return The view/edit handler for this type of field.
+     */
+    // TODO: Check to see if this needs to be generic.
+    // TODO: Have this be configurable and use class loading...
+    public abstract UserConfigurableObjectFieldViewEditHandler getViewEditHandler (UserConfigurableObject      obj,
+                                                                                   UserConfigurableObjectField field,
+                                                                                   AbstractProjectViewer       viewer);
+                      
+    /**
+     * The config handler is used for editing/configuration of this field.
+     *
+     * Implementing classes should return a suitable sub-type that can handle this field.
+     *
+     * @return The config handler for this field.
+     */
+    public abstract UserConfigurableObjectTypeFieldConfigHandler getConfigHandler ();           
            
+    public boolean isSortable ()
+    {
+        
+        return false;
+           
+    }
+    
+    public boolean canEdit ()
+    {
+        
+        return true;
+           
+    }
+    
+    public boolean canDelete ()
+    {
+        
+        return true;
+        
+    }
+    
     public void setDefinitionValue (String id,
                                     Object v)
     {
@@ -140,6 +200,73 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         this.definition.put (id,
                              v);
                         
+    }
+    
+    public void setDefinitionValue (String id,
+                                    Date   v)
+    {
+        
+        this.definition.put (id,
+                             Environment.formatDate (v));
+        
+    }
+    
+    public void setDefinitionValue (String id,
+                                    Double v)
+    {
+    
+        this.definition.put (id,
+                             (v != null ? Environment.formatNumber (v) : null));
+        
+    }
+    
+    public Double getDoubleDefinitionValue (String id)
+                                     throws GeneralException
+    {
+        
+        Object o = this.getDefinitionValue (id);
+        
+        if (o == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return Environment.parseToDouble (o.toString ());
+        
+    }
+    
+    public Date getDateDefinitionValue (String id)
+    {
+        
+        Object v = this.getDefinitionValue (id);
+        
+        if (v == null)
+        {
+            
+            return null;
+            
+        }
+        
+        return Environment.parseDate (v.toString ());
+        
+    }
+    
+    public boolean getBooleanDefinitionValue (String id)
+    {
+        
+        Boolean b = (Boolean) this.getDefinitionValue (id);
+        
+        if (b == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return b;
+        
     }
     
     public Object getDefinitionValue (String id)
@@ -166,7 +293,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     public boolean isSearchable ()
     {
         
-        return (Boolean) this.getDefinitionValue ("searchable");
+        return this.getBooleanDefinitionValue ("searchable");
                         
     }
     
@@ -194,8 +321,20 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
     public void setOrder (int i)
     {
         
+        int c = this.order;
+        
         this.order = i;
-                        
+        /*
+        if ((this.userConfigType != null)
+            &&
+            (i != c)
+           )
+        {
+            
+            this.userConfigType.reorderFields ();
+            
+        }
+          */              
     }
     
     public int getOrder ()
@@ -262,7 +401,7 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
         
     }
 
-    public final boolean isNameField ()
+    public boolean isNameField ()
     {
         
         Object o = this.getDefinitionValue ("nameField");
@@ -278,49 +417,13 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
             
     }
     
-    public final void setNameField (boolean v)
+    public void setNameField (boolean v)
     {
         
         this.setDefinitionValue ("nameField", v);
         
     }
-    
-    public final void setPrimaryNameField (boolean v)
-    {
-                
-        this.setDefinitionValue ("primaryNameField", true);
-        this.setDefinitionValue ("nameField", true);
-                        
-    }
-    
-    public final boolean isPrimaryNameField ()
-    {
-        
-        Object o = this.getDefinitionValue ("primaryNameField");
-        
-        if (o == null)
-        {
-            
-            return false;
-            
-        }
-        
-        return (Boolean) o;
-        
-    }
-                
-    public abstract void initConfiguration (Map initVal);
-    
-    public abstract void fillConfiguration (Map fillVal);
-    
-    public abstract String getConfigurationDescription ();
-    
-    public abstract Set<FormItem> getExtraFormItems ();
-    
-    public abstract boolean updateFromExtraFormItems ();
-    
-    public abstract Set<String> getExtraFormItemErrors ();
-        
+                                
     public DataObject getObjectForReference (ObjectReference ref)
     {
         

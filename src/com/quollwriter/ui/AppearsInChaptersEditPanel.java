@@ -1,12 +1,14 @@
 package com.quollwriter.ui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.*;
 
 import java.util.Map;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.ArrayList;
+import java.util.Set;
 
 import javax.swing.text.*;
 import javax.swing.*;
@@ -17,17 +19,16 @@ import com.quollwriter.*;
 import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.data.*;
 import com.quollwriter.events.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.renderers.*;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.IconProvider;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.components.GradientPainter;
 import com.quollwriter.ui.components.Header;
 
-public class AppearsInChaptersEditPanel extends EditPanel implements SideBarListener
+public class AppearsInChaptersEditPanel extends Box implements SideBarListener, RefreshablePanel
 {
-
-    public static final String SIDEBAR_PANEL_ID = "appears-in-chapters";
 
     private JTree          chapterTree = null;
     private AbstractProjectViewer viewer = null;
@@ -36,18 +37,17 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
     private QTextEditor editor = null;
     private Object highlightId = null;
     private String sideBarId = null;
+    private boolean inited = false;
         
     public AppearsInChaptersEditPanel (AbstractProjectViewer viewer,
                                        NamedObject           obj)
     {
         
-        super (true);
-        
+        super (BoxLayout.Y_AXIS);
+                
         this.obj = obj;
         this.viewer = viewer;
         
-        this.sideBarId = SIDEBAR_PANEL_ID + this.obj.getObjectReference ().asString ();
-
     }
 
     public void updateChapterTree (Map<Chapter, List<Segment>> snippets)
@@ -63,7 +63,8 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         
     }
 
-    public void refreshViewPanel ()
+    @Override
+    public void refresh ()
     {
 
         this.updateChapterTree (UIUtils.getObjectSnippets (this.obj,
@@ -76,40 +77,6 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         
         return this.obj;
         
-    }
-    
-    public boolean handleSave ()
-    {
-
-        return true;
-
-    }
-
-    public List<FormItem> getEditItems ()
-    {
-
-        return null;
-
-    }
-
-    public List<FormItem> getViewItems ()
-    {
-
-        return null;
-
-    }
-
-    public boolean handleCancel ()
-    {
-
-        return true;
-
-    }
-
-    public void handleEditStart ()
-    {
-
-
     }
 
     public IconProvider getIconProvider ()
@@ -141,24 +108,10 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
 
     }
 
-    public String getHelpText ()
-    {
-
-        return null;
-
-    }
-
     public String getTitle ()
     {
 
         return "Appears in {Chapters}";
-
-    }
-
-    public JComponent getEditPanel ()
-    {
-
-        return null;
 
     }
 
@@ -199,8 +152,9 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         this.sideBar = new AppearsInChaptersSideBar (this.viewer,
                                                      this);
         
-        this.viewer.addSideBar (this.sideBarId,
-                                this.sideBar);
+        this.sideBarId = this.sideBar.getId ();
+        
+        this.viewer.addSideBar (this.sideBar);
 
         this.showInProjectViewerSideBar ();
             
@@ -353,10 +307,18 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
         return tree;
                     
     }
-    
-    public JComponent getViewPanel ()
-    {
 
+    @Override
+    public void init ()
+    {
+    
+        if (this.inited)
+        {
+            
+            return;
+            
+        }
+    
         final AppearsInChaptersEditPanel _this = this;
 
         java.util.List<JComponent> buttons = new ArrayList ();
@@ -390,23 +352,24 @@ public class AppearsInChaptersEditPanel extends EditPanel implements SideBarList
                                                });
 
         buttons.add (but);
-        
-        this.header.setControls (UIUtils.createButtonBar (buttons));
-        
+                
+        this.add (EditPanel.createHeader (this.getTitle (),
+                                          this.getIconProvider ().getIcon ("header",
+                                                                           Constants.ICON_PANEL_SECTION),
+                                          UIUtils.createButtonBar (buttons)));
+                        
         this.chapterTree = this.createTree (2);
             
-        JScrollPane treeScroll = new JScrollPane (this.chapterTree);
+        JScrollPane treeScroll = UIUtils.createScrollPane (this.chapterTree);
         treeScroll.setOpaque (false);
         treeScroll.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.chapterTree.setBorder (new EmptyBorder (0, 5, 0, 0));
+        treeScroll.setBorder (null);
+        this.chapterTree.setBorder (UIUtils.createPadding (0, 5, 0, 0));
         
-        return treeScroll;
-
+        this.add (treeScroll);
+        
+        this.inited = true;
+        
     }
 
-    public void close ()
-    {
-                
-    }
-    
 }

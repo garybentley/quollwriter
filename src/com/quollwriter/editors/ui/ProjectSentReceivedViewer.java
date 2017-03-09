@@ -103,7 +103,7 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
         
         this.chapterItemViewPopupProvider.setShowLinks (false);
         this.chapterItemViewPopupProvider.setFormatDetails (Note.OBJECT_TYPE,
-                                                            new NoteFormatDetails ()
+                                                            new NoteFormatDetails<ProjectSentReceivedViewer> ()
                                                             {
                                                                                                                                 
                                                                 @Override
@@ -131,8 +131,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 }
                                                                 
                                                                 @Override
-                                                                public AbstractActionHandler getEditItemActionHandler (Note                item,
-                                                                                                                       AbstractEditorPanel ep)
+                                                                public ActionListener getEditItemActionHandler (Note                                         item,
+                                                                                                                ChapterItemViewer<ProjectSentReceivedViewer> ep)
                                                                 {
                                                             
                                                                     throw new UnsupportedOperationException ("Not supported for project comments.");
@@ -140,9 +140,9 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 }                                                                
                                                                 
                                                                 @Override
-                                                                public ActionListener getDeleteItemActionHandler (Note                item,
-                                                                                                                  AbstractEditorPanel ep,
-                                                                                                                  boolean             showAtItem)
+                                                                public ActionListener getDeleteItemActionHandler (Note                                         item,
+                                                                                                                  ChapterItemViewer<ProjectSentReceivedViewer> ep,
+                                                                                                                  boolean                                      showAtItem)
                                                                 {
                                                             
                                                                     throw new UnsupportedOperationException ("Not supported for project comments.");
@@ -150,8 +150,8 @@ public abstract class ProjectSentReceivedViewer<E extends EditorMessage> extends
                                                                 }
                                                                 
                                                                 @Override
-                                                                public Set<JComponent> getTools (Note                item,
-                                                                                                 AbstractEditorPanel ep)
+                                                                public Set<JComponent> getTools (Note                                         item,
+                                                                                                 ChapterItemViewer<ProjectSentReceivedViewer> ep)
                                                                 {
                                                                     
                                                                     if (_this.message.isSentByMe ())

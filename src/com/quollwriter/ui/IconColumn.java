@@ -29,7 +29,7 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.events.*;
 
-public class IconColumn extends JPanel implements DocumentListener
+public class IconColumn<V extends AbstractProjectViewer> extends JPanel implements DocumentListener
 {
 
     public static final Color defaultBGColor = UIUtils.getIconColumnColor ();
@@ -52,7 +52,9 @@ public class IconColumn extends JPanel implements DocumentListener
     public static final int SCENE_INDENT = 28;
     public static final int EDIT_MARK_STROKE_WIDTH = 3;
     
-    private AbstractEditorPanel                ep = null;
+    //private AbstractEditorPanel                ep = null;
+    private ChapterItemViewer<V> itemViewer = null;
+    private Chapter chapter = null;
     private QTextEditor                        editor = null;
     private java.util.List<StructureItemWrapper> structureItems = new ArrayList ();
     private java.util.List<NoteWrapper>        notes = new ArrayList ();
@@ -61,25 +63,29 @@ public class IconColumn extends JPanel implements DocumentListener
     private ImagePanel dragIcon = null;
     private MouseListener showListener = null;
     private IconProvider iconProv = null;
-    private ChapterItemViewPopupProvider popupProvider = null;
+    private ChapterItemViewPopupProvider<V> popupProvider = null;
     private boolean itemMoveAllowed = true;
     private PropertyChangedListener editPosChange = null;
     private QPopup currentPopup = null;
     private boolean singlePopupOnly = false;
         
-    public IconColumn (AbstractEditorPanel          ep,
-                       IconProvider                 iconProv,
-                       ChapterItemViewPopupProvider popupProv)
+    public IconColumn (ChapterItemViewer<V>            itemViewer,
+                       Chapter                         ch,
+                       IconProvider                    iconProv,
+                       ChapterItemViewPopupProvider<V> popupProv)
     {
 
         this.setLayout (null);
 
-        this.ep = ep;
+        //this.ep = ep;
+               
+        this.itemViewer = itemViewer;
+        this.chapter = ch;
                 
         this.popupProvider = popupProv;
         this.iconProv = iconProv;
                 
-        this.editor = this.ep.getEditor ();
+        this.editor = this.itemViewer.getEditor ();
 
         this.editor.getDocument ().addDocumentListener (this);
 
@@ -108,12 +114,12 @@ public class IconColumn extends JPanel implements DocumentListener
                     try
                     {
     
-                        _this.setEditPosition (_this.ep.getChapter ().getEditPosition ());
+                        _this.setEditPosition (_this.chapter.getEditPosition ());
                         
                     } catch (Exception e) {
                         
                         Environment.logError ("Unable to set edit position for chapter: " +
-                                              _this.ep.getChapter (),
+                                              _this.chapter,
                                               e);
                         
                     }
@@ -124,10 +130,24 @@ public class IconColumn extends JPanel implements DocumentListener
             
         };
                          
-        ep.getChapter ().addPropertyChangedListener (this.editPosChange);
+        this.chapter.addPropertyChangedListener (this.editPosChange);
                          
     }
 
+    public V getViewer ()
+    {
+        
+        return this.itemViewer.getViewer ();
+        
+    }
+    
+    public ChapterItemViewer<V> getItemViewer ()
+    {
+        
+        return this.itemViewer;
+        
+    }
+    
     public void setSinglePopupOnly (boolean v)
     {
         
@@ -215,12 +235,12 @@ public class IconColumn extends JPanel implements DocumentListener
 
         }
     
-        if (this.ep.getViewer ().isDistractionFreeModeEnabled ())
+        if (this.itemViewer.getViewer ().isDistractionFreeModeEnabled ())
         {
             
-            this.ep.getViewer ().showNotificationPopup ("Function unavailable",
-                                                        "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
-                                                        5);
+            this.itemViewer.getViewer ().showNotificationPopup ("Function unavailable",
+                                                                "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
+                                                                5);
 
             return;            
             
@@ -257,7 +277,7 @@ public class IconColumn extends JPanel implements DocumentListener
                                       pos,
                                       e);
     
-                UIUtils.showErrorMessage (this.ep,
+                UIUtils.showErrorMessage (this.itemViewer.getViewer (),
                                           "Unable to display item.");
     
                 return;
@@ -272,7 +292,7 @@ public class IconColumn extends JPanel implements DocumentListener
             {
             
                 popup = this.popupProvider.getViewPopup (w.item,
-                                                         this.ep);
+                                                         this.itemViewer);
                 
             } catch (Exception e) {
                 
@@ -280,7 +300,7 @@ public class IconColumn extends JPanel implements DocumentListener
                                       w.item,
                                       e);
     
-                UIUtils.showErrorMessage (this.ep,
+                UIUtils.showErrorMessage (this.itemViewer.getViewer (),
                                           "Unable to display item.");
                 
                 return;
@@ -294,14 +314,14 @@ public class IconColumn extends JPanel implements DocumentListener
                                       w.item +
                                       ", got null popup.");
     
-                UIUtils.showErrorMessage (this.ep,
+                UIUtils.showErrorMessage (this.itemViewer.getViewer (),
                                           "Unable to display item.");
                 
                 return;
                 
             }
             
-            JScrollPane scrollPane = this.ep.getScrollPane ();
+            JScrollPane scrollPane = this.itemViewer.getScrollPane ();
 
             w.popup = popup;
     
@@ -352,11 +372,11 @@ public class IconColumn extends JPanel implements DocumentListener
     
             }
     
-            this.ep.showPopupAt (popup,
-                                 new Point (this.getWidth () - 20,
-                                            y),
-                                 true);
-            popup.setDraggable (this.ep);
+            this.itemViewer.showPopupAt (popup,
+                                         new Point (this.getWidth () - 20,
+                                                    y),
+                                         true);
+            popup.setDraggable ((Component) this.itemViewer);
             
             this.currentPopup = popup;
             
@@ -400,28 +420,34 @@ public class IconColumn extends JPanel implements DocumentListener
     public void init ()
                       throws Exception
     {
-        
-        Chapter c = this.ep.getChapter ();
-        
+                
         this.removeAllItems ();
 
-        this.setOutlineItems (c.getOutlineItems ());
+        this.setOutlineItems (this.chapter.getOutlineItems ());
                                          
-        this.setNotes (c.getNotes ());
+        this.setNotes (this.chapter.getNotes ());
 
-        this.setScenes (c.getScenes ());
+        this.setScenes (this.chapter.getScenes ());
 
-        this.setEditPosition (c.getEditPosition ());
+        this.setEditPosition (this.chapter.getEditPosition ());
                 
     }
     
+    public QTextEditor getEditor ()
+    {
+        
+        return this.editor;
+        
+    }
+    
+    /*
     public AbstractEditorPanel getEditorPanel ()
     {
         
         return this.ep;
         
     }
-    
+    */
     public ImagePanel getDragIcon ()
     {
         
@@ -438,13 +464,13 @@ public class IconColumn extends JPanel implements DocumentListener
             
             this.editPosition = this.editor.getDocument ().createPosition (p);
             
-            this.ep.getChapter ().setTextEditPosition (this.editPosition);
+            this.chapter.setTextEditPosition (this.editPosition);
             
         } else {
             
             this.editPosition = null;
             
-            this.ep.getChapter ().setTextEditPosition (null);
+            this.chapter.setTextEditPosition (null);
             
         }
 
@@ -737,7 +763,7 @@ public class IconColumn extends JPanel implements DocumentListener
                 
             }
             
-            FontMetrics fm = g.getFontMetrics (this.ep.getEditor ().getFontForStyles ());
+            FontMetrics fm = g.getFontMetrics (this.itemViewer.getEditor ().getFontForStyles ());
                                 
             return r.y + (int) ((fm.getHeight () - 16) / 2);
 
@@ -779,7 +805,7 @@ public class IconColumn extends JPanel implements DocumentListener
         
             Rectangle r = this.editor.modelToView (this.editPosition.getOffset ());
 
-            FontMetrics fm = g.getFontMetrics (this.ep.getEditor ().getFontForStyles ());
+            FontMetrics fm = g.getFontMetrics (this.itemViewer.getEditor ().getFontForStyles ());
   
             Graphics2D g2 = (Graphics2D) g;
 

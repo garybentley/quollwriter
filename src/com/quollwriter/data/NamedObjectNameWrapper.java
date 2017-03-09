@@ -53,9 +53,14 @@ public class NamedObjectNameWrapper implements Comparable<NamedObjectNameWrapper
         for (String name : n.getAllNames ())
         {
 
-            ret.add (new NamedObjectNameWrapper (name,
-                                                 n));
+            if (name != null)
+            {
+        
+                ret.add (new NamedObjectNameWrapper (name,
+                                                     n));
 
+            }
+                                                     
         }
 
         return ret;

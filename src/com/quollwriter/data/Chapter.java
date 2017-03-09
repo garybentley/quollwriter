@@ -833,8 +833,7 @@ public class Chapter extends LegacyUserConfigurableObject
         if (this.scenes.contains (s))
         {
 
-            throw new IllegalStateException ("Already have scene: " +
-                                             s);
+            return;
 
         }
 
@@ -1045,7 +1044,7 @@ public class Chapter extends LegacyUserConfigurableObject
         try
         {
     
-            f.setValue (JSONEncoder.encode (t));
+            f.setValue (t);
             
         } catch (Exception e) {
             
@@ -1101,7 +1100,7 @@ public class Chapter extends LegacyUserConfigurableObject
         try
         {
     
-            f.setValue (JSONEncoder.encode (t));
+            f.setValue (t);
             
         } catch (Exception e) {
             

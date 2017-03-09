@@ -28,18 +28,20 @@ public class ChapterItemMoveHandler
     protected ChapterItem item = null;
     protected IconColumn iconColumn = null;
     protected ImagePanel dragIcon = null;
-    protected AbstractEditorPanel ep = null;
     protected QTextEditor editor = null;
+    private AbstractProjectViewer viewer = null;
+    private ChapterItemViewer itemViewer = null;
     
     public ChapterItemMoveHandler (IconColumn ic)
     {
 
         this.iconColumn = ic;
+        this.itemViewer = this.iconColumn.getItemViewer ();        
+        this.viewer = this.iconColumn.getViewer ();
     
         this.dragIcon = this.iconColumn.getDragIcon ();
         
-        this.editor = ic.getEditorPanel ().getEditor ();
-        this.ep = ic.getEditorPanel ();        
+        this.editor = ic.getEditor ();
     
     }        
 
@@ -63,14 +65,16 @@ public class ChapterItemMoveHandler
         this.fontHeight = 0;
         this.lastY = -1;
         
-        ((ChapterItemViewer) this.ep).removeItemHighlightTextFromEditor (this.item);        
+        JComponent ep = (JComponent) this.itemViewer;
+        
+        this.itemViewer.removeItemHighlightTextFromEditor (this.item);        
         
         this.iconColumn.setCursor (Cursor.getPredefinedCursor (Cursor.DEFAULT_CURSOR));
         this.dragIcon.setVisible (false);
         this.dragIcon.setCursor (Cursor.getPredefinedCursor (Cursor.DEFAULT_CURSOR));
 
-        Point p = SwingUtilities.convertPoint (this.ep,
-                                               this.ep.getMousePosition (),
+        Point p = SwingUtilities.convertPoint (ep,
+                                               ep.getMousePosition (),
                                                this.iconColumn);
         
         if (p == null)
@@ -85,7 +89,7 @@ public class ChapterItemMoveHandler
         int v = this.editor.viewToModel (p);
         
         p.y = this.iconColumn.getYPosition (v,
-                                            this.ep.getGraphics ());
+                                            ep.getGraphics ());
         
         this.dragIcon.setBounds (p.x,
                                  p.y,
@@ -184,17 +188,17 @@ public class ChapterItemMoveHandler
             }
             
             // Save the chapter, this deals with side-effects.
-            this.ep.getViewer ().saveObject (c,
-                                             true);
+            this.viewer.saveObject (c,
+                                    true);
 
             this.iconColumn.repaint ();
 
-            this.ep.getViewer ().reloadTreeForObjectType (Chapter.OBJECT_TYPE);            
+            this.viewer.reloadTreeForObjectType (Chapter.OBJECT_TYPE);            
             
         } catch (Exception e)
         {
 
-            UIUtils.showErrorMessage (this.ep.getViewer (),
+            UIUtils.showErrorMessage (this.viewer,
                                       "Unable to move item");
             
             Environment.logError ("Unable to move item: " +
@@ -208,7 +212,11 @@ public class ChapterItemMoveHandler
     public void doDrag ()
     {
 
-        Point p = this.ep.getMousePosition ();
+        JScrollPane sp = this.itemViewer.getScrollPane ();
+    
+        JComponent ep = (JComponent) this.itemViewer;
+    
+        Point p = ep.getMousePosition ();
         
         if (p == null)
         {
@@ -217,7 +225,7 @@ public class ChapterItemMoveHandler
             
         }
       
-        int top = this.ep.getInsets ().top;
+        int top = ep.getInsets ().top;
                                 
         this.iconColumn.hideItem (this.item);
         
@@ -240,14 +248,14 @@ public class ChapterItemMoveHandler
             
         }
      
-        if (p.y > (this.ep.getBounds ().height + top) - 5)
+        if (p.y > (ep.getBounds ().height + top) - 5)
         {
 
-            p.y = (this.ep.getBounds ().height + top) - 5;
+            p.y = (ep.getBounds ().height + top) - 5;
             
         }
 
-        Point pp = SwingUtilities.convertPoint (this.ep,
+        Point pp = SwingUtilities.convertPoint (ep,
                                                 p,
                                                 this.iconColumn);
 
@@ -255,25 +263,29 @@ public class ChapterItemMoveHandler
                                 
         Point ip = SwingUtilities.convertPoint (this.iconColumn,
                                                 this.dragIcon.getBounds ().getLocation (),
-                                                this.ep);
+                                                ep);
                 
-        if (ip.y > (this.ep.getBounds ().height + top) - 56)
+        if (ip.y > (ep.getBounds ().height + top) - 56)
         {
             
-            this.ep.incrementScrollPositionBy (this.fontHeight);
+            sp.getVerticalScrollBar ().setValue (sp.getVerticalScrollBar ().getValue () + this.fontHeight);
+            
+            //this.ep.incrementScrollPositionBy (this.fontHeight);
             
         } 
 
         if (ip.y < (top + 40))
         {
             
-            this.ep.incrementScrollPositionBy (-1 * (this.fontHeight));
+            sp.getVerticalScrollBar ().setValue (sp.getVerticalScrollBar ().getValue () - this.fontHeight);
+            
+            //this.ep.incrementScrollPositionBy (-1 * (this.fontHeight));
                                 
         }
 
-        this.ep.showPopupAt (this.dragIcon,
-                             pp,
-                             false);
+        this.itemViewer.showPopupAt (this.dragIcon,
+                                     pp,
+                                     false);
 
         SwingUtilities.convertPointToScreen (pp,
                                              this.iconColumn);
@@ -306,13 +318,15 @@ public class ChapterItemMoveHandler
             
         this.dragIcon.setIcon (im);
         
-        this.fontHeight = this.ep.getGraphics ().getFontMetrics (this.editor.getFontForStyles ()).getHeight ();
+        JComponent ep = (JComponent) this.itemViewer;
+        
+        this.fontHeight = ep.getGraphics ().getFontMetrics (this.editor.getFontForStyles ()).getHeight ();
 
         if (this.item.getEndPosition () > this.item.getStartPosition ())
         {
             
             // Add a highlight.
-            ((ChapterItemViewer) this.ep).highlightItemTextInEditor (this.item);
+            this.itemViewer.highlightItemTextInEditor (this.item);
             
         }
         
@@ -320,7 +334,7 @@ public class ChapterItemMoveHandler
         {
             
             this.lastY = this.iconColumn.getYPosition (this.editor.getText ().length (),
-                                                       this.ep.getGraphics ());
+                                                       ((JComponent) this.itemViewer).getGraphics ());
 
         } catch (Exception e) {
 

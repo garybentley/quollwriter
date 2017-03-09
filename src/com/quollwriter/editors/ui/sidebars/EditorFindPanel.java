@@ -36,7 +36,7 @@ public class EditorFindPanel extends Box
         Box b = new ScrollableBox (BoxLayout.Y_AXIS);
 
         EditorProject proj = null;//this.sideBar.getProjectViewer ().getProject ().getEditorProject ();
-        
+/*        
         Set<String> selectedGenres = null;
         
         if (proj != null)
@@ -132,7 +132,7 @@ public class EditorFindPanel extends Box
         sp.getVerticalScrollBar ().setUnitIncrement (20);
 
         this.add (sp);
-                
+        */        
     }
     
     private void doSearch ()
@@ -143,7 +143,7 @@ public class EditorFindPanel extends Box
         
             java.util.List<EditorEditor> eds = EditorsEnvironment.getEditorsWebServiceHandler ().findEditors ();
             
-            this.matchesBox.setContent (this.sideBar.createEditorsFindList (eds));
+            //this.matchesBox.setContent (this.sideBar.createEditorsFindList (eds));
 
             this.matchesBox.setVisible (true);
                         

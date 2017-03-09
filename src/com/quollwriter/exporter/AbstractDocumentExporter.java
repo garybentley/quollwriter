@@ -166,7 +166,7 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
                     root.add (tn);
 
                     Collections.sort (b.getChapters (),
-                                      new NamedObjectSorter ());
+                                      NamedObjectSorter.getInstance ());
 
                     for (Chapter ch : b.getChapters ())
                     {
@@ -187,6 +187,26 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
 
         }
 
+        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+
+        for (UserConfigurableObjectType t : assetTypes)
+        {
+            
+            Set<Asset> as = p.getAssets (t);
+        
+            if (excludeTypes.contains (t.getObjectTypeId ()))
+            {
+                
+                continue;
+                
+            }
+        
+            this.addAssetsToTree (root,
+                                  t,
+                                  as);
+            
+        }
+        /*
         if (!excludeTypes.contains (QCharacter.OBJECT_TYPE))
         {
 
@@ -218,20 +238,21 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
                                   p.getResearchItems ());
 
         }
-
+*/
         return root;
 
     }
 
-    private void addAssetsToTree (DefaultMutableTreeNode          root,
-                                  java.util.List<? extends Asset> assets)
+    private void addAssetsToTree (DefaultMutableTreeNode     root,
+                                  UserConfigurableObjectType type,
+                                  Set<Asset>                 assets)
     {
 
         if (assets.size () > 0)
         {
 
-            TreeParentNode c = new TreeParentNode (assets.get (0).getObjectType (),
-                                                   Environment.getObjectTypeNamePlural (assets.get (0).getObjectType ()));
+            TreeParentNode c = new TreeParentNode (type.getObjectTypeId (),
+                                                   type.getObjectTypeNamePlural ());
 
             SelectableDataObject sd = new SelectableDataObject (c);
 
@@ -241,10 +262,12 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
 
             root.add (tn);
 
-            Collections.sort (assets,
-                              new NamedObjectSorter ());
+            java.util.List<Asset> lassets = new ArrayList (assets);
+            
+            Collections.sort (lassets,
+                              NamedObjectSorter.getInstance ());
 
-            for (Asset a : assets)
+            for (Asset a : lassets)
             {
 
                 sd = new SelectableDataObject (a);

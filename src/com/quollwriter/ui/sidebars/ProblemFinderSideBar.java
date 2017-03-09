@@ -28,6 +28,7 @@ import com.quollwriter.ui.components.ScrollableBox;
 public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> implements DocumentListener, ProjectEventListener
 {
 
+   public static final String ID = "problemfinder";
     private static final String TITLE_PREFIX = "Find Problems";
 
     private ChapterProblemResultsBox results = null;
@@ -52,6 +53,14 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
 
     }
 
+    @Override
+    public String getId ()
+    {
+      
+         return ID;
+      
+    }
+    
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
@@ -321,11 +330,11 @@ public class ProblemFinderSideBar extends AbstractSideBar<ProjectViewer> impleme
     }
 
     @Override
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
 
-        super.init ();
+        super.init (saveState);
 
         this.viewer.addChapterDocumentListener (this);
 

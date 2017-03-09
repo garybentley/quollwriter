@@ -99,7 +99,7 @@ public class Book extends NamedObject
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 
-        Set<NamedObject> ret = new TreeSet (new NamedObjectSorter ());
+        Set<NamedObject> ret = new TreeSet (NamedObjectSorter.getInstance ());
 
         for (Chapter c : this.chapters)
         {
@@ -451,13 +451,6 @@ public class Book extends NamedObject
         }
 
         c.setBook (this);
-
-        if (c.getUserConfigurableObjectType () == null)
-        {
-
-            c.setUserConfigurableObjectType (this.project.getUserConfigurableObjectType (Chapter.OBJECT_TYPE));
-
-        }        
         
         this.chapters.add (where,
                            c);

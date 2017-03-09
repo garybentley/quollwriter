@@ -9,6 +9,8 @@ import java.awt.event.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.swing.*;
 
@@ -17,23 +19,40 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.components.GradientPainter;
 import com.quollwriter.ui.components.Header;
 
-public class AccordionItem extends Box
+public abstract class AccordionItem extends Box
 {
     
     protected Header header = null;
     //private List<JMenuItem> headerMenuItems = new ArrayList ();
     private String title = null;
-    private JComponent content = null;
+    //private JComponent content = null;
     private boolean inited = false;
+    
+    public AccordionItem (String    title)
+    {
+
+        this (title,
+              (String) null);
+    
+    }
+    
+    public AccordionItem (String    title,
+                          ImageIcon icon)
+    {
+        
+        super (BoxLayout.Y_AXIS);
+        
+        this.initHeader (title,
+                         icon);
+                                
+    }
     
     public AccordionItem (String title,
                           String iconType)
     {
         
         super (BoxLayout.Y_AXIS);
-        
-        this.title = Environment.replaceObjectNames (title);
-        
+                
         ImageIcon ii = null;
         
         if (iconType != null)
@@ -44,8 +63,66 @@ public class AccordionItem extends Box
             
         }
         
+        this.initHeader (title,
+                         ii);
+                                
+    }
+
+    public abstract JComponent getContent ();    
+    
+    public void initFromSaveState (String ss)
+    {
+        
+        this.init ();
+        
+        Map<String, Object> state = (Map<String, Object>) JSONDecoder.decode (ss);
+        
+        Boolean vis = (Boolean) state.get ("contentVisible");
+        
+        this.setContentVisible ((vis != null ? vis : false));
+        
+    }
+    
+    public Map<String, Object> getSaveStateAsMap ()
+    {
+        
+        Map<String, Object> ss = new HashMap ();
+        
+        ss.put ("contentVisible",
+                this.isContentVisible ());
+            
+        return ss;
+            
+    }
+    
+    public String getSaveState ()
+    {
+        
+        try
+        {
+        
+            return JSONEncoder.encode (this.getSaveStateAsMap ());
+        
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to encode save state: " +
+                                  this.getSaveStateAsMap (),
+                                  e);
+            
+            return "";
+            
+        }
+        
+    }
+    
+    private void initHeader (String    title,
+                             ImageIcon icon)
+    {
+        
+        this.title = Environment.replaceObjectNames (title);
+        
         final Header h = new Header (this.title,
-                                     ii,
+                                     icon,
                                      null);
 
         h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
@@ -61,33 +138,9 @@ public class AccordionItem extends Box
         h.setAlignmentY (Component.TOP_ALIGNMENT);        
         
         this.header = h;
-                                
-    }
 
-    public AccordionItem (Header     h,
-                          JComponent content)
-    {
-        
-        super (BoxLayout.Y_AXIS);
-
-        this.header = h;
-
-        this.content = content;
-        
     }
     
-    public AccordionItem (String     title,
-                          String     iconType,
-                          JComponent content)
-    {
-
-        this (title,
-              iconType);
-    
-        this.content = content;
-    
-    }
-        
     public String getId ()
     {
         
@@ -98,7 +151,7 @@ public class AccordionItem extends Box
     public boolean isContentVisible ()
     {
         
-        return this.getComponent (1).isVisible ();
+        return this.getContent ().isVisible ();
         
     }
         
@@ -139,47 +192,7 @@ public class AccordionItem extends Box
         return this.header;        
         
     }
-    
-    public JComponent getContent ()
-    {
         
-        return this.content;
-        
-    }
-    
-    public void setContent (JComponent c)
-    {
-        
-        if (!this.inited)
-        {
-            
-            this.init ();
-                        
-        }
-        
-        boolean vis = true;
-        
-        if (this.content != null)
-        {
-            
-            vis = this.content.isVisible ();
-
-            this.remove (this.content);
-            
-        }
-                        
-        this.content = c;
-        
-        this.content.setVisible (vis);
-        
-        this.add (c,
-                  1);
-
-        this.validate ();
-        this.repaint ();
-        
-    }
-    
     public void setContentVisible (boolean v)
     {
         
@@ -187,7 +200,7 @@ public class AccordionItem extends Box
 
         if (c != null)
         {
-        
+                        
             c.setVisible (v);
           
         }
@@ -200,6 +213,15 @@ public class AccordionItem extends Box
     public void fillHeaderPopupMenu (JPopupMenu m,
                                      MouseEvent ev)
     {
+        
+    }
+    
+    public void setSaveState (String s)
+    {
+        
+        Map<String, Object> m = (Map<String, Object>) JSONDecoder.decode (s);
+        
+        this.setContentVisible ((Boolean) m.get ("contentVisible"));
         
     }
     
@@ -251,50 +273,6 @@ public class AccordionItem extends Box
             
         });
         
-        /*
-        this.header.addMouseListener (new MouseAdapter ()
-        {
-        
-            public void mouseReleased (MouseEvent ev)
-            {
-
-                if (ev.isPopupTrigger ())
-                {
-
-                    _this.createHeaderPopupMenu (ev);
-
-                } else {
-                    
-                    JComponent c = _this.getContent ();
-                    
-                    if (c != null)
-                    {
-                    
-                        _this.setContentVisible (!c.isVisible ());
-            
-                        _this.revalidate ();
-                        _this.repaint ();                    
-
-                    }
-                    
-                }
-
-            }
-
-            public void mousePressed (MouseEvent ev)
-            {
-
-                if (ev.isPopupTrigger ())
-                {
-
-                    _this.createHeaderPopupMenu (ev);
-
-                }
-
-            }
-            
-        });
-        */
         JComponent c = this.getContent ();
 
         if (c != null)
@@ -331,43 +309,4 @@ public class AccordionItem extends Box
         
     }
     
-    /*
-    public void addHeaderPopupMenuItem (String         title,
-                                        String         icon,
-                                        ActionListener action)
-    {
-        
-        this.headerMenuItems.add (UIUtils.createMenuItem (title,
-                                                          icon,
-                                                          action));
-                                                                   
-    }
-    */
-    /*
-    private void createHeaderPopupMenu (MouseEvent ev)
-    {
-        
-        if (this.headerMenuItems.size () == 0)
-        {
-            
-            return;
-            
-        }
-        
-        final JPopupMenu m = new JPopupMenu ();
-
-        for (JMenuItem mi : this.headerMenuItems)
-        {
-            
-            m.add (mi);
-            
-        }
-        
-        m.show ((Component) ev.getSource (),
-                ev.getX (),
-                ev.getY ());
-
-        
-    }
-    */
 }

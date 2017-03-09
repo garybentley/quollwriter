@@ -24,6 +24,7 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
+
 import com.quollwriter.ui.components.Form;
 import com.quollwriter.ui.components.FormAdapter;
 import com.quollwriter.ui.components.FormEvent;
@@ -34,7 +35,7 @@ import com.quollwriter.ui.components.PopupEvent;
 import com.quollwriter.ui.renderers.*;
 
 
-public abstract class AbstractActionHandler<E extends AbstractProjectViewer> extends FormAdapter
+public abstract class AbstractActionHandler<E extends AbstractProjectViewer, O extends NamedObject> extends FormAdapter
 {
 
     public static final int ADD = 1;
@@ -42,10 +43,12 @@ public abstract class AbstractActionHandler<E extends AbstractProjectViewer> ext
 
     private JTree                   tree = null;
     protected Form                  f = null;
-    protected E projectViewer = null;
+    protected E                     projectViewer = null;
     protected int                   mode = 0;
     private boolean                 showLinkTo = false;
-    protected NamedObject           dataObject = null;
+    protected O                     dataObject = null;
+    // A cheat for now, since this class will soon be removed.
+    protected O                     object = null;
     protected PopupsSupported       popupOver = null;
     protected Component             showPopupAt = null;
     protected String                showPopupAtPosition = null;
@@ -55,21 +58,22 @@ public abstract class AbstractActionHandler<E extends AbstractProjectViewer> ext
     private ActionListener          onShowAction = null;
     private ActionListener          onHideAction = null;
 
-    public AbstractActionHandler(NamedObject d,
-                                 E           pv,
-                                 int         mode)
+    public AbstractActionHandler (O   d,
+                                  E   pv,
+                                  int mode)
     {
 
         this.mode = mode;
         this.dataObject = d;
+        this.object = d;
         this.projectViewer = pv;
 
     }
 
-    public AbstractActionHandler(NamedObject d,
-                                 E           pv,
-                                 int         mode,
-                                 boolean     addHideControl)
+    public AbstractActionHandler (O           d,
+                                  E           pv,
+                                  int         mode,
+                                  boolean     addHideControl)
     {
 
         this (d,
@@ -77,7 +81,6 @@ public abstract class AbstractActionHandler<E extends AbstractProjectViewer> ext
               mode);
 
         this.addHideControl = addHideControl;
-
     }
 
     public E getViewer ()
@@ -378,7 +381,7 @@ public abstract class AbstractActionHandler<E extends AbstractProjectViewer> ext
             linkToLabel.setAlignmentX (Component.LEFT_ALIGNMENT);
 
             items.add (new FormItem ("",
-                                     linkToP));
+                                        linkToP));
 
             linkToLabel.addMouseListener (new MouseAdapter ()
                 {

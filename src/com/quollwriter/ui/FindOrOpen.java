@@ -284,9 +284,7 @@ Won't animate due to rubber stamping in table renderer.
         {
 
             Header h = UIUtils.createHeader ("Open an existing {Project}",
-                                             Constants.POPUP_WINDOW_TITLE,
-                                             null,
-                                             null);
+                                             Constants.POPUP_WINDOW_TITLE);
         
             b.add (h);
 
@@ -755,9 +753,7 @@ Won't animate due to rubber stamping in table renderer.
             b.add (Box.createVerticalStrut (20));
             
             h = UIUtils.createHeader ("Is your {Project} not listed?",
-                                      Constants.POPUP_WINDOW_TITLE,
-                                      null,
-                                      null);
+                                      Constants.POPUP_WINDOW_TITLE);
         
             b.add (h);
 
@@ -1001,9 +997,7 @@ Won't animate due to rubber stamping in table renderer.
             }
 
             Header h = UIUtils.createHeader ("Create a New {Project}",
-                                             Constants.POPUP_WINDOW_TITLE,
-                                             null,
-                                             null);
+                                             Constants.POPUP_WINDOW_TITLE);
             h.setBorder (null);
             b.add (h);
 

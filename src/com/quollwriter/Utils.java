@@ -21,6 +21,99 @@ import com.quollwriter.data.*;
 
 public class Utils
 {
+
+    public static String keyStrokeToString (KeyStroke k)
+    {
+        
+        if (k == null)
+        {
+            
+            return null;
+            
+        }
+        
+        StringBuilder b = new StringBuilder ();
+        
+        String m = KeyEvent.getKeyModifiersText (k.getModifiers ());
+        
+        if (m.length () > 0)
+        {
+            
+            b.append (StringUtils.replaceString (m.toLowerCase (),
+                                                 "+",
+                                                 " "));
+            b.append (" ");
+            
+        }
+        
+        b.append (KeyEvent.getKeyText (k.getKeyCode ()).toUpperCase ());
+        
+        return b.toString ();
+        
+    }
+    
+    public static Set<String> splitString (String str,
+                                           String separator)
+    {
+        
+        Set<String> ret = new LinkedHashSet ();
+        
+        if (str == null)
+        {
+            
+            return ret;
+            
+        }
+        
+        StringTokenizer t = new StringTokenizer (str,
+                                                 separator);
+        
+        while (t.hasMoreTokens ())
+        {
+            
+            ret.add (t.nextToken ());
+            
+        }
+        
+        return ret;
+        
+    }
+    
+    public static String joinStrings (Collection<String> items,
+                                      String             separator)
+    {
+        
+        if ((items == null)
+            ||
+            (items.size () == 0)
+           )
+        {
+            
+            return null;
+            
+        }
+        
+        StringBuilder b = new StringBuilder ();
+        
+        Iterator<String> iter = items.iterator ();
+        
+        while (iter.hasNext ())
+        {
+            
+            b.append (iter.next ());
+            
+            if (iter.hasNext ())
+            {
+                
+                b.append (separator != null ? separator : ", ");
+                
+            }
+            
+        }
+        
+        return b.toString ();
+        
+    }
     
     public static boolean isSubDir (File parent,
                                     File sub)

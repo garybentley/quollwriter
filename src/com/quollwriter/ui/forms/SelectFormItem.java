@@ -6,9 +6,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.awt.Dimension;
+import java.awt.Component;
 
 import javax.swing.*;
 import javax.swing.event.*;
+
+import com.quollwriter.ui.*;
 
 public class SelectFormItem extends FormItem<Set<String>>
 {
@@ -30,7 +33,33 @@ public class SelectFormItem extends FormItem<Set<String>>
                (maxSelectedCount > 0 ? itemsRequired : false),
                helpText);
 
-        this.list = new JList (items);
+        this.list = new JList<String> (items);
+        
+        this.list.setCellRenderer (new DefaultListCellRenderer ()
+        {
+           
+            @Override
+            public Component getListCellRendererComponent (JList list,
+                                                  Object        value,
+                                                  int           index,
+                                                  boolean       isSelected,
+                                                  boolean       cellHasFocus)
+            {
+                
+                super.getListCellRendererComponent (list,
+                                                    value,
+                                                    index,
+                                                    isSelected,
+                                                    cellHasFocus);
+                
+                this.setBorder (UIUtils.createBottomLineWithPadding (2, 2, 2, 2));
+                
+                return this;
+                
+            }
+            
+        });
+        
         this.list.setVisibleRowCount (visibleRowCount);
         this.required = itemsRequired;
     
@@ -44,7 +73,7 @@ public class SelectFormItem extends FormItem<Set<String>>
             public void valueChanged (ListSelectionEvent ev)
             {
                                             
-                _this.updateRequireLabel ();
+                //_this.updateRequireLabel ();
                 
             }
     
@@ -155,7 +184,7 @@ public class SelectFormItem extends FormItem<Set<String>>
             
         }
     
-        this.setError (false);
+        //this.setError (false);
     
         if (!this.required)
         {
@@ -172,7 +201,7 @@ public class SelectFormItem extends FormItem<Set<String>>
                 
                 c = this.maxCount;
 
-                this.setError (true);
+                //this.setError (true);
                 
             }
             

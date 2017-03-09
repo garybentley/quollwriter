@@ -149,13 +149,18 @@ public class FileFinder extends Box
         if (this.text != null)
         {
             
-            this.text.setText (f.getPath ());
-
-            if (this.text.getText ().length () > 0)
+            if (f != null)
             {
-                
-                this.text.setCaretPosition (this.text.getText ().length () - 1);
-                
+            
+                this.text.setText (f.getPath ());
+    
+                if (this.text.getText ().length () > 0)
+                {
+                    
+                    this.text.setCaretPosition (this.text.getText ().length () - 1);
+                    
+                }
+
             }
             
         }

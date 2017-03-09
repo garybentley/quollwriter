@@ -75,77 +75,86 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
         
     }
     
-    public Component getTreeCellRendererComponent (JTree   tree,
-                                                   Object  value,
-                                                   boolean sel,
-                                                   boolean expanded,
-                                                   boolean leaf,
-                                                   int     row,
-                                                   boolean hasFocus)
-    {
+   public Component getTreeCellRendererComponent (JTree   tree,
+                                                  Object  value,
+                                                  boolean sel,
+                                                  boolean expanded,
+                                                  boolean leaf,
+                                                  int     row,
+                                                  boolean hasFocus)
+   {
 
-        Box p = new Box (BoxLayout.X_AXIS);
+      Box p = new Box (BoxLayout.X_AXIS);
 
-        p.setOpaque (false);
+      p.setOpaque (false);
 
-        p.setToolTipText (this.getToolTipText (value));
-        
-        JLabel l = new JLabel ();
-        l.setOpaque (false);
+      p.setToolTipText (this.getToolTipText (value));
+      
+      JLabel l = new JLabel ();
+      l.setOpaque (false);
 
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
-        value = node.getUserObject ();
+      value = node.getUserObject ();
 
-        if (value instanceof String)
-        {
+      if (value instanceof String)
+      {
 
-            l.setText ((String) value);
+         l.setText ((String) value);
 
-            l.setToolTipText (this.getToolTipText (value));
-            
-            p.add (l);
+         l.setToolTipText (this.getToolTipText (value));
+         
+         p.add (l);
 
-            return p;
+         return p;
 
-        }
+      }
 
-        SelectableDataObject s = (SelectableDataObject) value;
+      SelectableDataObject s = (SelectableDataObject) value;
 
-        if (!s.parentNode)
-        {
+      if (!s.parentNode)
+      {
 
-            JCheckBox b = new JCheckBox ();
-            b.setOpaque (false);
-            p.add (b);
-            p.add (Box.createHorizontalStrut (5));
-            
-            if (this.shouldEnable (s.obj))
-            {
-            
-                b.setSelected (s.selected);
-                
-            }
-            
-            b.setToolTipText (this.getToolTipText (s.obj));
-            b.setEnabled (this.shouldEnable (s.obj));
+         JCheckBox b = new JCheckBox ();
+         b.setOpaque (false);
+         p.add (b);
+         p.add (Box.createHorizontalStrut (5));
+         
+         if (this.shouldEnable (s.obj))
+         {
+         
+             b.setSelected (s.selected);
+             
+         }
+         
+         b.setToolTipText (this.getToolTipText (s.obj));
+         b.setEnabled (this.shouldEnable (s.obj));
 
-        }
+      }
 
-        p.add (l);
+      p.add (l);
 
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent ();
+      DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent ();
 
-        if (parent != null)
-        {
+      if (parent != null)
+      {
 
-            SelectableDataObject sparent = (SelectableDataObject) parent.getUserObject ();
+          SelectableDataObject sparent = (SelectableDataObject) parent.getUserObject ();
 
-            if (!sparent.parentNode)
-            {
+          if (!sparent.parentNode)
+          {
 
-                String ot = s.obj.getObjectType ();
+             String ot = s.obj.getObjectType ();
 
+             Icon ic = null;
+             
+             if (s.obj instanceof UserConfigurableObjectType)
+             {
+               
+                ic = ((UserConfigurableObjectType) s.obj).getIcon16x16 ();
+               
+             } else {
+              
                 if (s.obj instanceof TreeParentNode)
                 {
 
@@ -162,7 +171,7 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
                     
                 }
                 
-                Icon ic = this.icons.get (ot);
+                ic = this.icons.get (ot);
 
                 if (ic == null)
                 {
@@ -174,32 +183,43 @@ public class SelectableProjectTreeCellRenderer extends DefaultTreeCellRenderer
                                     ic);
 
                 }
-
-                if (this.showIcons)
-                {
                 
-                    l.setIcon (ic);
-                    
-                } else {
-                    
-                    l.setIcon (null);
-                    
-                }
+             }
 
-            }
+             if (this.showIcons)
+             {
+             
+                 l.setIcon (ic);
+                 
+             } else {
+                 
+                 l.setIcon (null);
+                 
+             }
 
-        }
+          }
 
-        l.setText (((NamedObject) s.obj).getName ());
+      }
 
-        l.setEnabled (this.shouldEnable (s.obj));
-        l.setToolTipText (this.getToolTipText (s.obj));
+      if (s.obj instanceof UserConfigurableObjectType)
+      {
+
+         l.setText (((UserConfigurableObjectType) s.obj).getObjectTypeNamePlural ());
+
+      } else {
+      
+         l.setText (((NamedObject) s.obj).getName ());
+
+      }
+         
+      l.setEnabled (this.shouldEnable (s.obj));
+      l.setToolTipText (this.getToolTipText (s.obj));
         
-        UIUtils.setAsButton (p);
+      UIUtils.setAsButton (p);
 
-        p.setBorder (new EmptyBorder (2, 2, 2, 2));
+      p.setBorder (new EmptyBorder (2, 2, 2, 2));
 
-        return p;
+      return p;
 
     }
 

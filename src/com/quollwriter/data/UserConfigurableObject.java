@@ -6,30 +6,85 @@ import org.jdom.*;
 import org.josql.*;
 
 import com.quollwriter.*;
+import com.quollwriter.ui.*;
+import com.quollwriter.ui.userobjects.*;
 
 public class UserConfigurableObject extends NamedObject
 {
-    
+                
     protected UserConfigurableObjectType userConfigObjType = null;
     private Project proj = null;
     protected Set<UserConfigurableObjectField> fields = new LinkedHashSet ();
     
-    public UserConfigurableObject (String objType)
+    public UserConfigurableObject (UserConfigurableObjectType objType)
     {
         
-        super (objType);
+        super (objType.getObjectTypeId ());
+
+        this.userConfigObjType = objType;
+                
+    }
+            
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+        
+        this.addToStringProperties (props,
+                                    "userConfigObjType",
+                                    this.userConfigObjType);        
+        this.addToStringProperties (props,
+                                    "fields",
+                                    this.fields.size ());        
+
+    }    
+    
+    @Override
+    public Set<String> getAllNames ()
+    {
+
+        Set<String> l = new HashSet ();
+
+        l.add (this.getName ());
+        
+        // Find all name fields and add to the list.
+        for (UserConfigurableObjectField f : this.fields)
+        {
+            
+            if (f.isNameField ())
+            {
+
+                Object v = f.getValue ();
+                
+                if (v != null)
+                {
+            
+                    Set<String> names = new LinkedHashSet ();
+
+                    StringTokenizer t = new StringTokenizer (v.toString (),
+                                                             "\n;,");
+            
+                    while (t.hasMoreTokens ())
+                    {
+                        
+                        names.add (t.nextToken ());
+                        
+                    }
+            
+                    l.addAll (names);
+            
+                }
+                                
+            }
+            
+        }
+        
+        return l;
         
     }
     
-    public UserConfigurableObject (String objType,
-                                   String name)
-    {
-        
-        super (objType,
-               name);
-        
-    }
-
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
         
@@ -37,34 +92,59 @@ public class UserConfigurableObject extends NamedObject
         
     }
 
+    @Override
     public void getChanges (NamedObject old,
                             Element     root)
     {
         
     }
     
-    public UserConfigurableObjectField getPrimaryNameField ()
+    public ObjectNameUserConfigurableObjectFieldViewEditHandler getPrimaryNameViewEditHandler (com.quollwriter.ui.ProjectViewer viewer)
     {
         
-        for (UserConfigurableObjectField f : this.fields)
+        return (ObjectNameUserConfigurableObjectFieldViewEditHandler) this.getPrimaryNameTypeField ().getViewEditHandler (this,
+                                                                                                                          null,
+                                                                                                                          viewer);
+        
+    }
+
+    public ObjectDescriptionUserConfigurableObjectFieldViewEditHandler getObjectDescriptionViewEditHandler (com.quollwriter.ui.ProjectViewer viewer)
+    {
+        
+        if (this.getObjectDescriptionTypeField () == null)
         {
             
-            if ((f.isNameField ())
-                &&
-                (f.isPrimaryNameField ())
-               )
-            {
-
-                return f;
-            
-            }            
+            return null;
             
         }
         
-        return null;
+        return (ObjectDescriptionUserConfigurableObjectFieldViewEditHandler) this.getObjectDescriptionTypeField ().getViewEditHandler (this,
+                                                                                                                                       null,
+                                                                                                                                       viewer);
         
     }
+
+    public Object getValueForField (UserConfigurableObjectTypeField f)
+    {
         
+        for (UserConfigurableObjectField field : this.fields)
+        {
+         
+            if (field.getUserConfigurableObjectTypeField () == f)
+            {
+                
+                return field.getUserConfigurableObjectTypeField ().getViewEditHandler (this,
+                                                                                       field,
+                                                                                       null).getFieldValue ();
+                
+            }
+            
+        }
+            
+        return null;
+            
+    }
+    
     public void removeField (UserConfigurableObjectField f)
     {
         
@@ -75,27 +155,15 @@ public class UserConfigurableObject extends NamedObject
             
         }
         
+        if (f.isPrimaryNameField ())
+        {
+            
+            throw new IllegalStateException ("Cannot remove primary name field.");
+            
+        }
+        
         this.fields.remove (f);
-        
-    }
-    
-    public void setFields (Set<UserConfigurableObjectField> fields)
-    {
-        
-        if (this.userConfigObjType == null)
-        {
-            
-            throw new IllegalStateException ("No configurable object type set");
-            
-        }
-        
-        for (UserConfigurableObjectField f : fields)
-        {
-            
-            this.addField (f);
-            
-        }
-        
+                
     }
     
     public void addField (UserConfigurableObjectField f)
@@ -111,43 +179,10 @@ public class UserConfigurableObject extends NamedObject
         f.setParent (this);
                 
         this.fields.add (f);
-                         
-        if (f.isPrimaryNameField ())
-        {
-            
-            this.setName (f.getValue ().toString ());
-            
-        }
-                                
+                                         
     }
-        
-    /*
-    private void sortFields ()
-    {
-        
-        Query q = new Query ();
-        
-        try
-        {
-        
-            q.parse (String.format ("SELECT * FROM %s ORDER BY field.order",
-                                    UserConfigurableObjectField.class.getName ()));
-    
-            QueryResults qr = q.execute (this.fields);
-    
-            this.fields = new LinkedHashSet (qr.getResults ());
-
-        } catch (Exception e) {
-            
-            Environment.logError ("Unable to order fields",
-                                  e);
-            
-        }
-        
-    }
-    */
-                
-    public UserConfigurableObjectTypeField getPrimaryNameTypeField ()
+                        
+    public ObjectNameUserConfigurableObjectTypeField getPrimaryNameTypeField ()
     {
         
         if (this.userConfigObjType == null)
@@ -161,6 +196,34 @@ public class UserConfigurableObject extends NamedObject
 
     }
     
+    public ObjectDescriptionUserConfigurableObjectTypeField getObjectDescriptionTypeField ()
+    {
+        
+        if (this.userConfigObjType == null)
+        {
+            
+            throw new IllegalStateException ("No configurable object type set");
+            
+        }
+        
+        return this.userConfigObjType.getObjectDescriptionField ();
+
+    }
+
+    public ObjectImageUserConfigurableObjectTypeField getObjectImageTypeField ()
+    {
+        
+        if (this.userConfigObjType == null)
+        {
+            
+            throw new IllegalStateException ("No configurable object type set");
+            
+        }
+        
+        return this.userConfigObjType.getObjectImageField ();
+
+    }
+
     public Set<UserConfigurableObjectField> getFields ()
     {
         
@@ -173,6 +236,20 @@ public class UserConfigurableObject extends NamedObject
 
         return this.proj;
 
+    }
+
+    public String getObjectTypeName ()
+    {
+        
+        return this.userConfigObjType.getObjectTypeName ();
+        
+    }
+    
+    public String getObjectTypePluralName ()
+    {
+        
+        return this.userConfigObjType.getObjectTypeNamePlural ();
+        
     }
 
     public void setProject (Project p)
@@ -196,6 +273,38 @@ public class UserConfigurableObject extends NamedObject
         
         this.userConfigObjType = t;
         
+    }
+
+    public Set<UserConfigurableObjectFieldViewEditHandler> getViewEditHandlers (com.quollwriter.ui.ProjectViewer viewer)
+    {
+        
+        Map<UserConfigurableObjectTypeField, UserConfigurableObjectField> typeFieldMap = new HashMap ();
+        
+        for (UserConfigurableObjectField f : this.fields)
+        {
+
+            typeFieldMap.put (f.getUserConfigurableObjectTypeField (),
+                              f);
+        
+        }            
+
+        Set<UserConfigurableObjectFieldViewEditHandler> handlers = new LinkedHashSet ();
+        
+        for (UserConfigurableObjectTypeField tf : this.userConfigObjType.getConfigurableFields ())
+        {
+                      
+            UserConfigurableObjectField f = typeFieldMap.get (tf);
+
+            UserConfigurableObjectFieldViewEditHandler h = tf.getViewEditHandler (this,
+                                                                                  f,
+                                                                                  viewer);
+            
+            handlers.add (h);
+            
+        }
+
+        return handlers;        
+            
     }
     
 }

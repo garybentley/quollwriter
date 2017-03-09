@@ -89,7 +89,7 @@ public class RenameAssetActionHandler extends TextInputActionHandler<ProjectView
         boolean exists = false;
         
         Set<? extends Asset> as = this.viewer.getProject ().getAllAssetsByName (v,
-                                                                                this.asset.getObjectType ());
+                                                                                this.asset.getUserConfigurableObjectType ());
         
         if (as.size () > 0)
         {
@@ -112,7 +112,7 @@ public class RenameAssetActionHandler extends TextInputActionHandler<ProjectView
         {
                                                                         
             return String.format ("Another %s with that name already exists.",
-                                  Environment.getObjectTypeName (this.asset.getObjectType ()));
+                                  this.asset.getUserConfigurableObjectType ().getObjectTypeName ());
 
         }
 

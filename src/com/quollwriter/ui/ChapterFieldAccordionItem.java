@@ -44,8 +44,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                                       Chapter       c)
     {
         
-        super ("",
-               null);
+        super ("");
         
         this.setTitle (this.getFieldNamePlural ());
         this.setIconType (this.getFieldIconType ());
@@ -280,7 +279,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                )
             {                    
             
-                this.editText.setTextWithMarkup (v);
+                this.editText.setText (v);
                 
             }
 
@@ -406,10 +405,8 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                         cc.xy (2,
                                r));
 
-                JTextPane tp = UIUtils.createObjectDescriptionViewPane (p.markupAsHTML (m),
-                                                                        this.chapter,
-                                                                        this.projectViewer,
-                                                                        this.projectViewer.getEditorForChapter (this.chapter));
+                JTextPane tp = UIUtils.createTextViewPane (p.markupAsHTML (m),
+                                                           this.projectViewer);
 
                 pb.add (tp,
                         cc.xy (4,

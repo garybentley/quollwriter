@@ -1,6 +1,7 @@
 package com.quollwriter.ui.forms;
 
-import java.util.Vector;
+import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -9,17 +10,28 @@ public class ComboBoxFormItem extends FormItem<String>
     
     private JComboBox combo = null;
     
-    public ComboBoxFormItem (String         label,
-                             Vector<String> values,
-                             String         defaultValue,
-                             String         helpText)
+    public ComboBoxFormItem (String             label,
+                             Collection<String> values)
+    {
+        
+        this (label,
+              values,
+              null,
+              null);
+        
+    }
+    
+    public ComboBoxFormItem (String             label,
+                             Collection<String> values,
+                             String             defaultValue,
+                             String             helpText)
     {
         
         super (label,
                true,
                helpText);
         
-        this.combo = new JComboBox (values);
+        this.combo = new JComboBox (new Vector (values));
         
         if (defaultValue != null)
         {
@@ -30,6 +42,28 @@ public class ComboBoxFormItem extends FormItem<String>
         
     }
 
+    public void setSelectedItem (String v)
+    {
+        
+        this.combo.setSelectedItem (v);
+        
+    }
+    
+    public void setEditable (boolean v)
+    {
+        
+        this.combo.setEditable (v);
+        
+    }
+
+    public void addItemListener (ItemListener l)
+    {
+        
+        this.combo.addItemListener (l);
+        
+    }
+    
+    @Override
     public String getValue ()
     {
         
@@ -37,6 +71,7 @@ public class ComboBoxFormItem extends FormItem<String>
         
     }
     
+    @Override
     public JComponent getComponent ()
     {
 

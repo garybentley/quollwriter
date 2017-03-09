@@ -39,6 +39,27 @@ public class ObjectReference extends DataObject
         // Object references.
         ObjectReference r = null;
 
+        // Split on -
+        int ind = ref.indexOf ("-");
+
+        if (ind != -1)
+        {
+
+            String objType = ref.substring (0,
+                                            ind);
+            String id = ref.substring (ind + 1);
+
+            ObjectReference cor = new ObjectReference (objType,
+                                                       Long.parseLong (id),
+                                                       r);
+
+            r = cor;
+
+        }
+        
+        /*
+         *OLD, why did we split on :  Makes no sense since the last item would become the reference...
+         
         // Split on :
         StringTokenizer tt = new StringTokenizer (ref,
                                                   ":");
@@ -67,7 +88,7 @@ public class ObjectReference extends DataObject
             }
 
         }
-
+*/
         return r;
 
     }

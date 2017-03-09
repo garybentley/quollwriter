@@ -5,12 +5,12 @@ import java.util.*;
 import org.jdom.*;
 
 
-public class QCharacter extends Asset
+public class QCharacter extends LegacyAsset
 {
 
     public static final String OBJECT_TYPE = "character";
 
-    protected QCharacter()
+    public QCharacter()
     {
 
         super (QCharacter.OBJECT_TYPE);

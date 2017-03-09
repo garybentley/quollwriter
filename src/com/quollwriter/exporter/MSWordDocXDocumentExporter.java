@@ -973,7 +973,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 {
 
                     Collections.sort (objs,
-                                      new NamedObjectSorter ());
+                                      NamedObjectSorter.getInstance ());
 
                     for (NamedObject n : objs)
                     {
@@ -993,21 +993,15 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             if (settings.otherExportType == ExportSettings.INDIVIDUAL_FILE)
             {
 
-                this.writeItemsFromProject (p,
-                                            QCharacter.class,
-                                            p.getName () + " - " + Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
-
-                this.writeItemsFromProject (p,
-                                            Location.class,
-                                            p.getName () + " - " + Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
-
-                this.writeItemsFromProject (p,
-                                            QObject.class,
-                                            p.getName () + " - " + Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
-
-                this.writeItemsFromProject (p,
-                                            ResearchItem.class,
-                                            p.getName () + " - " + Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
+                Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+                
+                for (UserConfigurableObjectType t : assetTypes)
+                {
+            
+                    this.writeItemsFromProject (p,
+                                                t);
+                    
+                }
 
             }
 
@@ -1024,14 +1018,24 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    private void writeItemsFromProject (Project p,
-                                        Class   cl,
-                                        String  title)
+    private void writeItemsFromProject (Project                    p,
+                                        UserConfigurableObjectType type)
                                         throws  GeneralException
     {
 
+        String title = p.getName () + " - " + type.getObjectTypeNamePlural ();
+    
         try
         {
+        
+            List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (type));
+            
+            if (objs.size () == 0)
+            {
+                
+                return;
+                
+            }
 
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage ();
 
@@ -1043,10 +1047,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             mp.addStyledParagraphOfText (TITLE,
                                          title);
 
-            List<NamedObject> objs = new ArrayList (p.getAllNamedChildObjects (cl));
-
             Collections.sort (objs,
-                              new NamedObjectSorter ());
+                              NamedObjectSorter.getInstance ());
 
             for (NamedObject n : objs)
             {
@@ -1062,7 +1064,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         } catch (Exception e) {
 
             throw new GeneralException ("Unable to write items of type: " +
-                                        cl.getName () +
+                                        type.getObjectTypeName () +
                                         " to file with title: " +
                                         title,
                                         e);
@@ -1070,7 +1072,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         }
 
     }
-
+    
     private void addChapterItems (Chapter c,
                                   MainDocumentPart notesmp,
                                   MainDocumentPart outlinemp,

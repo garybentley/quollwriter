@@ -13,45 +13,40 @@ public abstract class FormItem<E> extends Box
 {
     
     private JLabel requireLabel = null;
-    private JLabel label = null;
-    protected boolean notNull = false;
+    private Object label = null;
+    protected boolean requireValue = false;
     private String helpText = null;
             
-    public FormItem (String  label,
-                     boolean notNull,
+    public FormItem (Object  label,
+                     boolean requireValue,
                      String  helpText)
     {
         
         super (BoxLayout.Y_AXIS);
         
-        this.label = new JLabel (Environment.replaceObjectNames (label));
-        this.requireLabel = new JLabel ();
-        this.requireLabel.setForeground (UIUtils.getColor ("#999999"));
-        this.helpText = helpText;
-        this.notNull = notNull;
+        this.label = label;
+        this.requireValue = requireValue;
                         
     }
 
-    public abstract void updateRequireLabel (JLabel l);
     public abstract JComponent getComponent ();
     public abstract boolean hasError ();
     public abstract E getValue ();
-    
-    public void scrollIntoView ()
+        
+    public String getFormatSpec ()
     {
         
-        Environment.scrollIntoView (this.label);
-        //UIUtils.scrollIntoView (this.label);
+        return null;
         
     }
-    
-    public JLabel getLabel ()
+        
+    public Object getLabel ()
     {
         
         return this.label;
         
     }
-    
+    /*
     public void init ()
     {
         
@@ -89,14 +84,16 @@ public abstract class FormItem<E> extends Box
 
         
     }
-    
+    */
+    /*
     public void updateRequireLabel ()
     {
         
         this.updateRequireLabel (this.requireLabel);
         
     }
-    
+    */
+    /*
     public void setError (boolean err)
     {
         
@@ -114,7 +111,7 @@ public abstract class FormItem<E> extends Box
         }            
         
     }
-
+*/
     private JComponent createWrapper (JComponent c)
     {
         

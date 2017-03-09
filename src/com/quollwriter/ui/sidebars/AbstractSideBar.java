@@ -67,6 +67,19 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
     }
 
+    /**
+     * Override to return the id just in case a reference is missed.
+     *
+     * @returns The id.
+     */
+    @Override
+    public String getName ()
+    {
+        
+        return this.getId ();
+        
+    }
+    
     @Override
     public void sideBarHidden (SideBarEvent ev)
     {
@@ -146,6 +159,20 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
     public abstract void onHide ();
 
+    public String getId ()
+    {
+        
+        return null;
+        
+    }
+    
+    public String getSaveState ()
+    {
+        
+        return null;
+        
+    }
+        
     //public abstract boolean removeOnClose ();
 
     public void setTitle (String t)
@@ -164,7 +191,7 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
     }
 
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
 

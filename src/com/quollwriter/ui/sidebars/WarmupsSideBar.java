@@ -17,6 +17,8 @@ import com.quollwriter.ui.components.ScrollableBox;
 public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
 {
 
+    public static final String ID = "warmups";
+
     private JTree                  warmupsTree = null;
     private WarmupsAccordionItem   warmupsItem = null;
     private JTextPane prompt = null;
@@ -49,6 +51,14 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
         
     }
 
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
+        
+    }
+    
     @Override
     public List<JComponent> getHeaderControls ()
     {
@@ -103,11 +113,11 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
     }
     
     @Override
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
         
-        super.init ();
+        super.init (saveState);
         
         this.warmupsItem = new WarmupsAccordionItem (this.viewer);
 

@@ -12,7 +12,7 @@ import com.quollwriter.data.*;
 public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjecttypedbkey, name, description, markup, files, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, aliases, id, version FROM character_v ";
 
     private ObjectManager objectManager = null;
 
@@ -34,35 +34,37 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
 
             int ind = 1;
 
-            QCharacter c = p.createQCharacter ();
+            QCharacter c = new QCharacter ();
 
             long key = rs.getLong (ind++);
 
             c.setKey (key);
-            
-            long userObjTypeKey = rs.getLong (ind++);
-            
-            // Get the object fields.
-            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
-                                                                                                      c,
-                                                                                                      rs.getStatement ().getConnection ());
-            
-            c.setUserConfigurableObjectType (configType);
-            
+                        
             // Load the object fields.
-            c.setFields (this.objectManager.getUserConfigurableObjectFields (c,
-                                                                             rs.getStatement ().getConnection ()));
+            this.objectManager.setUserConfigurableObjectFields (c,
+                                                                rs.getStatement ().getConnection ());
             
             c.setName (rs.getString (ind++));
             c.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
+            
             c.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
 
             c.setLastModified (rs.getTimestamp (ind++));
             c.setDateCreated (rs.getTimestamp (ind++));
             c.setPropertiesAsString (rs.getString (ind++));
 
-            c.setAliases (rs.getString (ind++));
+            // Handle the legacy value.
+            if (c.getLegacyField (QCharacter.ALIASES_LEGACY_FIELD_ID) == null)
+            {
+            
+                c.setAliases (rs.getString (ind++));
+                
+            } else {
+                
+                ind++;
+                
+            }
 
             c.setId (rs.getString (ind++));
             c.setVersion (rs.getString (ind++));            
@@ -70,7 +72,7 @@ public class CharacterDataHandler implements DataHandler<QCharacter, Project>
             if (p != null)
             {
 
-                p.addCharacter (c);
+                p.addAsset (c);
                                 
             }
                         

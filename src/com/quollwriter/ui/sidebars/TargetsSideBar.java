@@ -20,6 +20,8 @@ import com.quollwriter.ui.components.ScrollableBox;
 public class TargetsSideBar extends AbstractSideBar<AbstractViewer>
 {
     
+    public static final String ID = "targets";
+    
     private Targets targets = null;
     
     public TargetsSideBar (AbstractViewer v)
@@ -27,6 +29,14 @@ public class TargetsSideBar extends AbstractSideBar<AbstractViewer>
         
         super (v);
                 
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
+        
     }
     
     public String getIconType ()

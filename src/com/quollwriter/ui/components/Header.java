@@ -72,6 +72,14 @@ public class Header extends Box
 
     }
 
+    @Override
+    public void setTransferHandler (TransferHandler h)
+    {
+        
+        this.label.setTransferHandler (h);
+        
+    }
+    
     public void setLabel (JLabel l)
     {
 

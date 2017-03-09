@@ -54,7 +54,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
         value = node.getUserObject ();
-        
+                
         if (value instanceof DataObject)
         {
 
@@ -62,136 +62,17 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
             DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
 
-            String ot = this.getIconType (d,
-                                          par);
-/*
-            if (d instanceof Note)
-            {
-
-                DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
-                
-                if (par.getUserObject () instanceof TreeParentNode)
-                {
-                    
-                    Note n = (Note) d;
-                    
-                    if (n.isEditNeeded ())
-                    {
-                        
-                        ot = Constants.EDIT_NEEDED_NOTE_ICON_NAME;
-                        
-                    } else {
-                        
-                        ot = Constants.BULLET_BLACK_ICON_NAME;//n.getObjectType ();
-                        
-                    }
-                    
-                } else {
-            
-                    ot = Constants.BULLET_BLACK_ICON_NAME;
-                    
-                }
-
-            }
-            
-            if ((d instanceof OutlineItem)
-                ||
-                (d instanceof Scene)
-                ||
-                ((this.showObjectIcons)
-                 &&
-                 (!(value instanceof BlankNamedObject))
-                )
-               )
-            {
-                
-                ot = d.getObjectType ();
-                
-            }
-            
-            if (d instanceof Chapter)
-            {
-
-                Chapter c = (Chapter) d;
-                                                
-                if ((this.showEditPositionIcon ())
-                    &&                                
-                    (c.getEditPosition () > 0)
-                   )
-                {
-                    
-                    ot = Constants.EDIT_IN_PROGRESS_ICON_NAME;
-                    
-                }
-
-                if ((this.showEditCompleteIcon ())
-                    &&
-                    (c.isEditComplete ())
-                   )
-                {
-                    
-                    ot = Constants.EDIT_COMPLETE_ICON_NAME;
-                    
-                }
-                                
-            }
-            
-            if (value instanceof TreeParentNode)
-            {
-
-                TreeParentNode tpn = (TreeParentNode) value;
-
-                ot = tpn.getForObjectType ();
-
-                if (ot != null)
-                {
-                
-                    if ((ot.equals (Note.OBJECT_TYPE)) &&
-                        (Note.EDIT_NEEDED_NOTE_TYPE.equals (tpn.getName ())))
-                    {
-    
-                        ot = "edit-needed-note";
-    
-                    } else
-                    {
-    
-                        if (ot.equals (QCharacter.OBJECT_TYPE))
-                        {
-    
-                            ot = ot + "-multi";
-    
-                        }
-                        
-                    }
-
-                }
-                    
-            }
-            */
-            Icon ic = null;
-            
-            if (ot != null)
-            {
-                
-                ic = (Icon) this.icons.get (ot);
-
-                if (ic == null)
-                {
-    
-                    ic = Environment.getIcon (ot,
-                                              Constants.ICON_TREE);
-        
-                    this.icons.put (ot,
-                                    ic);
-    
-                }
-    
-            }
+            Icon ic = this.getIcon (d,
+                                    par);
 
             this.setIcon (ic);
 
+        } else {
+            
+            this.setIcon (null);
+            
         }
-
+        
         if (value instanceof NamedObject)
         {
 
@@ -222,6 +103,47 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
     }
     
+    public Icon getIcon (DataObject             d,
+                         DefaultMutableTreeNode par)
+    {
+                        
+        if ((d instanceof Asset)
+            &&
+            (this.showObjectIcons)
+           )
+        {
+            
+            return ((Asset) d).getUserConfigurableObjectType ().getIcon16x16 ();
+            
+        }
+        
+        String ot = this.getIconType (d,
+                                      par);
+        
+        Icon ic = null;
+        
+        if (ot != null)
+        {
+            
+            ic = (Icon) this.icons.get (ot);
+
+            if (ic == null)
+            {
+
+                ic = Environment.getIcon (ot,
+                                          Constants.ICON_TREE);
+    
+                this.icons.put (ot,
+                                ic);
+
+            }
+
+        }
+
+        return ic;        
+        
+    }
+        
     public String getIconType (DataObject             d,
                                DefaultMutableTreeNode par)
     {
@@ -261,21 +183,20 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                 ot = Constants.SET_DEALT_WITH_ICON_NAME;
                 
             }
+            
+            return ot;
 
         }
-        
+                
         if ((d instanceof OutlineItem)
             ||
             (d instanceof Scene)
-            ||
-            ((this.showObjectIcons)
-             &&
-             (!(d instanceof BlankNamedObject))
-            )
            )
         {
             
             ot = d.getObjectType ();
+
+            return ot;
             
         }
         
@@ -370,8 +291,18 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                 
         }
 
+        if ((this.showObjectIcons)
+            &&
+            (!(d instanceof BlankNamedObject))
+           )
+        {
+            
+            return d.getObjectType ();
+            
+        }
+
         return ot;
-        
+                
     }
     
     protected boolean showEditPositionIcon ()

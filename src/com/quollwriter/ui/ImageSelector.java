@@ -22,68 +22,122 @@ public class ImageSelector extends JLabel
     private File origFile = null;
     private Dimension size = null;
     private BufferedImage im = null;
+    private BufferedImage origIm = null;
     private JFileChooser chooser = null;
     private java.util.List<ChangeListener> listeners = new ArrayList ();
+    
+    public ImageSelector (BufferedImage           image,
+                          FileNameExtensionFilter filter,
+                          Dimension               size)
+    {
+                
+        this.size = size;
+        
+        this.init (filter);
+        
+        this.im = image;
+        this.origIm = image;
+        
+        this.updateImage ();
+        
+    }
     
     public ImageSelector (BufferedImage          image,
                           java.util.List<String> fileTypes,
                           Dimension              size)
     {
         
+        this ((File) null,
+              fileTypes,
+              size);
+        
         this.im = image;
-        
-        this.size = size;
-        
-        this.init (fileTypes);
-        
+        this.origIm = image;
+                        
         this.updateImage ();
         
     }
 
-    public ImageSelector (File         f,
+    public ImageSelector (File                   f,
                           java.util.List<String> fileTypes,
-                          Dimension    size)
+                          Dimension              size)
     {
         
         this.file = f;
         this.origFile = f;
         this.size = size;
                 
-        this.init (fileTypes);
+        FileNameExtensionFilter fil = null;
+        
+        if (fileTypes != null)
+        {
+            
+            StringBuilder b = new StringBuilder ();
+            
+            for (String t : fileTypes)
+            {
+                
+                if (b.length () > 0)
+                {
+                    
+                    b.append (", ");
+                    
+                }
+                
+                b.append (t.toLowerCase ());
+                
+            }
+            
+            fil = new FileNameExtensionFilter (b.toString (),
+                                               (String[]) fileTypes.toArray (new String[0]));
+
+        }
+                                               
+        this.init (fil);
         
         this.setFile (f);        
+                
+    }
+    
+    public ImageSelector (File                    f,
+                          FileNameExtensionFilter filter,
+                          Dimension               size)
+    {
+        
+        this.file = f;
+        
+        this.size = size;
+        
+        this.init (filter);
+        
+        this.setFile (f);
         
     }
     
-    private void init (java.util.List<String> fileTypes)
+    private void init (FileNameExtensionFilter filter)
     {
         
         this.setToolTipText ("Click to find an image file");
         
         UIUtils.setAsButton (this);
-        
-        StringBuilder b = new StringBuilder ();
-        
-        for (String t : fileTypes)
-        {
-            
-            if (b.length () > 0)
-            {
                 
-                b.append (", ");
-                
-            }
-            
-            b.append (t.toLowerCase ());
-            
-        }
-        
         this.chooser = new JFileChooser ();
         this.chooser.setMultiSelectionEnabled (false);
         this.chooser.setFileSelectionMode (JFileChooser.FILES_ONLY);
-        FileNameExtensionFilter fil = new FileNameExtensionFilter (b.toString (),
-                                                                   (String[]) fileTypes.toArray (new String[0]));
-        this.chooser.addChoosableFileFilter (fil);
+        
+        this.setMinimumSize (this.size);
+        this.setPreferredSize (this.size);
+        
+        if (filter != null)
+        {
+        
+            this.chooser.setFileFilter (filter);
+            
+        } else {
+            
+            this.chooser.setFileFilter (UIUtils.imageFileFilter);
+            
+        }
         
         final ImageSelector _this = this;
         
@@ -195,7 +249,21 @@ public class ImageSelector extends JLabel
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
                                                             
-                                                            _this.setFile (_this.origFile);
+                                                            if (_this.origFile != null)
+                                                            {
+                                                            
+                                                                _this.setFile (_this.origFile);
+                                                                
+                                                            }
+                                                            
+                                                            if (_this.origIm != null)
+                                                            {
+                                                                
+                                                                _this.im = _this.origIm;
+                                                                
+                                                                _this.updateImage ();
+                                                                
+                                                            }
                                                             
                                                         }
                                                         
@@ -236,7 +304,7 @@ public class ImageSelector extends JLabel
     public BufferedImage getImage ()
     {
         
-        return this.im;        
+        return (this.im != null ? this.im : this.origIm);        
         
     }
     
@@ -275,7 +343,7 @@ public class ImageSelector extends JLabel
         
         if (i == null)
         {
-                    
+                 
             i = Environment.getImage (Constants.DEFAULT_FIND_IMAGE_FILE);
             
         }
@@ -287,12 +355,20 @@ public class ImageSelector extends JLabel
             
         } else {
         
-            this.setIcon (new ImageIcon (UIUtils.getScaledImage (i,
-                                                                  this.size.width)));
-                                                                  //this.size.height)));
+            if (i.getWidth () != this.size.width)
+            {
+        
+                this.setIcon (new ImageIcon (UIUtils.getScaledImage (i,
+                                                                      this.size.width)));
+                
+            } else {
+                
+                this.setIcon (new ImageIcon (i));
+                            
+            }
 
         }
-        
+
     }
     
     public void setImageSize (Dimension d)

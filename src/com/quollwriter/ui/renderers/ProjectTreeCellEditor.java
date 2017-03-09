@@ -159,14 +159,15 @@ public class ProjectTreeCellEditor extends DefaultTreeCellEditor implements Cell
     {
 
         Asset other = this.projectViewer.getProject ().getAssetByName (newName.toLowerCase (),
-                                                                       a.getObjectType ());
+                                                                       a.getUserConfigurableObjectType ());
 
         if (other != null)
         {
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Already have a " + Environment.getObjectTypeName (a).toLowerCase () + " called: " +
-                                      other.getName ());
+                                      String.format ("Already have a %s called: %s",
+                                                     a.getUserConfigurableObjectType ().getObjectTypeName ().toLowerCase (),
+                                                     other.getName ()));
 
             return false;
 

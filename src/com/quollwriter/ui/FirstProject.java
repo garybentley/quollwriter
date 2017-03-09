@@ -40,9 +40,7 @@ public class FirstProject extends PopupWindow
         b.add (Box.createVerticalStrut (5));
         
         Header header = UIUtils.createHeader ("Your first {Project}",
-                                              Constants.POPUP_WINDOW_TITLE,
-                                              null,
-                                              null);
+                                              Constants.POPUP_WINDOW_TITLE);
         header.setAlignmentX (Component.LEFT_ALIGNMENT);        
         b.add (header);
         

@@ -64,7 +64,10 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
             f.setKey (key);
             f.setOrder (rs.getInt (ind++));
             f.setFormName (rs.getString (ind++));
-            f.setDefinition ((Map) JSONDecoder.decode (rs.getString (ind++)));
+            
+            String d = rs.getString (ind++);
+            
+            f.setDefinition ((Map) JSONDecoder.decode (d));//rs.getString (ind++)));
             f.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
             f.setLastModified (rs.getTimestamp (ind++));
@@ -223,7 +226,7 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
         params.add (t.getUserConfigurableObjectType ().getKey ());
         params.add (t.getType ().getType ());
         params.add (JSONEncoder.encode (t.getDefinition ()));        
-        
+
         this.objectManager.executeStatement ("INSERT INTO userobjecttypefield (dbkey, orderby, userobjecttypedbkey, type, definition) VALUES (?, ?, ?, ?, ?)",
                                              params,
                                              conn);
@@ -253,7 +256,6 @@ public class UserConfigurableObjectTypeFieldDataHandler implements DataHandler<U
         List params = new ArrayList ();
         
         params.add (t.getOrder ());
-        params.add (t.getDefaultValue ());
         params.add (JSONEncoder.encode (t.getDefinition ()));
         params.add (t.getKey ());
 

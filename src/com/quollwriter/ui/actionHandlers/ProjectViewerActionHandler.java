@@ -5,14 +5,14 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 
-public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer> extends AbstractActionHandler<E>
+public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer, O extends NamedObject> extends AbstractActionHandler<E, O>
 {
 
     protected AbstractEditorPanel editorPanel = null;
 
-    public ProjectViewerActionHandler(NamedObject d,
-                                      E           pv,
-                                      int         mode)
+    public ProjectViewerActionHandler (O  d,
+                                       E   pv,
+                                       int mode)
     {
 
         this (d,
@@ -22,9 +22,9 @@ public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer
 
     }
 
-    public ProjectViewerActionHandler(NamedObject         d,
-                                      AbstractEditorPanel qep,
-                                      int                 mode)
+    public ProjectViewerActionHandler (O                   d,
+                                       AbstractEditorPanel qep,
+                                       int                 mode)
     {
 
         super (d,
@@ -36,10 +36,10 @@ public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer
 
     }
 
-    public ProjectViewerActionHandler(NamedObject         d,
-                                      AbstractEditorPanel qep,
-                                      int                 mode,
-                                      boolean             addHideControl)
+    public ProjectViewerActionHandler (O                   d,
+                                       AbstractEditorPanel qep,
+                                       int                 mode,
+                                       boolean             addHideControl)
     {
 
         super (d,
@@ -51,10 +51,10 @@ public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer
 
     }
 
-    public ProjectViewerActionHandler(NamedObject d,
-                                      E           pv,
-                                      int         mode,
-                                      boolean     addHideControl)
+    public ProjectViewerActionHandler (O       d,
+                                       E       pv,
+                                       int     mode,
+                                       boolean addHideControl)
     {
 
         super (d,
@@ -76,11 +76,11 @@ public abstract class ProjectViewerActionHandler<E extends AbstractProjectViewer
     {
 
         if ((this.mode == AbstractActionHandler.ADD) &&
-            (this.dataObject instanceof ChapterItem) &&
+            (this.object instanceof ChapterItem) &&
             (this.editorPanel instanceof ChapterItemViewer))
         {
 
-            ChapterItem c = (ChapterItem) this.dataObject;
+            ChapterItem c = (ChapterItem) this.object;
 
             ((ChapterItemViewer) this.editorPanel).removeItem (c);
 

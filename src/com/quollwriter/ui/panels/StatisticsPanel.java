@@ -155,9 +155,7 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
         b.setOpaque (false);
         
         Header h = UIUtils.createHeader ("Show",
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                         Constants.SUB_PANEL_TITLE);
         
         b.add (h);
 
@@ -312,9 +310,7 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
         this.setTitle ("Statistics - " + this.currentChart.getTitle ());                               
                                           
         b.add (UIUtils.createHeader (Environment.replaceObjectNames (this.currentChart.getTitle ()),
-                                     Constants.PANEL_TITLE,
-                                     null,
-                                     null));
+                                     Constants.PANEL_TITLE));
         b.add (sp);
         
         this.detailPanel.removeAll ();
@@ -329,9 +325,7 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
                                                   Short.MAX_VALUE));
     
             this.detailPanel.add (UIUtils.createHeader ("Detail",
-                                           Constants.PANEL_TITLE,
-                                           null,
-                                           null));
+                                                        Constants.PANEL_TITLE));
             this.detailPanel.add (detail);
 
         } 
@@ -430,13 +424,14 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
     }
     
     @Override
-    public String getIconType ()
+    public ImageIcon getIcon (int type)
     {
 
-        return Constants.CHART_ICON_NAME;
+        return Environment.getIcon (Constants.CHART_ICON_NAME,
+                                    type);
 
     }
-
+    
     @Override
     public void close ()
     {

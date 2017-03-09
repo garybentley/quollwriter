@@ -69,7 +69,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     private static final CutNPasteTransferHandler cnpTransferHandler = new CutNPasteTransferHandler ();
 
     // private QTextEditor editor = null;
-    private IconColumn              iconColumn = null;
+    private IconColumn<ProjectViewer> iconColumn = null;
     protected ProjectViewer         projectViewer = null;
     private Box                     problemFinderPanel = null;
     private ProblemFinder           problemFinder = null;
@@ -126,9 +126,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         this.highlight = new BlockPainter (Environment.getHighlightColor ());
 
-        this.iconColumn = new IconColumn (this,
-                                          this.projectViewer.getIconProvider (),
-                                          this.projectViewer.getChapterItemViewPopupProvider ());
+        this.iconColumn = new IconColumn<ProjectViewer> (this,
+                                                         c,
+                                                         this.projectViewer.getIconProvider (),
+                                                         this.projectViewer.getChapterItemViewPopupProvider ());
 
         //this.iconColumn.addMouseListener (this);
         
@@ -689,12 +690,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             Scene s = new Scene (-1,
                                  this.chapter);
 
-            AbstractActionHandler aah = new ChapterItemActionHandler (s,
-                                                                      this,
-                                                                      AbstractActionHandler.ADD,
-                                                                      pos);
-
-            aah.actionPerformed (ev);
+            new ChapterItemActionHandler<Scene> (s,
+                                                 this,
+                                                 AbstractActionHandler.ADD,
+                                                 pos).actionPerformed (ev);
 
             return;
 
@@ -703,11 +702,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (c.equals (NEW_OUTLINE_ITEM_ACTION_NAME))
         {
 
-            AbstractActionHandler aah = new OutlineItemChapterActionHandler (this.chapter,
-                                                                             this,
-                                                                             pos);
+            OutlineItem o = new OutlineItem (-1,
+                                             this.chapter);
 
-            aah.actionPerformed (ev);
+            new ChapterItemActionHandler<OutlineItem> (o,
+                                                       this,
+                                                       AbstractActionHandler.ADD,
+                                                       pos).actionPerformed (ev);
 
             return;
 
@@ -716,11 +717,9 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (c.equals (NEW_NOTE_ACTION_NAME))
         {
 
-            AbstractActionHandler aah = new NoteActionHandler (this.chapter,
-                                                               this,
-                                                               pos);
-
-            aah.actionPerformed (ev);
+            new NoteActionHandler (this.chapter,
+                                   this,
+                                   pos).actionPerformed (ev);
 
             return;
 
@@ -729,12 +728,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (c.equals (NEW_EDIT_NEEDED_NOTE_ACTION_NAME))
         {
 
-            AbstractActionHandler aah = new NoteActionHandler (this.chapter,
-                                                               this,
-                                                               Note.EDIT_NEEDED_NOTE_TYPE,
-                                                               pos);
-
-            aah.actionPerformed (ev);
+            new NoteActionHandler (this.chapter,
+                                   this,
+                                   Note.EDIT_NEEDED_NOTE_TYPE,
+                                   pos).actionPerformed (ev);
 
             return;
 

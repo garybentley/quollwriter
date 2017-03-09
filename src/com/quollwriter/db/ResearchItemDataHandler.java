@@ -11,7 +11,7 @@ import com.quollwriter.data.*;
 public class ResearchItemDataHandler implements DataHandler<ResearchItem, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjecttypedbkey, name, description, markup, files, lastmodified, datecreated, properties, url, id, version FROM researchitem_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, url, id, version FROM researchitem_v ";
 
     private ObjectManager objectManager = null;
 
@@ -35,37 +35,40 @@ public class ResearchItemDataHandler implements DataHandler<ResearchItem, Projec
 
             long key = rs.getLong (ind++);
 
-            ResearchItem l = proj.createResearchItem ();//new ResearchItem ();
+            ResearchItem l = new ResearchItem ();
             l.setKey (key);
             
-            long userObjTypeKey = rs.getLong (ind++);
-            
-            // Get the object fields.
-            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
-                                                                                                      l,
-                                                                                                      rs.getStatement ().getConnection ());
-            
-            l.setUserConfigurableObjectType (configType);
-
             // Load the object fields.
-            l.setFields (this.objectManager.getUserConfigurableObjectFields (l,
-                                                                             rs.getStatement ().getConnection ()));
-            
+            this.objectManager.setUserConfigurableObjectFields (l,
+                                                                rs.getStatement ().getConnection ());
+
             l.setName (rs.getString (ind++));
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
+            
             l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
-            l.setUrl (rs.getString (ind++));
+            
+            if (l.getLegacyField (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID) == null)
+            {
+                
+                l.setUrl (rs.getString (ind++));
+                
+            } else {
+                
+                ind++;
+                
+            }
+            
             l.setId (rs.getString (ind++));
             l.setVersion (rs.getString (ind++));            
             
             if (proj != null)
             {
                 
-                proj.addResearchItem (l);
+                proj.addAsset (l);
                                 
             }
             

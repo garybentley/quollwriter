@@ -163,7 +163,7 @@ public class EditorsUIUtils
                                                                                     {
 
                                                                                         // Remove the editors sidebar.
-                                                                                        Environment.removeSideBarFromAllProjectViewers (EditorsSideBar.NAME);
+                                                                                        Environment.removeSideBarFromAllProjectViewers (EditorsSideBar.ID);
 
                                                                                         viewer.removeNotification (notify);
 

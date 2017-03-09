@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -14,13 +15,14 @@ import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.IconProvider;
 import com.quollwriter.ui.components.GradientPainter;
 import com.quollwriter.ui.components.ImagePanel;
+import com.quollwriter.ui.components.ScrollableBox;
 
 import com.quollwriter.*;
 import com.quollwriter.events.*;
+import com.quollwriter.ui.forms.*;
 
 public abstract class EditPanel extends Box
 {
@@ -34,22 +36,18 @@ public abstract class EditPanel extends Box
                                                 171,
                                                 171);
 */
+    private JComponent                     cards = null;
     protected JComponent                   editPanel = null;
     private JLabel editError = null;
     protected JComponent                   viewPanel = null;
-    protected JComponent                   cancel = null;
-    protected JComponent                   edit = null;
-    protected JComponent                   save = null;
-    private JComponent                     help = null;
-    private JComponent                     helpBox = null;
-    protected Header                         header = null;
+    protected Header                       header = null;
     private Box                            panel = null;
     private JComponent                     visiblePanel = null;
     private boolean                        contentVisible = true;
     private boolean                        inited = false;
     private java.util.List<ActionListener> listeners = new ArrayList ();
 
-    public EditPanel(boolean allowSingleClickContentClose)
+    public EditPanel ()
     {
 
         super (BoxLayout.Y_AXIS);
@@ -73,6 +71,20 @@ public abstract class EditPanel extends Box
 
     }
 
+    public boolean isEditing ()
+    {
+        
+        if (this.editPanel == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return this.editPanel.isShowing ();
+        
+    }
+    
     public void removeActionListener (ActionListener l)
     {
 
@@ -103,32 +115,8 @@ public abstract class EditPanel extends Box
 
         this.panel = new Box (BoxLayout.Y_AXIS);
         this.panel.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.panel.setOpaque (false);
         this.add (this.panel);
-
-        this.header = new Header (Environment.replaceObjectNames (this.getTitle ()),
-                                  ip.getIcon ("header",
-                                              Constants.ICON_PANEL_SECTION),
-                                  null);
-
-        this.header.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.header.setOpaque (false);
-
-        this.header.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                           0,
-                                                           1,
-                                                           0,
-                                                           Environment.getBorderColor ()),
-                                          new EmptyBorder (0,
-                                                           3,
-                                                           3,
-                                                           0)
-                                          ));
-
-        this.header.setFont (this.header.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
-        this.header.setTitleColor (UIUtils.getTitleColor ());
-        this.header.setPaintProvider (new GradientPainter (com.quollwriter.ui.UIUtils.getComponentColor (),
-                                                           com.quollwriter.ui.UIUtils.getComponentColor ()));
-
 /*
  Needs work... set size when reopens (store old size, see accordion) also allow for drag open like accordion
         if (allowSingleClickContentClose)
@@ -167,69 +155,84 @@ public abstract class EditPanel extends Box
 
         }
 */
-/*
-        this.setBorder (new CompoundBorder (UIUtils.internalPanelDropShadow, // new DropShadowBorder (),
-                                            com.quollwriter.ui.UIUtils.createLineBorder ()));
-*/
+        this.setOpaque (true);
+        this.setBackground (UIUtils.getComponentColor ());
         this.setBorder (null);
-        this.setOpaque (false);
-        this.panel.setOpaque (true);
-        this.panel.add (this.header);
 
+        this.panel.setOpaque (true);
+
+        this.cards = new JPanel (new CardLayout ());
+        this.cards.setOpaque (false);
+        this.panel.add (this.cards);
+        
+        this.showViewPanel ();
+        /*
+        this.viewPanel = new Box (BoxLayout.Y_AXIS);
+        
+        this.viewEdit.add (UIUtils.createScrollPane (this.viewPanel,
+                                                     "view"));
+        
+        this.viewPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.viewPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
+        this.viewPanel.setMinimumSize (new Dimension (100,
+                                                      100));
+
+        JComponent view = null;
+        
         // See if there are view items, if so create a form, otherwise
         // call "getEditPanel".
-        java.util.List<FormItem> viewItems = this.getViewItems ();
+        Set<FormItem> viewItems = this.getViewItems ();
 
         if ((viewItems != null) &&
             (viewItems.size () > 0))
         {
 
-            this.viewPanel = this.buildPanel (viewItems,
-                                              ip,
-                                              false,
-                                              false);
+            view = this.buildPanel (viewItems,
+                                    ip,
+                                    false,
+                                    false);
 
         } else
         {
 
-            this.viewPanel = this.getViewPanel ();
+            view = this.getViewPanel ();
 
         }
 
-        if (this.viewPanel != null)
+        if (view != null)
         {
 
-            this.viewPanel.setBackground (UIUtils.getComponentColor ());
+            view.setBackground (UIUtils.getComponentColor ());
 
-            this.panel.add (this.viewPanel);
-            this.viewPanel.setVisible (true);
-            this.viewPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-            this.viewPanel.setBorder (null);
-/*
-            this.viewPanel.setBorder (new EmptyBorder (5,
-                                                       5,
-                                                       5,
-                                                       5));
-*/
-            this.visiblePanel = this.viewPanel;
+            this.viewPanel.add (view);
+            this.visiblePanel = view;
 
             this.fireActionEvent (EditPanel.VIEW_VISIBLE,
                                   "view-visible");
 
-        }
+        } 
 
+        this.editPanel = new Box (BoxLayout.Y_AXIS);
+
+        this.viewEdit.add (UIUtils.createScrollPane (this.editPanel,
+                                                     "edit"));
+        
+        this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.editPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
+        this.editPanel.setMinimumSize (new Dimension (100,
+                                                      100));
+        
         // See if there are edit items, if so create a form, otherwise
         // call "getEditPanel".
-        java.util.List<FormItem> editItems = this.getEditItems ();
+        Set<FormItem> editItems = this.getEditItems ();
 
         if ((editItems != null) &&
             (editItems.size () > 0))
         {
 
-            this.editPanel = this.buildPanel (editItems,
-                                              ip,
-                                              true,
-                                              false);
+            this.editPanel = new Form (Form.Layout.stacked,
+                                       editItems,
+                                       null);
 
         } else
         {
@@ -238,23 +241,14 @@ public abstract class EditPanel extends Box
 
             if (this.editPanel != null)
             {
-/*
-                this.editPanel.setBorder (new EmptyBorder (3,
-                                                           3,
-                                                           3,
-                                                           3));
-*/
+
                 this.editPanel.setMinimumSize (new Dimension (100,
                                                               100));
 
                 this.editPanel = new JScrollPane (this.editPanel);
-                this.editPanel.setBorder (null);
-                /*
-                this.editPanel.setBorder (new EmptyBorder (3,
-                                                           3,
-                                                           3,
-                                                           3));
-                */
+                //this.editPanel.setBorder (null);
+                this.editPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));                
+
             }
 
         }
@@ -422,45 +416,7 @@ public abstract class EditPanel extends Box
                 {
 
                     _this.doCancel ();
-/*
-                    _this.editError.setVisible (false);
 
-                    if (!_this.handleCancel ())
-                    {
-
-                        _this.validate ();
-                        _this.repaint ();
-
-                        return;
-
-                    }
-
-                    _this.visiblePanel = null;
-
-                    if (_this.viewPanel != null)
-                    {
-
-                        _this.viewPanel.setVisible (true);
-
-                        _this.fireActionEvent (EditPanel.CANCELLED,
-                                               "cancelled");
-
-                        _this.fireActionEvent (EditPanel.VIEW_VISIBLE,
-                                               "view-visible");
-
-                        _this.visiblePanel = _this.viewPanel;
-
-                    }
-
-                    _this.editPanel.setVisible (false);
-                    _this.edit.setToolTipText ("Click to edit this section");
-
-                    _this.cancel.setVisible (false);
-                    _this.help.setVisible (false);
-                    _this.helpBox.setVisible (false);
-
-                    _this.repaint ();
-*/
                 }
 
             });
@@ -477,15 +433,383 @@ public abstract class EditPanel extends Box
             }
 
         }
-
+*/
         this.inited = true;
 
+    }
+    
+    public void showEditPanel ()
+    {
+        
+        this.showEdit ();
+        
+    }
+    
+    public void showViewPanel ()
+    {
+        
+        final EditPanel _this = this;
+        
+        if (this.viewPanel != null)
+        {
+            
+            this.viewPanel.removeAll ();
+            
+        } else {
+            
+            this.viewPanel = new Box (BoxLayout.Y_AXIS);
+                        
+            this.cards.add (this.viewPanel,
+                            "view");
+            
+            this.viewPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
+            this.viewPanel.setMinimumSize (new Dimension (100,
+                                                          100));
+                    
+            this.viewPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                                          Short.MAX_VALUE));
+
+        }
+
+        //IconProvider ip = this.getIconProvider ();
+        /*
+        Header header = new Header (Environment.replaceObjectNames (this.getTitle ()),
+                                    ip.getIcon ("header",
+                                                Constants.ICON_PANEL_SECTION),
+                                    null);
+                                    
+        header.setAlignmentX (Component.LEFT_ALIGNMENT);
+        header.setOpaque (false);
+        header.setBorder (UIUtils.createBottomLineWithPadding (0, 3, 3, 0));
+        header.setFont (header.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+        header.setTitleColor (UIUtils.getTitleColor ());
+        header.setPaintProvider (new GradientPainter (com.quollwriter.ui.UIUtils.getComponentColor (),
+                                                      com.quollwriter.ui.UIUtils.getComponentColor ()));
+                                            
+                
+        this.viewPanel.add (header);
+*/
+        
+        IconProvider ip = this.getIconProvider ();                    
+        
+        JComponent view = null;
+        
+        // See if there are view items, if so create a form, otherwise
+        // call "getEditPanel".
+        Set<FormItem> viewItems = this.getViewItems ();
+
+        if ((viewItems != null) &&
+            (viewItems.size () > 0))
+        {
+            view = this.buildPanel (viewItems,
+                                    ip,
+                                    false,
+                                    false);
+
+        } else
+        {
+
+            view = this.getViewPanel ();
+
+        }
+
+        if (view != null)
+        {
+        
+            java.util.List<JComponent> buttons = new ArrayList ();
+    
+            JButton edit = UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
+                                                          Constants.ICON_PANEL_SECTION_ACTION),
+                                              "Click to edit this section",
+                                              new ActionListener ()
+                                              {
+                                                
+                                                  @Override
+                                                  public void actionPerformed (ActionEvent ev)
+                                                  {
+                                                    
+                                                      _this.doEdit ();
+                                                    
+                                                  }
+                                                
+                                              });
+        
+            buttons.add (edit);
+                
+            this.viewPanel.add (EditPanel.createHeader (this.getTitle (),
+                                                        ip.getIcon ("header",
+                                                                    Constants.ICON_PANEL_SECTION),
+                                                        UIUtils.createButtonBar (buttons)));
+        
+        
+            //header.setControls (UIUtils.createButtonBar (buttons));
+        
+            Border b = UIUtils.createPadding (0, 3, 0, 0);
+                        
+            if (view instanceof JTree)
+            {
+            
+                view.setBorder (UIUtils.createPadding (3, 0, 5, 0));
+            
+                JScrollPane sp = UIUtils.createScrollPane (view);
+                
+                sp.setBorder (b);
+            
+                this.viewPanel.add (sp);
+            
+            } else {
+            
+                if (view instanceof JScrollPane)
+                {
+                    
+                    view.setBorder (b);
+                    
+                    this.viewPanel.add (view);
+                   
+                } else {
+            
+                    view.setBorder (UIUtils.createPadding (10, 5, 5, 5));            
+            
+                    Box _view = new ScrollableBox (BoxLayout.Y_AXIS);
+                    _view.setOpaque (false);
+                    _view.add (view);
+                
+                    JComponent sp = UIUtils.createScrollPane (_view);
+                    
+                    sp.setBorder (b);
+            
+                    this.viewPanel.add (sp);
+
+                }
+    
+            } 
+                    
+        }
+
+        this.fireActionEvent (EditPanel.VIEW_VISIBLE,
+                              "view-visible");
+
+        ((CardLayout) this.cards.getLayout ()).show (this.cards,
+                                                     "view");
+        
+    }        
+    
+    private void showEdit ()
+    {
+        
+        final EditPanel _this = this;
+        
+        if (this.editPanel != null)
+        {
+            
+            this.editPanel.removeAll ();
+            
+        } else {
+            
+            this.editPanel = new Box (BoxLayout.Y_AXIS);
+            this.editPanel.setOpaque (false);
+            this.editPanel.setMaximumSize (new java.awt.Dimension (Short.MAX_VALUE,
+                                                                   Short.MAX_VALUE));
+            this.cards.add (this.editPanel,
+                            "edit");
+                    
+            this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        }
+        
+        final String ht = this.getHelpText ();
+        
+        IconProvider ip = this.getIconProvider ();
+        
+        java.util.List<JComponent> buttons = new ArrayList ();
+
+        JButton save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
+                                                      Constants.ICON_PANEL_SECTION_ACTION),
+                                             "Click to save the details",
+                                             new ActionListener ()
+                                          {
+                                            
+                                              @Override
+                                              public void actionPerformed (ActionEvent ev)
+                                              {
+                                                
+                                                  _this.doSave ();
+                                                
+                                              }
+                                            
+                                          });
+
+        buttons.add (save);
+            
+        JButton cancel = UIUtils.createButton (ip.getIcon (Constants.CANCEL_ICON_NAME,
+                                                           Constants.ICON_PANEL_SECTION_ACTION),
+                                               "Click to cancel the editing",
+                                               new ActionListener ()
+                                               {
+                                                
+                                                  @Override
+                                                  public void actionPerformed (ActionEvent ev)
+                                                  {
+                                                    
+                                                      _this.doCancel ();
+                                                    
+                                                  }
+                                                
+                                               });
+        buttons.add (cancel);
+/*
+        if (ht != null)
+        {
+
+            final JComponent _hb = helpBox;
+        
+            JButton help = UIUtils.createButton (ip.getIcon (Constants.HELP_ICON_NAME,
+                                                             Constants.ICON_PANEL_SECTION_ACTION),
+                                                 "Click to view/hide the help",
+                                                 new ActionListener ()
+                                                 {
+                                                  
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
+                                                        
+                                                        _hb.setVisible (!_hb.isVisible ());
+
+                                                        _this.validate ();
+                                                        _this.repaint ();                                                        
+                                                        
+                                                    }
+                                                    
+                                                 });
+
+            buttons.add (help);
+
+        }
+        */
+        this.editPanel.add (EditPanel.createHeader ("Edit",
+                                                    ip.getIcon (Constants.EDIT_ICON_NAME,
+                                                                Constants.ICON_PANEL_SECTION),
+                                                    UIUtils.createButtonBar (buttons)));
+        
+        this.editError = UIUtils.createErrorLabel ("Please enter a value.");
+        this.editError.setVisible (false);
+        this.editError.setOpaque (false);
+
+        this.editError.setBorder (UIUtils.createPadding (5, 3, 5, 5));
+
+        JComponent helpBox = null;
+        
+        if (ht != null)
+        {
+
+            FormLayout fl = new FormLayout ("p, 3px, fill:90px:grow",
+                                            "top:p");
+
+            PanelBuilder pb = new PanelBuilder (fl);
+
+            CellConstraints cc = new CellConstraints ();
+
+            ImagePanel helpII = new ImagePanel (ip.getIcon ("help",
+                                                            Constants.ICON_PANEL_SECTION_ACTION),
+                                                null);
+            helpII.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+            pb.add (helpII,
+                    cc.xy (1,
+                           1));
+
+            pb.add (UIUtils.createHelpTextPane (ht,
+                                                Environment.getFocusedViewer ()),
+                    cc.xy (3,
+                           1));
+
+            helpBox = pb.getPanel ();
+            helpBox.setOpaque (false);
+            helpBox.setVisible (false);
+
+            helpBox.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+            helpBox.setBorder (UIUtils.createPadding (0, 0, 5, 0));
+
+            this.editPanel.add (helpBox);
+
+        }
+
+        this.editPanel.add (this.editError);
+
+        JComponent edit = null;
+        
+        // See if there are edit items, if so create a form, otherwise
+        // call "getEditPanel".
+        Set<FormItem> editItems = this.getEditItems ();
+
+        if ((editItems != null) &&
+            (editItems.size () > 0))
+        {
+
+            edit = new Form (Form.Layout.stacked,
+                             editItems,
+                             null);
+
+        } else {
+
+            edit = this.getEditPanel ();
+
+        }
+        
+        Border b = UIUtils.createPadding (3, 3, 0, 0);
+        
+        if (edit instanceof JTree)
+        {
+        
+            edit.setBorder (UIUtils.createPadding (3, 0, 5, 5));
+        
+            JScrollPane sp = UIUtils.createScrollPane (edit);
+        
+            sp.setBorder (b);
+            
+            this.editPanel.add (sp);
+        
+        } else {
+        
+            if (edit instanceof JScrollPane)
+            {
+                
+                edit.setBorder (b);
+
+                this.editPanel.add (edit);
+        
+            } else {
+        
+                edit.setBorder (UIUtils.createPadding (3, 0, 5, 5));
+
+                Box _edit = new ScrollableBox (BoxLayout.Y_AXIS);
+                _edit.setOpaque (false);
+                _edit.add (edit);
+                _edit.setMaximumSize (new java.awt.Dimension (Short.MAX_VALUE,
+                                                              Short.MAX_VALUE));
+            
+                JComponent sp = UIUtils.createScrollPane (_edit);
+                
+                sp.setBorder (null);
+                this.editPanel.add (sp);
+
+            }
+                
+        } 
+
+        ((CardLayout) this.cards.getLayout ()).show (this.cards,
+                                                     "edit");
+        
+        this.fireActionEvent (EditPanel.EDIT_VISIBLE,
+                              "edit-visible");
+     
     }
     
     public void doEdit ()
     {
                     
-        this.showEditPanel ();        
+        this.showEdit ();        
         
     }
     
@@ -503,8 +827,14 @@ public abstract class EditPanel extends Box
             return;
 
         }
+        
+        this.fireActionEvent (EditPanel.CANCELLED,
+                              "cancelled");
 
-        this.visiblePanel = null;
+        this.showViewPanel ();
+        
+/*        
+        //this.visiblePanel = null;
 
         if (this.viewPanel != null)
         {
@@ -520,7 +850,8 @@ public abstract class EditPanel extends Box
             this.visiblePanel = this.viewPanel;
 
         }
-
+        */
+/*
         this.editPanel.setVisible (false);
         this.edit.setToolTipText ("Click to edit this section");
 
@@ -529,11 +860,50 @@ public abstract class EditPanel extends Box
         this.cancel.setVisible (false);
         this.help.setVisible (false);
         this.helpBox.setVisible (false);
-
+*/
         this.repaint ();
 
     }
 
+    public void showEditError (Set<String> ms)
+    {
+        
+        if ((ms == null)
+            ||
+            (ms.size () == 0)
+           )
+        {
+            
+            return;
+            
+        }
+        
+        if (ms.size () == 1)
+        {
+            
+            this.showEditError (ms.iterator ().next ());
+            
+            return;
+            
+        }
+        
+        StringBuilder b = new StringBuilder ("<ul>");
+        
+        for (String s : ms)
+        {
+            
+            b.append ("<li>");
+            b.append (s);
+            b.append ("</li>");
+            
+        }
+        
+        b.append ("</ul>");
+        
+        this.showEditError (b.toString ());
+        
+    }
+    
     public void showEditError (String m)
     {
 
@@ -547,47 +917,8 @@ public abstract class EditPanel extends Box
         this.editError.setText (m);
 
         this.editError.setVisible (true);
-
+System.out.println ("HRE");
         this.validate ();
-        this.repaint ();
-
-    }
-
-    public void showEditPanel ()
-    {
-        
-        if (this.editPanel.isVisible ())
-        {
-            
-            return;
-            
-        }
-        
-        this.editError.setVisible (false);        
-        
-        this.editPanel.setVisible (true);
-
-        this.fireActionEvent (EditPanel.EDIT_VISIBLE,
-                              "edit-visible");
-
-        this.visiblePanel = this.editPanel;
-
-        if (this.viewPanel != null)
-        {
-
-            this.viewPanel.setVisible (false);
-
-        }
-
-        this.edit.setToolTipText ("Click to save the changes");
-
-        this.edit.setVisible (false);
-        this.save.setVisible (true);
-        this.cancel.setVisible (true);
-        this.help.setVisible (true);
-
-        this.handleEditStart ();
-
         this.repaint ();
 
     }
@@ -655,36 +986,8 @@ public abstract class EditPanel extends Box
 
         }
 
-        this.editPanel.setVisible (false);
+        this.showViewPanel ();
 
-        if (this.viewPanel != null)
-        {
-
-            this.viewPanel.setVisible (true);
-
-            this.fireActionEvent (EditPanel.VIEW_VISIBLE,
-                                  "view-visible");
-
-            this.visiblePanel = this.viewPanel;
-
-        } else
-        {
-
-            this.editPanel.setVisible (true);
-
-            this.fireActionEvent (EditPanel.EDIT_VISIBLE,
-                                  "edit-visible");
-
-            this.visiblePanel = this.editPanel;
-
-        }
-
-        this.edit.setToolTipText ("Click to edit this section");
-        this.edit.setVisible (true);
-        this.save.setVisible (false);
-        this.cancel.setVisible (false);
-        this.help.setVisible (false);
-        this.helpBox.setVisible (false);
         this.repaint ();
 
         return true;
@@ -701,9 +1004,9 @@ public abstract class EditPanel extends Box
 
     public abstract JComponent getViewPanel ();
 
-    public abstract java.util.List<FormItem> getEditItems ();
+    public abstract Set<FormItem> getEditItems ();
 
-    public abstract java.util.List<FormItem> getViewItems ();
+    public abstract Set<FormItem> getViewItems ();
     
     public abstract boolean handleSave ();
 
@@ -758,12 +1061,12 @@ public abstract class EditPanel extends Box
 
     }
 
-    private JPanel buildPanel (java.util.List<FormItem> items,
+    private JPanel buildPanel (Set<FormItem> items,
                                IconProvider             ip,
                                boolean                  scrollPaneBorder,
                                boolean                  headerBottomBorder)
     {
-
+    
         StringBuilder rowSpec = new StringBuilder ();
 
         for (FormItem item : items)
@@ -777,7 +1080,7 @@ public abstract class EditPanel extends Box
             }
 
             rowSpec.append ("p, 5px, ");
-            rowSpec.append (((item.formatSpec != null) ? item.formatSpec : "p"));
+            rowSpec.append (((item.getFormatSpec () != null) ? item.getFormatSpec () : "p"));
 
         }
 
@@ -793,10 +1096,10 @@ public abstract class EditPanel extends Box
         for (FormItem item : items)
         {
 
-            if (item.label != null)
+            if (item.getLabel () != null)
             {
 
-                pb.addLabel (item.label.toString (),
+                pb.addLabel (item.getLabel ().toString (),
                         cc.xywh (1,
                                  row,
                                  3,
@@ -816,7 +1119,7 @@ public abstract class EditPanel extends Box
 
             row += 2;
 
-            Component c = item.component;
+            Component c = item.getComponent ();
 
             if (c instanceof JComboBox)
             {
@@ -829,11 +1132,11 @@ public abstract class EditPanel extends Box
 
             }
 
-            if ((item.component instanceof JTextArea) ||
-                (item.component instanceof JEditorPane))
+            if ((item.getComponent () instanceof JTextArea) ||
+                (item.getComponent () instanceof JEditorPane))
             {
 
-                JScrollPane sp = new JScrollPane (item.component);
+                JScrollPane sp = new JScrollPane (item.getComponent ());
 
                 if (!scrollPaneBorder)
                 {
@@ -849,11 +1152,11 @@ public abstract class EditPanel extends Box
             }
 
             if ((!scrollPaneBorder) &&
-                (item.component instanceof JTextField))
+                (item.getComponent () instanceof JTextField))
             {
 
-                ((JComponent) item.component).setBorder (null);
-                ((JComponent) item.component).setOpaque (false);
+                ((JComponent) item.getComponent ()).setBorder (null);
+                ((JComponent) item.getComponent ()).setOpaque (false);
 
             }
 
@@ -869,4 +1172,30 @@ public abstract class EditPanel extends Box
 
     }
 
+    public static Header createHeader (String     title,
+                                       Icon       icon,
+                                       JComponent controls)
+    {
+/*        
+                                    Environment.getIcon (iconType,
+                                                         Constants.ICON_PANEL_SECTION),
+*/
+        Header header = new Header (Environment.replaceObjectNames (title),
+                                    icon,
+                                    null);
+                                    
+        header.setAlignmentX (Component.LEFT_ALIGNMENT);
+        header.setOpaque (false);
+        header.setBorder (UIUtils.createBottomLineWithPadding (0, 3, 3, 0));
+        header.setFont (header.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
+        header.setTitleColor (UIUtils.getTitleColor ());
+        header.setPaintProvider (new GradientPainter (com.quollwriter.ui.UIUtils.getComponentColor (),
+                                                      com.quollwriter.ui.UIUtils.getComponentColor ()));
+
+        header.setControls (controls);
+                                                      
+        return header;        
+        
+    }
+    
 }

@@ -160,9 +160,7 @@ public abstract class PopupWindow extends JFrame
         {
             
             this.header = UIUtils.createHeader (headerTitle,
-                                                Constants.POPUP_WINDOW_TITLE,
-                                                null,
-                                                null);
+                                                Constants.POPUP_WINDOW_TITLE);
             
             this.content.add (this.header);
 

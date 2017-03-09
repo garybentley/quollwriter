@@ -320,7 +320,7 @@ public class Form extends QPopup
 
         List bs = new ArrayList ();
 
-        if ((buttons | Form.SAVE_BUTTON) > 0)
+        if ((buttons & Form.SAVE_BUTTON) > 0)
         {
 
             JButton but = new JButton (Form.SAVE_BUTTON_LABEL);
@@ -346,7 +346,7 @@ public class Form extends QPopup
 
         }
 
-        if ((buttons | Form.CANCEL_BUTTON) > 0)
+        if ((buttons & Form.CANCEL_BUTTON) > 0)
         {
 
             JButton but = new JButton (Form.CANCEL_BUTTON_LABEL);
@@ -377,10 +377,15 @@ public class Form extends QPopup
 
         }
 
-        b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
+        if (bs.size () > 0)
+        {
+        
+            b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
                cc.xyw (2,
                        r,
                        1));
+            
+        }
 
         JPanel p = b.getPanel ();
         //p.setBackground (UIManager.getColor ("Panel.background"));
@@ -695,7 +700,7 @@ public class Form extends QPopup
 
         List bs = new ArrayList ();
 
-        if ((buttons | Form.SAVE_BUTTON) > 0)
+        if ((buttons & Form.SAVE_BUTTON) > 0)
         {
 
             JButton but = new JButton (Form.SAVE_BUTTON_LABEL);
@@ -721,7 +726,7 @@ public class Form extends QPopup
 
         }
 
-        if ((buttons | Form.CANCEL_BUTTON) > 0)
+        if ((buttons & Form.CANCEL_BUTTON) > 0)
         {
 
             JButton but = new JButton (Form.CANCEL_BUTTON_LABEL);
@@ -752,10 +757,15 @@ public class Form extends QPopup
 
         }
 
-        b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
-               cc.xy (3,
-                      r));
+        if (bs.size () > 0)
+        {
+        
+            b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
+                   cc.xy (3,
+                          r));
 
+        }
+                          
         JPanel p = b.getPanel ();
         //p.setBackground (UIManager.getColor ("Panel.background"));
         p.setBackground (com.quollwriter.ui.UIUtils.getComponentColor ());

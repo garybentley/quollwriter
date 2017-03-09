@@ -1,7 +1,6 @@
-CREATE VIEW userobject_v
+CREATE VIEW tag_v
 AS
-SELECT o.dbkey dbkey,
-       n.userobjecttypedbkey userobjecttypedbkey,
+SELECT p.dbkey dbkey,
        n.name name,
        n.description description,
        n.markup markup,
@@ -14,5 +13,5 @@ SELECT o.dbkey dbkey,
        n.version      version,
        n.latest       latest       
 FROM   namedobject_v n,
-       userobject    o
-WHERE  o.dbkey = n.dbkey 
+       tag           p
+WHERE  p.dbkey = n.dbkey 

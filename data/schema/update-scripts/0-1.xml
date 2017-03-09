@@ -292,39 +292,9 @@ CREATE TABLE projectversion
   </item>
   
   <item>
-    <log>Add the user object type table</log>
+    <log>Add the asset table</log>
     <sql>
-CREATE TABLE userobjecttype
-(
-    dbkey BIGINT NOT NULL,
-    userobjtype CLOB,
-    pluralname CLOB,
-    icon CLOB,
-    layout CLOB,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
-
-  <item>
-    <log>Add the user object type field table</log>
-    <sql>
-CREATE TABLE userobjecttypefield
-(
-    dbkey BIGINT NOT NULL,
-    userobjecttypedbkey BIGINT NOT NULL,
-    type CLOB,
-    definition CLOB,
-    orderby NUMBER,
-    PRIMARY KEY (dbkey)
-)
-    </sql>
-  </item>
-
-  <item>
-    <log>Add the user object table</log>
-    <sql>
-CREATE TABLE userobject
+CREATE TABLE asset
 (
     dbkey BIGINT NOT NULL,
     PRIMARY KEY (dbkey)
@@ -339,6 +309,7 @@ CREATE TABLE userobjectfield
 (
     dbkey BIGINT NOT NULL,
     namedobjectdbkey BIGINT NOT NULL,
+    -- This references userobjecttypefield.dbkey in the project info schema so we can't foreign key constrain.
     userobjecttypefielddbkey BIGINT NOT NULL,
     value CLOB,
     PRIMARY KEY (dbkey)
@@ -347,40 +318,30 @@ CREATE TABLE userobjectfield
   </item>
 
   <item>
-    <log>Create foreign key constraint for namedobject(userobjecttypedbkey)/userobjecttype(dbkey).</log>
+    <log>Create foreign key constraint for asset(dbkey)/namedobject(dbkey).</log>
     <sql>
-ALTER TABLE namedobject ADD CONSTRAINT namedobject_userobjtypedbkey___userobjecttype_dbkey_fk FOREIGN KEY(userobjecttypedbkey) REFERENCES userobjecttype(dbkey)
+ALTER TABLE asset ADD CONSTRAINT asset_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
     </sql>
   </item>
 
   <item>
-    <log>Create foreign key constraint for userobject(dbkey)/namedobject(dbkey).</log>
+    <log>Create foreign key constraint for userobjectfield(dbkey)/namedobject(dbkey).</log>
     <sql>
-ALTER TABLE userobject ADD CONSTRAINT userobj_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
+ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
     </sql>
   </item>
 
   <item>
-    <log>Create foreign key constraint for userobjecttype(dbkey)/userobjecttypefield(userobjecttypedbkey).</log>
+    <!--
+      We reference namedobject.dbkey here rather than userobject.dbkey since there are existing objects that may not be added
+      to userobject, for example characters.
+    -->
+    <log>Create foreign key constraint for userobjectfield(userobjectdbkey)/namedobject(dbkey).</log>
     <sql>
-ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjtype_dbkey___userobjtypefield_dbkey_fk FOREIGN KEY(userobjecttypedbkey) REFERENCES userobjecttype(dbkey)
+ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjdbkey___namedobject_dbkey_fk FOREIGN KEY(namedobjectdbkey) REFERENCES namedobject(dbkey)
     </sql>
   </item>
-
-  <item>
-    <log>Create foreign key constraint for userobjecttypefield(dbkey)/namedobject(dbkey).</log>
-    <sql>
-ALTER TABLE userobjecttypefield ADD CONSTRAINT userobjtypefield_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
-    </sql>
-  </item>
-
-  <item>
-    <log>Create foreign key constraint for userobjecttype(dbkey)/namedobject(dbkey).</log>
-    <sql>
-ALTER TABLE userobjecttype ADD CONSTRAINT userobjtype_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
-    </sql>
-  </item>
-  
+    
   <item>
     <log>Create foreign key constraint for projectversion(dbkey)/namedobject(dbkey).</log>
     <sql>
@@ -609,31 +570,6 @@ ALTER TABLE dataobject ADD CONSTRAINT dataobject_idversion_uk UNIQUE(id, version
     <log>Create foreign key constraint for note.dbkey/objectversion - dataobject.dbkey/version.</log>
     <sql>
 ALTER TABLE note ADD CONSTRAINT note_objectdbkeyversion_dataobject_dbkeyversion_fk FOREIGN KEY(objectdbkey, objectversion) REFERENCES dataobject(dbkey, version)
-    </sql>
-  </item>
-
-  <item>
-    <log>Create foreign key constraint for userobjectfield(dbkey)/namedobject(dbkey).</log>
-    <sql>
-ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_dbkey___namedobject_dbkey_fk FOREIGN KEY(dbkey) REFERENCES namedobject(dbkey)
-    </sql>
-  </item>
-
-  <item>
-    <!--
-      We reference namedobject.dbkey here rather than userobject.dbkey since there are existing objects that may not be added
-      to userobject, for example characters.
-    -->
-    <log>Create foreign key constraint for userobjectfield(userobjectdbkey)/namedobject(dbkey).</log>
-    <sql>
-ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjdbkey___namedobject_dbkey_fk FOREIGN KEY(namedobjectdbkey) REFERENCES namedobject(dbkey)
-    </sql>
-  </item>
-
-  <item>
-    <log>Create foreign key constraint for userobjectfield(userobjecttypefielddbkey)/userobjecttypefield(dbkey).</log>
-    <sql>
-ALTER TABLE userobjectfield ADD CONSTRAINT userobjfield_userobjtypefielddbkey___userobjtypefield_dbkey_fk FOREIGN KEY(userobjecttypefielddbkey) REFERENCES userobjecttypefield(dbkey)
     </sql>
   </item>
     

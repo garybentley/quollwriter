@@ -117,9 +117,7 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
         this.setAlignmentX (JComponent.LEFT_ALIGNMENT);
 
         this.header = UIUtils.createHeader ("",
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                            Constants.SUB_PANEL_TITLE);
 
         this.header.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 2, 0));
 
@@ -155,6 +153,14 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                     if (prev != null)
                     {
 
+                        if (!_this.handleStageChange (_this.currentStage,
+                                                      prev))
+                        {
+
+                            return;
+
+                        }
+                    
                         ws = _stages.get (prev);
 
                         if (ws == null)
@@ -176,14 +182,6 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
                             _this.stages.put (prev,
                                               ws);
-
-                        }
-
-                        if (!_this.handleStageChange (_this.currentStage,
-                                                      prev))
-                        {
-
-                            return;
 
                         }
 
@@ -229,6 +227,14 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                     if (next != null)
                     {
 
+                        if (!_this.handleStageChange (_this.currentStage,
+                                                      next))
+                        {
+
+                            return;
+
+                        }
+                    
                         Map<String, WizardStep> _stages = _this.stages;
 
                         ws = _stages.get (next);
@@ -268,14 +274,6 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
                             UIUtils.showErrorMessage (this,
                                                       "Unable to show next stage.");
-
-                            return;
-
-                        }
-
-                        if (!_this.handleStageChange (_this.currentStage,
-                                                      next))
-                        {
 
                             return;
 
@@ -370,12 +368,20 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                                 this.currentStage);
 
         this.inited = true;
-
+        
     }
 
     public void showStage (String stage)
     {
 
+        if (!this.handleStageChange (this.currentStage,
+                                     stage))
+        {
+
+            return;
+
+        }
+    
         WizardStep ws = this.stages.get (stage);
 
         if ((ws == null)
@@ -400,14 +406,6 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
 
             this.stages.put (stage,
                              ws);
-
-        }
-
-        if (!this.handleStageChange (this.currentStage,
-                                     stage))
-        {
-
-            return;
 
         }
 

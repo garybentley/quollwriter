@@ -177,7 +177,7 @@ public class ImportProject extends Wizard implements ImportCallback
 
                     // See if we should merge.
                     Asset oa = this.pv.getProject ().getAssetByName (a.getName (),
-                                                                     a.getObjectType ());
+                                                                     a.getUserConfigurableObjectType ());
 
                     if (oa != null)
                     {
@@ -564,11 +564,14 @@ public class ImportProject extends Wizard implements ImportCallback
 
         final ImportProject _this = this;
 
-        if (SELECT_PROJECT_STAGE.equals (oldStage))
+        if (SELECT_PROJECT_STAGE.equals (oldStage)
+            &&
+            (SELECT_ITEMS_STAGE.equals (newStage))
+           )
         {
 
             final ProjectInfo pi = (ProjectInfo) this.projectList.getSelectedValue ();
-
+            
             final ActionListener open = new ActionListener ()
             {
 
@@ -648,7 +651,9 @@ public class ImportProject extends Wizard implements ImportCallback
 
             };
 
-            if ((pi.isEncrypted ())
+            if ((pi != null)
+                &&
+                (pi.isEncrypted ())
                 &&
                 (Environment.getProjectViewer (pi) == null)
                 &&
@@ -681,7 +686,7 @@ public class ImportProject extends Wizard implements ImportCallback
                 open.actionPerformed (new ActionEvent (pi, 1, "open"));
 
             }
-
+                
             return true;
 
         }
@@ -1336,60 +1341,68 @@ public class ImportProject extends Wizard implements ImportCallback
 
     }
 
-    private void addAssetsToTree (DefaultMutableTreeNode          root,
-                                  java.util.List<? extends Asset> assets)
+    private void addAssetsToTree (DefaultMutableTreeNode     root,
+                                  UserConfigurableObjectType type,
+                                  Set<Asset>                 assets)
     {
 
-        if (assets.size () > 0)
+        if ((assets == null)
+            ||
+            (assets.size () == 0)
+           )
+        {
+            
+            return;
+            
+        }
+    
+        TreeParentNode c = new TreeParentNode (type.getObjectTypeId (),
+                                               type.getObjectTypeNamePlural ());
+
+        SelectableDataObject sd = new SelectableDataObject (c);
+
+        sd.selected = true;
+
+        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (sd);
+
+        root.add (tn);
+
+        java.util.List<Asset> lassets = new ArrayList (assets);
+        
+        Collections.sort (lassets,
+                          NamedObjectSorter.getInstance ());
+
+        for (Asset a : lassets)
         {
 
-            TreeParentNode c = new TreeParentNode (assets.get (0).getObjectType (),
-                                                   Environment.getObjectTypeNamePlural (assets.get (0).getObjectType ()));
+            if ((this.pv != null) &&
+                (this.addToProject.isSelected ()))
+            {
 
-            SelectableDataObject sd = new SelectableDataObject (c);
+                if (this.pv.getProject ().hasAsset (a))
+                {
+
+                    continue;
+
+                }
+
+            }
+
+            sd = new SelectableDataObject (a);
 
             sd.selected = true;
 
-            DefaultMutableTreeNode tn = new DefaultMutableTreeNode (sd);
+            DefaultMutableTreeNode n = new DefaultMutableTreeNode (sd);
 
-            root.add (tn);
+            tn.add (n);
 
-            Collections.sort (assets,
-                              new NamedObjectSorter ());
+            String t = this.getFirstLastSentence (a.getDescriptionText ());
 
-            for (Asset a : assets)
+            if (t.length () > 0)
             {
 
-                if ((this.pv != null) &&
-                    (this.addToProject.isSelected ()))
-                {
-
-                    if (this.pv.getProject ().hasAsset (a))
-                    {
-
-                        continue;
-
-                    }
-
-                }
-
-                sd = new SelectableDataObject (a);
-
-                sd.selected = true;
-
-                DefaultMutableTreeNode n = new DefaultMutableTreeNode (sd);
-
-                tn.add (n);
-
-                String t = this.getFirstLastSentence (a.getDescriptionText ());
-
-                if (t.length () > 0)
-                {
-
-                    // Get the first and last sentence.
-                    n.add (new DefaultMutableTreeNode (t));
-
-                }
+                // Get the first and last sentence.
+                n.add (new DefaultMutableTreeNode (t));
 
             }
 
@@ -1504,7 +1517,7 @@ public class ImportProject extends Wizard implements ImportCallback
                 root.add (tn);
 
                 Collections.sort (b.getChapters (),
-                                  new NamedObjectSorter ());
+                                  NamedObjectSorter.getInstance ());
 
                 for (Chapter ch : b.getChapters ())
                 {
@@ -1546,18 +1559,19 @@ public class ImportProject extends Wizard implements ImportCallback
 
         }
 
-        this.addAssetsToTree (root,
-                              p.getCharacters ());
+        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
 
-        this.addAssetsToTree (root,
-                              p.getLocations ());
+        for (UserConfigurableObjectType t : assetTypes)
+        {
+            
+            Set<Asset> as = p.getAssets (t);
 
-        this.addAssetsToTree (root,
-                              p.getQObjects ());
-
-        this.addAssetsToTree (root,
-                              p.getResearchItems ());
-
+            this.addAssetsToTree (root,
+                                  t,
+                                  as);
+            
+        }
+        
         return root;
 
     }

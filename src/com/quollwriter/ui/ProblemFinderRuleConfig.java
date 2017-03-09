@@ -1017,7 +1017,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         final Box _editBox = editBox;
 
-          Form f = r.getEditForm (new ActionListener ()
+          com.quollwriter.ui.components.Form f = r.getEditForm (new ActionListener ()
           {
 
                @Override

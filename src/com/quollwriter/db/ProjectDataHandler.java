@@ -95,7 +95,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             
             if (loadChildObjects)
             {
-
+/*
                 this.objectManager.getObjects (UserConfigurableObjectType.class,
                                                p,
                                                conn,
@@ -113,7 +113,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                             conn);
                     
                 }
-            
+  */          
                 this.objectManager.getObjects (Book.class,
                                                p,
                                                conn,
@@ -133,15 +133,20 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                p,
                                                conn,
                                                loadChildObjects);
-
-                this.objectManager.loadNotes (p,
-                                              conn);
-
+                                               
                 this.objectManager.getObjects (ResearchItem.class,
                                                p,
                                                conn,
                                                loadChildObjects);
 
+                this.objectManager.getObjects (Asset.class,
+                                               p,
+                                               conn,
+                                               loadChildObjects);
+                                               
+                this.objectManager.loadNotes (p,
+                                              conn);
+                                               
                 this.objectManager.getObjects (IdeaType.class,
                                                p,
                                                conn,
@@ -265,7 +270,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         }
 
     }
-    
+    /*
     private void createUserConfigurableObjectTypes (Project    p,
                                                     Connection conn)
                                              throws GeneralException
@@ -336,7 +341,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         // Scenes
                 
     }
-    
+    */
     @Override
     public List<Project> getObjects (NamedObject parent,
                                      Connection  conn,
@@ -556,10 +561,26 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                            conn);
             
         }
-               
-        this.createUserConfigurableObjectTypes (p,
-                                                conn);
-                                             
+                 
+        // Get all the assets.
+        Set<UserConfigurableObjectType> asTypes = p.getAssetTypes ();
+        
+        for (UserConfigurableObjectType t : asTypes)
+        {
+            
+            Set<Asset> assets = p.getAssets (t);
+            
+            for (Asset a : assets)
+            {
+                
+                this.objectManager.saveObject (a,
+                                               conn);
+                
+            }
+            
+        }
+        /*
+                                                            
         // Get all the other objects.
         for (QCharacter c : p.getCharacters ())
         {
@@ -592,7 +613,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                            conn);
 
         }
-
+*/
         for (Book b : p.getBooks ())
         {
 

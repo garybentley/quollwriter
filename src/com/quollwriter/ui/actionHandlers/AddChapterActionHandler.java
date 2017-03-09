@@ -3,8 +3,8 @@ package com.quollwriter.ui.actionHandlers;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.swing.*;
 
@@ -13,16 +13,12 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.forms.*;
 
-
-public class AddChapterActionHandler extends AbstractActionHandler
+public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, NamedObject>
 {
 
-    private JTextField    nameField = UIUtils.createTextField ();
-    private Form          f = null;
-    private ProjectViewer projectViewer = null;
+    private TextFormItem  nameField = null;
     private Chapter       addAfter = null;
     private Book          book = null;
     private ActionListener afterAdd = null;
@@ -53,29 +49,27 @@ public class AddChapterActionHandler extends AbstractActionHandler
                AbstractActionHandler.ADD,
                true);
 
-        this.projectViewer = pv;
         this.book = b;
         this.addAfter = addAfter;
 
         final AddChapterActionHandler _this = this;
 
-        this.nameField.addKeyListener (new KeyAdapter ()
+        this.nameField = new TextFormItem ("Name",
+                                           null);
+        
+        this.nameField.setDoOnReturnPressed (new ActionListener ()
+        {
+          
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
-
-                public void keyPressed (KeyEvent ev)
-                {
-
-                    if (ev.getKeyCode () == KeyEvent.VK_ENTER)
-                    {
-
-                        _this.submitForm ();
-
-                    }
-
-                }
-
-            });
-
+                
+                _this.save ();
+                
+            }
+            
+        });
+                
     }
 
     public void setDoAfterAdd (ActionListener onAdd)
@@ -85,87 +79,95 @@ public class AddChapterActionHandler extends AbstractActionHandler
         
     }
     
-    public void handleCancel (int mode)
+    @Override    
+    public void handleCancel ()
     {
 
         // Nothing to do.
 
     }
 
-    public boolean handleSave (Form f,
-                               int  mode)
+    @Override
+    public Set<String> getFormErrors ()
     {
 
-        String n = this.nameField.getText ().trim ();
-
-        if (n.equals (""))
+        Set<String> errs = new LinkedHashSet ();
+    
+        if (this.nameField.getValue () == null)
         {
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "Please select a name.");
-
-            return false;
+            errs.add ("Please select a name.");
 
         }
 
+        return errs;
+        
+    }
+    
+    @Override    
+    public boolean handleSave ()
+    {
+
+        String n = this.nameField.getText ();
+
+        Chapter newChapter = null;
+        
         try
         {
 
             if (this.chapterToAdd != null)
             {
                 
-                this.chapterToAdd.setName (this.nameField.getText ());
+                this.chapterToAdd.setName (n);
                 
-                this.dataObject = this.book.createChapterAfter (this.addAfter,
-                                                                this.chapterToAdd);
+                newChapter = this.book.createChapterAfter (this.addAfter,
+                                                           this.chapterToAdd);
 
             } else {
         
-                this.dataObject = this.book.createChapterAfter (this.addAfter,
-                                                                this.nameField.getText ());
+                newChapter = this.book.createChapterAfter (this.addAfter,
+                                                           n);
 
             }
                                                                 
-            this.projectViewer.saveObject (this.dataObject,
-                                           true);
+            this.viewer.saveObject (newChapter,
+                                    true);
 
-            this.projectViewer.fireProjectEvent (this.dataObject.getObjectType (),
-                                                 ProjectEvent.NEW,
-                                                 this.dataObject);
+            this.viewer.fireProjectEvent (newChapter.getObjectType (),
+                                          ProjectEvent.NEW,
+                                          newChapter);
                                                                                       
         } catch (Exception e)
         {
 
             Environment.logError ("Unable to add new chapter with name: " +
-                                  this.nameField.getText (),
+                                  n,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE) + ".");
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to add new {chapter}.");
 
             return false;
 
         }
 
-        Chapter nc = (Chapter) this.dataObject;
-
         try
         {
 
-            this.projectViewer.editChapter (nc);
+            this.viewer.editChapter (newChapter);
 
-            this.projectViewer.addChapterToTreeAfter (nc,
-                                                      this.addAfter);
+            this.viewer.addChapterToTreeAfter (newChapter,
+                                               this.addAfter);
 
         } catch (Exception e)
         {
 
             Environment.logError ("Unable to edit chapter: " +
-                                  nc,
+                                  newChapter,
                                   e);
 
-            UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to edit " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE) + ".");
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to edit {chapter}.");
 
             return false;
 
@@ -182,45 +184,47 @@ public class AddChapterActionHandler extends AbstractActionHandler
 
     }
 
-    public String getTitle (int mode)
+    @Override
+    public String getTitle ()
     {
 
         return "Add New {Chapter}";
 
     }
 
-    public String getIcon (int mode)
+    @Override
+    public Icon getIcon (int iconSizeType)
     {
 
-        return Chapter.OBJECT_TYPE + "-add";
+        return Environment.getIcon (Chapter.OBJECT_TYPE + "-add",
+                                    iconSizeType);
 
     }
 
-    public List<FormItem> getFormItems (int         mode,
-                                        String      selectedText,
-                                        NamedObject obj)
+    @Override    
+    public Set<FormItem> getFormItems (String selectedText)
     {
 
-        List<FormItem> items = new ArrayList ();
-        items.add (new FormItem ("Name",
-                                 this.nameField));
+        Set<FormItem> items = new LinkedHashSet ();
+        items.add (this.nameField);
 
         return items;
 
     }
 
+    @Override
     public JComponent getFocussedField ()
     {
 
         return this.nameField;
 
     }
-
+/*    
     public int getShowAtPosition ()
     {
 
         return -1;
 
     }
-
+*/
 }

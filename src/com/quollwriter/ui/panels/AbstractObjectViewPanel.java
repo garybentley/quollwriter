@@ -34,6 +34,7 @@ import com.jgoodies.forms.layout.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.events.*;
@@ -43,10 +44,9 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.IconProvider;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.Runner;
 
-public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> extends ProjectObjectQuollPanel<E>
+public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O extends UserConfigurableObject> extends ProjectObjectQuollPanel<E, O>
 {
 
     private ActionMap              actions = null;
@@ -59,16 +59,16 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
     private JTree                  linkedToEditTree = null;
     private JTree                  linkedToViewTree = null;
     private boolean                panesInited = false;
-    private DetailsEditPanel       detailsPanel = null;
-    protected EditPanel              bottomDetailsPanel = null;
+    private EditPanel              detailsPanel = null;
+    protected JComponent           bottomPanel = null;
     protected EditPanel              linkedToPanel = null;
     private ActionListener         deleteObjectAction = null;
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
     private ObjectDocumentsEditPanel objDocsEditPanel = null;
     private int bottomPanelHeight = 0;
 
-    public AbstractObjectViewPanel (E           pv,
-                                    NamedObject n)
+    public AbstractObjectViewPanel (E pv,
+                                    O n)
                              throws GeneralException
     {
 
@@ -77,6 +77,21 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
     }
 
+    @Override
+    public String getTitle ()
+    {
+        
+        return this.getForObject ().getName ();
+        
+    }
+    
+    public Header getHeader ()
+    {
+        
+        return this.title;
+        
+    }
+    
     public ObjectDocumentsEditPanel getObjectDocumentsEditPanel ()
     {
 
@@ -84,7 +99,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
     }
 
-    public DetailsEditPanel getDetailsPanel ()
+    public EditPanel getDetailsPanel ()
     {
 
         return this.detailsPanel;
@@ -106,7 +121,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         this.title = UIUtils.createHeader (this.obj.getName (),
                                            Constants.PANEL_TITLE,
-                                           this.getIconType (),
+                                           this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
                                            null);
 
         final AbstractObjectViewPanel _this = this;
@@ -122,7 +137,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
                 if (ev.getChangeType ().equals (NamedObject.NAME))
                 {
 
-                    _this.refresh (_this.obj);
+                    _this.refresh ();
 
                 }
 
@@ -189,21 +204,26 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         this.mainSplitPane.setLeftComponent (this.leftSplitPane);
         this.mainSplitPane.setRightComponent (this.rightSplitPane);
 
-        final EditPanel botEp = this.getBottomEditPanel ();
+        final JComponent botEp = this.getBottomPanel ();
 
         if (botEp != null)
         {
 
-            botEp.init ();
+            if (botEp instanceof RefreshablePanel)
+            {
+        
+                ((RefreshablePanel) botEp).init ();
 
-            this.bottomDetailsPanel = botEp;
+            }
+                
+            this.bottomPanel = botEp;
 
         }
 
         this.detailsPanel = this.getDetailEditPanel (this.viewer,
                                                      this.obj);
 
-        this.detailsPanel.init (this);
+        this.detailsPanel.init ();
 
         this.detailsPanel.addActionListener (new ActionListener ()
         {
@@ -233,7 +253,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
             }
             
         });
-        
+                
         this.leftSplitPane.setTopComponent (this.detailsPanel);
         this.leftSplitPane.setBottomComponent (botEp);
 
@@ -282,7 +302,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         b.add (this.mainSplitPane);
 
-        this.refresh (this.obj);
+        this.refresh ();
 
         this.add (b);
         this.setOpaque (false);
@@ -370,13 +390,11 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
         
     }
     
-    public abstract EditPanel getBottomEditPanel ();
+    public abstract JComponent getBottomPanel ();
 
-    public abstract String getIconType ();
-
-    public abstract DetailsEditPanel getDetailEditPanel (E           viewer,
-                                                         NamedObject obj)
-                                                  throws GeneralException;
+    public abstract EditPanel getDetailEditPanel (E           viewer,
+                                                  NamedObject obj)
+                                           throws GeneralException;
 
     public abstract ActionListener getDeleteObjectAction (E           viewer,
                                                           NamedObject obj);
@@ -393,11 +411,12 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         // Need to specify the viewer type here to let the compiler know
         // what to do.
-        final AbstractObjectViewPanel<AbstractProjectViewer> _this = (AbstractObjectViewPanel<AbstractProjectViewer>) this;
+        final AbstractObjectViewPanel<AbstractProjectViewer, UserConfigurableObject> _this = (AbstractObjectViewPanel<AbstractProjectViewer, UserConfigurableObject>) this;
 
-        return new EditPanel (false)
+        return new EditPanel ()
         {
 
+            @Override
             public void refreshViewPanel ()
             {
 
@@ -430,20 +449,23 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
-            public List<FormItem> getEditItems ()
+            @Override
+            public Set<FormItem> getEditItems ()
             {
 
                 return null;
 
             }
 
-            public List<FormItem> getViewItems ()
+            @Override
+            public Set<FormItem> getViewItems ()
             {
 
                 return null;
 
             }
 
+            @Override
             public boolean handleSave ()
             {
 
@@ -504,6 +526,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public boolean handleCancel ()
             {
 
@@ -511,6 +534,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public void handleEditStart ()
             {
 
@@ -523,6 +547,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public IconProvider getIconProvider ()
             {
 
@@ -552,6 +577,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public String getHelpText ()
             {
 
@@ -559,6 +585,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public String getTitle ()
             {
 
@@ -566,6 +593,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public JComponent getEditPanel ()
             {
 
@@ -577,6 +605,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
             }
 
+            @Override
             public JComponent getViewPanel ()
             {
 
@@ -584,14 +613,9 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
                                                                      _this.obj,
                                                                      false);
 
-                JScrollPane treeScroll = UIUtils.createScrollPane (_this.linkedToViewTree);
-
-                treeScroll.setBorder (null);
                 UIUtils.expandAllNodesWithChildren (_this.linkedToViewTree);
 
-                treeScroll.setMinimumSize (new Dimension (150, 0));
-
-                return treeScroll;
+                return _this.linkedToViewTree;
 
             }
 
@@ -607,40 +631,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         this.doFillToolBar (tb,
                             fullScreen);
-/*
-        final JButton b = UIUtils.createToolBarButton ("new",
-                                                       "Click to add a new " + Environment.getObjectTypeName (QCharacter.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (Location.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (QObject.OBJECT_TYPE) + " etc.",
-                                                       "new",
-                                                       null);
 
-        ActionAdapter ab = new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                JPopupMenu m = new JPopupMenu ();
-
-                UIUtils.addNewAssetItemsToPopupMenu (m,
-                                                     b,
-                                                     _this.viewer,
-                                                     null,
-                                                     null);
-
-                Component c = (Component) ev.getSource ();
-
-                m.show (c,
-                        c.getX (),
-                        c.getY ());
-
-            }
-
-        };
-
-        b.addActionListener (ab);
-
-        tb.add (b);
-*/
         tb.add (UIUtils.createToolBarButton ("print",
                                              "Click to print the " + Environment.getObjectTypeName (this.obj.getObjectType ()) + " details",
                                              "print",
@@ -774,7 +765,8 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
     }
 
-    public void refresh (NamedObject n)
+    @Override
+    public void refresh ()
     {
 
         this.title.setTitle (this.obj.getName ());
@@ -785,10 +777,13 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer> e
 
         this.linkedToPanel.refreshViewPanel ();
 
-        if (this.bottomDetailsPanel != null)
+        if ((this.bottomPanel != null)
+            &&
+            (this.bottomPanel instanceof RefreshablePanel)
+           )
         {
 
-            this.bottomDetailsPanel.refreshViewPanel ();
+            ((RefreshablePanel) this.bottomPanel).refresh ();
 
         }
 

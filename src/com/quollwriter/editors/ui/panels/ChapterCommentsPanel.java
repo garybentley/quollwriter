@@ -48,7 +48,7 @@ import com.quollwriter.ui.renderers.*;
 public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements ChapterItemViewer
 {
 
-     private IconColumn              iconColumn = null;
+     private IconColumn<ProjectSentReceivedViewer> iconColumn = null;
      protected ProjectSentReceivedViewer   projectViewer = null;
      private int                     lastCaret = -1;
      private ChapterItemTransferHandler chItemTransferHandler = null;
@@ -70,9 +70,10 @@ public class ChapterCommentsPanel extends AbstractViewOnlyEditorPanel implements
         this.editor.setEditable (false);
         this.editor.setCanCopy (false);
                 
-        this.iconColumn = new IconColumn (this,
-                                          this.projectViewer.getIconProvider (),
-                                          this.projectViewer.getChapterItemViewPopupProvider ());
+        this.iconColumn = new IconColumn<ProjectSentReceivedViewer> (this,
+                                                                     c,
+                                                                     this.projectViewer.getIconProvider (),
+                                                                     this.projectViewer.getChapterItemViewPopupProvider ());
 
         this.iconColumn.setItemMoveAllowed (false);
          this.iconColumn.setSinglePopupOnly (true);

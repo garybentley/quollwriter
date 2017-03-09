@@ -80,13 +80,16 @@ public class BlankQuollPanel extends QuollPanel<AbstractViewer>
         
     }
 
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
         
-        return "blank";
+        return Environment.getIcon ("blank",
+                                    type);
         
     }
-
+    
+    @Override
     public String getTitle ()
     {
         
@@ -94,18 +97,21 @@ public class BlankQuollPanel extends QuollPanel<AbstractViewer>
         
     }
     
+    @Override
     public void fillToolBar (JToolBar toolBar,
                              boolean  fullScreen)
     {
                 
     }
     
+    @Override
     public void fillPopupMenu (MouseEvent ev,
                                JPopupMenu popup)
     {
         
     }
 
+    @Override
     public List<Component> getTopLevelComponents ()
     {
         

@@ -33,6 +33,8 @@ import com.quollwriter.text.*;
 public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V extends ProjectSentReceivedViewer> extends AbstractSideBar<V>
 {
 
+    public static final String ID = "projectsentreceived";
+
     private ProjectCommentsChaptersAccordionItem chapters = null;
     private EditorInfoBox editorInfoBox = null;
     private EditorEditor editor = null;
@@ -63,6 +65,14 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
 
     }
 
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
+        
+    }
+    
     public abstract String getItemsTitle ();
 
     public abstract int getItemCount ();
@@ -78,13 +88,14 @@ public abstract class ProjectSentReceivedSideBar<E extends EditorMessage, V exte
 
     }
 
-    public void init ()
+    @Override
+    public void init (String saveState)
                throws GeneralException
     {
 
         final ProjectSentReceivedSideBar _this = this;
 
-        super.init ();
+        super.init (saveState);
 
         this.editorInfoBox = new EditorInfoBox (this.editor,
                                                 this.viewer,

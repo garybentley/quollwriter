@@ -13,7 +13,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 
-public class OutlineItemFormatDetails implements ChapterItemFormatDetails<OutlineItem>
+public class OutlineItemFormatDetails implements ChapterItemFormatDetails<OutlineItem, ProjectViewer>
 {
 
     public String getIcon (OutlineItem item)
@@ -47,28 +47,28 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
     }
 
     @Override
-    public Set<JComponent> getTools (OutlineItem         item,
-                                     AbstractEditorPanel qep)
+    public Set<JComponent> getTools (OutlineItem                      item,
+                                     ChapterItemViewer<ProjectViewer> qep)
     {
         
         return null;
         
     }
     
-    public AbstractActionHandler getEditItemActionHandler (OutlineItem         item,
-                                                           AbstractEditorPanel qep)
+    public ActionListener getEditItemActionHandler (OutlineItem                      item,
+                                                    ChapterItemViewer<ProjectViewer> viewer)
     {
 
         return new ChapterItemActionHandler (item,
-                                             qep,
+                                             viewer,
                                              AbstractActionHandler.EDIT,
                                              -1);
 
     }
 
-    public ActionListener getDeleteItemActionHandler (OutlineItem         item,
-                                                      AbstractEditorPanel qep,
-                                                      boolean             showAtItem)
+    public ActionListener getDeleteItemActionHandler (OutlineItem                      item,
+                                                      ChapterItemViewer<ProjectViewer> qep,
+                                                      boolean                          showAtItem)
     {
 
         return new DeleteChapterItemActionHandler (item,

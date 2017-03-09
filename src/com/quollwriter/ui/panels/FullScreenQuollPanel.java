@@ -30,6 +30,7 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
 
     }
 
+    @Override
     public String getTitle ()
     {
         
@@ -37,13 +38,14 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
 
-        return this.child.getIconType ();
+        return this.child.getIcon (type);
 
     }
-
+    
     @Override
     public void init ()
     {
@@ -115,6 +117,7 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
 
     }
 
+    @Override
     public void fillToolBar (JToolBar toolBar,
                              boolean  fullScreen)
     {
@@ -124,6 +127,7 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
 
     }
 
+    @Override
     public void fillPopupMenu (MouseEvent ev,
                                JPopupMenu popup)
     {
@@ -133,6 +137,7 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
 
     }
 
+    @Override
     public List<Component> getTopLevelComponents ()
     {
 
@@ -140,7 +145,7 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
 
     }
 
-    public void refresh (NamedObject n)
+    public void refresh ()
     {
 
         if (this.child instanceof ProjectObjectQuollPanel)
@@ -148,7 +153,7 @@ public class FullScreenQuollPanel extends QuollPanel<AbstractViewer>
             
             ProjectObjectQuollPanel pc = (ProjectObjectQuollPanel) this.child;
             
-            pc.refresh (n);
+            pc.refresh ();
 
         }
             

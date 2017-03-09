@@ -1,9 +1,10 @@
 package com.quollwriter.data;
 
+import java.util.*;
+
 import org.jdom.*;
 
-
-public class QObject extends Asset
+public class QObject extends LegacyAsset
 {
 
     public static final String TYPE_LEGACY_FIELD_ID = "type";
@@ -14,7 +15,7 @@ public class QObject extends Asset
     
     private String type = null;
 
-    protected QObject()
+    public QObject ()
     {
 
         super (QObject.OBJECT_TYPE);
@@ -42,12 +43,14 @@ public class QObject extends Asset
             
             f = new UserConfigurableObjectField (type);
             
-            this.fields.add (f);
+            this.addField (f);
             
         }
-            
-        f.setParent (this);
-        f.setValue (t);
+                    
+        Set<String> vals = new LinkedHashSet ();
+        vals.add (t);
+        
+        f.setValue (vals);
     
         this.type = t;
 

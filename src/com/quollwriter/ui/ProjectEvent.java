@@ -39,6 +39,10 @@ public class ProjectEvent extends EventObject
     public static final String STATISTICS = "statistics";
     public static final String BACKUPS = "backups";
     public static final String TEXT_PROPERTIES = "textproperties";
+    public static final String USER_OBJECT_TYPE = "userobjecttype";
+    public static final String USER_OBJECT_TYPE_FIELD = "userobjecttypefield";
+    public static final String TAGS = "tags";
+    public static final String TAG = "tag";
     
     public static final String CHANGE_BACKGROUND = "changebackground";
     public static final String CHANGE_LANGUAGE = "changelanguage";

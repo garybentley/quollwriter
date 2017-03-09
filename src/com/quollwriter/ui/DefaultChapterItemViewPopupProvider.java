@@ -29,7 +29,7 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.data.comparators.*;
 
-public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopupProvider
+public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer> implements ChapterItemViewPopupProvider<V>
 {
     
     private Map<String, ChapterItemFormatDetails> formatDetails = new HashMap ();
@@ -78,8 +78,8 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
         
     }    
     
-    public QPopup getViewPopup (final ChapterItem         item,
-                                final AbstractEditorPanel panel)
+    public QPopup getViewPopup (final ChapterItem          item,
+                                final ChapterItemViewer<V> panel)
                          throws GeneralException
     {
                         
@@ -130,7 +130,7 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
             
         }
 
-        AbstractProjectViewer viewer = panel.getViewer ();        
+        V viewer = panel.getViewer ();        
         
         final java.util.Set<ChapterItem> its = new TreeSet (new ChapterItemSorter ());
 
@@ -238,15 +238,8 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
             JTextPane t = UIUtils.createObjectDescriptionViewPane (formatter.getItemDescription (it), //null,
                                                                    it,
                                                                    viewer,
-                                                                   panel);
-/*
-            t.setText (UIUtils.getWithHTMLStyleSheet (t,
-                                                      UIUtils.markupStringForAssets (formatter.getItemDescription (it),
-                                                                                     viewer.getProject (),
-                                                                                     it)));
+                                                                   null);
 
-*/
-            // t.setText (it.getDescription ());
             // Annoying that we have to do this but it prevents the text from being too small.
             t.setSize (380,
                        Short.MAX_VALUE);
@@ -275,11 +268,9 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
             if (this.canEdit (it))
             {
             
-                AbstractActionHandler aah = formatter.getEditItemActionHandler (it,
-                                                                                panel);
-    
-                aah.setPopupOver (panel); 
-                        
+                ActionListener aah = formatter.getEditItemActionHandler (it,
+                                                                         panel);
+                            
                 mb = UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                            Constants.ICON_MENU,
                                            "Click to edit this item.",
@@ -292,9 +283,8 @@ public class DefaultChapterItemViewPopupProvider implements ChapterItemViewPopup
                 aah = formatter.getEditItemActionHandler (it,
                                                           panel);
     
-                aah.setPopupOver (panel); 
-                aah.setShowLinkTo (this.showLinks);
-                
+                //aah.setShowLinkTo (this.showLinks);
+
                 if (this.showLinks)
                 {
                 

@@ -11,7 +11,7 @@ import com.quollwriter.data.*;
 public class ObjectDataHandler implements DataHandler<QObject, Project>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjecttypedbkey, name, description, markup, files, lastmodified, datecreated, properties, type, id, version FROM qobject_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, name, description, markup, files, lastmodified, datecreated, properties, type, id, version FROM qobject_v ";
     private ObjectManager objectManager = null;
 
     public ObjectDataHandler(ObjectManager om)
@@ -34,40 +34,36 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
 
             long key = rs.getLong (ind++);
 
-            QObject l = proj.createQObject (); //new QObject ();
+            QObject l = new QObject ();
             l.setKey (key);
-            
-            long userObjTypeKey = rs.getLong (ind++);
-            
-            // Get the object fields.
-            UserConfigurableObjectType configType = this.objectManager.getUserConfigurableObjectType (userObjTypeKey,
-                                                                                                      l,
-                                                                                                      rs.getStatement ().getConnection ());
-            
-            l.setUserConfigurableObjectType (configType);
-            
+                        
             // Load the object fields.
-            l.setFields (this.objectManager.getUserConfigurableObjectFields (l,
-                                                                             rs.getStatement ().getConnection ()));            
-            
+            this.objectManager.setUserConfigurableObjectFields (l,
+                                                                rs.getStatement ().getConnection ());            
+                        
             l.setName (rs.getString (ind++));
             l.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
+
             l.setFiles (Utils.getFilesFromXML (rs.getString (ind++)));
             l.setLastModified (rs.getTimestamp (ind++));
             l.setDateCreated (rs.getTimestamp (ind++));
             l.setPropertiesAsString (rs.getString (ind++));
-            l.setType (rs.getString (ind++));
-            l.setId (rs.getString (ind++));
-            l.setVersion (rs.getString (ind++));            
             
-            if (proj != null)
+            if (l.getLegacyField (QObject.TYPE_LEGACY_FIELD_ID) == null)
             {
+            
+                l.setType (rs.getString (ind++));
                 
-                proj.addQObject (l);
+            } else {
+                
+                ind++;
                 
             }
-                        
+            
+            l.setId (rs.getString (ind++));
+            l.setVersion (rs.getString (ind++));            
+                                    
             // Get all the notes.
             if (loadChildObjects)
             {
@@ -77,6 +73,13 @@ public class ObjectDataHandler implements DataHandler<QObject, Project>
                  
             }
 
+            if (proj != null)
+            {
+                
+                proj.addAsset (l);
+                
+            }
+            
             return l;
 
         } catch (Exception e)

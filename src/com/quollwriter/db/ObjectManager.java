@@ -127,6 +127,12 @@ public class ObjectManager
         this.handlers.put (ProjectVersion.class,
                            new ProjectVersionDataHandler (this));
 
+        this.handlers.put (Asset.class,
+                           new AssetDataHandler (this));
+
+        this.handlers.put (Tag.class,
+                           new TagDataHandler (this));
+
         this.handlers.put (UserConfigurableObjectType.class,
                            new UserConfigurableObjectTypeDataHandler (this));
         this.handlers.put (UserConfigurableObjectTypeField.class,
@@ -1373,6 +1379,17 @@ public class ObjectManager
     }
 
     public void deleteObject (DataObject d,
+                              boolean    deleteChildObjects)
+                       throws GeneralException
+    {
+        
+        this.deleteObject (d,
+                           deleteChildObjects,
+                           null);
+        
+    }
+    
+    public void deleteObject (DataObject d,
                               boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
@@ -1806,6 +1823,15 @@ public class ObjectManager
 
     }
 
+    public void saveObject (DataObject d)
+                     throws GeneralException
+    {
+        
+        this.saveObject (d,
+                         null);
+        
+    }
+    
     public void saveObject (DataObject d,
                             Connection conn)
                      throws GeneralException
@@ -1951,13 +1977,6 @@ public class ObjectManager
                             
                             UserConfigurableObjectType t = o.getUserConfigurableObjectType ();
                             
-                            if (t == null)
-                            {
-                                
-                                t = this.project.getUserConfigurableObjectType (o.getObjectType ());
-                                
-                            }                                     
-                              
                             params.add (t.getKey ());
                             
                         } else {
@@ -3107,6 +3126,23 @@ public class ObjectManager
 
         }
         
+    }
+    
+    public void setUserConfigurableObjectFields (UserConfigurableObject obj,
+                                                 Connection             conn)
+                                          throws GeneralException
+    {
+
+        Set<UserConfigurableObjectField> fields = this.getUserConfigurableObjectFields (obj,
+                                                                                        conn);
+        
+        for (UserConfigurableObjectField f : fields)
+        {
+            
+            obj.addField (f);
+            
+        }
+    
     }
     
     public Set<UserConfigurableObjectField> getUserConfigurableObjectFields (UserConfigurableObject obj,

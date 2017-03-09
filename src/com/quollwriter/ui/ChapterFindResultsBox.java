@@ -20,6 +20,7 @@ public class ChapterFindResultsBox extends FindResultsBox
     private Map<Chapter, List<Segment>> snippets = null;
     private Object highlightId = null;
     private QTextEditor highlightedEditor = null;
+    private String forObjType = null;
     
     public ChapterFindResultsBox (String                      title,
                                   String                      iconType,
@@ -33,8 +34,18 @@ public class ChapterFindResultsBox extends FindResultsBox
                forObjType,
                viewer);
                      
+        this.forObjType = forObjType;
+                     
         this.snippets = snippets;
                                             
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return this.forObjType;
+        
     }
     
     @Override

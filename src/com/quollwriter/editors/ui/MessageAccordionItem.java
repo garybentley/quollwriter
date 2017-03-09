@@ -47,8 +47,7 @@ public class MessageAccordionItem<E extends EditorMessage> extends AccordionItem
                                  Set<E>         messages)
     {
         
-        super ("",
-               null);
+        super ("");
                 
         this.date = d;
         

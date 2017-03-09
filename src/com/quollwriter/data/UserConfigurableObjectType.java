@@ -2,6 +2,8 @@ package com.quollwriter.data;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import org.jdom.*;
 
 import com.quollwriter.*;
@@ -9,13 +11,20 @@ import com.quollwriter.*;
 public class UserConfigurableObjectType extends NamedObject
 {
     
+    public static final String ICON16 = "icon16";
+    public static final String ICON24 = "icon24";
+    public static final String OBJECT_TYPE_NAME_PLURAL = "objectTypeNamePlural";
+    public static final String OBJECT_TYPE_NAME = "objectTypeName";
     public static final String OBJECT_TYPE = "userconfigobjtype";
     
-    private String objectTypePluralName = null;
-    private String iconName = null;
+    private String objectTypeNamePlural = null;
+    private ImageIcon icon24x24 = null;
+    private ImageIcon icon16x16 = null;
     private Set<UserConfigurableObjectTypeField> fields = new LinkedHashSet ();
     private String layout = null;
     private String userObjectType = null;
+    private boolean isAsset = false;
+    private KeyStroke createShortcutKeyStroke = null;
     
     public UserConfigurableObjectType ()
     {
@@ -23,7 +32,79 @@ public class UserConfigurableObjectType extends NamedObject
         super (OBJECT_TYPE);
         
     }
+
+    @Override
+    public void fillToStringProperties (Map<String, Object> props)
+    {
+
+        super.fillToStringProperties (props);
+
+        this.addToStringProperties (props,
+                                    "objectTypeId",
+                                    this.getObjectTypeId ());
+        this.addToStringProperties (props,
+                                    "objectTypeName",
+                                    this.getName ());
+        this.addToStringProperties (props,
+                                    "objectTypeNamePlural",
+                                    this.getObjectTypeNamePlural ());
+        this.addToStringProperties (props,
+                                    "isAsset",
+                                    this.isAssetObjectType ());
+        this.addToStringProperties (props,
+                                    "layout",
+                                    this.getLayout ());
+        this.addToStringProperties (props,
+                                    "createShortcutKey",
+                                    this.createShortcutKeyStroke);
+        this.addToStringProperties (props,
+                                    "fields",
+                                    this.fields.size ());
+
+    }
      
+    public Set<UserConfigurableObjectTypeField> getSortableFields ()
+    {
+        
+        Set<UserConfigurableObjectTypeField> sfs = new LinkedHashSet ();
+        
+        for (UserConfigurableObjectTypeField f : this.fields)
+        {
+            
+            if (f.isSortable ())
+            {
+                
+                sfs.add (f);
+                
+            }
+            
+        }
+        
+        return sfs;
+     
+    }
+    
+    public void setCreateShortcutKeyStroke (KeyStroke k)
+    {
+        
+        this.createShortcutKeyStroke = k;
+     
+    }
+    
+    public KeyStroke getCreateShortcutKeyStroke ()
+    {
+        
+        return this.createShortcutKeyStroke;
+     
+    }
+    
+    public boolean isLegacyObjectType ()
+    {
+        
+        return this.getUserObjectType () != null;
+     
+    }
+    
     public String getUserObjectType ()
     {
         
@@ -77,9 +158,18 @@ public class UserConfigurableObjectType extends NamedObject
                 
         this.fields.add (f);
         
-        f.setOrder (this.fields.size () - 1);
-        
         f.setUserConfigurableObjectType (this);
+        
+        if (f.getOrder () == -1)
+        {
+        
+            f.setOrder (this.fields.size () - 1);
+            
+        } else {
+            
+            this.reorderFields ();
+                
+        }
         
     }
     
@@ -97,23 +187,41 @@ public class UserConfigurableObjectType extends NamedObject
         
         f.setUserConfigurableObjectType (null);
         
-        this.reorderFields ();
+        int i = 0;         
         
-    }
+        for (UserConfigurableObjectTypeField _f : this.fields)
+        {  
+
+            _f.setOrder (i);
             
+            i++;
+        
+        }
+                
+    }
+                
     public void reorderFields ()
     {
                 
-        int i = 0; 
-                
+        TreeMap<Integer, UserConfigurableObjectTypeField> s = new TreeMap ();
+                                
         for (UserConfigurableObjectTypeField f : this.fields)
         {  
             
-            f.setOrder (i);
+            if (f.getOrder () == -1)
+            {
+                
+                throw new IllegalStateException ("Field must have an order value: " +
+                                                 f);
+                
+            }
             
-            i++;
+            s.put (f.getOrder (),
+                   f);
             
         }
+        
+        this.fields = new LinkedHashSet (s.values ());
                 
     }
 
@@ -139,46 +247,152 @@ public class UserConfigurableObjectType extends NamedObject
         
     }
     
-    public UserConfigurableObjectTypeField getPrimaryNameField ()
+    /**
+     * Return how many non object name/object description fields there are.
+     *
+     * @return The count.
+     */
+    public int getNonCoreFieldCount ()
+    {
+        
+        int c = 0;
+        
+        for (UserConfigurableObjectTypeField f : this.fields)
+        {
+            
+            // TODO: Need a better way!
+            if (f instanceof ObjectNameUserConfigurableObjectTypeField)
+            {
+                
+                continue;
+                
+            }
+            
+            if (f instanceof ObjectDescriptionUserConfigurableObjectTypeField)
+            {
+                
+                continue;
+                
+            }
+            
+            c++;
+
+        }
+        
+        return c;
+    
+    }
+    
+    public ObjectNameUserConfigurableObjectTypeField getPrimaryNameField ()
     {
         
         for (UserConfigurableObjectTypeField f : this.fields)
         {
             
-            if ((f.isNameField ())
-                &&
-                (f.isPrimaryNameField ())
-               )
+            // TODO: Need a better way!
+            if (f instanceof ObjectNameUserConfigurableObjectTypeField)
             {
-
-                return f;
-            
-            }            
+                
+                return (ObjectNameUserConfigurableObjectTypeField) f;
+                
+            }
             
         }
         
         return null;
         
     }
-    
-    public String getIconName ()
+        
+    public ObjectDescriptionUserConfigurableObjectTypeField getObjectDescriptionField ()
     {
         
-        return this.iconName;
+        for (UserConfigurableObjectTypeField f : this.fields)
+        {
+            
+            // TODO: Need a better way!
+            if (f instanceof ObjectDescriptionUserConfigurableObjectTypeField)
+            {
+                
+                return (ObjectDescriptionUserConfigurableObjectTypeField) f;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+
+    public ObjectImageUserConfigurableObjectTypeField getObjectImageField ()
+    {
+        
+        for (UserConfigurableObjectTypeField f : this.fields)
+        {
+            
+            // TODO: Need a better way!
+            if (f instanceof ObjectImageUserConfigurableObjectTypeField)
+            {
+                
+                return (ObjectImageUserConfigurableObjectTypeField) f;
+                
+            }
+            
+        }
+        
+        return null;
+        
+    }
+
+    public void setIcon24x24 (ImageIcon ic)
+    {
+        
+        ImageIcon oldIc = this.icon24x24;
+        
+        this.icon24x24 = ic;
+
+        this.firePropertyChangedEvent (ICON24,
+                                       oldIc,
+                                       ic);
         
     }
     
-    public void setIconName (String n)
+    public ImageIcon getIcon24x24 ()
     {
         
-        this.iconName = n;
+        return this.icon24x24;
         
     }
     
+    public void setIcon16x16 (ImageIcon ic)
+    {
+        
+        ImageIcon oldIc = this.icon16x16;
+        
+        this.icon16x16 = ic;
+
+        this.firePropertyChangedEvent (ICON16,
+                                       oldIc,
+                                       ic);
+        
+    }
+    
+    public ImageIcon getIcon16x16 ()
+    {
+        
+        return this.icon16x16;
+        
+    }
+
     public void setObjectTypeName (String n)
     {
         
+        String oldName = this.getName ();
+        
         this.setName (n);
+                
+        this.firePropertyChangedEvent (OBJECT_TYPE_NAME,
+                                       oldName,
+                                       n);
                 
     }
     
@@ -189,18 +403,63 @@ public class UserConfigurableObjectType extends NamedObject
         
     }
     
-    public String getObjectTypePluralName ()
+    public String getObjectTypeNamePlural ()
     {
         
-        return this.objectTypePluralName;
+        return this.objectTypeNamePlural;
         
     }
     
-    public void setObjectTypePluralName (String n)
+    public void setObjectTypeNamePlural (String n)
     {
+
+        String oldName = this.objectTypeNamePlural;
         
-        this.objectTypePluralName = n;
+        this.objectTypeNamePlural = n;
+
+        this.firePropertyChangedEvent (OBJECT_TYPE_NAME_PLURAL,
+                                       oldName,
+                                       n);
                 
     }
+    
+    public String getObjectTypeId ()
+    {
+        
+        if (this.getUserObjectType () != null)
+        {
+            
+            return this.getUserObjectType ();
+            
+        } else {
+            
+            if (this.isAssetObjectType ())
+            {
+                
+                return "asset:" + this.getKey ();
+                
+            } else {
+                
+                return this.getObjectReference ().asString ();
+                
+            }
+            
+        }
+        
+    }
+    
+    public void setAssetObjectType (boolean v)
+    {
+        
+        this.isAsset = v;
+        
+    }
+    
+    public boolean isAssetObjectType ()
+    {
+        
+        return this.isAsset;
      
+    }
+    
 }

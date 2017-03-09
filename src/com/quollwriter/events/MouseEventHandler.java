@@ -187,7 +187,7 @@ public class MouseEventHandler extends MouseAdapter
             }
             
             Component c = (Component) ev.getSource ();
-
+            
             m.show (c,
                     ev.getX (),
                     ev.getY ());

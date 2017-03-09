@@ -36,18 +36,15 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
     public static final int UNSAVED_CHANGES_ACTION_EVENT = 0;
 
-    public static final int SAVED = 1;
+    //public static final int SAVED = 1;
 
-    public static final String HAS_CHANGES_COMMAND = "hasChanges";
-    public static final String NO_CHANGES_COMMAND = "noChanges";
+    //public static final String HAS_CHANGES_COMMAND = "hasChanges";
+    //public static final String NO_CHANGES_COMMAND = "noChanges";
 
     protected E viewer = null;
 
     protected Box                                   content = null;
-    //protected NamedObject                           obj = null;
     private java.util.List                          actionListeners = new ArrayList ();
-    private java.util.List<PropertyChangedListener> propertyChangedListeners = new ArrayList ();
-    private boolean                                 hasUnsavedChanges = false;
     private JToolBar                                toolBar = null;
     private boolean                                 readyForUse = false;
     private MouseEventHandler mouseEventHandler = null;
@@ -257,7 +254,9 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
     public abstract void setState (Map<String, String> s,
                                    boolean             hasFocus);
 
-    public abstract String getIconType ();
+    public abstract ImageIcon getIcon (int type);
+                                   
+    //public abstract String getIconType ();
 
     public abstract String getTitle ();
     
@@ -457,25 +456,7 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
         return null;
 
     }
-/*
-    public boolean hasUnsavedChanges ()
-    {
 
-        return this.hasUnsavedChanges;
-
-    }
-
-    protected void setHasUnsavedChanges (boolean hasChanges)
-    {
-
-        this.hasUnsavedChanges = hasChanges;
-
-        this.fireActionEvent (new ActionEvent (this,
-                                               QuollPanel.UNSAVED_CHANGES_ACTION_EVENT,
-                                               (hasChanges ? QuollPanel.HAS_CHANGES_COMMAND : QuollPanel.NO_CHANGES_COMMAND)));
-
-    }
-*/
     @Override
     public void removePopup (Component c)
     {
@@ -667,17 +648,6 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
                                      y),
                           hideOnParentClick);
 
-/*
-        c.setBounds (x,
-                     y,
-                     c.getPreferredSize ().width,
-                     c.getPreferredSize ().height);
-
-        c.setVisible (true);
-
-        this.validate ();
-        this.repaint ();
-*/
     }
 
     @Override
@@ -697,13 +667,6 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
                                     JLayeredPane.POPUP_LAYER);
 
         this.getLayeredPane ().moveToFront (c);
-
-/*
-        this.content.getLayeredPane ().add (c,
-                             JLayeredPane.POPUP_LAYER);
-
-        this.content.getLayeredPane ().moveToFront (c);
-*/
 
         if (hideOnClick)
         {
@@ -733,13 +696,18 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
 
                         List<Component> comps = _this.getTopLevelComponents ();
 
-                        for (int i = 0; i < comps.size (); i++)
+                        if (comps != null)
                         {
-
-                            comps.get (i).removeMouseListener (this);
+                        
+                            for (int i = 0; i < comps.size (); i++)
+                            {
+    
+                                comps.get (i).removeMouseListener (this);
+    
+                            }
 
                         }
-
+                            
                     }
 
                 }
@@ -763,12 +731,5 @@ public abstract class QuollPanel<E extends AbstractViewer> extends JRootPane imp
         }
 
     }
-/*
-    public AbstractProjectViewer getProjectViewer ()
-    {
 
-        return this.projectViewer;
-
-    }
-*/
 }

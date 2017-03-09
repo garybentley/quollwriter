@@ -1,0 +1,540 @@
+package com.quollwriter.ui;
+
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.event.*;
+
+import javax.swing.*;
+import javax.swing.tree.*;
+
+import java.util.*;
+
+import com.quollwriter.data.*;
+import com.quollwriter.data.comparators.*;
+import com.quollwriter.*;
+import com.quollwriter.ui.panels.*;
+import com.quollwriter.ui.actionHandlers.*;
+import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.renderers.*;
+
+public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer> 
+{
+
+    public static final String ID_PREFIX = "tag:";
+
+    private Comparator<NamedObject> sorter = null;
+    private Tag tag = null;
+
+    public TaggedObjectAccordionItem (Tag           tag,
+                                      ProjectViewer pv)
+    {
+
+        super (tag.getName (),
+               Environment.getIcon (Constants.TAG_ICON_NAME,
+                                    Constants.ICON_SIDEBAR),
+               pv);
+
+        this.tag = tag;
+        
+        this.sorter = NamedObjectSorter.getInstance ();
+                                                            
+    }
+    
+    @Override
+    public String getTitle ()
+    {
+        
+        return this.tag.getName ();
+        
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return ID_PREFIX + this.tag.getKey ();
+        
+    }
+                
+    @Override
+    public void initFromSaveState (String ss)
+    {
+        
+        super.initFromSaveState (ss);
+               
+        Map<String, Object> state = (Map<String, Object>) JSONDecoder.decode (ss);        
+                
+        Collection<String> objRefs = (Collection<String>) state.get ("order");
+        
+        if (objRefs != null)
+        {
+        
+            final Map<String, Number> order = new HashMap ();
+            
+            int c = 0;
+            
+            for (String ref : objRefs)
+            {
+                
+                order.put (ref,
+                           c++);
+                
+            }
+        
+            this.sorter = new Comparator<NamedObject> ()
+            {
+              
+                @Override
+                public boolean equals (Object o)
+                {
+                    
+                    return this.equals (o);
+                    
+                }
+                
+                @Override
+                public int compare (NamedObject o1,
+                                    NamedObject o2)
+                {
+                    
+                    Number nv1 = order.get (o1.getObjectReference ().asString ());
+                    
+                    Number nv2 = order.get (o2.getObjectReference ().asString ());
+                    
+                    if ((nv1 == null)
+                        ||
+                        (nv2 == null)
+                       )
+                    {
+                        
+                        return NamedObjectSorter.getInstance ().compare (o1, o2);
+                        
+                    }
+                    
+                    return nv1.intValue () - nv2.intValue ();
+                    
+                }
+                
+            };
+                            
+        }
+        
+        this.reloadTree ();    
+                                
+    }    
+    
+    @Override
+    public Map<String, Object> getSaveStateAsMap ()
+    {
+
+        Map<String, Object> ss = super.getSaveStateAsMap ();
+                        
+        DefaultMutableTreeNode r = (DefaultMutableTreeNode) ((DefaultTreeModel) this.tree.getModel ()).getRoot ();
+        
+        Set<String> objRefs = new LinkedHashSet ();
+        
+        for (int i = 0; i < r.getChildCount (); i++)
+        {
+            
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode) r.getChildAt (i);
+            
+            NamedObject oo = (NamedObject) n.getUserObject ();
+            
+            objRefs.add (oo.getObjectReference ().asString ());
+            
+        }
+        
+        if (objRefs.size () > 0)
+        {
+            
+            ss.put ("order",
+                    objRefs);
+            
+        }
+        
+        return ss;
+    
+    }    
+    
+    @Override
+    public void initTree ()
+    {
+
+        this.reloadTree ();
+    
+        this.tree.setCellRenderer (new ProjectTreeCellRenderer (true));
+
+    
+    }
+
+    @Override
+    public void fillHeaderPopupMenu (JPopupMenu m,
+                                     MouseEvent ev)
+    {
+
+        final TaggedObjectAccordionItem _this = this;
+        
+        m.add (UIUtils.createMenuItem ("Delete this Tag",
+                                       Constants.DELETE_ICON_NAME,
+                                       new ActionListener ()
+                                       {
+
+                                           @Override
+                                           public void actionPerformed (ActionEvent ev)
+                                           {
+                        
+                                                Map<String, ActionListener> buttons = new LinkedHashMap ();
+                                                
+                                                buttons.put ("Delete from all {projects}",
+                                                             new ActionListener ()
+                                                             {
+                                                                
+                                                                @Override
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+                                                                    
+                                                                    try
+                                                                    {
+                                                                        
+                                                                    } catch (Exception e) {
+                                                                        
+                                                                        Environment.logError ("Unable to delete tag: " +
+                                                                                              _this.tag,
+                                                                                              e);
+                                                                        
+                                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                                  "Unable to delete tag.");
+                                                                        
+                                                                    }
+                                                                    
+                                                                }
+                                                                
+                                                             });
+                        
+                                                buttons.put ("Just this {project}",
+                                                             new ActionListener ()
+                                                             {
+
+                                                                @Override
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+
+                                                                    try
+                                                                    {
+                                            
+                                                                        
+                                            
+                                                                        _this.viewer.removeTag (_this.tag);
+                                                                        
+                                                                    } catch (Exception e) {
+                                                                        
+                                                                        Environment.logError ("Unable to remove tag: " +
+                                                                                              _this.tag,
+                                                                                              e);
+                                                                        
+                                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                                  "Unable to delete tag.");
+                                                                        
+                                                                    }
+                                                                    
+                                                                }
+                                                                
+                                                             });
+                        
+                                                buttons.put (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                             new ActionListener ()
+                                                             {
+
+                                                                @Override
+                                                                public void actionPerformed (ActionEvent ev)
+                                                                {
+                                                                    
+                                                                }
+                                                                
+                                                             });
+
+                                                UIUtils.createQuestionPopup (_this.viewer,
+                                                                             "Remove tag",
+                                                                             Constants.DELETE_ICON_NAME,
+                                                                             "Do you wish to remove tag <b>%s</b> from <b>ALL</b> {projects} or just this one?",
+                                                                             buttons,
+                                                                             null,
+                                                                             null);
+                                                
+                                           }
+
+                                        }));        
+
+    }
+        
+    @Override
+    public void reloadTree ()
+    {
+    
+        Set<NamedObject> taggedObjects = this.viewer.getProject ().getAllObjectsWithTag (this.tag);
+    
+        if (this.sorter != null)
+        {
+    
+            List<NamedObject> sobjs = new ArrayList ();
+            
+            if (taggedObjects != null)
+            {
+                
+                sobjs.addAll (taggedObjects);
+                
+            }
+        
+            Collections.sort (sobjs,
+                              this.sorter);
+    
+            taggedObjects = new LinkedHashSet (sobjs);
+
+        }
+    
+        DefaultMutableTreeNode pn = UIUtils.createTreeNode (this.viewer.getProject (),
+                                                            null,
+                                                            null,
+                                                            false);
+    
+        UIUtils.createTree (taggedObjects,
+                            pn);
+    
+        ((DefaultTreeModel) this.tree.getModel ()).setRoot (pn);
+    
+    }
+
+    public boolean showItemCountOnHeader ()
+    {
+
+        return true;
+
+    }
+
+    public int getItemCount ()
+    {
+
+        int c = this.viewer.getProject ().getAllObjectsWithTag (this.tag).size ();
+
+        return c;
+
+    }
+
+    @Override
+    public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
+    {
+    
+        final TaggedObjectAccordionItem _this = this;
+    
+        return new DragActionHandler<NamedObject> ()
+        {
+        
+            @Override
+            public boolean canImportForeignObject (NamedObject obj)
+            {
+                
+                return !obj.hasTag (_this.tag);
+                
+            }
+            
+            @Override
+            public boolean importForeignObject (NamedObject obj,
+                                                int         insertRow)
+                                         throws GeneralException 
+            {
+                
+                int c = _this.getItemCount ();
+                
+                obj.addTag (_this.tag);
+
+                _this.viewer.saveObject (obj,
+                                         true);
+
+                if (c == 0)
+                {
+                    
+                    _this.update ();
+                    
+                } else {
+                    
+                    // Add at the appropriate row.
+                    DefaultTreeModel model = ((DefaultTreeModel) _this.tree.getModel ());
+    
+                    TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
+                                                                    obj);
+    
+                    DefaultMutableTreeNode n = new DefaultMutableTreeNode (obj);
+    
+                    model.insertNodeInto (n,
+                                          (DefaultMutableTreeNode) model.getRoot (),
+                                          insertRow);
+                    
+                    _this.tree.getSelectionModel ().clearSelection ();    
+                    
+                    _this.updateItemCount (_this.getItemCount ());
+                    
+                }
+
+                _this.viewer.openObjectSection (TaggedObjectAccordionItem.ID_PREFIX + _this.tag);
+                
+                return true;
+                
+            }
+        
+            @Override
+            public boolean handleMove (int         fromRow,
+                                       int         toRow,
+                                       NamedObject object)
+            {
+                
+                return true;
+                
+            }
+        
+            @Override
+            public boolean performAction (int         removeRow,
+                                          NamedObject removeObject,
+                                          int         insertRow,
+                                          NamedObject insertObject)
+            {
+                
+                return true;
+                
+            }
+        
+        }; 
+    
+    }
+
+    @Override
+    public void fillTreePopupMenu (JPopupMenu m,
+                                   MouseEvent ev)
+    {
+
+        final TaggedObjectAccordionItem _this = this;
+
+        final TreePath tp = _this.tree.getPathForLocation (ev.getX (),
+                                                           ev.getY ());
+
+        JMenuItem mi = null;
+
+        if (tp != null)
+        {
+
+            final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
+
+            final NamedObject d = (NamedObject) node.getUserObject ();
+
+            m.add (UIUtils.createMenuItem ("View",
+                                            Constants.VIEW_ICON_NAME,
+                                            new ActionListener ()
+                                            {
+
+                                               @Override
+                                               public void actionPerformed (ActionEvent ev)
+                                               {
+                            
+                                                   _this.viewer.viewObject (d);
+                            
+                                               }
+
+                                            }));
+
+            m.add (UIUtils.createMenuItem ("Edit",
+                                           Constants.EDIT_ICON_NAME,
+                                           new ActionListener ()
+                                           {
+
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                    
+                                                    //_this.viewer.editObject (d);
+                                                    
+                                                }
+                                            
+                                           }));
+
+            m.add (UIUtils.createTagsMenu (d,
+                                           this.viewer));
+            
+            m.add (UIUtils.createMenuItem ("Remove",
+                                            Constants.DELETE_ICON_NAME,
+                                            new ActionListener ()
+                                            {
+
+                                               @Override
+                                               public void actionPerformed (ActionEvent ev)
+                                               {
+                            
+                                                    try
+                                                    {
+                                                        
+                                                        d.removeTag (_this.tag);
+                                
+                                                        _this.viewer.saveObject (d,
+                                                                                 true);
+                                
+                                                        _this.update ();
+
+                                                    } catch (Exception e) {
+                                                        
+                                                        Environment.logError ("Unable to remove tag: " +
+                                                                              _this.tag,
+                                                                              e);
+                                                        
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  "Unable to remove tag.");
+                                                        
+                                                    }
+                            
+                            
+                                               }
+
+                                            }));
+            
+        }
+
+    }
+
+    @Override
+    public TreeCellEditor getTreeCellEditor (ProjectViewer pv)
+    {
+
+        return new ProjectTreeCellEditor (pv,
+                                          tree);
+
+    }
+
+    public int getViewObjectClickCount (Object d)
+    {
+
+        return 1;
+
+    }
+
+    @Override
+    public boolean isAllowObjectPreview ()
+    {
+        
+        return true;
+        
+    }
+    
+    @Override
+    public boolean isTreeEditable ()
+    {
+
+        return false;
+
+    }
+
+    @Override
+    public boolean isDragEnabled ()
+    {
+
+        return true;
+
+    }
+
+}

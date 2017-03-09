@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -20,52 +21,30 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.ui.panels.*;
-import com.quollwriter.ui.components.FormItem;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.ActionAdapter;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.renderers.*;
 
-public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer>
+public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
 {
 
-    private static Map<String, Class> actionHandlers = new HashMap ();
-
-    private JTextField       nameField = null;
-    private TextArea descField = null;    
+    private ObjectNameUserConfigurableObjectFieldViewEditHandler nameHandler = null;
+    private ObjectDescriptionUserConfigurableObjectFieldViewEditHandler descHandler = null;
     private int              showAt = -1;
     private boolean          displayAfterSave = false;
-    private DetailsEditPanel delegate = null;
 
+    /**
+     * Only used for add now.
+     */
     public AssetActionHandler (Asset         a,
-                               ProjectViewer pv,
-                               int           mode)
+                               ProjectViewer pv)
     {
 
         super (a,
                pv,
-               mode,
+               ADD,
                true);
-
-        this.initFormItems ();
-               
-        try
-        {
-
-            this.delegate = AssetViewPanel.getEditDetailsPanel (a,
-                                                                pv);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to create edit details panel delegate for: " +
-                                  a,
-                                  e);
-
-            UIUtils.showErrorMessage (pv,
-                                      "Unable to show form.");
-
-        }
 
         this.setPopupOver (pv);
         
@@ -85,262 +64,322 @@ public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer
 
     }
 
-    public int getShowAtPosition ()
+    @Override
+    public JComponent getFocussedField ()
     {
 
-        return -1;
+        return this.nameHandler.getInputFormItem ().getTextField ();
 
     }
 
-    public JTextField getFocussedField ()
+    @Override
+    public Icon getIcon (int iconSizeType)
     {
 
-        return this.nameField;
+        return this.object.getUserConfigurableObjectType ().getIcon16x16 ();
 
     }
-
-    public String getIcon (int mode)
-    {
-
-        return this.dataObject.getObjectType ();
-
-    }
-
-    public String getTitle (int mode)
-    {
-
-        if (mode == AbstractActionHandler.EDIT)
-        {
-
-            return "Edit " + Environment.getObjectTypeName (this.dataObject);
-
-        }
-
-        return "Add New " + Environment.getObjectTypeName (this.dataObject);
-
-    }
-
-    private void initFormItems ()
-    {
-
-        this.nameField = UIUtils.createTextField ();
-        this.descField = UIUtils.createTextArea (this.projectViewer,
-                                                 null,
-                                                 //String.format ("Describe the {%s} here.",
-                                                 //               this.dataObject.getObjectType ()),
-                                                 5,
-                                                 -1);        
-        this.descField.setCanFormat (true);
-        
-        this.descField.setAutoGrabFocus (false);        
-            
-    }
-
-    public List<FormItem> getFormItems (int         mode,
-                                        String      selectedText,
-                                        NamedObject obj)
-    {
-
-        final AssetActionHandler _this = this;    
     
-        ActionListener doSave = new ActionListener ()
+    @Override
+    public String getTitle ()
+    {
+
+        if (this.mode == AbstractActionHandler.EDIT)
         {
-          
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                _this.submitForm ();
-                
-            }
-            
-        };
-        
-        UIUtils.addDoActionOnReturnPressed (this.nameField,
-                                            doSave);
-        UIUtils.addDoActionOnReturnPressed (this.descField,
-                                            doSave);
+
+            return "Edit " + this.object.getObjectTypeName ();
+
+        }
+
+        return "Add New " + this.object.getObjectTypeName ();
+
+    }
+
+    @Override
+    public Set<FormItem> getFormItems (String      selectedText)
+    {
     
-        List<FormItem> formFields = new ArrayList ();
-
-        formFields.add (new FormItem ("Name",
-                                      this.nameField));
-
-        if (selectedText != null)
+        int c = 0;
+        
+        for (UserConfigurableObjectFieldViewEditHandler h : this.object.getViewEditHandlers (this.viewer))
         {
-
-            this.nameField.setText (selectedText.trim ());
-
-        }
-
-        if (this.delegate != null)
-        {
-
-            this.delegate.fillForEdit ();
-
-            formFields.addAll (this.delegate.getExtraEditItems (doSave)); // mode));
-
-        }
-
-        formFields.add (new FormItem ("Description",
-                                      this.descField));
-
-        if (mode == AbstractActionHandler.EDIT)
-        {
-
-            Asset a = (Asset) obj;
-
-            this.nameField.setText (a.getName ());
+            
+            UserConfigurableObjectTypeField f = h.getTypeField ();
                         
-            this.descField.setTextWithMarkup (a.getDescription ());
-
-        } else
-        {
-
-            if (selectedText != null)
+            if (f instanceof ObjectDescriptionUserConfigurableObjectTypeField)
             {
-
-                this.nameField.setText (selectedText);
-
-            } else {                
                 
-                Asset a = (Asset) obj;
-    
-                if (a.getName () != null)
-                {
-    
-                    this.nameField.setText (a.getName ());
+                this.descHandler = (ObjectDescriptionUserConfigurableObjectFieldViewEditHandler) h;
+                                                                          
+                continue;
                     
-                }
+            }
+            
+            if (f instanceof ObjectNameUserConfigurableObjectTypeField)
+            {
                 
-                if (a.getDescription () != null)
-                {
+                this.nameHandler = (ObjectNameUserConfigurableObjectFieldViewEditHandler) h;
                 
-                    this.descField.setTextWithMarkup (a.getDescription ());
-                    
-                }
+                continue;
                 
             }
 
+            c++;
+            
         }
+    
+        Set<FormItem> items = new LinkedHashSet ();
+        
+        items.addAll (this.nameHandler.getInputFormItems (selectedText,
+                                                          this.getSaveAction ()));
+        
+        if (this.descHandler != null)
+        {
+            
+            items.addAll (this.descHandler.getInputFormItems (null,
+                                                              this.getSaveAction ()));
+            
+        }
+    
+        if (c > 0)
+        {
+    
+            final AssetActionHandler _this = this;
+    
+            JLabel l = UIUtils.createClickableLabel ("Show all fields",
+                                                     Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                          Constants.ICON_MENU),
+                                                     new ActionListener ()
+                                                     {
+                                                      
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                          
+                                                            try
+                                                            {
+                                                          
+                                                                _this.object.setName (_this.nameHandler.getInputSaveValue ());
+                                                                                                                                
+                                                                if (_this.descHandler != null)
+                                                                {
+                                                                    
+                                                                    _this.object.setDescription (_this.descHandler.getInputSaveValue ());
+                                                                    
+                                                                }
 
-        return formFields;
+                                                            } catch (Exception e) {
+                                                                
+                                                                Environment.logError ("Unable to init asset fields",
+                                                                                      e);
+                                                                
+                                                                UIUtils.showErrorMessage (_this.viewer,
+                                                                                          "Unable to show add tab for " +
+                                                                                          _this.object.getObjectTypeName ());
+
+                                                                return;
+                                                                                                                    
+                                                            }
+                                                            _this.viewer.showAddAsset (_this.object,
+                                                                                       null);
+                                                            
+                                                            _this.hidePopup ();
+                                                          
+                                                        }
+                                                      
+                                                     });
+            
+            String df = "field is ";
+            
+            if (this.descHandler != null)
+            {
+                
+                df = String.format ("and %s fields are ",
+                                    this.descHandler.getTypeField ().getFormName ());
+            
+            }
+            
+            l.setToolTipText (String.format ("<html>Only the %s %sshown here, to see all the fields (%s more) for the %s click the link.<br />Note: the %s add form will be shown in a new tab.</html>",
+                                             this.nameHandler.getTypeField ().getFormName (),
+                                             df,
+                                             Environment.formatNumber (c),
+                                             this.object.getObjectTypeName (),
+                                             this.object.getObjectTypeName ()));
+            
+            // Add open in full tab link...
+            items.add (new AnyFormItem (null,
+                                        l));
+
+        }
+    
+        return items;
 
     }
 
-    public void handleCancel (int mode)
+    @Override
+    public void handleCancel ()
     {
 
         // Nothing to do.
 
     }
 
-    public boolean handleSave (Form f,
-                               int  mode)
+    @Override
+    public Set<String> getFormErrors ()
     {
-
-        String n = this.nameField.getText ().trim ();
-
-        if (n.equals (""))
-        {
-
-            f.showError ("Please select a name.");
-
-            return false;
-
-        }
-
-        Set<Asset> matches = this.projectViewer.getProject ().getAllAssetsByName (n.toLowerCase (),
-                                                                                  this.dataObject.getObjectType ());
+        
+        Set<String> errs = new LinkedHashSet ();
+        
+        Object _name = this.nameHandler.getInputSaveValue ();
                 
-        Asset match = null;
-        
-        if (mode == AbstractActionHandler.ADD)
+        if (_name == null)
         {
-
-            if (matches.size () > 0)
-            {
-        
-                match = matches.iterator ().next ();
-
-            }
-
-        } else {
             
-            if (matches.size () > 0)
+            errs.add ("Please select a " + this.nameHandler.getTypeField ().getFormName ());
+            
+            return errs;
+            
+        } else {
+        
+            String name = null;
+            
+            // Bit of a cheat here.
+            if (_name instanceof StringWithMarkup)
             {
-                                
-                for (Asset a : matches)
-                {
+                
+                name = ((StringWithMarkup) _name).getText ();
+                
+            }
+            
+            if (_name instanceof String)
+            {
+                
+                name = (String) _name;
+                
+            }
+            
+            Set<String> nerrs = this.nameHandler.getInputFormItemErrors ();
+            
+            if (nerrs != null)
+            {
+            
+                errs.addAll (nerrs);
+                
+            }
+            
+            Set<Asset> matches = this.viewer.getProject ().getAllAssetsByName (name.toLowerCase (),
+                                                                               this.object.getUserConfigurableObjectType ());
                     
-                    if (!a.getKey ().equals (this.dataObject.getKey ()))
+            Asset match = null;
+            
+            if (this.mode == AbstractActionHandler.ADD)
+            {
+    
+                if (matches.size () > 0)
+                {
+            
+                    match = matches.iterator ().next ();
+    
+                }
+    
+            } else {
+                
+                if (matches.size () > 0)
+                {
+                                    
+                    for (Asset a : matches)
                     {
                         
-                        match = a;
+                        if (!a.getKey ().equals (this.object.getKey ()))
+                        {
+                            
+                            match = a;
+                            
+                        }
                         
                     }
                     
                 }
                 
             }
-            
-        }
+    
+            if (match != null)
+            {
+                
+                errs.add (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
+                                                                         this.object.getUserConfigurableObjectType ().getObjectTypeName (),
+                                                                         match.getName ())));
+                
+            }
 
-        if (match != null)
+        }
+        
+        if (this.descHandler != null)
         {
             
-            f.showError (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
-                                                                        this.dataObject.getObjectType (),
-                                                                        match.getName ())));
+            Set<String> derrs = this.descHandler.getInputFormItemErrors ();
+            
+            if (derrs != null)
+            {
+            
+                errs.addAll (derrs);
+                
+            }
+                
+        }
+        
+        return errs;
+        
+    }
+    
+    @Override
+    public boolean handleSave ()
+    {
+        
+        try
+        {
+            
+            this.nameHandler.updateFieldFromInput ();
+            
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get name value from: " +
+                                  this.nameHandler,
+                                  e);
+
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to add new " + this.object.getObjectTypeName () + ".");
 
             return false;            
             
         }
         
-        if (this.delegate != null)
+        if (this.descHandler != null)
         {
-
-            if (!this.delegate.canSave ())
+        
+            try
             {
-
-                return false;
-
+                
+                this.descHandler.updateFieldFromInput ();
+                
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get description value from: " +
+                                      this.descHandler,
+                                      e);
+    
+                UIUtils.showErrorMessage (this.viewer,
+                                          "Unable to add new " + this.object.getObjectTypeName () + ".");
+    
+                return false;            
+                
             }
-/*
-            if (!this.delegate.handleErrors (mode,
-                                             this.projectViewer))
-            {
-
-                return false;
-
-            }
-*/
-        }
-
-        Asset asset = (Asset) this.dataObject;
-
-        Set<String> oldNames = asset.getAllNames ();
-
-        // Fill up the object.
-        asset.setName (n);
-        asset.setDescription (this.descField.getTextWithMarkup ());
-
-        if (this.delegate != null)
-        {
-
-            this.delegate.fillForSave ();
 
         }
+                     
+        Set<String> oldNames = this.object.getAllNames ();
 
-/*
-        if (this.delegate != null)
-        {
-
-            this.delegate.fillAsset ((Asset) this.dataObject);
-
-        }
-*/
-        asset.setProject (this.projectViewer.getProject ());
+        this.object.setProject (this.viewer.getProject ());
 
         if (mode == AbstractActionHandler.ADD)
         {
@@ -348,28 +387,26 @@ public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer
             try
             {
 
-                this.projectViewer.getProject ().addAsset (asset);
+                this.viewer.saveObject (this.object,
+                                        true);
 
-                this.projectViewer.saveObject (asset,
-                                               true);
+                this.viewer.getProject ().addAsset (this.object);
 
-                this.projectViewer.openObjectSection (asset.getObjectType ());                                               
+                this.viewer.openObjectSection (this.object.getObjectType ());                                               
                                                
-                this.projectViewer.fireProjectEvent (asset.getObjectType (),
-                                                     ProjectEvent.NEW,
-                                                     asset);
+                this.viewer.fireProjectEvent (this.object.getObjectType (),
+                                              ProjectEvent.NEW,
+                                              this.object);
 
             } catch (Exception e)
             {
 
                 Environment.logError ("Unable to add new: " +
-                                      asset +
-                                      ", with name: " +
-                                      this.nameField.getText (),
+                                      this.object,
                                       e);
 
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (asset).toLowerCase () + ".");
+                UIUtils.showErrorMessage (this.viewer,
+                                          "Unable to add new " + this.object.getObjectTypeName () + ".");
 
                 return false;
 
@@ -380,22 +417,22 @@ public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer
             try
             {
 
-                this.projectViewer.saveObject (asset,
-                                               true);
+                this.viewer.saveObject (this.object,
+                                        true);
 
-                this.projectViewer.fireProjectEvent (asset.getObjectType (),
-                                                     ProjectEvent.EDIT,
-                                                     asset);
+                this.viewer.fireProjectEvent (this.object.getObjectType (),
+                                              ProjectEvent.EDIT,
+                                              this.object);
     
             } catch (Exception e)
             {
     
                 Environment.logError ("Unable to save asset: " +
-                                      asset,
+                                      this.object,
                                       e);
     
-                UIUtils.showErrorMessage (this.projectViewer,
-                                          "An internal error has occurred.\n\nUnable to save " + Environment.getObjectTypeName (asset).toLowerCase () + ".");
+                UIUtils.showErrorMessage (this.viewer,
+                                          "Unable to save " + this.object.getObjectTypeName () + ".");
     
                 return false;
     
@@ -403,17 +440,17 @@ public class AssetActionHandler extends ProjectViewerActionHandler<ProjectViewer
 
         }
             
-        this.projectViewer.updateProjectDictionaryForNames (oldNames,
-                                                            asset);
+        this.viewer.updateProjectDictionaryForNames (oldNames,
+                                                     this.object);
 
         if (this.displayAfterSave)
         {
 
-            this.projectViewer.viewObject (asset);
+            this.viewer.viewObject (this.object);
 
         }
 
-        this.projectViewer.reloadTreeForObjectType (asset);
+        this.viewer.reloadTreeForObjectType (this.object.getUserConfigurableObjectType ().getObjectTypeId ());
         
         return true;
     

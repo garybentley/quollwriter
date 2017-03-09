@@ -35,6 +35,8 @@ import com.quollwriter.ui.components.QPopup;
 public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
 {
     
+    public static final String ID = "editorproject";
+    
     private EditorChaptersAccordionItem chapters = null;
     private EditorInfoBox editorInfoBox = null;
     private EditorEditor editor = null;
@@ -72,6 +74,14 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
             }
             
         });
+        
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
         
     }
     
@@ -451,11 +461,11 @@ public class EditorProjectSideBar extends AbstractSideBar<EditorProjectViewer>
     }
     
     @Override
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
         
-        super.init ();
+        super.init (saveState);
                 
         this.editor = this.viewer.getProject ().getForEditor ();
                 

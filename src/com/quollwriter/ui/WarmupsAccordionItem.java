@@ -22,9 +22,16 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         
         super (Environment.getObjectTypeNamePlural (Warmup.OBJECT_TYPE),
                Warmup.OBJECT_TYPE,
-               Warmup.OBJECT_TYPE,
                pv);
                         
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return Warmup.OBJECT_TYPE;
+        
     }
     
     @Override

@@ -1010,47 +1010,55 @@ public class FirstUseWizard extends PopupWizard
 
     }
 
-    private void addAssetsToTree (DefaultMutableTreeNode          root,
-                                  java.util.List<? extends Asset> assets)
+    private void addAssetsToTree (DefaultMutableTreeNode     root,
+                                  UserConfigurableObjectType type,
+                                  Set<Asset>                 assets)
     {
 
-        if (assets.size () > 0)
+        if ((assets == null)
+            ||
+            (assets.size () == 0)
+           )
+        {
+            
+            return;
+            
+        }
+    
+        TreeParentNode c = new TreeParentNode (type.getObjectTypeId (),
+                                               type.getObjectTypeNamePlural ());
+
+        SelectableDataObject sd = new SelectableDataObject (c);
+
+        sd.selected = true;
+
+        DefaultMutableTreeNode tn = new DefaultMutableTreeNode (sd);
+
+        root.add (tn);
+
+        java.util.List<Asset> lassets = new ArrayList (assets);
+        
+        Collections.sort (lassets,
+                          NamedObjectSorter.getInstance ());
+
+        for (Asset a : lassets)
         {
 
-            TreeParentNode c = new TreeParentNode (assets.get (0).getObjectType (),
-                                                   Environment.getObjectTypeNamePlural (assets.get (0).getObjectType ()));
-
-            SelectableDataObject sd = new SelectableDataObject (c);
+            sd = new SelectableDataObject (a);
 
             sd.selected = true;
 
-            DefaultMutableTreeNode tn = new DefaultMutableTreeNode (sd);
+            DefaultMutableTreeNode n = new DefaultMutableTreeNode (sd);
 
-            root.add (tn);
+            tn.add (n);
 
-            Collections.sort (assets,
-                              new NamedObjectSorter ());
+            String t = this.getFirstLastSentence (a.getDescriptionText ());
 
-            for (Asset a : assets)
+            if (t.length () > 0)
             {
 
-                sd = new SelectableDataObject (a);
-
-                sd.selected = true;
-
-                DefaultMutableTreeNode n = new DefaultMutableTreeNode (sd);
-
-                tn.add (n);
-
-                String t = this.getFirstLastSentence (a.getDescriptionText ());
-
-                if (t.length () > 0)
-                {
-
-                    // Get the first and last sentence.
-                    n.add (new DefaultMutableTreeNode (t));
-
-                }
+                // Get the first and last sentence.
+                n.add (new DefaultMutableTreeNode (t));
 
             }
 
@@ -1229,7 +1237,7 @@ public class FirstUseWizard extends PopupWizard
                 root.add (tn);
 
                 Collections.sort (b.getChapters (),
-                                  new NamedObjectSorter ());
+                                  NamedObjectSorter.getInstance ());
 
                 for (Chapter ch : b.getChapters ())
                 {
@@ -1258,18 +1266,19 @@ public class FirstUseWizard extends PopupWizard
 
         }
 
-        this.addAssetsToTree (root,
-                              p.getCharacters ());
+        Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
 
-        this.addAssetsToTree (root,
-                              p.getLocations ());
+        for (UserConfigurableObjectType t : assetTypes)
+        {
+            
+            Set<Asset> as = p.getAssets (t);
 
-        this.addAssetsToTree (root,
-                              p.getQObjects ());
-
-        this.addAssetsToTree (root,
-                              p.getResearchItems ());
-
+            this.addAssetsToTree (root,
+                                  t,
+                                  as);
+            
+        }
+        
         return root;
 
     }

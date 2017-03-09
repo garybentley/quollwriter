@@ -29,10 +29,6 @@ import javax.swing.filechooser.*;
 
 import com.gentlyweb.properties.*;
 
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.layout.*;
-
 import com.quollwriter.data.*;
 import com.quollwriter.*;
 import com.quollwriter.events.*;
@@ -60,13 +56,8 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
     public static final String PANEL_ID = "options";
     
     private Accordion accordion = null;
-    private JScrollPane scrollPane = null;
     private JCheckBox sendErrorsToSupport = null;
-    
-    //private Map<Section, Accordion.Item> sections = new HashMap ();
-    
-    //private Set<Section> sectIds = null;
-    
+        
     private Options options = null;
     
     public OptionsPanel (AbstractViewer     viewer,
@@ -92,71 +83,7 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
     {
 
         this.options.showSection (name);
-    /*
-        final Accordion.Item item = this.sections.get (name);
-        
-        if (item != null)
-        {
-            
-            item.setOpenContentVisible (true);            
-            
-            this.validate ();
-            this.repaint ();
-            
-            final Border origBorder = item.getBorder ();
-            
-            final Color col = UIUtils.getBorderHighlightColor ();
-            
-            final int r = col.getRed ();
-            final int g = col.getGreen ();
-            final int b = col.getBlue ();
-            
-            PropertyChangeListener l = new PropertyChangeListener ()
-            {
-            
-                @Override
-                public void propertyChange (PropertyChangeEvent ev)
-                {
-                    
-                    Color c = new Color (r,
-                                         g,
-                                         b,
-                                        ((Number) ev.getNewValue ()).intValue ());
-                                            
-                    item.setBorder (new CompoundBorder (new MatteBorder (3, 3, 3, 3, c),
-                                                        UIUtils.createPadding (3, 3, 3, 3)));
-                    
-                }
-            
-            };            
-                                                          
-            Timer cycle = UIUtils.createCyclicAnimator (l,
-                                                        l,
-                                                        60,
-                                                        1500,
-                                                        0,
-                                                        255,
-                                                        2,            
-                                                        new ActionListener ()
-                                                        {
-                                                           
-                                                           @Override
-                                                           public void actionPerformed (ActionEvent ev)
-                                                           {
-                                                               
-                                                               item.setBorder (origBorder);
-                                                               
-                                                           }
-                                                           
-                                                        });
-            
-            // Scroll to it and open.
-            item.scrollRectToVisible (item.getBounds ());
-            
-            cycle.start ();
-            
-        }
-        */
+
     }
         
     public void init ()
@@ -280,36 +207,7 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
         this.options.setState (s);
     
         this.setReadyForUse (true);
-    /*
-        this.accordion.setState (s.get ("sections"));
-    
-        SwingUtilities.invokeLater (new Runnable ()
-        {
-        
-            public void run ()
-            {
 
-                int o = 0;
-                
-                try
-                {
-                    
-                    o = Integer.parseInt (s.get ("scroll"));
-                    
-                } catch (Exception e) {
-                    
-                    return;
-                    
-                }
-
-                _this.scrollPane.getVerticalScrollBar ().setValue (o);
-
-                _this.setReadyForUse (true);
-                
-            }
-            
-        });
-    */
     }
 
     public void getState (Map<String, Object> m)
@@ -317,14 +215,9 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
 
         this.options.getState (m);
 
-/*    
-        m.put ("sections",
-               this.options.getAccordionState ());
-        m.put ("scroll",
-               this.scrollPane.getVerticalScrollBar ().getValue ());
-  */  
     }
 
+    @Override
     public String getTitle ()
     {
         
@@ -332,13 +225,15 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
-
-        return "options";
-
+        
+        return Environment.getIcon ("options",
+                                    type);
+        
     }
-
+    
     @Override
     public void close ()
     {

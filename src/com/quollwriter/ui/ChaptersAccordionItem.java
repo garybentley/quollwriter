@@ -26,9 +26,16 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
         
         super (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
                Chapter.OBJECT_TYPE,
-               Chapter.OBJECT_TYPE,
                pv);
             
+    }
+    
+    @Override
+    public String getId ()
+    {
+        
+        return Chapter.OBJECT_TYPE;
+        
     }
     
     @Override
@@ -124,11 +131,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                _this.viewer.getAction (ProjectViewer.EDIT_NOTE_ACTION,
                                                                        n)));
 
+                m.add (UIUtils.createTagsMenu (n,
+                                               _this.viewer));
+                                                                       
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
                                                _this.viewer.getAction (ProjectViewer.DELETE_NOTE_ACTION,
                                                                        n)));
-                
+                                
             }
             
             if (d instanceof Chapter)
@@ -271,7 +281,6 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                                                   c,
                                                                                   (ProjectViewer) _this.viewer);
 
-
                         DefaultTreeModel dtm = (DefaultTreeModel) _this.tree.getModel ();
 
                         TreePath ntp = new TreePath (dtm.getPathToRoot (node));
@@ -285,10 +294,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                                rect.y - rect.height + 5,
                                                                _this);
 
-                        ah.setShowPopupAtPoint (p,
-                                                "below");
-
-                        ah.actionPerformed (ev);
+                        ah.showPopup (p);
 
                     }
 
@@ -313,11 +319,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
 
                 }));
 
+                m.add (UIUtils.createTagsMenu (c,
+                                               _this.viewer));
+                
                 m.add (UIUtils.createMenuItem ("Delete {Chapter}",
                                                Constants.DELETE_ICON_NAME,
                                                _this.viewer.getAction (ProjectViewer.DELETE_CHAPTER_ACTION,
                                                                        c)));
-
+                
             }
 
             if (d instanceof OutlineItem)
@@ -344,11 +353,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                _this.viewer.getAction (ProjectViewer.EDIT_PLOT_OUTLINE_ITEM_ACTION,
                                                                        oi)));
 
+                m.add (UIUtils.createTagsMenu (oi,
+                                               _this.viewer));
+
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
                                                _this.viewer.getAction (ProjectViewer.DELETE_PLOT_OUTLINE_ITEM_ACTION,
                                                                        oi)));
-
+                
             }
 
             if (d instanceof Scene)
@@ -375,11 +387,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                                                _this.viewer.getAction (ProjectViewer.EDIT_SCENE_ACTION,
                                                                        s)));
 
+                m.add (UIUtils.createTagsMenu (s,
+                                               _this.viewer));                
+                                                                       
                 m.add (UIUtils.createMenuItem ("Delete",
                                                Constants.DELETE_ICON_NAME,
                                                _this.viewer.getAction (ProjectViewer.DELETE_SCENE_ACTION,
                                                                        s)));
-                
+                                
             }
 
         } else
@@ -465,6 +480,24 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     
         }
     
+        @Override
+        public boolean canImportForeignObject (NamedObject obj)
+        {
+            
+            return false;
+            
+        }
+        
+        @Override
+        public boolean importForeignObject (NamedObject obj,
+                                            int         insertRow)
+        {
+            
+            return true;
+            
+        }
+        
+        @Override
         public boolean performAction (int         removeRow,
                                       NamedObject removeObject,
                                       int         insertRow,
@@ -510,6 +543,7 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     
         }
     
+        @Override
         public boolean handleMove (int     fromRow,
                                    int     toRow,
                                    Chapter chapter)

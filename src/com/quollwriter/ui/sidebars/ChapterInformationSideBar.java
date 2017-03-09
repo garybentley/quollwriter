@@ -23,6 +23,8 @@ import com.quollwriter.ui.components.ActionAdapter;
 public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectViewer>
 {
     
+    public static final String ID = "chapterinformation";
+    
     private Chapter chapter = null;
     
     private ChapterGoalsAccordionItem goals = null;
@@ -48,10 +50,10 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
     }
 
     @Override
-    public String getName ()
+    public String getId ()
     {
         
-        return "chapterinfo-" + this.chapter.getKey ();
+        return ID + this.chapter.getKey ();
         
     }
     
@@ -80,11 +82,11 @@ public class ChapterInformationSideBar extends AccordionItemsSideBar<ProjectView
     }
     
     @Override
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
         
-        super.init ();
+        super.init (saveState);
         
         this.update (this.chapter);        
         

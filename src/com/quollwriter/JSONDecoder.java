@@ -45,6 +45,34 @@ public class JSONDecoder
     private Object            token;
     private StringBuffer      buf = new StringBuffer ();
 
+    public static StringWithMarkup decodeToStringWithMarkup (Object v)
+    {
+        
+        if (v == null)
+        {
+            
+            return null;
+            
+        }
+
+        String s = v.toString ();
+        
+        if (s.trim ().length () == 0)
+        {
+            
+            return null;
+            
+        }
+        
+        Map m = (Map) JSONDecoder.decode (s);
+        String markup = (String) m.get ("markup");
+        String text = (String) m.get ("text");
+        
+        return new StringWithMarkup (text,
+                                     markup);
+        
+    }
+    
     public static Object decode (String v)
     {
 
@@ -192,7 +220,7 @@ public class JSONDecoder
 
     private Object object ()
     {
-        Map    ret = new HashMap ();
+        Map    ret = new LinkedHashMap ();
         Object key = read ();
 
         while (token != OBJECT_END)

@@ -54,6 +54,14 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
     }
     
     @Override
+    public String getId ()
+    {
+        
+        return null;
+        
+    }
+    
+    @Override
     public void onShow ()
     {
         
@@ -177,11 +185,12 @@ public class AccordionItemsSideBar<E extends AbstractProjectViewer> extends Abst
                 
     }
  
-    public void init ()
+    @Override
+    public void init (String saveState)
                throws GeneralException
     {
         
-        super.init ();
+        super.init (saveState);
         
         for (AccordionItem it : this.items)
         {

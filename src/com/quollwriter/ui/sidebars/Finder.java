@@ -32,6 +32,8 @@ import com.quollwriter.ui.components.ActionAdapter;
 public class Finder extends AbstractSideBar<AbstractProjectViewer> implements TreeSelectionListener
 {
 
+    public static final String ID = "find";
+
     private static final String TITLE_PREFIX = "Find";
     private JTextField text = null;
     private Object highlightId = null;
@@ -48,6 +50,14 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     }
 
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
+        
+    }
+    
     public void setText (String t)
     {
 
@@ -200,11 +210,11 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     }
 
     @Override
-    public void init ()
+    public void init (String saveState)
                throws GeneralException
     {
 
-        super.init ();
+        super.init (saveState);
 
     }
 

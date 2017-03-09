@@ -37,27 +37,28 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
             
             long typekey = rs.getLong (ind++);
             
-            UserConfigurableObjectTypeField tf = (UserConfigurableObjectTypeField) this.objectManager.getObjectByKey (UserConfigurableObjectTypeField.class,
-                                                                                                                      typekey,
-                                                                                                                      null,
-                                                                                                                      rs.getStatement ().getConnection (),
-                                                                                                                      true);
+            UserConfigurableObjectTypeField tf = (UserConfigurableObjectTypeField) Environment.getUserConfigurableObjectTypeField (typekey);
 
             if (tf == null)
             {
                 
-                throw new GeneralException ("Unable to find object type field for: " +
-                                            typekey +
-                                            " and object field: " +
-                                            key);
+                // This isn't an error, the field may have been removed without the requesting project knowing about
+                // the deletion.
+                return null;
                                                                                                                       
             }
     
             UserConfigurableObjectField f = new UserConfigurableObjectField (tf);
                 
             f.setKey (key);
-            f.setValue (rs.getString (ind++));
+
+            String v = rs.getString (ind++);
+            
+            f.setValue (tf.getViewEditHandler (parent,
+                                               f,
+                                               null).stringToValue (v));
             f.setName (rs.getString (ind++));
+            
             f.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
             f.setLastModified (rs.getTimestamp (ind++));
@@ -100,10 +101,19 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
             while (rs.next ())
             {
 
-                ret.add (this.getUserConfigurableObjectField (rs,
-                                                              parent,
-                                                              loadChildObjects));
+                // The field may be null because the field definition could be deleted without us knowing, i.e.
+                // while another project is being edited.
+                UserConfigurableObjectField f = this.getUserConfigurableObjectField (rs,
+                                                                                     parent,
+                                                                                     loadChildObjects);
 
+                if (f != null)
+                {
+                    
+                    ret.add (f);                    
+                                                                                     
+                }
+                
             }
 
             try
@@ -203,7 +213,10 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
         params.add (t.getKey ());
         params.add (t.getUserConfigurableObjectTypeField ().getKey ());
         params.add (t.getParent ().getKey ());
-        params.add (t.getValue ());
+                
+        params.add (t.getUserConfigurableObjectTypeField ().getViewEditHandler (t.getParentObject (),
+                                                                                t,
+                                                                                null).valueToString (t.getValue ()));
                 
         this.objectManager.executeStatement ("INSERT INTO userobjectfield (dbkey, userobjecttypefielddbkey, namedobjectdbkey, value) VALUES (?, ?, ?, ?)",
                                              params,
@@ -232,14 +245,19 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
     {
 
         List params = new ArrayList ();
+
         
-        params.add (t.getValue ());
+        String val = t.getUserConfigurableObjectTypeField ().getViewEditHandler (t.getParentObject (),
+                                                                                 t,
+                                                                                 null).valueToString (t.getValue ());
+        params.add (val);
+        
         params.add (t.getKey ());
-System.out.println ("UPDATING: " + t);
+
         this.objectManager.executeStatement ("UPDATE userobjectfield SET value = ? WHERE dbkey = ?",
                                              params,
                                              conn);
-
+                                             
     }
 
 }

@@ -15,7 +15,6 @@ public class ChapterItemTransferHandler extends TransferHandler
 {
 
     private IconColumn ic = null;
-    private ShowChapterItemActionHandler handler = null;
     private ChapterItemMoveHandler moveHandler = null;
 
     public ChapterItemTransferHandler (IconColumn ic)
@@ -33,14 +32,7 @@ public class ChapterItemTransferHandler extends TransferHandler
         this.moveHandler.setItem (item);
         
     }
-    
-    public void setShowChapterItemActionHandler (ShowChapterItemActionHandler handler)
-    {
         
-        this.handler = handler;
-        
-    }
-    
     public Icon getVisualRepresentation (Transferable t)
     {
         
@@ -90,14 +82,7 @@ public class ChapterItemTransferHandler extends TransferHandler
         super.exportAsDrag (comp,
                             ev,
                             action);
-        
-        if (this.handler != null)
-        {
-        
-            this.handler.hideItem ();
-            
-        }
-                            
+                                    
         this.moveHandler.startDrag ();
 
         try

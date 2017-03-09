@@ -32,11 +32,18 @@ public class ProjectCommentsChaptersAccordionItem extends ProjectObjectsAccordio
         
         super ("",
                Constants.COMMENT_ICON_NAME,
-               Chapter.OBJECT_TYPE,
                pv);
             
     }
         
+    @Override
+    public String getId ()
+    {
+        
+        return null;
+        
+    }
+    
     @Override
     public DragActionHandler getTreeDragActionHandler (ProjectSentReceivedViewer pv)
     {

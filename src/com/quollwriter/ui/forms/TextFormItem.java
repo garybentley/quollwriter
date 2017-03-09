@@ -15,129 +15,47 @@ import com.quollwriter.text.*;
 public class TextFormItem extends FormItem<String>
 {
     
-    private boolean multiline = false;
-    private JTextComponent text = null;
+    private JTextField text = null;
     private int maxCount = -1;
+    private int maxChars = -1;
     private String maxType = null;
     private String helpText = null;
         
-    public TextFormItem (String label,
-                         boolean multiline,
-                         int     lineCount,
-                         String defaultValue,
-                         int    maxCount,
-                         String maxType,
-                         boolean notNull,
-                         String helpText)
+    public TextFormItem (Object label,
+                         String defaultValue)
+    {
+        
+        this (label,
+              defaultValue,
+              -1,
+              false,
+              null);
+        
+    }
+    
+    public TextFormItem (Object  label,
+                         String  defaultValue,
+                         int     maxChars,
+                         boolean requireValue,
+                         String  helpText)
     {
         
         super (label,
-               notNull,
+               requireValue,
                null);
 
-        this.maxCount = maxCount;
+        this.maxChars = maxChars;
         this.maxType = maxType;
         this.helpText = helpText;
         
-        final TextFormItem _this = this;
-        
-        KeyAdapter ka = new KeyAdapter ()
-        {
-            
-            private boolean showHelpText = false;
-            
-            public void keyPressed (KeyEvent ev)
-            {
-                                 
-                if (_this.helpText != null)
-                {                                     
-                
-                    if (_this.text.getText ().trim ().equals (_this.helpText))
-                    {
-                        
-                        _this.text.setText ("");
-                        _this.text.setForeground (Color.black);
-                        _this.text.setFont (_this.text.getFont ().deriveFont (Font.PLAIN));                            
-                                        
-                    }
-                
-                }
-                
-                _this.updateRequireLabel ();
-                    
-            }
-            
-        };
-        
-        this.multiline = multiline;
-        
-        if (!multiline)
-        {
-        
-            this.text = new JTextField ();
-    
-            this.text.setPreferredSize (new Dimension (500,
-                                                       this.text.getPreferredSize ().height));
-            this.text.setMaximumSize (new Dimension (500,
-                                                     this.text.getPreferredSize ().height));
-                        
-        } else {
-              
-            // TODO: Replace with TextArea when needed.                  
-            //this.text = UIUtils.createTextArea (lineCount);
-    
-        }
-        
-        this.text.addKeyListener (ka);
-        
-        this.text.addFocusListener (new FocusListener ()
-        {
-           
-            public void focusGained (FocusEvent ev)
-            {
-                
-                if (_this.helpText != null)
-                {
-                                        
-                    if (_this.text.getText ().trim ().equals (_this.helpText))
-                    {
-                                                                    
-                        _this.text.setText ("");
-                        _this.text.setForeground (Color.black);
-                        _this.text.setFont (_this.text.getFont ().deriveFont (Font.PLAIN));
-                            
-                    }
-
-                }
-
-                _this.updateRequireLabel ();
-                
-            }
-            
-            public void focusLost (FocusEvent ev)
-            {
-                
-                if (_this.text.getText ().trim ().equals (""))
-                {
-                    
-                    _this.showHelpText ();
-                    
-                }
-                
-            }
-            
-        });
+        this.text = UIUtils.createTextField ();
         
         if (defaultValue != null)
         {
             
-            this.text.setText (defaultValue.toString ());
+            this.text.setText (defaultValue);
             
-        } else {
-            
-            this.showHelpText ();
-            
-        }
+        } 
         
         if (this.helpText != null)
         {
@@ -147,51 +65,39 @@ public class TextFormItem extends FormItem<String>
         }
         
     }
-    
-    private void showHelpText ()
+       
+    public void setDoOnReturnPressed (ActionListener l)
     {
         
-        if (this.helpText != null)
-        {
-                                
-            this.text.setText (this.helpText);
-            this.text.setForeground (UIUtils.getColor ("#999999"));
-            this.text.setFont (this.text.getFont ().deriveFont (Font.ITALIC));
-            
-        }                            
+        UIUtils.addDoActionOnReturnPressed (this.text,
+                                            l);                
+       
+    }
+    
+    @Override
+    public void grabFocus ()
+    {
         
-        this.updateRequireLabel ();
+        this.text.grabFocus ();   
         
     }
     
+    @Override
     public JComponent getComponent ()
     {
         
-        if (this.multiline)
-        {
-            
-            return this.createScrollableTextArea (this.text);
-        
-        } else {
-            
-            return this.text;
-            
-        }
-        
-    }
-
-    private JScrollPane createScrollableTextArea (JTextComponent text)
-    {
-
-        JScrollPane c = this.createScrollPane (text);
-        
-        c.setMaximumSize (new Dimension (500,
-                                         c.getPreferredSize ().height));
-        
-        return c;
+        return this.text;
         
     }
     
+    public JTextField getTextField ()
+    {
+        
+        return this.text;
+        
+    }
+    
+    @Override
     public String getValue ()
     {
         
@@ -208,6 +114,21 @@ public class TextFormItem extends FormItem<String>
     
     }
     
+    public String getText ()
+    {
+        
+        return this.getValue ();
+        
+    }
+    
+    public void setText (String v)
+    {
+        
+        this.text.setText (v);
+        
+    }
+    
+    @Override
     public boolean hasError ()
     {
         
@@ -227,7 +148,7 @@ public class TextFormItem extends FormItem<String>
         
         if ((v == null)
             &&
-            (this.notNull)
+            (this.requireValue)
            )
         {
             
@@ -277,74 +198,5 @@ public class TextFormItem extends FormItem<String>
         return err;
                     
     }
-    
-    public void updateRequireLabel (JLabel requireLabel)
-    {
-
-        this.setError (false);
-    
-        if (this.maxType == null)
-        {
-            
-            return;
-            
-        }
-    
-        String text = this.text.getText ().trim ();
         
-        int c = -1;
-        
-        if (this.maxType.equals ("chars"))
-        {
-            
-            c = text.length ();
-            
-        }
-        
-        if (this.maxType.equals ("words"))
-        {
-            
-            c = TextUtilities.getWordCount (text);
-            
-        }
-            
-        if (this.helpText != null)
-        {
-            
-            if (text.equals (this.helpText))
-            {
-                
-                c = 0;
-                
-            }
-            
-        }
-                            
-        if (c > 0)
-        {
-            
-            if (c > this.maxCount)
-            {
-                
-                c = this.maxCount;
-                
-                this.setError (true);
-                
-            }
-            
-            requireLabel.setText (String.format ("(max %s %s, %s remaining)",
-                                                       this.maxCount,
-                                                       (this.maxType.equals ("words") ? "words" : "characters"),
-                                                       (this.maxCount - c)));
-            
-        } else {
-            
-            requireLabel.setText (String.format ("(max %s %s)",
-                                                       this.maxCount,
-                                                       (this.maxType.equals ("words") ? "words" : "characters")));                            
-            
-        }            
-                        
-    }
-    
 }

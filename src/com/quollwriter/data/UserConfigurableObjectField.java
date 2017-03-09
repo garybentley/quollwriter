@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.jdom.*;
 
+import com.quollwriter.*;
+
 public class UserConfigurableObjectField extends NamedObject
 {
     
@@ -19,6 +21,13 @@ public class UserConfigurableObjectField extends NamedObject
         
     }
     
+    public UserConfigurableObject getParentObject ()
+    {
+        
+        return (UserConfigurableObject) this.getParent ();
+        
+    }
+    
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
@@ -28,6 +37,16 @@ public class UserConfigurableObjectField extends NamedObject
         this.addToStringProperties (props,
                                     "value",
                                     this.value);
+        
+        if (this.value != null)
+        {
+
+            this.addToStringProperties (props,
+                                        "valueClass",
+                                        this.value.getClass ().getName ());
+            
+        }
+        
         this.addToStringProperties (props,
                                     "typeField",
                                     this.field);
@@ -40,21 +59,21 @@ public class UserConfigurableObjectField extends NamedObject
         return null;
         
     }
-
+    
+    public boolean isPrimaryNameField ()
+    {
+        
+        return (this.field instanceof ObjectNameUserConfigurableObjectTypeField);
+        
+    }
+    
     public boolean isNameField ()
     {
         
         return this.field.isNameField ();
         
     }
-    
-    public boolean isPrimaryNameField ()
-    {
         
-        return this.field.isPrimaryNameField ();
-        
-    }
-    
     public boolean isLegacyField ()
     {
         
@@ -68,7 +87,7 @@ public class UserConfigurableObjectField extends NamedObject
         return this.field.getLegacyFieldId ();
         
     }
-            
+                        
     public UserConfigurableObjectTypeField getUserConfigurableObjectTypeField ()
     {
         
@@ -82,9 +101,38 @@ public class UserConfigurableObjectField extends NamedObject
         
     }
     
-    public void setValue (Object v)
+    public String getValueAsString ()
     {
         
+        if (this.value == null)
+        {
+            
+            return null;
+            
+        }
+
+        try
+        {
+        
+            return this.field.getViewEditHandler (this.getParentObject (),
+                                                  this,
+                                                  null).valueToString (this.value);
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to get value as string: " +
+                                  this.value,
+                                  e);
+            
+            return this.value.toString ();
+            
+        }
+        
+    }
+    
+    public void setValue (Object v)
+    {
+    
         this.value = v;
         
     }

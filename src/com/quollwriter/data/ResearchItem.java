@@ -3,7 +3,7 @@ package com.quollwriter.data;
 import org.jdom.*;
 
 
-public class ResearchItem extends Asset
+public class ResearchItem extends LegacyAsset
 {
 
     public static final String WEB_PAGE_LEGACY_FIELD_ID = "webpage";
@@ -14,7 +14,7 @@ public class ResearchItem extends Asset
     
     private String url = null;
 
-    protected ResearchItem()
+    public ResearchItem ()
     {
 
         super (ResearchItem.OBJECT_TYPE);
@@ -41,9 +41,8 @@ public class ResearchItem extends Asset
             UserConfigurableObjectTypeField type = this.getLegacyTypeField (WEB_PAGE_LEGACY_FIELD_ID);            
             
             f = new UserConfigurableObjectField (type);
-            
-            f.setParent (this);
-            this.fields.add (f);
+                        
+            this.addField (f);
             
         }
             

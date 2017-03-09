@@ -30,7 +30,7 @@ import com.quollwriter.events.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.actionHandlers.*;
 
-public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> extends QuollPanel<E>
+public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer, O extends NamedObject> extends QuollPanel<E>
 {
 
     public static final int UNSAVED_CHANGES_ACTION_EVENT = 0;
@@ -40,17 +40,13 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
     public static final String HAS_CHANGES_COMMAND = "hasChanges";
     public static final String NO_CHANGES_COMMAND = "noChanges";
 
-    protected Box                                   content = null;
-    // TODO: Make this generic...
-    protected NamedObject                           obj = null;
+    protected O                                     obj = null;
     private java.util.List                          actionListeners = new ArrayList ();
     private java.util.List<PropertyChangedListener> propertyChangedListeners = new ArrayList ();
     private boolean                                 hasUnsavedChanges = false;
-    private JToolBar                                toolBar = null;
-    private boolean                                 readyForUse = false;
     
-    public ProjectObjectQuollPanel (E           pv,
-                                    NamedObject obj)
+    public ProjectObjectQuollPanel (E pv,
+                                    O obj)
     {
 
         super (pv);
@@ -70,7 +66,7 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
     public abstract boolean saveUnsavedChanges ()
                                          throws Exception;
 
-    public abstract <T extends NamedObject> void refresh (T n);
+    public abstract void refresh ();
 
     public java.util.List<PropertyChangedListener> getObjectPropertyChangedListeners ()
     {
@@ -95,7 +91,7 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
 
     }
 
-    public NamedObject getForObject ()
+    public O getForObject ()
     {
 
         return this.obj;
@@ -113,8 +109,8 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
 
         // Fire an event to interested parties.
         this.fireActionEvent (new ActionEvent (this,
-                                               QuollPanel.SAVED,
-                                               "chapterSaved"));
+                                               SAVED,
+                                               "saved"));
 
     }
 
@@ -139,8 +135,8 @@ public abstract class ProjectObjectQuollPanel<E extends AbstractProjectViewer> e
         this.hasUnsavedChanges = hasChanges;
 
         this.fireActionEvent (new ActionEvent (this,
-                                               QuollPanel.UNSAVED_CHANGES_ACTION_EVENT,
-                                               (hasChanges ? QuollPanel.HAS_CHANGES_COMMAND : QuollPanel.NO_CHANGES_COMMAND)));
+                                               UNSAVED_CHANGES_ACTION_EVENT,
+                                               (hasChanges ? HAS_CHANGES_COMMAND : NO_CHANGES_COMMAND)));
 
     }
     

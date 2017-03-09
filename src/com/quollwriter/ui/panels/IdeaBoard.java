@@ -49,7 +49,7 @@ import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.VerticalLayout;
 
 
-public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
+public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
 {
 
     public static final String PANEL_ID = "ideaboard";
@@ -470,17 +470,11 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
                 
             }
             
-            this.shortDesc.setText (UIUtils.getWithHTMLStyleSheet (this.shortDesc,
-                                                                   UIUtils.markupStringForAssets (firstSent,
-                                                                   this.typeBox.ideaBoard.getViewer ().getProject (),
-                                                                   null)));
+            this.shortDesc.setText (firstSent);
 
             this.shortDesc.setToolTipText ("Click to show the full text");
 
-            this.fullDesc.setText (UIUtils.getWithHTMLStyleSheet (this.fullDesc,
-                                                                  UIUtils.markupStringForAssets (this.idea.getDescription ().getMarkedUpText (),
-                                                                  this.typeBox.ideaBoard.getViewer ().getProject (),
-                                                                  null)));
+            this.fullDesc.setText (this.idea.getDescription ().getMarkedUpText ());
 
         }
 
@@ -623,7 +617,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
 
             }
             
-            this.text.setTextWithMarkup (null);
+            this.text.clearText ();
 
         }
 
@@ -642,7 +636,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
             if (this.idea != null)
             {
 
-                this.text.setTextWithMarkup (this.idea.getDescription ());
+                this.text.setText (this.idea.getDescription ());
 
             }
 
@@ -1940,6 +1934,7 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
 
     }
 
+    @Override
     public String getTitle ()
     {
         
@@ -1947,21 +1942,24 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer>
         
     }
     
-    public String getIconType ()
+    @Override
+    public ImageIcon getIcon (int type)
     {
 
-        return "idea";
+        return Environment.getIcon ("idea",
+                                    type);
 
     }
-
+    
     public List<Component> getTopLevelComponents ()
     {
 
         return new ArrayList ();
 
     }
-
-    public void refresh (NamedObject t)
+    
+    @Override
+    public void refresh ()
     {
 
 

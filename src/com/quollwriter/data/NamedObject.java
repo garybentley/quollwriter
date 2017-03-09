@@ -19,6 +19,7 @@ public abstract class NamedObject extends DataObject
     public static final String LAST_MODIFIED = "lastModified";
     public static final String DESCRIPTION = "description";
     public static final String ALIASES = "aliases";
+    public static final String TAG = "tag";
 
     private String   name = null;
     private Date     lastModified = null;
@@ -27,6 +28,7 @@ public abstract class NamedObject extends DataObject
     private Set<Note> notes = new TreeSet (new ChapterItemSorter ());
     private String     aliases = null;
     private Set<File> files = new LinkedHashSet ();
+    private Set<Tag> tags = new LinkedHashSet ();
 
     public NamedObject(String objType,
                        String name)
@@ -137,6 +139,9 @@ public abstract class NamedObject extends DataObject
         this.addToStringProperties (props,
                                     "notes",
                                     this.notes.size ());
+        this.addToStringProperties (props,
+                                    "tags",
+                                    this.tags);
                         
     }
     
@@ -421,7 +426,7 @@ public abstract class NamedObject extends DataObject
     public Set<NamedObject> getOtherObjectsInLinks ()
     {
 
-        Set<NamedObject> s = new TreeSet (new NamedObjectSorter ());
+        Set<NamedObject> s = new TreeSet (NamedObjectSorter.getInstance ());
 
         Iterator<Link> it = this.links.iterator ();
 
@@ -552,7 +557,7 @@ public abstract class NamedObject extends DataObject
         this.firePropertyChangedEvent (NamedObject.NAME,
                                        oldName,
                                        this.name);
-
+                                           
     }
 
     public String getName ()
@@ -713,4 +718,124 @@ public abstract class NamedObject extends DataObject
 
     }
 
+    public void addTag (Tag t)
+    {
+        
+        if (t == null)
+        {
+            
+            return;
+            
+        }
+        
+        this.tags.add (t);
+        
+        this.updateTags ();
+        
+        this.firePropertyChangedEvent (NamedObject.TAG,
+                                       null,
+                                       t);        
+        
+    }
+    
+    public void removeTag (Tag t)
+    {
+        
+        if (t == null)
+        {
+            
+            return;
+            
+        }
+        
+        this.tags.remove (t);
+        
+        this.updateTags ();
+
+        this.firePropertyChangedEvent (NamedObject.TAG,
+                                       t,
+                                       null);        
+        
+    }
+    
+    public boolean hasTag (Tag t)
+    {
+        
+        if (t == null)
+        {
+            
+            return false;
+            
+        }
+        
+        return this.tags.contains (t);
+        
+    }
+    
+    private void updateTags ()
+    {
+     
+        Set<String> tagKeys = new LinkedHashSet ();
+        
+        for (Tag t : this.tags)
+        {
+            
+            tagKeys.add (t.getKey ().toString ());
+            
+        }
+     
+        try
+        {
+        
+            this.setProperty (Constants.TAGS_PROPERTY_NAME,
+                              Utils.joinStrings (tagKeys,
+                                                 ";"));
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to updated tags to: " +
+                                  tagKeys +
+                                  " for: " +
+                                  this,
+                                  e);
+            
+        }
+        
+    }
+    
+    @Override
+    public void setPropertiesAsString (String s)
+                                throws Exception
+    {
+        
+        super.setPropertiesAsString (s);
+        
+        Set<String> tagKeys = new LinkedHashSet (Utils.splitString (this.getProperty (Constants.TAGS_PROPERTY_NAME),
+                                                                    ";"));
+
+        for (String k : tagKeys)
+        {
+            
+            try
+            {
+                
+                Tag t = Environment.getTagByKey (Long.parseLong (k));
+                
+                if (t != null)
+                {
+                    
+                    this.tags.add (t);
+                                                                    
+                }
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                
+            }
+            
+        }
+        
+    }
+    
 }

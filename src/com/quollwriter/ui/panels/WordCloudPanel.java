@@ -62,9 +62,7 @@ public class WordCloudPanel extends BasicQuollPanel<AbstractProjectViewer>
         b.setOpaque (false);
         
         Header h = UIUtils.createHeader ("Show",
-                                         Constants.SUB_PANEL_TITLE,
-                                         null,
-                                         null);
+                                         Constants.SUB_PANEL_TITLE);
         
         b.add (h);
 
@@ -421,7 +419,7 @@ public class WordCloudPanel extends BasicQuollPanel<AbstractProjectViewer>
             items.add (new FormItem ("Angle",
                                      this.angle));
 
-            this.add (UIUtils.createForm (items));
+            //this.add (UIUtils.createForm (items));
                 
         }
         

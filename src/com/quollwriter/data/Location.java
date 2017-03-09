@@ -2,12 +2,12 @@ package com.quollwriter.data;
 
 import org.jdom.*;
 
-public class Location extends Asset
+public class Location extends LegacyAsset
 {
 
     public static final String OBJECT_TYPE = "location";
 
-    protected Location ()
+    public Location ()
     {
 
         super (Location.OBJECT_TYPE);

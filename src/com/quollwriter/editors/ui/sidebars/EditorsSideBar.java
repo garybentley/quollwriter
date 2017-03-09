@@ -60,7 +60,9 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                                                UserOnlineStatusListener
 {
     
-    public static final String NAME = "editors";
+    public static final String ID = "editors";
+    
+    //public static final String NAME = "editors";
     
     private DnDTabbedPane tabs = null;
     private EditorFindPanel editorFindPanel = null;
@@ -86,7 +88,15 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         EditorsEnvironment.addUserOnlineStatusListener (this);
         
     }                
+          
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
              
+    }
+    
     @Override
     public void handleMessage (EditorMessageEvent ev)
     {
@@ -1318,9 +1328,18 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         edBox.add (Box.createVerticalGlue ());
         
         AccordionItem prev = new AccordionItem (String.format ("Previous {contacts} (%s)",
-                                                               Environment.formatNumber (prevCount)),
-                                                null,
-                                                edBox);        
+                                                               Environment.formatNumber (prevCount)))
+        {
+          
+            @Override
+            public JComponent getContent ()
+            {
+                
+                return edBox;
+                
+            }
+            
+        };
         
         prev.setBorder (UIUtils.createPadding (0, 0, 0, 0));
         prev.init ();        
@@ -1657,11 +1676,12 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         
     }
     
-    public void init ()
+    @Override
+    public void init (String saveState)
                throws GeneralException
     {
 
-        super.init ();
+        super.init (saveState);
         
     }    
     
@@ -1863,6 +1883,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         private JLabel help = null;
         private JLabel noEditorsHelp = null;
         private ComponentListener listener = null;
+        private JComponent content = null;
     
         public EditorsSection (String         title,
                                String         help,
@@ -1870,8 +1891,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                AbstractViewer viewer)
         {
             
-            super ("",
-                   null);
+            super ("");
             
             this.title = title;
             this.viewer = viewer;
@@ -1905,7 +1925,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                 }
                 
             };
-            
+
             Box content = new Box (BoxLayout.Y_AXIS);
             content.setAlignmentX (Component.LEFT_ALIGNMENT);
             content.setBorder (UIUtils.createPadding (0, 10, 0, 5));
@@ -1933,11 +1953,19 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
             this.editorsListWrapper = new Box (BoxLayout.Y_AXIS);
             
             content.add (this.editorsListWrapper);
-        
-            this.setContent (content);
-            
+
+            this.content = content;
+                        
         }
 
+        @Override
+        public JComponent getContent ()
+        {
+            
+            return this.content;            
+            
+        }
+        
         private EditorInfoBox getEditorBox (EditorEditor ed)
                                      throws GeneralException
         {

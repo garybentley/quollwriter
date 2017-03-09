@@ -33,6 +33,8 @@ import com.quollwriter.ui.components.FormItem;
 public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
 
+    public static final String ID = "wordcounts";
+
     private final String COL_SPEC = "right:max(80px;p), 6px, p:grow";
 
     private JLabel projectSessionWordCount = null;
@@ -75,6 +77,15 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
     
+    @Override
+    public String getId ()
+    {
+        
+        return ID;
+        
+    }
+    
+    @Override
     public boolean canClose ()
     {
         
@@ -1049,7 +1060,7 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                     List<JComponent> items)
     {        
 
-        Box b = new Box (BoxLayout.Y_AXIS);
+        final Box b = new Box (BoxLayout.Y_AXIS);
 
         for (JComponent c : items)
         {
@@ -1065,8 +1076,18 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         b.add (Box.createVerticalGlue ());
         
         AccordionItem it = new AccordionItem (title,
-                                              iconType,
-                                              b);
+                                              iconType)
+        {
+            
+            @Override
+            public JComponent getContent ()
+            {
+                
+                return b;
+            
+            }
+            
+        };
                                               
         Header h = it.getHeader ();
                                               
@@ -1097,11 +1118,12 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         
     }
     
-    public void init ()
+    @Override
+    public void init (String saveState)
                throws GeneralException
     {
 
-        super.init ();
+        super.init (saveState);
                  
     }    
     

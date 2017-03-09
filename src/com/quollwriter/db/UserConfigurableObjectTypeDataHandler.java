@@ -1,17 +1,22 @@
 package com.quollwriter.db;
 
 import java.sql.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 import java.util.*;
 
+import com.gentlyweb.utils.*;
+
 import com.quollwriter.*;
 
+import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 
 public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserConfigurableObjectType, NamedObject>
 {
 
-    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjtype, name, pluralname, description, markup, icon, layout, lastmodified, datecreated, properties, id, version FROM userobjecttype_v ";
+    private static final String STD_SELECT_PREFIX = "SELECT dbkey, userobjtype, name, pluralname, description, markup, icon24x24, icon16x16, layout, assetobjtype, createshortcutkey, lastmodified, datecreated, properties, id, version FROM userobjecttype_v ";
 
     private ObjectManager objectManager = null;
 
@@ -54,11 +59,15 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             t.setKey (key);
             t.setUserObjectType (rs.getString (ind++));
             t.setName (rs.getString (ind++));
-            t.setObjectTypePluralName (rs.getString (ind++));
+            t.setObjectTypeNamePlural (rs.getString (ind++));
             t.setDescription (new StringWithMarkup (rs.getString (ind++),
                                                     rs.getString (ind++)));
-            t.setIconName (rs.getString (ind++));
+            
+            t.setIcon24x24 (new ImageIcon (UIUtils.getImage (rs.getBytes (ind++))));
+            t.setIcon16x16 (new ImageIcon (UIUtils.getImage (rs.getBytes (ind++))));
             t.setLayout (rs.getString (ind++));
+            t.setAssetObjectType (rs.getBoolean (ind++));            
+            t.setCreateShortcutKeyStroke (KeyStroke.getKeyStroke (rs.getString (ind++)));
             t.setLastModified (rs.getTimestamp (ind++));
             t.setDateCreated (rs.getTimestamp (ind++));
             t.setPropertiesAsString (rs.getString (ind++));
@@ -70,19 +79,10 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
             this.objectManager.getObjects (UserConfigurableObjectTypeField.class,
                                            t,
                                            conn,
-                                           loadChildObjects);
+                                           true);
             
-            if ((parent instanceof Project)
-                &&
-                (t.getUserObjectType () != null)
-               )
-            {
-                
-                ((Project) parent).addUserConfigurableObjectType (t.getUserObjectType (),
-                                                                  t);
-                
-            }
-            
+            Environment.addUserConfigurableObjectType (t);
+
             this.cache.put (key,
                             t);
             
@@ -204,11 +204,14 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
         List params = new ArrayList ();
         params.add (t.getKey ());
         params.add (t.getUserObjectType ());
-        params.add (t.getObjectTypePluralName ());
-        params.add (t.getIconName ());
-        params.add (t.getLayout ());        
+        params.add (t.getObjectTypeNamePlural ());
+        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())));
+        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())));
+        params.add (t.getLayout ());
+        params.add (t.isAssetObjectType ());
+        params.add (Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()));
         
-        this.objectManager.executeStatement ("INSERT INTO userobjecttype (dbkey, userobjtype, pluralname, icon, layout) VALUES (?, ?, ?, ?, ?)",
+        this.objectManager.executeStatement ("INSERT INTO userobjecttype (dbkey, userobjtype, pluralname, icon24x24, icon16x16, layout, assetobjtype, createshortcutkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                              params,
                                              conn);
 
@@ -243,12 +246,14 @@ public class UserConfigurableObjectTypeDataHandler implements DataHandler<UserCo
     {
 
         List params = new ArrayList ();
-        params.add (t.getObjectTypePluralName ());
-        params.add (t.getIconName ());
+        params.add (t.getObjectTypeNamePlural ());
+        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon24x24 ())));
+        params.add (UIUtils.getImageBytes (UIUtils.iconToImage (t.getIcon16x16 ())));
         params.add (t.getLayout ());
+        params.add (Utils.keyStrokeToString (t.getCreateShortcutKeyStroke ()));
         params.add (t.getKey ());
 
-        this.objectManager.executeStatement ("UPDATE userobjecttype SET pluralname = ?, icon = ?, layout = ? WHERE dbkey = ?",
+        this.objectManager.executeStatement ("UPDATE userobjecttype SET pluralname = ?, icon24x24 = ?, icon16x16 = ?, layout = ?, createshortcutkey = ? WHERE dbkey = ?",
                                              params,
                                              conn);
 

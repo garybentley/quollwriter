@@ -2,55 +2,108 @@ package com.quollwriter.data.comparators;
 
 import java.util.*;
 
+import com.quollwriter.*;
+import com.quollwriter.ui.*;
 import com.quollwriter.data.*;
 
-
-public class NamedObjectSorter implements Comparator<NamedObject>
+public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventListener
 {
 
-    private static Map<String, Integer> objectTypeOrder = new HashMap ();
+    private static NamedObjectSorter sorter = null;
 
-    static
+    private Map<String, Integer> objectTypeOrder = new HashMap ();
+
+    private ChapterItemSorter chapterItemComp = new ChapterItemSorter ();
+        
+    public static NamedObjectSorter getInstance ()
+    {
+                
+        if (NamedObjectSorter.sorter == null)
+        {
+        
+            Object o = new Object ();
+            
+            synchronized (o)
+            {
+                
+                NamedObjectSorter.sorter = new NamedObjectSorter ();
+                
+                Environment.addUserProjectEventListener (NamedObjectSorter.sorter);
+                
+            }
+            
+        }
+        
+        return NamedObjectSorter.sorter;
+        
+    }
+    
+    private NamedObjectSorter()
     {
 
-        Map<String, Integer> m = NamedObjectSorter.objectTypeOrder;
-
-        int ind = 1;
-
-        m.put (Scene.OBJECT_TYPE,
-               ind++);
-        m.put (OutlineItem.OBJECT_TYPE,
-               ind++);
-        m.put (Chapter.OBJECT_TYPE,
-               ind++);
-        m.put (Note.OBJECT_TYPE,
-               ind++);
-        m.put (QCharacter.OBJECT_TYPE,
-               ind++);
-        m.put (Location.OBJECT_TYPE,
-               ind++);
-        m.put (QObject.OBJECT_TYPE,
-               ind++);
-        m.put (ResearchItem.OBJECT_TYPE,
-               ind++);
-        m.put (IdeaType.OBJECT_TYPE,
-               ind++);
-        m.put (Idea.OBJECT_TYPE,
-               ind++);
-        m.put (Book.OBJECT_TYPE,
-               ind++);
-        m.put (Project.OBJECT_TYPE,
-               ind++);
-
+        this.initOrder ();
+            
     }
+    
+    private void initOrder ()
+    {
+                 
+        // We lock here on the object we will change, we don't want to be in a situation where
+        // the ordering is being used and then it changes underneath whoever is using it.
+        synchronized (this.objectTypeOrder)
+        {
+        
+            Map<String, Integer> m = new HashMap ();
+    
+            int ind = 1;
+    
+            m.put (Scene.OBJECT_TYPE,
+                   ind++);
+            m.put (OutlineItem.OBJECT_TYPE,
+                   ind++);
+            m.put (Chapter.OBJECT_TYPE,
+                   ind++);
+            m.put (Note.OBJECT_TYPE,
+                   ind++);
+            
+            Set<UserConfigurableObjectType> assetObjTypes = Environment.getAssetUserConfigurableObjectTypes (true);
+    
+            for (UserConfigurableObjectType type : assetObjTypes)
+            {
+                    
+                m.put (type.getObjectTypeId (),
+                       ind++);
+    
+            }
+            
+            m.put (IdeaType.OBJECT_TYPE,
+                   ind++);
+            m.put (Idea.OBJECT_TYPE,
+                   ind++);
+            m.put (Book.OBJECT_TYPE,
+                   ind++);
+            m.put (Project.OBJECT_TYPE,
+                   ind++);
+            
+            this.objectTypeOrder = m;
 
-    private static ChapterItemSorter chapterItemComp = new ChapterItemSorter ();
-
-    public NamedObjectSorter()
+        } 
+        
+    }
+    
+    @Override
+    public void eventOccurred (ProjectEvent ev)
     {
 
-    }
+        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
+        {
 
+            this.initOrder ();
+        
+        }
+        
+    }
+    
     public int compare (NamedObject o1,
                         NamedObject o2)
     {
@@ -88,8 +141,8 @@ public class NamedObjectSorter implements Comparator<NamedObject>
         if (!o1.getObjectType ().equals (o2.getObjectType ()))
         {
 
-            int o1k = NamedObjectSorter.objectTypeOrder.get (o1.getObjectType ());
-            int o2k = NamedObjectSorter.objectTypeOrder.get (o2.getObjectType ());
+            int o1k = this.objectTypeOrder.get (o1.getObjectType ());
+            int o2k = this.objectTypeOrder.get (o2.getObjectType ());
 
             return o1k - o2k;
 
@@ -99,8 +152,8 @@ public class NamedObjectSorter implements Comparator<NamedObject>
             (o2 instanceof ChapterItem))
         {
 
-            return NamedObjectSorter.chapterItemComp.compare ((ChapterItem) o1,
-                                                              (ChapterItem) o2);
+            return this.chapterItemComp.compare ((ChapterItem) o1,
+                                                 (ChapterItem) o2);
 
         }
 

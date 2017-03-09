@@ -7,9 +7,39 @@
     Drop first.
   -->
   <item>
+    <log>Drop view userobjecttypefield_v</log>
+    <sql>
+DROP VIEW IF EXISTS userobjecttypefield_v
+    </sql>
+  </item>
+
+  <!--
+    Drop first.
+  -->
+  <item>
+    <log>Drop view userobjecttype_v</log>
+    <sql>
+DROP VIEW IF EXISTS userobjecttype_v
+    </sql>
+  </item>
+
+  <!--
+    Drop first.
+  -->
+  <item>
     <log>Drop view projectinfo_v</log>
     <sql>
 DROP VIEW IF EXISTS projectinfo_v
+    </sql>
+  </item>
+
+  <!--
+    Drop first.
+  -->
+  <item>
+    <log>Drop view tag_v</log>
+    <sql>
+DROP VIEW IF EXISTS tag_v
     </sql>
   </item>
 
@@ -35,5 +65,20 @@ DROP VIEW IF EXISTS namedobject_v
     <log>Create projectinfo_v view</log>
     <sql file="views/projectinfo.v" />
   </item>
+
+  <item>
+    <log>Create userobjecttype_v view</log>
+    <sql file="views/userobjecttype.v" />
+  </item>
+
+  <item>
+    <log>Create userobjecttypefield_v view</log>
+    <sql file="views/userobjecttypefield.v" />
+  </item>
   
+  <item>
+    <log>Create tag_v view</log>
+    <sql file="views/tag.v" />
+  </item>
+
 </update-script>

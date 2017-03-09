@@ -223,18 +223,8 @@ DROP VIEW IF EXISTS namedobject_v
   </item>
 
   <item>
-    <log>Create userobjecttype_v view</log>
-    <sql file="views/userobjecttype.v" />
-  </item>
-
-  <item>
-    <log>Create userobjecttypefield_v view</log>
-    <sql file="views/userobjecttypefield.v" />
-  </item>
-
-  <item>
-    <log>Create userobject_v view</log>
-    <sql file="views/userobject.v" />
+    <log>Create asset_v view</log>
+    <sql file="views/asset.v" />
   </item>
 
   <item>

@@ -3247,7 +3247,58 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                ProjectEvent.SHOW);
 
     }
+    
+    public void showEditTags ()
+    {
 
+        String popupName = "edittags";
+        QPopup popup = this.getNamedPopup (popupName);
+
+        if (popup == null)
+        {
+
+            popup = UIUtils.createClosablePopup ("Manage the Tags",
+                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
+                                                                      Constants.ICON_POPUP),
+                                                 null);
+
+            popup.setRemoveOnClose (false);
+
+            popup.setPopupName (popupName);
+
+            this.addNamedPopup (popupName,
+                                popup);
+
+            TagsEditor content = new TagsEditor (this);
+
+            content.init ();
+
+            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                             content.getPreferredSize ().height));
+            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+
+            popup.setContent (content);
+
+            popup.setDraggable (this);
+
+            popup.resize ();
+            this.showPopupAt (popup,
+                              UIUtils.getCenterShowPosition (this,
+                                                             popup),
+                              false);
+
+        } else {
+
+            popup.setVisible (true);
+
+        }
+
+        this.fireProjectEvent (ProjectEvent.TAGS,
+                               ProjectEvent.EDIT);
+
+    }
+    
+/*
     public void showEditItemTypes ()
     {
 
@@ -3298,7 +3349,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                ProjectEvent.SHOW);
 
     }
-
+*/
     /**
      * Un-schedule the runnable.
      *

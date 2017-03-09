@@ -101,10 +101,13 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
         this.setBackground (null);
         this.add (Box.createVerticalStrut (5));
 
-        this.add (UIUtils.createBoldSubHeader ("New Types",
+        this.add (UIUtils.createBoldSubHeader (String.format ("New %s",
+                                                              this.getTypesName ()),
                                                null));
 
-        JTextPane tp = UIUtils.createHelpTextPane ("Enter the new types to add below, separate the types with commas or semi-colons.",
+        JTextPane tp = UIUtils.createHelpTextPane (String.format ("Enter the new %s to add below, separate the %s with commas or semi-colons.",
+                                                                  this.getTypesName ().toLowerCase (),
+                                                                  this.getTypesName ().toLowerCase ()),
                                                    this.viewer);
 
         tp.setBorder (new EmptyBorder (5,
@@ -365,7 +368,7 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
         }
 
         Vector<String> cols = new Vector ();
-        cols.add ("Type");
+        cols.add (this.getTypesName ());
 
         this.typeModel.setDataVector (typeData,
                                       cols);

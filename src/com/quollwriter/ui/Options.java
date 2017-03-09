@@ -76,6 +76,7 @@ public class Options extends Box
         betas ("betas"),
         start ("start"),
         landing ("landing"),
+        assets ("assets"),
         project ("project");
 
         private String type = null;
@@ -385,6 +386,13 @@ public class Options extends Box
         {
 
             return this.createProjectSection ();
+
+        }
+
+        if (sect == Section.assets)
+        {
+
+            return this.createAssetsSection ();
 
         }
 
@@ -762,7 +770,7 @@ public class Options extends Box
 
         buts[0] = b;
 
-        b = new JButton ("Item Types");
+        b = new JButton ("Tags");
 
         b.addActionListener (new ActionAdapter ()
         {
@@ -770,7 +778,7 @@ public class Options extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                _this.viewer.showEditItemTypes ();
+                _this.viewer.showEditTags ();
 
             }
 
@@ -3093,6 +3101,270 @@ public class Options extends Box
 
     }
 
+    private SectionInfo createAssetsSection ()
+    {
+
+        if (!(this.viewer instanceof ProjectViewer))
+        {
+
+            return null;
+
+        }
+    
+        final Options _this = this;
+
+        Box box = new Box (BoxLayout.Y_AXIS);
+
+        JComponent c = this.createHelpText ("Add new Assets ({Characters}, {Locations}, etc) in");
+        this.setAsMainItem (c);
+
+        box.add (c);
+        
+        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("Always use a Popup");
+        rbAssetInPopup.setToolTipText ("If the Asset has more than just a name and description field then a link will be shown to add the Asset, and thus see all the fields, in a tab instead.");
+        final JRadioButton rbAssetTryPopup = UIUtils.createRadioButton ("Use a Popup if possible");
+        rbAssetTryPopup.setToolTipText ("If the Asset only has a name and a description field then a popup will be used, otherwise a tab will be used.");
+        final JRadioButton rbAssetInTab = UIUtils.createRadioButton ("Their own tab");
+
+        String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
+
+        if (addAsset == null)
+        {
+            
+            addAsset = "popup";
+            
+        }
+        
+        rbAssetInPopup.setSelected (addAsset.equals ("popup"));
+        rbAssetTryPopup.setSelected (addAsset.equals ("trypopup"));
+        rbAssetInTab.setSelected (addAsset.equals ("tab"));
+
+        ButtonGroup g = new ButtonGroup ();
+        g.add (rbAssetInPopup);
+        g.add (rbAssetTryPopup);
+        g.add (rbAssetInTab);
+        
+        rbAssetInPopup.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.ADD_ASSETS_PROPERTY_NAME,
+                                    "popup");
+
+            }
+
+        });        
+        
+        rbAssetTryPopup.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.ADD_ASSETS_PROPERTY_NAME,
+                                    "trypopup");
+
+            }
+
+        });        
+
+        rbAssetInTab.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.ADD_ASSETS_PROPERTY_NAME,
+                                    "tab");
+
+            }
+
+        });        
+
+        c = this.createWrapper (rbAssetInPopup);
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        c = this.createWrapper (rbAssetTryPopup);
+        this.setAsSubItem (c);
+
+        box.add (c);                
+
+        c = this.createWrapper (rbAssetInTab);
+        this.setAsSubItem (c);
+
+        box.add (c);                
+        
+        box.add (Box.createVerticalStrut (15));
+
+        c = this.createHelpText ("Edit the Asset configuration (Layout, Fields, Name, Icon etc)");
+        this.setAsMainItem (c);
+
+        box.add (c);
+        
+        Vector v = new Vector ();
+        
+        for (UserConfigurableObjectType t : Environment.getAssetUserConfigurableObjectTypes (true))
+        {
+            
+            v.add (t);
+            
+        }
+        
+        final JComboBox assetTypes = new JComboBox (v);
+        assetTypes.setEditable (false);
+
+        assetTypes.setRenderer (new DefaultListCellRenderer ()
+        {
+           
+            @Override
+            public Component getListCellRendererComponent (JList list,
+                                                           Object value,
+                                                           int    index,
+                                                           boolean isSelected,
+                                                           boolean cellHasFocus)
+            {
+                
+                super.getListCellRendererComponent (list,
+                                                    value,
+                                                    index,
+                                                    isSelected,
+                                                    cellHasFocus);
+                
+                UserConfigurableObjectType t = (UserConfigurableObjectType) value;
+                
+                this.setText (t.getObjectTypeNamePlural ());
+                this.setIcon (t.getIcon16x16 ());
+                this.setBorder (UIUtils.createPadding (3, 3, 3, 3));
+                
+                return this;
+                
+            }
+            
+        });
+        
+        assetTypes.setMaximumSize (assetTypes.getPreferredSize ());
+        
+        Box bb = new Box (BoxLayout.X_AXIS);
+        
+        bb.add (assetTypes);
+        bb.add (Box.createHorizontalStrut (5));
+        
+        JButton editType = UIUtils.createButton ("Edit",
+                                                 null);
+
+        editType.addActionListener (new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UserConfigurableObjectType t = (UserConfigurableObjectType) assetTypes.getSelectedItem ();
+                
+                UIUtils.showObjectTypeEdit (t,
+                                            (ProjectViewer) _this.viewer);
+
+            }
+
+        });
+        
+        bb.add (editType);
+        bb.add (Box.createHorizontalGlue ());
+        
+        c = this.createWrapper (bb);
+        this.setAsSubItem (c);
+        
+        box.add (c);
+        
+        box.add (Box.createVerticalStrut (15));
+        
+        JButton tags = new JButton ("Manage the Tags");
+
+        tags.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                _this.viewer.showEditTags ();
+
+            }
+
+        });
+
+        JButton buts[] = new JButton[] { tags };
+
+        JPanel bp = UIUtils.createButtonBar2 (buts,
+                                              Component.LEFT_ALIGNMENT);
+        bp.setOpaque (false);
+
+        c = this.createWrapper (bp);
+
+        //c = this.createWrapper (mb);
+        this.setAsMainItem (c);
+
+        box.add (c);        
+        
+        /*
+        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("A Popup");
+        final JRadioButton rbAssetInTab = UIUtils.createRadioButton ("Their own tab");
+
+        boolean editAssetInPopup = UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME);
+
+        rbAssetInPopup.setSelected (editAssetInPopup);
+        rbAssetInTab.setSelected (!editAssetInPopup);
+
+        g = new ButtonGroup ();
+        g.add (rbAssetInPopup);
+        g.add (rbAssetInTab);
+        
+        rbAssetInPopup.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
+                                    true);
+
+            }
+
+        });        
+        
+        rbAssetInTab.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
+                                    false);
+
+            }
+
+        });        
+
+        c = this.createWrapper (rbAssetInPopup);
+        this.setAsSubItem (c);
+
+        box.add (c);
+
+        c = this.createWrapper (rbAssetInTab);
+        this.setAsSubItem (c);
+
+        box.add (c);        
+        */
+        return new SectionInfo ("Assets & Tags",
+                                Constants.ASSETS_ICON_NAME,
+                                "Need to add another field to an asset?  Manage the tags?  Change the names of things, change the icons?  This section has you covered, you can also right click on the section header in the sidebar to do this stuff as well.",
+                                box);
+        
+    }
+    
     private SectionInfo createProjectSection ()
     {
 
