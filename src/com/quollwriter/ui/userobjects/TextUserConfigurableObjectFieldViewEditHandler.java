@@ -57,6 +57,10 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         this.editItem = UIUtils.createTextField ();
     
+        UIUtils.addDoActionOnReturnPressed (this.editItem,
+                                            formSave);
+    
+    
         StringWithMarkup text = this.getFieldValue ();
             
         if (text != null)

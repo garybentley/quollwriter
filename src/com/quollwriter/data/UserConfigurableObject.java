@@ -62,6 +62,7 @@ public class UserConfigurableObject extends NamedObject
             
                     Set<String> names = new LinkedHashSet ();
 
+                    // TODO: Change to return a list of names from the field.
                     StringTokenizer t = new StringTokenizer (v.toString (),
                                                              "\n;,");
             

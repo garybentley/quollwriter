@@ -16,6 +16,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.ScrollableBox;
 
 /**
  * A class responsible for creating the layouts required for viewing and add/editing an
@@ -1080,10 +1081,7 @@ public class AssetViewAddEditLayout
             right.addAll (name.getInputFormItems (null,
                                                   formSave));
             
-            if ((image != null)
-                &&
-                (image.hasImage ())
-               )
+            if (image != null)
             {
                                     
                 right.addAll (image.getInputFormItems (null,
@@ -1122,7 +1120,7 @@ public class AssetViewAddEditLayout
                 }
                                                         
             }
-                                            
+                                          
             return this.createTwoColumnsLayout (left,
                                                 250,
                                                 true,
@@ -1318,7 +1316,7 @@ public class AssetViewAddEditLayout
                         
                         //c.setPreferredSize (new Dimension (250, 300));
                         //_b.setMinimumSize (new Dimension (250, 300));
-                        //c.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
+                        c.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
 
                         _b.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
                         
@@ -1345,7 +1343,7 @@ public class AssetViewAddEditLayout
         b.setMinimumSize (b.getPreferredSize ());
         b.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          Short.MAX_VALUE));
-                            
+                           
         return b;
                     
     }
@@ -1457,13 +1455,17 @@ public class AssetViewAddEditLayout
         col1C.setOpaque (false);
         col2C.setOpaque (false);                        
                                 
-        Box b = new Box (BoxLayout.X_AXIS);
+        Box b = new ScrollableBox (BoxLayout.X_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.add (col1C);
         b.add (Box.createHorizontalStrut (15));
         b.add (col2C);
 
         b.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+        
+        JPanel p = new com.quollwriter.ui.components.ScrollablePanel (new java.awt.BorderLayout ());
+        p.setOpaque (false);
+        p.add (b);
         
         col1C.setMinimumSize (new Dimension (col1Width, col1C.getPreferredSize ().height));          
         
@@ -1474,6 +1476,7 @@ public class AssetViewAddEditLayout
             
         } else {
             
+            //col1C.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));            
             col2C.setPreferredSize (new Dimension (col2Width, col2C.getPreferredSize ().height));            
             
         }
@@ -1487,11 +1490,12 @@ public class AssetViewAddEditLayout
             
         } else {
             
-           col1C.setPreferredSize (new Dimension (col1Width, col1C.getPreferredSize ().height));
+            //col2C.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));            
+            col1C.setPreferredSize (new Dimension (col1Width, col1C.getPreferredSize ().height));
             
         }
         
-        JScrollPane sp = UIUtils.createScrollPane (b);
+        JScrollPane sp = UIUtils.createScrollPane (p);
         sp.setBorder (null);
                  
         return sp;

@@ -913,6 +913,36 @@ public class Project extends NamedObject
 
     }
     
+    public Set<NamedObject> getAllNamedObjectsByName (String n)
+    {
+        
+        Set<NamedObject> ret = new LinkedHashSet ();
+        
+        Set<NamedObject> objs = this.getAllNamedChildObjects ();
+
+        for (NamedObject o : objs)
+        {
+        
+            Set<String> names = o.getAllNames ();
+            
+            for (String name : names)
+            {
+                
+                if (n.equalsIgnoreCase (name))
+                {
+                    
+                    ret.add (o);
+                
+                }
+                        
+            }
+            
+        }
+        
+        return ret;        
+        
+    }
+    
     public Set<Asset> getAllAssetsByName (String                     n,
                                           UserConfigurableObjectType type)
     {
@@ -922,8 +952,15 @@ public class Project extends NamedObject
         if (type != null)
         {
             
-            assets.add (this.getAssetByName (n,
-                                             type));
+            Asset as = this.getAssetByName (n,
+                                            type);
+            
+            if (as != null)
+            {
+                
+                assets.add (as);
+                
+            }
             
             return assets;
             
@@ -932,8 +969,15 @@ public class Project extends NamedObject
         for (UserConfigurableObjectType t : this.assets.keySet ())
         {
             
-            assets.add (this.getAssetByName (n,
-                                             t));
+            Asset as = this.getAssetByName (n,
+                                            t);
+            
+            if (as != null)
+            {
+            
+                assets.add (as);
+                
+            }
             
         }
     
@@ -949,7 +993,7 @@ public class Project extends NamedObject
         
         if (as == null)
         {
-            
+    
             return null;
             
         }
@@ -957,11 +1001,18 @@ public class Project extends NamedObject
         for (Asset a : as)
         {
             
-            if (a.getName ().toLowerCase ().equals (n))
-            {
-
-                return a;
+            Set<String> names = a.getAllNames ();
             
+            for (String name : names)
+            {
+                
+                if (n.equalsIgnoreCase (name))
+                {
+                    
+                    return a;
+                
+                }
+                        
             }
                         
         }

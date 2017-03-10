@@ -1779,6 +1779,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public boolean viewObject (DataObject d)
     {
 
+        if (d == null)
+        {
+            
+            return false;
+            
+        }
+    
         return this.viewObject (d,
                                 null);
 

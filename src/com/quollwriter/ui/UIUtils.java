@@ -4560,25 +4560,26 @@ public class UIUtils
                                              final AbstractViewer projectViewer)
     {
 
-        p.addHyperlinkListener (new HyperlinkAdapter ()
+        p.addHyperlinkListener (new HyperlinkListener ()
+        {
+
+            @Override
+            public void hyperlinkUpdate (HyperlinkEvent ev)
             {
 
-                public void hyperlinkUpdate (HyperlinkEvent ev)
+                if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
                 {
 
-                    if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
-                    {
+                    URL url = ev.getURL ();
 
-                        URL url = ev.getURL ();
-
-                        UIUtils.openURL (projectViewer,
-                                         url);
-
-                    }
+                    UIUtils.openURL (projectViewer,
+                                     url);
 
                 }
 
-            });
+            }
+
+        });
 
     }
 
@@ -5552,108 +5553,108 @@ public class UIUtils
                                             Short.MAX_VALUE));
 */
         desc.setSize (new Dimension (500, Short.MAX_VALUE));
-        desc.addHyperlinkListener (new HyperlinkAdapter ()
+        desc.addHyperlinkListener (new HyperlinkListener ()
+        {
+
+            @Override                
+            public void hyperlinkUpdate (HyperlinkEvent ev)
             {
 
-                public void hyperlinkUpdate (HyperlinkEvent ev)
+                if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
                 {
 
-                    if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
+                    URL url = ev.getURL ();
+
+                    if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
                     {
 
-                        URL url = ev.getURL ();
+                        pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
 
-                        if (url.getProtocol ().equals (Constants.OBJECTREF_PROTOCOL))
+                        return;
+
+                    }
+
+                    if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
+                    {
+
+                        Set<NamedObject> objs = pv.getProject ().getAllNamedObjectsByName (url.getHost ());
+
+                        if ((objs == null)
+                            ||
+                            (objs.size () == 0)
+                           )
                         {
-
-                            pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (url.getHost ())));
 
                             return;
 
                         }
 
-                        if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
+                        if (objs.size () == 1)
                         {
 
-                            Set<Asset> objs = pv.getProject ().getAllAssetsByName (url.getHost (),
-                                                                                   null);
+                            pv.viewObject (objs.iterator ().next ());
 
-                            if ((objs == null)
-                                ||
-                                (objs.size () == 0)
-                               )
+                            return;
+
+                        } else {
+
+                            try
                             {
 
-                                return;
+                                Point point = desc.modelToView (ev.getSourceElement ().getStartOffset ()).getLocation ();
 
-                            }
+                                point = SwingUtilities.convertPoint (desc,
+                                                                     point,
+                                                                     pv);
 
-                            if (objs.size () == 1)
-                            {
+                                UIUtils.showObjectSelectPopup (objs,
+                                                               pv,
+                                                               "Select an item to view",
+                                                               new ActionListener ()
+                                                               {
+
+                                                                    @Override
+                                                                    public void actionPerformed (ActionEvent ev)
+                                                                    {
+
+                                                                        pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (ev.getActionCommand ())));
+
+                                                                    }
+
+                                                               },
+                                                               true,
+                                                               point);
+
+                            } catch (Exception e) {
+
+                                Environment.logError ("Unable to show popup",
+                                                      e);
 
                                 pv.viewObject (objs.iterator ().next ());
 
                                 return;
 
-                            } else {
-
-                                try
-                                {
-
-                                    Point point = desc.modelToView (ev.getSourceElement ().getStartOffset ()).getLocation ();
-
-                                    point = SwingUtilities.convertPoint (desc,
-                                                                         point,
-                                                                         pv);
-
-                                    UIUtils.showObjectSelectPopup (objs,
-                                                                   pv,
-                                                                   "Select an item to view",
-                                                                   new ActionListener ()
-                                                                   {
-
-                                                                        @Override
-                                                                        public void actionPerformed (ActionEvent ev)
-                                                                        {
-
-                                                                            pv.viewObject (pv.getProject ().getObjectForReference (ObjectReference.parseObjectReference (ev.getActionCommand ())));
-
-                                                                        }
-
-                                                                   },
-                                                                   true,
-                                                                   point);
-
-                                } catch (Exception e) {
-
-                                    Environment.logError ("Unable to show popup",
-                                                          e);
-
-                                    pv.viewObject (objs.iterator ().next ());
-
-                                    return;
-
-                                }
-
                             }
 
                         }
 
-                        if (url.getProtocol ().equals ("mailto"))
-                        {
+                    }
 
-                            return;
+                    if (url.getProtocol ().equals ("mailto"))
+                    {
 
-                        }
-
-                        UIUtils.openURL (pv,
-                                         url);
+                        return;
 
                     }
 
+                    UIUtils.openURL (pv,
+                                     url);
+
                 }
 
-            });
+            }
+
+        });
 
         if (qp != null)
         {
