@@ -977,35 +977,25 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             content.add (error);
 
-            final TextArea desc = new TextArea ("Enter the bug/problem description here.  More information is usually better.",
-                                                5,
-                                                10000);
+            final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Description",
+                                                                          "Enter the bug/problem description here.  More information is usually better.",
+                                                                          10,
+                                                                          10000,
+                                                                          false,
+                                                                          null);
+            
+            final TextFormItem email = new TextFormItem ("Email",
+                                                         null);
 
-            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
-                                            "top:p, 6px, p, 6px, p, 6px, p");
-
-            PanelBuilder builder = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            builder.addLabel ("Description",
-                              cc.xy (2,
-                                     1));
-
-            builder.add (desc,
-                         cc.xy (4,
-                                1));
-
-            builder.addLabel ("Your Email",
-                              cc.xy (2,
-                                     3));
-
-            final JTextField email = new JTextField ();
-
-            builder.add (email,
-                         cc.xy (4, 3));
+            Set<FormItem> items = new LinkedHashSet ();
+            
+            items.add (desc);
+            items.add (email);
 
             final JCheckBox sendLogFiles = new JCheckBox ("Send the log files");
+
+            items.add (new AnyFormItem (null,
+                                        sendLogFiles));
 
             if (Environment.getQuollWriterVersion ().isBeta ())
             {
@@ -1018,10 +1008,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             sendLogFiles.setSelected (true);
             sendLogFiles.setOpaque (false);
             sendLogFiles.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
-
-            builder.add (sendLogFiles,
-                         cc.xy (4,
-                                5));
 
             final QPopup qp = popup;
 
@@ -1137,17 +1123,15 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             };
 
-            UIUtils.addDoActionOnReturnPressed (desc,
+            UIUtils.addDoActionOnReturnPressed (desc.getTextArea (),
                                                 sendAction);
-            UIUtils.addDoActionOnReturnPressed (email,
+            UIUtils.addDoActionOnReturnPressed (email.getTextField (),
                                                 sendAction);
 
-            JButton send = new JButton ("Send");
-            JButton cancel = new JButton ("Cancel");
-
-            send.addActionListener (sendAction);
-
-            cancel.addActionListener (new ActionListener ()
+            JButton send = UIUtils.createButton ("Send",
+                                                 sendAction);
+            JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                   new ActionListener ()
             {
 
                 @Override
@@ -1159,21 +1143,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 }
 
             });
-
-            JButton[] buts = { send, cancel };
-
-            JPanel bp = UIUtils.createButtonBar2 (buts,
-                                                  Component.LEFT_ALIGNMENT);
-            bp.setOpaque (false);
-
-            builder.add (bp,
-                         cc.xy (4, 7));
-
-            JPanel p = builder.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-            content.add (p);
+                   
+            Set<JButton> buttons = new LinkedHashSet ();
+            buttons.add (send);
+            buttons.add (cancel);
+            
+            Form f = new Form (Form.Layout.stacked,
+                               items,
+                               buttons);
+            
+            content.add (f);
 
             content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                              content.getPreferredSize ().height));
@@ -1193,6 +1172,19 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                               UIUtils.getCenterShowPosition (this,
                                                              popup),
                               false);
+
+            UIUtils.doLater (new ActionListener ()
+            {
+            
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    desc.grabFocus ();   
+                              
+                }
+                
+            });
 
         } else {
 

@@ -5703,7 +5703,12 @@ TODO: Add back in when appropriate.
 
                         Element el = new Element (k.toString ());
 
-                        el.addContent (v.toString ());
+                        if (v != null)
+                        {
+                            
+                            el.addContent (v.toString ());
+                            
+                        }
 
                         root.addContent (el);
 
