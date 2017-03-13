@@ -673,13 +673,10 @@ public class EditorsUIUtils
                             row));
 
         final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
-                                                      null);
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                      null);
-
-        updateB.addActionListener (new ActionListener ()
+                                                      new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -743,7 +740,8 @@ public class EditorsUIUtils
 
         });
 
-        cancelB.addActionListener (qp.getCloseAction ());
+        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+                                                      qp.getCloseAction ());
 
         row += 2;
 
@@ -901,13 +899,10 @@ public class EditorsUIUtils
                             row));
 
         final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
-                                                      null);
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                      null);
-
-        updateB.addActionListener (new ActionListener ()
+                                                      new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -955,7 +950,8 @@ public class EditorsUIUtils
 
         });
 
-        cancelB.addActionListener (qp.getCloseAction ());
+        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+                                                      qp.getCloseAction ());
 
         row += 2;
 
@@ -1489,12 +1485,12 @@ public class EditorsUIUtils
 
         row += 2;
 
-        final JButton send = UIUtils.createButton ("Send",
-                                                   null);
-
+        final JButton send = UIUtils.createButton ("Send");
+        
         ActionListener sendAction = new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -1768,18 +1764,16 @@ public class EditorsUIUtils
         };
 
         send.addActionListener (sendAction);
-
         UIUtils.addDoActionOnReturnPressed (version,
                                             sendAction);
         UIUtils.addDoActionOnReturnPressed (notes,
                                             sendAction);
 
         JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                               null);
-
-        cancel.addActionListener (new ActionListener ()
+                                               new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -2348,12 +2342,10 @@ public class EditorsUIUtils
 
             content.add (res);
 
-            JButton save = UIUtils.createButton ("Save {project}",
-                                                 null);
-
             ActionListener doSave = new ActionListener ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -2592,23 +2584,23 @@ public class EditorsUIUtils
 
             };
 
-            save.addActionListener (doSave);
-
+            JButton save = UIUtils.createButton ("Save {project}",
+                                                 doSave);
+            
             UIUtils.addDoActionOnReturnPressed (res,
                                                 doSave);
 
             JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                   null);
-
-            cancel.addActionListener (new ActionListener ()
+                                                   new ActionListener ()
             {
 
-               public void actionPerformed (ActionEvent ev)
-               {
-
-                    qp.removeFromParent ();
-
-               }
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+ 
+                     qp.removeFromParent ();
+ 
+                }
 
             });
 
@@ -2879,12 +2871,10 @@ public class EditorsUIUtils
 
                 ActionListener onShow = null;
 
-                final JButton send = UIUtils.createButton ("Send",
-                                                           null);
-
                 ActionListener sendAction = new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -3032,14 +3022,14 @@ public class EditorsUIUtils
 
                  };
 
-                send.addActionListener (sendAction);
+                final JButton send = UIUtils.createButton ("Send",
+                                                           sendAction);
+                 
                 UIUtils.addDoActionOnReturnPressed (genComments,
                                                     sendAction);
 
                 final JButton cancel = UIUtils.createButton ("Cancel",
-                                                             null);
-
-                cancel.addActionListener (popup.getCloseAction ());
+                                                             popup.getCloseAction ());
 
                 JButton[] buts = new JButton[] { send, cancel };
 
@@ -3909,13 +3899,10 @@ public class EditorsUIUtils
         content.add (sending);
 
         final JButton reportB = UIUtils.createButton ("Report",
-                                                      null);
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                      null);
-
-        reportB.addActionListener (new ActionListener ()
+                                                      new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -4039,7 +4026,8 @@ public class EditorsUIUtils
 
         });
 
-        cancelB.addActionListener (qp.getCloseAction ());
+        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+                                                      qp.getCloseAction ());
 
         JComponent bs = UIUtils.createButtonBar2 (new JButton[] {reportB, cancelB},
                                                   Component.LEFT_ALIGNMENT);
@@ -4150,13 +4138,10 @@ public class EditorsUIUtils
                             row));
 
         final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
-                                                      null);
-        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                                      null);
-
-        updateB.addActionListener (new ActionListener ()
+                                                      new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -4211,7 +4196,8 @@ public class EditorsUIUtils
 
         });
 
-        cancelB.addActionListener (qp.getCloseAction ());
+        final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+                                                      qp.getCloseAction ());
 
         row += 2;
 

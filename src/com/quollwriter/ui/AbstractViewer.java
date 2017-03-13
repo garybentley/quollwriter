@@ -53,12 +53,16 @@ import com.quollwriter.data.*;
 
 import com.quollwriter.db.*;
 import com.quollwriter.ui.sidebars.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.events.*;
 import com.quollwriter.synonyms.*;
 
 import com.quollwriter.ui.actionHandlers.*;
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.components.QPopup;
+import com.quollwriter.ui.components.Header;
+import com.quollwriter.ui.components.PopupAdapter;
+import com.quollwriter.ui.components.PopupEvent;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.ui.renderers.*;
 
@@ -389,15 +393,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             c = UIUtils.createButton (Constants.WARMUPS_ICON_NAME,
                                       Constants.ICON_TITLE_ACTION,
                                       "Click to do a new {Warmup} exercise",
-                                      new ActionAdapter ()
+                                      new ActionListener ()
                                       {
 
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
+                                        @Override
+                                        public void actionPerformed (ActionEvent ev)
+                                        {
 
-                                                _this.showWarmupPromptSelect ();
+                                            _this.showWarmupPromptSelect ();
 
-                                            }
+                                        }
 
                                       });
 
@@ -409,15 +414,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             c = UIUtils.createButton (Constants.BUG_ICON_NAME,
                                               Constants.ICON_TITLE_ACTION,
                                               "Click to report a bug/problem",
-                                              new ActionAdapter ()
+                                              new ActionListener ()
                                               {
 
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
 
-                                                      _this.showReportProblem ();
+                                                    _this.showReportProblem ();
 
-                                                  }
+                                                }
 
                                               });
 
@@ -429,15 +435,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             c = UIUtils.createButton (Constants.BUG_ICON_NAME,
                                               Constants.ICON_TITLE_ACTION,
                                               "Click to report a bug/problem with the beta",
-                                              new ActionAdapter ()
+                                              new ActionListener ()
                                               {
 
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
 
-                                                      _this.showReportProblem ();
+                                                    _this.showReportProblem ();
 
-                                                  }
+                                                }
 
                                               });
 
@@ -454,43 +461,44 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 c = UIUtils.createButton (Constants.EDITORS_ICON_NAME,
                                              Constants.ICON_TITLE_ACTION,
                                              toolTip,
-                                             new ActionAdapter ()
+                                             new ActionListener ()
                                              {
 
-                                                 public void actionPerformed (ActionEvent ev)
-                                                 {
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
 
-                                                     if ((_this.isEditorsVisible ())
-                                                         &&
-                                                         (!EditorsEnvironment.isUserLoggedIn ())
-                                                        )
-                                                     {
+                                                    if ((_this.isEditorsVisible ())
+                                                        &&
+                                                        (!EditorsEnvironment.isUserLoggedIn ())
+                                                       )
+                                                    {
 
-                                                         EditorsEnvironment.goOnline (null,
-                                                                                      null,
-                                                                                      null,
-                                                                                      null);
+                                                        EditorsEnvironment.goOnline (null,
+                                                                                     null,
+                                                                                     null,
+                                                                                     null);
 
-                                                         return;
+                                                        return;
 
-                                                     }
+                                                    }
 
-                                                     try
-                                                     {
+                                                    try
+                                                    {
 
-                                                         _this.viewEditors ();
+                                                        _this.viewEditors ();
 
-                                                     } catch (Exception e) {
+                                                    } catch (Exception e) {
 
-                                                         Environment.logError ("Unable to view editors",
-                                                                               e);
+                                                        Environment.logError ("Unable to view editors",
+                                                                              e);
 
-                                                         UIUtils.showErrorMessage (_this,
-                                                                                   "Unable to show the {editors}.");
+                                                        UIUtils.showErrorMessage (_this,
+                                                                                  "Unable to show the {editors}.");
 
-                                                     }
+                                                    }
 
-                                                 }
+                                                }
 
                                              });
 
@@ -504,171 +512,177 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             c = UIUtils.createButton (Constants.SETTINGS_ICON_NAME,
                                            Constants.ICON_TITLE_ACTION,
                                            "Click to view the {Project} menu",
-                                           new ActionAdapter ()
+                                           new ActionListener ()
                                            {
 
-                                                public void actionPerformed (ActionEvent ev)
+                                            @Override
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+
+                                                final JPopupMenu titlePopup = new JPopupMenu ();
+
+                                                try
                                                 {
 
-                                                    final JPopupMenu titlePopup = new JPopupMenu ();
+                                                    _this.fillSettingsPopup (titlePopup);
 
-                                                    try
-                                                    {
+                                                } catch (Exception e)
+                                                {
 
-                                                        _this.fillSettingsPopup (titlePopup);
+                                                    Environment.logError ("Unable to fill popup",
+                                                                          e);
 
-                                                    } catch (Exception e)
-                                                    {
+                                                }
 
-                                                        Environment.logError ("Unable to fill popup",
-                                                                              e);
+                                                titlePopup.addSeparator ();
 
-                                                    }
-
-                                                    titlePopup.addSeparator ();
-
-                                                    JMenuItem mi = null;
+                                                JMenuItem mi = null;
 /*
-                                                    titlePopup.add (_this.createMenuItem ("Find",
-                                                                                          Constants.FIND_ICON_NAME,
-                                                                                          new ActionAdapter ()
+                                                titlePopup.add (_this.createMenuItem ("Find",
+                                                                                      Constants.FIND_ICON_NAME,
+                                                                                      new ActionAdapter ()
+                                                                                      {
+
+                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                        {
+
+                                                                                            _this.showFind (null);
+
+                                                                                        }
+
+                                                                                     }));
+*/
+                                                titlePopup.add (_this.createMenuItem ("Options",
+                                                                                      Constants.OPTIONS_ICON_NAME,
+                                                                                      new ActionListener ()
+                                                                                      {
+
+                                                                                          @Override
+                                                                                          public void actionPerformed (ActionEvent ev)
                                                                                           {
 
+                                                                                              _this.showOptions (null);
+
+                                                                                          }
+
+                                                                                      }));
+
+                                                titlePopup.add (_this.createMenuItem ("Achievements",
+                                                                                      Constants.ACHIEVEMENT_ICON_NAME,
+                                                                                      new ActionListener ()
+                                                                                      {
+
+                                                                                        @Override
+                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                        {
+
+                                                                                            _this.viewAchievements ();
+
+                                                                                        }
+
+                                                                                     }));
+
+                                                titlePopup.addSeparator ();
+
+                                                titlePopup.add (_this.createMenuItem ("What's New in this version",
+                                                                                      Constants.WHATS_NEW_ICON_NAME,
+                                                                                      new ActionListener ()
+                                                                                      {
+
+                                                                                        @Override
+                                                                                        public void actionPerformed (ActionEvent ev)
+                                                                                        {
+
+                                                                                            _this.showWhatsNew (true);
+
+                                                                                        }
+
+                                                                                     }));
+
+                                                // Help
+                                                JMenu m = new JMenu ("Help");
+                                                m.setIcon (Environment.getIcon (Constants.HELP_ICON_NAME,
+                                                                                Constants.ICON_MENU));
+
+                                                titlePopup.add (m);
+
+                                                // Report Bug/Problem
+                                                m.add (_this.createMenuItem ("Report Bug/Problem",
+                                                                             Constants.BUG_ICON_NAME,
+                                                                             AbstractProjectViewer.REPORT_BUG_ACTION));
+
+                                                // Contact Support
+                                                m.add (_this.createMenuItem ("Contact Support",
+                                                                             Constants.EMAIL_ICON_NAME,
+                                                                             AbstractProjectViewer.CONTACT_SUPPORT_ACTION));
+
+                                                // View the User Guide
+                                                m.add (_this.createMenuItem ("View the User Guide",
+                                                                             Constants.HELP_ICON_NAME,
+                                                                             new ActionListener ()
+                                                                             {
+
+                                                                                @Override
+                                                                                public void actionPerformed (ActionEvent ev)
+                                                                                {
+
+                                                                                    UIUtils.openURL (_this,
+                                                                                                     "help:index");
+
+                                                                                }
+
+                                                                             }));
+
+                                                m.add (_this.createMenuItem ("Keyboard Shortcuts",
+                                                                             null,
+                                                                             new ActionListener ()
+                                                                             {
+
+                                                                                @Override
+                                                                                public void actionPerformed (ActionEvent ev)
+                                                                                {
+
+                                                                                    UIUtils.openURL (_this,
+                                                                                                     "help:main-window/keyboard-shortcuts");
+
+                                                                                }
+
+                                                                             }));
+
+                                                // About Quoll Writer
+                                                titlePopup.add (_this.createMenuItem ("About Quoll Writer",
+                                                                                      Constants.ABOUT_ICON_NAME,
+                                                                                      AbstractProjectViewer.ABOUT_ACTION));
+
+                                                if (Environment.isDebugModeEnabled ())
+                                                {
+
+                                                    // Debug Console
+                                                    titlePopup.add (_this.createMenuItem ("Debug Console",
+                                                                                          Constants.CONSOLE_ICON_NAME,
+                                                                                          new ActionListener ()
+                                                                                          {
+
+                                                                                            @Override
                                                                                             public void actionPerformed (ActionEvent ev)
                                                                                             {
 
-                                                                                                _this.showFind (null);
+                                                                                                new DebugConsole (_this);
 
                                                                                             }
-
-                                                                                         }));
-  */
-                                                    titlePopup.add (_this.createMenuItem ("Options",
-                                                                                          Constants.OPTIONS_ICON_NAME,
-                                                                                          new ActionAdapter ()
-                                                                                          {
-
-                                                                                              @Override
-                                                                                              public void actionPerformed (ActionEvent ev)
-                                                                                              {
-
-                                                                                                  _this.showOptions (null);
-
-                                                                                              }
 
                                                                                           }));
 
-                                                    titlePopup.add (_this.createMenuItem ("Achievements",
-                                                                                          Constants.ACHIEVEMENT_ICON_NAME,
-                                                                                          new ActionAdapter ()
-                                                                                          {
-
-                                                                                            public void actionPerformed (ActionEvent ev)
-                                                                                            {
-
-                                                                                                _this.viewAchievements ();
-
-                                                                                            }
-
-                                                                                         }));
-
-                                                    titlePopup.addSeparator ();
-
-                                                    titlePopup.add (_this.createMenuItem ("What's New in this version",
-                                                                                          Constants.WHATS_NEW_ICON_NAME,
-                                                                                          new ActionAdapter ()
-                                                                                          {
-
-                                                                                            public void actionPerformed (ActionEvent ev)
-                                                                                            {
-
-                                                                                                _this.showWhatsNew (true);
-
-                                                                                            }
-
-                                                                                         }));
-
-                                                    // Help
-                                                    JMenu m = new JMenu ("Help");
-                                                    m.setIcon (Environment.getIcon (Constants.HELP_ICON_NAME,
-                                                                                    Constants.ICON_MENU));
-
-                                                    titlePopup.add (m);
-
-                                                    // Report Bug/Problem
-                                                    m.add (_this.createMenuItem ("Report Bug/Problem",
-                                                                                 Constants.BUG_ICON_NAME,
-                                                                                 AbstractProjectViewer.REPORT_BUG_ACTION));
-
-                                                    // Contact Support
-                                                    m.add (_this.createMenuItem ("Contact Support",
-                                                                                 Constants.EMAIL_ICON_NAME,
-                                                                                 AbstractProjectViewer.CONTACT_SUPPORT_ACTION));
-
-                                                    // View the User Guide
-                                                    m.add (_this.createMenuItem ("View the User Guide",
-                                                                                 Constants.HELP_ICON_NAME,
-                                                                                 new ActionAdapter ()
-                                                                                 {
-
-                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                    {
-
-                                                                                        UIUtils.openURL (_this,
-                                                                                                         "help:index");
-
-                                                                                    }
-
-                                                                                 }));
-
-                                                    m.add (_this.createMenuItem ("Keyboard Shortcuts",
-                                                                                 null,
-                                                                                 new ActionAdapter ()
-                                                                                 {
-
-                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                    {
-
-                                                                                        UIUtils.openURL (_this,
-                                                                                                         "help:main-window/keyboard-shortcuts");
-
-                                                                                    }
-
-                                                                                 }));
-
-                                                    // About Quoll Writer
-                                                    titlePopup.add (_this.createMenuItem ("About Quoll Writer",
-                                                                                          Constants.ABOUT_ICON_NAME,
-                                                                                          AbstractProjectViewer.ABOUT_ACTION));
-
-                                                    if (Environment.isDebugModeEnabled ())
-                                                    {
-
-                                                        // Debug Console
-                                                        titlePopup.add (_this.createMenuItem ("Debug Console",
-                                                                                              Constants.CONSOLE_ICON_NAME,
-                                                                                              new ActionAdapter ()
-                                                                                              {
-
-                                                                                                    public void actionPerformed (ActionEvent ev)
-                                                                                                    {
-
-                                                                                                        new DebugConsole (_this);
-
-                                                                                                    }
-
-                                                                                              }));
-
-                                                    }
-
-                                                    JComponent s = (JComponent) ev.getSource ();
-
-                                                    titlePopup.show (s,
-                                                                     s.getWidth () / 2,
-                                                                     s.getHeight ());
-
-
                                                 }
+
+                                                JComponent s = (JComponent) ev.getSource ();
+
+                                                titlePopup.show (s,
+                                                                 s.getWidth () / 2,
+                                                                 s.getHeight ());
+
+
+                                            }
 
                                            });
 
@@ -741,6 +755,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                       Constants.ICON_POPUP),
                                                  null);
 
+            final QPopup qp = popup;                                                 
+                                                 
             popup.setPopupName (popupName);
 
             this.addNamedPopup (popupName,
@@ -758,40 +774,25 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             final JLabel error = UIUtils.createErrorLabel ("Please enter a message.");
             error.setVisible (false);
-            error.setBorder (UIUtils.createPadding (0, 5, 5, 5));
+            error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
 
             content.add (error);
+            
+            final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Message",
+                                                                          "Enter your message here.",
+                                                                          10,
+                                                                          10000,
+                                                                          false,
+                                                                          null);
+            
+            final TextFormItem email = new TextFormItem ("Email",
+                                                         null);
 
-            final TextArea desc = new TextArea ("Enter your message here.",
-                                                5,
-                                                10000);
-
-            FormLayout fl = new FormLayout ("10px, right:p, 6px, fill:200px:grow, 10px",
-                                            "top:p, 6px, p, 6px, p");
-
-            PanelBuilder builder = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            builder.addLabel ("Message",
-                              cc.xy (2,
-                                     1));
-
-            builder.add (desc,
-                         cc.xy (4,
-                                1));
-
-            builder.addLabel ("Your Email",
-                              cc.xy (2,
-                                     3));
-
-            final QPopup qp = popup;
-
-            final JTextField email = new JTextField ();
-
-            builder.add (email,
-                         cc.xy (4, 3));
-
+            Set<FormItem> items = new LinkedHashSet ();
+            
+            items.add (desc);
+            items.add (email);
+                                    
             ActionListener sendAction = new ActionListener ()
             {
 
@@ -841,9 +842,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                         Environment.sendMessageToSupport ("contact",
                                                           details,
-                                                          new ActionAdapter ()
+                                                          new ActionListener ()
                         {
 
+                            @Override
                             public void actionPerformed (ActionEvent ev)
                             {
 
@@ -877,19 +879,18 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             };
 
-            UIUtils.addDoActionOnReturnPressed (desc,
+            UIUtils.addDoActionOnReturnPressed (desc.getTextArea (),
                                                 sendAction);
-            UIUtils.addDoActionOnReturnPressed (email,
+            UIUtils.addDoActionOnReturnPressed (email.getTextField (),
                                                 sendAction);
 
-            JButton send = new JButton ("Send");
-            JButton cancel = new JButton ("Cancel");
-
-            send.addActionListener (sendAction);
-
-            cancel.addActionListener (new ActionAdapter ()
+            JButton send = UIUtils.createButton ("Send",
+                                                 sendAction);
+            JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                   new ActionListener ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -898,21 +899,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 }
 
             });
+                   
+            Set<JButton> buttons = new LinkedHashSet ();
+            buttons.add (send);
+            buttons.add (cancel);
+            
+            Form f = new Form (Form.Layout.stacked,
+                               items,
+                               buttons);
 
-            JButton[] buts = { send, cancel };
-
-            JPanel bp = UIUtils.createButtonBar2 (buts,
-                                                  Component.LEFT_ALIGNMENT);
-            bp.setOpaque (false);
-
-            builder.add (bp,
-                         cc.xy (4, 5));
-
-            JPanel p = builder.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-            content.add (p);
+            content.add (f);
 
             content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                              content.getPreferredSize ().height));
@@ -928,6 +924,19 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                              popup),
                               false);
 
+            UIUtils.doLater (new ActionListener ()
+            {
+            
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    desc.grabFocus ();   
+                              
+                }
+                
+            });
+            
         } else {
 
             popup.setVisible (true);
@@ -1091,9 +1100,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                         Environment.sendMessageToSupport ("bug",
                                                           details,
-                                                          new ActionAdapter ()
+                                                          new ActionListener ()
                         {
 
+                            @Override
                             public void actionPerformed (ActionEvent ev)
                             {
 
@@ -1137,9 +1147,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             send.addActionListener (sendAction);
 
-            cancel.addActionListener (new ActionAdapter ()
+            cancel.addActionListener (new ActionListener ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -1197,9 +1208,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         final AbstractViewer _this = this;
 
         am.put ("show-options",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1210,7 +1222,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("do-warmup",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
                     public void actionPerformed (ActionEvent ev)
@@ -1223,9 +1235,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("debug",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1236,9 +1249,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("debug-mode",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1257,9 +1271,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("whatsnew",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1273,9 +1288,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("contact",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1286,9 +1302,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("editobjectnames",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1299,9 +1316,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 });
 
         am.put ("vieweditors",
-                new ActionAdapter ()
+                new AbstractAction ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -1637,9 +1655,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (name == AbstractViewer.SHOW_STATISTICS_ACTION)
         {
 
-            return new ActionAdapter ()
+            return new AbstractAction ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -1667,9 +1686,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (name == AbstractViewer.WARMUP_EXERCISE_ACTION)
         {
 
-            return new ActionAdapter ()
+            return new AbstractAction ()
             {
 
+                @Override
                 public void actionPerformed (final ActionEvent ev)
                 {
 
@@ -1684,9 +1704,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (name == AbstractViewer.REPORT_BUG_ACTION)
         {
 
-            return new ActionAdapter ()
+            return new AbstractAction ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -1701,9 +1722,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (name == AbstractViewer.CONTACT_SUPPORT_ACTION)
         {
 
-            return new ActionAdapter ()
+            return new AbstractAction ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -1718,9 +1740,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (name == AbstractViewer.ABOUT_ACTION)
         {
 
-            return new ActionAdapter ()
+            return new AbstractAction ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -1735,9 +1758,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (name == AbstractViewer.SHOW_TARGETS_ACTION)
         {
 
-            return new ActionAdapter ()
+            return new AbstractAction ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -2200,9 +2224,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                              90,
                                                              buts);
 
-                nextBut.addActionListener (new ActionAdapter ()
+                nextBut.addActionListener (new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -2232,9 +2257,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                 });
 
-                offBut.addActionListener (new ActionAdapter ()
+                offBut.addActionListener (new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -2612,9 +2638,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                 });
 
-                this.achievementsPopup.addMouseListener (new ComponentShowHide (new ActionAdapter ()
+                this.achievementsPopup.addMouseListener (new ComponentShowHide (new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -2623,9 +2650,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                     }
 
                 },
-                new ActionAdapter ()
+                new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -2676,9 +2704,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             {
 
                 this.achievementsHideTimer = new Timer (10000,
-                                                        new ActionAdapter ()
+                                                        new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -2748,9 +2777,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (m != null)
         {
 
-            m.addHyperlinkListener (new HyperlinkAdapter ()
+            m.addHyperlinkListener (new HyperlinkListener ()
             {
 
+                @Override
                 public void hyperlinkUpdate (HyperlinkEvent ev)
                 {
 
@@ -2775,9 +2805,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         {
 
             final Timer t = new Timer (showFor * 1000,
-                                       new ActionAdapter ()
+                                       new ActionListener ()
                                        {
 
+                                            @Override
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
@@ -2787,9 +2818,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                                        });
 
-            popup.addMouseListener (new ComponentShowHide (new ActionAdapter ()
+            popup.addMouseListener (new ComponentShowHide (new ActionListener ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -2798,9 +2830,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 }
 
             },
-            new ActionAdapter ()
+            new ActionListener ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 

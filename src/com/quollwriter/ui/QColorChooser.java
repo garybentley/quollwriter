@@ -294,9 +294,7 @@ public class QColorChooser extends Box
         this.setColor (initial);
         
         JButton b = UIUtils.createButton ("Use Color",
-                                          null);
-
-        b.addActionListener (new ActionListener ()
+                                          new ActionListener ()
         {
             
             @Override
@@ -315,9 +313,7 @@ public class QColorChooser extends Box
         });
 
         JButton c = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
-                                          null);
-        
-        c.addActionListener (new ActionListener ()
+                                          new ActionListener ()
         {
             
             @Override

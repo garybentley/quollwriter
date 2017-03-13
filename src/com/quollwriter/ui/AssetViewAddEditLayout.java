@@ -1229,8 +1229,7 @@ public class AssetViewAddEditLayout
         }
             
         final Form f = new Form (Form.Layout.stacked,
-                                 items,
-                                 null);
+                                 items);
 
         f.setBorder (null);
                            

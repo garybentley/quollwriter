@@ -356,11 +356,10 @@ public class WarmupPromptSelect extends Box
         this.add (p);
 
         JButton start = UIUtils.createButton ("Start Writing",
-                                              null);
-        
-        start.addActionListener (new ActionAdapter ()
+                                              new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -511,11 +510,10 @@ public class WarmupPromptSelect extends Box
         });
 
         JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
-                                               null);
-
-        cancel.addActionListener (new ActionAdapter ()
+                                               new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 

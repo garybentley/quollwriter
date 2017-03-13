@@ -720,8 +720,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         bb.add (p);
 
-        JButton cb = UIUtils.createButton ("Close",
-                                           null);
+        JButton cb = UIUtils.createButton ("Close");
 
         JButton[] buts = { cb };
 
@@ -898,8 +897,7 @@ public class Targets<E extends AbstractViewer> extends Accordion
 
         bb.add (p);
 
-        JButton cb = UIUtils.createButton ("Close",
-                                           null);
+        JButton cb = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
 
         JButton[] buts = { cb };
 

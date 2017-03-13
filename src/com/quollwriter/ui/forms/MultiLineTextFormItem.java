@@ -53,11 +53,11 @@ public class MultiLineTextFormItem extends FormItem<StringWithMarkup>
 
         this (label,
               null,
-              null,
+              placeholder,
               rows,
-              -1,
-              false,
-              null);
+              maxChars,
+              requireValue,
+              helpText);
 
     }
     

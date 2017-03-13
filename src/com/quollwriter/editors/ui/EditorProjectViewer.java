@@ -503,16 +503,12 @@ public class EditorProjectViewer extends AbstractProjectViewer
                 content.add (text);
                 
                 content.add (Box.createVerticalStrut (10));
-                                
-                JButton confirm = UIUtils.createButton ("Yes, delete it",
-                                                        null);
-                JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
-                                                       null);
-                                
+                                                                
                 // Blue pill/red pill?                                
-                ActionListener confirmAction = new ActionAdapter ()
+                ActionListener confirmAction = new ActionListener ()
                 {
                     
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
     
@@ -584,14 +580,17 @@ public class EditorProjectViewer extends AbstractProjectViewer
                     
                 };
         
-                confirm.addActionListener (confirmAction);
-                
+                JButton confirm = UIUtils.createButton ("Yes, delete it",
+                                                        confirmAction);
+                        
                 UIUtils.addDoActionOnReturnPressed (text,
                                                     confirmAction);                
                 
-                cancel.addActionListener (new ActionAdapter ()
+                JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                       new ActionListener ()
                 {
                    
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
                                                 

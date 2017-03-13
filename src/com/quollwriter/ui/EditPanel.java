@@ -748,8 +748,7 @@ public abstract class EditPanel extends Box
         {
 
             edit = new Form (Form.Layout.stacked,
-                             editItems,
-                             null);
+                             editItems);
 
         } else {
 

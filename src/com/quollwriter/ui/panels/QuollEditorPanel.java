@@ -1905,9 +1905,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         buts.add (Box.createHorizontalStrut (5));
 
         JButton finish = UIUtils.createButton ("Finish",
-                                               null);
-
-        finish.addActionListener (finishAction);
+                                               finishAction);
 
         finish.setToolTipText ("Stop looking for problems");
         finish.setHorizontalTextPosition (SwingConstants.LEFT);

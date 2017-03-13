@@ -59,13 +59,52 @@ public class Form extends Box
     private JLabel  error = null;
     private ActionListener onError = null;
 
+    private Form ()
+    {
+        
+        super (BoxLayout.Y_AXIS);
+                
+        this.error = UIUtils.createErrorLabel ("");
+        
+        this.error.setVisible (false);
+        
+        this.error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
+        
+        this.add (this.error);
+
+    }
+    
+    public Form (final Layout                      layout,
+                 final Set<FormItem>               items)
+    {
+        
+        this ();
+
+        if (layout == Layout.columns)
+        {
+            
+            this.createColumnLayout (items,
+                                     new ArrayList ());
+            
+        }
+
+        if (layout == Layout.stacked)
+        {
+            
+            this.createStackedLayout (items,
+                                      new ArrayList ());
+            
+        }
+        
+    }
+        
     public Form (final Layout                      layout,
                  final Set<FormItem>               items,
                  final Map<Button, ActionListener> buttons)
     {
         
-        super (BoxLayout.Y_AXIS);
-        
+        this ();
+/*        
         final Form _this = this;
         
         this.error = UIUtils.createErrorLabel ("");
@@ -75,7 +114,7 @@ public class Form extends Box
         this.error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
         
         this.add (this.error);
-        
+*/        
         if (layout == Layout.columns)
         {
             
@@ -94,6 +133,43 @@ public class Form extends Box
         
     }
     
+    public Form (final Layout        layout,
+                 final Set<FormItem> items,
+                 final Set<JButton>  buttons)
+    {
+        
+        this ();
+        /*
+        super (BoxLayout.Y_AXIS);
+        
+        final Form _this = this;
+        
+        this.error = UIUtils.createErrorLabel ("");
+        
+        this.error.setVisible (false);
+        
+        this.error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
+        
+        this.add (this.error);
+        */
+        if (layout == Layout.columns)
+        {
+            
+            this.createColumnLayout (items,
+                                     buttons);
+            
+        }
+
+        if (layout == Layout.stacked)
+        {
+            
+            this.createStackedLayout (items,
+                                      buttons);
+            
+        }
+        
+    }
+
     public boolean checkForm ()
     {
         
@@ -110,10 +186,247 @@ public class Form extends Box
         
     }
     
+    private void createStackedLayout (Set<FormItem>       items,
+                                      Collection<JButton> buttons)
+    {
+
+        String cols = "10px, fill:100px:grow";
+
+        StringBuilder rows = new StringBuilder ();
+        
+        Iterator<FormItem> iter = items.iterator ();
+        
+        while (iter.hasNext ())
+        {
+        
+            FormItem it = iter.next ();
+
+            JComponent c = it.getComponent ();
+
+            if (it.getLabel () != null)
+            {
+                
+                rows.append ("p");
+                
+            }
+            
+            if (c != null)
+            {
+                
+                if (it.getLabel () != null)
+                {
+                    
+                    rows.append (", 6px, ");
+                    
+                }
+            
+                rows.append ("p");
+
+            }
+            
+            if (iter.hasNext ())
+            {
+                
+                rows.append (", 10px, ");
+                
+            }
+
+        }
+
+        final Form _this = this;
+        
+        FormLayout   fl = new FormLayout (cols,
+                                          rows.toString () + ", 10px, fill:p:grow");
+        PanelBuilder b = new PanelBuilder (fl);
+        //b.border (Borders.DIALOG);
+        
+        CellConstraints cc = new CellConstraints ();
+
+        iter = items.iterator ();
+
+        int r = 1;
+
+        while (iter.hasNext ())
+        {
+
+            FormItem it = iter.next ();
+            Object l = it.getLabel ();
+            
+            if (l != null)
+            {
+            
+                if (l instanceof String)
+                {
+    
+                    String label = l.toString ();
+    
+                    if (label != null)
+                    {
+    
+                        b.addLabel (Environment.replaceObjectNames (label),
+                                    cc.xyw (1,
+                                             r,
+                                             2));
+    
+                        r += 2;
+    
+                    }
+
+                } else {
+            
+                    if (l instanceof JComponent)
+                    {
+                
+                        l = this.wrap ((JComponent) l);
+                
+                    }
+                            
+                    if ((l instanceof JTextArea) ||
+                        (l instanceof JTextPane) ||
+                        (l instanceof JList))
+                    {
+    
+                        l = new JScrollPane ((Component) l);
+                        ((JScrollPane) l).getViewport ().setOpaque (false);
+                        
+                    }
+
+                    b.add ((Component) l,
+                           cc.xyw (1,
+                                    r,
+                                    2));
+                    
+                    r += 2;
+                    
+                }
+    
+            }
+                        
+            JComponent c = it.getComponent ();
+        
+            if (c != null)
+            {
+                
+                c.setOpaque (false);
+                                
+                c = this.wrap (c);
+                                
+                if ((c instanceof JTextArea) ||
+                    (c instanceof JTextPane) ||
+                    (c instanceof JList))
+                {
+
+                    c = new JScrollPane (c);
+                    ((JScrollPane) c).getViewport ().setOpaque (false);
+                    ((JScrollPane) c).setOpaque (false);
+                    
+                }
+                
+                b.add (c,
+                       cc.xy (2,
+                              r));
+                
+                r += 2;
+                
+            }
+
+        }
+/*
+        List<JButton> bs = new ArrayList ();
+
+        if (buttons != null)
+        { 
+        
+            if (buttons.keySet ().contains (Button.save))
+            {
+    
+                JButton but = UIUtils.createButton (Constants.SAVE_BUTTON_LABEL_ID,
+                                                    null);
+    
+                but.addActionListener (new ActionListener ()
+                {
+    
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+    
+                        _this.error.setVisible (false);
+                                        
+                        ActionListener l = buttons.get (Button.save);
+                    
+                        if (l != null)
+                        {
+                            
+                            l.actionPerformed (new ActionEvent (_this, 0, "save"));
+                            
+                        }
+    
+                    }
+    
+                });
+    
+                bs.add (but);
+    
+            }
+
+            if (buttons.keySet ().contains (Button.cancel))
+            {
+    
+                JButton but = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                    null);
+    
+                but.addActionListener (new ActionListener ()
+                {
+    
+                    @Override
+                    public void actionPerformed (ActionEvent ev)
+                    {
+    
+                        _this.error.setVisible (false);
+                                        
+                        ActionListener l = buttons.get (Button.cancel);
+                    
+                        if (l != null)
+                        {
+                            
+                            l.actionPerformed (new ActionEvent (_this, 0, "cancel"));
+                            
+                        }
+    
+                    }
+    
+                });
+    
+                bs.add (but);
+    
+            }
+
+        }
+          */  
+        if (buttons.size () > 0)
+        {
+        
+            b.add (this.createButtonBar (buttons),
+                   cc.xy (2,
+                          r));
+
+        }
+                    
+        JPanel p = b.getPanel ();
+        p.setOpaque (false);
+        p.setAlignmentX (Component.LEFT_ALIGNMENT);
+
+        this.add (p);
+
+    }
+    
     private void createStackedLayout (Set<FormItem>               items,
                                       Map<Button, ActionListener> buttons)
     {
 
+        this.createStackedLayout (items,
+                                  this.createButtons (buttons));
+    /*
         String cols = "10px, fill:100px:grow";
 
         StringBuilder rows = new StringBuilder ();
@@ -326,26 +639,35 @@ public class Form extends Box
             }
 
         }
-            
-        if (bs.size () > 0)
+           
+        if (buttons.size () > 0)
         {
         
-            b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),
+            b.add (this.createButtons (buttons),
                    cc.xy (2,
                           r));
 
         }
-        
+                    
         JPanel p = b.getPanel ();
         p.setOpaque (false);
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.add (p);
-    
+    */
     }
     
     private void createColumnLayout (Set<FormItem>               items,
                                      Map<Button, ActionListener> buttons)
+    {
+
+        this.createColumnLayout (items,
+                                 this.createButtons (buttons));
+    
+    }
+    
+    private void createColumnLayout (Set<FormItem>       items,
+                                     Collection<JButton> buttons)
     {
         
         String cols = "right:pref, 6px, fill:100px:grow";
@@ -535,6 +857,7 @@ public class Form extends Box
 
         }
 
+        /*
         List<JButton> bs = new ArrayList ();
 
         if (buttons != null)
@@ -605,11 +928,11 @@ public class Form extends Box
             }
 
         }
-            
-        if (bs.size () > 0)
+            */
+        if (buttons.size () > 0)
         {
         
-            b.add (ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build (),//ButtonBarFactory.buildLeftAlignedBar ((JButton[]) bs.toArray (new JButton[bs.size ()])),
+            b.add (this.createButtonBar (buttons),
                    cc.xy (3,
                           r));
 
@@ -623,6 +946,84 @@ public class Form extends Box
         
     }
 
+    private Collection<JButton> createButtons (Map<Button, ActionListener> buttons)
+    {
+        
+        final Form _this = this;
+        
+        List<JButton> bs = new ArrayList ();
+        
+        if (buttons.keySet ().contains (Button.save))
+        {
+
+            JButton but = UIUtils.createButton (Constants.SAVE_BUTTON_LABEL_ID,
+                                                new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.error.setVisible (false);
+                                    
+                    ActionListener l = buttons.get (Button.save);
+                
+                    if (l != null)
+                    {
+                        
+                        l.actionPerformed (new ActionEvent (_this, 0, "save"));
+                        
+                    }
+
+                }
+
+            });
+
+            bs.add (but);
+
+        }
+
+        if (buttons.keySet ().contains (Button.cancel))
+        {
+
+            JButton but = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    _this.error.setVisible (false);
+                                    
+                    ActionListener l = buttons.get (Button.cancel);
+                
+                    if (l != null)
+                    {
+                        
+                        l.actionPerformed (new ActionEvent (_this, 0, "cancel"));
+                        
+                    }
+
+                }
+
+            });
+
+            bs.add (but);
+
+        }
+        
+        return bs;
+        
+    }
+        
+    private JComponent createButtonBar (Collection<JButton> bs)
+    {
+        
+        return ButtonBarBuilder.create ().addButton ((JButton[]) bs.toArray (new JButton[bs.size ()])).build ();
+        
+    }
+    
     private JComponent wrap (JComponent component)
     {
    

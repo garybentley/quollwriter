@@ -2173,8 +2173,7 @@ public class UIUtils
 
                 content.add (Box.createVerticalStrut (10));
 
-                JButton close = UIUtils.createButton ("Close",
-                                                      null);
+                JButton close = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
 
                 JButton[] buts = new JButton[] { close };
 
@@ -2574,15 +2573,8 @@ public class UIUtils
 
                 content.add (Box.createVerticalStrut (10));
 
-                JButton close = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : "Close"),
-                                                      null);
-
-                if (onConfirm != null)
-                {
-
-                    close.addActionListener (onConfirm);
-
-                }
+                JButton close = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CLOSE_BUTTON_LABEL_ID),
+                                                      onConfirm);
 
                 JButton[] buts = new JButton[] { close };
 
@@ -7123,6 +7115,32 @@ public class UIUtils
 
     }
 
+    public static JButton createButton (String label)
+    {
+        
+        return UIUtils.createButton (label,
+                                     (String) null);
+        
+    }
+    
+    public static JButton createButton (String         label,
+                                        ActionListener onClick)
+    {
+
+        JButton b = UIUtils.createButton (label,
+                                          (String) null);
+        
+        if (onClick != null)
+        {
+            
+            b.addActionListener (onClick);
+            
+        }
+
+        return b;
+
+    }
+
     public static void treeChanged (DataObject d,
                                     JTree      tree)
     {
@@ -8514,9 +8532,7 @@ public class UIUtils
                     ActionListener a = buttons.get (label);
 
                     JButton b = UIUtils.createButton (label,
-                                                      null);
-
-                    b.addActionListener (this.getCloseAction ());
+                                                      this.getCloseAction ());
 
                     if (a != null)
                     {
@@ -8753,9 +8769,7 @@ public class UIUtils
             ActionListener a = buttons.get (label);
 
             JButton b = UIUtils.createButton (label,
-                                              null);
-
-            b.addActionListener (qp.getCloseAction ());
+                                              qp.getCloseAction ());
 
             if (a != null)
             {
@@ -8824,8 +8838,7 @@ public class UIUtils
                                                  viewer));
         content.add (Box.createVerticalStrut (10));
 
-        JButton b = UIUtils.createButton ("Close",
-                                          null);
+        JButton b = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
 
         JButton[] buts = { b };
 
@@ -8989,17 +9002,33 @@ public class UIUtils
 
         JButton confirm = null;
         JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : Constants.CANCEL_BUTTON_LABEL_ID),
-                                               null);
+                                               new ActionListener ()
+        {
+
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                if (onCancel != null)
+                {
+
+                    onCancel.actionPerformed (ev);
+
+                }
+
+                qp.removeFromParent ();
+
+            }
+
+        });
 
         if (onConfirm != null)
         {
 
-            confirm = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
-                                            null);
-
-            ActionListener confirmAction = new ActionAdapter ()
+            ActionListener confirmAction = new ActionListener ()
             {
 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
 
@@ -9041,31 +9070,14 @@ public class UIUtils
                 }
 
             };
+        
+            confirm = UIUtils.createButton ((confirmButtonLabel != null ? confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
+                                            confirmAction);
 
             UIUtils.addDoActionOnReturnPressed (text,
                                                 confirmAction);
-            confirm.addActionListener (confirmAction);
 
         }
-
-        cancel.addActionListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                if (onCancel != null)
-                {
-
-                    onCancel.actionPerformed (ev);
-
-                }
-
-                qp.removeFromParent ();
-
-            }
-
-        });
 
         JButton[] buts = null;
 

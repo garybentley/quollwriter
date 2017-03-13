@@ -70,18 +70,36 @@ public class PasswordInputWindow extends TextInputWindow
         ti.setWindowTitle (title);
                 
         JButton confirm = null;
-        JButton cancel = UIUtils.createButton ("Cancel",
-                                               null);
+        JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                               new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                if (onCancel != null)
+                {
+                    
+                    onCancel.actionPerformed (new ActionEvent (ti,
+                                                               0,
+                                                               "cancel"));
+                                    
+                }
+                
+                ti.close ();
+                
+            }
+            
+        });
         
         if (onConfirm != null)
         {
             
-            confirm = UIUtils.createButton (confirmButtonLabel,
-                                            null);
-
-            ActionListener confirmAction = new ActionAdapter ()
+            ActionListener confirmAction = new ActionListener ()
             {
                 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
                     
@@ -113,35 +131,16 @@ public class PasswordInputWindow extends TextInputWindow
                     
                 }
                 
-            };
+            };            
+            
+            confirm = UIUtils.createButton (confirmButtonLabel,
+                                            confirmAction);
 
             UIUtils.addDoActionOnReturnPressed (ti.getTextField (),
                                                 confirmAction);
-            confirm.addActionListener (confirmAction);
             
         }
-        
-        cancel.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                if (onCancel != null)
-                {
-                    
-                    onCancel.actionPerformed (new ActionEvent (ti,
-                                                               0,
-                                                               "cancel"));
-                                    
-                }
-                
-                ti.close ();
-                
-            }
-            
-        });
-                    
+                            
         JButton[] buts = null;
         
         if (confirm != null)

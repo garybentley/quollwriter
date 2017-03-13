@@ -169,6 +169,8 @@ public class Environment
         Map m = Environment.buttonLabels;
 
         // TODO: Make this into a configuration file.
+        m.put (Constants.CLOSE_BUTTON_LABEL_ID,
+               "Close");
         m.put (Constants.CANCEL_BUTTON_LABEL_ID,
                "Cancel");
         m.put (Constants.CONFIRM_BUTTON_LABEL_ID,

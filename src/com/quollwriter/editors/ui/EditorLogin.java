@@ -64,9 +64,10 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
         JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
                                               Constants.ICON_MENU,
                                               "Click to close",
-                                              new ActionAdapter ()
+                                              new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
         
@@ -207,8 +208,7 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
             
         int row = 2;
                             
-        final JButton loginBut = UIUtils.createButton ("Login",
-                                                          null);                
+        final JButton loginBut = UIUtils.createButton ("Login");
                                             
         FormLayout fl = new FormLayout ("6px, right:p, 6px, fill:200px:grow",
                                         "10px, p, 6px, p, 6px, p, 6px, p, 6px, p");
@@ -504,12 +504,11 @@ public class EditorLogin extends QPopup implements UserOnlineStatusListener
 
         loginBut.setEnabled (pwd != null);
                 
-        JButton cancelBut = UIUtils.createButton ("Cancel",
-                                          null);
-        
-        cancelBut.addActionListener (new ActionListener ()
+        JButton cancelBut = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+                                                  new ActionListener ()
         {
             
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
                 

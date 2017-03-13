@@ -174,10 +174,9 @@ public class UpdateProjectMessageBox extends MessageBox<UpdateProjectMessage> im
             {
                                                                 
                 JButton update = UIUtils.createButton ("Update the {project}",
-                                                       null);
+                                                       updateOrView);
     
                 update.setToolTipText ("Click to update the {project}");
-                update.addActionListener (updateOrView);
 
                 JButton[] buts = new JButton[] { update };
     

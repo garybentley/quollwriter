@@ -129,17 +129,26 @@ public class TextInputWindow extends PopupWindow
                 
         JButton confirm = null;
         JButton cancel = UIUtils.createButton ((cancelButtonLabel != null ? cancelButtonLabel : Constants.CANCEL_BUTTON_LABEL_ID),
-                                               null);
+                                               new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                                
+                ti.close ();
+                
+            }
+            
+        });
         
         if (onConfirm != null)
         {
             
-            confirm = UIUtils.createButton (confirmButtonLabel,
-                                            null);
-
-            ActionListener confirmAction = new ActionAdapter ()
+            ActionListener confirmAction = new ActionListener ()
             {
                 
+                @Override
                 public void actionPerformed (ActionEvent ev)
                 {
                     
@@ -171,24 +180,14 @@ public class TextInputWindow extends PopupWindow
                 
             };
             
+            confirm = UIUtils.createButton (confirmButtonLabel,
+                                            confirmAction);
+            
             UIUtils.addDoActionOnReturnPressed (ti.getTextField (),
                                                 confirmAction);
-            confirm.addActionListener (confirmAction);
             
         }
-        
-        cancel.addActionListener (new ActionAdapter ()
-        {
-           
-            public void actionPerformed (ActionEvent ev)
-            {
-                                
-                ti.close ();
-                
-            }
-            
-        });
-                    
+                            
         JButton[] buts = null;
         
         if (confirm != null)

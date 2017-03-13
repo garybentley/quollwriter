@@ -683,11 +683,10 @@ Won't animate due to rubber stamping in table renderer.
             b.add (loading);
             
             final JButton openBut = UIUtils.createButton ("Open",
-                                                          null);
-            openBut.setEnabled (false);
-            openBut.addActionListener (new ActionAdapter ()
+                                                          new ActionListener ()
                 {
 
+                    @Override
                     public void actionPerformed (ActionEvent ev)
                     {
 
@@ -711,6 +710,7 @@ Won't animate due to rubber stamping in table renderer.
 
                 });
 
+            openBut.setEnabled (false);                
             projOpenTable.getSelectionModel ().addListSelectionListener (new ListSelectionListener ()
             {
                 
@@ -774,8 +774,7 @@ Won't animate due to rubber stamping in table renderer.
             message.setVisible (false);
             b.add (message);
 
-            final JButton openBut2 = UIUtils.createButton ("Open",
-                                                           null);
+            final JButton openBut2 = UIUtils.createButton ("Open");
             openBut2.setEnabled (false);
             
             final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
@@ -964,9 +963,7 @@ Won't animate due to rubber stamping in table renderer.
             });
 
             cancelBut = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-                                              null);
-
-            cancelBut.addActionListener (closeAction);
+                                              closeAction);
 
             buts = new JButton[] { openBut2, cancelBut };
 

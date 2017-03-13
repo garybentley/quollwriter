@@ -602,11 +602,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			content.add (Box.createVerticalGlue ());
 
 			JButton save = UIUtils.createButton (Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
-												 null);
-
-			save.addActionListener (new ActionAdapter ()
+												 new ActionListener ()
 			{
 
+                @Override
 				public void actionPerformed (ActionEvent ev)
 				{
 
@@ -636,11 +635,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			});
 
 			JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-												   null);
-
-			cancel.addActionListener (new ActionAdapter ()
+												   new ActionListener ()
 			{
 
+                @Override
 				public void actionPerformed (ActionEvent ev)
 				{
 
@@ -650,11 +648,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			});
 
-			JButton reset = new JButton ("Use default");
-
-			reset.addActionListener (new ActionAdapter ()
+			JButton reset = UIUtils.createButton ("Use default",
+                                                  new ActionListener ()
 			{
 
+                @Override
 				public void actionPerformed (ActionEvent ev)
 				{
 
@@ -1235,8 +1233,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		message.setVisible (false);
 		content.add (message);
 
-		final JButton openBut2 = UIUtils.createButton ("Open",
-													   null);
+		final JButton openBut2 = UIUtils.createButton ("Open");
 		openBut2.setEnabled (false);
 
 		final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
@@ -1333,9 +1330,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		content.add (finder);
 		content.add (Box.createVerticalStrut (5));
 
-		openBut2.addActionListener (new ActionAdapter ()
+		openBut2.addActionListener (new ActionListener ()
 		{
 
+            @Override
 			public void actionPerformed (ActionEvent ev)
 			{
 
@@ -1417,9 +1415,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		});
 
 		JButton cancelBut = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-				 								  null);
-
-		cancelBut.addActionListener (popup.getCloseAction ());
+				 								  popup.getCloseAction ());
 
 		JButton[] buts = new JButton[] { openBut2, cancelBut };
 
@@ -3970,8 +3966,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		message.setVisible (false);
 		content.add (message);
 
-		final JButton findBut = UIUtils.createButton ("Find",
-											  	      null);
+		final JButton findBut = UIUtils.createButton ("Find");
 
 		final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
 														  "Select a Directory",
@@ -4051,9 +4046,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		});
 
 		JButton cancelBut = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-				 								  null);
-
-		cancelBut.addActionListener (popup.getCloseAction ());
+				 								  popup.getCloseAction ());
 
 		JButton[] buts = new JButton[] { findBut, cancelBut };
 

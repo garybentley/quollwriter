@@ -229,8 +229,7 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
                                     new JLabel (this.type.getIcon16x16 ())));
 
         final Form f = new Form (Form.Layout.stacked,
-                                 items,
-                                 null);
+                                 items);
 
         f.setPreferredSize (new Dimension (450,
                                            400));

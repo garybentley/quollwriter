@@ -66,33 +66,10 @@ public class QuestionWindow extends PopupWindow
                 
         JButton confirm = null;
         JButton cancel = UIUtils.createButton ("Cancel",
-                                               null);
-        
-        if (onConfirm != null)
-        {
-            
-            confirm = UIUtils.createButton (confirmButtonLabel,
-                                            null);
-
-            confirm.addActionListener (new ActionAdapter ()
-            {
-                
-                public void actionPerformed (ActionEvent ev)
-                {
-                                        
-                    onConfirm.actionPerformed (ev);
-                    
-                    ti.close ();
-                    
-                }
-                
-            });
-                        
-        }
-        
-        cancel.addActionListener (new ActionAdapter ()
+                                               new ActionListener ()
         {
            
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
                 
@@ -110,6 +87,28 @@ public class QuestionWindow extends PopupWindow
             }
             
         });
+        
+        if (onConfirm != null)
+        {
+            
+            ActionListener confirmAction = new ActionListener ()    
+            {
+                
+                public void actionPerformed (ActionEvent ev)
+                {
+                                        
+                    onConfirm.actionPerformed (ev);
+                    
+                    ti.close ();
+                    
+                }
+                
+            };
+            
+            confirm = UIUtils.createButton (confirmButtonLabel,
+                                            confirmAction);
+                        
+        }
                     
         JButton[] buts = null;
         

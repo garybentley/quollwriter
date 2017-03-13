@@ -123,11 +123,10 @@ public class MessageWindow extends PopupWindow
         final MessageWindow _this = this;
 
         JButton closeBut = UIUtils.createButton ((this.confirmButtonLabel != null ? this.confirmButtonLabel : Constants.CONFIRM_BUTTON_LABEL_ID),
-                                                 null);
-
-        closeBut.addActionListener (new ActionAdapter ()
+                                                 new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 

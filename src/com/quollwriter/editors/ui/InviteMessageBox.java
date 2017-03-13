@@ -99,36 +99,37 @@ public class InviteMessageBox extends MessageBox<InviteMessage>
             this.responseBox.add (l);           
             
             JButton accept = UIUtils.createButton ("Accept",
-                                                   null);            
-            
-            accept.setToolTipText ("Click to accept the invitation");
-            accept.addActionListener (new ActionListener ()
+                                                   new ActionListener ()
             {
                  
-                 public void actionPerformed (ActionEvent ev)
-                 {
-                     
-                     _this.handleResponse (true);
-                     
-                 }
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                    
+                    _this.handleResponse (true);
+                    
+                }
                  
             });
             
+            accept.setToolTipText ("Click to accept the invitation");
+
             JButton reject = UIUtils.createButton ("Reject",
-                                                   null);
-            reject.setToolTipText ("Click to reject the invitation");
-            reject.addActionListener (new ActionListener ()
+                                                   new ActionListener ()
             {
                  
-                 public void actionPerformed (ActionEvent ev)
-                 {
-                           
-                     _this.handleResponse (false);
-                     
-                 }
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+                          
+                    _this.handleResponse (false);
+                    
+                }
                  
             });
 
+            reject.setToolTipText ("Click to reject the invitation");
+            
             JButton[] buts = new JButton[] { accept, reject };
                             
             JComponent bb = UIUtils.createButtonBar2 (buts,

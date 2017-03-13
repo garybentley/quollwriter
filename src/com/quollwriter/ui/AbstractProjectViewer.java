@@ -4126,13 +4126,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 									content.add (l);
 
-									JButton cb = UIUtils.createButton ("Close",
-																	   null);
+									JButton cb = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
 
 									JButton sb = UIUtils.createButton ("Show detail",
-																	   null);
-
-									sb.addActionListener (showChapter);
+																	   showChapter);
 
 									JButton[] buts = { sb, cb };
 

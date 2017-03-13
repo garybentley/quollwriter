@@ -2163,19 +2163,18 @@ public class Options extends Box
         Box box = new Box (BoxLayout.Y_AXIS);
 
         final JButton b = UIUtils.createButton ("Change names",
-                                                null);
+                                                new ActionListener ()
+        {
 
-        b.addActionListener (new ActionAdapter ()
-                             {
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+ 
+                _this.viewer.showObjectTypeNameChanger ();
+ 
+            }
 
-                                public void actionPerformed (ActionEvent ev)
-                                {
-
-                                    _this.viewer.showObjectTypeNameChanger ();
-
-                                }
-
-                            });
+       });
 
         JComponent c = this.createWrapper (b);
 
@@ -3254,9 +3253,7 @@ public class Options extends Box
         bb.add (Box.createHorizontalStrut (5));
         
         JButton editType = UIUtils.createButton ("Edit",
-                                                 null);
-
-        editType.addActionListener (new ActionListener ()
+                                                 new ActionListener ()
         {
 
             @Override
@@ -3625,11 +3622,10 @@ public class Options extends Box
         box.add (Box.createVerticalStrut (10));
 
         JButton create = UIUtils.createButton (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
-                                               null);
-
-        create.addActionListener (new ActionAdapter ()
+                                               new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -3641,11 +3637,11 @@ public class Options extends Box
 
         });
 
-        JButton manage = new JButton ("Manage Backups");
-
-        manage.addActionListener (new ActionAdapter ()
+        JButton manage = UIUtils.createButton ("Manage Backups",
+                                               new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -4736,11 +4732,10 @@ public class Options extends Box
 		//content.add (Box.createVerticalGlue ());
 
 		JButton save = UIUtils.createButton (Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
-											 null);
-
-		save.addActionListener (new ActionAdapter ()
+											 new ActionListener ()
 		{
 
+            @Override
 			public void actionPerformed (ActionEvent ev)
 			{
 
@@ -4760,11 +4755,10 @@ public class Options extends Box
 		});
 
 		JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-											   null);
-
-		cancel.addActionListener (new ActionAdapter ()
+											   new ActionListener ()
 		{
 
+            @Override
 			public void actionPerformed (ActionEvent ev)
 			{
 

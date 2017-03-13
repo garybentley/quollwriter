@@ -9,13 +9,13 @@ import com.quollwriter.ui.components.ActionAdapter;
 public class ComponentShowHide extends MouseAdapter 
 {
  
-    private ActionAdapter onShow = null;
-    private ActionAdapter onHide = null;
+    private ActionListener onShow = null;
+    private ActionListener onHide = null;
     private Timer show = null;
     private Timer hide = null;
     
-    public ComponentShowHide (ActionAdapter onShow,
-                              ActionAdapter onHide)
+    public ComponentShowHide (ActionListener onShow,
+                              ActionListener onHide)
     {
 
         this.show = new Timer (500,

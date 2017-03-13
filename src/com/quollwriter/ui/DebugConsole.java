@@ -246,8 +246,7 @@ public class DebugConsole extends JFrame
         versBox.add (versions);
         versBox.add (Box.createHorizontalStrut (5));
     
-        JButton upgradeButton = UIUtils.createButton ("Run",
-                                                      null);
+        JButton upgradeButton = UIUtils.createButton ("Run");
         versBox.add (upgradeButton);
         versBox.add (Box.createHorizontalGlue ());
     

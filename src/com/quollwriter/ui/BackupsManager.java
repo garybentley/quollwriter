@@ -223,11 +223,10 @@ public class BackupsManager extends Box implements ProjectEventListener
         this.add (Box.createVerticalStrut (10));
 
         JButton create = UIUtils.createButton (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
-                                               null);
-
-        create.addActionListener (new ActionAdapter ()
+                                               new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -240,11 +239,10 @@ public class BackupsManager extends Box implements ProjectEventListener
         });
 
         JButton finish = UIUtils.createButton (Constants.FINISH_BUTTON_LABEL_ID,
-                                               null);
-
-        finish.addActionListener (new ActionAdapter ()
+                                               new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
