@@ -431,7 +431,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
     
             CellConstraints cc = new CellConstraints ();
                 
-            JTextPane tp = UIUtils.createObjectDescriptionViewPane (v,
+            JEditorPane tp = UIUtils.createObjectDescriptionViewPane (v,
                                                                     this.chapter,
                                                                     this.projectViewer,
                                                                     this.projectViewer.getEditorForChapter (this.chapter)); 
@@ -476,7 +476,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         CellConstraints cc = new CellConstraints ();
     
-        JTextPane tp = UIUtils.createObjectDescriptionViewPane (t,
+        JEditorPane tp = UIUtils.createObjectDescriptionViewPane (t,
                                                                 this.chapter,
                                                                 this.projectViewer,
                                                                 this.projectViewer.getEditorForChapter (this.chapter)); 

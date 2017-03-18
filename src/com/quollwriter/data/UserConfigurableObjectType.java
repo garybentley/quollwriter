@@ -176,15 +176,15 @@ public class UserConfigurableObjectType extends NamedObject
     public void removeConfigurableField (UserConfigurableObjectTypeField f)
     {
         
-        if (f.isNameField ())
+        if (f instanceof ObjectNameUserConfigurableObjectTypeField)
         {
             
-            throw new IllegalArgumentException ("Cant remove the name field.");
+            throw new IllegalArgumentException ("Cant remove the object name field.");
             
         }
-        
+        System.out.println ("1: " + this.fields.contains (f) + ", " + f.hashCode ());
         this.fields.remove (f);
-        
+        System.out.println ("2: " + this.fields.contains (f));
         f.setUserConfigurableObjectType (null);
         
         int i = 0;         

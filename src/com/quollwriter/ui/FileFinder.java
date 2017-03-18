@@ -331,7 +331,7 @@ public class FileFinder extends Box
             
         }
         
-        FormLayout fl = new FormLayout ("fill:300px:grow, 2px, p" + (this.cancelButton != null ? ", 2px, p" : ""),
+        FormLayout fl = new FormLayout ("fill:50px:grow, 2px, p" + (this.cancelButton != null ? ", 2px, p" : ""),
                                         "p");
 
         PanelBuilder builder = new PanelBuilder (fl);

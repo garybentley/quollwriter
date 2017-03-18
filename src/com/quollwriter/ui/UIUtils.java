@@ -53,6 +53,12 @@ import javax.swing.filechooser.*;
 import javax.imageio.*;
 import javax.activation.*;
 
+//import javafx.scene.*;
+import javafx.scene.web.*;
+import javafx.scene.layout.BorderPane;
+import javafx.application.*;
+import javafx.embed.swing.*;
+
 import com.gentlyweb.utils.StringUtils;
 
 import org.imgscalr.Scalr;
@@ -5498,7 +5504,7 @@ public class UIUtils
 
     }
     
-    public static JTextPane createObjectDescriptionViewPane (final StringWithMarkup        description,
+    public static JEditorPane createObjectDescriptionViewPane (final StringWithMarkup        description,
                                                              final NamedObject             n,
                                                              final AbstractProjectViewer   pv,
                                                              final ProjectObjectQuollPanel qp)
@@ -5512,7 +5518,44 @@ public class UIUtils
 
     }
 
-    public static JTextPane createObjectDescriptionViewPane (final String                  description,
+    public static JFXPanel createJFXObjectDescriptionViewPane (final String                  description,
+                                                             final NamedObject             n,
+                                                             final AbstractProjectViewer   pv,
+                                                             final ProjectObjectQuollPanel qp)
+    {
+        
+        final JFXPanel jfxp = new JFXPanel ();
+            
+        Platform.runLater (new Runnable ()
+        {
+           
+            @Override
+            public void run ()
+            {
+                
+                BorderPane bp = new BorderPane ();
+                WebView web = new WebView ();
+                
+                web.getEngine ().loadContent (UIUtils.getWithHTMLStyleSheet (null,
+                                                              UIUtils.markupStringForAssets (description,
+                                                                                             pv.getProject (),
+                                                                                             n)));
+                
+                bp.setCenter (web);
+                
+                javafx.scene.Scene s = new javafx.scene.Scene (bp);
+                
+                jfxp.setScene (s);
+                
+            }
+            
+        });
+
+        return jfxp;
+
+    }        
+
+    public static JEditorPane createObjectDescriptionViewPane (final String                  description,
                                                              final NamedObject             n,
                                                              final AbstractProjectViewer   pv,
                                                              final ProjectObjectQuollPanel qp)
@@ -5521,7 +5564,8 @@ public class UIUtils
         HTMLEditorKit kit = new HTMLEditorKit ();
         HTMLDocument  doc = (HTMLDocument) kit.createDefaultDocument ();
 
-        final JTextPane desc = new JTextPane (doc)
+        //final JTextPane desc = new JTextPane (doc)
+        final JEditorPane desc = new JEditorPane ()
         {
           
             @Override
@@ -5534,17 +5578,19 @@ public class UIUtils
                                                                                              n)));
                 
             }
-            
+                                    
         };
 
+        desc.setDocument (doc);
         desc.setEditorKit (kit);
         desc.setEditable (false);
         desc.setOpaque (false);
+        
         /*
         desc.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));
 */
-        desc.setSize (new Dimension (500, Short.MAX_VALUE));
+        desc.setSize (new Dimension (250, Short.MAX_VALUE));
         desc.addHyperlinkListener (new HyperlinkListener ()
         {
 
@@ -5691,6 +5737,7 @@ public class UIUtils
         return "#" + Integer.toHexString (c.getRGB ()).substring (2);
 
     }
+    
     public static String getHTMLStyleSheet (JTextComponent desc,
                                             String         textColor,
                                             String         linkColor)
@@ -5764,6 +5811,7 @@ public class UIUtils
         t.append ("<style>");
         t.append ("*{font-family: \"" + f.getFontName () + "\"; font-size: " + size + "px; background-color: transparent; color: " + textColor + ";}\n");
         t.append ("body{padding: 0px; margin: 0px;color: " + textColor + "; font-size: " + size + "pt; font-family: \"" + f.getFontName () + "\";}");
+        t.append ("body{overflow-x: hidden; overflow-y: hidden;}");
         t.append ("h1, h2, h3{font-family: \"" + f.getFontName () + "\";}\n");
         t.append ("span{color: " + textColor + "; font-size: " + size + "pt; font-family: \"" + f.getFontName () + "\";}\n");
         t.append ("p{padding: 0px; margin: 0px; color: " + textColor + "; font-size: " + size + "pt; font-family: \"" + f.getFontName () + "\";}\n");
@@ -8102,7 +8150,7 @@ public class UIUtils
                                             ActionListener action)
     {
 
-        JMenuItem mi = new JMenuItem (Environment.replaceObjectNames (label),
+        JMenuItem mi = new JMenuItem (Environment.getButtonLabel (Environment.replaceObjectNames (label)),
                                       Environment.getIcon (icon,
                                                  Constants.ICON_MENU));
         mi.addActionListener (action);
@@ -8116,7 +8164,7 @@ public class UIUtils
                                             ActionListener action)
     {
 
-        JMenuItem mi = new JMenuItem (Environment.replaceObjectNames (label),
+        JMenuItem mi = new JMenuItem (Environment.getButtonLabel (Environment.replaceObjectNames (label)),
                                       icon);
         mi.addActionListener (action);
 
@@ -11003,6 +11051,129 @@ public class UIUtils
         
     }
 
+    public static JButton createTagsMenuToolBarButton (final NamedObject           obj,
+                                                       final AbstractProjectViewer viewer)
+    {
+                
+        JButton b = UIUtils.createToolBarButton (Constants.TAG_ICON_NAME,
+                                                 String.format ("Click to add/remove tags for this %s",
+                                                                Environment.getObjectTypeName (obj)),
+                                                 null,
+                                                 new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                JPopupMenu tagMenu = new JPopupMenu ();
+                
+                Set<Tag> allTags = null;
+                
+                try
+                {
+                    
+                    allTags = Environment.getAllTags ();
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get all tags",
+                                          e);
+                    
+                    return;
+                            
+                }
+                
+                for (Tag t : allTags)
+                {
+                    
+                    final JCheckBox it = new JCheckBox (t.getName (),
+                                                        obj.hasTag (t));
+                    it.setBorder (UIUtils.createPadding (3, 3, 3, 3));
+                    
+                    it.addActionListener (new ActionListener ()
+                    {
+                       
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
+                        {
+                            
+                            if (it.isSelected ())
+                            {
+                                
+                                obj.addTag (t);
+                                
+                            } else {
+                                
+                                obj.removeTag (t);
+                                
+                            }
+                            
+                            try
+                            {
+                            
+                                viewer.saveObject (obj,
+                                                   false);
+        
+                            } catch (Exception e) {
+                                
+                                Environment.logError ("Unable to update object: " +
+                                                      obj,
+                                                      e);
+                                
+                                UIUtils.showErrorMessage (viewer,
+                                                          "Unable to add/remove tag.");
+                                
+                                return;
+                                
+                            }
+                            
+                            viewer.reloadTreeForObjectType (TaggedObjectAccordionItem.ID_PREFIX + t.getKey ());
+                            
+                        }
+                        
+                    });
+                    
+                    tagMenu.add (it);                
+                    
+                }
+        
+                if (allTags.size () > 0)
+                {
+                
+                    tagMenu.addSeparator ();
+                    
+                }
+                
+                tagMenu.add (UIUtils.createMenuItem ("Add/Manage the Tag(s)",
+                                                    Constants.EDIT_ICON_NAME,
+                                                    new ActionListener ()
+                                                    {
+                                                     
+                                                         @Override
+                                                         public void actionPerformed (ActionEvent ev)
+                                                         {
+                                                             
+                                                            viewer.showEditTags ();
+                                                             
+                                                         }
+                                                     
+                                                    }));
+                
+                Component c = (Component) ev.getSource ();
+
+                tagMenu.show (c,
+                              c.getX (),
+                              c.getY ());
+                
+            }
+            
+        });
+        
+        return b;
+        
+    }
+
     public static JMenu createTagsMenu (final NamedObject           obj,
                                         final AbstractProjectViewer viewer)
     {
@@ -11072,7 +11243,7 @@ public class UIUtils
                         
                     }
                     
-                    viewer.reloadTreeForObjectType (TaggedObjectAccordionItem.ID_PREFIX + t);
+                    viewer.reloadTreeForObjectType (TaggedObjectAccordionItem.ID_PREFIX + t.getKey ());
                     
                 }
                 
@@ -11089,8 +11260,8 @@ public class UIUtils
             
         }
         
-        tagMenu.add (UIUtils.createMenuItem ("Edit the Tag(s)",
-                                            Constants.ADD_ICON_NAME,
+        tagMenu.add (UIUtils.createMenuItem ("Add/Manage the Tag(s)",
+                                            Constants.EDIT_ICON_NAME,
                                             new ActionListener ()
                                             {
                                              

@@ -26,6 +26,7 @@ public class ScrollablePanel extends JPanel implements Scrollable
     }
 
     public boolean getScrollableTracksViewportWidth() {
+
         return true;//track the width, and re-size as needed.
     }
 

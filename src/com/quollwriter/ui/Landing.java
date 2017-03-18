@@ -3821,7 +3821,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 					pi = new ProjectInfo (proj);
 
 				} catch (Exception e) {
-
+e.printStackTrace ();
 					if (ObjectManager.isEncryptionException (e))
 					{
 

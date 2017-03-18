@@ -119,7 +119,10 @@ public abstract class LegacyAsset extends Asset
             {
                 
                 UserConfigurableObjectTypeField type = this.getLegacyTypeField (ALIASES_LEGACY_FIELD_ID);                        
-                
+                if (type == null)
+                {
+                    return;
+                }
                 f = new UserConfigurableObjectField (type);
                 
                 this.addField (f);

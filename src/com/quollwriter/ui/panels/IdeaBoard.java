@@ -63,8 +63,8 @@ public class IdeaBoard extends ProjectObjectQuollPanel<ProjectViewer, Project>
         private TypeBox    typeBox = null;
         private Box        viewBox = null;
         private AddEditBox editBox = null;
-        private JTextPane  shortDesc = null;
-        private JTextPane  fullDesc = null;
+        private JEditorPane  shortDesc = null;
+        private JEditorPane  fullDesc = null;
         private IdeaBoard ideaBoard = null;
 
         public IdeaBox(Idea    i,

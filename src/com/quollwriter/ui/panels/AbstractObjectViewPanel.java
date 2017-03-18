@@ -631,12 +631,12 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
 
         this.doFillToolBar (tb,
                             fullScreen);
-
+/*
         tb.add (UIUtils.createToolBarButton ("print",
                                              "Click to print the " + Environment.getObjectTypeName (this.obj.getObjectType ()) + " details",
                                              "print",
                                              UIUtils.getComingSoonAction (this.viewer)));
-
+*/
         tb.add (UIUtils.createToolBarButton ("delete",
                                              "Click to delete this " + Environment.getObjectTypeName (this.obj.getObjectType ()),
                                              "delete",

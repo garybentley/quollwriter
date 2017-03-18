@@ -12,35 +12,31 @@ public class ProjectInfoSorter implements Comparator<ProjectInfo>
                         ProjectInfo o2)
     {
 
-        if (o1.getLastEdited () == o2.getLastEdited ())
-        {
+        Date o1D = (o1.getLastEdited () != null ? o1.getLastEdited () : o1.getDateCreated ());
+        Date o2D = (o2.getLastEdited () != null ? o2.getLastEdited () : o2.getDateCreated ());
 
-            return 0;
-
-        }
-
-        if (o2.getLastEdited () == null)
+        if (o2D == null)
         {
 
             return -1;
 
         }
 
-        if (o1.getLastEdited () == null)
+        if (o1D == null)
         {
 
             return 1;
 
         }
 
-        if (o1.getLastEdited ().compareTo (o2.getLastEdited ()) == 0)
+        if (o1D.compareTo (o2D) == 0)
         {
             
             return o1.getName ().compareTo (o2.getName ());
             
         }
         
-        return -1 * o1.getLastEdited ().compareTo (o2.getLastEdited ());
+        return -1 * o1D.compareTo (o2D);
 
     }
 

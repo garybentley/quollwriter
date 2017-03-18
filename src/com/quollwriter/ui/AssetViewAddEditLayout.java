@@ -2,6 +2,9 @@ package com.quollwriter.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 import java.awt.event.*;
 
@@ -99,7 +102,7 @@ public class AssetViewAddEditLayout
                 
             }
             
-            Box ret = new Box (BoxLayout.Y_AXIS);
+            Box ret = new ScrollableBox (BoxLayout.Y_AXIS);
             
             Box top = new Box (BoxLayout.X_AXIS);
             top.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -135,14 +138,22 @@ public class AssetViewAddEditLayout
             if (otherHandlers.size () > 0)
             {                            
             
-                JComponent o = this.createTwoColumnsLayout (otherHandlers);
+                JComponent o = (JComponent) this.createTwoColumnsLayout (otherHandlers).getViewport ().getView ();
                 o.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+                o.setMinimumSize (new Dimension (525, o.getPreferredSize ().height));
+                o.setAlignmentX (Component.LEFT_ALIGNMENT);
+                o.setAlignmentY (Component.TOP_ALIGNMENT);
             
                 ret.add (o);
                 
             }
-                                            
-            return ret;
+
+            ret.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+                            
+            JScrollPane sp = UIUtils.createScrollPane (ret);
+            sp.setBorder (null);
+
+            return sp;
             
         }
     
@@ -666,6 +677,77 @@ public class AssetViewAddEditLayout
             
             ret.setAlignmentX (Component.LEFT_ALIGNMENT);
             
+            Set<FormItem> tleft = new LinkedHashSet ();
+            Set<FormItem> tright = new LinkedHashSet ();
+            
+            tleft.addAll (name.getInputFormItems (null,
+                                                  formSave));
+            
+            if (image != null)
+            {
+                
+                tleft.addAll (image.getInputFormItems (null,
+                                                       formSave));
+                
+                if (desc != null)
+                {
+                                                                                                          
+                    tright.addAll (desc.getInputFormItems (null,
+                                                           formSave));
+                                                       
+                } 
+
+            } else {
+            
+                if (desc != null)
+                {
+                                                                                                          
+                    tleft.addAll (desc.getInputFormItems (null,
+                                                          formSave));
+                        
+                }
+                
+            }
+            
+            if (image == null)
+            {
+                
+                JComponent c = this.createStackedLayoutColumn (tleft);
+                
+                ret.add (c);
+                c.setPreferredSize (new Dimension (50, c.getPreferredSize ().height));
+                c.setAlignmentX (Component.LEFT_ALIGNMENT);
+                
+                c.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
+                
+            } else {
+                
+                ret.add (this.createTwoColumnsLayout (tleft,
+                                                    260,
+                                                    (image == null),
+                                                    tright,
+                                                    250,
+                                                    true).getViewport ().getView ());            
+
+            }
+            
+            ret.add (Box.createVerticalStrut (10));
+                        
+            if (otherHandlers.size () > 0)
+            {                            
+            
+                JScrollPane o = this.createTwoColumnsEditLayout (otherHandlers,
+                                                                 formSave);
+            
+                JComponent c = (JComponent) o.getViewport ().getView ();
+                            
+                c.setAlignmentY (Component.TOP_ALIGNMENT);
+                c.setAlignmentX (Component.LEFT_ALIGNMENT);
+                c.setMaximumSize (new Dimension (Short.MAX_VALUE, Short.MAX_VALUE));//c.getPreferredSize ().height));
+                ret.add (c);
+                
+            }
+                 /*       
             Box top = new Box (BoxLayout.Y_AXIS);
             
             if ((image != null)
@@ -733,8 +815,8 @@ public class AssetViewAddEditLayout
             JComponent ltopR = this.createStackedLayoutColumn (topR);
             
             top.add (ltopR);
-            
-            top.setMaximumSize (new Dimension (Short.MAX_VALUE, top.getPreferredSize ().height));
+            xxx
+            //top.setMaximumSize (new Dimension (Short.MAX_VALUE, top.getPreferredSize ().height));
 
             ret.add (top);
             
@@ -753,7 +835,7 @@ public class AssetViewAddEditLayout
                 ret.add (c);
                 
             }
-                                                      
+                    */                                  
             return UIUtils.createScrollPane (ret);
         
         }
@@ -789,7 +871,7 @@ public class AssetViewAddEditLayout
             
             if (image != null)
             {
-                                    
+                              
                 left.addAll (image.getInputFormItems (null,
                                                       formSave));
                 
@@ -798,11 +880,9 @@ public class AssetViewAddEditLayout
             if (desc != null)
             {
                 
-                QTextEditor t = desc.getInputTextComponent (formSave);
-                                                        
-                left.add (new AnyFormItem (desc.getTypeField ().getFormName (),
-                                           t));
-                
+                left.addAll (desc.getInputFormItems (null,
+                                                     formSave));
+
             }                
                         
             if (otherHandlers.size () > 0)
@@ -888,11 +968,9 @@ public class AssetViewAddEditLayout
             if (desc != null)
             {
                 
-                QTextEditor t = desc.getInputTextComponent (formSave);
-                                                        
-                right.add (new AnyFormItem (desc.getTypeField ().getFormName (),
-                                            t));
-                
+                right.addAll (desc.getInputFormItems (null,
+                                                      formSave));
+                                
             }
                         
             if (otherHandlers.size () > 0)
@@ -960,11 +1038,9 @@ public class AssetViewAddEditLayout
             
             left.addAll (name.getInputFormItems (null,
                                                  formSave));
-            
-            QTextEditor t = desc.getInputTextComponent (formSave);
-                                                    
-            right.add (new AnyFormItem (desc.getTypeField ().getFormName (),
-                                        t));
+                                           
+            right.addAll (desc.getInputFormItems (null,
+                                                  formSave));
             
             Set<FormItem> items = new LinkedHashSet ();
             
@@ -1027,11 +1103,9 @@ public class AssetViewAddEditLayout
             right.addAll (name.getInputFormItems (null,
                                                   formSave));
             
-            QTextEditor t = desc.getInputTextComponent (formSave);
-                                                    
-            left.add (new AnyFormItem (desc.getTypeField ().getFormName (),
-                                       t));
-            
+            left.addAll (desc.getInputFormItems (null,
+                                                 formSave));
+                        
             Set<FormItem> items = new LinkedHashSet ();
             
             for (UserConfigurableObjectFieldViewEditHandler h : _handlers)
@@ -1092,10 +1166,8 @@ public class AssetViewAddEditLayout
             if (desc != null)
             {
                 
-                QTextEditor t = desc.getInputTextComponent (formSave);
-                                                        
-                left.add (new AnyFormItem (desc.getTypeField ().getFormName (),
-                                           t));
+                left.addAll (desc.getInputFormItems (null,
+                                                     formSave));
                 
             }
                         
@@ -1169,15 +1241,9 @@ public class AssetViewAddEditLayout
             if (desc != null)
             {
                 
-                QTextEditor t = desc.getInputTextComponent (formSave);
-                
-                t.setBorder (new JScrollPane ().getBorder ());
-                t.setMargin (new java.awt.Insets (3, 3, 3, 3));
-                t.setMaximumSize (new java.awt.Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
-                                    
-                right.add (new AnyFormItem (desc.getTypeField ().getFormName (),
-                                            t));
-                  
+                right.addAll (desc.getInputFormItems (null,
+                                                      formSave));
+
             }
                         
             if (otherHandlers.size () > 0)
@@ -1237,10 +1303,10 @@ public class AssetViewAddEditLayout
         
     }
     
-    private JComponent createStackedLayoutColumn (Set<FormItem> items)
+    private JComponent XcreateStackedLayoutColumn (Set<FormItem> items)
     {
         
-        Box b = new com.quollwriter.ui.components.ScrollableBox (BoxLayout.Y_AXIS);
+        Box b = new /*com.quollwriter.ui.components.Scrollable*/Box (BoxLayout.Y_AXIS);
         
         Iterator<FormItem> iter = items.iterator ();
         
@@ -1340,6 +1406,7 @@ public class AssetViewAddEditLayout
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.setAlignmentY (Component.TOP_ALIGNMENT);
         b.setMinimumSize (b.getPreferredSize ());
+        
         b.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          Short.MAX_VALUE));
                            
@@ -1347,6 +1414,227 @@ public class AssetViewAddEditLayout
                     
     }
             
+    private JComponent createStackedLayoutColumn (Set<FormItem> items)
+    {
+        
+        GridBagLayout layout = new GridBagLayout ();
+
+        JPanel b = new JPanel (layout);
+        b.setOpaque (false);
+
+        int r = 0;
+
+        boolean addFiller = true;
+
+        GridBagConstraints cons = new GridBagConstraints ();
+                
+        Iterator<FormItem> iter = items.iterator ();
+        
+        while (iter.hasNext ())
+        {
+                    
+            cons.gridx = 0;
+            cons.gridy = GridBagConstraints.RELATIVE;
+            cons.gridwidth = 1;
+            cons.gridheight = 1;
+            cons.fill = GridBagConstraints.HORIZONTAL;        
+            cons.weightx = 1;
+            cons.weighty = 0;
+            cons.insets = new Insets (0, 0, 0, 0);
+            cons.anchor = GridBagConstraints.NORTHWEST;
+                    
+            FormItem it = iter.next ();
+            
+            Object l = it.getLabel ();
+            
+            if (l != null)
+            {
+            
+                if (l instanceof String)
+                {
+    
+                    String label = l.toString ();
+    
+                    if (label != null)
+                    {
+    
+                        l = UIUtils.createInformationLabel (label);
+    
+                    }
+
+                }
+            
+                if (l instanceof JComponent)
+                {
+            
+                    l = this.wrap ((JComponent) l);
+                         
+                    int top = 0;
+                         
+                    if (r > 0)
+                    {
+                        
+                        top = 10;
+                        
+                    }
+                        
+                    cons.insets = new Insets (top, 0, 0, 0);
+
+                    b.add ((JComponent) l,
+                           cons);
+                     
+                    r++;
+                     
+                }
+                            
+            }
+                        
+            JComponent c = it.getComponent ();
+        
+            if (c != null)
+            {
+                
+                c.setOpaque (false);
+                                             
+                c = this.wrap (c);
+                     
+                int top = 0;
+                     
+                if (r > 0)
+                {
+                    
+                    top = 5;
+                    
+                }
+                     
+                if (l == null)
+                {
+                    
+                    cons.insets = new Insets (top, 0, 0, 0);
+                    
+                    if ((c instanceof QTextEditor)
+                        &&
+                        (!iter.hasNext ())
+                       )
+                    {
+                        
+                        cons.fill = GridBagConstraints.BOTH;
+                        cons.weightx = 1;
+                        cons.weighty = 1;
+                        addFiller = false;
+                                                
+                    }
+            
+                    if ((c instanceof TextArea)
+                        &&
+                        (!iter.hasNext ())
+                       )
+                    {
+                        
+                        cons.fill = GridBagConstraints.BOTH;
+                        cons.weightx = 1;
+                        cons.weighty = 1;
+                        addFiller = false;
+                                                
+                    }
+
+                    if ((c instanceof JEditorPane)
+                        &&
+                        (!iter.hasNext ())
+                       )
+                    {
+                        
+                        cons.fill = GridBagConstraints.BOTH;
+                        cons.weightx = 1;
+                        cons.weighty = 1;
+                        addFiller = false;
+
+                    }
+                    
+                    b.add (c,
+                           cons);
+                    
+                    r++;
+                    
+                } else {
+
+                    cons.insets = new Insets (top, 10, 0, 0);
+
+                    if ((c instanceof QTextEditor)
+                        &&
+                        (!iter.hasNext ())
+                       )
+                    {
+                        
+                        cons.fill = GridBagConstraints.BOTH;
+                        cons.weightx = 1;
+                        cons.weighty = 1;
+                        addFiller = false;
+                                                
+                    }
+            
+                    if ((c instanceof TextArea)
+                        &&
+                        (!iter.hasNext ())
+                       )
+                    {
+                        
+                        cons.fill = GridBagConstraints.BOTH;
+                        cons.weightx = 1;
+                        cons.weighty = 1;
+                        addFiller = false;
+                                                
+                    }
+
+                    if ((c instanceof JEditorPane)
+                        &&
+                        (!iter.hasNext ())
+                       )
+                    {
+                        
+                        cons.fill = GridBagConstraints.BOTH;
+                        cons.weightx = 1;
+                        cons.weighty = 1;
+                        addFiller = false;
+                                                
+                    }
+
+                    b.add (c,
+                           cons);
+                        
+                    r++;
+                        
+                }
+                
+            }
+                        
+        }
+
+        if (addFiller)
+        {
+            
+            cons.weightx = 1;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;
+            cons.insets = new Insets (0, 0, 0, 0);
+            
+            JPanel p = new JPanel ();
+            p.setOpaque (false);
+            p.setPreferredSize (new Dimension (0, 0));
+            
+            b.add (p,
+                   cons);
+        
+        }
+        
+        b.setAlignmentY (Component.TOP_ALIGNMENT);
+        b.setAlignmentX (Component.LEFT_ALIGNMENT);
+        b.setOpaque (false);
+
+        return b;
+                    
+    }
+
     private JScrollPane createTwoColumnsLayout (Set<UserConfigurableObjectFieldViewEditHandler> handlers)
     {
 
@@ -1446,6 +1734,115 @@ public class AssetViewAddEditLayout
                                                 int           col2Width,
                                                 boolean       col2Grow)
     {
+
+        final JComponent col1C = this.createStackedLayoutColumn (col1);
+                                           
+        col1C.setPreferredSize (new Dimension (col1Width, col1C.getPreferredSize ().height));          
+                           
+        final JComponent col2C = this.createStackedLayoutColumn (col2);
+
+        col2C.setPreferredSize (new Dimension (col2Width, col2C.getPreferredSize ().height));        
+
+        col1C.setOpaque (false);
+        col2C.setOpaque (false);                        
+
+        GridBagLayout layout = new GridBagLayout ();
+
+        final JPanel p = new JPanel (layout);
+                
+        p.setOpaque (false);
+        p.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+
+        GridBagConstraints cons = new GridBagConstraints ();
+        cons.gridx = 0;
+        cons.gridy = 0;
+        cons.gridwidth = 1;
+        cons.gridheight = 1;
+        cons.fill = GridBagConstraints.NONE;        
+        cons.weightx = 0;
+        cons.weighty = 0;
+        cons.insets = new Insets (0, 0, 0, 15);
+        cons.anchor = GridBagConstraints.NORTH;
+        
+        if ((col1Grow)
+            &&
+            (!col2Grow)
+           )
+        {
+            
+            cons.weightx = 1;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+        } 
+        
+        if ((col1Grow)
+            &&
+            (col2Grow)
+           )
+        {
+            
+            cons.weightx = 0.5;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+        } 
+
+        p.add (col1C,
+               cons);
+
+        cons = new GridBagConstraints ();
+        cons.gridx = 1;
+        cons.gridy = 0;
+        cons.gridwidth = 1;
+        cons.gridheight = 1;
+        cons.fill = GridBagConstraints.NONE;        
+        cons.weightx = 0;
+        cons.weighty = 0;
+        cons.insets = new Insets (0, 0, 0, 0);
+        cons.anchor = GridBagConstraints.NORTH;
+
+        if ((!col1Grow)
+            &&
+            (col2Grow)
+           )
+        {
+
+            cons.weightx = 1;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+            
+        }
+
+        if ((col1Grow)
+            &&
+            (col2Grow)
+           )
+        {
+            
+            cons.weightx = 0.5;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+        } 
+        
+        p.add (col2C,
+               cons);
+        
+        JScrollPane sp = UIUtils.createScrollPane (p);
+        sp.setBorder (null);
+                 
+        return sp;
+
+    }
+
+    private JScrollPane XcreateTwoColumnsLayout (Set<FormItem> col1,
+                                                int           col1Width,
+                                                boolean       col1Grow,
+                                                Set<FormItem> col2,
+                                                int           col2Width,
+                                                boolean       col2Grow)
+    {
             
         JComponent col1C = this.createStackedLayoutColumn (col1);
                                         
@@ -1454,13 +1851,15 @@ public class AssetViewAddEditLayout
         col1C.setOpaque (false);
         col2C.setOpaque (false);                        
                                 
-        Box b = new ScrollableBox (BoxLayout.X_AXIS);
+        Box b = new /*Scrollable*/Box (BoxLayout.X_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.add (col1C);
         b.add (Box.createHorizontalStrut (15));
         b.add (col2C);
 
         b.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+        b.setMinimumSize (new Dimension (col1Width + 15 + col2Width,
+                                         300));
         
         JPanel p = new com.quollwriter.ui.components.ScrollablePanel (new java.awt.BorderLayout ());
         p.setOpaque (false);

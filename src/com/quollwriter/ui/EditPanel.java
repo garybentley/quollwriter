@@ -591,7 +591,7 @@ public abstract class EditPanel extends Box
 
         ((CardLayout) this.cards.getLayout ()).show (this.cards,
                                                      "view");
-        
+                
     }        
     
     private void showEdit ()
@@ -916,7 +916,7 @@ public abstract class EditPanel extends Box
         this.editError.setText (m);
 
         this.editError.setVisible (true);
-System.out.println ("HRE");
+
         this.validate ();
         this.repaint ();
 

@@ -259,25 +259,6 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         }
 
-        if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE_FIELD))
-        {
-
-            if (ev.getSource () instanceof UserConfigurableObjectTypeField)
-            {
-
-                UserConfigurableObjectTypeField f = (UserConfigurableObjectTypeField) ev.getSource ();
-
-                if (f.getUserConfigurableObjectType ().equals (this.type))
-                {
-
-                    this.refresh ();
-
-                }
-
-            }
-
-        }
-
     }
     
     public void saveField (UserConfigurableObjectTypeField field)
@@ -306,14 +287,17 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     private void addField (UserConfigurableObjectTypeField field)
     {
 
+        field.setUserConfigurableObjectType (this.type);
+
+        // Need to save first so the hashcode gets set correctly.
+        this.saveField (field);
+
         this.type.addConfigurableField (field);
 
         FieldViewBox it = new FieldViewBox (field,
                                             this);
 
         it.init ();
-
-        this.saveField (field);
 
         this.viewItems.put (field,
                             it);
@@ -338,6 +322,40 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
     }
 
+    private void removeField (UserConfigurableObjectTypeField field)
+    {
+        
+        FieldViewBox it = this.viewItems.get (field);
+                
+        this.type.removeConfigurableField (field);
+        
+        try
+        {
+
+            Environment.removeUserConfigurableObjectTypeField (field);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to delete user config object field: " +
+                                  field,
+                                  e);
+
+            UIUtils.showErrorMessage (this.viewer,
+                                      "Unable to remove the field.");
+
+            return;
+
+        }
+
+        Environment.fireUserProjectEvent (this.type,
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.CHANGED,
+                                          this.type);
+
+        //this.refresh ();
+
+    }
+
     public void setHelpText (String t)
     {
         
@@ -351,6 +369,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     
         Set<UserConfigurableObjectTypeField> fields = this.type.getConfigurableFields ();
 
+        this.viewItems = new LinkedHashMap ();
         this.fieldsList.removeAll ();
 
         for (UserConfigurableObjectTypeField f : fields)
@@ -384,7 +403,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
             @Override
             public void mouseDragged(MouseEvent e)
             {
-                System.out.println ("HERE");
+                
                 JComponent c = (JComponent) e.getSource ();
                 TransferHandler handler = it.getTransferHandler ();
                 handler.setDragImage (UIUtils.getImageOfComponent (it,
@@ -1402,32 +1421,8 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                                                                             public void actionPerformed (ActionEvent ev)
                                                                                             {
     
-                                                                                                try
-                                                                                                {
-    
-                                                                                                    Environment.removeUserConfigurableObjectTypeField (_this.item);
-    
-                                                                                                } catch (Exception e) {
-    
-                                                                                                    Environment.logError ("Unable to delete user config object field: " +
-                                                                                                                          _this.item,
-                                                                                                                          e);
-    
-                                                                                                    UIUtils.showErrorMessage (_this.edit.viewer,
-                                                                                                                              "Unable to remove the field.");
-    
-                                                                                                    return;
-    
-                                                                                                }
-    
-                                                                                                _this.item.getUserConfigurableObjectType ().removeConfigurableField (_this.item);
-    
-                                                                                                _this.getParent ().remove (_this);
-    
-                                                                                                _this.validate ();
-    
-                                                                                                _this.repaint ();
-    
+                                                                                                _this.edit.removeField (_this.item);
+        
                                                                                             }
     
                                                                                          },

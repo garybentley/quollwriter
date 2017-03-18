@@ -235,7 +235,7 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
 
             CellConstraints cc = new CellConstraints ();
 
-            JTextPane t = UIUtils.createObjectDescriptionViewPane (formatter.getItemDescription (it), //null,
+            JEditorPane t = UIUtils.createObjectDescriptionViewPane (formatter.getItemDescription (it), //null,
                                                                    it,
                                                                    viewer,
                                                                    null);

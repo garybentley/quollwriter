@@ -56,7 +56,7 @@ public class FileUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         Set<FormItem> items = new LinkedHashSet ();
         
         this.editItem = new FileSelectorFormItem (this.typeField.getFormName (),
-                                                  (this.getFieldValue () != null ? this.getFieldValue () : new File (initValue)),
+                                                  (this.getFieldValue () != null ? this.getFieldValue () : (initValue != null ? new File (initValue) : null)),
                                                   false,
                                                   JFileChooser.FILES_ONLY);
                                                   

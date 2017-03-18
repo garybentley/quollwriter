@@ -34,7 +34,7 @@ public class ImageUserConfigurableObjectTypeFieldConfigHandler implements UserCo
     public String getConfigurationDescription ()
     {
         
-        return null;
+        return "image";
         
     }
         

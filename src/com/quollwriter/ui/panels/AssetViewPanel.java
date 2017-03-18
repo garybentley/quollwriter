@@ -88,7 +88,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
-        
+
         if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
         {
             
@@ -333,6 +333,9 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
 
         tb.add (b);
 
+        tb.add (UIUtils.createTagsMenuToolBarButton (this.obj,
+                                                     this.viewer));
+
     }
 
     public void doInit ()
@@ -449,6 +452,10 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
         if (this.getDetailsPanel ().isEditing ())
         {
             
+            popup.add (UIUtils.createMenuItem (Constants.SAVE_BUTTON_LABEL_ID,
+                                               Constants.SAVE_ICON_NAME,
+                                               this.getDetailsPanel ().getDoSaveAction ()));
+            
             return;
             
         }
@@ -459,6 +466,9 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                            Constants.EDIT_ICON_NAME,
                                            this.getEditObjectAction (this.viewer,
                                                                      (Asset) this.obj)));
+
+        popup.add (UIUtils.createTagsMenu (this.obj,
+                                           this.viewer));
 
         popup.add (UIUtils.createMenuItem ("Add File/Document",
                                            Constants.ADD_ICON_NAME,
@@ -479,6 +489,25 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                            Constants.DELETE_ICON_NAME,
                                            this.getDeleteObjectAction (this.viewer,
                                                                        (Asset) this.obj)));
+    
+        popup.addSeparator ();
+        
+        popup.add (UIUtils.createMenuItem (String.format ("Edit the %s information/fields",
+                                                          this.obj.getUserConfigurableObjectType ().getObjectTypeName ()),
+                                           Constants.EDIT_ICON_NAME,
+                                           new ActionListener ()
+                                           {
+                                             
+                                                 @Override
+                                                 public void actionPerformed (ActionEvent ev)
+                                                 {
+                                                     
+                                                     UIUtils.showObjectTypeEdit (_this.obj.getUserConfigurableObjectType (),
+                                                                                 _this.viewer);
+                                                     
+                                                 }
+                                             
+                                           }));
     
     }
         

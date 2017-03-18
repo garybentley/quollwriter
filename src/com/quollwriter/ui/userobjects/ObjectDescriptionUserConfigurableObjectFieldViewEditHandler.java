@@ -77,7 +77,7 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
         }
         
         this.editItem.setText (this.obj.getDescription ());
-        
+                                            
         Set<FormItem> items = new LinkedHashSet ();
 
         items.add (this.editItem);
@@ -142,16 +142,14 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
         if (text != null)
         {
         
-            JComponent t = UIUtils.createObjectDescriptionViewPane (text,
+            JComponent t = UIUtils.createObjectDescriptionViewPane (text.getMarkedUpText (),
                                                                     this.obj,
                                                                     this.viewer,
                                                                     null);
-    
-            t.setSize (new java.awt.Dimension (250, 250));
-            //t.setPreferredSize (new java.awt.Dimension (250, 250));
-            //t.setPreferredSize (null);
+
+            t.setSize (new java.awt.Dimension (250, Short.MAX_VALUE));
             t.setBorder (null);
-                                                                    
+                            
             item = new AnyFormItem (this.typeField.getFormName (),
                                     t);
 

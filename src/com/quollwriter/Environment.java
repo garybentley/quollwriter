@@ -6829,11 +6829,6 @@ TODO: Add back in when appropriate.
                                           ProjectEvent.DELETE,
                                           field);
         
-        Environment.fireUserProjectEvent (field,
-                                          ProjectEvent.USER_OBJECT_TYPE,
-                                          ProjectEvent.CHANGED,
-                                          field.getUserConfigurableObjectType ());
-
     }
     
     public static void updateUserConfigurableObjectTypeField (UserConfigurableObjectTypeField field)
@@ -6856,6 +6851,11 @@ TODO: Add back in when appropriate.
                                           ProjectEvent.USER_OBJECT_TYPE_FIELD,
                                           ev,
                                           field);
+
+        Environment.fireUserProjectEvent (field.getUserConfigurableObjectType (),
+                                          ProjectEvent.USER_OBJECT_TYPE,
+                                          ProjectEvent.CHANGED,
+                                          field.getUserConfigurableObjectType ());
         
     }
     

@@ -79,7 +79,7 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
     public Date getInputSaveValue ()
     {
         
-        return null;
+        return this.editItem.getValue ();
         
     }
     

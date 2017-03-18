@@ -52,7 +52,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
         
         this.editItem = new MultiLineTextFormItem (this.typeField.getFormName (),
                                                    this.viewer,
-                                                   (this.typeField.isNameField () ? 2 : 10));
+                                                   (this.typeField.isNameField () ? 3 : 10));
             
         this.editItem.setCanFormat (true);
         this.editItem.setAutoGrabFocus (false);
