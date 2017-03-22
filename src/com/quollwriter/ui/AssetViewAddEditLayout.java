@@ -162,15 +162,19 @@ public class AssetViewAddEditLayout
             
             if ((image == null)
                 &&
-                (desc == null)
+                ((desc == null)
+                 ||
+                 (desc.getFieldValue () == null)
+                )
                )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createView (handlers);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnViewLayout (_handlers);
+                                
             }
             
             Set<FormItem> left = new LinkedHashSet ();
@@ -236,15 +240,19 @@ public class AssetViewAddEditLayout
             
             if ((image == null)
                 &&
-                (desc == null)
+                ((desc == null)
+                 ||
+                 (desc.getFieldValue () == null)
+                )
                )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createView (handlers);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnViewLayout (_handlers);
+                                
             }
             
             Set<FormItem> left = new LinkedHashSet ();
@@ -308,16 +316,20 @@ public class AssetViewAddEditLayout
         if (this.type.equals (Constants.ASSET_LAYOUT_5))
         {
             
-            if (desc == null)
+            if ((desc == null)
+                ||
+                (desc.getFieldValue () == null)
+               )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createView (handlers);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnViewLayout (_handlers);
+                                
             }
-            
+                        
             Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
             
             Set<FormItem> left = new LinkedHashSet ();
@@ -367,14 +379,18 @@ public class AssetViewAddEditLayout
         if (this.type.equals (Constants.ASSET_LAYOUT_6))
         {
             
-            if (desc == null)
+            if ((desc == null)
+                ||
+                (desc.getFieldValue () == null)
+               )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createView (handlers);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnViewLayout (_handlers);
+                                
             }
             
             Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
@@ -388,15 +404,6 @@ public class AssetViewAddEditLayout
                                       t));
                         
             _handlers.remove (desc);
-
-            if (_handlers.size () == 0)
-            {
-                
-                this.type = null;
-                
-                return this.createView (handlers);
-                        
-            }
             
             Set<FormItem> items = new LinkedHashSet ();
             
@@ -426,19 +433,20 @@ public class AssetViewAddEditLayout
         if (this.type.equals (Constants.ASSET_LAYOUT_7))
         {
             
-            if ((image == null)
-                &&
-                (desc == null)
+            if ((desc == null)
+                 ||
+                 (desc.getFieldValue () == null)
                )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createView (handlers);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnViewLayout (_handlers);
+                                
             }
-            
+                            
             Set<FormItem> left = new LinkedHashSet ();
             Set<FormItem> right = new LinkedHashSet ();
             
@@ -500,19 +508,20 @@ public class AssetViewAddEditLayout
         if (this.type.equals (Constants.ASSET_LAYOUT_8))
         {
             
-            if ((image == null)
-                &&
-                (desc == null)
+            if ((desc == null)
+                 ||
+                 (desc.getFieldValue () == null)
                )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createView (handlers);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnViewLayout (_handlers);
+                                
             }
-            
+                        
             Set<FormItem> left = new LinkedHashSet ();
             Set<FormItem> right = new LinkedHashSet ();
             
@@ -722,12 +731,14 @@ public class AssetViewAddEditLayout
                 
             } else {
                 
-                ret.add (this.createTwoColumnsLayout (tleft,
+                JComponent l = this.createTwoColumnsEditLayout (tleft,
                                                     260,
                                                     (image == null),
                                                     tright,
                                                     250,
-                                                    true).getViewport ().getView ());            
+                                                    true);
+
+                ret.add (l);
 
             }
             
@@ -907,7 +918,7 @@ public class AssetViewAddEditLayout
                                                         
             }
                                            
-            return this.createTwoColumnsLayout (left,
+            return this.createTwoColumnsEditLayout (left,
                                                 260,
                                                 true,
                                                 right,
@@ -929,24 +940,22 @@ public class AssetViewAddEditLayout
             
             if ((image == null)
                 &&
-                (desc == null)
+                ((desc == null)
+                 ||
+                 (desc.getFieldValue () == null)
+                )
                )
             {
                 
-                this.type = null;
+                Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
-                // If we have no description and no image then just default to the 2 column layout.
-                return this.createEdit (handlers,
-                                        formSave);
+                _handlers.remove (desc);
                 
+                return this.createSingleColumnEditLayout (_handlers,
+                                                          formSave);
+                                
             }
-            
-            // XXX Handle single column.
-            if (otherHandlers.size () == 0)
-            {
-                
-            }
-            
+                                        
             Set<FormItem> left = new LinkedHashSet ();
             Set<FormItem> right = new LinkedHashSet ();
             
@@ -995,7 +1004,7 @@ public class AssetViewAddEditLayout
                                                         
             }
                                    
-            return this.createTwoColumnsLayout (left,
+            return this.createTwoColumnsEditLayout (left,
                                                 260,
                                                 false,
                                                 right,
@@ -1059,7 +1068,7 @@ public class AssetViewAddEditLayout
 
             }
                                                         
-            return this.createTwoColumnsLayout (left,
+            return this.createTwoColumnsEditLayout (left,
                                                 260,
                                                 false,
                                                 right,
@@ -1123,7 +1132,7 @@ public class AssetViewAddEditLayout
 
             }
                                                         
-            return this.createTwoColumnsLayout (left,
+            return this.createTwoColumnsEditLayout (left,
                                                 250,
                                                 true,
                                                 right,
@@ -1135,10 +1144,7 @@ public class AssetViewAddEditLayout
         if (this.type.equals (Constants.ASSET_LAYOUT_7))
         {
             
-            if ((image == null)
-                &&
-                (desc == null)
-               )
+            if (desc == null)
             {
                 
                 this.type = null;
@@ -1193,7 +1199,7 @@ public class AssetViewAddEditLayout
                                                         
             }
                                           
-            return this.createTwoColumnsLayout (left,
+            return this.createTwoColumnsEditLayout (left,
                                                 250,
                                                 true,
                                                 right,
@@ -1205,10 +1211,7 @@ public class AssetViewAddEditLayout
         if (this.type.equals (Constants.ASSET_LAYOUT_8))
         {
             
-            if ((image == null)
-                &&
-                (desc == null)
-               )
+            if (desc == null)
             {
                 
                 this.type = null;
@@ -1267,8 +1270,8 @@ public class AssetViewAddEditLayout
                 }
                                                         
             }
-                                            
-            return this.createTwoColumnsLayout (left,
+                                                                              
+            return this.createTwoColumnsEditLayout (left,
                                                 260,
                                                 false,
                                                 right,
@@ -1626,7 +1629,7 @@ public class AssetViewAddEditLayout
                    cons);
         
         }
-        
+   
         b.setAlignmentY (Component.TOP_ALIGNMENT);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.setOpaque (false);
@@ -1718,12 +1721,74 @@ public class AssetViewAddEditLayout
             
         }
             
-        return this.createTwoColumnsLayout (col1,
+        JComponent p = this.createTwoColumnsEditLayout (col1,
                                             250,
                                             true,
                                             col2,
                                             250,
                                             true);
+        
+        p.setBorder (UIUtils.createPadding (0, 0, 0, 7));
+        JScrollPane sp = UIUtils.createScrollPane (p);
+        sp.setBorder (null);
+        
+        return sp;
+        
+    }
+
+    private JScrollPane createSingleColumnEditLayout (Set<UserConfigurableObjectFieldViewEditHandler> handlers,
+                                                      ActionListener                                formSave)
+    {
+        
+        Set<FormItem> col = new LinkedHashSet ();
+    
+        for (UserConfigurableObjectFieldViewEditHandler h : handlers)
+        {
+        
+            Set<FormItem> fits = h.getInputFormItems (null,
+                                                      formSave);
+
+            col.addAll (fits);
+
+        }
+        
+        final JComponent colC = this.createStackedLayoutColumn (col);
+                              
+        colC.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+                                           
+        colC.setPreferredSize (new Dimension (50, colC.getPreferredSize ().height));          
+
+        JScrollPane sp = UIUtils.createScrollPane (colC);
+        sp.setBorder (null);
+
+        return sp;
+        
+    }
+
+    private JScrollPane createSingleColumnViewLayout (Set<UserConfigurableObjectFieldViewEditHandler> handlers)
+    {
+        
+        Set<FormItem> col = new LinkedHashSet ();
+    
+        for (UserConfigurableObjectFieldViewEditHandler h : handlers)
+        {
+        
+            Set<FormItem> fits = h.getViewFormItems ();
+
+            col.addAll (fits);
+
+        }
+        
+        final JComponent colC = this.createStackedLayoutColumn (col);
+                              
+        colC.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+                                           
+        colC.setPreferredSize (new Dimension (50, colC.getPreferredSize ().height));          
+
+        JScrollPane sp = UIUtils.createScrollPane (colC);
+        sp.setBorder (null);
+
+        return sp;
         
     }
 
@@ -1751,7 +1816,7 @@ public class AssetViewAddEditLayout
         final JPanel p = new JPanel (layout);
                 
         p.setOpaque (false);
-        p.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+        p.setBorder (UIUtils.createPadding (7, 0, 0, 0));
 
         GridBagConstraints cons = new GridBagConstraints ();
         cons.gridx = 0;
@@ -1836,6 +1901,162 @@ public class AssetViewAddEditLayout
 
     }
 
+    private JComponent createTwoColumnsEditLayout (Set<FormItem> col1,
+                                                int           col1Width,
+                                                boolean       col1Grow,
+                                                Set<FormItem> col2,
+                                                int           col2Width,
+                                                boolean       col2Grow)
+    {
+
+        final JComponent col1C = this.createStackedLayoutColumn (col1);
+                                           
+        col1C.setPreferredSize (new Dimension (col1Width, col1C.getPreferredSize ().height));          
+                           
+        final JComponent col2C = this.createStackedLayoutColumn (col2);
+
+        col2C.setPreferredSize (new Dimension (col2Width, col2C.getPreferredSize ().height));        
+
+        col1C.setOpaque (false);
+        col2C.setOpaque (false);                        
+
+        GridBagLayout layout = new GridBagLayout ();
+
+        final JPanel p = new JPanel (layout);
+                
+        p.setOpaque (false);
+        p.setBorder (UIUtils.createPadding (0, 0, 0, 0));
+
+        GridBagConstraints cons = new GridBagConstraints ();
+        cons.gridx = 0;
+        cons.gridy = 0;
+        cons.gridwidth = 1;
+        cons.gridheight = 1;
+        cons.fill = GridBagConstraints.NONE;        
+        cons.weightx = 0;
+        cons.weighty = 0;
+        cons.insets = new Insets (0, 0, 0, 15);
+        cons.anchor = GridBagConstraints.NORTH;
+        
+        if ((col1Grow)
+            &&
+            (!col2Grow)
+           )
+        {
+            
+            cons.weightx = 1;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+            Box b = new Box (BoxLayout.X_AXIS);
+
+            b.add (col1C);
+
+            col1C.setBorder (UIUtils.createPadding (7, 2, 0, 5));  
+
+            Box _b = new ScrollableBox (BoxLayout.Y_AXIS);
+            _b.add (col2C);
+            _b.setBorder (UIUtils.createPadding (7, 15, 0, 7));
+
+            JScrollPane sp = UIUtils.createScrollPane (_b);
+            sp.setBorder (null);
+            sp.setAlignmentY (Component.TOP_ALIGNMENT);
+            sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            b.add (sp);
+            
+            b.setAlignmentY (Component.TOP_ALIGNMENT);
+            b.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            return b;
+
+        } 
+        
+        if ((col1Grow)
+            &&
+            (col2Grow)
+           )
+        {
+            
+            cons.weightx = 0.5;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+        } 
+
+        p.add (col1C,
+               cons);
+
+        cons = new GridBagConstraints ();
+        cons.gridx = 1;
+        cons.gridy = 0;
+        cons.gridwidth = 1;
+        cons.gridheight = 1;
+        cons.fill = GridBagConstraints.NONE;        
+        cons.weightx = 0;
+        cons.weighty = 0;
+        cons.insets = new Insets (0, 0, 0, 0);
+        cons.anchor = GridBagConstraints.NORTH;
+
+        if ((!col1Grow)
+            &&
+            (col2Grow)
+           )
+        {
+
+            cons.weightx = 1;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+            Box b = new Box (BoxLayout.X_AXIS);
+
+            Box _b = new ScrollableBox (BoxLayout.Y_AXIS);
+            _b.add (col1C);
+            _b.setBorder (UIUtils.createPadding (7, 2, 0, 7));
+            col1C.setMinimumSize (new Dimension (col1Width, 200));
+
+            JScrollPane sp = UIUtils.createScrollPane (_b);
+            sp.setBorder (null);
+            sp.setAlignmentY (Component.TOP_ALIGNMENT);
+            sp.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            b.add (sp);
+
+            col2C.setBorder (UIUtils.createPadding (7, 7, 0, 0));
+
+            b.add (col2C);
+            
+            b.setAlignmentY (Component.TOP_ALIGNMENT);
+            b.setAlignmentX (Component.LEFT_ALIGNMENT);
+            
+            return b;
+            
+        }
+
+        if ((col1Grow)
+            &&
+            (col2Grow)
+           )
+        {
+            
+            cons.weightx = 0.5;
+            cons.weighty = 1;
+            cons.fill = GridBagConstraints.BOTH;        
+
+        } 
+        
+        p.add (col2C,
+               cons);
+        
+        return p;
+        
+        //JScrollPane sp = UIUtils.createScrollPane (p);
+        //sp.setBorder (null);
+                 
+        //return sp;
+
+    }
+
     private JScrollPane XcreateTwoColumnsLayout (Set<FormItem> col1,
                                                 int           col1Width,
                                                 boolean       col1Grow,
@@ -1916,18 +2137,26 @@ public class AssetViewAddEditLayout
             (component instanceof JLabel)
             ||
             (component instanceof JList)
+            ||
+            ((component instanceof JScrollPane)
+             &&
+             (((JScrollPane) component).getViewport ().getView () instanceof JList)
+            )
            )
         {
-            
+
+            component.setMinimumSize (component.getPreferredSize ());
             component.setMaximumSize (component.getPreferredSize ());
         
             Box tb = new Box (BoxLayout.X_AXIS);
             tb.add (component);
             tb.add (Box.createHorizontalGlue ());
             tb.setAlignmentY (Component.TOP_ALIGNMENT);
-            tb.setAlignmentX (Component.LEFT_ALIGNMENT);            
+            tb.setAlignmentX (Component.LEFT_ALIGNMENT);
+            /*
             tb.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                               component.getPreferredSize ().height));
+              */                                
             component = tb;
             
         }

@@ -14,7 +14,9 @@ import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.data.*;
+import com.quollwriter.text.*;
 import com.quollwriter.ui.components.QTextEditor;
+import com.quollwriter.ui.components.Markup;
 
 public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends AbstractUserConfigurableObjectFieldViewEditHandler<ObjectDescriptionUserConfigurableObjectTypeField, StringWithMarkup>
 {
@@ -130,10 +132,20 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
     }
     
     @Override
+    public StringWithMarkup getFieldValue ()
+    {
+        
+        return this.obj.getDescription ();        
+        
+    }
+    
+    @Override
     public Set<FormItem> getViewFormItems ()
     {
 
         StringWithMarkup text = this.obj.getDescription ();
+            
+        JComponent t = null;
             
         Set<FormItem> items = new LinkedHashSet ();
 
@@ -142,10 +154,39 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
         if (text != null)
         {
         
-            JComponent t = UIUtils.createObjectDescriptionViewPane (text.getMarkedUpText (),
-                                                                    this.obj,
-                                                                    this.viewer,
-                                                                    null);
+            if (this.typeField.isDisplayAsBullets ())
+            {
+                
+                Markup m = text.getMarkup ();
+    
+                StringBuilder b = new StringBuilder ("<ul>");
+        
+                TextIterator iter = new TextIterator (text.getText ());
+    
+                for (Paragraph p : iter.getParagraphs ())
+                {
+                                                
+                    b.append ("<li>");
+                    b.append (p.markupAsHTML (m));
+                    b.append ("</li>");
+                                       
+                }
+                
+                b.append ("</ul>");
+                
+                t = UIUtils.createObjectDescriptionViewPane (b.toString (),
+                                                             this.obj,
+                                                             this.viewer,
+                                                             null);
+
+            } else {
+                
+                t = UIUtils.createObjectDescriptionViewPane (text,
+                                                             this.obj,
+                                                             this.viewer,
+                                                             null);
+        
+            }
 
             t.setSize (new java.awt.Dimension (250, Short.MAX_VALUE));
             t.setBorder (null);

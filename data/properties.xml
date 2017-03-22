@@ -620,4 +620,9 @@ This message will only be shown once during your current session using Quoll Wri
     <value>chapter|character|location|object|researchitem|note|projecteditor</value>
   </property>
 
+  <property id="highlightSplitpaneDividers" type="boolean">
+    <description>Highlight splitpane dividers when the user mouses over them.</description>
+    <value>true</value>
+  </property>
+
 </properties>

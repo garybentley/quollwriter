@@ -141,13 +141,12 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
           
         final StatisticsPanel _this = this;
                
-        this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
-                                         false);
+        this.splitPane = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
         this.splitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.splitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
-        this.splitPane.setOpaque (false);
+        //this.splitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
+        //this.splitPane.setOpaque (false);
 
-        this.splitPane.setBorder (null);
+        //this.splitPane.setBorder (null);
         
         Box b = new ScrollableBox (BoxLayout.Y_AXIS);
         

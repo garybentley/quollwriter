@@ -452,6 +452,8 @@ public class Constants
     public static final String TARGET_WEEKLY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetWeeklyTargetReachedPopupShownDate";
     public static final String TARGET_MONTHLY_TARGET_REACHED_POPUP_SHOWN_DATE = "targetMonthlyTargetReachedPopupShownDate";
 
+    public static final String HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME = "highlightSplitpaneDividers";
+
     public static final String TAGS_PROPERTY_NAME = "tags";
     
     public static final String PROMPTS_EXCLUDE_FILE = "prompts-exclude.txt";

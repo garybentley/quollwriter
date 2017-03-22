@@ -3023,75 +3023,33 @@ public class Options extends Box
         this.setAsSubItem (c);
 
         box.add (c);
+                
+        final JCheckBox highlightSPDivs = UIUtils.createCheckBox ("Highlight dividers when I move the mouse over them");
+        highlightSPDivs.setToolTipText ("This is for dividers that allow you to slide panels left and right or up and down.  It allows you to more easily see the divider.");
+
+        boolean highlight = UserProperties.getAsBoolean (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME);
+
+        highlightSPDivs.setSelected (highlight);
+        
+        highlightSPDivs.addItemListener (new ItemAdapter ()
+        {
+
+            public void itemStateChanged (ItemEvent ev)
+            {
+
+                UserProperties.set (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME,
+                                    highlightSPDivs.isSelected ());
+
+            }
+
+        });        
         
         box.add (Box.createVerticalStrut (10));
-
-        c = this.createHelpText ("Edit Assets ({Characters}, {Locations}, etc) in");
+        
+        c = this.createWrapper (highlightSPDivs);
         this.setAsMainItem (c);
 
         box.add (c);
-        
-        final JRadioButton rbAssetInPopup = UIUtils.createRadioButton ("A Popup");
-        final JRadioButton rbAssetInTab = UIUtils.createRadioButton ("Their own tab");
-
-        boolean editAssetInPopup = UserProperties.getAsBoolean (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME);
-
-        rbAssetInPopup.setSelected (editAssetInPopup);
-        rbAssetInTab.setSelected (!editAssetInPopup);
-
-        g = new ButtonGroup ();
-        g.add (rbAssetInPopup);
-        g.add (rbAssetInTab);
-        
-        rbAssetInPopup.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
-                                    true);
-
-            }
-
-        });        
-        
-        rbAssetInTab.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                UserProperties.set (Constants.EDIT_ASSETS_IN_POPUP_PROPERTY_NAME,
-                                    false);
-
-            }
-
-        });        
-
-        c = this.createWrapper (rbAssetInPopup);
-        this.setAsSubItem (c);
-
-        box.add (c);
-
-        c = this.createWrapper (rbAssetInTab);
-        this.setAsSubItem (c);
-
-        box.add (c);        
-/*
-        eachChap.addItemListener (new ItemAdapter ()
-        {
-
-            public void itemStateChanged (ItemEvent ev)
-            {
-
-                UserProperties.set (Constants.SHOW_EACH_CHAPTER_FIND_RESULT_PROPERTY_NAME,
-                                    true);
-
-            }
-
-        });
-  */      
         
         return new SectionInfo ("How things look and sound",
                                 "eye",

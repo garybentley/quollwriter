@@ -29,6 +29,7 @@ import java.awt.event.*;
 import java.awt.font.*;
 import java.awt.image.*;
 import java.beans.*;
+import javax.swing.plaf.basic.*;
 
 import java.util.concurrent.atomic.*;
 
@@ -6817,6 +6818,121 @@ public class UIUtils
 
         return sp;
 
+    }
+
+    public static JSplitPane createSplitPane (int orientation)
+    {
+        
+        JSplitPane sp = new JSplitPane (orientation,
+                                        false);
+        sp.setDividerSize (4);//UIUtils.getSplitPaneDividerSize () + 4);
+        
+        sp.setUI (new BasicSplitPaneUI ()
+        {
+            
+            public BasicSplitPaneDivider createDefaultDivider ()
+            {
+                        
+                // Probably going to hell for this...
+                final AtomicBoolean highlight = new AtomicBoolean (false);
+                        
+                final BasicSplitPaneDivider div = new BasicSplitPaneDivider (this)
+                {
+                    
+                    @Override
+                    public void paint (Graphics g)
+                    {
+                    
+                        if (highlight.get ())
+                        {
+                            
+                            g.setColor (UIUtils.getBorderColor ());
+                            
+                        } else {
+
+                            g.setColor(new Color (0, 0, 0, 0));
+
+                        }
+
+                        g.fillRect(0, 0, getSize().width, getSize().height);                            
+                        super.paint (g);
+                            
+                    }
+            
+                };
+                                
+                div.addMouseListener (new MouseEventHandler ()
+                {
+                   
+                    @Override
+                    public void mouseEntered (MouseEvent ev)
+                    {
+                        
+                        if (UserProperties.getAsBoolean (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME))
+                        {                        
+                        
+                            highlight.set (true);
+                            div.validate ();
+                            div.repaint ();
+                            
+                        }
+                        
+                    }
+                    
+                    @Override
+                    public void mouseExited (MouseEvent ev)
+                    {
+                        
+                        highlight.set (false);
+                        div.validate ();
+                        div.repaint ();
+                                                    
+                    }
+
+                    @Override
+                    public void mouseReleased (MouseEvent ev)
+                    {
+                        
+                        highlight.set (false);
+                        div.validate ();
+                        div.repaint ();
+                                                    
+                    }
+
+                });
+                
+                div.addMouseMotionListener (new MouseEventHandler ()
+                {
+                   
+                    @Override
+                    public void mouseDragged (MouseEvent ev)
+                    {
+                        
+                        if (UserProperties.getAsBoolean (Constants.HIGHLIGHT_SPLITPANE_DIVIDERS_PROPERTY_NAME))
+                        {                        
+                        
+                            highlight.set (true);
+                            div.validate ();
+                            div.repaint ();
+                            
+                        }
+                        
+                    }
+                    
+                });
+
+                return div;
+                
+            }
+
+        });        
+
+        sp.setBorder (null);
+        sp.setOpaque (false);
+        sp.setContinuousLayout (true);
+        
+        return sp;
+        
     }
 
     public static JTextField createTextField ()

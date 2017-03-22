@@ -145,12 +145,41 @@ public class UserConfigurableObjectType extends NamedObject
         this.layout = l;
         
     }
-    
+        
     public Set<UserConfigurableObjectTypeField> getConfigurableFields ()
     {
         
-        return new LinkedHashSet (this.fields);
+        // Order the fields.
+        TreeMap<Integer, UserConfigurableObjectTypeField> s = new TreeMap ();
+                                
+        for (UserConfigurableObjectTypeField f : this.fields)
+        {  
+            
+            if (f.getOrder () == -1)
+            {
+                
+                throw new IllegalStateException ("Field must have an order value: " +
+                                                 f);
+                
+            }
+            
+            if (s.containsKey (f.getOrder ()))
+            {
+                
+                throw new IllegalStateException ("Already have a field with order: " +
+                                                 f.getOrder () +
+                                                 ", " +
+                                                 s.get (f.getOrder ()));
+                
+            }
+            
+            s.put (f.getOrder (),
+                   f);
+            
+        }
         
+        return new LinkedHashSet (s.values ());
+                
     }
     
     public void addConfigurableField (UserConfigurableObjectTypeField f)
@@ -165,10 +194,6 @@ public class UserConfigurableObjectType extends NamedObject
         
             f.setOrder (this.fields.size () - 1);
             
-        } else {
-            
-            this.reorderFields ();
-                
         }
         
     }
@@ -182,9 +207,9 @@ public class UserConfigurableObjectType extends NamedObject
             throw new IllegalArgumentException ("Cant remove the object name field.");
             
         }
-        System.out.println ("1: " + this.fields.contains (f) + ", " + f.hashCode ());
+        
         this.fields.remove (f);
-        System.out.println ("2: " + this.fields.contains (f));
+        
         f.setUserConfigurableObjectType (null);
         
         int i = 0;         
@@ -199,7 +224,7 @@ public class UserConfigurableObjectType extends NamedObject
         }
                 
     }
-                
+/*                
     public void reorderFields ()
     {
                 
@@ -224,7 +249,7 @@ public class UserConfigurableObjectType extends NamedObject
         this.fields = new LinkedHashSet (s.values ());
                 
     }
-
+*/
     public UserConfigurableObjectTypeField getLegacyField (String id)
     {
         

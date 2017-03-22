@@ -780,19 +780,20 @@ public abstract class EditPanel extends Box
         
             } else {
         
-                edit.setBorder (UIUtils.createPadding (3, 0, 5, 5));
+                //edit.setBorder (UIUtils.createPadding (3, 0, 5, 5));
 
                 Box _edit = new ScrollableBox (BoxLayout.Y_AXIS);
                 _edit.setOpaque (false);
                 _edit.add (edit);
                 _edit.setMaximumSize (new java.awt.Dimension (Short.MAX_VALUE,
                                                               Short.MAX_VALUE));
-            
+            /*
                 JComponent sp = UIUtils.createScrollPane (_edit);
                 
                 sp.setBorder (null);
                 this.editPanel.add (sp);
-
+*/
+            this.editPanel.add (edit);
             }
                 
         } 

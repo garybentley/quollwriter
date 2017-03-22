@@ -184,9 +184,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.setDefaultCloseOperation (WindowConstants.DO_NOTHING_ON_CLOSE);
 
         // Create a split pane.
+        this.splitPane = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
+        /*
         this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                          false);
-        this.splitPane.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
+                                         */
+        //this.splitPane.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
         this.splitPane.setBorder (null);
 
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
@@ -194,9 +197,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.splitPane.setOpaque (false);
         this.splitPane.setBackground (UIUtils.getComponentColor ());
 
+        this.splitPane2 = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
+        /*
         this.splitPane2 = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
                                          false);
-        this.splitPane2.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
+                                         */
+        //this.splitPane2.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
         this.splitPane2.setBorder (null);
 
         div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane2.getUI ()).getDivider ();

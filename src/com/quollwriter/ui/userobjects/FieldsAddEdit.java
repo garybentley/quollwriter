@@ -203,9 +203,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                     c++;
                                                         
                 }
-               
-                _this.type.reorderFields ();
-                     
+                                    
                 try
                 {
                 
@@ -288,6 +286,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     {
 
         field.setUserConfigurableObjectType (this.type);
+        field.setOrder (this.type.getConfigurableFields ().size ());
 
         // Need to save first so the hashcode gets set correctly.
         this.saveField (field);
@@ -333,6 +332,8 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         {
 
             Environment.removeUserConfigurableObjectTypeField (field);
+
+            Environment.updateUserConfigurableObjectType (this.type);
 
         } catch (Exception e) {
 
@@ -536,9 +537,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                     c++;
                                                         
                 }
-               
-                _this.type.reorderFields ();
-                     
+                                    
                 try
                 {
                 

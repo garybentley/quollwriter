@@ -66,6 +66,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
     private ObjectDocumentsEditPanel objDocsEditPanel = null;
     private int bottomPanelHeight = 0;
+    private boolean highlight = false;
 
     public AbstractObjectViewPanel (E pv,
                                     O n)
@@ -175,30 +176,16 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         b.setOpaque (true);
         b.setBackground (null);
 
-        this.mainSplitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
-                                             false);
+        this.mainSplitPane = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
         this.mainSplitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.mainSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 3);
-        this.mainSplitPane.setBorder (null);
-        this.mainSplitPane.setOpaque (false);
-        this.mainSplitPane.setContinuousLayout (true);
         this.mainSplitPane.setBorder (UIUtils.createPadding (0, 0, 3, 0));
         this.mainSplitPane.setResizeWeight (1);
 
-        this.leftSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
-                                             false);
-        this.leftSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize () + 3);
-        this.leftSplitPane.setBorder (null);
-        this.leftSplitPane.setOpaque (false);
-        this.leftSplitPane.setContinuousLayout (true);
+        this.leftSplitPane = UIUtils.createSplitPane (JSplitPane.VERTICAL_SPLIT);
         this.leftSplitPane.setResizeWeight (1d);
-        
-        this.rightSplitPane = new JSplitPane (JSplitPane.VERTICAL_SPLIT,
-                                              false);
-        this.rightSplitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
+            
+        this.rightSplitPane = UIUtils.createSplitPane (JSplitPane.VERTICAL_SPLIT);
         this.rightSplitPane.setBorder (null);
-        this.rightSplitPane.setOpaque (false);
-        this.rightSplitPane.setContinuousLayout (true);
         this.rightSplitPane.setResizeWeight (0.5d);
 
         this.mainSplitPane.setLeftComponent (this.leftSplitPane);
@@ -246,8 +233,9 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
                     botEp.setPreferredSize (new Dimension (botEp.getPreferredSize ().width,
                                                            _this.bottomPanelHeight));
                     botEp.setVisible (true);
-                    _this.leftSplitPane.resetToPreferredSizes ();
                     
+                    _this.leftSplitPane.setDividerLocation (_this.leftSplitPane.getSize ().height - _this.bottomPanelHeight);
+
                 }
 
             }

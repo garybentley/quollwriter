@@ -19,6 +19,7 @@ public class SelectFormItem extends FormItem<Set<String>>
     private JList<String> list = null;
     private int maxCount = 0;
     private boolean required = false;
+    private int visibleRows = 0;
     
     public SelectFormItem (String label,
                            Vector<String> items,
@@ -33,6 +34,14 @@ public class SelectFormItem extends FormItem<Set<String>>
                (maxSelectedCount > 0 ? itemsRequired : false),
                helpText);
 
+        if (visibleRowCount < 1)
+        {
+            
+            visibleRowCount = 1;
+            
+        }
+
+        this.visibleRows = visibleRowCount;
         this.list = new JList<String> (items);
         
         this.list.setCellRenderer (new DefaultListCellRenderer ()
@@ -58,9 +67,16 @@ public class SelectFormItem extends FormItem<Set<String>>
                 
             }
             
-        });
+        });            
         
-        this.list.setVisibleRowCount (visibleRowCount);
+        if (visibleRowCount == 1)
+        {
+            
+            this.list.setSelectionMode (ListSelectionModel.SINGLE_SELECTION);
+            
+        }
+        
+        this.list.setVisibleRowCount (visibleRowCount > items.size () ? items.size () : visibleRowCount);
         this.required = itemsRequired;
     
         this.maxCount = maxSelectedCount;
@@ -115,13 +131,19 @@ public class SelectFormItem extends FormItem<Set<String>>
     public JComponent getComponent ()
     {
 
-        JScrollPane slist = new JScrollPane (this.list);
-        slist.setPreferredSize (new Dimension (150,
-                                                   100));
-        slist.setMaximumSize (new Dimension (150,
-                                                   100));
-        
-        return slist;
+        this.list.setPreferredSize (new Dimension (Math.max (150, this.list.getPreferredSize ().width),
+                                                   this.list.getPreferredSize ().height));
+
+        if (this.visibleRows < 5)
+        {
+
+            return this.list;
+            
+        }
+
+        JComponent c = UIUtils.createScrollPane (this.list);
+                
+        return c;
 
     }
 

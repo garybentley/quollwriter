@@ -14,6 +14,8 @@ import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.data.*;
+import com.quollwriter.text.*;
+import com.quollwriter.ui.components.Markup;
 
 public class MultiTextUserConfigurableObjectFieldViewEditHandler extends AbstractUserConfigurableObjectFieldViewEditHandler<MultiTextUserConfigurableObjectTypeField, StringWithMarkup>
 {
@@ -52,7 +54,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
         
         this.editItem = new MultiLineTextFormItem (this.typeField.getFormName (),
                                                    this.viewer,
-                                                   (this.typeField.isNameField () ? 3 : 10));
+                                                   (this.typeField.isNameField () ? 3 : 7));
             
         this.editItem.setCanFormat (true);
         this.editItem.setAutoGrabFocus (false);
@@ -147,11 +149,42 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
         if (text != null)
         {
         
-            JComponent t = UIUtils.createObjectDescriptionViewPane (text,
-                                                                    this.field.getParentObject (),
-                                                                    this.viewer,
-                                                                    null);
+            JComponent t = null;
+        
+            if (this.typeField.isDisplayAsBullets ())
+            {
+                
+                Markup m = text.getMarkup ();
     
+                StringBuilder b = new StringBuilder ("<ul>");
+        
+                TextIterator iter = new TextIterator (text.getText ());
+    
+                for (Paragraph p : iter.getParagraphs ())
+                {
+                                                
+                    b.append ("<li>");
+                    b.append (p.markupAsHTML (m));
+                    b.append ("</li>");
+                                       
+                }
+                
+                b.append ("</ul>");
+                
+                t = UIUtils.createObjectDescriptionViewPane (b.toString (),
+                                                             this.field.getParentObject (),
+                                                             this.viewer,
+                                                             null);
+
+            } else {
+                
+                t = UIUtils.createObjectDescriptionViewPane (text,
+                                                             this.field.getParentObject (),
+                                                             this.viewer,
+                                                             null);
+        
+            }
+        
             t.setBorder (null);
                                                                     
             item = new AnyFormItem (this.typeField.getFormName (),
