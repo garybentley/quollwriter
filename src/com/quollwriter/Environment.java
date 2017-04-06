@@ -553,6 +553,46 @@ public class Environment
 
     }
 
+    public static void updateUserObjectTypeNames (Map<String, String> singular,
+                                                  Map<String, String> plural)
+                                           throws Exception
+    {
+        
+        Map<String, String> newSingular = new HashMap ();
+        newSingular.putAll (Environment.objectTypeNamesSingular);
+
+        newSingular.putAll (singular);
+
+        Map<String, String> newPlural = new HashMap ();
+        newPlural.putAll (Environment.objectTypeNamesPlural);
+
+        newPlural.putAll (plural);
+
+        UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+
+        // TODO: Fix this nonsense...
+        if (singular.containsKey (Chapter.OBJECT_TYPE))
+        {
+            
+            type.setObjectTypeName (singular.get (Chapter.OBJECT_TYPE));
+
+        }
+
+        if (plural.containsKey (Chapter.OBJECT_TYPE))
+        {
+            
+            type.setObjectTypeNamePlural (plural.get (Chapter.OBJECT_TYPE));
+
+        }
+
+        Environment.updateUserConfigurableObjectType (type);
+
+        Environment.setUserObjectTypeNames (singular,
+                                            plural);
+        
+        
+    }
+
     public static void setUserObjectTypeNames (Map<String, String> singular,
                                                Map<String, String> plural)
                                                throws Exception
@@ -1189,15 +1229,7 @@ public class Environment
 
         }
 
-        // XXX
-        //System.exit (0);
-
-    }
-
-    public static void landingClosed ()
-    {
-
-        Environment.closeDown ();
+        System.exit (0);
 
     }
 
@@ -4545,6 +4577,19 @@ public class Environment
             
         }
         
+        // TODO: Fix this, special for now.
+        UserConfigurableObjectType chapterType = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+        
+        if (chapterType != null)
+        {
+
+            plural.put (Chapter.OBJECT_TYPE,
+                        chapterType.getObjectTypeNamePlural ());
+            singular.put (Chapter.OBJECT_TYPE,
+                          chapterType.getObjectTypeName ());
+            
+        }
+        
         Environment.objectTypeNamesSingular.putAll (singular);
         Environment.objectTypeNamesPlural.putAll (plural);
         
@@ -6510,15 +6555,25 @@ TODO: Add back in when appropriate.
     }
 
     /**
-     * Un-schedule the runnable.
+     * Un-schedule the scheduledfuture, this is returned from Environment.schedule.
      *
-     * @param r The runnable to remove from the executor service.
+     * @param f The scheduledfuture to remove from the executor service.
      * @returns Whether it was successfully removed.
      */
-    public static boolean unschedule (Runnable r)
+    public static void unschedule (ScheduledFuture f)
     {
+               
+        if (f == null)
+        {
+            
+            return;
+            
+        }
                 
-        return Environment.generalTimer.remove (r);
+        // Let it run to completion.
+        f.cancel (false);
+                
+        Environment.generalTimer.purge ();
         
     }
     
@@ -6529,9 +6584,9 @@ TODO: Add back in when appropriate.
      * @param delay The delay, in millis.
      * @param repeat The repeat time, in millis.
      */
-    public static void schedule (final Runnable r,
-                                 final long     delay,
-                                 final long     repeat)
+    public static ScheduledFuture schedule (final Runnable r,
+                                            final long     delay,
+                                            final long     repeat)
     {
 
         if (Environment.generalTimer == null)
@@ -6539,79 +6594,37 @@ TODO: Add back in when appropriate.
 
             Environment.logError ("Unable to schedule timer is no longer valid.");
             
-            return;
+            return null;
         
+        }
+
+        if (r == null)
+        {
+            
+            Environment.logError ("Unable to schedule, runnable is null.");
+            
+            return null;
+            
         }
                 
         if (repeat < 1)
         {
 
-            Environment.generalTimer.schedule (r,
-                                               delay,
-                                               TimeUnit.MILLISECONDS);
+            return Environment.generalTimer.schedule (r,
+                                                      delay,
+                                                      TimeUnit.MILLISECONDS);
 
         } else {
 
-            Environment.generalTimer.scheduleAtFixedRate (r,
-                                                          delay,
-                                                          repeat,
-                                                          TimeUnit.MILLISECONDS);
+            return Environment.generalTimer.scheduleAtFixedRate (r,
+                                                                 delay,
+                                                                 repeat,
+                                                                 TimeUnit.MILLISECONDS);
 
         }
 
     }
         
-    /**
-     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
-     *
-     * @deprecated - should use schedule(Runnable) instead.
-     * @param t The task to run.
-     * @param delay The delay, in millis.
-     * @param repeat The repeat time, in millis.
-     */
-    @Deprecated 
-    public static void schedule (final TimerTask t,
-                                 final long      delay,
-                                 final long      repeat)
-    {
-
-        if (t == null)
-        {
-            
-            throw new NullPointerException ("Task must be provided.");
-            
-        }
-    
-        Runnable r = new Runnable ()
-        {
-          
-            @Override
-            public void run ()
-            {
-                
-                try
-                {
-
-                    t.run ();
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to run timer: " +
-                                          t,
-                                          e);
-
-                }                
-                
-            }
-            
-        };
-        
-        Environment.schedule (r,
-                              delay,
-                              repeat);
-
-    }
-
     public static void addDoOnShutdown (Runnable r)
     {
 

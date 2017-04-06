@@ -4270,7 +4270,7 @@ e.printStackTrace ();
 		super.close (true,
 					 null);
 
-		Environment.landingClosed ();
+		Environment.closeDown ();
 
 		return true;
 

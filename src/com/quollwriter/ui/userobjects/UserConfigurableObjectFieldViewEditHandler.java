@@ -40,6 +40,8 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
     
     public E getFieldValue ();
     
+    public Set<String> getNamesFromFieldValue ();
+    
     public T getTypeField ();
     
     public UserConfigurableObjectField getField ();

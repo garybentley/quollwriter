@@ -100,7 +100,16 @@ public class ObjectDescriptionUserConfigurableObjectFieldViewEditHandler extends
     public StringWithMarkup getInputSaveValue ()
     {
         
-        return this.editItem.getValue ();
+        StringWithMarkup sm = this.editItem.getValue ();
+        
+        if (sm.getText ().length () == 0)
+        {
+            
+            return null;
+            
+        }
+        
+        return sm;
         
     }
     

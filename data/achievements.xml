@@ -544,12 +544,17 @@
     <description>Continue the warm-up after the timer runs out/word count is reached.</description>
   </item>
 
+  <item id="settingschange" category="user" icon="fullscreen" type="event" event="textproperties.changefontcolor,textproperties.changebgcolor,textproperties.changelinespacing,textproperties.changealignment,textproperties.changefontsize,textproperties.changefont,textproperties.changehighlightwritingline,textproperties.changelineindent,textproperties.changetextborder">
+    <name>Setting up</name>
+    <description>Change the colors/settings in normal mode.</description>
+  </item>
+
   <item id="fullscreentimerstart" category="user" icon="clock" type="event" event="chapter.timerstarted">
     <name>Stay on target</name>
     <description>Use the timer in full screen mode.</description>
   </item>
 
-  <item id="fullscreensettingschange" category="user" icon="fullscreen" type="event" event="fullscreen.changefontcolor,changebgcolor,changelinespacing,changealignment,changefontsize,changefont">
+  <item id="fullscreensettingschange" category="user" icon="fullscreen" type="event" event="fullscreen.changefontcolor,fullscreen.changebgcolor,fullscreen.changelinespacing,fullscreen.changealignment,fullscreen.changefontsize,fullscreen.changefont,fullscreen.changehighlightwritingline,fullscreen.changelineindent,fullscreen.changetextborder">
     <name>My way or the highway</name>
     <description>Change the colors/settings for full screen mode.</description>
   </item>

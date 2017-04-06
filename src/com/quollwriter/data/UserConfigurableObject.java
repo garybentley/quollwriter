@@ -52,33 +52,8 @@ public class UserConfigurableObject extends NamedObject
         for (UserConfigurableObjectField f : this.fields)
         {
             
-            if (f.isNameField ())
-            {
-
-                Object v = f.getValue ();
-                
-                if (v != null)
-                {
-            
-                    Set<String> names = new LinkedHashSet ();
-
-                    // TODO: Change to return a list of names from the field.
-                    StringTokenizer t = new StringTokenizer (v.toString (),
-                                                             "\n;,");
-            
-                    while (t.hasMoreTokens ())
-                    {
+            l.addAll (f.getNames ());
                         
-                        names.add (t.nextToken ());
-                        
-                    }
-            
-                    l.addAll (names);
-            
-                }
-                                
-            }
-            
         }
         
         return l;

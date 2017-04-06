@@ -369,7 +369,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         return this.sideBar;
 
     }
-
+/*
     private static Action getAddAssetActionListener (final UserConfigurableObjectType type,
                                                      final ProjectViewer              pv)
     {
@@ -432,6 +432,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         };
 
     }
+    */
 /*
     public TypesHandler getObjectTypesHandler (String objType)
     {
@@ -506,9 +507,14 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                 im.put (type.getCreateShortcutKeyStroke (),
                         id);
                 actions.put (id,
+                             UIUtils.createAddAssetActionListener (type,
+                                                                   pv,
+                                                                   null,
+                                                                   null));
+/*
                              ProjectViewer.getAddAssetActionListener (type,
                                                                       ppv));
-
+*/
             }
         
         }
@@ -1240,6 +1246,19 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.handleOpenProject ();
 
         this.editChapter (c);
+
+    }
+
+    @Override
+    public void saveObject (NamedObject o,
+                            boolean     doInTransaction)
+                     throws GeneralException
+    {
+
+        super.saveObject (o,
+                          doInTransaction);
+
+        this.scheduleUpdateAppearsInChaptersTree ();
 
     }
 
@@ -3530,10 +3549,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         },
 		// Start in 5s.
-        5 * 1000,
+        1000, //5 * 1000,
 		// Run every 30s.
-        30 * 1000);
-
+        -1); //30 * 1000);
 
 	}
 

@@ -203,6 +203,7 @@
         <include name="data/project-info-schema/**" />
         <include name="data/project-info-schema-version.txt" />
         <include name="data/default-style.css" />
+        <include name="data/asset-layout-0.png" />
         <include name="data/asset-layout-1.png" />
         <include name="data/asset-layout-2.png" />
         <include name="data/asset-layout-3.png" />

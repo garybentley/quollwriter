@@ -1038,23 +1038,16 @@ public abstract class EditPanel extends Box
         if (bottomBorder)
         {
 
-            h.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                              0,
-                                                              1,
-                                                              0,
-                                                              Environment.getBorderColor ()),
-                                             new EmptyBorder (0,
-                                                              0,
-                                                              2,
-                                                              0)));
+            h.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 2, 0),
+                                             h.getBorder ()));
 
         } else {
-
+/*
             h.setBorder (new EmptyBorder (0,
                                           0,
                                           0,
                                           0));
-
+*/
         }
 
         return h;

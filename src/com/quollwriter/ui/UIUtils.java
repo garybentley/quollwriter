@@ -68,6 +68,8 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import org.josql.*;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -3513,6 +3515,23 @@ public class UIUtils
 
         }
 
+        // Order the segments by the start offset.
+        try
+        {
+            
+            Query q = new Query ();
+            q.parse ("SELECT * FROM javax.swing.text.Segment ORDER BY beginIndex");
+            QueryResults qr = q.execute (snippets);
+            
+            snippets = new ArrayList (qr.getResults ());
+
+        } catch (Exception e) {
+            
+            Environment.logError ("Unable to sort segments",
+                                  e);
+            
+        }
+
         return snippets;
 
     }
@@ -5866,6 +5885,119 @@ public class UIUtils
 
     }
 
+    public static AbstractAction createAddAssetActionListener (final UserConfigurableObjectType forAssetType,
+                                                               final ProjectViewer              viewer,
+                                                               final String                     name,
+                                                               final String                     desc)
+    {
+        
+        return new AbstractAction ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                Asset as = null;
+                
+                try
+                {
+                    
+                    as = Asset.createAsset (forAssetType);
+                    
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to create new asset for object type: " +
+                                          forAssetType,
+                                          e);
+                    
+                    UIUtils.showErrorMessage (viewer,
+                                              "Unable to create new asset type.");
+                    
+                    return;
+                    
+                }
+                
+                if (as == null)
+                {
+                    
+                    Environment.logError ("Unable to create new asset for object type: " +
+                                          forAssetType);
+
+                    UIUtils.showErrorMessage (viewer,
+                                              "Unable to create new asset type.");
+                    
+                    return;
+                    
+                }
+                
+                if (name != null)
+                {
+    
+                    as.setName (name);
+    
+                }
+    
+                if (desc != null)
+                {
+    
+                    as.setDescription (new StringWithMarkup (desc));
+    
+                }
+                
+                String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
+                    
+                // Should we use a popup?
+                if (((addAsset.equals (Constants.ADD_ASSETS_TRY_POPUP))
+                     &&
+                     (forAssetType.getNonCoreFieldCount () == 0)
+                    )
+                    ||
+                    (addAsset.equals (Constants.ADD_ASSETS_POPUP))
+                   )
+                {
+            
+                    AssetActionHandler aah = new AssetActionHandler (as,
+                                                                     viewer);
+    
+                    aah.setPopupOver (viewer);
+    
+                    aah.actionPerformed (ev);
+
+                    return;
+                    
+                }
+                    
+                viewer.showAddAsset (as,
+                                     null);
+                /*
+                
+                AssetActionHandler aah = new AssetActionHandler (a,
+                                                                 viewer);
+    
+                if (showPopupAt instanceof PopupsSupported)
+                {
+    
+                    aah.setPopupOver (pv);
+                    aah.setShowPopupAt (null,
+                                        "below");
+    
+                } else
+                {
+    
+                    aah.setShowPopupAt (showPopupAt,
+                                        "above");
+    
+                }
+                
+                aah.actionPerformed (ev);
+                */
+            }
+            
+        };
+        
+    }
+
     public static void addNewAssetItemsToPopupMenu (final Container     m,
                                                     final Component     showPopupAt,
                                                     final ProjectViewer pv,
@@ -5895,8 +6027,13 @@ public class UIUtils
                 
             }
         
-            final UserConfigurableObjectType _type = type;
+            //final UserConfigurableObjectType _type = type;
         
+            mi.addActionListener (UIUtils.createAddAssetActionListener (type,
+                                                                        pv,
+                                                                        name,
+                                                                        desc));
+/*        
             mi.addActionListener (new ActionListener ()
             {
                
@@ -5974,6 +6111,7 @@ public class UIUtils
                 }
                 
             });
+            */
         
         /*
             Asset a = null;

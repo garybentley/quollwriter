@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.*;
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
-
+import com.quollwriter.events.*;
 import com.quollwriter.text.*;
 import com.quollwriter.synonyms.*;
 import com.quollwriter.ui.sidebars.*;
@@ -47,7 +47,7 @@ import com.quollwriter.ui.components.Runner;
 import com.quollwriter.ui.components.TextStylable;
 import com.quollwriter.ui.components.TextProperties;
 
-public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<AbstractProjectViewer, Chapter> implements SpellCheckSupported, TextStylable
+public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<AbstractProjectViewer, Chapter> implements SpellCheckSupported, TextStylable, UserPropertyListener
 {
 
     public static final String TOGGLE_SPELLCHECK_ACTION_NAME = "toggle-spellcheck";
@@ -308,6 +308,84 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     }
 
     @Override
+    public void propertyChanged (UserPropertyEvent ev)
+    {
+        
+        TextProperties props = this.viewer.getTextProperties ();
+        
+        if (ev.getName ().equals (Constants.EDITOR_FONT_PROPERTY_NAME))
+        {
+            
+            this.setFontFamily (props.getFontFamily ());
+            
+        }
+        
+        if (ev.getName ().equals (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))
+        {
+            
+            this.setFontSize (props.getFontSize ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_BGCOLOR_PROPERTY_NAME))
+        {
+            
+            this.setBackgroundColor (props.getBackgroundColor ());
+            
+        }
+        
+        if (ev.getName ().equals (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME))
+        {
+            
+            this.setTextColor (props.getTextColor ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME))
+        {
+            
+            this.setTextBorder (props.getTextBorder ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME))
+        {
+            
+            this.setAlignment (props.getAlignment ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
+        {
+            
+            this.setFirstLineIndent (props.getFirstLineIndent ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME))
+        {
+            
+            this.setLineSpacing (props.getLineSpacing ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
+        {
+            
+            this.setWritingLineColor (props.getWritingLineColor ());
+            
+        }
+
+        if (ev.getName ().equals (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
+        {
+            
+            this.setHighlightWritingLine (props.isHighlightWritingLine ());
+            
+        }
+
+    }
+
+    @Override
     public AbstractProjectViewer getViewer ()
     {
 
@@ -541,22 +619,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         this.editor.setTextWithMarkup (this.getChapter ().getText ());
 
-        this.editor.addStyleChangeListener (new StyleChangeAdapter ()
-        {
-
-            public void styleChanged (StyleChangeEvent ev)
-            {
-
-                _this.initScrollBar ();
-
-                _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                               ev.getType (),
-                                               ev);
-
-            }
-
-        });
-
         JComponent p = this.getEditorWrapper (this.editor);
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -611,11 +673,11 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
             {
 
                 _this.initScrollBar ();
-
+/*XXX
                 _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                ev.getType (),
                                                ev);
-
+*/
             }
 
         });
@@ -1131,6 +1193,9 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.setTextBorder (props.getTextBorder ());
 
         this.ignoreDocumentChange = false;
+
+        // Add a listener for changes to the properties.
+        UserProperties.addListener (this);
 
     }
 

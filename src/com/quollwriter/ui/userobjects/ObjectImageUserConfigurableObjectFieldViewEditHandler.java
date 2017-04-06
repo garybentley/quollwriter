@@ -47,17 +47,21 @@ public class ObjectImageUserConfigurableObjectFieldViewEditHandler extends Image
                 
         ImageIcon icon = null;
                 
-        if ((v != null)
-            &&
-            (v.getWidth () > 250)
-           )
+        if (v != null)
         {
-            
-            v = UIUtils.getScaledImage (v,
-                                        250);
             
             icon = new ImageIcon (v);
                 
+            if (v.getWidth () > 250)
+            {
+                
+                v = UIUtils.getScaledImage (v,
+                                            250);
+                
+                icon = new ImageIcon (v);
+                    
+            }
+
         }
                                 
         if (icon != null)

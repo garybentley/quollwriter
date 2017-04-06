@@ -84,7 +84,7 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
                                              this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
                                              null);
 
-        title.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 0, 0),
+        title.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 2, 0),
                                              title.getBorder ()));
 
         this.add (title);
@@ -127,7 +127,7 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
         JComponent c = layout.createEdit (this.addHandlers,
                                           formSave);
                               
-        c.setBorder (UIUtils.createPadding (0, 7, 7, 0));
+        c.setBorder (UIUtils.createPadding (2, 7, 7, 0));
 
         c.setMaximumSize (new java.awt.Dimension (Short.MAX_VALUE, Short.MAX_VALUE));
                         

@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.*;
 import com.gentlyweb.utils.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.events.*;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.QPopup;
@@ -35,7 +35,7 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.DocumentAdapter;
 
 
-public class QColorChooser extends Box
+public class QColorChooser extends Box implements UserPropertyListener
 {
 
     public static final String   SWATCH_TYPE = "swatch";
@@ -61,6 +61,7 @@ public class QColorChooser extends Box
     private int vertGap = 3;
     private Dimension swatchSize = new Dimension (20, 20);
     private int borderWidth = 1;
+    private String userPropName = null;
     
     public QColorChooser (Color  initial)
     {
@@ -100,7 +101,7 @@ public class QColorChooser extends Box
         this.swatchesScrollPane.setBorder (null);
                 
         FormLayout rgbfl = new FormLayout ("right:p, 6px, 150px:grow, 3px, 48px",
-                                           "p, 6px, p, 6px, p, 6px, p, 10px, top:p, 10px, p");
+                                           "p, 6px, p, 6px, p, 6px, p, 10px, top:p");
         
         int rr = 1;
         int gr = 3;
@@ -279,10 +280,10 @@ public class QColorChooser extends Box
 
                 _this.update (c,
                               true);
-                                     
+/*                                     
                 _this.fireChangeEvent (c,
                                        RGB_TYPE);
-
+*/
             }
 
         };
@@ -292,57 +293,7 @@ public class QColorChooser extends Box
         this.bs.addChangeListener (cl);
                                     
         this.setColor (initial);
-        
-        JButton b = UIUtils.createButton ("Use Color",
-                                          new ActionListener ()
-        {
-            
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                if (_this.onSelect != null)
-                {
-                    
-                    _this.onSelect.actionPerformed (ev);
-                    
-                }
-
-            }
-            
-        });
-
-        JButton c = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
-                                          new ActionListener ()
-        {
-            
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                if (_this.onCancel != null)
-                {
-                    
-                    _this.onCancel.actionPerformed (ev);
-                    
-                }
-
-            }
-            
-        });
-                        
-        JButton[] _buts = { b, c };
-                        
-        JComponent bs = UIUtils.createButtonBar2 (_buts,
-                                                  Component.LEFT_ALIGNMENT);         
-                               
-        rgbbuilder.add (bs,
-                        cc.xywh (3,
-                                 butr,
-                                 3,
-                                 1));
-        
-                               
+                                       
         this.rgbPanel = rgbbuilder.getPanel ();
         this.rgbPanel.setOpaque (false);
         this.rgbPanel.setAlignmentX (JComponent.LEFT_ALIGNMENT);
@@ -358,6 +309,59 @@ public class QColorChooser extends Box
             this.fireChangeEvent (initial,
                                   SWATCH_TYPE);
 
+        }
+        
+    }
+
+    public void setUserPropertyName (String n)
+    {
+        
+        this.userPropName = n;
+        
+        if (n != null)
+        {
+            
+            UserProperties.addListener (this);
+            
+        } else {
+            
+            UserProperties.removeListener (this);
+            
+        }
+        
+    }
+
+    @Override
+    public void propertyChanged (UserPropertyEvent ev)
+    {
+                
+        if (ev.getName ().equals (this.userPropName))
+        {
+            
+            try
+            {
+                
+                this.updating = true;
+                
+                Color c = UIUtils.getColor (UserProperties.get (this.userPropName));
+                
+                this.currentColor = c;
+        
+                this.rs.setValue (this.currentColor.getRed ());
+                this.gs.setValue (this.currentColor.getGreen ());
+                this.bs.setValue (this.currentColor.getBlue ());
+                this.rsp.setValue (this.currentColor.getRed ());
+                this.gsp.setValue (this.currentColor.getGreen ());
+                this.bsp.setValue (this.currentColor.getBlue ());
+        
+                this.rgb.setText (UIUtils.colorToHex (this.currentColor).toUpperCase ());
+
+            } finally {
+                
+                this.updating = false;
+                
+            }
+            
         }
         
     }
@@ -496,6 +500,9 @@ public class QColorChooser extends Box
             
         }
 
+        this.fireChangeEvent (c,
+                              RGB_TYPE);
+
         this.updating = false;
                                
     }
@@ -513,34 +520,6 @@ public class QColorChooser extends Box
         
         return this.currentColor;
         
-    }
-    
-    private JPanel _getSwatch (final Color col)
-    {
-
-        JPanel c = QColorChooser.getSwatch (col);
-
-        final QColorChooser _this = this;
-
-        c.addMouseListener (new MouseAdapter ()
-            {
-
-                public void mouseReleased (MouseEvent ev)
-                {
-                    
-                    _this.update (col,
-                                  true);
-
-                    // Inform the change listeners.
-                    _this.fireChangeEvent (col,
-                                           SWATCH_TYPE);
-
-                }
-
-            });
-
-        return c;
-
     }
 
     public void removeChangeListener (ChangeListener l)
@@ -606,6 +585,13 @@ public class QColorChooser extends Box
             public void valueChanged (ListSelectionEvent ev)
             {
            
+                if (ev.getValueIsAdjusting ())
+                {
+                    
+                    return;
+                    
+                }
+           
                 Color c = (Color) _this.swatches.getSelectedValue ();
                 
                 _this.update (c,
@@ -617,82 +603,58 @@ public class QColorChooser extends Box
 
         this.swatches.setAlignmentX (JComponent.LEFT_ALIGNMENT);
         
-        this.swatches.addMouseListener (new MouseAdapter ()
+        this.swatches.addMouseListener (new MouseEventHandler ()
         {
            
-            private void handle (MouseEvent ev)
+            @Override
+            public void fillPopup (JPopupMenu m,
+                                   MouseEvent ev)
             {
 
-                if (ev.isPopupTrigger ())
+                final int ind = _this.swatches.locationToIndex (ev.getPoint ());
+                
+                if (ind >= 0)
                 {
                     
-                    final int ind = _this.swatches.locationToIndex (ev.getPoint ());
-                    
-                    if (ind >= 0)
+                    Color c = _this.swatches.getModel ().getElementAt (ind);
+                                                
+                    if ((c != Color.white)
+                        &&
+                        (c != Color.black)
+                       )
                     {
-                        
-                        Color c = _this.swatches.getModel ().getElementAt (ind);
                                                     
-                        if ((c != Color.white)
-                            &&
-                            (c != Color.black)
-                           )
+                        JMenuItem mi = null;
+
+                        mi = new JMenuItem ("Remove",
+                                            Environment.getIcon (Constants.DELETE_ICON_NAME,
+                                                                 Constants.ICON_MENU));
+                        mi.addActionListener (new ActionAdapter ()
                         {
-                            
-                            // Show a menu.
-                            JPopupMenu m = new JPopupMenu ();
-                            
-                            JMenuItem mi = null;
-    
-                            mi = new JMenuItem ("Remove",
-                                                Environment.getIcon (Constants.DELETE_ICON_NAME,
-                                                                     Constants.ICON_MENU));
-                            mi.addActionListener (new ActionAdapter ()
+                           
+                            public void actionPerformed (ActionEvent ev)
                             {
-                               
-                                public void actionPerformed (ActionEvent ev)
-                                {
 
-                                    // Remove the file.
-                                    DefaultListModel<Color> model = (DefaultListModel<Color>) _this.swatches.getModel ();
-                                    Object o = model.remove (ind);
-                               
-                                    Set<Color> ncols = new LinkedHashSet (Collections.list (model.elements ()));
-                                    
-                                    _this.setSwatchColors (ncols);
-                               
-                                }
+                                // Remove the file.
+                                DefaultListModel<Color> model = (DefaultListModel<Color>) _this.swatches.getModel ();
+                                Object o = model.remove (ind);
+                           
+                                Set<Color> ncols = new LinkedHashSet (Collections.list (model.elements ()));
                                 
-                            });
+                                _this.setSwatchColors (ncols);
+                           
+                            }
                             
-                            m.add (mi);
-
-                            m.show ((Component) ev.getSource (),
-                                    ev.getX (),
-                                    ev.getY ());                            
-                            
-                        }
+                        });
+                        
+                        m.add (mi);
                         
                     }
-                    
+                                            
                 }
                 
             }
-           
-            public void mouseReleased (MouseEvent ev)
-            {
-                
-                handle (ev);
-                
-            }
-           
-            public void mousePressed (MouseEvent ev)
-            {
-
-                handle (ev);
-                
-            }
-            
+                       
         });        
         
         this.swatchesScrollPane.setViewportView (this.swatches);
@@ -722,17 +684,20 @@ public class QColorChooser extends Box
 
     public static QPopup getColorChooserPopup (final String         title,
                                                final Color          initialColor,
+                                               final String         userPropName,
                                                final ChangeListener cl,
                                                final ActionListener closeListener)
     {
 
         final QColorChooser cc = new QColorChooser (initialColor);
         
+        cc.setUserPropertyName (userPropName);
+        
         final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : "Select a color"),
                                                        null,
                                                        closeListener);
 
-        cc.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+        cc.setBorder (UIUtils.createPadding (0, 0, 10, 0));
 
         if (cl != null)
         {
@@ -741,38 +706,55 @@ public class QColorChooser extends Box
 
         }
         
-        cc.setOnCancel (new ActionListener ()
+        Box content = new Box (BoxLayout.Y_AXIS);
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
+    
+        cc.setAlignmentX (Component.LEFT_ALIGNMENT);
+    
+        content.add (cc);
+            
+        JButton f = UIUtils.createButton (Constants.FINISH_BUTTON_LABEL_ID,
+                                          new ActionListener ()
         {
             
             @Override
             public void actionPerformed (ActionEvent ev)
             {
                 
-                qp.setVisible (false);
-                
-                cc.setColor (initialColor);
-
-            }
-            
-        });
-                                
-        cc.setOnSelect (new ActionListener ()
-        {
-            
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                qp.setVisible (false);
-                
-                // Update the color swatches.
                 cc.addSwatchColor (cc.getCurrentColor ());
                 
+                qp.removeFromParent ();
+                
             }
             
         });
 
-        qp.setContent (cc);
+        JButton r = UIUtils.createButton ("Reset",
+                                          new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                cc.resetToInitial ();
+                
+            }
+            
+        });
+
+        r.setToolTipText ("Reset to the initial color.");
+
+        JButton[] _buts = { f, r };
+                        
+        JComponent bs = UIUtils.createButtonBar2 (_buts,
+                                                  Component.CENTER_ALIGNMENT);         
+        
+        bs.setAlignmentX (Component.LEFT_ALIGNMENT);
+        
+        content.add (bs);
+        
+        qp.setContent (content);
         
         return qp;
 

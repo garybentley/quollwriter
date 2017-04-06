@@ -17,6 +17,7 @@ public class SelectFormItem extends FormItem<Set<String>>
 {
     
     private JList<String> list = null;
+    private JComboBox<String> dlist = null;
     private int maxCount = 0;
     private boolean required = false;
     private int visibleRows = 0;
@@ -34,17 +35,7 @@ public class SelectFormItem extends FormItem<Set<String>>
                (maxSelectedCount > 0 ? itemsRequired : false),
                helpText);
 
-        if (visibleRowCount < 1)
-        {
-            
-            visibleRowCount = 1;
-            
-        }
-
-        this.visibleRows = visibleRowCount;
-        this.list = new JList<String> (items);
-        
-        this.list.setCellRenderer (new DefaultListCellRenderer ()
+        ListCellRenderer rend = new DefaultListCellRenderer ()
         {
            
             @Override
@@ -67,58 +58,72 @@ public class SelectFormItem extends FormItem<Set<String>>
                 
             }
             
-        });            
+        };
+
+        if (visibleRowCount < 1)
+        {
+            
+            visibleRowCount = 1;
+            
+        }
+
+        this.visibleRows = visibleRowCount;
         
         if (visibleRowCount == 1)
         {
             
-            this.list.setSelectionMode (ListSelectionModel.SINGLE_SELECTION);
+            this.dlist = new JComboBox<String> (items);
             
-        }
+            this.dlist.setRenderer (rend);
+
+            if ((selected != null)
+                &&
+                (selected.size () > 0)
+               )
+            {
+            
+                this.dlist.setSelectedItem (selected.iterator ().next ());
+
+            }
+            
+        } else {
         
-        this.list.setVisibleRowCount (visibleRowCount > items.size () ? items.size () : visibleRowCount);
+            this.list = new JList<String> (items);
+        
+            this.list.setCellRenderer (rend);            
+
+            this.list.setVisibleRowCount (visibleRowCount > items.size () ? items.size () : visibleRowCount);
+
+            if (selected != null)
+            {
+            
+                for (int i = 0; i < this.list.getModel ().getSize (); i++)
+                {
+            
+                    for (String s : selected)
+                    {
+                     
+                        String sv = (String) this.list.getModel ().getElementAt (i);
+                     
+                        if (sv.equals (s))
+                        {
+                        
+                            this.list.getSelectionModel ().addSelectionInterval (i, i);
+                        
+                        }
+                        
+                    }
+    
+                }
+                    
+            }
+        
+        }
+                
         this.required = itemsRequired;
     
         this.maxCount = maxSelectedCount;
-    
-        final SelectFormItem _this = this;
-    
-        this.list.addListSelectionListener (new ListSelectionListener ()
-        {
-               
-            public void valueChanged (ListSelectionEvent ev)
-            {
-                                            
-                //_this.updateRequireLabel ();
-                
-            }
-    
-        });        
-        
-        if (selected != null)
-        {
-        
-            for (int i = 0; i < this.list.getModel ().getSize (); i++)
-            {
-        
-                for (String s : selected)
-                {
-                 
-                    String sv = (String) this.list.getModel ().getElementAt (i);
-                 
-                    if (sv.equals (s))
-                    {
-                    
-                        this.list.getSelectionModel ().addSelectionInterval (i, i);
-                    
-                    }
-                    
-                }
-
-            }
-                
-        }
-        
+            
     }
 
     public void addListSelectionListener (ListSelectionListener l)
@@ -131,29 +136,54 @@ public class SelectFormItem extends FormItem<Set<String>>
     public JComponent getComponent ()
     {
 
-        this.list.setPreferredSize (new Dimension (Math.max (150, this.list.getPreferredSize ().width),
-                                                   this.list.getPreferredSize ().height));
-
-        if (this.visibleRows < 5)
+        if (this.list != null)
         {
 
-            return this.list;
-            
-        }
-
-        JComponent c = UIUtils.createScrollPane (this.list);
+            this.list.setPreferredSize (new Dimension (Math.max (150, this.list.getPreferredSize ().width),
+                                                       this.list.getPreferredSize ().height));
+    
+            if (this.visibleRows < 5)
+            {
+    
+                this.list.setBorder (UIUtils.createLineBorder ());
+    
+                return this.list;
                 
-        return c;
+            }
+    
+            JComponent c = UIUtils.createScrollPane (this.list);
+                    
+            return c;
+
+        }
+        
+        this.dlist.setPreferredSize (new Dimension (Math.max (150, this.dlist.getPreferredSize ().width),
+                                                    this.dlist.getPreferredSize ().height));
+
+        return this.dlist;
 
     }
 
     public Set<String> getValue ()
     {
-                    
-        Set<String> ret = new LinkedHashSet (this.list.getSelectedValuesList ());
+            
+        Set<String> ret = new LinkedHashSet ();
 
-        return ret;
+        if (this.list != null)
+        {
+            
+            ret.addAll (this.list.getSelectedValuesList ());
+    
+            return ret;
+
+        } else {
+                        
+            ret.add (this.dlist.getSelectedItem ().toString ());
+                        
+        }
         
+        return ret;
+    
     }
     
     public boolean hasError ()

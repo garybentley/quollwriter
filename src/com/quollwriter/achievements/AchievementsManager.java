@@ -1,6 +1,7 @@
 package com.quollwriter.achievements;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.io.*;
 import java.awt.event.*;
 import javax.swing.event.*;
@@ -170,9 +171,9 @@ public class AchievementsManager implements ProjectEventListener
                                                               userSessionRules,
                                                               this);
             
-            Environment.schedule (ac,
-                                  10 * 1000,
-                                  10 * 1000);
+            ac.scheduledFuture = Environment.schedule (ac,
+                                                       10 * 1000,
+                                                       10 * 1000);
             
             this.checkers.put (null,
                                ac);            
@@ -573,7 +574,7 @@ public class AchievementsManager implements ProjectEventListener
         if (t != null)
         {
      
-            Environment.unschedule (t);
+            Environment.unschedule (t.scheduledFuture);
             
         }
         
@@ -683,9 +684,9 @@ public class AchievementsManager implements ProjectEventListener
                                                               constantRules,
                                                               this);
             
-            Environment.schedule (ac,
-                                  10 * 1000,
-                                  10 * 1000);
+            ac.scheduledFuture = Environment.schedule (ac,
+                                                       10 * 1000,
+                                                       10 * 1000);
             
             this.checkers.put (v,
                                ac);
@@ -997,7 +998,7 @@ public class AchievementsManager implements ProjectEventListener
  
     public void eventOccurred (ProjectEvent ev)
     {
-                
+        
         // Get our matching user rules for the event.
         Environment.logMessage ("Event occurred: " + ev);
         
@@ -1121,6 +1122,7 @@ public class AchievementsManager implements ProjectEventListener
     public class AchievementsChecker implements Runnable
     {
         
+        public ScheduledFuture scheduledFuture = null;
         public AbstractProjectViewer viewer = null;
         private boolean running = false;
         public AchievementsManager   manager = null;

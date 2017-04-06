@@ -1472,6 +1472,7 @@ public class Options extends Box
 
                 QPopup popup = QColorChooser.getColorChooserPopup ("Select the edit indicator color",
                                                                    col,
+                                                                   Constants.EDIT_MARKER_COLOR_PROPERTY_NAME,
                                                                    new ChangeAdapter ()
                                                                    {
 

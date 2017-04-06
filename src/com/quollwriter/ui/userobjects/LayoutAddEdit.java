@@ -51,6 +51,7 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
         this.add (this.helpTextBox);
     
         Vector<String> layoutTypes = new Vector ();
+        layoutTypes.add (Constants.ASSET_LAYOUT_0);
         layoutTypes.add (Constants.ASSET_LAYOUT_1);
         layoutTypes.add (Constants.ASSET_LAYOUT_2);
         layoutTypes.add (Constants.ASSET_LAYOUT_3);
@@ -127,10 +128,17 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 this.setIcon (icon);
                 String text = "";
 
+                if (imName.equals (Constants.ASSET_LAYOUT_0))
+                {
+
+                    text = "Fields are laid out in a single column.";
+
+                }
+
                 if (imName.equals (Constants.ASSET_LAYOUT_1))
                 {
 
-                    text = "The object image, if present, is displayed in the top left corner and the object description is shown to the right.  Two columns of fields are displayed underneath. (Default)";
+                    text = "The object image, if present, is displayed in the top left corner and the object description is shown to the right.  Two columns of fields are displayed underneath.";
 
                 }
 
@@ -212,7 +220,6 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                                                            400));
 
         sp.setBorder (null);
-
         this.add (sp);
     
     }
@@ -268,6 +275,13 @@ public class LayoutAddEdit extends Box implements ProjectEventListener
                 String sel = _this.layouts.getSelectedValue ();
             
                 String layout = _this.type.getLayout ();
+            
+                if (layout == null)
+                {
+                    
+                    layout = Constants.ASSET_LAYOUT_0;
+                    
+                }                
             
                 if (((sel != null)
                      &&

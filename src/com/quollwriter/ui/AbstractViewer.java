@@ -963,7 +963,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             Box content = new Box (BoxLayout.Y_AXIS);
 
-            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.",
+            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
                                                          this);
 
             help.setBorder (null);
@@ -978,7 +978,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             content.add (error);
 
             final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Description",
-                                                                          "Enter the bug/problem description here.  More information is usually better.",
+                                                                          "Enter the bug/problem description here.  The more information you can provide the better.",
                                                                           10,
                                                                           10000,
                                                                           false,
@@ -996,6 +996,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             items.add (new AnyFormItem (null,
                                         sendLogFiles));
+
+            final JCheckBox sendScreenshot = new JCheckBox ("Send a screenshot of current window");
+
+            sendScreenshot.setToolTipText ("Takes a screenshot of the current window and sends it to support.  If you have information you would prefer not to share then please change the tab before sending.  Uncheck to not send a screenshot, but please remember a picture is worth 1,000 (and more) words.");
+
+            items.add (new AnyFormItem (null,
+                                        sendScreenshot));
+
+            sendScreenshot.setSelected (false);
+            sendScreenshot.setOpaque (false);
+            sendScreenshot.setAlignmentX (java.awt.Component.LEFT_ALIGNMENT);
 
             if (Environment.getQuollWriterVersion ().isBeta ())
             {
@@ -1048,6 +1059,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                     qp.resize ();
 
+                    qp.removeFromParent ();
+
                     StringBuilder dets = new StringBuilder ("Email: " + email.getText () + "\nDetails: " + desc.getText ());
 
                     // TODO: Fix this, have a toString on project viewer instead.
@@ -1084,6 +1097,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                         }
 
+                        if (sendScreenshot.isSelected ())
+                        {
+                                                        
+                            details.put ("screenshot",
+                                         Base64.encodeBytes (UIUtils.getImageBytes (UIUtils.getImageOfComponent (_this,
+                                                                                                            _this.getSize ().width,
+                                                                                                            _this.getSize ().height))));
+                            
+                        }
+
                         Environment.sendMessageToSupport ("bug",
                                                           details,
                                                           new ActionListener ()
@@ -1116,8 +1139,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                   "Unable to send message.");
 
                     }
-
-                    qp.removeFromParent ();
 
                 }
 
@@ -3376,16 +3397,26 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     }
 */
     /**
-     * Un-schedule the runnable.
+     * Un-schedule the scheduledfuture (gained from a call to Environment.schedule).
      *
-     * @param r The runnable to remove from the executor service.
+     * @param r The scheduledfuture to remove from the executor service.
      * @returns Whether it was successfully removed.
      */
-    public boolean unschedule (Runnable r)
+    public void unschedule (ScheduledFuture f)
     {
                 
-        return this.generalTimer.remove (r);
-        
+        if (f == null)
+        {
+            
+            return;
+            
+        }
+                
+        // Let the task run to completion.
+        f.cancel (false);
+                        
+        this.generalTimer.purge ();
+                
     }
     
     /**
@@ -3395,9 +3426,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
      * @param delay The delay, in millis.
      * @param repeat The repeat time, in millis.
      */
-    public void schedule (final Runnable r,
-                          final long     delay,
-                          final long     repeat)
+    public ScheduledFuture schedule (final Runnable r,
+                                     final long     delay,
+                                     final long     repeat)
     {
 
         if (this.generalTimer == null)
@@ -3405,77 +3436,35 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             Environment.logError ("Unable to schedule timer is no longer valid.");
             
-            return;
+            return null;
         
+        }
+             
+        if (r == null)
+        {
+            
+            Environment.logError ("Unable to schedule timer, runnable is null.");
+            
+            return null;
+            
         }
                 
         if (repeat < 1)
         {
 
-            this.generalTimer.schedule (r,
-                                        delay,
-                                        TimeUnit.MILLISECONDS);
+            return this.generalTimer.schedule (r,
+                                               delay,
+                                               TimeUnit.MILLISECONDS);
 
         } else {
 
-            this.generalTimer.scheduleAtFixedRate (r,
-                                                   delay,
-                                                   repeat,
-                                                   TimeUnit.MILLISECONDS);
+            return this.generalTimer.scheduleAtFixedRate (r,
+                                                          delay,
+                                                          repeat,
+                                                          TimeUnit.MILLISECONDS);
 
         }
 
     }
-        
-    /**
-     * Schedule the task to run after delay and repeat (use -1 or 0 for no repeat).
-     *
-     * @deprecated - should use schedule(Runnable) instead.
-     * @param t The task to run.
-     * @param delay The delay, in millis.
-     * @param repeat The repeat time, in millis.
-     */
-    @Deprecated 
-    public void schedule (final TimerTask t,
-                          final long      delay,
-                          final long      repeat)
-    {
-
-        if (t == null)
-        {
             
-            throw new NullPointerException ("Task must be provided.");
-            
-        }
-    
-        Runnable r = new Runnable ()
-        {
-          
-            @Override
-            public void run ()
-            {
-                
-                try
-                {
-
-                    t.run ();
-
-                } catch (Exception e) {
-
-                    Environment.logError ("Unable to run timer: " +
-                                          t,
-                                          e);
-
-                }                
-                
-            }
-            
-        };
-        
-        this.schedule (r,
-                       delay,
-                       repeat);
-
-    }
-    
 }

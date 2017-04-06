@@ -67,6 +67,12 @@ public class Constants
 
     public static final int POPUP_WINDOW_TITLE = 4;
 
+    public static final String ADD_ASSETS_TRY_POPUP = "trypopup";
+    
+    public static final String ADD_ASSETS_POPUP = "popup";
+    
+    public static final String ADD_ASSETS_TAB = "tab";
+
     public static final String TOP = "top";
 
     public static final String BOTTOM = "bottom";
@@ -700,6 +706,7 @@ public class Constants
     public static final String LAYOUT_OS_CH_PS = "layout-os-ch-ps";
     public static final String LAYOUT_CH_OS_PS = "layout-ch-os-ps";
 
+    public static final String ASSET_LAYOUT_0 = "asset-layout-0";
     public static final String ASSET_LAYOUT_1 = "asset-layout-1";
     public static final String ASSET_LAYOUT_2 = "asset-layout-2";
     public static final String ASSET_LAYOUT_3 = "asset-layout-3";

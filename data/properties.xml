@@ -605,7 +605,7 @@ This message will only be shown once during your current session using Quoll Wri
     <value>true</value>
   </property>
 
-  <property id="addAssetsInPopup" type="string">
+  <property id="addAssets" type="string">
     <description>How adding a new asset shoudl be handled.</description>
     <value>popup</value>
   </property>

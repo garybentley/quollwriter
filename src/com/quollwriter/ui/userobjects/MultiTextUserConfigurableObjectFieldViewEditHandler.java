@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.StringTokenizer;
 
 import javax.swing.*;
 
@@ -34,6 +35,40 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
                viewer);
         
     }
+    
+    @Override
+    public Set<String> getNamesFromFieldValue ()
+    {
+        
+        Set<String> ret = new LinkedHashSet ();
+        
+        StringWithMarkup sm = this.getFieldValue ();
+        
+        if (sm != null)
+        {
+            
+            String st = sm.getText ();
+            
+            if (st != null)
+            {
+                
+                StringTokenizer t = new StringTokenizer (st,
+                                                         "\n;,");
+        
+                while (t.hasMoreTokens ())
+                {
+                    
+                    ret.add (t.nextToken ().trim ());
+                    
+                }
+
+            }
+                
+        }
+        
+        return ret;
+        
+    }    
               
     @Override
     public void grabInputFocus ()
@@ -45,6 +80,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
             this.editItem.getTextArea ().grabFocus ();
                   
         }
+        
     }
     
     @Override
@@ -55,7 +91,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
         this.editItem = new MultiLineTextFormItem (this.typeField.getFormName (),
                                                    this.viewer,
                                                    (this.typeField.isNameField () ? 3 : 7));
-            
+        
         this.editItem.setCanFormat (true);
         this.editItem.setAutoGrabFocus (false);
             
@@ -66,6 +102,8 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
         {
             
             this.editItem.setSpellCheckEnabled (false);
+            
+            this.editItem.setToolTipText ("Separate each name/alias with a comma or a semi-colon.");
                                                    
         }
 
@@ -103,7 +141,7 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
     
     @Override
     public StringWithMarkup getInputSaveValue ()
-    {
+    {        
         
         return this.editItem.getValue ();
         
@@ -146,11 +184,14 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
         FormItem item = null;
         
-        if (text != null)
+        if ((text != null)
+            &&
+            (text.hasText ())
+           )
         {
         
             JComponent t = null;
-        
+                
             if (this.typeField.isDisplayAsBullets ())
             {
                 

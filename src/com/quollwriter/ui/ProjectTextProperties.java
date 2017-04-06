@@ -190,25 +190,6 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
     }
 
-    private void reinitViewers ()
-    {
-
-        Environment.doForOpenProjects (null, // all project types
-                                       new ProjectViewerAction ()
-        {
-
-            @Override
-            public void doAction (AbstractProjectViewer v)
-            {
-
-                v.reinitAllChapterEditors ();
-
-            }
-
-        });
-
-    }
-
     private void setProperty (AbstractProperty prop)
     {
 
@@ -221,8 +202,6 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
 
         UserProperties.set (prop.getID (),
                             prop);
-
-        //this.reinitViewers ();
 
     }
 
@@ -239,8 +218,6 @@ public class ProjectTextProperties extends TextProperties implements UserPropert
         this.setLineSpacing (UserProperties.getAsFloat (Constants.DEFAULT_EDITOR_LINE_SPACING_PROPERTY_NAME));
         this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.DEFAULT_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
         this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.DEFAULT_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
-
-        this.reinitViewers ();
 
     }
 

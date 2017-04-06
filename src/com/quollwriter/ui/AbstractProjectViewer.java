@@ -25,6 +25,7 @@ import java.util.WeakHashMap;
 import java.util.Collections;
 import java.util.Stack;
 import java.util.TimerTask;
+import java.util.concurrent.*;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -167,8 +168,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 	private JPanel                cards = null;
 	private CardLayout            cardsLayout = null;
 
-	private Runnable autoSaveTask = null;
-    private Runnable chapterCountsUpdater = null;
+	private ScheduledFuture autoSaveTask = null;
+    private ScheduledFuture chapterCountsUpdater = null;
 	private TargetsData targets = null;
 	private Map<Chapter, Date> chapterWordCountTargetWarned = new HashMap ();
 
@@ -5768,7 +5769,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 						if (pqp.getForObject () instanceof NamedObject)
 						{
 
-							b.append ("<li>" + UIUtils.getObjectALink ((NamedObject) pqp.getForObject ()) + "</li>");
+							b.append ("<li>" + pqp.getTitle () + "</li>");
 
 						}
 
@@ -7705,7 +7706,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         // strange errors result.  The initChapterCounts and scheduleA4PageCountUpdate will handle the initial counts.
         this.unschedule (this.chapterCountsUpdater);
                           
-        this.chapterCountsUpdater = new Runnable ()
+        Runnable r = new Runnable ()
         {
 
             @Override
@@ -7730,11 +7731,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             
         };                                
                                    
-        _this.schedule (_this.chapterCountsUpdater,
-                        // Start in 2 seconds
-                        2 * Constants.SEC_IN_MILLIS,
-                        // Do it once.
-                        0);                    
+        this.chapterCountsUpdater = _this.schedule (r,
+                                                    // Start in 2 seconds
+                                                    2 * Constants.SEC_IN_MILLIS,
+                                                    // Do it once.
+                                                    0);                    
 
 	}
 
@@ -8503,19 +8504,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public void scheduleAutoSaveForAllEditors ()
     {
 
-		if (this.autoSaveTask != null)
-		{
+		this.unschedule (this.autoSaveTask);
 
-			this.unschedule (this.autoSaveTask);
-
-			this.autoSaveTask = null;
-
-		}
+		this.autoSaveTask = null;
 
         if (this.proj.getPropertyAsBoolean (Constants.CHAPTER_AUTO_SAVE_ENABLED_PROPERTY_NAME))
         {
 
-            long autoSaveInt = Utils.getTimeAsMillis (this.proj.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
+            final long autoSaveInt = Utils.getTimeAsMillis (this.proj.getProperty (Constants.CHAPTER_AUTO_SAVE_INTERVAL_PROPERTY_NAME));
 
             if (autoSaveInt > 0)
             {
@@ -8523,7 +8519,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 				final AbstractProjectViewer _this = this;
 
                 // Create our auto save
-                this.autoSaveTask = new Runnable ()
+                Runnable r = new Runnable ()
                 {
 
 					@Override
@@ -8577,9 +8573,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 };
 
-				this.schedule (this.autoSaveTask,
-							   autoSaveInt,
-							   autoSaveInt);
+				this.autoSaveTask = this.schedule (r,
+                                                   autoSaveInt,
+                                                   autoSaveInt);
 
             }
 

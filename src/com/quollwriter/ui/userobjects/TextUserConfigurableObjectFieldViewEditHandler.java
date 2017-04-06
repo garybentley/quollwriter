@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.StringTokenizer;
 
 import javax.swing.*;
 
@@ -34,6 +35,40 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         //this.typeField = (TextUserConfigurableObjectTypeField) this.field.getUserConfigurableObjectTypeField ();
 
     }
+     
+    @Override
+    public Set<String> getNamesFromFieldValue ()
+    {
+        
+        Set<String> ret = new LinkedHashSet ();
+        
+        StringWithMarkup sm = this.getFieldValue ();
+        
+        if (sm != null)
+        {
+            
+            String st = sm.getText ();
+            
+            if (st != null)
+            {
+                
+                StringTokenizer t = new StringTokenizer (st,
+                                                         ";,");
+        
+                while (t.hasMoreTokens ())
+                {
+                    
+                    ret.add (t.nextToken ().trim ());
+                    
+                }
+
+            }
+                
+        }
+        
+        return ret;
+        
+    }    
      
     @Override
     public void grabInputFocus ()
@@ -76,6 +111,13 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
                 this.editItem.setText (initValue);
                 
             }
+            
+        }
+        
+        if (this.typeField.isNameField ())
+        {
+            
+            this.editItem.setToolTipText ("Separate each name/alias with a comma or a semi-colon.");
             
         }
         
@@ -137,7 +179,10 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         
         StringWithMarkup text = this.getFieldValue ();
         
-        if (text != null)
+        if ((text != null)
+            &&
+            (text.hasText ())
+           )
         {
         
             JComponent t = UIUtils.createObjectDescriptionViewPane (text,

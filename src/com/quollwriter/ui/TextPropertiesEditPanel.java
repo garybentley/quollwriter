@@ -47,6 +47,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
     private JPanel               bgcolorSwatch = null;
     private JPanel               writingLineHighlightColorSwatch = null;
     private JSlider    textBorder = null;
+    private boolean updateProperty = true;
 
     private Map<String, QPopup>  popups = new HashMap ();
 
@@ -71,38 +72,84 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
     public void propertyChanged (UserPropertyEvent ev)
     {
 
-        UserPropertySetter set = null;
-
-        if (this.textProps instanceof UserPropertySetter)
-        {
-
-            set = (UserPropertySetter) this.textProps;
-            set.stopSetting ();
-
-        }
-
         try
         {
 
-            this.fonts.setSelectedItem (this.textProps.getFontFamily ());
-            this.sizes.setSelectedItem (this.textProps.getFontSize ());
-            this.align.setSelectedItem (this.textProps.getAlignment ());
-            this.line.setSelectedItem (this.textProps.getLineSpacing ());
-            this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
-            this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
-            this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
-            this.indent.setSelected (this.textProps.getFirstLineIndent ());
-            this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
-            this.textBorder.setValue (this.textProps.getTextBorder ());
+            this.updateProperty = false;
+
+            if (ev.getName ().equals (Constants.EDITOR_FONT_PROPERTY_NAME))
+            {
+
+                this.fonts.setSelectedItem (this.textProps.getFontFamily ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))
+            {
+            
+                this.sizes.setSelectedItem (this.textProps.getFontSize ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME))
+            {
+            
+                this.align.setSelectedItem (this.textProps.getAlignment ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME))
+            {
+            
+                this.line.setSelectedItem (this.textProps.getLineSpacing ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME))
+            {
+            
+                this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
+                
+            }
+
+            if (ev.getName ().equals (Constants.EDITOR_BGCOLOR_PROPERTY_NAME))
+            {
+
+                this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
+            {
+            
+                this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
+            {
+            
+                this.indent.setSelected (this.textProps.getFirstLineIndent ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
+            {
+            
+                this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
+                
+            }
+            
+            if (ev.getName ().equals (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME))
+            {
+            
+                this.textBorder.setValue (this.textProps.getTextBorder ());
+                
+            }
 
         } finally {
 
-            if (set != null)
-            {
-
-                set.startSetting ();
-
-            }
+            this.updateProperty = true;
 
         }
 
@@ -120,15 +167,26 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
         this.textProps = props;
 
-        this.fonts.setSelectedItem (props.getFontFamily ());
-        this.sizes.setSelectedItem (props.getFontSize ());
-        this.align.setSelectedItem (props.getAlignment ());
-        this.line.setSelectedItem (props.getLineSpacing ());
-        this.textcolorSwatch.setBackground (props.getTextColor ());
-        this.bgcolorSwatch.setBackground (props.getBackgroundColor ());
-        this.highlightWritingLine.setSelected (props.isHighlightWritingLine ());
-        this.indent.setSelected (props.getFirstLineIndent ());
-        this.textBorder.setValue (props.getTextBorder ());
+        try
+        {
+            
+            this.updateProperty = false;
+    
+            this.fonts.setSelectedItem (props.getFontFamily ());
+            this.sizes.setSelectedItem (props.getFontSize ());
+            this.align.setSelectedItem (props.getAlignment ());
+            this.line.setSelectedItem (props.getLineSpacing ());
+            this.textcolorSwatch.setBackground (props.getTextColor ());
+            this.bgcolorSwatch.setBackground (props.getBackgroundColor ());
+            this.highlightWritingLine.setSelected (props.isHighlightWritingLine ());
+            this.indent.setSelected (props.getFirstLineIndent ());
+            this.textBorder.setValue (props.getTextBorder ());
+            
+        } finally {
+            
+            this.updateProperty = true;
+            
+        }
 
     }
 
@@ -163,25 +221,6 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
     }
 
-    private void reinitViewers ()
-    {
-
-        Environment.doForOpenProjects (null, // all project types
-                                       new ProjectViewerAction ()
-        {
-
-            @Override
-            public void doAction (AbstractProjectViewer v)
-            {
-
-                v.reinitAllChapterEditors ();
-
-            }
-
-        });
-
-    }
-
     public void init ()
     {
 
@@ -203,12 +242,15 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
                                          Font.PLAIN,
                                          12));
 
-                _this.textProps.setFontFamily ((String) _this.fonts.getSelectedItem ());
+                if (_this.updateProperty)
+                {
+                    
+                    _this.textProps.setFontFamily ((String) _this.fonts.getSelectedItem ());
+    
+                    _this.viewer.fireProjectEvent (_this.eventType,
+                                                   ProjectEvent.CHANGE_FONT);
 
-                _this.viewer.fireProjectEvent (_this.eventType,
-                                               ProjectEvent.CHANGE_FONT);
-
-                _this.reinitViewers ();
+                }
 
             }
 
@@ -230,6 +272,13 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (!_this.updateProperty)
+                {
+
+                    return;
+
+                }
+
                 try
                 {
 
@@ -237,8 +286,6 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                     _this.viewer.fireProjectEvent (_this.eventType,
                                                    ProjectEvent.CHANGE_FONT_SIZE);
-
-                    _this.reinitViewers ();
 
                 } catch (Exception e)
                 {
@@ -263,12 +310,17 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (!_this.updateProperty)
+                {
+
+                    return;
+
+                }
+
                 _this.textProps.setAlignment ((String) _this.align.getSelectedItem ());
 
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_ALIGNMENT);
-
-                _this.reinitViewers ();
 
             }
 
@@ -286,6 +338,13 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (!_this.updateProperty)
+                {
+
+                    return;
+
+                }
+
                 try
                 {
 
@@ -293,8 +352,6 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                     _this.viewer.fireProjectEvent (_this.eventType,
                                                    ProjectEvent.CHANGE_LINE_SPACING);
-
-                    _this.reinitViewers ();
 
                 } catch (Exception e)
                 {
@@ -322,12 +379,17 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void stateChanged (ChangeEvent ev)
             {
 
+                if (!_this.updateProperty)
+                {
+
+                    return;
+
+                }
+
                 _this.textProps.setTextBorder (_this.textBorder.getValue ());
 
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_TEXT_BORDER);
-
-                _this.reinitViewers ();
 
             }
 
@@ -351,12 +413,17 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (!_this.updateProperty)
+                {
+
+                    return;
+
+                }
+
                 _this.textProps.setFirstLineIndent (_this.indent.isSelected ());
 
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_LINE_INDENT);
-
-                _this.reinitViewers ();
 
             }
 
@@ -376,12 +443,17 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                if (!_this.updateProperty)
+                {
+
+                    return;
+
+                }
+
                 _this.textProps.setHighlightWritingLine (_this.highlightWritingLine.isSelected ());
 
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_HIGHLIGHT_WRITING_LINE);
-
-                _this.reinitViewers ();
 
             }
 
@@ -405,6 +477,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                 QPopup popup = QColorChooser.getColorChooserPopup ("Select the highlight line color",
                                                                 writingLineColor,
+                                                                Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME,
                                                                 new ChangeAdapter ()
                                                                 {
 
@@ -415,12 +488,17 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                                                                         _this.writingLineHighlightColorSwatch.setBackground (c);
 
+                                                                        if (!_this.updateProperty)
+                                                                        {
+                                                        
+                                                                            return;
+                                                        
+                                                                        }
+
                                                                         _this.textProps.setWritingLineColor (c);
 
                                                                         _this.viewer.fireProjectEvent (_this.eventType,
                                                                                                        ProjectEvent.CHANGE_HIGHLIGHT_WRITING_LINE);
-
-                                                                        _this.reinitViewers ();
 
                                                                     }
 
@@ -459,6 +537,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                     QPopup popup = QColorChooser.getColorChooserPopup ("Select the text color",
                                                                     textcolor,
+                                                                    Constants.EDITOR_FONT_COLOR_PROPERTY_NAME,
                                                                     new ChangeAdapter ()
                                                                     {
 
@@ -467,21 +546,19 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                                                                              Color c = (Color) ev.getSource ();
 
-                                                                             _this.textProps.setTextColor (c);
-
                                                                              textcolorSwatch.setBackground (c);
 
                                                                              bgcolorSwatch.setBackground (_this.textProps.getBackgroundColor ());
 
-                                                                             _this.viewer.fireProjectEvent (_this.eventType,
-                                                                                                            ProjectEvent.CHANGE_FONT_COLOR);
+                                                                            _this.textProps.setTextColor (c);
 
-                                                                             _this.reinitViewers ();
+                                                                            _this.viewer.fireProjectEvent (_this.eventType,
+                                                                                                           ProjectEvent.CHANGE_FONT_COLOR);
 
                                                                          }
 
                                                                      },
-                                                                    null);
+                                                                     null);
 
                     popup.setDraggable (_this.viewer);
 
@@ -507,6 +584,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                     QPopup popup = QColorChooser.getColorChooserPopup ("Select the background color",
                                                                     bgcolor,
+                                                                    Constants.EDITOR_BGCOLOR_PROPERTY_NAME,
                                                                     new ChangeAdapter ()
                                                                     {
 
@@ -515,15 +593,20 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                                                                             Color c = (Color) ev.getSource ();
 
-                                                                            _this.textProps.setBackgroundColor (c);
-
                                                                             bgcolorSwatch.setBackground (c);
                                                                             textcolorSwatch.setBackground (_this.textProps.getTextColor ());
 
+                                                                            if (!_this.updateProperty)
+                                                                            {
+                                                            
+                                                                                return;
+                                                            
+                                                                            }
+
+                                                                            _this.textProps.setBackgroundColor (c);
+
                                                                             _this.viewer.fireProjectEvent (_this.eventType,
                                                                                                            ProjectEvent.CHANGE_BG_COLOR);
-
-                                                                            _this.reinitViewers ();
 
                                                                         }
 
@@ -549,15 +632,14 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
             reset.setToolTipText ("Click to reset the text properties to their default values");
 
-            reset.addMouseListener (new MouseAdapter ()
+            reset.addMouseListener (new MouseEventHandler ()
             {
 
-                public void mouseReleased (MouseEvent ev)
+                @Override
+                public void handlePress (MouseEvent ev)
                 {
 
                     _this.textProps.resetToDefaults ();
-
-                    _this.reinitViewers ();
 
                 }
 

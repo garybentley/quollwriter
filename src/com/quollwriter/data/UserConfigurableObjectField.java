@@ -70,7 +70,7 @@ public class UserConfigurableObjectField extends NamedObject
     public boolean isNameField ()
     {
         
-        return this.field.isNameField ();
+        return (this.field.isNameField () || this.isPrimaryNameField ());
         
     }
         
@@ -98,6 +98,38 @@ public class UserConfigurableObjectField extends NamedObject
     public void getChanges (NamedObject old,
                             Element     root)
     {
+        
+    }
+    
+    public Set<String> getNames ()
+    {
+        
+        Set<String> ret = new LinkedHashSet ();
+        
+        if ((this.isNameField ())
+            &&
+            (this.value != null)
+           )
+        {
+                     
+            try
+            {
+            
+                return this.field.getViewEditHandler (this.getParentObject (),
+                                                      this,
+                                                      null).getNamesFromFieldValue ();
+    
+            } catch (Exception e) {
+                
+                Environment.logError ("Unable to get names for field: " +
+                                      this.value,
+                                      e);
+                                
+            }
+
+        }
+        
+        return ret;
         
     }
     

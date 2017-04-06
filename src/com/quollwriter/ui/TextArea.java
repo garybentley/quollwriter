@@ -324,6 +324,14 @@ public class TextArea extends ScrollableBox
     }
 
     @Override
+    public void setToolTipText (String t)
+    {
+      
+        this.text.setToolTipText (t);
+        
+    }    
+
+    @Override
     public Dimension getPreferredSize ()
     {
         

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import java.awt.Component;
 import java.awt.event.*;
@@ -42,17 +44,27 @@ public class ObjectTypeNameChanger extends Box
         
         // See if any of the values are changing, if so we need to reopen the project.
         
+        boolean changing = false;
+        
         final Map<String, String> sing = new HashMap ();
         final Map<String, String> plur = new HashMap ();
         
+        Set<UserConfigurableObjectType> updateTypes = new HashSet ();
         for (String ot : this.singular.keySet ())
         {
             
             JTextField f = this.singular.get (ot);
             
-            sing.put (ot,
-                      f.getText ().trim ());
-                        
+            String s = f.getText ().trim ();
+            
+            if (!s.equals (Environment.getObjectTypeName (ot)))
+            {
+                
+                sing.put (ot,
+                          s);                    
+                
+            }
+                
         }
 
         for (String ot : this.plural.keySet ())
@@ -60,27 +72,28 @@ public class ObjectTypeNameChanger extends Box
             
             JTextField f = this.plural.get (ot);
             
-            plur.put (ot,
-                      f.getText ().trim ());
+            String p = f.getText ().trim ();
+            
+            if (!p.equals (Environment.getObjectTypeName (ot)))
+            {
+
+                plur.put (ot,
+                          p);
+
+            }
                         
         }
-        
-        boolean changing = false;
-        
-        if (!Environment.getObjectTypeNames ().values ().containsAll (sing.values ()))
-        {
-            
-            changing = true;
-            
-        }
-        
-        if (!Environment.getObjectTypeNamePlurals ().values ().containsAll (plur.values ()))
-        {
-            
-            changing = true;
-            
-        }
 
+        if ((sing.size () > 0)
+            ||
+            (plur.size () > 0)
+           )
+        {
+                        
+            changing = true;
+            
+        }
+        
         if (changing)
         {
 
@@ -111,8 +124,8 @@ public class ObjectTypeNameChanger extends Box
                                                     try
                                                     {
                                                     
-                                                        Environment.setUserObjectTypeNames (sing,
-                                                                                            plur);
+                                                        Environment.updateUserObjectTypeNames (sing,
+                                                                                               plur);
                                     
                                                     } catch (Exception e) {
                                                         
@@ -127,7 +140,6 @@ public class ObjectTypeNameChanger extends Box
                                                     }
                                     
                                                     UIUtils.closePopupParent (_this.getParent ());
-                                                    //_this.close ();
                                                     
                                                     _this.viewer.close (true,
                                                                         new ActionListener ()
@@ -172,8 +184,8 @@ public class ObjectTypeNameChanger extends Box
                 try
                 {
                 
-                    Environment.setUserObjectTypeNames (sing,
-                                                        plur);
+                    Environment.updateUserObjectTypeNames (sing,
+                                                           plur);
 
                 } catch (Exception e) {
                     
@@ -332,7 +344,7 @@ public class ObjectTypeNameChanger extends Box
         }
     }
     
-    private boolean addRow (final String       objType,
+    private boolean addRow (final String objType,
                             PanelBuilder builder,
                             int          row)
     {
@@ -392,10 +404,12 @@ public class ObjectTypeNameChanger extends Box
     
         List<String> objTypes = new ArrayList ();
         objTypes.add (Chapter.OBJECT_TYPE);
+        /*
         objTypes.add (QCharacter.OBJECT_TYPE);
         objTypes.add (Location.OBJECT_TYPE);
         objTypes.add (QObject.OBJECT_TYPE);
         objTypes.add (ResearchItem.OBJECT_TYPE);
+        */
         objTypes.add (OutlineItem.OBJECT_TYPE);
         objTypes.add (Scene.OBJECT_TYPE);
         objTypes.add (Note.OBJECT_TYPE);

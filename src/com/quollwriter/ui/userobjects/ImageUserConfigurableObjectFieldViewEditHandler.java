@@ -184,7 +184,14 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
     {
         
         final File pf = this.viewer.getProjectFile (this.getFieldValue ());
-                
+        
+        if (pf == null)
+        {
+            
+            return false;
+            
+        }
+                     
         BufferedImage v = UIUtils.getImage (pf);
 
         return v != null;
@@ -205,19 +212,23 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
                 
         ImageIcon icon = null;
                 
-        if ((v != null)
-            &&
-            (v.getWidth () > 150)
-           )
+        if (v != null)
         {
-            
-            v = UIUtils.getScaledImage (v,
-                                        150);
             
             icon = new ImageIcon (v);
                 
+            if (v.getWidth () > 150)
+            {
+                
+                v = UIUtils.getScaledImage (v,
+                                            150);
+                
+                icon = new ImageIcon (v);
+                    
+            }
+
         }
-                                
+                                                
         if (icon != null)
         {
           

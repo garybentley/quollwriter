@@ -44,6 +44,14 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
     }
 
     @Override
+    public Set<String> getNamesFromFieldValue ()
+    {
+        
+        return new LinkedHashSet ();
+        
+    }
+
+    @Override
     public void updateFieldFromInput ()
                                throws GeneralException
     {

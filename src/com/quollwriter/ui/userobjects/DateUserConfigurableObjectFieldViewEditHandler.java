@@ -59,7 +59,19 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
                                            this.typeField.getMaximum (),
                                            this.typeField.getDefault ());
         
-        this.editItem.setDate ((this.getFieldValue () != null ? this.getFieldValue () : (this.stringToValue (initValue))));
+        if (this.getFieldValue () != null)
+        {
+        
+            this.editItem.setDate (this.getFieldValue ());
+            
+        }
+        
+        if (initValue != null)
+        {
+            
+            this.editItem.setDate (this.stringToValue (initValue));
+        
+        }
         
         items.add (this.editItem);
         

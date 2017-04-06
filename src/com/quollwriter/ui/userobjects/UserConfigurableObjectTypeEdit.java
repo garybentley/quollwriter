@@ -311,6 +311,8 @@ public class UserConfigurableObjectTypeEdit
                     
                     ws.panel = layout;
                     
+                    layout.refresh ();
+                    
                 }
                 
                 return ws;

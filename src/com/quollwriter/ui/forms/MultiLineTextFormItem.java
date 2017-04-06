@@ -89,6 +89,13 @@ public class MultiLineTextFormItem extends FormItem<StringWithMarkup>
         
     }
        
+    public void setToolTipText (String t)
+    {
+        
+        this.text.setToolTipText (t);
+        
+    }
+       
     @Override
     public void grabFocus ()
     {

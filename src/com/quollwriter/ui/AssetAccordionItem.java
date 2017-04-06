@@ -262,55 +262,10 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         final AssetAccordionItem _this = this;
 
-        ActionListener addNewItem = new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                Asset a = null;
-            
-                if (_this.objType.getUserObjectType () != null)
-                {
-                    
-                    // Is a legacy type.    
-                    try
-                    {
-    
-                        a = LegacyAsset.createLegacyAsset (_this.objType);
-    
-                    } catch (Exception e)
-                    {
-        
-                        Environment.logError ("Unable to create legacy asset sub type for: " +
-                                              _this.objType,
-                                              e);
-    
-                        UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to create new object.");
-    
-                        return;
-    
-                    }
-                    
-                    
-                } else {
-                    
-                    a = new Asset (_this.objType);
-                    
-                }
-            
-                AssetActionHandler aah = new AssetActionHandler (a,
-                                                                 _this.viewer);
-
-                aah.setShowPopupAt (_this.getHeader (),
-                                    "below");
-
-                aah.actionPerformed (ev);
-
-            }
-
-        };
+        AbstractAction addNewItem = UIUtils.createAddAssetActionListener (this.objType,
+                                                                          this.viewer,
+                                                                          null,
+                                                                          null);
 
         m.add (UIUtils.createMenuItem (String.format ("Add a new %s",
                                                       this.objType.getObjectTypeName ()),
