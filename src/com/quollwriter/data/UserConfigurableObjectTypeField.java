@@ -7,7 +7,6 @@ import org.jdom.*;
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.userobjects.*;
-import com.quollwriter.ui.components.FormItem;
 
 public abstract class UserConfigurableObjectTypeField extends NamedObject
 {

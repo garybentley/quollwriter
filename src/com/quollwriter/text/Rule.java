@@ -7,7 +7,8 @@ import javax.swing.*;
 
 import com.gentlyweb.xml.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
 
@@ -50,9 +51,12 @@ public interface Rule<E extends TextBlock>
 
     public boolean isUserRule ();
 
-    public Form getEditForm (ActionListener onSaveComplete,
-                             ActionListener onCancel,
-                             boolean        add);
+    public String getEditFormTitle (boolean add);
+
+    public Form getEditForm (ActionListener        onSaveComplete,
+                             ActionListener        onCancel,
+                             AbstractProjectViewer viewer,
+                             boolean               add);
 
     public void updateFromForm ();
 

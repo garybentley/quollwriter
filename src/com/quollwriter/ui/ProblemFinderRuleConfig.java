@@ -37,7 +37,9 @@ import com.quollwriter.ui.panels.*;
 import com.quollwriter.text.*;
 import com.quollwriter.text.rules.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
+import com.quollwriter.ui.components.ScrollableBox;
+import com.quollwriter.ui.components.DnDTabbedPane;
 
 import org.josql.*;
 
@@ -135,9 +137,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             buttons.add (UIUtils.createButton (Constants.FIND_ICON_NAME,
                                                Constants.ICON_MENU,
                                                "Click to find all problems for this rule",
-                                               new ActionAdapter ()
+                                               new ActionListener ()
                                                {
 
+                                                    @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
@@ -150,9 +153,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             buttons.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                                Constants.ICON_MENU,
                                                "Click to edit this rule",
-                                               new ActionAdapter ()
+                                               new ActionListener ()
                                                {
 
+                                                    @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
@@ -166,9 +170,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             buttons.add (UIUtils.createButton (Constants.INFO_ICON_NAME,
                                                Constants.ICON_MENU,
                                                "Click to show/hide the description of this rule",
-                                               new ActionAdapter ()
+                                               new ActionListener ()
                                                {
 
+                                                    @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
@@ -181,9 +186,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
             buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                Constants.ICON_MENU,
                                                "Click to remove this rule",
-                                               new ActionAdapter ()
+                                               new ActionListener ()
                                                {
 
+                                                    @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
 
@@ -193,6 +199,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                                                                     new ActionListener ()
                                                         {
 
+                                                            @Override
                                                             public void actionPerformed (ActionEvent ev)
                                                             {
 
@@ -348,9 +355,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
                                         "Click to add a new Sentence Structure rule",
-                                        new ActionAdapter ()
+                                        new ActionListener ()
                                         {
 
+                                            @Override
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
@@ -365,29 +373,30 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                     mi.setActionCommand (r.getId ());
                                                     mi.setToolTipText ("Click to add this rule");
 
-                                                    mi.addActionListener (new ActionAdapter ()
+                                                    mi.addActionListener (new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
                                                         {
 
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
+                                                            Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
 
-                                                                Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
+                                                            RuleBox rb = new RuleBox (r);
 
-                                                                RuleBox rb = new RuleBox (r);
+                                                            _this.sentenceBox.add (rb,
+                                                                                   0);
 
-                                                                _this.sentenceBox.add (rb,
-                                                                                       0);
+                                                            rb.init (_this);
 
-                                                                rb.init (_this);
+                                                            _this.removeIgnore (r,
+                                                                                (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
 
-                                                                _this.removeIgnore (r,
-                                                                                    (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
+                                                            _this.repaint ();
 
-                                                                _this.repaint ();
+                                                        }
 
-                                                            }
-
-                                                        });
+                                                    });
 
                                                     popup.add (mi);
 
@@ -529,9 +538,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
                                         "Click to add a new Paragraph Structure rule",
-                                        new ActionAdapter ()
+                                        new ActionListener ()
                                         {
 
+                                            @Override
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
@@ -546,29 +556,30 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
                                                     mi.setActionCommand (r.getId ());
                                                     mi.setToolTipText ("Click to add this rule");
 
-                                                    mi.addActionListener (new ActionAdapter ()
+                                                    mi.addActionListener (new ActionListener ()
+                                                    {
+
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
                                                         {
 
-                                                            public void actionPerformed (ActionEvent ev)
-                                                            {
+                                                            Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
 
-                                                                Rule r = RuleFactory.getRuleById (ev.getActionCommand ());
+                                                            RuleBox rb = new RuleBox (r);
 
-                                                                RuleBox rb = new RuleBox (r);
+                                                            _this.paragraphBox.add (rb,
+                                                                                    0);
 
-                                                                _this.paragraphBox.add (rb,
-                                                                                        0);
+                                                            rb.init (_this);
 
-                                                                rb.init (_this);
+                                                            _this.removeIgnore (r,
+                                                                                (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
 
-                                                                _this.removeIgnore (r,
-                                                                                    (_this.isProjectIgnore (r) ? RuleFactory.PROJECT : RuleFactory.USER));
+                                                            _this.repaint ();
 
-                                                                _this.repaint ();
+                                                        }
 
-                                                            }
-
-                                                        });
+                                                    });
 
                                                     popup.add (mi);
 
@@ -699,9 +710,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
                                         "Click to add a new Words/Phrases rule",
-                                        new ActionAdapter ()
+                                        new ActionListener ()
                                         {
 
+                                            @Override
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
@@ -864,9 +876,10 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         JButton finish = new JButton ("Finish");
 
-        finish.addActionListener (new ActionAdapter ()
+        finish.addActionListener (new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 
@@ -1017,89 +1030,82 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         final Box _editBox = editBox;
 
-          com.quollwriter.ui.components.Form f = r.getEditForm (new ActionListener ()
-          {
+        String title = r.getEditFormTitle (add);
+        
+        if (title == null)
+        {
+            
+            title = (add ? "Add Rule" : "Edit Rule");
+            
+        }
 
-               @Override
-               public void actionPerformed (ActionEvent ev)
-               {
+        editBox.add (UIUtils.createBoldSubHeader (title,
+                                                  null));
 
-                    r.updateFromForm ();
-
-                    try
-                    {
-
-                        RuleFactory.saveUserRule (r);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to save user rule: " +
-                                              r,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to save rule");
-
-                    }
-
-                    _this.restoreToView (_editBox,
-                                         r,
-                                         add);
-
-                    Environment.fireUserProjectEvent (_this,
-                                                      ProjectEvent.PROBLEM_FINDER,
-                                                      (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
-                                                      r);
-
-               }
-
-          },
-          new ActionListener ()
-          {
-
-               @Override
-               public void actionPerformed (ActionEvent ev)
-               {
-
-                    _this.restoreToView (_editBox,
-                                         r,
-                                         add);
-
-               }
-
-          },
-          add);
-
-        f.addFormListener (new FormAdapter ()
+        Form f = r.getEditForm (new ActionListener ()
         {
 
-            public void actionPerformed (FormEvent ev)
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
 
-                if (ev.getID () == FormEvent.CANCEL)
-                {
+                 r.updateFromForm ();
 
-                    _this.restoreToView (_editBox,
-                                         null,
-                                         add);
+                 try
+                 {
 
-                    return;
+                     RuleFactory.saveUserRule (r);
 
-                }
+                 } catch (Exception e)
+                 {
+
+                     Environment.logError ("Unable to save user rule: " +
+                                           r,
+                                           e);
+
+                     UIUtils.showErrorMessage (_this,
+                                               "Unable to save rule");
+
+                 }
+
+                 _this.restoreToView (_editBox,
+                                      r,
+                                      add);
+
+                 Environment.fireUserProjectEvent (_this,
+                                                   ProjectEvent.PROBLEM_FINDER,
+                                                   (add ? ProjectEvent.NEW_RULE : ProjectEvent.EDIT_RULE),
+                                                   r);
 
             }
 
-        });
+        },
+        new ActionListener ()
+        {
+
+             @Override
+             public void actionPerformed (ActionEvent ev)
+             {
+
+                  _this.restoreToView (_editBox,
+                                       r,
+                                       add);
+
+             }
+
+        },
+        this.projectViewer,
+        add);
 
         f.setAlignmentX (Component.LEFT_ALIGNMENT);
-        f.setBorder (null);
+        f.setBorder (UIUtils.createPadding (5, 0, 0, 0));
         editBox.add (f);
 
         f.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                          f.getPreferredSize ().height));
 
         editBox.add (Box.createVerticalGlue ());
+        editBox.setBorder (UIUtils.createPadding (5, 5, 10, 5));
 
         if (r instanceof WordFinder)
         {

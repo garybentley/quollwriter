@@ -692,7 +692,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             new ChapterItemActionHandler<Scene> (s,
                                                  this,
-                                                 AbstractActionHandler.ADD,
+                                                 AbstractFormPopup.ADD,
                                                  pos).actionPerformed (ev);
 
             return;
@@ -707,7 +707,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             new ChapterItemActionHandler<OutlineItem> (o,
                                                        this,
-                                                       AbstractActionHandler.ADD,
+                                                       AbstractFormPopup.ADD,
                                                        pos).actionPerformed (ev);
 
             return;
@@ -1521,7 +1521,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                new ChapterItemActionHandler (s,
                                              _this,
-                                             AbstractActionHandler.EDIT,
+                                             AbstractFormPopup.EDIT,
                                              s.getPosition ()).actionPerformed (new ActionEvent (_this,
                                                                                                  0,
                                                                                                  "edit"));
@@ -1597,7 +1597,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                new ChapterItemActionHandler (n,
                                              _this,
-                                             AbstractActionHandler.EDIT,
+                                             AbstractFormPopup.EDIT,
                                              n.getPosition ()).actionPerformed (new ActionEvent (this,
                                                                                                  0,
                                                                                                  "edit"));

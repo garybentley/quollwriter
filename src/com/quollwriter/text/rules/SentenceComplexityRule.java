@@ -13,7 +13,7 @@ import com.gentlyweb.xml.*;
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -51,6 +51,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public String getDescription ()
     {
 
@@ -68,6 +69,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public String getSummary ()
     {
 
@@ -149,6 +151,7 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public String getCategory ()
     {
 
@@ -156,10 +159,11 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
     }
 
-    public List<FormItem> getFormItems ()
+    @Override
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         this.ratioF = new JSpinner (new SpinnerNumberModel (this.ratio,
                                                             0.1f,
@@ -172,8 +176,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         this.ratioF.setMaximumSize (this.ratioF.getPreferredSize ());
 
-        items.add (new FormItem ("Ratio",
-                                 b));
+        items.add (new AnyFormItem ("Ratio",
+                                    b));
 
         this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,
                                                             1,
@@ -187,8 +191,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
 
-        items.add (new FormItem ("Sentence length (words)",
-                                 b));
+        items.add (new AnyFormItem ("Sentence length (words)",
+                                    b));
 
         return items;
 

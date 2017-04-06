@@ -11,10 +11,9 @@ import com.gentlyweb.xml.*;
 
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
-
 
 public class TooManyClausesRule extends AbstractSentenceRule
 {
@@ -141,10 +140,10 @@ public class TooManyClausesRule extends AbstractSentenceRule
     }
 
     @Override
-    public List<FormItem> getFormItems ()
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         this.count = new JSpinner (new SpinnerNumberModel (this.clauseCount,
                                                            1,
@@ -157,8 +156,8 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
         this.count.setMaximumSize (this.count.getPreferredSize ());
 
-        items.add (new FormItem ("No of Clauses",
-                                 b));
+        items.add (new AnyFormItem ("No of Clauses",
+                                    b));
 
         return items;
 

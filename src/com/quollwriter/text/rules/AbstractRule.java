@@ -8,11 +8,7 @@ import javax.swing.*;
 import com.gentlyweb.xml.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.FormItem;
-import com.quollwriter.ui.components.FormAdapter;
-import com.quollwriter.ui.components.FormEvent;
-
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.text.*;
 
 import org.jdom.*;
@@ -46,7 +42,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     public abstract String getEditFormTitle (boolean add);
 
-    public abstract List<FormItem> getFormItems ();
+    public abstract Set<FormItem> getFormItems ();
 
     public abstract String getFormError ();
 
@@ -130,7 +126,7 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         this.desc = JDOMUtils.getChildElementContent (root,
                                                       XMLConstants.description,
-                                                      !this.userRule);
+                                                      false);
 
         this.summary = JDOMUtils.getChildElementContent (root,
                                                          XMLConstants.summary,
@@ -169,7 +165,10 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         summ.addContent (this.summary);
 
-        if (this.desc != null)
+        if ((this.desc != null)
+            &&
+            (this.desc.length () > 0)
+           )
         {
 
             Element desc = new Element (XMLConstants.description);
@@ -184,116 +183,118 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
     }
 
-    public Form getEditForm (final ActionListener onSaveComplete,
-                             final ActionListener onCancel,
-                             final boolean        add)
+    public Form getEditForm (final ActionListener        onSaveComplete,
+                             final ActionListener        onCancel,
+                             final AbstractProjectViewer viewer,
+                             final boolean               add)
     {
 
         final AbstractRule _this = this;
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
-        final JTextField summary = com.quollwriter.ui.UIUtils.createTextField ();
+        final TextFormItem summary = new TextFormItem ("Summary",
+                                                       this.getSummary ());
 
-        summary.setText (this.getSummary ());
-
-        items.add (new FormItem ("Summary",
-                                 summary));
+        items.add (summary);
 
         items.addAll (this.getFormItems ());
 
-        final TextArea desc = com.quollwriter.ui.UIUtils.createTextArea (null,
-                                                                         3,
-                                                                         -1);
-
+        final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Description",
+                                                                      viewer,
+                                                                      5);
         desc.setText (this.getDescription ());
+        desc.setCanFormat (false);
+        
+        items.add (desc);
 
-        items.add (new FormItem ("Description",
-                                 desc));
+        Map<Form.Button, ActionListener> buttons = new LinkedHashMap ();
 
-        String title = this.getEditFormTitle (add);
+        buttons.put (Form.Button.save,
+                     new ActionListener ()
+                     {
 
-        if (title == null)
-        {
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
+                        {
 
-            title = (add ? "Add Rule" : "Edit Rule");
+                            Form f = (Form) ev.getSource ();
 
-        }
+                            String error = _this.getFormError ();
+            
+                            if (error != null)
+                            {
+            
+                                f.showError (error);
+            
+                                return;
+            
+                            }
+            
+                            _this.setDescription (desc.getText ().trim ());
+            
+                            String summ = summary.getText ().trim ();
+            
+                            if (summ.length () == 0)
+                            {
+            
+                                summ = _this.getSummary ();
+            
+                            }
+            
+                            if (summ == null)
+                            {
+            
+                                summ = _this.getDefaultSummary ();
+            
+                            }
+            
+                            if (summ == null)
+                            {
+            
+                                f.showError ("Please enter a summary.");
+            
+                                return;
+            
+                            }
+            
+                            _this.setSummary (summ);
+            
+                            if (onSaveComplete != null)
+                            {
+            
+                                onSaveComplete.actionPerformed (new ActionEvent (_this, 1, "saved"));
+            
+                            }
 
-        final Form f = new Form (title,
-                                 null,
-                                 items,
-                                 null,
-                                 Form.SAVE_CANCEL_BUTTONS);
+                        }
+                        
+                     });
+        
+        buttons.put (Form.Button.cancel,
+                     new ActionListener ()
+                     {
 
-        f.addFormListener (new FormAdapter ()
-        {
+                        @Override
+                        public void actionPerformed (ActionEvent ev)
+                        {
 
-            public void actionPerformed (FormEvent ev)
-            {
+                            if (onCancel != null)
+                            {
+        
+                                onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));
+        
+                            }
 
-                if (ev.getActionCommand ().equals (FormEvent.CANCEL_ACTION_NAME))
-                {
+                            return;
 
-                    if (onCancel != null)
-                    {
+                        }
 
-                        onCancel.actionPerformed (new ActionEvent (_this, 1, "cancelled"));
-
-                    }
-
-                }
-
-                String error = _this.getFormError ();
-
-                if (error != null)
-                {
-
-                    f.showError (error);
-
-                    return;
-
-                }
-
-                _this.setDescription (desc.getText ().trim ());
-
-                String summ = summary.getText ().trim ();
-
-                if (summ.length () == 0)
-                {
-
-                    summ = _this.getSummary ();
-
-                }
-
-                if (summ == null)
-                {
-
-                    summ = _this.getDefaultSummary ();
-
-                }
-
-                if (summ == null)
-                {
-
-                    f.showError ("Please enter a summary.");
-
-                    return;
-
-                }
-
-                _this.setSummary (summ);
-
-                if (onSaveComplete != null)
-                {
-
-                    onSaveComplete.actionPerformed (new ActionEvent (_this, 1, "saved"));
-
-                }
-
-            }
-
-        });
+                     });
+        
+        Form f = new Form (Form.Layout.stacked,
+                           items,
+                           buttons);
 
         return f;
 

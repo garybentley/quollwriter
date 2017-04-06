@@ -31,8 +31,6 @@ import com.quollwriter.ui.panels.*;
 import com.quollwriter.db.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.ActionAdapter;
-import com.quollwriter.ui.components.FormItem;
 
 public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
 {
@@ -93,9 +91,10 @@ public class SessionTimeChart extends AbstractQuollChart<AbstractViewer>
 
         this.displayB.setAlignmentY (Component.TOP_ALIGNMENT);
 
-        this.displayB.addActionListener (new ActionAdapter ()
+        this.displayB.addActionListener (new ActionListener ()
         {
 
+            @Override
             public void actionPerformed (ActionEvent ev)
             {
 

@@ -1058,7 +1058,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         
                     new ChapterItemActionHandler<OutlineItem> (o,
                                                                qep,
-                                                               AbstractActionHandler.ADD,
+                                                               AbstractFormPopup.ADD,
                                                                pos).actionPerformed (ev);
 
                 }
@@ -1099,7 +1099,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
                     new ChapterItemActionHandler (s,
                                                   qep,
-                                                  AbstractActionHandler.ADD,
+                                                  AbstractFormPopup.ADD,
                                                   pos).actionPerformed (ev);
 
                 }
@@ -1140,7 +1140,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
                     new ChapterItemActionHandler (s,
                                                   qep,
-                                                  AbstractActionHandler.ADD,
+                                                  AbstractFormPopup.ADD,
                                                   pos).actionPerformed (ev);
 
                 }
@@ -1196,7 +1196,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
             return new ChapterItemActionHandler<OutlineItem> (o,
                                                               this.getEditorForChapter (c),
-                                                              AbstractActionHandler.ADD,
+                                                              AbstractFormPopup.ADD,
                                                               0);
 
         }

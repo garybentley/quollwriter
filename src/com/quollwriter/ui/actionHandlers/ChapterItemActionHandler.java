@@ -55,7 +55,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
         
         final ChapterItemActionHandler _this = this;
         
-        if (mode == AbstractFormPopup.EDIT)
+        if (mode == ChapterItemActionHandler.EDIT)
         {
 
             this.showAt = item.getPosition ();
@@ -69,7 +69,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
         
         this.setPopupOver (this.viewer.getEditorForChapter (this.chapter));
         
-        if (mode == AbstractFormPopup.ADD)
+        if (mode == ChapterItemActionHandler.ADD)
         {
             
             this.setOnShowAction (new ActionListener ()
@@ -246,7 +246,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
     public String getTitle ()
     {
 
-        if (this.mode == AbstractFormPopup.EDIT)
+        if (this.mode == ChapterItemActionHandler.EDIT)
         {
 
             return "Edit " + Environment.getObjectTypeName (this.object.getObjectType ());
@@ -293,7 +293,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
 
         items.add (this.descField);
 
-        if (mode == AbstractActionHandler.ADD)
+        if (mode == ChapterItemActionHandler.ADD)
         {
 
             items.add (this.addToChapter);
@@ -362,7 +362,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
 
         QTextEditor editor = this.itemViewer.getEditor ();
 
-        if (this.mode == AbstractActionHandler.ADD)
+        if (this.mode == ChapterItemActionHandler.ADD)
         {
 
             try

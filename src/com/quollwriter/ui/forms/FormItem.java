@@ -46,72 +46,7 @@ public abstract class FormItem<E> extends Box
         return this.label;
         
     }
-    /*
-    public void init ()
-    {
-        
-        this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        Box b = new Box (BoxLayout.X_AXIS);
-        b.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        b.setBorder (new EmptyBorder (0,
-                                      5,
-                                      5,
-                                      5));
-        
-        b.add (this.label);
-            
-        b.add (Box.createHorizontalStrut (5));
-            
-        b.add (this.requireLabel);
-        
-        this.add (b);
-        
-        this.add (this.setAsSubItem (this.createWrapper (this.getComponent ())));
-
-        if (this.helpText != null)
-        {
-            
-            this.add (Box.createVerticalStrut (2));                        
-            this.add (this.createHelpText (this.helpText));                
-            
-        }
-
-        this.add (Box.createVerticalStrut (15));                        
-        
-        this.updateRequireLabel (this.requireLabel);
-
-        
-    }
-    */
-    /*
-    public void updateRequireLabel ()
-    {
-        
-        this.updateRequireLabel (this.requireLabel);
-        
-    }
-    */
-    /*
-    public void setError (boolean err)
-    {
-        
-        if (err)
-        {
-            
-            this.label.setForeground (Color.red);
-            this.requireLabel.setForeground (Color.red);
-            
-        } else {
-            
-            this.label.setForeground (Color.black);
-            this.requireLabel.setForeground (UIUtils.getColor ("#999999"));
-            
-        }            
-        
-    }
-*/
     private JComponent createWrapper (JComponent c)
     {
         

@@ -15,8 +15,8 @@ import com.quollwriter.*;
 import com.quollwriter.synonyms.*;
 
 import com.quollwriter.text.*;
-
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
 
@@ -40,6 +40,7 @@ public class AdverbRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public String getCategory ()
     {
 
@@ -197,12 +198,12 @@ public class AdverbRule extends AbstractSentenceRule
     }
 
     @Override
-    public List<FormItem> getFormItems ()
+    public Set<FormItem> getFormItems ()
     {
 
         final AdverbRule _this = this;
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         Box b = new Box (BoxLayout.Y_AXIS);
 
@@ -218,8 +219,8 @@ public class AdverbRule extends AbstractSentenceRule
 
         b.add (label);
 
-        items.add (new FormItem ("New Speech Verbs",
-                                 b));
+        items.add (new AnyFormItem ("New Speech Verbs",
+                                    b));
 
         Vector v = new Vector (this.speechVerbs);
 
@@ -246,6 +247,39 @@ public class AdverbRule extends AbstractSentenceRule
         b.add (Box.createHorizontalStrut (5));
 
         Box bb = new Box (BoxLayout.Y_AXIS);
+
+        List<JComponent> buts = new ArrayList ();
+        
+        buts.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
+                                        Constants.ICON_MENU,
+                                        "Click to remove the selected Speech Verbs",
+                                        new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                // Get the selected items, remove them from the model.
+                int[] inds = verbs.getSelectedIndices ();
+
+                if (inds != null)
+                {
+
+                    for (int i = inds.length - 1; i > -1; i--)
+                    {
+
+                        _this.listModel.remove (inds[i]);
+
+                    }
+
+                }
+                
+            }
+            
+        }));
+
+/*        
 
         ImagePanel del = new ImagePanel (Environment.getIcon ("delete",
                                                               Constants.ICON_MENU),
@@ -280,15 +314,15 @@ public class AdverbRule extends AbstractSentenceRule
                 }
 
             });
-
-        bb.add (del);
+*/
+        bb.add (UIUtils.createButtonBar (buts));
         bb.add (Box.createVerticalGlue ());
 
         b.add (bb);
         b.add (Box.createHorizontalGlue ());
 
-        items.add (new FormItem ("Speech Verbs",
-                                 b));
+        items.add (new AnyFormItem ("Speech Verbs",
+                                    b));
 
         return items;
 

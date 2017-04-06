@@ -52,7 +52,7 @@ public class SceneFormatDetails implements ChapterItemFormatDetails<Scene, Proje
 
         return new ChapterItemActionHandler (item,
                                              ep,
-                                             AbstractActionHandler.EDIT,
+                                             ChapterItemActionHandler.EDIT,
                                              -1);
 
     }

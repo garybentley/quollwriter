@@ -84,7 +84,7 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
     public String getTitle ()
     {
 
-        if (this.mode == AbstractActionHandler.EDIT)
+        if (this.mode == AssetActionHandler.EDIT)
         {
 
             return "Edit " + this.object.getObjectTypeName ();
@@ -272,7 +272,7 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
                     
             Asset match = null;
             
-            if (this.mode == AbstractActionHandler.ADD)
+            if (this.mode == AssetActionHandler.ADD)
             {
     
                 if (matches.size () > 0)
@@ -381,7 +381,7 @@ public class AssetActionHandler extends AbstractFormPopup <ProjectViewer, Asset>
 
         this.object.setProject (this.viewer.getProject ());
 
-        if (mode == AbstractActionHandler.ADD)
+        if (mode == AssetActionHandler.ADD)
         {
 
             try

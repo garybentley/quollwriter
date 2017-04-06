@@ -3337,7 +3337,8 @@ public class UIUtils
 
             });
 
-        fonts.setMaximumSize (fonts.getPreferredSize ());
+        fonts.setMaximumSize (new Dimension (Short.MAX_VALUE,
+                                             fonts.getPreferredSize ().height));
 
         if (selected != null)
         {

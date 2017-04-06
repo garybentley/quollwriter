@@ -12,7 +12,7 @@ import com.gentlyweb.xml.*;
 
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -209,6 +209,7 @@ public class DoubleWordRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public String getCategory ()
     {
 
@@ -217,10 +218,10 @@ public class DoubleWordRule extends AbstractSentenceRule
     }
 
     @Override
-    public List<FormItem> getFormItems ()
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         return items;
 

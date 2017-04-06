@@ -14,7 +14,7 @@ import com.quollwriter.synonyms.*;
 
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
 
@@ -35,7 +35,7 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     private Set<String> irregularForms = new HashSet ();
     private boolean ignoreInDialogue = false;
 
-    private JCheckBox ignoreDialogueF = null;
+    private CheckboxFormItem ignoreDialogueF = null;
 
     public PassiveSentenceRule ()
     {
@@ -350,17 +350,17 @@ public class PassiveSentenceRule extends AbstractSentenceRule
     }
 
     @Override
-    public List<FormItem> getFormItems ()
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
-        this.ignoreDialogueF = new JCheckBox ("Ignore in dialogue");
+        this.ignoreDialogueF = new CheckboxFormItem (null,
+                                                     "Ignore in dialogue");
 
         this.ignoreDialogueF.setSelected (this.ignoreInDialogue);
 
-        items.add (new FormItem ("",
-                                 this.ignoreDialogueF));
+        items.add (this.ignoreDialogueF);
 
         return items;
 

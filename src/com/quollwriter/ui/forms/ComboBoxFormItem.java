@@ -42,6 +42,13 @@ public class ComboBoxFormItem extends FormItem<String>
         
     }
 
+    public int getSelectedIndex ()
+    {
+        
+        return this.combo.getSelectedIndex ();
+        
+    }
+
     public void setSelectedItem (String v)
     {
         

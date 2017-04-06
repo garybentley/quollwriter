@@ -31,7 +31,7 @@ import org.jfree.data.xy.XYDataset;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.FormItem;
+import com.quollwriter.ui.forms.*;
 
 public class QuollChartUtils
 {
@@ -91,8 +91,6 @@ public class QuollChartUtils
 
         Box _b = new Box (BoxLayout.Y_AXIS);
         
-        
-        
         CellConstraints cc = new CellConstraints ();        
 
         int r = 1;
@@ -100,11 +98,11 @@ public class QuollChartUtils
         for (FormItem i : items)
         {                           
                 
-            _b.add (UIUtils.createLabel (i.label.toString ()));
+            _b.add (UIUtils.createLabel (i.getLabel ().toString ()));
             
-            ((JComponent) i.component).setBorder (UIUtils.createPadding (3, 10, 7, 0));
+            i.getComponent ().setBorder (UIUtils.createPadding (3, 10, 7, 0));
             
-            _b.add (i.component);
+            _b.add (i.getComponent ());
                 /*
             b.add (i.component,
                    cc.xy (1, r));

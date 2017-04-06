@@ -11,11 +11,9 @@ import com.gentlyweb.xml.*;
 
 import com.quollwriter.*;
 import com.quollwriter.text.*;
-
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.*;
-
 
 public class WordFinder extends AbstractDialogueRule
 {
@@ -29,11 +27,11 @@ public class WordFinder extends AbstractDialogueRule
 
     private String word = null;
 
-    private JTextField words = null;
+    private TextFormItem words = null;
     private List<Word> tWords = null;
-    private JCheckBox ignoreInDialogueCB = null;
-    private JCheckBox onlyInDialogueCB = null;
-    private JComboBox whereCB = null;
+    private CheckboxFormItem ignoreInDialogueCB = null;
+    private CheckboxFormItem onlyInDialogueCB = null;
+    private ComboBoxFormItem whereCB = null;
 
     public WordFinder ()
     {
@@ -286,53 +284,59 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
-    public List<FormItem> getFormItems ()
+    @Override
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
-        this.words = com.quollwriter.ui.UIUtils.createTextField ();
+        this.words = new TextFormItem ("Word/Phrase",
+                                       this.word);
 
-        items.add (new FormItem ("Word/Phrase",
-                                 this.words));
+        items.add (this.words);
 
-        this.words.setText (this.word);
-
-        Vector whereVals = new Vector ();
+        Vector<String> whereVals = new Vector ();
         whereVals.add ("Anywhere");
         whereVals.add ("Start of sentence");
         whereVals.add ("End of sentence");
 
-        final WordFinder _this = this;
-
-        this.whereCB = new JComboBox (whereVals);
-
+        String selected = whereVals.get (0);
+        
         String loc = this.getWhere ();
 
         if (loc.equals (DialogueConstraints.START))
         {
 
-            this.whereCB.setSelectedIndex (1);
+            selected = whereVals.get (1);
 
         }
 
         if (loc.equals (DialogueConstraints.END))
         {
 
-            this.whereCB.setSelectedIndex (2);
+            selected = whereVals.get (2);
 
         }
 
-        items.add (new FormItem ("Where",
-                                 this.whereCB));
+        this.whereCB = new ComboBoxFormItem ("Where",
+                                             whereVals,
+                                             selected,
+                                             null);
 
-        this.ignoreInDialogueCB = new JCheckBox ("Ignore in dialogue");
-        this.onlyInDialogueCB = new JCheckBox ("Only in dialogue");
+        final WordFinder _this = this;
 
-        this.ignoreInDialogueCB.addActionListener (new ActionAdapter ()
+        items.add (this.whereCB);
+
+        this.ignoreInDialogueCB = new CheckboxFormItem (null,
+                                                        "Ignore in dialogue");
+        this.onlyInDialogueCB = new CheckboxFormItem (null,
+                                                      "Only in dialogue");
+
+        this.ignoreInDialogueCB.addItemListener (new ItemListener ()
         {
 
-            public void actionPerformed (ActionEvent ev)
+            @Override
+            public void itemStateChanged (ItemEvent ev)
             {
 
                 if (_this.ignoreInDialogueCB.isSelected ())
@@ -346,10 +350,11 @@ public class WordFinder extends AbstractDialogueRule
 
         });
 
-        this.onlyInDialogueCB.addActionListener (new ActionAdapter ()
+        this.onlyInDialogueCB.addItemListener (new ItemListener ()
         {
 
-            public void actionPerformed (ActionEvent ev)
+            @Override
+            public void itemStateChanged (ItemEvent ev)
             {
 
                 if (_this.onlyInDialogueCB.isSelected ())
@@ -366,11 +371,9 @@ public class WordFinder extends AbstractDialogueRule
         this.ignoreInDialogueCB.setSelected (this.isIgnoreInDialogue ());
         this.onlyInDialogueCB.setSelected (this.isOnlyInDialogue ());
 
-        items.add (new FormItem (null,
-                                 this.ignoreInDialogueCB));
+        items.add (this.ignoreInDialogueCB);
 
-        items.add (new FormItem (null,
-                                 this.onlyInDialogueCB));
+        items.add (this.onlyInDialogueCB);
 
         return items;
 
@@ -379,7 +382,7 @@ public class WordFinder extends AbstractDialogueRule
     public String getFormError ()
     {
 
-        String newWords = words.getText ().trim ();
+        String newWords = this.words.getText ().trim ();
 
         if (newWords.length () == 0)
         {

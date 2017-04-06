@@ -13,7 +13,7 @@ import com.gentlyweb.xml.*;
 import com.quollwriter.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -185,6 +185,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public String getCategory ()
     {
 
@@ -201,10 +202,10 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     }
 
     @Override
-    public List<FormItem> getFormItems ()
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,
                                                                 1,
@@ -217,8 +218,8 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
 
-        items.add (new FormItem ("Words",
-                                 b));
+        items.add (new AnyFormItem ("Words",
+                                    b));
 
         this.sentCountF = new JSpinner (new SpinnerNumberModel (this.sentenceCount,
                                                                 1,
@@ -232,8 +233,8 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         this.sentCountF.setMaximumSize (this.sentCountF.getPreferredSize ());
 
-        items.add (new FormItem ("Sentences",
-                                 b));
+        items.add (new AnyFormItem ("Sentences",
+                                    b));
 
         return items;
 

@@ -298,7 +298,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
     public String getTitle ()
     {
 
-        if (mode == AbstractActionHandler.EDIT)
+        if (mode == CommentActionHandler.EDIT)
         {
 
             return "Edit Comment";
@@ -326,7 +326,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
         UIUtils.addDoActionOnReturnPressed (this.comment.getTextArea (),
                                             this.getSaveAction ());
 
-        if (mode == AbstractActionHandler.ADD)
+        if (mode == CommentActionHandler.ADD)
         {
 
         } else
@@ -382,7 +382,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
         int s = this.editor.getSelectionStart ();
         int e = this.editor.getSelectionEnd ();
     
-        if ((mode == AbstractActionHandler.EDIT)
+        if ((mode == CommentActionHandler.EDIT)
             &&
             (s != e)
             &&
@@ -395,7 +395,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
 
         }
             
-        if (mode == AbstractActionHandler.ADD)
+        if (mode == CommentActionHandler.ADD)
         {
             
             this.object.setPosition (s);
@@ -409,7 +409,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
             this.viewer.saveObject (this.object,
                                     true);
 
-            if (this.mode == AbstractActionHandler.ADD)
+            if (this.mode == CommentActionHandler.ADD)
             {
     
                 // Add the item to the chapter.
@@ -418,7 +418,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
             }
                                            
             this.viewer.fireProjectEvent (this.object.getObjectType (),
-                                          (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
+                                          (this.mode == CommentActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
                                           this.object);
                                            
         } catch (Exception ex)
@@ -429,7 +429,7 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
                                   ex);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + " comment.");
+                                      "Unable to " + ((this.mode == CommentActionHandler.ADD) ? "add new " : "save") + " comment.");
 
             return false;
 

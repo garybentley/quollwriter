@@ -34,7 +34,7 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
         super (new Chapter (addFrom.getBook (),
                             null),
                pv,
-               AbstractActionHandler.ADD);
+               AbstractFormPopup.ADD);
 
         this.addFrom = addFrom;
         

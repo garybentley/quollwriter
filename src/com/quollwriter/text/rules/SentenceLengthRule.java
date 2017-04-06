@@ -12,7 +12,7 @@ import com.gentlyweb.xml.*;
 
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -119,6 +119,7 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
     }
 
+    @Override
     public String getCategory ()
     {
 
@@ -126,10 +127,11 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
     }
 
-    public List<FormItem> getFormItems ()
+    @Override
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         this.count = new JSpinner (new SpinnerNumberModel (this.wordCount,
                                                            1,
@@ -142,13 +144,14 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
         this.count.setMaximumSize (this.count.getPreferredSize ());
 
-        items.add (new FormItem ("No of Words",
-                                 b));
+        items.add (new AnyFormItem ("No of Words",
+                                    b));
 
         return items;
 
     }
 
+    @Override
     public String getFormError ()
     {
 

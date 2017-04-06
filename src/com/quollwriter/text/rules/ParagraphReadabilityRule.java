@@ -14,7 +14,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.text.*;
 
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.forms.*;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -196,6 +196,7 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
     }
 
+    @Override
     public String getCategory ()
     {
 
@@ -204,10 +205,10 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     }
 
     @Override
-    public List<FormItem> getFormItems ()
+    public Set<FormItem> getFormItems ()
     {
 
-        List<FormItem> items = new ArrayList ();
+        Set<FormItem> items = new LinkedHashSet ();
 
         this.fkF = new JSpinner (new SpinnerNumberModel (this.fleschKincaid,
                                                          0,
@@ -220,8 +221,8 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         this.fkF.setMaximumSize (this.fkF.getPreferredSize ());
 
-        items.add (new FormItem ("Flesch Kincaid Grade level",
-                                 b));
+        items.add (new AnyFormItem ("Flesch Kincaid Grade level",
+                                    b));
 
         this.frF = new JSpinner (new SpinnerNumberModel (this.fleschReading,
                                                          0,
@@ -235,8 +236,8 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         this.frF.setMaximumSize (this.frF.getPreferredSize ());
 
-        items.add (new FormItem ("Flesch Reading ease level",
-                                 b));
+        items.add (new AnyFormItem ("Flesch Reading ease level",
+                                    b));
 
         this.gfF = new JSpinner (new SpinnerNumberModel (this.gunningFog,
                                                          0,
@@ -250,8 +251,8 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         this.gfF.setMaximumSize (this.gfF.getPreferredSize ());
 
-        items.add (new FormItem ("Gunning Fog index",
-                                 b));
+        items.add (new AnyFormItem ("Gunning Fog index",
+                                    b));
 
         return items;
 

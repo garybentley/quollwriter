@@ -16,7 +16,6 @@ import javax.swing.*;
 
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.userobjects.*;
-import com.quollwriter.ui.components.FormItem;
 
 public class SelectUserConfigurableObjectTypeField extends UserConfigurableObjectTypeField
 {

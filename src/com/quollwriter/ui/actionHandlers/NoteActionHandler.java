@@ -191,7 +191,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
     public String getTitle ()
     {
 
-        if (this.mode == AbstractActionHandler.EDIT)
+        if (this.mode == NoteActionHandler.EDIT)
         {
 
             return "Edit Note";
@@ -273,7 +273,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
 
         }
 
-        if (mode == AbstractActionHandler.ADD)
+        if (mode == NoteActionHandler.ADD)
         {
 
             if ((selectedText != null) &&
@@ -391,7 +391,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
             int s = this.itemViewer.getEditor ().getSelectionStart ();
             int e = this.itemViewer.getEditor ().getSelectionEnd ();
         
-            if ((this.mode == AbstractActionHandler.EDIT)
+            if ((this.mode == NoteActionHandler.EDIT)
                 &&
                 (s != e)
                 &&
@@ -404,7 +404,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
 
             }
             
-            if (this.mode == AbstractActionHandler.ADD)
+            if (this.mode == NoteActionHandler.ADD)
             {
                 
                 this.object.setPosition (s);
@@ -439,7 +439,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
         try
         {
 
-            if (this.mode == AbstractActionHandler.ADD)
+            if (this.mode == NoteActionHandler.ADD)
             {
     
                 // Add the item to the chapter.
@@ -451,7 +451,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
                                     true);
 
             this.viewer.fireProjectEvent (this.object.getObjectType (),
-                                          (this.mode == AbstractActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
+                                          (this.mode == NoteActionHandler.ADD ? ProjectEvent.NEW : ProjectEvent.EDIT),
                                           this.object);
                                            
                                            
@@ -465,7 +465,7 @@ public class NoteActionHandler extends ChapterItemActionHandler<Note>
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to " + ((this.mode == AbstractActionHandler.ADD) ? "add new " : "save") + Environment.getObjectTypeName (Note.OBJECT_TYPE).toLowerCase () + ".");
+                                      "Unable to " + ((this.mode == NoteActionHandler.ADD) ? "add new " : "save") + Environment.getObjectTypeName (Note.OBJECT_TYPE).toLowerCase () + ".");
 
             return false;
 

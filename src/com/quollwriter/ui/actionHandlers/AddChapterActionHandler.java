@@ -46,7 +46,7 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
         super (new Chapter (b,
                             null),
                pv,
-               AbstractActionHandler.ADD,
+               AddChapterActionHandler.ADD,
                true);
 
         this.book = b;

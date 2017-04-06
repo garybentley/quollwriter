@@ -61,7 +61,7 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
 
         return new ChapterItemActionHandler (item,
                                              viewer,
-                                             AbstractActionHandler.EDIT,
+                                             ChapterItemActionHandler.EDIT,
                                              -1);
 
     }

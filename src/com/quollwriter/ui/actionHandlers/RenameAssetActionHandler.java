@@ -14,12 +14,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.Form;
-import com.quollwriter.ui.components.FormAdapter;
-import com.quollwriter.ui.components.FormEvent;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.events.*;
-
 
 public class RenameAssetActionHandler extends TextInputActionHandler<ProjectViewer>
 {

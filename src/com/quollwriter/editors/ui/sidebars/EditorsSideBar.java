@@ -42,10 +42,8 @@ import com.quollwriter.ui.sidebars.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.db.*;
 import com.quollwriter.events.*;
-import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.FormItem;
 import com.quollwriter.ui.components.DnDTabbedPane;
 import com.quollwriter.ui.components.TabHeader;
 import com.quollwriter.ui.components.ScrollableBox;
@@ -492,9 +490,10 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         JButton b = UIUtils.createButton (Constants.NEW_ICON_NAME,
                                           Constants.ICON_SIDEBAR,
                                           "Click to send an invite",
-                                          new ActionAdapter ()
+                                          new ActionListener ()
                                           {
                                             
+                                              @Override
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                                 
@@ -509,9 +508,10 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         b = UIUtils.createButton (Constants.OPTIONS_ICON_NAME,
                                   Constants.ICON_SIDEBAR,
                                   "Click to view the config options",
-                                  new ActionAdapter ()
+                                  new ActionListener ()
                                   {
                                             
+                                        @Override
                                         public void actionPerformed (ActionEvent ev)
                                         {
                                                             
@@ -1104,9 +1104,10 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         {
             
             javax.swing.Timer timer = new javax.swing.Timer (duration * 1000,
-                                                             new ActionAdapter ()
+                                                             new ActionListener ()
                                                              {
                                                                              
+                                                                @Override
                                                                 public void actionPerformed (ActionEvent ev)
                                                                 {
                                                                             

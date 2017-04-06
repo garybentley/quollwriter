@@ -20,12 +20,12 @@ import wordcram.*;
 
 import com.quollwriter.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.whatsnewcomps.*;
 import com.quollwriter.ui.components.Header;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ScrollableBox;
-import com.quollwriter.ui.components.FormItem;
 
 public class WordCloudPanel extends BasicQuollPanel<AbstractProjectViewer>
 {
@@ -402,21 +402,21 @@ public class WordCloudPanel extends BasicQuollPanel<AbstractProjectViewer>
                                                        0);
             
             
-            items.add (new FormItem ("Words",
+            items.add (new AnyFormItem ("Words",
                                      this.text));
                                                 
-            items.add (new FormItem ("Font",
+            items.add (new AnyFormItem ("Font",
                                      this.fonts));
 
-            items.add (new FormItem ("Font Size",
+            items.add (new AnyFormItem ("Font Size",
                                      this.sizes));
 
             this.bold = UIUtils.createCheckBox ("Bold");
                                      
-            items.add (new FormItem (null,
+            items.add (new AnyFormItem (null,
                                      this.bold));
                                                             
-            items.add (new FormItem ("Angle",
+            items.add (new AnyFormItem ("Angle",
                                      this.angle));
 
             //this.add (UIUtils.createForm (items));

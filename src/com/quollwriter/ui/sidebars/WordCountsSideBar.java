@@ -25,10 +25,8 @@ import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.db.*;
 import com.quollwriter.events.*;
-import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.Header;
-import com.quollwriter.ui.components.FormItem;
 
 public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 {
@@ -106,9 +104,10 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         {
                     
             this.timer = new Timer (2 * Constants.SEC_IN_MILLIS,
-                                    new ActionAdapter ()
+                                    new ActionListener ()
                                     {
                                        
+                                        @Override
                                         public void actionPerformed (ActionEvent ev)
                                         {
                                        
@@ -699,9 +698,10 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         JButton b = UIUtils.createButton ("chart",
                                           Constants.ICON_SIDEBAR,
                                           "Click to view the detail",
-                                          new ActionAdapter ()
+                                          new ActionListener ()
                                           {
                                             
+                                              @Override
                                               public void actionPerformed (ActionEvent ev)
                                               {
                                                 
