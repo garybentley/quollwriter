@@ -14,7 +14,7 @@ public class Scene extends ChapterItem
 
     public static final String OBJECT_TYPE = "scene";
 
-    private TreeSet<OutlineItem> outlineItems = new TreeSet (new ChapterItemSorter ());
+    private Set<OutlineItem> outlineItems = new HashSet (); 
 
     public Scene()
     {
@@ -44,26 +44,7 @@ public class Scene extends ChapterItem
                                     this.outlineItems.size ());
                         
     }    
-    
-    public synchronized void reindex ()
-    {
         
-        super.reindex ();
-        
-        TreeSet<OutlineItem> ooutlineItems = new TreeSet (new ChapterItemSorter ());
-        
-        ooutlineItems.addAll (this.outlineItems);
-        this.outlineItems = ooutlineItems;
-        
-        for (OutlineItem it : this.outlineItems)
-        {
-            
-            it.reindex ();
-            
-        }
-        
-    }
-    
     public Set<ChapterItem> getChapterItemsWithPositionGreaterThan (int pos)
     {
         
@@ -96,7 +77,7 @@ public class Scene extends ChapterItem
 
         List<OutlineItem> its = new ArrayList ();
 
-        for (OutlineItem it : this.outlineItems)
+        for (OutlineItem it : this.getOutlineItems ())
         {
 
             if (it.getPosition () == pos)
@@ -164,7 +145,13 @@ public class Scene extends ChapterItem
     public Set<OutlineItem> getOutlineItems ()
     {
 
-        return new TreeSet (this.outlineItems);
+        TreeSet t = new TreeSet (new ChapterItemSorter ());
+        
+        t.addAll (this.outlineItems);
+        
+        return t;
+
+        //return new TreeSet (this.outlineItems);
 
     }
 
@@ -194,6 +181,13 @@ public class Scene extends ChapterItem
 
     public void addOutlineItem (OutlineItem i)
     {
+    
+        if (this.outlineItems.contains (i))
+        {
+          
+            return;
+            
+        }
     
         Scene s = i.getScene ();
 
@@ -262,7 +256,7 @@ public class Scene extends ChapterItem
 
         super.shiftPositionBy (p);
 
-        for (OutlineItem i : this.outlineItems)
+        for (OutlineItem i : this.getOutlineItems ())
         {
 
             i.shiftPositionBy (p);

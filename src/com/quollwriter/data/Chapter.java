@@ -34,8 +34,8 @@ public class Chapter extends LegacyUserConfigurableObject
     private StringWithMarkup  text = null;
     private StringWithMarkup  goals = null;
     private StringWithMarkup  plan = null;
-    private TreeSet<OutlineItem> outlineItems = new TreeSet (new ChapterItemSorter ());
-    private TreeSet<Scene>       scenes = new TreeSet (new ChapterItemSorter ());
+    private Set<OutlineItem> outlineItems = new HashSet (); //TreeSet (new ChapterItemSorter ());
+    private Set<Scene>       scenes = new HashSet (); //TreeSet (new ChapterItemSorter ());
     private int editPosition = -1;
     private Position textEditPos = null;
     private boolean editComplete = false;
@@ -174,6 +174,7 @@ public class Chapter extends LegacyUserConfigurableObject
      * This method recreates the sets backing the scenes/notes/outline items and calls the
      * same reindex method on child objects, so re-initing the entire tree.
      */
+    /*
     public synchronized void reindex ()
     {
 
@@ -206,7 +207,7 @@ public class Chapter extends LegacyUserConfigurableObject
         }
 
     }
-
+*/
     public boolean isEditComplete ()
     {
 
@@ -935,7 +936,9 @@ public class Chapter extends LegacyUserConfigurableObject
         if (i.getScene () != null)
         {
 
-            return;
+            i.getScene ().removeOutlineItem (i);
+
+            i.setScene (null);
 
         }
 
@@ -951,12 +954,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
         i.setChapter (this);
 
-        if (i.getScene () == null)
-        {
-
-            this.outlineItems.add (i);
-
-        }
+        this.outlineItems.add (i);
 
     }
 
@@ -1170,8 +1168,11 @@ public class Chapter extends LegacyUserConfigurableObject
     public Scene getNextScene (Scene s)
     {
 
-        // Should return the next scene after s.
-        return this.scenes.higher (s);
+        TreeSet<Scene> items = new TreeSet (new ChapterItemSorter ());
+
+        items.addAll (this.scenes);
+        
+        return items.higher (s);
 
     }
 
@@ -1180,7 +1181,7 @@ public class Chapter extends LegacyUserConfigurableObject
 
         Scene last = null;
 
-        for (Scene s : this.scenes)
+        for (Scene s : this.getScenes ())
         {
 
             if (s.getPosition () >= position)

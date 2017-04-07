@@ -38,7 +38,7 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
         
     }
     
-    private NamedObjectSorter()
+    protected NamedObjectSorter()
     {
 
         this.initOrder ();
@@ -104,6 +104,7 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
         
     }
     
+    @Override
     public int compare (NamedObject o1,
                         NamedObject o2)
     {
@@ -136,6 +137,20 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
             
             return -1;
             
+        }
+
+        // Since the sorter are often used for contains and equality tests for Sets/Maps etc we need
+        // to do a check here for the same object being added twice.
+        if (o1.getObjectType ().equals (o2.getObjectType ()))
+        {
+
+            if (o1.getKey () == o2.getKey ())
+            {
+                
+                return 0;
+                
+            }
+
         }
 
         if (!o1.getObjectType ().equals (o2.getObjectType ()))

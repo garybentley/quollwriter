@@ -4,10 +4,10 @@ import java.util.*;
 
 import com.quollwriter.data.*;
 
-
 public class ChapterItemSorter implements Comparator<ChapterItem>
 {
 
+    @Override
     public int compare (ChapterItem o1,
                         ChapterItem o2)
     {
@@ -25,7 +25,16 @@ public class ChapterItemSorter implements Comparator<ChapterItem>
             return 1;
             
         }
-  */  
+  */
+
+        // The sorter may be used for contains checks in Sets and Maps so need an equality test here.
+        if (o1.getKey () == o2.getKey ())
+        {
+            
+            return 0;
+            
+        }
+
         if (o1.getPosition () == o2.getPosition ())
         {
             

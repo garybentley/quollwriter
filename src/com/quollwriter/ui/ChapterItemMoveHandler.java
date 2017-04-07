@@ -138,9 +138,7 @@ public class ChapterItemMoveHandler
                             s.addOutlineItem (i);
             
                         } else {
-                            
-                            i.setScene (null);
-                            
+                                                                                    
                             c.addOutlineItem (i);
                             
                         }
@@ -177,8 +175,6 @@ public class ChapterItemMoveHandler
         
                     } else {
                         
-                        it.setScene (null);
-                        
                         c.addOutlineItem (it);
                         
                     }
@@ -186,7 +182,7 @@ public class ChapterItemMoveHandler
                 }
 
             }
-            
+           
             // Save the chapter, this deals with side-effects.
             this.viewer.saveObject (c,
                                     true);

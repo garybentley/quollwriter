@@ -39,7 +39,7 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
             long key = rs.getLong (ind++);
 
             OutlineItem o = null;
-
+    
             if (parent == null)
             {
                 
@@ -57,12 +57,23 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
                                 
                 } else
                 {
-    
-                    Chapter c = (Chapter) parent;
-                                    
-                    o = new OutlineItem (pos,
-                                         c);
+                      
+                    if (parent instanceof Chapter)
+                    {
+                                                
+                        o = new OutlineItem (pos,
+                                             (Chapter) parent);
+
+                    }
                         
+                    if (parent instanceof Scene)
+                    {
+                                                
+                        o = new OutlineItem (pos,
+                                             (Scene) parent);
+
+                    }
+
                 }
                 
             }            
@@ -86,13 +97,22 @@ public class OutlineItemDataHandler implements DataHandler<OutlineItem, NamedObj
                                             
                     s.addOutlineItem (o);
                 
-                } else
-                {
+                } else {
+                      
+                    if (parent instanceof Chapter)
+                    {
+                                        
+                        ((Chapter) parent).addOutlineItem (o);
     
-                    Chapter c = (Chapter) parent;
-                                    
-                    c.addOutlineItem (o);
+                    }
     
+                    if (parent instanceof Scene)
+                    {
+                                        
+                        ((Scene) parent).addOutlineItem (o);
+    
+                    }
+
                 }
 
             }

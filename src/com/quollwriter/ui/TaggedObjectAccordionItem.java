@@ -195,6 +195,8 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                                     
                                                                     try
                                                                     {
+                                                                                    
+                                                                        Environment.deleteTag (_this.tag);
                                                                         
                                                                     } catch (Exception e) {
                                                                         
@@ -221,8 +223,6 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                                                                     try
                                                                     {
-                                            
-                                                                        
                                             
                                                                         _this.viewer.removeTag (_this.tag);
                                                                         
@@ -256,7 +256,8 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                 UIUtils.createQuestionPopup (_this.viewer,
                                                                              "Remove tag",
                                                                              Constants.DELETE_ICON_NAME,
-                                                                             "Do you wish to remove tag <b>%s</b> from <b>ALL</b> {projects} or just this one?",
+                                                                             String.format ("Do you wish to remove tag <b>%s</b> from <b>ALL</b> {projects} or just this one?",
+                                                                                            _this.tag.getName ()),
                                                                              buttons,
                                                                              null,
                                                                              null);
