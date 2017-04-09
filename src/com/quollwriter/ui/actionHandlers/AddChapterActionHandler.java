@@ -133,6 +133,8 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
             this.viewer.saveObject (newChapter,
                                     true);
 
+            this.object = newChapter;
+
             this.viewer.fireProjectEvent (newChapter.getObjectType (),
                                           ProjectEvent.NEW,
                                           newChapter);
