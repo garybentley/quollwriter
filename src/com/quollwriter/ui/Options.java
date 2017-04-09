@@ -2886,6 +2886,9 @@ public class Options extends Box
 
                 UserProperties.remove (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
 
+                // Reset to the default.
+                Environment.setKeyStrokeSoundFile (null);
+
                 useB.setEnabled (false);
                 testB.setEnabled (false);
 
