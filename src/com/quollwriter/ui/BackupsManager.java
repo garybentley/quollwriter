@@ -189,8 +189,31 @@ public class BackupsManager extends Box implements ProjectEventListener
 
         this.backupsDir = UIUtils.createClickableLabel ("Click to view the backups directory",
                                                         Environment.getIcon (Constants.VIEW_ICON_NAME,
-                                                                             Constants.ICON_MENU),
-                                                        this.proj.getBackupDirectory ().toURI ().toString ());
+                                                                             Constants.ICON_MENU));
+
+        UIUtils.makeClickable (this.backupsDir,
+                               new ActionListener ()
+                               {
+                                
+                                    @Override
+                                    public void actionPerformed (ActionEvent ev)
+                                    {
+                                        
+                                        try
+                                        {
+                                        
+                                            UIUtils.openURL (_this.viewer,
+                                                             _this.proj.getBackupDirectory ().toURI ().toURL ());
+                                            
+                                        } catch (Exception e) {
+                                            
+                                            // Can ignore.
+                                            
+                                        }
+                                        
+                                    }
+                                
+                               });
 
         this.backupsDir.setBorder (UIUtils.createPadding (0, 0, 10, 0));
 
