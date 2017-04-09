@@ -3059,6 +3059,16 @@ public class ObjectManager
                                        null,
                                        null);
 
+            // See if there is a files dir.
+            if (!Utils.isDirectoryEmpty (project.getFilesDirectory ()))
+            {
+             
+                // Add the files dir to the backup.
+                Utils.addDirToZip (f,
+                                   project.getFilesDirectory ());
+                
+            }            
+
             // Test the backup?
 
         } catch (Exception e)

@@ -8937,16 +8937,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             
         }
         
-        return new File (this.getProjectFilesDirectory (),
-                         fileName);
+        return this.proj.getFile (fileName);
         
     }
     
     public File getProjectFilesDirectory ()
     {
         
-        File d = new File (this.proj.getProjectDirectory (),
-                           Constants.PROJECT_FILES_DIR_NAME);
+        File d = this.proj.getFilesDirectory ();
         
         if (!d.exists ())
         {
@@ -8976,8 +8974,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             
         }
 
+        File f = this.getProjectFile (fileName);
+        
+        f.getParentFile ().mkdirs ();
+
         IOUtils.copyFile (file,
-                          this.getProjectFile (fileName),
+                          f,
                           4096);
                 
     }

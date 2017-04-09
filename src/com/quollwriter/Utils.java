@@ -7,6 +7,7 @@ import java.text.*;
 import java.net.*;
 import java.util.*;
 import java.util.zip.*;
+import java.nio.file.*;
 
 import javax.swing.*;
 
@@ -664,6 +665,76 @@ public class Utils
             
         }).start ();        
         
+    }
+
+    public static void addDirToZip (File f,
+                                    File dirToWrite)
+                             throws GeneralException
+    {
+
+        if ((dirToWrite == null)
+            ||
+            (f == null)
+           )
+        {
+            
+            // Naughty but shouldn't happen.
+            throw new IllegalArgumentException ("Invalid args");
+            
+        }
+
+        if (dirToWrite.isFile ())
+        {
+            
+            throw new IllegalArgumentException ("To write directory is actually a file: " +
+                                                dirToWrite);
+            
+        }
+        
+        if (f.isDirectory ())
+        {
+            
+            throw new IllegalArgumentException ("File to write to is a directory: " +
+                                                f);
+            
+        }
+        
+        try
+        {
+            
+            Map<String, String> env = new HashMap ();
+            env.put ("create", "true");
+            
+            FileSystem fs = FileSystems.newFileSystem (Paths.get (f.getPath ()),
+                                                       null);
+            
+            File[] files = dirToWrite.listFiles ();
+            
+            for (int i = 0; i < files.length; i++)
+            {
+            
+                Path fp = Paths.get (files[i].toURI ());
+                
+                Path zp = fs.getPath ("/" + files[i].getParentFile ().getName () + "/" + files[i].getName ());
+                
+                Files.createDirectories (zp.getParent ());
+                
+                Files.copy (fp,
+                            zp,
+                            StandardCopyOption.REPLACE_EXISTING);
+            
+            }
+
+        } catch (Exception e) {
+            
+            throw new GeneralException ("Unable to write dir to file: " +
+                                        dirToWrite +
+                                        ", file: " +
+                                        f,
+                                        e);
+            
+        }
+
     }
 
     public static void extractZipFile (File   f,

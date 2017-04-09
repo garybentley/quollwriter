@@ -1259,6 +1259,22 @@ public class Project extends NamedObject
         
     }
     
+    public File getFile (String fileName)
+    {
+        
+        return new File (this.getFilesDirectory (),
+                         fileName);
+        
+    }
+    
+    public File getFilesDirectory ()
+    {
+        
+        return new File (this.projectDirectory,
+                         Constants.PROJECT_FILES_DIR_NAME);
+        
+    }
+    
     public File getBackupDirectory ()
     {
 
