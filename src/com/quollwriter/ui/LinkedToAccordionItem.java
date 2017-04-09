@@ -170,7 +170,7 @@ public class LinkedToAccordionItem extends AccordionItem
     {
         
         this.object = o;
-        
+                
         this.updateTree ();
         
     }
@@ -256,6 +256,8 @@ public class LinkedToAccordionItem extends AccordionItem
                                                               
         this.view.setVisible (false);
         this.edit.setVisible (true);
+        this.getHeaderControls ().setVisible (false);
+        
         this.validate ();
         this.repaint ();        
 
@@ -265,6 +267,8 @@ public class LinkedToAccordionItem extends AccordionItem
     
     public void updateTree ()
     {
+
+        this.getHeaderControls ().setVisible (true);        
 
         this.noLinks.setVisible (this.object.getLinks ().size () == 0);
     
