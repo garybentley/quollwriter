@@ -460,7 +460,7 @@ public class WarmupPromptSelect extends Box
                     // then create it.
                     UIUtils.showMessage (null,
                                          "{Warmups} project",
-                                         "A {Warmups} {project} will now be created to hold each of the {warmups} you write.",
+                                         "A {Warmups} {project} will now be created to hold your {warmups}.",
                                          null,
                                          new ActionListener ()
                                          {
