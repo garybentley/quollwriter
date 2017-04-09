@@ -124,7 +124,12 @@ public abstract class ChapterItem extends NamedObject
     
         this.chapter = c;
 
-        this.chapter.addChapterItem (this);
+        if (this.scene == null)
+        {
+
+            this.chapter.addChapterItem (this);
+            
+        }
         
     }
 
