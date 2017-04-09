@@ -5631,9 +5631,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 						{
 
 							UIUtils.showErrorMessage (this,
-													  "Unable to save: " +
-													  pqp.getForObject ().getName () +
-													  ", aborting exit.");
+													  "Unable to save: <b>" +
+													  pqp.getTitle () + 
+													  "</b>, aborting exit.");
 
 							// Switch to the tab.
 							this.viewObject (pqp.getForObject ());

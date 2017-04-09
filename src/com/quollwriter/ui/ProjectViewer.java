@@ -2321,20 +2321,17 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                               final ActionListener doAfterView)
     {
 
-        // Check our tabs to see if we are already editing this asset, if so then just switch to it instead.
-        AssetViewPanel avp = (AssetViewPanel) this.getQuollPanelForObject (a);
+        ProjectObjectQuollPanel p = this.getQuollPanelForObject (a);
 
-        if (avp != null)
+        if (p != null)
         {
 
-            this.setPanelVisible (avp);
-
-            avp.initDividers ();
+            this.setPanelVisible (p);
 
             if (doAfterView != null)
             {
 
-                UIUtils.doActionWhenPanelIsReady (avp,
+                UIUtils.doActionWhenPanelIsReady (p,
                                                   doAfterView,
                                                   a,
                                                   "afterview");
@@ -2346,6 +2343,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         }
 
         final ProjectViewer _this = this;
+
+        AssetViewPanel avp = null;
 
         try
         {

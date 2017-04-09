@@ -107,13 +107,6 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
 
     }
 
-    public void initDividers ()
-    {
-
-        // This method doesn't work for startup.
-
-    }
-
     public void init ()
                throws GeneralException
     {
