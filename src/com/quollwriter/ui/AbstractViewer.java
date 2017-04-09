@@ -1967,7 +1967,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             Box content = new Box (BoxLayout.Y_AXIS);
 
             FormLayout pfl = new FormLayout ("5px, right:p, 6px, fill:p:grow",
-                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
+                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
 
             PanelBuilder pbuilder = new PanelBuilder (pfl);
 
@@ -2055,6 +2055,14 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             pbuilder.add (UIUtils.createWebsiteLabel ("https://www.patreon.com/quollwriter?ty=h",
                                                       "Patreon",
+                                                      false),
+                          cc.xy (4,
+                                 y));
+
+            y += 2;
+
+            pbuilder.add (UIUtils.createWebsiteLabel ("https://www.gofundme.com/quollwriter",
+                                                      "Make a donation",
                                                       false),
                           cc.xy (4,
                                  y));
