@@ -156,7 +156,7 @@ public class Achievements extends Box implements AchievementReachedListener
         help.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));
         
-        help.setBorder (new EmptyBorder (0, 10, 0, 0));
+        help.setBorder (UIUtils.createPadding (0, 10, 5, 0));
         
         this.add (help);
                                 
@@ -168,17 +168,19 @@ public class Achievements extends Box implements AchievementReachedListener
 
         Box main = new Box (BoxLayout.Y_AXIS);
         
-        final JScrollPane lscroll = new JScrollPane (main);
+        final JScrollPane lscroll = UIUtils.createScrollPane (main,
+                                                              true);
         lscroll.setBorder (null);
-        lscroll.setOpaque (false);
-        lscroll.getViewport ().setBorder (null);
-        lscroll.getViewport ().setOpaque (false);
-        lscroll.getVerticalScrollBar ().setUnitIncrement (20);
-        lscroll.setAlignmentX (Component.LEFT_ALIGNMENT);
-        lscroll.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                               Short.MAX_VALUE));        
+                                
+        lscroll.getVerticalScrollBar ().setUnitIncrement (new AchievementBox (userRules.iterator ().next (),
+                                                                              false,
+                                                                              false).getPreferredSize ().height + 1);
                 
         this.add (lscroll);
+                
+        final JComponent genBox = _this.getAchievementsBox (userRules,
+                                                            achieved.get ("user"),
+                                                            "user");
                 
         AccordionItem gen = new AccordionItem ("General - " + achieved.get ("user").size () + " / " + userRules.size ())
         {
@@ -187,13 +189,13 @@ public class Achievements extends Box implements AchievementReachedListener
             public JComponent getContent ()
             {
                 
-                return _this.getAchievementsBox (userRules,
-                                                 achieved.get ("user"),
-                                                 "user");
+                return genBox;
                 
             }
             
         };
+        
+        gen.init ();
         
         this.headers.put ("user",
                           gen.getHeader ());
@@ -203,26 +205,30 @@ public class Achievements extends Box implements AchievementReachedListener
         if (this.viewer instanceof AbstractProjectViewer)
         {
         
-            gen.setBorder (new EmptyBorder (0, 10, 0, 0));
-            AccordionItem proj = new AccordionItem ("Project - " + achieved.get ("project").size () + " / " + projRules.size ())
+            final JComponent projBox = _this.getAchievementsBox (projRules,
+                                                                 achieved.get ("project"),
+                                                                 "project");
+        
+            gen.setBorder (UIUtils.createPadding (0, 5, 0, 0));
+            AccordionItem proj = new AccordionItem (Environment.replaceObjectNames ("{Project} - " + achieved.get ("project").size () + " / " + projRules.size ()))
             {
                 
                 @Override
                 public JComponent getContent ()
                 {
             
-                    return _this.getAchievementsBox (projRules,
-                                                     achieved.get ("project"),
-                                                     "project");
+                    return projBox;
                                               
                 }
                 
             };
             
+            proj.init ();
+            
             this.headers.put ("project",
                               proj.getHeader ());
             
-            proj.setBorder (new EmptyBorder (0, 10, 0, 0));
+            proj.setBorder (UIUtils.createPadding (0, 5, 0, 0));
         
             main.add (proj);
             
@@ -252,7 +258,7 @@ public class Achievements extends Box implements AchievementReachedListener
         b.setOpaque (true);
         b.setBackground (UIUtils.getComponentColor ());
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.setBorder (new EmptyBorder (0, 5, 0, 0));
+        b.setBorder (UIUtils.createPadding (0, 5, 0, 0));
         
         int c = 0;
                 

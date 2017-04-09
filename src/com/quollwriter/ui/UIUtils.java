@@ -6865,14 +6865,14 @@ public class UIUtils
 
     }
 
-    public static JScrollPane createScrollPane (JComponent c)
+    public static JScrollPane createScrollPane (JComponent c,
+                                                boolean    addTopBorderOnScroll)
     {
 
-        JScrollPane sp = new JScrollPane (c);
+        final JScrollPane sp = new JScrollPane (c);
         sp.setOpaque (true);
         sp.getViewport ().setBackground (UIUtils.getComponentColor ());
         sp.setBackground (UIUtils.getComponentColor ());
-        sp.setBorder (UIUtils.createLineBorder ());
         sp.setAlignmentX (Component.LEFT_ALIGNMENT);
         sp.getVerticalScrollBar ().setUnitIncrement (DEFAULT_SCROLL_BY_AMOUNT);
 
@@ -6884,8 +6884,53 @@ public class UIUtils
             sp.getVerticalScrollBar ().setBlockIncrement (1);
 
         }
+        
+        if (addTopBorderOnScroll)
+        {
+        
+            final Border defBorder = UIUtils.createPadding (1, 0, 0, 0);
+        
+            final Border scrollBorder = new MatteBorder (1, 0, 0, 0,
+                                                         UIUtils.getInnerBorderColor ());
+        
+            sp.setBorder (defBorder);
+        
+            sp.getVerticalScrollBar ().addAdjustmentListener (new AdjustmentListener ()
+            {
+    
+                public void adjustmentValueChanged (AdjustmentEvent ev)
+                {
+    
+                    if (sp.getVerticalScrollBar ().getValue () > 0)
+                    {
+    
+                        sp.setBorder (scrollBorder);
+    
+                    } else {
+    
+                        sp.setBorder (defBorder);
+    
+                    }
+    
+                }
+    
+            });
 
+        } else {
+            
+            sp.setBorder (UIUtils.createLineBorder ());            
+            
+        }
+        
         return sp;
+        
+    }
+
+    public static JScrollPane createScrollPane (JComponent c)
+    {
+
+        return UIUtils.createScrollPane (c,
+                                         false);
 
     }
 
