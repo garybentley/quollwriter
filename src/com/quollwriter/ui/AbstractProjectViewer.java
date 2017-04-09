@@ -6347,7 +6347,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 									   "fullscreen-blank");
 
             qep.init ();
-
+            
         }
 
         if (this.currentOtherSideBar != null)

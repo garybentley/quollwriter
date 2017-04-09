@@ -63,7 +63,7 @@ public class BlankQuollPanel extends QuollPanel<AbstractViewer>
         help.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                             Short.MAX_VALUE));
         
-        help.setBorder (new EmptyBorder (0, 10, 0, 0));
+        help.setBorder (new EmptyBorder (5, 15, 0, 0));
         
         this.add (help);
         

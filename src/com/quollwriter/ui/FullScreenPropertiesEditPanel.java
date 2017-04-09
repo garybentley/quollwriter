@@ -112,7 +112,7 @@ public class FullScreenPropertiesEditPanel extends Box implements UserPropertyLi
         // Create a box that will be the container for the chapters/properties.
         Box b = new Box (BoxLayout.Y_AXIS);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
-        b.setBorder (new EmptyBorder (5, 5, 0, 0));
+        b.setBorder (UIUtils.createPadding (5, 0, 0, 0));
 
         JLabel l = UIUtils.createLabel ("Background image/color");
         l.setBorder (UIUtils.createPadding (5, 10, 0, 0));

@@ -1523,19 +1523,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                     1,
                                     3);
 
-        // Small thing, if the current project viewer sidebar is the text properties then show the full screen
-        // properties instead.
-
-        // Remove any normal properties.
-        //this.projectViewer.removeSideBar (TextPropertiesSideBar.NAME);
-
-        if (this.projectViewer.isCurrentSideBarTextProperties ())
-        {
-
-            //this.showProperties ();
-
-        }
-
     }
 
     private void createInfo ()
@@ -1903,8 +1890,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                 {
 
                                                     _this.projectViewer.showFind (null);
-
-                                                    _this.showSideBar (Constants.LEFT);
 
                                                 }
 
