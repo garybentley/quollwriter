@@ -2542,8 +2542,8 @@ public class Options extends Box
         box.add (c);
 
         Vector v = new Vector ();
-        v.add (Environment.replaceObjectNames ("Above {Chapters}"));
-        v.add (Environment.replaceObjectNames ("Below {Notes}"));
+        v.add (Environment.replaceObjectNames ("Above the sidebar"));
+        v.add (Environment.replaceObjectNames ("Below the sidebar"));
 
         final JComboBox toolbarLoc = new JComboBox (v);
 
