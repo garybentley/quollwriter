@@ -2274,13 +2274,12 @@ public class Options extends Box
 
         box.add (Box.createVerticalStrut (5));
 
-        final JComponent label = UIUtils.createClickableLabel ("Change what is displayed",
-                                                               null);
-
-        label.addMouseListener (new MouseEventHandler ()
+        JButton but = UIUtils.createButton ("Change what is displayed",
+                                            new ActionListener ()
         {
 
-            public void handlePress (MouseEvent ev)
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
 
                 _this.showEditChapterInfo ();
@@ -2289,7 +2288,7 @@ public class Options extends Box
 
         });
 
-        c = this.createWrapper (label);
+        c = this.createWrapper (but);
         this.setAsSubItem (c);
 
         box.add (c);
@@ -4636,7 +4635,7 @@ public class Options extends Box
                                                             null,
                                                             _bogusPV);
 
-		bb.addMain ("Use the following format for {chapter} information.  <a href='help:chapters/landing'>Click here</a> for help on the format/tags that can be used.",
+		bb.addMain ("Use the following format for {chapter} information.  <a href='help:chapters/overview'>Click here</a> for help on the format/tags that can be used.",
 					status);
 
 		Box pbb = new Box (BoxLayout.X_AXIS);
@@ -4716,13 +4715,16 @@ public class Options extends Box
 
 		});
 
-		JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+		JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.FINISH_BUTTON_LABEL_ID),
 											   new ActionListener ()
 		{
 
             @Override
 			public void actionPerformed (ActionEvent ev)
 			{
+
+				UserProperties.set (Constants.CHAPTER_INFO_PREVIEW_FORMAT,
+									status.getText ());
 
 				popup.removeFromParent ();
 
