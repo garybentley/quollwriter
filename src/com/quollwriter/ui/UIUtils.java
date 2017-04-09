@@ -11078,22 +11078,23 @@ public class UIUtils
 
         String chapText = viewer.getCurrentChapterText (c);
 
-        if ((chapText != null)
-            &&
-            (chapText.length () > 0)
-           )
+        if (chapText != null)
+        {
+            
+            chapText = chapText.trim ();
+            
+        } else {
+            
+            chapText = "";
+            
+        }
+
+        if (chapText.length () > 0)
         {
 
             chapText  = new TextIterator (chapText).getFirstSentence ().getText ();
 
         } else {
-
-
-
-        }
-
-        if (chapText == null)
-        {
 
             chapText = Environment.replaceObjectNames ("{Chapter} is empty.");
 
