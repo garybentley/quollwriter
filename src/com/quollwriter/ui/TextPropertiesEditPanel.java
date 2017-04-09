@@ -30,7 +30,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
     public static int MAX_TEXT_BORDER_WIDTH = 150;
 
-    private AbstractViewer viewer = null;
+    private AbstractProjectViewer viewer = null;
     private TextProperties textProps = null;
     private String eventType = null;
     private boolean showColorSelectors = false;
@@ -51,7 +51,7 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
     private Map<String, QPopup>  popups = new HashMap ();
 
-    public TextPropertiesEditPanel (AbstractViewer  pv,
+    public TextPropertiesEditPanel (AbstractProjectViewer  pv,
                                     TextProperties  props,
                                     String          eventType,
                                     boolean         showColorSelectors,
@@ -77,73 +77,151 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
             this.updateProperty = false;
 
-            if (ev.getName ().equals (Constants.EDITOR_FONT_PROPERTY_NAME))
+            // TODO: Gah, fix this...
+            if (this.viewer.isInFullScreen ())
             {
 
-                this.fonts.setSelectedItem (this.textProps.getFontFamily ());
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_PROPERTY_NAME))
+                {
+    
+                    this.fonts.setSelectedItem (this.textProps.getFontFamily ());
+                    
+                }
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))
-            {
-            
-                this.sizes.setSelectedItem (this.textProps.getFontSize ());
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_SIZE_PROPERTY_NAME))
+                {
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME))
-            {
-            
-                this.align.setSelectedItem (this.textProps.getAlignment ());
+                    this.sizes.setSelectedItem (this.textProps.getFontSize ());
+                    
+                }
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME))
-            {
-            
-                this.line.setSelectedItem (this.textProps.getLineSpacing ());
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_ALIGNMENT_PROPERTY_NAME))
+                {
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME))
-            {
-            
-                this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
+                    this.align.setSelectedItem (this.textProps.getAlignment ());
+                    
+                }
                 
-            }
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_LINE_SPACING_PROPERTY_NAME))
+                {
+                
+                    this.line.setSelectedItem (this.textProps.getLineSpacing ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_COLOR_PROPERTY_NAME))
+                {
+                
+                    this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
+                    
+                }
+    
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_FONT_BGCOLOR_PROPERTY_NAME))
+                {
+    
+                    this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
+                {
+                
+                    this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
+                {
+                
+                    this.indent.setSelected (this.textProps.getFirstLineIndent ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
+                {
+                
+                    this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.FULL_SCREEN_EDITOR_TEXT_BORDER_PROPERTY_NAME))
+                {
+                
+                    this.textBorder.setValue (this.textProps.getTextBorder ());
+                    
+                }
 
-            if (ev.getName ().equals (Constants.EDITOR_BGCOLOR_PROPERTY_NAME))
-            {
-
-                this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
+            } else {
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
-            {
-            
-                this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
+                if (ev.getName ().equals (Constants.EDITOR_FONT_PROPERTY_NAME))
+                {
+    
+                    this.fonts.setSelectedItem (this.textProps.getFontFamily ());
+                    
+                }
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
-            {
-            
-                this.indent.setSelected (this.textProps.getFirstLineIndent ());
+                if (ev.getName ().equals (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))
+                {
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
-            {
-            
-                this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
+                    this.sizes.setSelectedItem (this.textProps.getFontSize ());
+                    
+                }
                 
-            }
-            
-            if (ev.getName ().equals (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME))
-            {
-            
-                this.textBorder.setValue (this.textProps.getTextBorder ());
+                if (ev.getName ().equals (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME))
+                {
+                
+                    this.align.setSelectedItem (this.textProps.getAlignment ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME))
+                {
+                
+                    this.line.setSelectedItem (this.textProps.getLineSpacing ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME))
+                {
+                
+                    this.textcolorSwatch.setBackground (this.textProps.getTextColor ());
+                    
+                }
+    
+                if (ev.getName ().equals (Constants.EDITOR_BGCOLOR_PROPERTY_NAME))
+                {
+    
+                    this.bgcolorSwatch.setBackground (this.textProps.getBackgroundColor ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
+                {
+                
+                    this.highlightWritingLine.setSelected (this.textProps.isHighlightWritingLine ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
+                {
+                
+                    this.indent.setSelected (this.textProps.getFirstLineIndent ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
+                {
+                
+                    this.writingLineHighlightColorSwatch.setBackground (this.textProps.getWritingLineColor ());
+                    
+                }
+                
+                if (ev.getName ().equals (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME))
+                {
+                
+                    this.textBorder.setValue (this.textProps.getTextBorder ());
+                    
+                }
                 
             }
 
