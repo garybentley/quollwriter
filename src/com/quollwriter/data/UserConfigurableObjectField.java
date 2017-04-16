@@ -15,9 +15,36 @@ public class UserConfigurableObjectField extends NamedObject
     public UserConfigurableObjectField (UserConfigurableObjectTypeField type)
     {
         
-        super (type.getUserConfigurableObjectType ().getUserObjectType () + "objectfield");
+        super (type.getUserConfigurableObjectType ().getObjectTypeId () + "objectfield");
         
         this.field = type;
+        
+    }
+    
+    // TODO: Make this better...!
+    public Set<String> getProjectFileNames ()
+    {
+        
+        Set<String> files = new LinkedHashSet ();
+        
+        if (this.value == null)
+        {
+            
+            return files;
+            
+        }
+        
+        if ((this.field instanceof ImageUserConfigurableObjectTypeField)
+            ||
+            (this.field instanceof FileUserConfigurableObjectTypeField)
+           )
+        {
+            
+            files.add (this.value.toString ());
+            
+        }
+            
+        return files;
         
     }
     
@@ -80,7 +107,7 @@ public class UserConfigurableObjectField extends NamedObject
         return this.field.isLegacyField ();
         
     }
-        
+                
     public String getLegacyFieldId ()
     {
         

@@ -208,6 +208,18 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
                 
         final File pf = this.viewer.getProjectFile (this.getFieldValue ());
                 
+        if ((pf == null)
+            ||
+            (!pf.exists ())
+           )
+        {
+            
+            items.add (this.createNoValueItem ());
+
+            return items;            
+            
+        }
+                
         BufferedImage v = UIUtils.getImage (pf);
                 
         ImageIcon icon = null;

@@ -207,13 +207,17 @@ public class AssetViewAddEditLayout
                 
                 Set<UserConfigurableObjectFieldViewEditHandler> _handlers = new LinkedHashSet (handlers);
                 
+                _handlers.remove (name);
                 _handlers.remove (desc);
                 
                 return this.createSingleColumnViewLayout (_handlers);
                                 
             }
-            
-            if ((!image.hasImage ())
+
+            if (((image == null)
+                 ||
+                 (!image.hasImage ())
+                )
                 &&
                 ((desc == null)
                  ||

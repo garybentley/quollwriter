@@ -10,6 +10,7 @@ import java.net.*;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Vector;
 import java.util.ArrayList;
 
@@ -68,6 +69,9 @@ public class ImportProject extends Wizard implements ImportCallback
     private boolean         addToProjectOnly = false;
     private boolean         newProjectOnly = false;
     private JList           projectList = null;
+    private Project         fromProject = null;
+    private Set<String>     filesToCopy = new HashSet ();
+    
 
     public ImportProject (ProjectViewer pv)
     {
@@ -204,7 +208,7 @@ public class ImportProject extends Wizard implements ImportCallback
                         this.pv.createActionLogEntry (a,
                                                       prefix + " asset from: " +
                                                       this.fileFind.getSelectedFile ());
-
+                        
                     } catch (Exception e)
                     {
 
@@ -238,13 +242,13 @@ public class ImportProject extends Wizard implements ImportCallback
                                             true);
 
                         this.pv.createActionLogEntry (c,
-                                                      "Imported chapter from: " +
-                                                      this.fileFind.getSelectedFile ());
+                                                      "Imported chapter from project: " +
+                                                      this.proj.getId ());
 
                     } catch (Exception e)
                     {
 
-                        Environment.logError ("Unable to save asset: " +
+                        Environment.logError ("Unable to save chapter: " +
                                               c,
                                               e);
 
@@ -261,6 +265,33 @@ public class ImportProject extends Wizard implements ImportCallback
 
                     this.pv.openObjectSection (c.getObjectType ());
 
+                }
+
+            }
+
+            if (this.fromProject != null)
+            {
+                
+                for (String fn : this.filesToCopy)
+                {
+                    
+                    File f = new File (this.fromProject.getFilesDirectory (),
+                                       fn);
+                    
+                    try
+                    {
+                        
+                        this.pv.getProject ().saveToFilesDirectory (f,
+                                                                    fn);
+
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to copy file: " +
+                                              f,
+                                              e);                                              
+                        
+                    }
+                    
                 }
 
             }
@@ -292,11 +323,27 @@ public class ImportProject extends Wizard implements ImportCallback
 
                 pj.init ();
 
+                // Get the "old" files dir.
+
                 this.proj.setName (this.newProjectPanel.getName ());
 
                 pj.newProject (this.newProjectPanel.getSaveDirectory (),
                                this.proj,
                                pwd);
+
+                if (this.filesToCopy != null)
+                {
+                    
+                    for (String fn : this.filesToCopy)
+                    {
+                        
+                        pj.getProject ().saveToFilesDirectory (new File (this.fromProject.getFilesDirectory (),
+                                                                         fn),
+                                                               fn);
+                        
+                    }
+    
+                }
 
                 pj.createActionLogEntry (pj.getProject (),
                                          "Project imported from: " +
@@ -638,12 +685,32 @@ public class ImportProject extends Wizard implements ImportCallback
                         n.setKey (null);
                         n.setId (null);
                         n.setDateCreated (new java.util.Date ());
+                        
+                        // For all the object fields, null the id/key.
+                        
+                        if (n instanceof UserConfigurableObject)
+                        {
+                            
+                            UserConfigurableObject cn = (UserConfigurableObject) n;
+                            
+                            for (UserConfigurableObjectField f : cn.getFields ())
+                            {
+                                
+                                f.setKey (null);
+                                f.setId (null);
+                                f.setDateCreated (new java.util.Date ());
+                                
+                            }
+                            
+                        }
 
                     }
 
                     _this.itemsTree.setModel (new DefaultTreeModel (_this.createTree (p)));
 
                     UIUtils.expandAllNodesWithChildren (_this.itemsTree);
+
+                    _this.fromProject = p;
 
                     _this.proj = p;
 
@@ -717,6 +784,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
             if (!SELECT_PROJECT_STAGE.equals (oldStage))
             {
+
+                this.fromProject = null;
 
                 return this.checkForFileToImport ();
 
@@ -1426,10 +1495,19 @@ public class ImportProject extends Wizard implements ImportCallback
 
         }
 
+        this.filesToCopy = new HashSet ();
+
         Project p = new Project (projName);
 
         Book b = new Book (p,
                            null);
+
+        if (this.proj != null)
+        {
+            
+            p.setProjectDirectory (this.proj.getProjectDirectory ());
+            
+        }
 
         p.addBook (b);
         b.setName (projName);
@@ -1458,15 +1536,49 @@ public class ImportProject extends Wizard implements ImportCallback
                     if (so.obj instanceof Asset)
                     {
 
-                        p.addAsset ((Asset) so.obj);
+                        Asset a = (Asset) so.obj;
+
+                        p.addAsset (a);
 
                     }
+                    
+                }
 
-                    if (so.obj instanceof Chapter)
+                if (so.obj instanceof Chapter)
+                {
+
+                    b.addChapter ((Chapter) so.obj);
+
+                }
+
+                if (this.fromProject != null)
+                {
+
+                    if (so.obj instanceof UserConfigurableObject)
                     {
-
-                        b.addChapter ((Chapter) so.obj);
-
+                                                
+                        UserConfigurableObject uo = (UserConfigurableObject) so.obj;
+                        
+                        // Get the files that need to be transfered/copied.
+                        for (UserConfigurableObjectField f : uo.getFields ())
+                        {
+                            
+                            for (String fn : f.getProjectFileNames ())
+                            {
+                                
+                                if (fn == null)
+                                {
+                                    
+                                    continue;
+                                    
+                                }
+                                
+                                this.filesToCopy.add (fn);
+                                    
+                            }
+                            
+                        }
+                        
                     }
 
                 }
@@ -1515,10 +1627,10 @@ public class ImportProject extends Wizard implements ImportCallback
                 tn = new DefaultMutableTreeNode (sd);
 
                 root.add (tn);
-
+/*
                 Collections.sort (b.getChapters (),
                                   NamedObjectSorter.getInstance ());
-
+*/
                 for (Chapter ch : b.getChapters ())
                 {
 
@@ -1618,6 +1730,18 @@ public class ImportProject extends Wizard implements ImportCallback
 
         if (SELECT_PROJECT_STAGE.equals (currentStage))
         {
+
+            if (this.projectList != null)
+            {
+                
+                if (this.projectList.getSelectedValue () != null)
+                {
+                    
+                    return;
+                    
+                }
+                
+            }
 
             this.enableButton (NEXT_BUTTON_ID,
                                false);

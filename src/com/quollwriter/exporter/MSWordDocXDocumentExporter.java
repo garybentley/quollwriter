@@ -25,7 +25,8 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.*;
-import com.quollwriter.ui.components.*;
+import com.quollwriter.ui.userobjects.*;
+import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
 
@@ -33,7 +34,7 @@ import org.docx4j.jaxb.*;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.*;
-
+import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.wml.*;
 
 
@@ -44,6 +45,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
     public static final String HEADING2 = "Heading2";
     public static final String TITLE = "Title";
     public static final String NORMAL = "Normal";
+    public static final String SUBTITLE = "Subtitle";
 
     protected ExportSettings settings = null;
     private JComboBox        exportOthersType = null;
@@ -178,24 +180,15 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    private void addTo (MainDocumentPart mp,
-                        Chapter          c)
-                 throws Exception
+    private void addParagraph (Paragraph        para,
+                               Markup           markup,
+                               String           style,
+                               MainDocumentPart mp,
+                               Body             body)
+                        throws GeneralException
     {
 
-        StringWithMarkup sm = c.getText ();
-
-        if ((sm == null)
-            ||
-            (sm.getText () == null)
-           )
-        {
-
-            return;
-
-        }
-
-        PPrBase.PStyle style = null;
+        PPrBase.PStyle pstyle = null;
 
         Styles styles = null;
         
@@ -214,41 +207,19 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         for (Style s : styles.getStyle ())
         {
 
-            if (s.getStyleId ().equals (NORMAL))
+            if (s.getStyleId ().equals (style))
             {
 
-                style = s.getPPr ().getPStyle ();
+                pstyle = s.getPPr ().getPStyle ();
 
             }
 
         }
 
-        Body b = mp.getContents ().getBody ();
-
-        ObjectFactory factory = Context.getWmlObjectFactory ();
-
-        Br br = new Br ();
-        br.setType (STBrType.PAGE);
-        P brp = factory.createP ();
-        brp.getContent ().add (br);
-
-        b.getContent ().add (brp);
-        
-        mp.addStyledParagraphOfText (HEADING1,
-                                     c.getName ());
-
-        // Get the markup, if present.
-        TextIterator iter = new TextIterator (sm.getText ());
-
-        for (Paragraph p : iter.getParagraphs ())
-        {
-
-            this.addParagraph (p,
-                               sm.getMarkup (),
-                               style,
-                               b);
-
-        }
+        this.addParagraph (para,
+                           markup,
+                           pstyle,
+                           body);
 
     }
 
@@ -419,7 +390,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    private void addText (String            chapterText,
+    private void addText (String            text,
                           int               start,
                           int               end,
                           Markup.MarkupItem item,
@@ -431,7 +402,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
         org.docx4j.wml.Text tel = factory.createText ();
 
-        String t = chapterText;
+        String t = text;
 
         if ((start > -1)
             &&
@@ -439,8 +410,8 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
            )
         {
 
-            t = chapterText.substring (start,
-                                       end);
+            t = text.substring (start,
+                                end);
 
         }
 
@@ -450,7 +421,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
            )
         {
 
-            t = chapterText.substring (start);
+            t = text.substring (start);
 
         }
 
@@ -517,110 +488,304 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
 
     }
 
-    private void addTo (MainDocumentPart mp,
-                        NamedObject      n)
+    private void addTo (MainDocumentPart        mp,
+                        WordprocessingMLPackage pk,
+                        Chapter                 c)
                  throws Exception
     {
+
+        StringWithMarkup sm = c.getText ();
+
+        if ((sm == null)
+            ||
+            (sm.getText () == null)
+           )
+        {
+
+            return;
+
+        }
+
+        Body b = mp.getContents ().getBody ();
+
+        ObjectFactory factory = Context.getWmlObjectFactory ();
+
+        Br br = new Br ();
+        br.setType (STBrType.PAGE);
+        P brp = factory.createP ();
+        brp.getContent ().add (br);
+
+        b.getContent ().add (brp);
+        
+        mp.addStyledParagraphOfText (HEADING1,
+                                     c.getName ());
+
+        // Get the markup, if present.
+        TextIterator iter = new TextIterator (sm.getText ());
+
+        for (Paragraph p : iter.getParagraphs ())
+        {
+
+            this.addParagraph (p,
+                               sm.getMarkup (),
+                               NORMAL,
+                               mp,
+                               b);
+
+        }
+
+    }
+
+    private void addTo (MainDocumentPart        mp,
+                        WordprocessingMLPackage pk,
+                        Asset                   a)
+                 throws Exception
+    {
+        
+        mp.addStyledParagraphOfText (HEADING1,
+                                     a.getName ());
+        
+        Body b = mp.getContents ().getBody ();        
+
+        // Get the handlers.
+        Set<UserConfigurableObjectFieldViewEditHandler> handlers = a.getViewEditHandlers (null);
+
+        for (UserConfigurableObjectFieldViewEditHandler h : handlers)
+        {
+            
+            // TODO: This has GOT to change.
+            if (h instanceof ObjectNameUserConfigurableObjectFieldViewEditHandler)
+            {
+                
+                continue;
+                
+            }
+            
+            Object val = h.getFieldValue ();
+
+            if (val == null)
+            {
+                
+                continue;
+                
+            }
+            
+            mp.addStyledParagraphOfText (SUBTITLE,
+                                         h.getTypeField ().getFormName ());
+                 
+            if (h instanceof ImageUserConfigurableObjectFieldViewEditHandler)
+            {
+                
+                File f = this.proj.getFile (val.toString ());
+                
+                if (!f.exists ())
+                {
+                    
+                    continue;
+                    
+                }
+                
+                this.addImage (pk,
+                               f);
+
+                continue;
+                
+            }
+
+            StringWithMarkup sm = null;
+            
+            if (val instanceof String)
+            {
+                
+                sm = new StringWithMarkup ((String) val);
+                
+            }
+            
+            if (val instanceof Date)
+            {
+                
+                sm = new StringWithMarkup (Environment.formatDate ((Date) val));
+                
+            }
+
+            if (val instanceof Number)
+            {
+                
+                sm = new StringWithMarkup (Environment.formatNumber ((Double) val));
+                
+            }
+
+            if (val instanceof Set)
+            {
+                
+                sm = new StringWithMarkup (Utils.joinStrings ((Set<String>) val, null));
+                
+            }
+                                    
+            if (val instanceof StringWithMarkup)
+            {
+                
+                sm = (StringWithMarkup) val;
+                
+            }
+                                
+            if (sm == null)
+            {
+                
+                continue;
+                
+            }
+                
+            TextIterator iter = new TextIterator (sm.getText ());
+    
+            for (Paragraph p : iter.getParagraphs ())
+            {
+    
+                this.addParagraph (p,
+                                   sm.getMarkup (),
+                                   NORMAL,
+                                   mp,
+                                   b);
+    
+            }
+                
+        }
+
+    }
+
+    private void addTo (MainDocumentPart        mp,
+                        WordprocessingMLPackage pk,
+                        Note                    note)
+                 throws Exception
+    {
+        
+        Body b = mp.getContents ().getBody ();        
+
+        mp.addStyledParagraphOfText (SUBTITLE,
+                                     note.getType ());
+
+        StringWithMarkup sm = note.getDescription ();
+
+        TextIterator iter = new TextIterator (sm.getText ());
+
+        for (Paragraph p : iter.getParagraphs ())
+        {
+
+            this.addParagraph (p,
+                               sm.getMarkup (),
+                               NORMAL,
+                               mp,
+                               b);
+
+        }
+
+    }
+
+    private void addTo (MainDocumentPart        mp,
+                        WordprocessingMLPackage pk,
+                        OutlineItem             item)
+                 throws Exception
+    {
+        
+        Body b = mp.getContents ().getBody ();        
+        
+        StringWithMarkup sm = item.getDescription ();
+
+        TextIterator iter = new TextIterator (sm.getText ());
+
+        for (Paragraph p : iter.getParagraphs ())
+        {
+
+            this.addParagraph (p,
+                               sm.getMarkup (),
+                               NORMAL,
+                               mp,
+                               b);
+
+        }
+        
+    }
+
+    private void addTo (MainDocumentPart        mp,
+                        WordprocessingMLPackage pk,
+                        Scene                   scene)
+                 throws Exception
+    {
+        
+        Body b = mp.getContents ().getBody ();        
+        
+        StringWithMarkup sm = scene.getDescription ();
+
+        TextIterator iter = new TextIterator (sm.getText ());
+
+        for (Paragraph p : iter.getParagraphs ())
+        {
+
+            this.addParagraph (p,
+                               sm.getMarkup (),
+                               NORMAL,
+                               mp,
+                               b);
+
+        }
+        
+    }
+
+    private void addTo (MainDocumentPart        mp,
+                        WordprocessingMLPackage pk,
+                        NamedObject             n)
+                 throws Exception
+    {
+        
+        if (n instanceof Scene)
+        {
+            
+            this.addTo (mp,
+                        pk,
+                        ((Scene) n));
+            
+            return;
+            
+        }
+        
+        if (n instanceof OutlineItem)
+        {
+            
+            this.addTo (mp,
+                        pk,
+                        ((OutlineItem) n));
+            
+            return;
+            
+        }
+
+        if (n instanceof Asset)
+        {
+            
+            this.addTo (mp,
+                        pk,
+                        ((Asset) n));
+            
+            return;
+            
+        }
+
+        if (n instanceof Chapter)
+        {
+            
+            this.addTo (mp,
+                        pk,
+                        ((Chapter) n));
+            
+            return;
+            
+        }
+
+        Body b = mp.getContents ().getBody ();        
 
         // TODO: Export markup for asset descriptions.
         String prefix = "";
         String text = n.getDescriptionText ();
-
-        if (n instanceof QCharacter)
-        {
-
-            QCharacter c = (QCharacter) n;
-
-            if (text == null)
-            {
-
-                text = "";
-
-            }
-
-            if ((c.getAliases () != null)
-                &&
-                (c.getAliases ().trim ().length () > 0)
-               )
-            {
-
-                List l = c.getAliasesAsList ();
-
-                StringBuilder b = new StringBuilder ("Aliases: ");
-
-                for (int i = 0; i < l.size (); i++)
-                {
-
-                    if (i > 0)
-                    {
-
-                        b.append (", ");
-
-                    }
-
-                    b.append (l.get (i));
-
-                }
-
-                text = b.toString () + "\n\n" + text;
-
-            }
-
-        }
-
-        if (n instanceof QObject)
-        {
-
-            QObject o = (QObject) n;
-
-            if (text == null)
-            {
-
-                text = "";
-
-            }
-
-            if (o.getType () != null)
-            {
-
-                text = "Type: " + o.getType () + "\n\n" + text;
-
-            }
-
-        }
-
-        if (n instanceof ResearchItem)
-        {
-
-            ResearchItem r = (ResearchItem) n;
-
-            if (text == null)
-            {
-
-                text = "";
-
-            }
-
-            String url = r.getUrl ();
-
-            if (url != null)
-            {
-
-                if ((!url.startsWith ("http://"))
-                    &&
-                    (!url.startsWith ("https://"))
-                   )
-                {
-
-                    url = "http://" + url;
-
-                }
-
-                text = url + "\n\n" + text;
-
-            }
-
-        }
 
         if (n instanceof Note)
         {
@@ -792,6 +957,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 {
                 
                     this.addTo (mp,
+                                wordMLPackage,
                                 c);
 
                     notesmp.addStyledParagraphOfText (HEADING1,
@@ -910,6 +1076,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                                                         c.getName () + " - Chapter Information");
 
                     this.addTo (mp,
+                                wordMLPackage,
                                 c);
 
                     this.save (wordMLPackage,
@@ -979,6 +1146,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                     {
 
                         this.addTo (mp,
+                                    wordMLPackage,
                                     n);
 
                     }
@@ -1054,6 +1222,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
             {
 
                 this.addTo (mp,
+                            wordMLPackage,
                             n);
 
             }
@@ -1137,11 +1306,14 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                 {
 
                     this.addTo (notesmp,
+                                // TODO: Fix this
+                                null,
                                 n);
 
                 } else {
 
                     this.addTo (outlinemp,
+                                null,
                                 n);
 
                     if (n instanceof Scene)
@@ -1155,6 +1327,7 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
                         {
 
                             this.addTo (outlinemp,
+                                        null,
                                         it);
 
                         }
@@ -1346,6 +1519,37 @@ public class MSWordDocXDocumentExporter extends AbstractDocumentExporter
         }
 
     }
+
+	public P addImage (WordprocessingMLPackage mp,
+                       File                    file)
+                throws Exception
+    {
+		        
+        byte[] bytes = UIUtils.getImageBytes (UIUtils.getScaledImage (file,
+                                                                      250));
+        
+        BinaryPartAbstractImage imagePart = BinaryPartAbstractImage.createImagePart (mp, bytes);
+		
+        Inline inline = imagePart.createImageInline (null,
+                                                     null,
+                                                     0,
+                                                     1,
+                                                     false);
+        
+        // Now add the inline in w:p/w:r/w:drawing
+		ObjectFactory factory = Context.getWmlObjectFactory ();
+		P  p = factory.createP ();
+		R  run = factory.createR ();		
+		p.getContent ().add (run);        
+		Drawing drawing = factory.createDrawing ();		
+		run.getContent ().add (drawing);		
+		drawing.getAnchorOrInline().add (inline);
+
+		mp.getMainDocumentPart ().addObject (p);        
+	
+		return p;
+		
+	}
 
 /*
     private Project getSelectedItems ()

@@ -975,11 +975,14 @@ public class Environment
 
                 }
 
-                // Delete the directory.
-                Utils.deleteDir (pr.getProjectDirectory ());
-
                 // Delete the backup directory.
                 Utils.deleteDir (pr.getBackupDirectory ());
+                
+                // Delete the files directory.
+                Utils.deleteDir (pr.getFilesDirectory ());
+
+                // Delete the directory.
+                Utils.deleteDir (pr.getProjectDirectory ());
 
                 // Remove the project from the list.
                 try

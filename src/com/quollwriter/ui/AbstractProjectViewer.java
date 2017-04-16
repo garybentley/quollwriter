@@ -8944,17 +8944,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public File getProjectFilesDirectory ()
     {
         
-        File d = this.proj.getFilesDirectory ();
-        
-        if (!d.exists ())
-        {
-            
-            d.mkdir ();
-            
-        }
-        
-        return d;
-        
+        return this.proj.getFilesDirectory ();
+                
     }
     
     public void saveToProjectFilesDirectory (File   file,
@@ -8962,25 +8953,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                       throws IOException
     {
         
-        if ((file == null)
-            ||
-            (!file.exists ())
-            ||
-            (file.isDirectory ())
-           )
-        {
-            
-            return;
-            
-        }
-
-        File f = this.getProjectFile (fileName);
-        
-        f.getParentFile ().mkdirs ();
-
-        IOUtils.copyFile (file,
-                          f,
-                          4096);
+        this.proj.saveToFilesDirectory (file,
+                                        fileName);
                 
     }
 

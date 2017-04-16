@@ -139,20 +139,6 @@ public class NamedObjectSorter implements Comparator<NamedObject>, ProjectEventL
             
         }
 
-        // Since the sorter are often used for contains and equality tests for Sets/Maps etc we need
-        // to do a check here for the same object being added twice.
-        if (o1.getObjectType ().equals (o2.getObjectType ()))
-        {
-
-            if (o1.getKey () == o2.getKey ())
-            {
-                
-                return 0;
-                
-            }
-
-        }
-
         if (!o1.getObjectType ().equals (o2.getObjectType ()))
         {
 

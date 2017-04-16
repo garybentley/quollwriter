@@ -50,6 +50,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
     private String             status = null;
     private File               icon = null;
     private File               backupDirectory = null;
+    private File               filesDirectory = null;
     private Map<Statistic, Object> statistics = new HashMap ();
     private boolean            encrypted = false;
     private Project            project = null;
@@ -133,6 +134,9 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         this.addToStringProperties (props,
                                     "backupDir",
                                     (this.backupDirectory != null ? this.backupDirectory.getPath () : "Not set"));
+        this.addToStringProperties (props,
+                                    "filesDir",
+                                    (this.filesDirectory != null ? this.filesDirectory.getPath () : "Not set"));
         this.addToStringProperties (props,
                                     "lastEdited",
                                     this.lastEdited);
@@ -239,6 +243,7 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         
         this.setProjectDirectory (this.project.getProjectDirectory ());
         this.setBackupDirectory (this.project.getBackupDirectory ());
+        this.setFilesDirectory (this.project.getFilesDirectory ());
         this.setName (this.project.getName ());
         this.setLastEdited (this.project.getLastEdited ());
         
@@ -459,6 +464,20 @@ public class ProjectInfo extends NamedObject implements PropertyChangedListener
         
     }
     
+    public File getFilesDirectory ()
+    {
+        
+        return this.filesDirectory;
+        
+    }
+    
+    public void setFilesDirectory (File f)
+    {
+        
+        this.filesDirectory = f;
+        
+    }
+
     public void setForEditor (EditorEditor ed)
     {
         

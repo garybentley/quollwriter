@@ -47,6 +47,13 @@ public interface UserConfigurableObjectFieldViewEditHandler<T extends UserConfig
     public UserConfigurableObjectField getField ();
     
     /**
+     * Get the value of the field suitably formatted for text viewing.
+     *
+     * @return The formatted string.
+     */
+    //public String getFormatted ();
+    
+    /**
      * Convert the object type to a string value that is suitable for saving to the db.
      *
      * Strictly speaking this is not the right place for this method but it will do for now.

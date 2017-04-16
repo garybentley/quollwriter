@@ -201,6 +201,13 @@ public abstract class AbstractDocumentExporter implements DocumentExporter
                 
             }
         
+            if (as == null)
+            {
+                
+                continue;
+                
+            }
+        
             this.addAssetsToTree (root,
                                   t,
                                   as);

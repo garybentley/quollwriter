@@ -1436,9 +1436,9 @@ public class ObjectManager
             {
                 
                 UserConfigurableObject o = (UserConfigurableObject) d;
-                
+                                
                 this.deleteObjects (o.getFields (),
-                                    conn);
+                                    conn);                
                              
             }
 

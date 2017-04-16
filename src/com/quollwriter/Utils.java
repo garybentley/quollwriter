@@ -1387,6 +1387,62 @@ public class Utils
         
     }
     
+    public static void copyFilesToDir (Set<File> files,
+                                       File      to)
+                                throws IOException
+    {
+
+        if (!to.exists ())
+        {
+            
+            throw new IllegalArgumentException ("To dir must exist.");
+            
+        }
+
+        if (to.isFile ())
+        {
+            
+            throw new IllegalArgumentException ("To dir is a file.");
+            
+        }
+
+        File tof = new File (to.getPath () + "/" + Constants.QUOLLWRITER_DIR_FILE_NAME);
+
+        if (!tof.exists ())
+        {
+
+            throw new IllegalArgumentException ("To dir doesn't look like a Quoll Writer dir.");
+
+        }
+
+        for (File f : files)
+        {
+
+            if (f.isFile ())
+            {
+
+                // Create the new file.
+                File nf = new File (to.getPath (),
+                                    f.getName ());
+
+                if (nf.exists ())
+                {
+
+                    // Don't overwrite.
+                    continue;
+
+                }
+
+                IOUtils.copyFile (f,
+                                  nf,
+                                  4096);
+
+            } 
+
+        }
+        
+    }
+    
     public static void copyDir (File from,
                                 File to)
                          throws IOException

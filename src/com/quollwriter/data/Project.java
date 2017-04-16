@@ -14,6 +14,7 @@ import com.quollwriter.events.*;
 import org.jdom.*;
 
 import com.gentlyweb.xml.*;
+import com.gentlyweb.utils.*;
 
 public class Project extends NamedObject
 {
@@ -1256,6 +1257,44 @@ public class Project extends NamedObject
         this.firePropertyChangedEvent (Project.PROJECT_DIRECTORY,
                                        oldDir,
                                        this.projectDirectory);
+        
+    }
+    
+    public void saveToFilesDirectory (File   file,
+                                      String fileName)
+                               throws IOException
+    {
+        
+        if ((file == null)
+            ||
+            (!file.exists ())
+            ||
+            (file.isDirectory ())
+           )
+        {
+            
+            return;
+            
+        }
+
+        File dir = this.getFilesDirectory ();
+        
+        dir.mkdirs ();
+        Utils.createQuollWriterDirFile (dir);        
+
+        File f = new File (dir,
+                           fileName);
+
+        IOUtils.copyFile (file,
+                          f,
+                          4096);
+                
+    }
+    
+    public void deleteFile (String fileName)
+    {
+        
+        this.getFile (fileName).delete ();
         
     }
     

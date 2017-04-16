@@ -230,12 +230,35 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
                        throws GeneralException
     {
 
+        Set<String> filesToDelete = new HashSet ();
+        
+        for (String fn : t.getProjectFileNames ())
+        {
+            
+            if (fn == null)
+            {
+                
+                continue;
+                
+            }
+            
+            filesToDelete.add (fn);
+                
+        }
+            
         List params = new ArrayList ();
         params.add (t.getKey ());
 
         this.objectManager.executeStatement ("DELETE FROM userobjectfield WHERE dbkey = ?",
                                              params,
                                              conn);
+
+        for (String fn : filesToDelete)
+        {
+            
+            this.objectManager.getProject ().deleteFile (fn);
+            
+        }
 
     }
 

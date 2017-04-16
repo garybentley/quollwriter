@@ -749,6 +749,18 @@ public class TextUtilities
                                               boolean    ignoreCase)
     {
 
+        NavigableSet<Integer> ret = new TreeSet ();
+
+        if ((findWords == null)
+            ||
+            (findWords.size () == 0)
+           )
+        {
+
+            return ret;
+            
+        }
+
         List<String> _words = new ArrayList ();
 
         for (Word w : words)
@@ -769,8 +781,6 @@ public class TextUtilities
 
         int fws = _findWords.size ();
         int c = 0;
-
-        NavigableSet<Integer> ret = new TreeSet ();
 
         while (true)
         {

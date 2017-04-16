@@ -311,7 +311,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
         }
                 
         NavigableSet<Integer> ret = new TreeSet ();
-        
+
         for (Integer ind : TextUtilities.find (this.words,
                                                findWords,
                                                true))
@@ -542,7 +542,7 @@ public class Sentence implements TextBlock<Paragraph, Sentence, Word>
                 
         List<Word> findWords = new Sentence (find,
                                              new DialogueInd ()).getWords ();
-                
+
         return this.find (findWords,
                           constraints);
         
