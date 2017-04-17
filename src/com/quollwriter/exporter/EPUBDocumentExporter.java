@@ -30,6 +30,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.userobjects.*;
 import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.text.*;
@@ -313,7 +314,9 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             Set<UserConfigurableObjectType> assetTypes = Environment.getAssetUserConfigurableObjectTypes (true);
     
             // Capital A.
-            int apxChar = 65;
+            //int apxChar = 65;
+    
+            char apxChar = 'A';
     
             for (UserConfigurableObjectType type : assetTypes)
             {
@@ -321,7 +324,7 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                 Set<Asset> as = p.getAssets (type);
             
                 if ((as == null)
-                    &&
+                    ||
                     (as.size () == 0)
                    )
                 {
@@ -330,9 +333,10 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                     
                 }
             
-                String apxC = Character.toString (Character.forDigit (apxChar++,
-                                                                      10));
-            
+                String apxC = Character.toString (apxChar);
+                
+                apxChar = (char) ((int) apxChar + 1);
+                
                 String cid = String.format ("appendix-%s-%s",
                                             apxC,
                                             type.getObjectTypeNamePlural ().replace (" ", "-"));
@@ -346,7 +350,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
                                                       title);
                 t = StringUtils.replaceString (t,
                                                "[[CONTENT]]",
-                                               this.getAssetsPage (as));
+                                               this.getAssetsPage (as,
+                                                                   book));
 
                 book.addSection (title,
                                  new Resource (new ByteArrayInputStream (t.getBytes ()),
@@ -439,7 +444,8 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         
     }
     
-    private String getAssetsPage (Set<Asset> assets)
+    private String getAssetsPage (Set<Asset>                      assets,
+                                  nl.siegmann.epublib.domain.Book epubBook)
     {
 
         StringBuilder buf = new StringBuilder ();
@@ -451,41 +457,128 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
             buf.append (a.getName ());
             buf.append ("</h2>");
 
-            if (a instanceof QObject)
+            // Get the handlers.
+            Set<UserConfigurableObjectFieldViewEditHandler> handlers = a.getViewEditHandlers (null);
+    
+            for (UserConfigurableObjectFieldViewEditHandler h : handlers)
             {
-
-                QObject q = (QObject) a;
-
-                buf.append ("<h3>Type: " + q.getType () + "</h3>");
-
-            }
-
-            if (a instanceof ResearchItem)
-            {
-
-                ResearchItem r = (ResearchItem) a;
-
-                if (r.getUrl () != null)
+                
+                // TODO: This has GOT to change.
+                if (h instanceof ObjectNameUserConfigurableObjectFieldViewEditHandler)
                 {
-
-                    buf.append ("<h3>Web page: <a href='" + r.getUrl () + "'>" + r.getUrl () + "</a></h3>");
-
+                    
+                    continue;
+                    
                 }
+                
+                Object val = h.getFieldValue ();
+    
+                if (val == null)
+                {
+                    
+                    continue;
+                    
+                }
+                
+                buf.append ("<h3>");
+                buf.append (h.getTypeField ().getFormName ());
+                buf.append ("</h3>");
+                                 
+                if (h instanceof ImageUserConfigurableObjectFieldViewEditHandler)
+                {
+                    
+                    File f = this.proj.getFile (val.toString ());
+                    
+                    if (!f.exists ())
+                    {
+                        
+                        continue;
+                        
+                    }
+                    
+                    try
+                    {
+                    
+                        epubBook.getResources ().add (new Resource (new ByteArrayInputStream (UIUtils.getImageBytes (UIUtils.getImage (f))),
+                                                                    f.getName ()));
 
-            }
-
-            // TODO: Change to use a textiterator.
-            String at = (a.getDescription () != null ? a.getDescription ().getText () : "");
-            
-            // Get the text and split it.
-            StringTokenizer t = new StringTokenizer (at,
-                                                     String.valueOf ('\n') + String.valueOf ('\n'));
-
-            while (t.hasMoreTokens ())
-            {
-
-                buf.append ("<p>" + t.nextToken ().trim () + "</p>");
-
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to get image file: " +
+                                              f,
+                                              e);
+                        
+                        continue;
+                        
+                    }
+                    
+                    buf.append ("<p><img src=\"");
+                    buf.append (f.getName ());
+                    buf.append (" /></p>");
+                    
+                    continue;
+                    
+                }
+    
+                StringWithMarkup sm = null;
+                
+                if (val instanceof String)
+                {
+                    
+                    sm = new StringWithMarkup ((String) val);
+                    
+                }
+                
+                if (val instanceof Date)
+                {
+                    
+                    sm = new StringWithMarkup (Environment.formatDate ((Date) val));
+                    
+                }
+    
+                if (val instanceof Number)
+                {
+                    
+                    sm = new StringWithMarkup (Environment.formatNumber ((Double) val));
+                    
+                }
+    
+                if (val instanceof Set)
+                {
+                    
+                    sm = new StringWithMarkup (Utils.joinStrings ((Set<String>) val, null));
+                    
+                }
+                                        
+                if (val instanceof StringWithMarkup)
+                {
+                    
+                    sm = (StringWithMarkup) val;
+                    
+                }
+                                    
+                if (sm == null)
+                {
+                    
+                    continue;
+                    
+                }
+                    
+                TextIterator iter = new TextIterator (sm.getText ());
+        
+                for (Paragraph p : iter.getParagraphs ())
+                {
+    
+                    buf.append ("<p>");
+                
+                    this.addParagraph (buf,
+                                       p,
+                                       sm.getMarkup ());
+        
+                    buf.append ("</p>");
+        
+                }
+                
             }
 
         }
@@ -493,4 +586,133 @@ public class EPUBDocumentExporter extends AbstractDocumentExporter
         return buf.toString ();
 
     }
+    
+    private void addParagraph (StringBuilder buf,
+                               Paragraph     para,
+                               Markup        markup)
+    {
+        
+        Markup pm = new Markup (markup,
+                                para.getAllTextStartOffset (),
+                                para.getAllTextEndOffset ());
+
+        pm.shiftBy (-1 * para.getAllTextStartOffset ());
+
+        // Get the markup items.
+        List<Markup.MarkupItem> items = pm.items;
+
+        String ptext = para.getText ();
+        int textLength = ptext.length ();
+
+        if (items.size () > 0)
+        {
+
+            Markup.MarkupItem last = null;
+
+            int start = -1;
+            int end = -1;
+
+            int lastEnd = 0;
+
+            // Check the first item.
+            Markup.MarkupItem fitem = items.get (0);
+
+            if (fitem.start > 0)
+            {
+
+                start = 0;
+                end = fitem.start;
+
+                if (end > textLength)
+                {
+
+                    end = textLength;
+
+                }
+
+                // Add the start text.
+                buf.append (ptext.substring (0, end));
+
+                lastEnd = end;
+
+            }
+
+            for (Markup.MarkupItem item : items)
+            {
+
+                start = item.start;
+
+                end = item.end;
+
+                if (start > lastEnd)
+                {
+
+                    // Add some normal text.
+                    buf.append (ptext.substring (lastEnd, Math.min(item.start, textLength)));
+
+                }
+
+                if ((end >= textLength)
+                    ||
+                    (end == -1)
+                   )
+                {
+
+                    end = textLength;
+
+                }
+
+                StringBuilder cl = new StringBuilder ();
+
+                if (item.bold)
+                {
+        
+                    cl.append (" b");
+        
+                }
+        
+                if (item.italic)
+                {
+        
+                    cl.append (" i");
+        
+                }
+        
+                if (item.underline)
+                {
+        
+                    cl.append (" u");
+        
+                }
+
+                buf.append ("<span class=\"");
+                buf.append (cl);
+                buf.append ("\">");
+                buf.append (ptext.substring (start, end));
+                buf.append ("</span>");
+
+                lastEnd = end;
+
+            }
+
+            // Check the last item.
+            Markup.MarkupItem litem = items.get (items.size () - 1);
+
+            // Does it end before the end of the text, if so then add normal text.
+            if (litem.end < textLength)
+            {
+
+                // Add the last text.
+                buf.append (ptext.substring (litem.end));
+
+            }
+
+        } else {
+
+            buf.append (ptext);
+
+        }
+        
+    }
+    
 }

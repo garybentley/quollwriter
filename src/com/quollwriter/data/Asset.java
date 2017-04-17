@@ -17,6 +17,14 @@ public class Asset extends UserConfigurableObject
     }
 
     @Override
+    public <T extends NamedObject> void merge (T other)
+    {
+        
+        // Do nothing.
+        
+    }
+
+    @Override
     public Set<NamedObject> getAllNamedChildObjects ()
     {
 

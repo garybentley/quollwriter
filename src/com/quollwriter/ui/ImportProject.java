@@ -186,13 +186,16 @@ public class ImportProject extends Wizard implements ImportCallback
                     if (oa != null)
                     {
 
+                        // Don't merge but don't add either, merging is no longer viable.
+                        /*
                         // Merge.
                         oa.merge (a);
 
                         a = oa;
 
                         prefix = "Merged";
-
+                        */
+                        
                     } else {
 
                         this.pv.getProject ().addAsset (a);
