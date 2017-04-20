@@ -1775,22 +1775,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         JToolBar tb = UIUtils.createButtonBar (hbuts);
 
+        tb.setBorder (UIUtils.createPadding (0, 0, 0, 5));
+
         Header h = UIUtils.createHeader ("Find Problems",
                                          Constants.SUB_PANEL_TITLE,
                                          "eye",
                                          tb);
-        /*
-        Header h = new Header ("Find Problems",
-                               Environment.getIcon ("eye",
-                                                    Constants.ICON_SUB_PANEL_MAIN),
-                               tb);
 
-        h.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (14d)).deriveFont (Font.PLAIN));
-        h.setTitleColor (UIUtils.getTitleColor ());
-        h.setPadding (new Insets (5, 5, 0, 5));
-        */
         this.problemFinderPanel.add (h);
         this.problemFinderPanel.setVisible (false);
         this.problemFinderPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -1808,26 +1799,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         buts.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         JButton cbut = null;
-        /*
-        UIUtils.createButton ("config",
-                                             Constants.ICON_MENU,
-                                             "Click to configure the text rules.",
-                                             new ActionAdapter ()
-                                             {
 
-                                                 public void actionPerformed (ActionEvent ev)
-                                                 {
-
-                                                     _this.showProblemFinderRuleConfig ();
-
-                                                 }
-
-                                             });
-        UIUtils.setDefaultCursor (cbut);
-        buts.add (cbut);
-
-        buts.add (Box.createHorizontalStrut (5));
-*/
         JButton prev = new JButton (Environment.getIcon ("previous",
                                                          Constants.ICON_MENU));
         prev.addActionListener (new ActionAdapter ()
@@ -1965,7 +1937,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         buts.setBorder (new EmptyBorder (10,
                                          10,
-                                         5,
+                                         7,
                                          10));
 
         this.problemFinderPanel.add (buts);

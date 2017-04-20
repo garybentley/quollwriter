@@ -85,6 +85,14 @@ public class WordFinder extends AbstractDialogueRule
 
     }
 
+    @Override
+    public String getEditFormTitle (boolean add)
+    {
+        
+        return (add ? null : "Edit Word/Phrase Rule");
+        
+    }
+
     private String getWhereDesc ()
     {
 
