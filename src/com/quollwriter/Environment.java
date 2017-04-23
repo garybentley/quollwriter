@@ -118,7 +118,7 @@ public class Environment
     private static Map<String, UserPropertyHandler> userPropertyHandlers = new HashMap ();
 
     private static DecimalFormat numFormat = new DecimalFormat ("###,###");
-    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.##########");
+    private static DecimalFormat floatNumFormat = new DecimalFormat ("###,###.#");
 
     private static Map<String, Image> backgroundImages = new HashMap ();
 

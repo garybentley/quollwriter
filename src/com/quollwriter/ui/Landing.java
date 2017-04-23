@@ -42,7 +42,7 @@ import com.quollwriter.ui.actionHandlers.*;
 public class Landing extends AbstractViewer implements ProjectInfoChangedListener
 {
 
-	public static final int DEFAULT_WINDOW_WIDTH = 770;
+	public static final int DEFAULT_WINDOW_WIDTH = 800;
 	public static final int DEFAULT_WINDOW_HEIGHT = 500;
 	public static final int PROJECT_BOX_WIDTH = 250;
 

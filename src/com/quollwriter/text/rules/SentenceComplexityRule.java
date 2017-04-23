@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import java.text.*;
+
 import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
@@ -138,7 +140,13 @@ public class SentenceComplexityRule extends AbstractSentenceRule
         if (r > this.ratio)
         {
 
-            Issue iss = new Issue ("Sentence syllable/word ratio is: <b>" + Environment.formatNumber (r) + "</b>.  (Max is: " + Environment.formatNumber (this.ratio) + ")",
+            DecimalFormat df = new DecimalFormat ("##.#");
+
+            String n = df.format (r);
+
+            Issue iss = new Issue (String.format ("Sentence syllable/word ratio is: <b>%s</b>.  (Max is: %s)",
+                                                  n,
+                                                  Environment.formatNumber (this.ratio)),
                                    sentence,
                                    sentence.getAllTextStartOffset () + "-sentencetoocomplex-" + r,
                                    this);

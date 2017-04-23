@@ -19,7 +19,7 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
 
     }
 
-    protected String  where = DialogueConstraints.START;
+    protected String  where = DialogueConstraints.ANYWHERE;
     protected boolean ignoreInDialogue = true;
     protected boolean onlyInDialogue = false;
 

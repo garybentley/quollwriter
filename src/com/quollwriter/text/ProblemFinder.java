@@ -14,7 +14,7 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 
 import com.quollwriter.*;
-
+import com.quollwriter.events.*;
 import com.quollwriter.text.rules.*;
 
 import com.quollwriter.ui.*;
@@ -618,60 +618,6 @@ public class ProblemFinder extends Box
 
     }
 
-    private IgnoreCheckbox createSentenceIssueItem (final Issue     iss,
-                                                    final Sentence  sentence)
-    {
-
-        final ProblemFinder _this = this;
-
-        final QTextEditor ed = this.editor.getEditor ();
-
-        IgnoreCheckbox cb = this.createIssueItem (iss);
-
-        //final int sentenceStart = sentence.getAllTextStartOffset ();
-        //final int sentenceEnd = sentence.getAllTextEndOffset ();
-
-        //final int sentenceStart = textBlock.getAllTextStartOffset ();
-        //final int sentenceEnd = textBlock.getAllTextEndOffset ();
-
-        final Issue issue = iss;
-
-        cb.addMouseListener (new MouseAdapter ()
-        {
-
-            public void mouseEntered (MouseEvent ev)
-            {
-
-                try
-                {
-                
-                    ed.addHighlight (iss.getStartIssuePosition (),
-                                     sentence.getLastWord ().getAllTextEndOffset (),
-                                     _this.issueHighlight,
-                                     false);
-
-                } catch (Exception e)
-                {
-
-                    // Ignore.
-
-                }
-
-            }
-
-            public void mouseExited (MouseEvent ev)
-            {
-
-                ed.removeAllHighlights (_this.issueHighlight);
-
-            }
-
-        });
-
-        return cb;
-
-    }
-
     private IgnoreCheckbox createIssueItem (Issue iss)
     {
 
@@ -685,7 +631,46 @@ public class ProblemFinder extends Box
                                        10,
                                        3,
                                        3));
-        // cb.setToolTipText (i.getRule ().getDescription ());
+
+        final ProblemFinder _this = this;
+
+        final QTextEditor ed = this.editor.getEditor ();
+
+        final Issue issue = iss;
+
+        cb.addMouseListener (new MouseEventHandler ()
+        {
+
+            @Override
+            public void mouseEntered (MouseEvent ev)
+            {
+
+                try
+                {
+                
+                    ed.addHighlight (iss.getStartIssuePosition (),
+                                     iss.getEndIssuePosition (),
+                                     _this.issueHighlight,
+                                     false);
+
+                } catch (Exception e)
+                {
+
+                    // Ignore.
+
+                }
+
+            }
+
+            @Override
+            public void mouseExited (MouseEvent ev)
+            {
+
+                ed.removeAllHighlights (_this.issueHighlight);
+
+            }
+
+        });
 
         this.ignores.add (cb);
 
@@ -775,6 +760,8 @@ public class ProblemFinder extends Box
             for (Issue i : issues)
             {
 
+                this.issuesBox.add (this.createIssueItem (i));
+/*
                 if (i.getRule () instanceof SentenceRule)
                 {
 
@@ -786,7 +773,7 @@ public class ProblemFinder extends Box
                     this.issuesBox.add (this.createIssueItem (i));
 
                 }
-
+*/
             }
 
             if (ignored.size () > 0)

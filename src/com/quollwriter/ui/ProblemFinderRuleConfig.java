@@ -443,53 +443,60 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
     private void addSentenceRules ()
     {
 
-          final int val = this.sentenceBoxSP.getVerticalScrollBar ().getValue ();
+        if (this.sentenceBoxSP == null)
+        {
+            
+            return;
+            
+        }
 
-          this.sentenceBox.removeAll ();
+        final int val = this.sentenceBoxSP.getVerticalScrollBar ().getValue ();
 
-          List<Rule> senRules = RuleFactory.getSentenceRules ();
+        this.sentenceBox.removeAll ();
 
-          if (senRules != null)
-          {
+        List<Rule> senRules = RuleFactory.getSentenceRules ();
 
-              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                                    this.projectViewer.getProject ().getProperties ());
+        if (senRules != null)
+        {
 
-              for (Rule r : senRules)
-              {
+            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                  this.projectViewer.getProject ().getProperties ());
 
-                  if (ignores.containsKey (r.getId ()))
-                  {
+            for (Rule r : senRules)
+            {
 
-                      continue;
+                if (ignores.containsKey (r.getId ()))
+                {
 
-                  }
+                    continue;
 
-                  RuleBox rb = new RuleBox (r);
+                }
 
-                  this.sentenceBox.add (rb);
+                RuleBox rb = new RuleBox (r);
 
-                  rb.init (this);
+                this.sentenceBox.add (rb);
 
-              }
+                rb.init (this);
 
-          }
+            }
 
-          this.sentenceBox.add (Box.createVerticalGlue ());
+        }
 
-          final ProblemFinderRuleConfig _this = this;
+        this.sentenceBox.add (Box.createVerticalGlue ());
 
-          UIUtils.doLater (new ActionListener ()
-          {
+        final ProblemFinderRuleConfig _this = this;
 
-              public void actionPerformed (ActionEvent ev)
-              {
+        UIUtils.doLater (new ActionListener ()
+        {
 
-                  _this.sentenceBoxSP.getVerticalScrollBar ().setValue (val);
+            public void actionPerformed (ActionEvent ev)
+            {
 
-              }
+                _this.sentenceBoxSP.getVerticalScrollBar ().setValue (val);
 
-          });
+            }
+
+        });
 
     }
 
@@ -626,52 +633,59 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
      private void addParagraphRules ()
      {
 
-          final int val = this.paragraphBoxSP.getVerticalScrollBar ().getValue ();
+        if (this.paragraphBoxSP == null)
+        {
+            
+            return;
+            
+        }
 
-          this.paragraphBox.removeAll ();
+        final int val = this.paragraphBoxSP.getVerticalScrollBar ().getValue ();
 
-          List<Rule> paraRules = RuleFactory.getParagraphRules ();
+        this.paragraphBox.removeAll ();
 
-          if (paraRules != null)
-          {
+        List<Rule> paraRules = RuleFactory.getParagraphRules ();
 
-              Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
-                                                                    this.projectViewer.getProject ().getProperties ());
+        if (paraRules != null)
+        {
 
-              for (Rule r : paraRules)
-              {
+            Map<String, String> ignores = RuleFactory.getIgnores (RuleFactory.ALL,
+                                                                  this.projectViewer.getProject ().getProperties ());
 
-                  if (ignores.containsKey (r.getId ()))
-                  {
+            for (Rule r : paraRules)
+            {
 
-                      continue;
+                if (ignores.containsKey (r.getId ()))
+                {
 
-                  }
+                    continue;
 
-                  RuleBox rb = new RuleBox (r);
-                  this.paragraphBox.add (rb);
+                }
 
-                  rb.init (this);
+                RuleBox rb = new RuleBox (r);
+                this.paragraphBox.add (rb);
 
-              }
+                rb.init (this);
 
-          }
+            }
 
-          this.paragraphBox.add (Box.createVerticalGlue ());
+        }
 
-          final ProblemFinderRuleConfig _this = this;
+        this.paragraphBox.add (Box.createVerticalGlue ());
 
-          UIUtils.doLater (new ActionListener ()
-          {
+        final ProblemFinderRuleConfig _this = this;
 
-               @Override
-               public void actionPerformed (ActionEvent ev)
-               {
+        UIUtils.doLater (new ActionListener ()
+        {
 
-                    _this.paragraphBoxSP.getVerticalScrollBar ().setValue (val);
-               }
+             @Override
+             public void actionPerformed (ActionEvent ev)
+             {
 
-          });
+                  _this.paragraphBoxSP.getVerticalScrollBar ().setValue (val);
+             }
+
+        });
 
      }
 
@@ -759,6 +773,13 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
     private void addWordRules ()
     {
+
+        if (this.wordsBoxSP == null)
+        {
+            
+            return;
+            
+        }
 
           final int val = this.wordsBoxSP.getVerticalScrollBar ().getValue ();
 
