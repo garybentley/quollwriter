@@ -1127,6 +1127,21 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             
         }
         
+        m.add (UIUtils.createMenuItem ("Add/Manage the Tag(s)",
+                                       Constants.EDIT_ICON_NAME,
+                                       new ActionListener ()
+                                       {
+                                             
+                                            @Override
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+                                                     
+                                                _this.viewer.showEditTags ();
+                                                     
+                                            }
+                                             
+                                       }));
+        
         m.add (UIUtils.createMenuItem ("Add New Type of Object",
                                        Constants.NEW_ICON_NAME,
                                        new ActionListener ()
