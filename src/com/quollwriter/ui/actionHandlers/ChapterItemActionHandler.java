@@ -354,7 +354,6 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
     public boolean handleSave ()
     {
 
-        // Fill up the outline item.
         this.object.setDescription (this.descField.getValue ());
 
         this.viewer.setTempOption ("addToChapter",
@@ -417,6 +416,10 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                     
                 }
                 
+                // Need to save the object first so the key is setup correctly.
+                this.viewer.saveObject (this.object,
+                                        true);                
+                
                 if (this.object instanceof Scene)
                 {
 
@@ -455,7 +458,7 @@ public class ChapterItemActionHandler<E extends ChapterItem> extends AbstractFor
                     }
                     
                 }
-                
+                                
                 // Force a save of the chapter.
                 this.viewer.saveObject (this.chapter,
                                         true);
