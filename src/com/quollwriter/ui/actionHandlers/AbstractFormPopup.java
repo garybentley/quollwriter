@@ -65,9 +65,14 @@ public abstract class AbstractFormPopup<E extends AbstractProjectViewer, O exten
         this.object = d;
         this.viewer = pv;
 
+        final AbstractFormPopup _this = this;
+
         this.popup = new QPopup (Environment.replaceObjectNames (this.getTitle ()),
                                  this.getIcon (Constants.ICON_POPUP),
                                  null);
+        
+        // TODO: Fix this to allow the escape, currently it will go into a loop.
+        this.popup.setAllowRemoveOnEscape (false);
         
     }
 
