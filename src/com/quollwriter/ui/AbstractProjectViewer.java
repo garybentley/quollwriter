@@ -959,16 +959,16 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         String state = null;
 
         String id = sb.getId ();
-        
+
         if (id != null)
         {
-        
+
             state = this.proj.getProperty ("sidebarState-" + id);
-                        
-        }        
-        
+
+        }
+
         sb.init (state);
-        
+
         //sb.setName (name);
 
         this.sideBars.put (id,
@@ -1057,11 +1057,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     public boolean isMainSideBar (AbstractSideBar sb)
     {
-        
+
         return this.mainSideBar == sb;
-        
+
     }
-    
+
     public boolean isMainSideBarId (String n)
     {
 
@@ -3600,62 +3600,62 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
-        this.scheduleA4PageCountUpdate ();        
-        
+        this.scheduleA4PageCountUpdate ();
+
 		UIUtils.doLater (onOpen);
-                
+
     }
 
     private void scheduleA4PageCountUpdate ()
     {
-        
+
         final AbstractProjectViewer _this = this;
-        
+
         // Generate the A4 page counts.
         this.schedule (new Runnable ()
         {
-            
+
             @Override
             public void run ()
             {
-                
+
                 Book b = _this.proj.getBooks ().get (0);
-        
+
                 java.util.List<Chapter> chapters = b.getChapters ();
-    
+
                 for (Chapter c : chapters)
                 {
-        
+
                     String t = _this.getCurrentChapterText (c);
 
-					ChapterCounts cc = _this.getChapterCounts (c);        
-        
+					ChapterCounts cc = _this.getChapterCounts (c);
+
                     try
                     {
-    
+
                         cc.standardPageCount = UIUtils.getA4PageCountForChapter (c,
                                                                                  t);
-    
+
                     } catch (Exception e) {
-    
+
                         // Just ignore any errors, it's next to impossible to stop them.
                         /*
                         Environment.logError ("Unable to get a4 page count for chapter: " +
                                               c,
                                               e);
-                        */  
+                        */
                     }
-        
-                }                
-                
+
+                }
+
             }
-            
+
         },
         1,
-        0);        
-        
+        0);
+
     }
-    
+
     public void setToolbarVisible (boolean v)
     {
 
@@ -3878,9 +3878,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                   e);
 
         }
-        
-        this.scheduleA4PageCountUpdate ();        
-        
+
+        this.scheduleA4PageCountUpdate ();
+
 		UIUtils.doLater (onOpen);
 
 		// Check to see if any chapters have overrun the target.
@@ -3890,7 +3890,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 			@Override
 			public void actionPerformed (ActionEvent ev)
 			{
-            
+
 				try
 				{
 
@@ -3918,17 +3918,17 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 															  null,
 															  null);
 
+                        String text = String.format ("%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
+  													 Environment.formatNumber (chaps.size ()),
+  													 (s == 1 ? " is" : "s are"),
+  													 Environment.formatNumber (wc),
+  													 (s == 1 ? "" : "s"));
+
+  						l.setText (text);
+
 						final Notification n = _this.addNotification (l,
 																	  Constants.WORDCOUNT_ICON_NAME,
 																	  90);
-
-						String text = String.format ("%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
-													 Environment.formatNumber (chaps.size ()),
-													 (s == 1 ? " is" : "s are"),
-													 Environment.formatNumber (wc),
-													 (s == 1 ? "" : "s"));
-
-						l.setText (text);
 
 						UIUtils.makeClickable (l,
 											   new ActionListener ()
@@ -3960,16 +3960,16 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 															  null,
 															  null);
 
+                        String text = String.format ("%s {chapter}%s over one of the readability targets, click to view the {chapter}%s.",
+  													 Environment.formatNumber (chaps.size ()),
+  													 (s == 1 ? " is" : "s are"),
+  													 (s == 1 ? "" : "s"));
+
+  						l.setText (text);
+
 						final Notification n = _this.addNotification (l,
 																	  Constants.READABILITY_ICON_NAME,
 																	  90);
-
-						String text = String.format ("%s {chapter}%s over one of the readability targets, click to view the {chapter}%s.",
-													 Environment.formatNumber (chaps.size ()),
-													 (s == 1 ? " is" : "s are"),
-													 (s == 1 ? "" : "s"));
-
-						l.setText (text);
 
 						UIUtils.makeClickable (l,
 											   new ActionListener ()
@@ -5432,7 +5432,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                 return;
 
             }
-            
+
             if (v.equals ("projectsidebar"))
             {
 
@@ -5632,7 +5632,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 							UIUtils.showErrorMessage (this,
 													  "Unable to save: <b>" +
-													  pqp.getTitle () + 
+													  pqp.getTitle () +
 													  "</b>, aborting exit.");
 
 							// Switch to the tab.
@@ -5957,30 +5957,30 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         // Get the state from the sidebars.
         for (AbstractSideBar sb : this.sideBars.values ())
         {
-            
+
             String id = sb.getId ();
-            
+
             if (id == null)
             {
-                
+
                 continue;
-                
+
             }
-            
+
             try
             {
-                
+
                 this.proj.setProperty ("sidebarState-" + id,
                                        sb.getSaveState ());
 
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to save state for sidebar: " +
                                       id,
                                       e);
-                
+
             }
-            
+
         }
 
         // Set the open tab ids.
@@ -6347,7 +6347,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 									   "fullscreen-blank");
 
             qep.init ();
-            
+
         }
 
         if (this.currentOtherSideBar != null)
@@ -6738,7 +6738,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         if (qp instanceof ProjectObjectQuollPanel)
         {
-            
+
             qp.addActionListener (new ActionAdapter ()
             {
 
@@ -6774,7 +6774,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                 }
 
             });
-            
+
         }
 
         this.tabs.add (qp,
@@ -6806,7 +6806,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     public boolean closePanel (QuollPanel qp)
     {
-        
+
 /*
         if (!this.removePanel (qp))
         {
@@ -6933,9 +6933,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                                                         if (!p.saveUnsavedChanges ())
                                                         {
-                                                            
+
                                                             return;
-                                                            
+
                                                         }
 
                                                     } catch (Exception e)
@@ -6978,9 +6978,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                                                     if (!p.hasUnsavedChanges ())
                                                     {
-                                                
+
                                                         remove.actionPerformed (ev);
-                                                        
+
                                                     }
 
                                                 }
@@ -7682,12 +7682,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 		return t;
 
 	}
-    
+
 	public void updateChapterCounts (final Chapter c)
 	{
 
         final AbstractProjectViewer _this = this;
-    
+
 		final String t = this.getCurrentChapterText (c);
 
 		final ChapterCounts cc = new ChapterCounts (t);
@@ -7697,15 +7697,15 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         if (!Environment.isStartupComplete ())
         {
-        
+
             return;
-            
+
         }
 
         // Don't try and calculate the a4 page count before the window is ready otherwise
         // strange errors result.  The initChapterCounts and scheduleA4PageCountUpdate will handle the initial counts.
         this.unschedule (this.chapterCountsUpdater);
-                          
+
         Runnable r = new Runnable ()
         {
 
@@ -7726,16 +7726,16 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                           e);
 
                 }
-                
+
             }
-            
-        };                                
-                                   
+
+        };
+
         this.chapterCountsUpdater = _this.schedule (r,
                                                     // Start in 2 seconds
                                                     2 * Constants.SEC_IN_MILLIS,
                                                     // Do it once.
-                                                    0);                    
+                                                    0);
 
 	}
 
@@ -8528,45 +8528,45 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                         try
                         {
-                    
+
                             _this.doForPanels (AbstractEditableEditorPanel.class,
                                               new QuollPanelAction<AbstractEditableEditorPanel> ()
                                               {
-    
+
                                                   @Override
                                                   public void doAction (AbstractEditableEditorPanel p)
                                                   {
-    
+
                                                     if (!p.hasUnsavedChanges ())
                                                     {
-    
+
                                                         return;
-    
+
                                                     }
-    
+
                                                     try
                                                     {
-    
+
                                                         p.saveChapter ();
-    
+
                                                     } catch (Exception e)
                                                     {
-    
+
                                                         Environment.logError ("Unable to auto save chapter: " +
                                                                               p.getChapter (),
                                                                               e);
-    
+
                                                     }
-    
+
                                                   }
-    
+
                                               });
-                            
+
                         } catch (Exception e) {
-                            
+
                             Environment.logError ("Unable update panels",
                                                   e);
-                            
+
                         }
 
                     }
@@ -8929,33 +8929,33 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     public File getProjectFile (String fileName)
     {
-        
+
         if (fileName == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return this.proj.getFile (fileName);
-        
+
     }
-    
+
     public File getProjectFilesDirectory ()
     {
-        
+
         return this.proj.getFilesDirectory ();
-                
+
     }
-    
+
     public void saveToProjectFilesDirectory (File   file,
                                              String fileName)
                                       throws IOException
     {
-        
+
         this.proj.saveToFilesDirectory (file,
                                         fileName);
-                
+
     }
 
 }
