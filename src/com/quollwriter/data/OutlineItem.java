@@ -96,14 +96,13 @@ public class OutlineItem extends ChapterItem
 
             String t = d.getText ();
         
-            Paragraph p = new Paragraph (t,
-                                         0);
-        
-            if (p.getSentenceCount () > 0)
+            TextIterator ti = new TextIterator (t);
+            
+            if (ti.getSentenceCount () > 0)
             {
-
-                this.setName (p.getFirstSentence ().getText ());
-
+        
+                this.setName (ti.getFirstSentence ().getText ());
+    
             }
         
         }
