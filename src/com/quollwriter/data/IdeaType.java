@@ -33,13 +33,13 @@ public class IdeaType extends NamedObject
 
     public void setProject (Project p)
     {
-        
+
         this.proj = p;
-        
+
         this.setParent (p);
-        
+
     }
-    
+
     public String getSortBy ()
     {
 
@@ -80,12 +80,11 @@ public class IdeaType extends NamedObject
 
         if (this.ideas.contains (i))
         {
-            
-            throw new IllegalStateException ("Already have idea: " +
-                                             i);
+
+            return;
             
         }
-    
+
         i.setType (this);
 
         this.ideas.add (i);
