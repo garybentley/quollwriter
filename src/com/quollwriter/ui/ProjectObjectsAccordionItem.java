@@ -162,6 +162,19 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
     
     public abstract DragActionHandler getTreeDragActionHandler (E     pv);
     
+    /**
+     *  Allow anything to be moved, sub-classes can override to switch off as needed.
+     *
+     * @param o The object to check.
+     * @returns Always true.
+     */
+    public boolean canMoveObject (NamedObject o)
+    {
+        
+        return true;
+        
+    }
+    
     public void update ()
     {
 
@@ -685,7 +698,12 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                         return -1;
                         
                     }
-                    
+                    if (!_this.canMoveObject (o))
+                    {
+                        
+                        return NONE;
+                        
+                    }
                     JLabel l = new JLabel (o.getName ());
                     
                     this.dragImage = UIUtils.getImageOfComponent (l,

@@ -450,6 +450,14 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
     }
     
     @Override
+    public boolean canMoveObject (NamedObject o)
+    {
+        
+        return (o instanceof Chapter);
+        
+    }
+    
+    @Override
     public DragActionHandler getTreeDragActionHandler (AbstractProjectViewer pv)
     {
         
