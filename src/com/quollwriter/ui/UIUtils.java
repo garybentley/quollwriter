@@ -8382,13 +8382,6 @@ public class UIUtils
 
         FileFinder ff = new FileFinder ();
 
-        if (initPath != null)
-        {
-
-            ff.setFile (new File (initPath));
-
-        }
-
         ff.setOnSelectHandler (handler);
         ff.setApproveButtonText (approveButtonText);
         ff.setFinderSelectionMode (fileSelectionMode);
@@ -8396,6 +8389,13 @@ public class UIUtils
 
         ff.init ();
 
+        if (initPath != null)
+        {
+
+            ff.setFile (new File (initPath));
+
+        }
+        
         return ff;
 
     }
@@ -10998,8 +10998,27 @@ public class UIUtils
 
     }
 
+    public static Form createForm (Set<FormItem> items)
+    {
+        
+        return new Form (Form.Layout.stacked,
+                         items,
+                         (Set) null);
+
+    }
+
     public static Form createForm (Set<FormItem>                    items,
                                    Map<Form.Button, ActionListener> buttons)
+    {
+        
+        return new Form (Form.Layout.stacked,
+                         items,
+                         buttons);
+
+    }
+
+    public static Form createForm (Set<FormItem>       items,
+                                   Set<JButton> buttons)
     {
         
         return new Form (Form.Layout.stacked,
