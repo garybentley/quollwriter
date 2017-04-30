@@ -159,12 +159,42 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
 
         this.itemViewer = itemViewer;
         
+        this.editor = itemViewer.getEditor ();
+        
         final EditorChapterPanel qep = (EditorChapterPanel) this.viewer.getEditorForChapter (this.chapter);
         
         this.setPopupOver (qep); 
                
         this.object.setType (Note.EDIT_NEEDED_NOTE_TYPE);
+
+        final CommentActionHandler _this = this;
+        
+        this.setOnShowAction (new ActionListener ()
+        {
+           
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
                 
+                try
+                {
+    
+                    _this.itemViewer.addItem (_this.getChapterItem ());
+            
+                } catch (Exception e)
+                {
+    
+                    Environment.logError ("Unable to add item: " +
+                                          _this.object +
+                                          " to editor panel",
+                                          e);
+    
+                }
+                
+            }
+            
+        });
+                            
     }
     
     @Override
@@ -277,6 +307,13 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
         
     }
     
+    public Note getChapterItem ()
+    {
+        
+        return this.object;
+        
+    }
+    
     @Override
     public JComponent getFocussedField ()
     {
@@ -336,17 +373,19 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
 
         }
 
+        items.add (this.comment);
+        
         return items;
 
     }
-
+    
     @Override
     public Set<String> getFormErrors ()
     {
         
         Set<String> errs = new LinkedHashSet ();
         
-        if (this.comment.getText () == null)
+        if (this.comment.getValue () == null)
         {
             
             errs.add ("Please enter a comment.");
@@ -360,7 +399,14 @@ public class CommentActionHandler<V extends AbstractProjectViewer> extends Abstr
     @Override
     public void handleCancel ()
     {
-        
+             
+        if (this.mode == ADD)
+        {
+            
+            this.itemViewer.removeItem (this.object);
+             
+        }             
+                
     }
     
     @Override
