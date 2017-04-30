@@ -30,6 +30,7 @@ import com.quollwriter.editors.ui.sidebars.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.ui.components.QPopup;
@@ -605,39 +606,11 @@ public class EditorsUIUtils
 
         content.add (error);
 
-        FormLayout fl = new FormLayout ("6px, right:p, 6px, fill:200px:grow",
-                                        "10px, p, 6px, top:p, 10px, p");
-
-        fl.setHonorsVisibility (true);
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        int row = 2;
-
-        builder.addLabel ("Your Name",
-                          cc.xy (2,
-                                 row));
-
         EditorAccount acc = EditorsEnvironment.getUserAccount ();
 
         final String accName = (acc.getName ());
 
         final JTextField nameF = new JTextField (accName);
-
-        Box nameB = new Box (BoxLayout.X_AXIS);
-        nameB.add (nameF);
-        nameB.add (Box.createHorizontalStrut (3));
-
-        builder.add (nameB,
-                     cc.xy (4,
-                            row));
-
-        row += 2;
-
-        builder.addLabel ("Your Avatar",
-                          cc.xy (2,
-                                 row));
 
         java.util.List<String> fileTypes = new java.util.ArrayList ();
         fileTypes.add ("jpg");
@@ -667,10 +640,14 @@ public class EditorsUIUtils
         });
 
         b.add (avatar);
-
-        builder.add (b,
-                     cc.xy (4,
-                            row));
+        
+        Set<FormItem> items = new LinkedHashSet ();
+        
+        items.add (new AnyFormItem ("Your Name",
+                                    nameF));
+        
+        items.add (new AnyFormItem ("Your picture/Avatar",
+                                    b));
 
         final JButton updateB = UIUtils.createButton (Environment.getButtonLabel (Constants.UPDATE_BUTTON_LABEL_ID),
                                                       new ActionListener ()
@@ -743,22 +720,18 @@ public class EditorsUIUtils
         final JButton cancelB = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                                                       qp.getCloseAction ());
 
-        row += 2;
+        Set<JButton> buttons = new LinkedHashSet ();
+        buttons.add (updateB);
+        buttons.add (cancelB);
+        
+        Form f = UIUtils.createForm (items,
+                                     buttons);
+        
+        f.setBorder (UIUtils.createPadding (10, 5, 0, 5));
+        
+        content.add (f);
 
-        JComponent bs = UIUtils.createButtonBar2 (new JButton[] {updateB, cancelB},
-                                                  Component.LEFT_ALIGNMENT);
-
-        builder.add (bs,
-                     cc.xy (4,
-                            row));
-
-        JPanel p = builder.getPanel ();
-        p.setOpaque (false);
-        p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        content.add (p);
-
-        content.setBorder (new EmptyBorder (10, 10, 10, 10));
+        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
                                                  content.getPreferredSize ().height));
 
@@ -1319,62 +1292,23 @@ public class EditorsUIUtils
         content.add (desc);
 
         final JLabel error = UIUtils.createErrorLabel ("");
-        error.setBorder (new EmptyBorder (10, 10, 0, 10));
+        error.setBorder (UIUtils.createPadding (10, 10, 0, 10));
         error.setVisible (false);
 
         content.add (error);
 
-        FormLayout fl = new FormLayout ("6px, right:p, 6px, fill:200px:grow",
-                                        "10px, p, 6px, p, 6px, top:p, 6px, p, 6px, top:p, 0px, p, 10px, p");
-
-        fl.setHonorsVisibility (true);
-        PanelBuilder builder = new PanelBuilder (fl);
-
-        CellConstraints cc = new CellConstraints ();
-
-        int row = 2;
-
-        builder.addLabel (Environment.replaceObjectNames ("{Project}"),
-                          cc.xy (2,
-                                 row));
-
-        builder.addLabel (p.getName (),
-                          cc.xy (4,
-                                 row));
-
-        row += 2;
-
-        builder.addLabel ("Version",
-                          cc.xy (2,
-                                 row));
-
+        JLabel sending = UIUtils.createLoadingLabel ("Sending {project}...");
+        sending.setBorder (UIUtils.createPadding (10, 10, 0, 10));        
+        
+        content.add (sending);
+        
         final JTextField version = new JTextField ();
-
-        builder.add (version,
-                     cc.xy (4,
-                            row));
-
-        row += 2;
-
-        builder.addLabel (Environment.replaceObjectNames ("Notes"),
-                          cc.xy (2,
-                                 row));
 
         final TextArea notes = new TextArea (Environment.replaceObjectNames (String.format ("Tell %s about your {project}/book/story here.  Also add instructions/hints on what you are wanting them to do, what to look at specifically and so on.",
                                                                                             ed.getMainName ())),
-                                             4,
+                                             5,
                                              5000);
         notes.setAutoGrabFocus (false);
-
-        builder.add (notes,
-                     cc.xy (4,
-                            row));
-
-        row += 2;
-
-        builder.addLabel (Environment.replaceObjectNames ("Due by"),
-                          cc.xy (2,
-                                 row));
 
         Calendar cal = new GregorianCalendar ();
         cal.add (Calendar.DATE,
@@ -1386,20 +1320,7 @@ public class EditorsUIUtils
         jcal.getCalendarButton ().setMargin (new java.awt.Insets (3, 3, 3, 3));
         jcal.setIcon (Environment.getIcon ("date",
                                            16));
-
-        Box calBox = new Box (BoxLayout.X_AXIS);
-        calBox.add (jcal);
-        jcal.setMaximumSize (jcal.getPreferredSize ());
-        builder.add (calBox,
-                     cc.xy (4,
-                            row));
-
-        row += 2;
-
-        builder.addLabel (Environment.replaceObjectNames ("{Chapters}"),
-                          cc.xy (2,
-                                 row));
-
+        
         JTree tree = UIUtils.createSelectableTree ();
 
         final DefaultMutableTreeNode root = UIUtils.createTreeNode (p,
@@ -1408,13 +1329,6 @@ public class EditorsUIUtils
                                                                     true);
 
         Book b = (Book) p.getBooks ().get (0);
-
-        DefaultMutableTreeNode broot = UIUtils.createTreeNode (b,
-                                                               null,
-                                                               null,
-                                                               true);
-
-        //root.add (broot);
 
         // Get the chapters.
         List<Chapter> chaps = b.getChapters ();
@@ -1448,42 +1362,33 @@ public class EditorsUIUtils
 
         JComponent t = tree;
 
-        if (tree.getPreferredSize ().height > 200)
+        if (tree.getPreferredSize ().height > 150)
         {
 
-            JScrollPane sp = UIUtils.createScrollPane (tree);
+            JScrollPane sp = UIUtils.createScrollPane (tree,
+                                                       150);
             sp.setOpaque (false);
-            //sp.setBorder (null);
-
-            sp.setPreferredSize (new Dimension (500,
-                                                200));
 
             t = sp;
 
         }
+                
+        Set<FormItem> items = new LinkedHashSet ();
+        
+        items.add (new AnyFormItem ("{Project}",
+                                    new JLabel (p.getName ())));
 
-        builder.add (t,
-                     cc.xy (4,
-                            row));
+        items.add (new AnyFormItem ("Version",
+                                    version));
 
-        row += 2;
+        items.add (new AnyFormItem ("Notes",
+                                    notes));
+        
+        items.add (new AnyFormItem ("Due by",
+                                    jcal));
 
-        // See if we have sent this editor anything before, if so offer to show what was sent.
-
-        JLabel sending = UIUtils.createLoadingLabel ("Sending {project}");
-        sending.setText (Environment.replaceObjectNames ("Sending {project}..."));
-        sending.setVisible (true);
-
-        final Box sendBox = new Box (BoxLayout.X_AXIS);
-        sendBox.setBorder (new EmptyBorder (10, 0, 0, 0));
-        sendBox.add (sending);
-        sendBox.setVisible (false);
-
-        builder.add (sendBox,
-                     cc.xy (4,
-                            row));
-
-        row += 2;
+        items.add (new AnyFormItem ("{Chapters}",
+                                    t));
 
         final JButton send = UIUtils.createButton ("Send");
         
@@ -1565,10 +1470,10 @@ public class EditorsUIUtils
                 error.setVisible (false);
 
                 // Show the sending.
-                sendBox.setVisible (true);
+                sending.setVisible (true);
 
                 UIUtils.resizeParent (content);
-
+                
                 String n = null;
 
                 if (!notes.getForeground ().equals (UIUtils.getHintTextColor ()))
@@ -1816,21 +1721,16 @@ public class EditorsUIUtils
 
         });
 
-        JButton[] buts = new JButton[] { send, cancel };
-
-        JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                       Component.LEFT_ALIGNMENT);
-        buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        builder.add (buttons,
-                     cc.xy (4,
-                            row));
-
-        JPanel bp = builder.getPanel ();
-        bp.setOpaque (false);
-        bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-        content.add (bp);
+        Set<JButton> buttons = new LinkedHashSet ();
+        
+        buttons.add (send);
+        buttons.add (cancel);
+        
+        Form f = UIUtils.createForm (items,
+                                     buttons);
+        
+        f.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+        content.add (f);
 
         content.addAncestorListener (new AncestorListener ()
         {
@@ -2197,28 +2097,6 @@ public class EditorsUIUtils
 
             content.add (Box.createVerticalStrut (5));
 
-            final FormLayout fl = new FormLayout ("right:p, 6px, fill:100px:grow, 2px, p",
-                                                  rows);
-            fl.setHonorsVisibility (true);
-            final PanelBuilder builder = new PanelBuilder (fl);
-
-            final CellConstraints cc = new CellConstraints ();
-
-            final String projName = mess.getForProjectName ();
-
-            builder.addLabel (Environment.replaceObjectNames ("{Project}"),
-                              cc.xy (1,
-                                     row));
-            builder.addLabel (projName,
-                              cc.xy (3,
-                                     row));
-
-            row += 2;
-
-            builder.addLabel ("Save In",
-                              cc.xy (1,
-                                     row));
-
             File defDir = Environment.getDefaultSaveProjectDir ();
 
             defDir.mkdirs ();
@@ -2237,27 +2115,28 @@ public class EditorsUIUtils
             saveField.setClearOnCancel (true);
             saveField.init ();
 
-            builder.add (saveField,
-                         cc.xy (3,
-                                row));
-
-            row += 2;
-
+            final String projName = mess.getForProjectName ();            
+            
             final JCheckBox encryptField = UIUtils.createCheckBox ("Encrypt this {project}?  You will be prompted for a password.");
-            encryptField.setBackground (Color.WHITE);
+            
+            Set<FormItem> items = new LinkedHashSet ();
+            
+            items.add (new AnyFormItem ("{Project}",
+                                        new JLabel (projName)));
+            
+            items.add (new AnyFormItem ("Save In",
+                                        saveField));
 
-            builder.add (encryptField,
-                         cc.xyw (3,
-                                 row,
-                                 2));
-
-            row += 2;
+            items.add (new AnyFormItem (null,
+                                        encryptField));
 
             FormLayout pfl = new FormLayout ("right:p, 6px, 100px, 20px, p, 6px, fill:100px",
                                              "p, 6px");
             pfl.setHonorsVisibility (true);
             PanelBuilder pbuilder = new PanelBuilder (pfl);
 
+            CellConstraints cc = new CellConstraints ();            
+            
             final JPasswordField passwordField = new JPasswordField ();
 
             pbuilder.addLabel ("Password",
@@ -2277,15 +2156,13 @@ public class EditorsUIUtils
             pbuilder.add (passwordField2,
                           cc.xy (7,
                                  1));
-
+                                 
             final JPanel ppanel = pbuilder.getPanel ();
             ppanel.setVisible (false);
             ppanel.setOpaque (false);
 
-            builder.add (ppanel,
-                         cc.xyw (3,
-                                 row,
-                                 2));
+            items.add (new AnyFormItem (null,
+                                        ppanel));
 
             encryptField.addActionListener (new ActionListener ()
             {
@@ -2301,45 +2178,25 @@ public class EditorsUIUtils
 
             });
 
-            JPanel p = builder.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-            p.setBorder (new EmptyBorder (0, 5, 0, 5));
-            /*
-            if (createOnReturn)
-            {
-
-                UIUtils.addDoActionOnReturnPressed (this.nameField,
-                                                    createProjectAction);
-                UIUtils.addDoActionOnReturnPressed (this.saveField,
-                                                    createProjectAction);
-                UIUtils.addDoActionOnReturnPressed (this.passwordField,
-                                                    createProjectAction);
-                UIUtils.addDoActionOnReturnPressed (this.passwordField2,
-                                                    createProjectAction);
-
-            }
-    */
             final JLabel error = UIUtils.createErrorLabel ("");
             error.setVisible (false);
-            error.setBorder (new EmptyBorder (0,
-                                              0,
-                                              5,
-                                              0));
+            error.setBorder (UIUtils.createPadding (0, 0, 5, 0));
 
+            Form f = UIUtils.createForm (items);
+            
             content.add (error);
-            content.add (p);
+            content.add (f);
 
             content.add (Box.createVerticalStrut (10));
             content.add (UIUtils.createBoldSubHeader ("Send a message back",
                                                       null));
 
-            final TextArea res = new TextArea ("You can optionally return a message to " + mess.getEditor ().getMainName () + " using this box.",
-                                               3,
+            final TextArea res = new TextArea (String.format ("You can optionally return a message to %s using this box.",
+                                                              mess.getEditor ().getMainName ()),
+                                               5,
                                                5000);
 
-            //res.setBorder (new EmptyBorder (5, 5, 0, 5));
-
+            content.setBorder (UIUtils.createPadding (5, 0, 0, 0));
             content.add (res);
 
             ActionListener doSave = new ActionListener ()
@@ -2727,30 +2584,14 @@ public class EditorsUIUtils
                 error.setVisible (false);
                 content.add (error);
 
-                FormLayout fl = new FormLayout ("6px, right:p, 6px, fill:200px:grow",
-                                                "10px, top:p, 6px, top:p, 0px, p, 10px, p");
-
-                fl.setHonorsVisibility (true);
-                PanelBuilder builder = new PanelBuilder (fl);
-
-                CellConstraints cc = new CellConstraints ();
-
-                int row = 2;
-
-                builder.addLabel (Environment.replaceObjectNames ("Notes"),
-                                  cc.xy (2,
-                                         row));
-
+                JLabel sending = UIUtils.createLoadingLabel ("Sending {comments}...");
+                sending.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+                sending.setVisible (false);
+                
                 final TextArea genComments = new TextArea ("Optionally, you can provide some general thoughts/comments about the {project} here.",
-                                                           3,
+                                                           5,
                                                            5000);
-
-                builder.add (genComments,
-                             cc.xy (4,
-                                    row));
-
-                row += 2;
-
+                
                 Set exclude = new HashSet ();
                 Set init = new HashSet ();
 
@@ -2827,47 +2668,16 @@ public class EditorsUIUtils
 
                 }
 
-                Dimension pref = tree.getPreferredSize ();
-
-                if (pref.height > 400)
-                {
-
-                    pref.height = 400;
-
-                } else {
-
-                    pref.height += 3;
-
-                }
-
-                JScrollPane sp = UIUtils.createScrollPane (tree);
-
-                sp.setBorder (UIUtils.createLineBorder ());
-                sp.setPreferredSize (pref);
-
-                builder.addLabel (Environment.replaceObjectNames ("{Comments}"),
-                                  cc.xy (2,
-                                         row));
-
-                builder.add (sp,
-                             cc.xy (4,
-                                    row));
-
-                row += 2;
-
-                JLabel sending = UIUtils.createLoadingLabel ("Sending {comments}...");
-                sending.setVisible (true);
-
-                final Box sendBox = new Box (BoxLayout.X_AXIS);
-                sendBox.setBorder (new EmptyBorder (10, 0, 0, 0));
-                sendBox.add (sending);
-                sendBox.setVisible (false);
-
-                builder.add (sendBox,
-                             cc.xy (4,
-                                    row));
-
-                row += 2;
+                JScrollPane sp = UIUtils.createScrollPane (tree,
+                                                           400);
+                
+                Set<FormItem> items = new LinkedHashSet ();
+                                                           
+                items.add (new AnyFormItem ("Notes",
+                                            genComments));
+                                                           
+                items.add (new AnyFormItem ("{Comments}",
+                                            sp));
 
                 ActionListener onShow = null;
 
@@ -3014,7 +2824,7 @@ public class EditorsUIUtils
                                                                 null);
 
 
-                        sendBox.setVisible (true);
+                        sending.setVisible (true);
 
                         popup.resize ();
 
@@ -3031,21 +2841,16 @@ public class EditorsUIUtils
                 final JButton cancel = UIUtils.createButton ("Cancel",
                                                              popup.getCloseAction ());
 
-                JButton[] buts = new JButton[] { send, cancel };
-
-                JComponent buttons = UIUtils.createButtonBar2 (buts,
-                                                               Component.LEFT_ALIGNMENT);
-                buttons.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                builder.add (buttons,
-                             cc.xy (4,
-                                    row));
-
-                JPanel bp = builder.getPanel ();
-                bp.setOpaque (false);
-                bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-                content.add (bp);
+                Set<JButton> buttons = new LinkedHashSet ();
+                buttons.add (send);
+                buttons.add (cancel);
+                                                             
+                Form f = UIUtils.createForm (items,
+                                             buttons);
+                
+                f.setBorder (UIUtils.createPadding (10, 0, 0, 0));
+                                                
+                content.add (f);
 
                 //content.add (buttons);
                 content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
@@ -5091,8 +4896,13 @@ public class EditorsUIUtils
 
                     }
 
+                    long k = 1;
+                    
                     for (Note n : message.getComments ())
                     {
+
+                        // Need to give it a fake key.
+                        n.setKey (k++);
 
                         // Get the fake chapter.
                         Chapter fakec = n.getChapter ();
