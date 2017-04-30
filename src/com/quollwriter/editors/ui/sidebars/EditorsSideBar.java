@@ -884,12 +884,16 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                 null,
                                                 this.viewer);
                 
+        this.invitesForMe.init ();
+                
         edBox.add (this.invitesForMe);
         
         this.invitesIveSent = new EditorsSection ("Pending invites",
                                                   "Invites I've sent to other people.",
                                                   null,
                                                   this.viewer);
+    
+        this.invitesIveSent.init ();
     
         edBox.add (this.invitesIveSent);
 
@@ -898,11 +902,13 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                 null,
                                                 this.viewer);
                 
+        this.otherEditors.init ();
+                
         edBox.add (this.otherEditors);
 
         final JScrollPane sp = UIUtils.createScrollPane (edBox);
         sp.setBorder (null);
-                
+
         this.tabs.add (sp,
                        0);
         this.tabs.setIconAt (0,
@@ -910,7 +916,7 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
                                                   Constants.ICON_EDITORS_LIST_TAB_HEADER));
         
         this.updateView ();
-        
+   
         UIUtils.doLater (new ActionListener ()
         {
            
@@ -1054,7 +1060,11 @@ public class EditorsSideBar extends AbstractSideBar<AbstractViewer> implements E
         
         this.firstLogin.setVisible (false);
 
-        if (EditorsEnvironment.getUserAccount ().getLastLogin () == null)
+        // May not have an account anymore.
+        if ((EditorsEnvironment.getUserAccount () != null)
+            &&
+            (EditorsEnvironment.getUserAccount ().getLastLogin () == null)
+           )
         {
 
             this.firstLogin.setVisible (true);
