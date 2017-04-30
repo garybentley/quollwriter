@@ -61,8 +61,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         super (pv,
                c);
 
-        this.chapter = c;
-
         final AbstractEditableEditorPanel _this = this;
 
         this.editor.setSectionBreak (Constants.SECTION_BREAK);
@@ -238,7 +236,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                     _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                    ProjectEvent.EDIT,
-                                                   _this.chapter);
+                                                   _this.obj);
 
                 }
 
@@ -253,7 +251,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                         if (offset == 0)
                         {
 
-                            Set<OutlineItem> its = _this.chapter.getOutlineItemsAt (0);
+                            Set<OutlineItem> its = _this.obj.getOutlineItemsAt (0);
 
                             for (OutlineItem it : its)
                             {
@@ -262,7 +260,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                             }
 
-                            Set<Scene> ss = _this.chapter.getScenesAt (0);
+                            Set<Scene> ss = _this.obj.getScenesAt (0);
 
                             for (Scene s : ss)
                             {
@@ -271,7 +269,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                             }
 
-                            Set<Note> nn = _this.chapter.getNotesAt (0);
+                            Set<Note> nn = _this.obj.getNotesAt (0);
 
                             for (Note n : nn)
                             {
@@ -397,7 +395,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                     _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
                                                    ProjectEvent.EDIT,
-                                                   _this.chapter);
+                                                   _this.obj);
 
                 }
 
@@ -631,7 +629,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                      throws Exception
     {
 
-        this.chapter.setText (this.editor.getTextWithMarkup ());
+        this.obj.setText (this.editor.getTextWithMarkup ());
 
         super.saveObject ();
 

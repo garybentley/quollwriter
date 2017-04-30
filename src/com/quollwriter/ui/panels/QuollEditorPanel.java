@@ -223,7 +223,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                               public void actionPerformed (ActionEvent ev)
                               {
 
-                                 new SplitChapterActionHandler (_this.chapter,
+                                 new SplitChapterActionHandler (_this.obj,
                                                                 _this.projectViewer).actionPerformed (ev);
 
                               }
@@ -240,12 +240,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                  try
                                  {
 
-                                    _this.projectViewer.removeChapterEditPosition (_this.chapter);
+                                    _this.projectViewer.removeChapterEditPosition (_this.obj);
 
                                  } catch (Exception e) {
 
                                     Environment.logError ("Unable to remove edit position for chapter: " +
-                                                          _this.chapter,
+                                                          _this.obj,
                                                           e);
 
                                     UIUtils.showErrorMessage (_this.projectViewer,
@@ -268,13 +268,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                  try
                                  {
 
-                                    _this.projectViewer.setChapterEditComplete (_this.chapter,
+                                    _this.projectViewer.setChapterEditComplete (_this.obj,
                                                                                 true);
 
                                  } catch (Exception e) {
 
                                     Environment.logError ("Unable to set chapter edit complete: " +
-                                                          _this.chapter,
+                                                          _this.obj,
                                                           e);
 
                                     UIUtils.showErrorMessage (_this.projectViewer,
@@ -371,13 +371,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                   try
                                   {
 
-                                      _this.projectViewer.viewChapterInformation (_this.chapter);
+                                      _this.projectViewer.viewChapterInformation (_this.obj);
 
                                   } catch (Exception e)
                                   {
 
                                       Environment.logError ("Unable to show chapter information for: " +
-                                                            _this.chapter,
+                                                            _this.obj,
                                                             e);
 
                                       UIUtils.showErrorMessage (_this,
@@ -671,7 +671,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         {
 
             Action a = this.projectViewer.getAction (ProjectViewer.NEW_CHAPTER_ACTION,
-                                                     this.chapter);
+                                                     this.obj);
 
             if (a != null)
             {
@@ -688,7 +688,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         {
 
             Scene s = new Scene (-1,
-                                 this.chapter);
+                                 this.obj);
 
             new ChapterItemActionHandler<Scene> (s,
                                                  this,
@@ -703,7 +703,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         {
 
             OutlineItem o = new OutlineItem (-1,
-                                             this.chapter);
+                                             this.obj);
 
             new ChapterItemActionHandler<OutlineItem> (o,
                                                        this,
@@ -717,7 +717,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (c.equals (NEW_NOTE_ACTION_NAME))
         {
 
-            new NoteActionHandler (this.chapter,
+            new NoteActionHandler (this.obj,
                                    this,
                                    pos).actionPerformed (ev);
 
@@ -728,7 +728,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (c.equals (NEW_EDIT_NEEDED_NOTE_ACTION_NAME))
         {
 
-            new NoteActionHandler (this.chapter,
+            new NoteActionHandler (this.obj,
                                    this,
                                    Note.EDIT_NEEDED_NOTE_TYPE,
                                    pos).actionPerformed (ev);
@@ -1063,7 +1063,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                           throws Exception
     {
 
-        this.projectViewer.setChapterEditPosition (this.chapter,
+        this.projectViewer.setChapterEditPosition (this.obj,
                                                    this.editor.viewToModel (mouseP));
 
     }
@@ -1228,7 +1228,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                    } catch (Exception e) {
 
                                                       Environment.logError ("Unable to set edit position for chapter: " +
-                                                                            _this.chapter,
+                                                                            _this.obj,
                                                                             e);
 
                                                       UIUtils.showErrorMessage (_this.projectViewer,
@@ -1240,7 +1240,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                                             }));
 
-            if (this.chapter.getEditPosition () > 0)
+            if (this.obj.getEditPosition () > 0)
             {
 
                 buts.add (this.createButton (Constants.REMOVE_EDIT_POINT_ICON_NAME,
@@ -1250,7 +1250,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             }
 
-            if (!this.chapter.isEditComplete ())
+            if (!this.obj.isEditComplete ())
             {
 
                 buts.add (this.createButton (Constants.EDIT_COMPLETE_ICON_NAME,
@@ -1322,7 +1322,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                 } catch (Exception e) {
 
                                                    Environment.logError ("Unable to set edit position for chapter: " +
-                                                                         _this.chapter,
+                                                                         _this.obj,
                                                                          e);
 
                                                    UIUtils.showErrorMessage (_this.projectViewer,
@@ -1336,7 +1336,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             m.add (mi);
 
-            if (this.chapter.getEditPosition () > 0)
+            if (this.obj.getEditPosition () > 0)
             {
 
                 m.add (this.createMenuItem ("Remove Edit Point",
@@ -1346,7 +1346,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             }
 
-            if (!this.chapter.isEditComplete ())
+            if (!this.obj.isEditComplete ())
             {
 
                 m.add (this.createMenuItem ("Set as Edit Complete",

@@ -176,13 +176,13 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                   try
                                   {
 
-                                      _this.projectViewer.viewEditorChapterInformation (_this.chapter);
+                                      _this.projectViewer.viewEditorChapterInformation (_this.obj);
 
                                   } catch (Exception e)
                                   {
 
                                       Environment.logError ("Unable to show chapter information for: " +
-                                                            _this.chapter,
+                                                            _this.obj,
                                                             e);
 
                                       UIUtils.showErrorMessage (_this,
@@ -397,7 +397,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         if (c.equals (NEW_COMMENT_ACTION_NAME))
         {
 
-            new CommentActionHandler<EditorProjectViewer> (this.chapter,
+            new CommentActionHandler<EditorProjectViewer> (this.obj,
                                                            this,
                                                            pos).actionPerformed (ev);
 
@@ -526,7 +526,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                     }
                         
                     // Last line.
-                    this.chapter.setEditComplete (complete);
+                    this.obj.setEditComplete (complete);
                                                                 
                 }
 
@@ -534,13 +534,13 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
             this.projectViewer.reloadChapterTree ();
             
-            this.projectViewer.saveObject (this.chapter,
+            this.projectViewer.saveObject (this.obj,
                                            false);
                                                                 
         } catch (Exception e) {
             
             Environment.logError ("Unable to set edit position for chapter: " +
-                                  this.chapter,
+                                  this.obj,
                                   e);
                                                             
         }
@@ -564,7 +564,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
             this.setEditComplete (false);
             
-            this.projectViewer.saveObject (this.chapter,
+            this.projectViewer.saveObject (this.obj,
                                            false);
 
             this.projectViewer.reloadChapterTree ();
@@ -572,7 +572,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         } catch (Exception e) {
             
             Environment.logError ("Unable to set edit position for chapter: " +
-                                  this.chapter,
+                                  this.obj,
                                   e);
                                                             
         }
@@ -585,7 +585,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         try
         {
             
-            this.chapter.setEditComplete (v);
+            this.obj.setEditComplete (v);
             
             if (v)
             {
@@ -596,7 +596,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                 
             }
             
-            this.projectViewer.saveObject (this.chapter,
+            this.projectViewer.saveObject (this.obj,
                                            false);
 
             this.iconColumn.init ();
@@ -606,7 +606,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         } catch (Exception e) {
             
             Environment.logError ("Unable to set edit complete for chapter: " +
-                                  this.chapter,
+                                  this.obj,
                                   e);
                                                             
         }        
@@ -674,7 +674,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                                
                                             }));
 
-            if (this.chapter.getEditPosition () > 0)
+            if (this.obj.getEditPosition () > 0)
             {
     
                 buts.add (this.createButton (Constants.REMOVE_EDIT_POINT_ICON_NAME,
@@ -684,7 +684,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                    
             }
 
-            if (!this.chapter.isEditComplete ())
+            if (!this.obj.isEditComplete ())
             {
                 
                 buts.add (this.createButton (Constants.EDIT_COMPLETE_ICON_NAME,
@@ -733,8 +733,8 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                          });
                 
             m.add (mi);
-    
-            if (this.chapter.getEditPosition () > 0)
+
+            if (this.obj.getEditPosition () > 0)
             {
     
                 m.add (this.createMenuItem ("Remove Edit Point",
@@ -744,7 +744,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
     
             }
     
-            if (!this.chapter.isEditComplete ())
+            if (!this.obj.isEditComplete ())
             {
                 
                 m.add (this.createMenuItem ("Set as Edit Complete",

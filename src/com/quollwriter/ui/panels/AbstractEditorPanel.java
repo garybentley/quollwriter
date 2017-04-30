@@ -57,7 +57,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     protected QTextEditor    editor = null;
     private Border origEditorBorder = null;
     protected ActionMap      actions = null;
-    protected Chapter        chapter = null;
     protected Point             lastMousePosition = null;
     protected JScrollPane    scrollPane = null;
     private boolean          ignoreDocumentChange = false;
