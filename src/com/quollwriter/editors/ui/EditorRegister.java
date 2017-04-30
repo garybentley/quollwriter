@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.Map;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -32,6 +33,7 @@ import com.quollwriter.*;
 import com.quollwriter.data.*;
 
 import com.quollwriter.ui.*;
+import com.quollwriter.ui.forms.*;
 import com.quollwriter.events.*;
 import com.quollwriter.ui.events.*;
 import com.quollwriter.editors.*;
@@ -315,6 +317,13 @@ public class EditorRegister extends Wizard
 
         }
 
+        if (currStage.equals ("existing"))
+        {
+            
+            return "start";
+            
+        }
+        
         if (currStage.equals ("dir"))
         {
 
@@ -887,38 +896,15 @@ public class EditorRegister extends Wizard
 
             ws.helpText = "Here you can provide some information about yourself.  This will be sent to editors to let them know about you.  The information is optional.";
 
-            FormLayout fl = new FormLayout ("6px, right:p, 6px, fill:200px:grow",
-                                            "p, 6px, top:p, 6px, p");
-
-            PanelBuilder builder = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            int row = 1;
-
-            builder.addLabel ("Your Name",
-                              cc.xy (2,
-                                     row));
-
             this.nameField = UIUtils.createTextField ();
             this.nameField.setPreferredSize (new Dimension (200,
                                                             this.nameField.getPreferredSize ().height));
-
-            builder.add (this.nameField,
-                         cc.xy (4,
-                                row));
-
-            row += 2;
 
             java.util.List<String> fileTypes = new java.util.ArrayList ();
             fileTypes.add ("jpg");
             fileTypes.add ("jpeg");
             fileTypes.add ("png");
             fileTypes.add ("gif");
-
-            builder.addLabel ("Your picture/Avatar",
-                              cc.xy (2,
-                                     row));
 
             Box b = new Box (BoxLayout.X_AXIS);
 
@@ -931,14 +917,16 @@ public class EditorRegister extends Wizard
 
             b.add (this.avatar);
 
-            builder.add (b,
-                         cc.xy (4,
-                                row));
+            Set<FormItem> items = new LinkedHashSet ();
+                                                            
+            items.add (new AnyFormItem ("Your name",
+                                        this.nameField));
 
-            JPanel p = builder.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
+            items.add (new AnyFormItem ("Your picture/Avatar",
+                                        b));
+            
+            JComponent p = UIUtils.createForm (items);
+                        
             ws.panel = p;
 
         }
@@ -960,59 +948,26 @@ public class EditorRegister extends Wizard
             this.loginError.setVisible (false);
             this.loginError.setBorder (new EmptyBorder (0, 0, 5, 0));
 
-            int row = 1;
-
-            FormLayout fl = new FormLayout ("6px, right:p, 6px, fill:200px:grow",
-                                            "p, 6px, p, 6px, p");
-
-            fl.setHonorsVisibility (true);
-            PanelBuilder builder = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            builder.addLabel ("Email",
-                              cc.xy (2,
-                                     row));
-
             this.emailField = UIUtils.createTextField ();
-
-            builder.add (this.emailField,
-                         cc.xy (4,
-                                row));
-
-            row += 2;
-
-            builder.addLabel ("Password",
-                              cc.xy (2,
-                                     row));
-
             this.passwordField = new JPasswordField ();
-
-            builder.add (this.passwordField,
-                         cc.xy (4,
-                                row));
-
-            row += 2;
-
-            builder.addLabel ("Confirm Password",
-                              cc.xy (2,
-                                     row));
-
             this.password2Field = new JPasswordField ();
 
-            builder.add (this.password2Field,
-                         cc.xy (4,
-                                row));
+            Set<FormItem> items = new LinkedHashSet ();
+            
+            items.add (new AnyFormItem ("Email",
+                                        this.emailField));
 
-            JPanel p = builder.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
+            items.add (new AnyFormItem ("Password",
+                                        this.passwordField));
+
+            items.add (new AnyFormItem ("Confirm Password",
+                                        this.password2Field));
 
             Box b = new Box (BoxLayout.Y_AXIS);
 
             b.add (this.saving);
             b.add (this.loginError);
-            b.add (p);
+            b.add (UIUtils.createForm (items));
 
             ws.panel = b;
 
@@ -1035,7 +990,7 @@ public class EditorRegister extends Wizard
                                false);
 
         }
-        
+
     }
 
 }
