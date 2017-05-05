@@ -54,9 +54,15 @@ public class UserConfigurableObjectFieldDataHandler implements DataHandler<UserC
 
             String v = rs.getString (ind++);
             
-            f.setValue (tf.getViewEditHandler (parent,
-                                               f,
-                                               null).stringToValue (v));
+            if (v != null)
+            {
+            
+                f.setValue (tf.getViewEditHandler (parent,
+                                                   f,
+                                                   null).stringToValue (v));
+
+            }
+            
             f.setName (rs.getString (ind++));
             
             f.setDescription (new StringWithMarkup (rs.getString (ind++),
