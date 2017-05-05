@@ -24,6 +24,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
     private Box currentEditors = null;
     private Box previousEditors = null;
     private boolean showPreviousEditors = false;
+    private boolean inited = false;
 
     public ProjectEditorsAccordionItem (ProjectViewer pv)
     {
@@ -451,6 +452,15 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
     public void init ()
     {
 
+        if (this.inited)
+        {
+            
+            return;
+            
+        }
+    
+        this.inited = true;
+    
         super.init ();
     
         final ProjectEditorsAccordionItem _this = this;
@@ -488,7 +498,7 @@ public class ProjectEditorsAccordionItem extends AccordionItem implements Projec
             }
             
         });
-                   
+                
         Set<ProjectEditor> pes = this.viewer.getProject ().getProjectEditors ();
         
         if (pes != null)
