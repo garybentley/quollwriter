@@ -855,6 +855,14 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         for (UserConfigurableObjectTypeField.Type t : UserConfigurableObjectTypeField.Type.values ())
         {
 
+            // TODO: File removed for now due to complexity.
+            if (t == UserConfigurableObjectTypeField.Type.file)
+            {
+
+                continue;
+
+            }
+
             if (t == UserConfigurableObjectTypeField.Type.objectname)
             {
 
