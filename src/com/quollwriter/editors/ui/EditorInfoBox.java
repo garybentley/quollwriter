@@ -9,7 +9,10 @@ import javax.swing.plaf.LayerUI;
 
 import java.util.Set;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.io.*;
 
@@ -966,76 +969,90 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
         if (Environment.isDebugModeEnabled ())
         {
 
-            menu.add (UIUtils.createMenuItem ("Delete all messages [Debug option]",
-                                         Constants.DELETE_ICON_NAME,
-                                         new ActionListener ()
-                                         {
+            if ((this.proj != null)
+                &&
+                (this.proj.getProjectEditor (_this.editor) != null)
+               )
+            {
+        
+                menu.add (UIUtils.createMenuItem ("Remove {project} editor [Debug option]",
+                                                  Constants.DELETE_ICON_NAME,
+                                                  new ActionListener ()
+                                                  {
 
-                                            public void actionPerformed (ActionEvent ev)
-                                            {
+                                                    @Override
+                                                    public void actionPerformed (ActionEvent ev)
+                                                    {
 
-                                                UIUtils.createTextInputPopup (_this.viewer,
-                                                                              "Delete all messages?",
-                                                                              Constants.DELETE_ICON_NAME,
-                                                                              String.format ("To delete all messages from <b>%s</b> please enter <b>Yes</b> in the box below.",
-                                                                                             _this.editor.getMainName ()),
-                                                                              "Yes, delete them",
-                                                                              Constants.CANCEL_BUTTON_LABEL_ID,
-                                                                              null,
-                                                                              UIUtils.getYesValueValidator (),
-                                                                              new ActionListener ()
-                                                                              {
+                                                        UIUtils.createTextInputPopup (_this.viewer,
+                                                                                      "Remove {project} editor?",
+                                                                                      Constants.DELETE_ICON_NAME,
+                                                                                      String.format ("To remove <b>%s</b> as a {project} editor please enter <b>Yes</b> in the box below.  Note: this will also remove all {project} related message types for this {project} (project-new, project-new-response, project-update, project-edit-stop, project-comments)",
+                                                                                                     _this.editor.getMainName ()),
+                                                                                      "Yes, delete them",
+                                                                                      Constants.CANCEL_BUTTON_LABEL_ID,
+                                                                                      null,
+                                                                                      UIUtils.getYesValueValidator (),
+                                                                                      new ActionListener ()
+                                                                                      {
+        
+                                                                                            @Override
+                                                                                            public void actionPerformed (ActionEvent ev)
+                                                                                            {
 
-                                                                                  public void actionPerformed (ActionEvent ev)
-                                                                                  {
+                                                                                                if (!_this.editor.messagesLoaded ())
+                                                                                                {
+            
+                                                                                                    try
+                                                                                                    {
+            
+                                                                                                        EditorsEnvironment.loadMessagesForEditor (_this.editor);
+            
+                                                                                                    } catch (Exception e) {
+            
+                                                                                                        Environment.logError ("Unable to load messages for editor: " +
+                                                                                                                              _this.editor,
+                                                                                                                              e);
+            
+                                                                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                                                                  "Unable to load messages for editor.");
+            
+                                                                                                        return;
+            
+                                                                                                    }
+            
+                                                                                                }
 
-                                                                                    if (!_this.editor.messagesLoaded ())
-                                                                                    {
-
-                                                                                        try
-                                                                                        {
-
-                                                                                            EditorsEnvironment.loadMessagesForEditor (_this.editor);
-
-                                                                                        } catch (Exception e) {
-
-                                                                                            Environment.logError ("Unable to load messages for editor: " +
-                                                                                                                  _this.editor,
-                                                                                                                  e);
-
-                                                                                            UIUtils.showErrorMessage (_this.viewer,
-                                                                                                                      "Unable to load messages for editor.");
-
-                                                                                            return;
-
-                                                                                        }
-
-                                                                                    }
-
-                                                                                    try
-                                                                                    {
-
-                                                                                        EditorsEnvironment.deleteMessages (_this.editor.getMessages ());
-
-                                                                                    } catch (Exception e) {
-
-                                                                                        Environment.logError ("Unable to delete messages for editor: " +
-                                                                                                              _this.editor,
-                                                                                                              e);
-
-                                                                                        UIUtils.showErrorMessage (_this.viewer,
-                                                                                                                  "Unable to delete messages for editor.");
-
-                                                                                        return;
-
-                                                                                    }
-
-                                                                                    _this.editor.setMessages (null);
-
-                                                                                    UIUtils.showMessage ((PopupsSupported) _this.viewer,
-                                                                                                         "All messages deleted",
-                                                                                                         String.format ("All messages (sent and received) for <b>%s</b> have been deleted.",
-                                                                                                                        _this.editor.getMainName ()));
+                                                                                                final Set<EditorMessage> messages = _this.editor.getMessages (new DefaultEditorMessageFilter (_this.proj,
+                                                                                                                            NewProjectMessage.MESSAGE_TYPE,
+                                                                                                                            NewProjectResponseMessage.MESSAGE_TYPE,
+                                                                                                                            UpdateProjectMessage.MESSAGE_TYPE,
+                                                                                                                            ProjectEditStopMessage.MESSAGE_TYPE,
+                                                                                                                            ProjectCommentsMessage.MESSAGE_TYPE));
+                                                                                                
+                                                                                                try
+                                                                                                {
+            
+                                                                                                    EditorsEnvironment.deleteMessages (messages);
+            
+                                                                                                    EditorsEnvironment.removeProjectEditor (_this.proj.getProjectEditor (_this.editor));
+            
+                                                                                                } catch (Exception e) {
+            
+                                                                                                    Environment.logError ("Unable to delete messages for editor: " +
+                                                                                                                          _this.editor,
+                                                                                                                          e);
+            
+                                                                                                    UIUtils.showErrorMessage (_this.viewer,
+                                                                                                                              "Unable to delete messages for editor.");
+            
+                                                                                                    return;
+            
+                                                                                                }
+                                                                                                
+                                                                                                UIUtils.showMessage ((PopupsSupported) _this.viewer,
+                                                                                                                     "{Project} editor removed",
+                                                                                                                     "All associated {project} messages have been deleted.");
 
                                                                                   }
 
@@ -1046,6 +1063,134 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                             }
 
                                          }));
+                
+            }
+
+            menu.add (UIUtils.createMenuItem ("Delete all messages for types [Debug option]",
+                                              Constants.DELETE_ICON_NAME,
+            new ActionListener ()
+            {
+
+                @Override
+                public void actionPerformed (ActionEvent ev)
+                {
+
+                    Box b = new Box (BoxLayout.Y_AXIS);
+                    
+                    Set<String> types = new LinkedHashSet ();
+                    
+                    types.add (NewProjectMessage.MESSAGE_TYPE);
+                    types.add (UpdateProjectMessage.MESSAGE_TYPE);
+                    types.add (NewProjectResponseMessage.MESSAGE_TYPE);
+                    types.add (ProjectEditStopMessage.MESSAGE_TYPE);
+                    types.add (ProjectCommentsMessage.MESSAGE_TYPE);
+                    types.add (InviteMessage.MESSAGE_TYPE);
+                    types.add (InviteResponseMessage.MESSAGE_TYPE);
+                    types.add (EditorChatMessage.MESSAGE_TYPE);
+                    types.add (EditorInfoMessage.MESSAGE_TYPE);
+                
+                    final Map<String, JCheckBox> cbs = new HashMap ();
+                
+                    for (String t : types)
+                    {
+                        
+                        JCheckBox cb = UIUtils.createCheckBox (t);
+                        
+                        cbs.put (t,
+                                 cb);
+                        
+                        b.add (cb);
+                        
+                    }
+                                        
+                    UIUtils.showMessage (_this.viewer,
+                                         "Delete types of message",
+                                         b,
+                                         "Delete",
+                                         new ActionListener ()
+                                         {
+                                            
+                                            @Override
+                                            public void actionPerformed (ActionEvent ev)
+                                            {
+        
+                                                if (!_this.editor.messagesLoaded ())
+                                                {
+        
+                                                    try
+                                                    {
+        
+                                                        EditorsEnvironment.loadMessagesForEditor (_this.editor);
+        
+                                                    } catch (Exception e) {
+        
+                                                        Environment.logError ("Unable to load messages for editor: " +
+                                                                              _this.editor,
+                                                                              e);
+        
+                                                        UIUtils.showErrorMessage (_this.viewer,
+                                                                                  "Unable to load messages for editor.");
+        
+                                                        return;
+        
+                                                    }
+        
+                                                }
+        
+                                                Set<String> selTypes = new LinkedHashSet ();
+                                                
+                                                for (String t : cbs.keySet ())
+                                                {
+                                                    
+                                                    if (cbs.get (t).isSelected ())
+                                                    {
+                                                        
+                                                        selTypes.add (t);
+                                                        
+                                                    }
+                                                    
+                                                }
+        
+                                                Set<EditorMessage> toDel = _this.editor.getMessages (null,
+                                                                                                     selTypes.toArray (new String[selTypes.size ()]));
+        
+                                                try
+                                                {
+        
+                                                    EditorsEnvironment.deleteMessages (toDel);
+        
+                                                } catch (Exception e) {
+        
+                                                    Environment.logError ("Unable to delete messages for editor: " +
+                                                                          _this.editor,
+                                                                          e);
+        
+                                                    UIUtils.showErrorMessage (_this.viewer,
+                                                                              "Unable to delete messages for editor.");
+        
+                                                    return;
+        
+                                                }
+                                            
+                                                for (EditorMessage m : toDel)
+                                                {
+                                            
+                                                    _this.editor.removeMessage (m);
+                                            
+                                                }
+                                            
+                                                UIUtils.showMessage ((PopupsSupported) _this.viewer,
+                                                                     "Selected message types deleted",
+                                                                     "All message for selected types have been deleted.");
+                                            
+                                            }
+                                            
+                                         },
+                                         null);
+                                            
+                }
+                
+            }));
 
         }
 
@@ -1869,8 +2014,6 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                                    MouseEvent ev)
             {
 
-                _this.addDeleteAllMessagesMenuItem (m);
-
                 _this.addSendMessageMenuItem (m);
 
                 _this.addSendOrUpdateProjectMenuItem (m);
@@ -1913,6 +2056,8 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
 
                 _this.addRemoveEditorMenuItem (m);
 
+                _this.addDeleteAllMessagesMenuItem (m);
+                
             }
 
         });
