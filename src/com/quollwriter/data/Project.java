@@ -268,7 +268,7 @@ public class Project extends NamedObject
         if (this.projectEditors == null)
         {
             
-            this.projectEditors = new TreeSet ();
+            this.projectEditors = new LinkedHashSet ();
             
         }
         
@@ -340,7 +340,7 @@ public class Project extends NamedObject
             
         }
         
-        this.projectEditors = new TreeSet (eds);
+        this.projectEditors = new LinkedHashSet (eds);
         
     }
 
