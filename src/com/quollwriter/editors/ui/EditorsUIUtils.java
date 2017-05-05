@@ -1179,7 +1179,7 @@ public class EditorsUIUtils
             // Get the last one.
             EditorMessage last = messages.last ();
 
-            update = (projRes.size () == 0);
+            update = (projRes.size () > 0);
 
             AbstractProjectMessage pm = (AbstractProjectMessage) last;
 
@@ -1473,7 +1473,7 @@ public class EditorsUIUtils
                 sending.setVisible (true);
 
                 UIUtils.resizeParent (content);
-                
+
                 String n = null;
 
                 if (!notes.getForeground ().equals (UIUtils.getHintTextColor ()))
@@ -2820,7 +2820,7 @@ public class EditorsUIUtils
 
                                                                 },
                                                                 // On cancel of login.
-                                                                popup.getCloseAction (),
+                                                                null,
                                                                 null);
 
 
