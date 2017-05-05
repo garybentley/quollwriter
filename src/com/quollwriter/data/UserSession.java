@@ -271,6 +271,14 @@ public class UserSession extends Session
         for (AbstractProjectViewer pv : pvs.values ())
         {
 
+            // Don't include editor projects.
+            if (pv.getProject ().isEditorProject ())
+            {
+                
+                continue;
+                
+            }
+        
             c += pv.getSessionWordCount ();
 
         }
