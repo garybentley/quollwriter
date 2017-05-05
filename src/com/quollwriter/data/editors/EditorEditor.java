@@ -465,6 +465,20 @@ public class EditorEditor extends AbstractEditorObject
         
     }
     
+    public void removeMessage (EditorMessage m)
+    {
+        
+        if (this.messages == null)
+        {
+            
+            return;
+            
+        }
+        
+        this.messages.remove (m);
+        
+    }
+    
     public void setMessages (Set<EditorMessage> messages)
     {
         
