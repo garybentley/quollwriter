@@ -64,6 +64,13 @@ public class JSONDecoder
             
         }
         
+        if (s.equals ("null"))
+        {
+            
+            return null;
+            
+        }
+        
         Map m = (Map) JSONDecoder.decode (s);
         String markup = (String) m.get ("markup");
         String text = (String) m.get ("text");
