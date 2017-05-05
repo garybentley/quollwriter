@@ -178,8 +178,15 @@ public class FileUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         
         Set<FormItem> items = new LinkedHashSet ();
         
-        File f = (this.field != null ? (File) this.field.getValue () : null);
-                
+        File f = null;
+        
+        if (this.getFieldValue () != null)
+        {
+            
+            f = this.viewer.getProjectFile (this.getFieldValue ());
+            
+        }
+                        
         String url = null;
         
         if (f != null)
