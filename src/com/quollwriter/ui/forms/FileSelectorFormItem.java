@@ -35,6 +35,13 @@ public class FileSelectorFormItem extends FormItem<File>
         
         this.find.init ();
                 
+        if (defaultValue != null)
+        {
+            
+            this.find.setFile (defaultValue);
+                
+        }
+        
     }
         
     @Override
