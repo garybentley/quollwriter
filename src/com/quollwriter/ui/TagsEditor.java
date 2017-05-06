@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -45,6 +46,7 @@ public class TagsEditor extends Box
 
     private DefaultTableModel typeModel = null;
     private AbstractViewer viewer = null;
+    private JLabel error = null;
 
     public TagsEditor (AbstractViewer pv)
     {
@@ -117,40 +119,130 @@ public class TagsEditor extends Box
             
         });
         
-        UIUtils.listenToTableForCellChanges (typeTable,
-                                             new ActionAdapter ()
+        typeTable.setDefaultEditor (Object.class,
+                                    new DefaultCellEditor (new JTextField ())
         {
-           
-            public void actionPerformed (ActionEvent ev)
+            
+            private Tag tag = null;
+            
+            @Override
+            public int getClickCountToStart ()
             {
                 
-                TableCellListener tcl = (TableCellListener) ev.getSource ();
+                return 2;
                 
-                Tag tag = (Tag) ((DefaultTableModel) typeTable.getModel ()).getValueAt (tcl.getRow (),
-                                                                                        tcl.getColumn ());
+            }
+           
+            @Override
+            public Component getTableCellEditorComponent (JTable  table,
+                                                          Object  value,
+                                                          boolean isSelected,
+                                                          int     row,
+                                                          int     column)        
+            {
                 
-                tag.setName (tcl.getNewValue ().toString ());
+                this.tag = (Tag) value;
+                
+                JTextField t = (JTextField) this.getComponent ();
+                
+                t.setText (this.tag.getName ().trim ());
+                
+                t.setBorder (UIUtils.createPadding (0, 3, 0, 3));
+                
+                return t;
+                
+            }
+            
+            @Override
+            public boolean stopCellEditing ()
+            {
+                      
+                _this.error.setVisible (false);
+                
+                UIUtils.resizeParent (_this);
+                              
+                String newName = ((JTextField) this.getComponent ()).getText ().trim ();
+                           
+                if (newName.length () == 0)
+                {
+                    
+                    return _this.showError ("Tag must have a value!");
+                           
+                }
+                
+                try
+                {
+                
+                    Tag ot = Environment.getTagByName (newName);
+                              
+                    // See if we have another tag with that name.
+                    if ((ot != null)
+                        &&
+                        (ot != this.tag)
+                       )
+                    {
+                        
+                        return _this.showError (String.format ("Already have a tag called <b>%s</b>.",
+                                                               ot.getName ()));
+                                                    
+                    }
+        
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to get tag for name: " + newName,
+                                          e);
+                    
+                    return _this.showError ("Unable to check tag.");
+                    
+                }
+
+                this.tag.setName (newName);                
                 
                 try
                 {
                     
-                    Environment.saveTag (tag);
+                    Environment.saveTag (this.tag);
                     
                 } catch (Exception e) {
                     
                     Environment.logError ("Unable to update tag: " +
-                                          tag,
+                                          this.tag,
                                           e);
                     
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to update tag.");
+                    return _this.showError ("Unable to update tag.");
                     
                 }
                 
+                _this.error.setVisible (false);
+                
+                UIUtils.resizeParent (_this.error);
+
+                return super.stopCellEditing ();
+                
             }
             
-        });        
-        
+            @Override
+            public void cancelCellEditing ()
+            {
+                
+                _this.error.setVisible (false);
+                
+                UIUtils.resizeParent (_this.error);
+                
+                super.cancelCellEditing ();
+                
+            }
+            
+            @Override
+            public Object getCellEditorValue ()
+            {
+                            
+                return this.tag;
+                
+            }
+                                    
+        });
+
         typeTable.addMouseListener (new MouseEventHandler ()
         {
                         
@@ -224,6 +316,32 @@ public class TagsEditor extends Box
 
                     String w = t.nextToken ().trim ();
 
+                    if (w.length () == 0)
+                    {
+                        
+                        continue;
+                        
+                    }
+                    
+                    try
+                    {
+                    
+                        if (Environment.getTagByName (w) != null)
+                        {
+                            
+                            continue;
+                            
+                        }
+
+                    } catch (Exception e) {
+                        
+                        Environment.logError ("Unable to get tag for name: " + w,
+                                              e);
+                        
+                        continue;
+                        
+                    }
+                    
                     DefaultTableModel m = (DefaultTableModel) typeTable.getModel ();
 
                     Tag tag = new Tag ();
@@ -251,7 +369,7 @@ public class TagsEditor extends Box
                     r.add (tag);
                     m.insertRow (0,
                                  r);
-
+                                 
                 }
 
                 newTypes.setText ("");
@@ -274,7 +392,7 @@ public class TagsEditor extends Box
 
         fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
-        fb.setBorder (new EmptyBorder (5,
+        fb.setBorder (UIUtils.createPadding (5,
                                        5,
                                        0,
                                        5));                                            
@@ -295,6 +413,13 @@ public class TagsEditor extends Box
         typeTable.setPreferredScrollableViewportSize (new Dimension (-1,
                                                                      (typeTable.getRowHeight () + 3) * 5));
 
+        this.error = UIUtils.createErrorLabel ("Please enter a value.");
+        this.error.setVisible (false);
+        
+        this.error.setBorder (UIUtils.createPadding (5, 0, 5, 5));
+        
+        fb.add (this.error);
+                                                                     
         fb.add (ppsp);
 
         final JButton remove = new JButton ("Remove Selected");
@@ -380,6 +505,19 @@ public class TagsEditor extends Box
 
     }
     
+    private boolean showError (String m)
+    {
+        
+        this.error.setText (m);
+        
+        this.error.setVisible (true);
+        
+        UIUtils.resizeParent (this.error);
+
+        return false;
+        
+    }
+    
     public void reloadTypes ()
     {
 
@@ -404,7 +542,11 @@ public class TagsEditor extends Box
 
         Vector tagsData = new Vector ();
 
-        for (Tag t : tags)
+        TreeSet<Tag> nt = new TreeSet (NamedObjectSorter.getInstance ());
+        
+        nt.addAll (tags);
+        
+        for (Tag t : nt)
         {
             
             Vector d = new Vector ();
@@ -463,5 +605,5 @@ public class TagsEditor extends Box
         return "Tags";
         
     }
-
+    
 }
