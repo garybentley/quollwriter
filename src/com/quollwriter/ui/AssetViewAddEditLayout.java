@@ -941,6 +941,7 @@ public class AssetViewAddEditLayout
 
             c.setAlignmentX (Component.LEFT_ALIGNMENT);
             c.setAlignmentY (Component.TOP_ALIGNMENT);
+            c.setBorder (UIUtils.createPadding (0, 0, 0, 7));
                                                     
             if (_handlers.size () > 0)
             {                            
