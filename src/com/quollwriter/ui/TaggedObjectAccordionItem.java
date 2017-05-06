@@ -12,12 +12,13 @@ import java.util.*;
 import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 import com.quollwriter.*;
+import com.quollwriter.events.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.renderers.*;
 
-public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer> 
+public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<ProjectViewer> implements ProjectEventListener
 {
 
     public static final String ID_PREFIX = "tag:";
@@ -36,8 +37,29 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
         this.tag = tag;
         
+        Environment.addUserProjectEventListener (this);
+        
         this.sorter = NamedObjectSorter.getInstance ();
                                                             
+    }
+    
+    @Override
+    public void eventOccurred (ProjectEvent ev)
+    {
+
+        // TODO: Change to use a name change instead.
+        if ((ev.getContextObject ().equals (this.tag))
+            &&
+            (ev.getType ().equals (ProjectEvent.TAG))
+            &&
+            (ev.getAction ().equals (ProjectEvent.CHANGED))
+           )
+        {
+            
+            this.updateTitle ();
+            
+        }
+        
     }
     
     @Override
@@ -174,6 +196,22 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
         final TaggedObjectAccordionItem _this = this;
         
+        m.add (UIUtils.createMenuItem ("Rename",
+                                       Constants.DELETE_ICON_NAME,
+                                       new ActionListener ()
+                                       {
+
+                                           @Override
+                                           public void actionPerformed (ActionEvent ev)
+                                           {
+
+                                                new RenameTagActionHandler (_this.tag,
+                                                                            _this.viewer).actionPerformed (ev);
+                                           
+                                           }
+                                           
+                                       }));
+                                           
         m.add (UIUtils.createMenuItem ("Delete this Tag",
                                        Constants.DELETE_ICON_NAME,
                                        new ActionListener ()
