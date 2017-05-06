@@ -269,6 +269,9 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                     
                 }
                 
+                m.add (UIUtils.createTagsMenu (c,
+                                               _this.viewer));
+                
                 m.add (UIUtils.createMenuItem ("Add New {Chapter} Below",
                                                Constants.ADD_ICON_NAME,
                                                new ActionAdapter ()
@@ -318,9 +321,6 @@ public class ChaptersAccordionItem extends ProjectObjectsAccordionItem<AbstractP
                     }
 
                 }));
-
-                m.add (UIUtils.createTagsMenu (c,
-                                               _this.viewer));
                 
                 m.add (UIUtils.createMenuItem ("Delete {Chapter}",
                                                Constants.DELETE_ICON_NAME,

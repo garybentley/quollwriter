@@ -43,7 +43,7 @@ public class TagsEditor extends Box implements ProjectEventListener
     private DefaultTableModel typeModel = null;
     private AbstractViewer viewer = null;
     private JLabel error = null;
-
+    
     public TagsEditor (AbstractViewer pv)
     {
 
@@ -52,7 +52,7 @@ public class TagsEditor extends Box implements ProjectEventListener
         this.viewer = pv;
 
         Environment.addUserProjectEventListener (this);
-        
+                
     }
 
     @Override
@@ -87,13 +87,13 @@ public class TagsEditor extends Box implements ProjectEventListener
                                                                   this.getTypesName ().toLowerCase ()),
                                                    this.viewer);
 
-        tp.setBorder (new EmptyBorder (5,
+        tp.setBorder (UIUtils.createPadding (5,
                                        5,
                                        0,
                                        5));
 
         this.add (tp);
-
+        
         final JTextField newTypes = UIUtils.createTextField ();
         newTypes.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -301,8 +301,9 @@ public class TagsEditor extends Box implements ProjectEventListener
         Box fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
         fb.add (newTypes);
+                
         fb.add (Box.createVerticalStrut (5));
-        fb.setBorder (new EmptyBorder (5,
+        fb.setBorder (UIUtils.createPadding (5,
                                        5,
                                        20,
                                        5));
@@ -375,7 +376,7 @@ public class TagsEditor extends Box implements ProjectEventListener
                         return;
                         
                     }
-                                        
+                                                
                     Vector r = new Vector ();
                     r.add (tag);
                     m.insertRow (0,
@@ -606,7 +607,7 @@ public class TagsEditor extends Box implements ProjectEventListener
     public String getNewTypeHelp ()
     {
         
-        return "Note: removing a type will only remove it from the list of types to select when adding/editing a note.  You can also change the type name by editing the values, double click on a type to edit it.";
+        return "Note: removing a tag will remove it from <b>all</b> {projects}.  You can change the tag name by editing the values below, double click on a type to edit it.";
         
     }
 

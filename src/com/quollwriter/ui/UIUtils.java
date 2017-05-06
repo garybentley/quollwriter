@@ -11465,7 +11465,7 @@ public class UIUtils
                     
                 }
                 
-                tagMenu.add (UIUtils.createMenuItem ("Add/Manage the Tag(s)",
+                tagMenu.add (UIUtils.createMenuItem ("Add New Tag(s)",
                                                     Constants.EDIT_ICON_NAME,
                                                     new ActionListener ()
                                                     {
@@ -11474,8 +11474,9 @@ public class UIUtils
                                                          public void actionPerformed (ActionEvent ev)
                                                          {
                                                              
-                                                            viewer.showEditTags ();
-                                                             
+                                                            new AddNewTagActionHandler (obj,
+                                                                                        viewer).actionPerformed (ev);
+                                                                                                                          
                                                          }
                                                      
                                                     }));
@@ -11580,8 +11581,8 @@ public class UIUtils
             
         }
         
-        tagMenu.add (UIUtils.createMenuItem ("Add/Manage the Tag(s)",
-                                            Constants.EDIT_ICON_NAME,
+        tagMenu.add (UIUtils.createMenuItem ("Add New Tag(s)",
+                                            Constants.ADD_ICON_NAME,
                                             new ActionListener ()
                                             {
                                              
@@ -11589,7 +11590,8 @@ public class UIUtils
                                                  public void actionPerformed (ActionEvent ev)
                                                  {
                                                      
-                                                    viewer.showEditTags ();
+                                                     new AddNewTagActionHandler (obj,
+                                                                                 viewer).actionPerformed (ev);
                                                      
                                                  }
                                              
