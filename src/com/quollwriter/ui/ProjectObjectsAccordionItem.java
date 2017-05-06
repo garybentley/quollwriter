@@ -122,6 +122,24 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
         
     }
 
+    public void updateTitle ()
+    {
+        
+        String title = this.getTitle ();
+
+        if (this.showItemCountOnHeader ())
+        {
+        
+            title += String.format (" (%s)",
+                                    Environment.formatNumber (this.getItemCount ()));
+            
+        }
+
+        // Set the title on the header directly.
+        this.header.setTitle (title);        
+        
+    }
+    
     public void updateItemCount (int c)
     {
         
