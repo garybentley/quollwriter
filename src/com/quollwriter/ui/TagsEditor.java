@@ -26,10 +26,6 @@ import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
 
-import com.jgoodies.forms.builder.*;
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
-
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -41,7 +37,7 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.events.*;
 
-public class TagsEditor extends Box
+public class TagsEditor extends Box implements ProjectEventListener
 {
 
     private DefaultTableModel typeModel = null;
@@ -55,8 +51,23 @@ public class TagsEditor extends Box
         
         this.viewer = pv;
 
+        Environment.addUserProjectEventListener (this);
+        
     }
 
+    @Override
+    public void eventOccurred (ProjectEvent ev)
+    {
+        
+        if (ev.getType ().equals (ProjectEvent.TAG))
+        {
+
+            this.reloadTypes ();
+        
+        }        
+        
+    }
+    
     public void init ()
     {
 

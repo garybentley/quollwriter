@@ -85,7 +85,10 @@ public class RenameTagActionHandler extends TextInputActionHandler<AbstractProje
             Tag ot = Environment.getTagByName (v.trim ());
                       
             // See if we have another tag with that name.
-            if (ot != this.tag)
+            if ((ot != null)
+                &&
+                (ot != this.tag)
+               )
             {
                 
                 return String.format ("Already have a tag called <b>%s</b>.",

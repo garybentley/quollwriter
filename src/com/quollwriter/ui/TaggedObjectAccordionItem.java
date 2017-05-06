@@ -197,7 +197,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
         final TaggedObjectAccordionItem _this = this;
         
         m.add (UIUtils.createMenuItem ("Rename",
-                                       Constants.DELETE_ICON_NAME,
+                                       Constants.EDIT_ICON_NAME,
                                        new ActionListener ()
                                        {
 
