@@ -432,7 +432,7 @@ public class Environment
     public static AbstractProjectViewer getProjectViewer (Project p)
     {
 
-        return Environment.openProjects.get (p);
+        return Environment.openProjects.get (Environment.getProjectInfo (p));
 
     }
 
