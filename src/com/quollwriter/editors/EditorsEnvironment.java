@@ -192,10 +192,20 @@ public class EditorsEnvironment
                                 // Add a notification to the project viewer saying we are logging in.
                                 final AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                                final Notification n = viewer.addNotification ("Logging in to the Editors service...",
-                                                                               Constants.EDITORS_ICON_NAME,
-                                                                               30);
+                                Notification _n = null;
+                                
+                                // We may not have a viewer if we are opening an encrypted project.
+                                if (viewer != null)
+                                {
+                                
+                                    _n = viewer.addNotification ("Logging in to the Editors service...",
+                                                                 Constants.EDITORS_ICON_NAME,
+                                                                 30);
 
+                                }
+                                
+                                final Notification n = _n;
+                                                                 
                                 EditorsEnvironment.setLoginCredentials (email,
                                                                         pwd);
 
@@ -208,7 +218,12 @@ public class EditorsEnvironment
                                                                 public void actionPerformed (ActionEvent ev)
                                                                 {
 
-                                                                    viewer.removeNotification (n);
+                                                                    if (viewer != null)
+                                                                    {
+                                                                        
+                                                                        viewer.removeNotification (n);
+                                                                        
+                                                                    }
 
                                                                 }
 
@@ -220,7 +235,12 @@ public class EditorsEnvironment
                                                                 public void actionPerformed (ActionEvent ev)
                                                                 {
 
-                                                                    viewer.removeNotification (n);
+                                                                    if (viewer != null)
+                                                                    {
+                                                                
+                                                                        viewer.removeNotification (n);
+                                                                        
+                                                                    }
 
                                                                 }
 
@@ -235,7 +255,12 @@ public class EditorsEnvironment
                                                                     EditorsEnvironment.setLoginCredentials (EditorsEnvironment.editorAccount.getEmail (),
                                                                                                             null);
 
-                                                                    viewer.removeNotification (n);
+                                                                    if (viewer != null)
+                                                                    {
+                                                                        
+                                                                        viewer.removeNotification (n);
+                                                                        
+                                                                    }
 
                                                                     EditorsUIUtils.showLoginError ("Unable to automatically login, please check your email and password.",
                                                                                                    new ActionListener ()
