@@ -2270,7 +2270,16 @@ public class EditorsEnvironment
                                                    final ActionListener onComplete)
     {
 
-        if (!p.getType ().equals (Project.EDITOR_PROJECT_TYPE))
+        EditorsEnvironment.sendProjectEditStopMessage (Environment.getProjectInfo (p),
+                                                       onComplete);
+    
+    }
+    
+    public static void sendProjectEditStopMessage (final ProjectInfo    p,
+                                                   final ActionListener onComplete)
+    {
+
+        if (!p.isEditorProject ())
         {
 
             throw new IllegalArgumentException ("Only editor projects can be deleted.");
