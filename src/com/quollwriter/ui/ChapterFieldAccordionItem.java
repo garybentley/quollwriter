@@ -200,7 +200,7 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
                                                 }
                                                 
                                              });
-        this.edit.setBorder (UIUtils.createLineBorderWithPadding (3, 0, 5, 0));
+        this.edit.setBorder (UIUtils.createLineBorderWithPadding (3, 0, 0, 0));
         /*
         this.edit.setBorder (new CompoundBorder (new EmptyBorder (3, 5, 5, 0),
                                                  UIUtils.createLineBorder ()));
