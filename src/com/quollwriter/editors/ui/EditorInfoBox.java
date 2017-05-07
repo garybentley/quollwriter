@@ -1088,6 +1088,7 @@ public class EditorInfoBox extends Box implements EditorChangedListener, EditorM
                     types.add (InviteResponseMessage.MESSAGE_TYPE);
                     types.add (EditorChatMessage.MESSAGE_TYPE);
                     types.add (EditorInfoMessage.MESSAGE_TYPE);
+                    types.add (EditorRemovedMessage.MESSAGE_TYPE);
                 
                     final Map<String, JCheckBox> cbs = new HashMap ();
                 
