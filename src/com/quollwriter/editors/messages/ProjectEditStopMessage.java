@@ -34,6 +34,18 @@ public class ProjectEditStopMessage extends EditorMessage
         
     }
         
+    public ProjectEditStopMessage (ProjectInfo  projInfo,
+                                   String       reason,
+                                   EditorEditor editor)
+    {
+                        
+        this.reason = reason;
+        this.setEditor (editor);
+        this.setForProjectName (projInfo.getName ());
+        this.setForProjectId (projInfo.getId ());
+        
+    }
+
     @Override
     public void fillToStringProperties (Map<String, Object> props)
     {
