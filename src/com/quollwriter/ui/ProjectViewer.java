@@ -3781,8 +3781,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     
     private void removeAssetsOfType (UserConfigurableObjectType type)
     {
-        
-        Set<Asset> assets = new HashSet (this.proj.getAssets (type));
+
+        Set<Asset> assets = this.proj.getAssets (type);
         
         if (assets == null)
         {
@@ -3791,6 +3791,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             
         }
         
+        assets = new HashSet (assets);
+                
         for (Asset a : assets)
         {
 

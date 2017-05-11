@@ -306,7 +306,7 @@ public class UserConfigurableObjectTypeEdit
                 if (stage.equals ("layout"))
                 {
                     
-                    ws.title = "How should the fields to displayed";
+                    ws.title = "How should the fields be displayed";
                     ws.helpText = "Finally, and this step is optional, select how you want the fields to be displayed.  Remember you can change any of this information later so don't worry about it too much for now.";
                     
                     ws.panel = layout;

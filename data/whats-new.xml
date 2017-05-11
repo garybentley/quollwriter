@@ -1,5 +1,28 @@
 <whatsnew>
 
+  <version id="2.6">
+    <item id="assets">
+      <title>A big update to Assets</title>
+      <description><![CDATA[You can now add your own fields to your Assets, i.e. Characters, Locations, Items etc.  Additionally you can now create your own type of Assets, want to catalogue all the different types of cheeses in your stories?  Now you can and you can record as much information about them as you'd like.<br /><br />But it's a big topic, so if you want the full details <a href="http://wp.me/p1AW9p-9K">click here</a>.
+      ]]></description>
+    </item>
+    <item id="tags">
+      <title>Tagging</title>
+      <description><![CDATA[It's now possible to tag objects (Chapters, Assets, Scenes etc) to group them together into their own section.  This way you can create logical groupings of objects and keep track of them.  You can tag an object with as many tags as you like.  For more information <a href="http://wp.me/p1AW9p-bv">click here</a>.
+      ]]></description>
+    </item>
+    <item id="dnd">
+      <title>Hiding sections and more drag-n-drop</title>
+      <description><![CDATA[Want to move and hide, sections in the project sidebar?  Sections can now be moved around via drag-n-drop and if you never use Locations or Characters then why not hide the sections.  If you're in the early stages of development of your story why not move the Characters to the top and hide the Chapters?  You can easily add the sections back in later.<br /><br />To add a section just right click on a section header or on the background of the project sidebar and select from the <b>Add section</b> menu.<br /><br />To hide a section right click on the section header and select <b>Hide this section</b>.
+      ]]></description>
+    </item>
+    <item id="forms">
+      <title>Form/input element layout</title>
+      <description><![CDATA[The way that forms/input elements, such as text fields, are laid out and displayed has been changed to a stacked layout.  This means that the field name is above the input field, rather than being to the left.  This has pros and cons, it reduces the amount of dead space in the layout but increases the vertical size.  A future version will add in the two column layout as an option.  If you have a strong view on this then <a href='action:contact'>let me know</a>.
+      ]]></description>
+    </item>
+  </version>
+
   <version id="2.5.9" class="com.quollwriter.ui.whatsnewcomps.version_2_5_9">
     <item id="editingassets">
       <title>Editing Assets</title>

@@ -1142,7 +1142,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                              
                                        }));
         
-        m.add (UIUtils.createMenuItem ("Add New Type of Object",
+        m.add (UIUtils.createMenuItem ("Add new Type of Object",
                                        Constants.NEW_ICON_NAME,
                                        new ActionListener ()
                                        {

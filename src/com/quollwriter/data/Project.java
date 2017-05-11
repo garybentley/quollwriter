@@ -1385,17 +1385,10 @@ public class Project extends NamedObject
         it.setProject (this);
         
     }
-/*
-    public List<ResearchItem> getResearchItems ()
-    {
 
-        return this.researchItems;
-
-    }
-*/
     public void addAsset (Asset a)
     {
-
+        
         Set<Asset> as = this.assets.get (a.getUserConfigurableObjectType ());
         
         if (as == null)
@@ -1409,111 +1402,10 @@ public class Project extends NamedObject
         }
     
         a.setProject (this);
-
+        
         as.add (a);
-    /*
-        if (a instanceof QCharacter)
-        {
-
-            this.addCharacter ((QCharacter) a);
-
-        }
-
-        if (a instanceof Location)
-        {
-
-            this.addLocation ((Location) a);
-
-        }
-
-        if (a instanceof ResearchItem)
-        {
-
-            this.addResearchItem ((ResearchItem) a);
-
-        }
-
-        if (a instanceof QObject)
-        {
-
-            this.addQObject ((QObject) a);
-
-        }
-*/
-    }
-/*
-    public void addResearchItem (ResearchItem c)
-    {
-
-        if (this.researchItems.contains (c))
-        {
-            
-            return;
-            
-        }
-    
-        c.setProject (this);
-        
-        this.researchItems.add (c);
 
     }
-
-    public void addQObject (QObject c)
-    {
-
-        if (this.objects.contains (c))
-        {
-            
-            return;
-            
-        }
-
-        c.setProject (this);
-        
-        this.objects.add (c);
-
-    }
-
-    public void addCharacter (QCharacter c)
-    {
-
-        if (this.characters.contains (c))
-        {
-            
-            return;
-            
-        }
-    
-        c.setProject (this);
-
-        this.getCharacters ().add (c);
-
-    }
-
-    public void addLocation (Location c)
-    {
-
-        if (this.locations.contains (c))
-        {
-            
-            return;
-            
-        }
-    
-        c.setProject (this);
-        
-        this.locations.add (c);
-
-    }
-*/
-/*
-    private void setResearchItems (List<ResearchItem> a)
-    {
-
-        this.researchItems = a;
-
-    }
-*/
 
     @Override
     public void fillToStringProperties (Map<String, Object> props)

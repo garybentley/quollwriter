@@ -308,9 +308,12 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
         try
         {
 
-            this.viewer.getProject ().addAsset (this.obj);
-
+            this.obj.setProject (this.viewer.getProject ());
+        
+            // Save first so that it has a key.
             this.saveObject ();
+        
+            this.viewer.getProject ().addAsset (this.obj);
 
         } catch (Exception e)
         {
