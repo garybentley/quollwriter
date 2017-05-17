@@ -1424,6 +1424,10 @@ public class Project extends NamedObject
                                     "backupDir",
                                     (this.backupDirectory != null ? this.backupDirectory.getPath () : "Not set"));
         this.addToStringProperties (props,
+                                    "filesDir",
+                                    (this.getFilesDirectory () != null ? this.getFilesDirectory ().getPath () : "Not set"));
+
+        this.addToStringProperties (props,
                                     "lastEdited",
                                     this.lastEdited);
         this.addToStringProperties (props,
