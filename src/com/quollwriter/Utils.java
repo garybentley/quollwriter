@@ -1518,6 +1518,13 @@ public class Utils
     public static void deleteDir (File d)
     {
         
+        if (d == null)
+        {
+            
+            return;
+            
+        }
+        
         if (d.isFile ())
         {
 
