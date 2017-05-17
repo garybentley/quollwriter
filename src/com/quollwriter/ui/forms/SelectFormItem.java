@@ -172,12 +172,26 @@ public class SelectFormItem extends FormItem<Set<String>>
         if (this.list != null)
         {
             
+            if (this.list.getSelectedValuesList () == null)
+            {
+                
+                return ret;
+                
+            }
+            
             ret.addAll (this.list.getSelectedValuesList ());
     
             return ret;
 
         } else {
+                
+            if (this.dlist.getSelectedItem () == null)
+            {
+                
+                return ret;
                         
+            }
+            
             ret.add (this.dlist.getSelectedItem ().toString ());
                         
         }
