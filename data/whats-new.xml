@@ -1,5 +1,12 @@
 <whatsnew>
 
+  <version id="2.6.1">
+    <item onlyIfCurrentVersion="true">
+      <title>Bug squashing</title>
+      <description><![CDATA[Fixed a couple of bugs arising from the recent 2.6 changes and made changes to the Quoll Writer logo and splash screen.]]></description>
+    </item>
+  </version>
+
   <version id="2.6">
     <item id="assets">
       <title>A big update to Assets</title>
