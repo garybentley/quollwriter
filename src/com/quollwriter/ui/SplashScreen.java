@@ -21,42 +21,35 @@ public class SplashScreen extends JWindow implements PropertyChangedListener
                         Color  backgroundColor)
     {
 
-        Box box = new Box (BoxLayout.PAGE_AXIS);
+        Box box = new Box (BoxLayout.Y_AXIS);
 
-        // Create the image panel.
-        ImagePanel ip = new ImagePanel (image,
-                                        null);
-        ip.setOpaque (false);
+        box.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        ip.setLayout (new FlowLayout (FlowLayout.CENTER,
-                                      0,
-                                      0));
-        ip.add (box);
-
-        box.add (Box.createVerticalStrut (95));
-
+        JLabel l = new JLabel (new ImageIcon (image));
+        l.setAlignmentX (Component.LEFT_ALIGNMENT);
+        box.add (l);
+        
         this.progressBar = new JProgressBar ();
-        this.progressBar.setForeground (UIUtils.getColor ("#aaaaaa"));
-        this.progressBar.setBorder (new LineBorder (UIUtils.getColor ("#aaaaaa"), 1));
-        this.progressBar.setBorderPainted (false);
-        this.progressBar.setPreferredSize (new Dimension (image.getWidth (null) - 29,
+        this.progressBar.setAlignmentX (Component.LEFT_ALIGNMENT);
+        this.progressBar.setForeground (UIUtils.getColor ("#4d4d4f"));
+        this.progressBar.setBorder (null);
+        this.progressBar.setPreferredSize (new Dimension (image.getWidth (null) - 2,
                                                           this.progressBar.getPreferredSize ().height));
 
         box.add (this.progressBar);
 
         box.setOpaque (false);
-
+        box.setBorder (UIUtils.createLineBorder ());
+        box.setBorder (new MatteBorder (1, 1, 1, 1, UIUtils.getColor ("#4d4d4f")));
+        
         JComponent cp = (JComponent) this.getContentPane ();
 
-        cp.add (ip);
+        cp.add (box);//ip);
         cp.setOpaque (false);
 
         this.getRootPane ().setOpaque (false);
 
         this.setSize (cp.getPreferredSize ());
-        this.setPreferredSize (new Dimension (449,
-                                              126));
-
         this.pack ();
 
         UIUtils.setCenterOfScreenLocation (this);
