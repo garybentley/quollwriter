@@ -41,6 +41,14 @@ public class QObject extends LegacyAsset
             
             UserConfigurableObjectTypeField type = this.getLegacyTypeField (TYPE_LEGACY_FIELD_ID);            
             
+            // May not have the field.
+            if (type == null)
+            {
+                
+                return;
+                
+            }
+            
             f = new UserConfigurableObjectField (type);
             
             this.addField (f);
