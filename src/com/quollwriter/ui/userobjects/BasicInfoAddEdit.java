@@ -23,13 +23,13 @@ public class BasicInfoAddEdit extends Box implements ProjectEventListener
     private Box basicInfoView = null;
     private Box basicInfoEdit = null;
     private Box basicInfoDetails = null;
-    private ProjectViewer viewer = null;
+    private AbstractViewer viewer = null;
     private JTextPane helpText = null;
     private Box helpTextBox = null;
     private UserConfigurableObjectType type = null;
     private Form editForm = null;
     
-    public BasicInfoAddEdit (ProjectViewer              viewer,
+    public BasicInfoAddEdit (AbstractViewer             viewer,
                              UserConfigurableObjectType type)
     {
         

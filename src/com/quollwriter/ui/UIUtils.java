@@ -3935,7 +3935,18 @@ public class UIUtils
 
                 }
 
-                String w = "<a href='" + urlPrefix + st + "'>" + urlPrefix + st + "</a>";
+                String w = null;
+                
+                try
+                {
+                    
+                    w = "<a href='" + urlPrefix + URLEncoder.encode (st, "utf-8") + "'>" + urlPrefix + st + "</a>";
+                    
+                } catch (Exception e) {
+                    
+                    // Won't happen.
+                    
+                }
 
                 StringBuilder ss = new StringBuilder (s);
 
@@ -4342,11 +4353,25 @@ public class UIUtils
                            ind + obj.name.length (),
                            "<a href='" + Constants.OBJECTREF_PROTOCOL + "://" + obj.namedObject.getObjectReference ().asString () + "'>" + obj.name + "</a>");
   */
+
+            String w = obj.name;
+  
+            try
+            {
+                
+                w = URLEncoder.encode (obj.name, "utf-8");
+                
+            } catch (Exception e) {
+                
+                // Ignore.
+                
+            }
+            
             b = b.replace (ind,
                            ind + obj.name.length (),
                            String.format ("<a href='%s://%s'>%s</a>",
                                           Constants.OBJECTNAME_PROTOCOL,
-                                          obj.name,
+                                          w,
                                           obj.name));
 
         }
@@ -5439,7 +5464,20 @@ public class UIUtils
                     if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
                     {
 
-                        Set<Asset> objs = pv.getProject ().getAllAssetsByName (url.getHost (),
+                        String n = url.getHost ();
+                        
+                        try
+                        {
+                            
+                            n = URLDecoder.decode (url.getHost (), "utf-8");
+                            
+                        } catch (Exception e) {
+                            
+                            // Ignore.
+                            
+                        }
+                    
+                        Set<Asset> objs = pv.getProject ().getAllAssetsByName (n,
                                                                                null);
 
                         if ((objs == null)
@@ -5636,7 +5674,20 @@ public class UIUtils
                     if (url.getProtocol ().equals (Constants.OBJECTNAME_PROTOCOL))
                     {
 
-                        Set<NamedObject> objs = pv.getProject ().getAllNamedObjectsByName (url.getHost ());
+                        String un = url.getHost ();
+                    
+                        try
+                        {
+                            
+                            un = URLDecoder.decode (un, "utf-8");
+                            
+                        } catch (Exception e) {
+                            
+                            // Ignore.
+                            
+                        }                    
+                    
+                        Set<NamedObject> objs = pv.getProject ().getAllNamedObjectsByName (un);
 
                         if ((objs == null)
                             ||
@@ -5696,6 +5747,8 @@ public class UIUtils
                             }
 
                         }
+                        
+                        return;
 
                     }
 
@@ -11305,7 +11358,7 @@ public class UIUtils
     }
 
     public static void showObjectTypeEdit (UserConfigurableObjectType type,
-                                           ProjectViewer              viewer)
+                                           AbstractViewer             viewer)
     {
         
         final QPopup p = UIUtils.createClosablePopup (String.format ("Edit the {%s} information",

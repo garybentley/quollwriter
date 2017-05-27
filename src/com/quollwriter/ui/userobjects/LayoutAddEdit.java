@@ -18,13 +18,13 @@ import com.quollwriter.ui.components.ScrollableBox;
 public class LayoutAddEdit extends Box implements ProjectEventListener
 {
     
-    private ProjectViewer viewer = null;
+    private AbstractViewer viewer = null;
     private UserConfigurableObjectType type = null;
     private JTextPane helpText = null;
     private JComponent helpTextBox = null;
     private JList<String> layouts = null;
     
-    public LayoutAddEdit (ProjectViewer              viewer,
+    public LayoutAddEdit (AbstractViewer             viewer,
                           UserConfigurableObjectType type)
     {
         

@@ -3063,14 +3063,14 @@ public class Options extends Box
 
     private SectionInfo createAssetsSection ()
     {
-
+/*
         if (!(this.viewer instanceof ProjectViewer))
         {
 
             return null;
 
         }
-    
+  */  
         final Options _this = this;
 
         Box box = new Box (BoxLayout.Y_AXIS);
@@ -3224,7 +3224,7 @@ public class Options extends Box
                 UserConfigurableObjectType t = (UserConfigurableObjectType) assetTypes.getSelectedItem ();
                 
                 UIUtils.showObjectTypeEdit (t,
-                                            (ProjectViewer) _this.viewer);
+                                            _this.viewer);
 
             }
 

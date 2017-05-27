@@ -3674,6 +3674,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 										Options.Section.look,
 										Options.Section.naming,
 										Options.Section.editing,
+                                        Options.Section.assets,
 										Options.Section.start,
 										Options.Section.editors,
 										Options.Section.itemsAndRules,

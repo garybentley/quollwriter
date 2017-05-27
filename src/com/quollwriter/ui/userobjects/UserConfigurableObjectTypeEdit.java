@@ -61,17 +61,7 @@ import com.quollwriter.ui.components.QPopup;
 public class UserConfigurableObjectTypeEdit 
 {
 
-    //private ProjectViewer viewer = null;
-    //private String objType = null;
-
-    //private JTextPane generalViewHelp = null;
-    //private JTextPane fieldsHelp = null;
-
-    //private DnDTabbedPane tabs = null;
-    
-    //private UserConfigurableObjectType userObjType = null;
-
-    public static JTabbedPane getAsTabs (ProjectViewer              viewer,
+    public static JTabbedPane getAsTabs (AbstractViewer             viewer,
                                          UserConfigurableObjectType userObjType)
     {
         

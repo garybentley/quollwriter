@@ -37,11 +37,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     private Map<UserConfigurableObjectTypeField.Type, Set<FormItem>> formEditFields = new HashMap ();
     private Map<UserConfigurableObjectTypeField.Type, UserConfigurableObjectTypeField> formTypeFields = new HashMap ();
     private UserConfigurableObjectTypeField currentEditItem = null;
-    private ProjectViewer viewer = null;
+    private AbstractViewer viewer = null;
     private UserConfigurableObjectType type = null;
     private boolean showFormTitles = false;
     
-    public FieldsAddEdit (ProjectViewer              viewer,
+    public FieldsAddEdit (AbstractViewer             viewer,
                           UserConfigurableObjectType type,
                           boolean                    showFormTitles)
     {
