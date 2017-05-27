@@ -1696,6 +1696,13 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 
             }
             
+            if (tag == null)
+            {
+                
+                return null;
+                
+            }
+            
             return new TaggedObjectAccordionItem (tag,
                                                   this.viewer)
             {
