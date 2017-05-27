@@ -1,5 +1,12 @@
 <whatsnew>
 
+  <version id="2.6.2">
+    <item onlyIfCurrentVersion="true">
+      <title>More bug squashing</title>
+      <description><![CDATA[Fixed a couple of bugs arising from the recent 2.6 changes, namely to ensure that if Asset fields or Tags are removed then they don't prevent a {project} that may use them from being opened.]]></description>
+    </item>
+  </version>
+
   <version id="2.6.1">
     <item onlyIfCurrentVersion="true">
       <title>Bug squashing</title>
