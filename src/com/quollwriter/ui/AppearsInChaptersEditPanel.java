@@ -111,7 +111,9 @@ public class AppearsInChaptersEditPanel extends Box implements SideBarListener, 
     public String getTitle ()
     {
 
-        return "Appears in {Chapters}";
+        return Environment.getUIString (LanguageStrings.appearsinchapters,
+                                        LanguageStrings.title);
+        //"Appears in {Chapters}";
 
     }
 
@@ -325,7 +327,10 @@ public class AppearsInChaptersEditPanel extends Box implements SideBarListener, 
             
         JButton but = UIUtils.createButton (Environment.getIcon ("sendout",
                                                           Constants.ICON_PANEL_SECTION_ACTION),
-                                               "Click to view these items in the sidebar",
+                                            Environment.getUIString (LanguageStrings.appearsinchapters,
+                                                                     LanguageStrings.showinsidebar,
+                                                                     LanguageStrings.tooltip),
+                                               //"Click to view these items in the sidebar",
                                                new ActionAdapter ()
                                                {
                                                 
@@ -343,7 +348,10 @@ public class AppearsInChaptersEditPanel extends Box implements SideBarListener, 
                                                                                   e);
                                                             
                                                             UIUtils.showErrorMessage (_this,
-                                                                                      "Unable to show.");
+                                                                                      Environment.getUIString (LanguageStrings.appearsinchapters,
+                                                                                                               LanguageStrings.showinsidebar,
+                                                                                                               LanguageStrings.actionerror));
+                                                                                      //"Unable to show.");
                                                             
                                                         }
                                                         

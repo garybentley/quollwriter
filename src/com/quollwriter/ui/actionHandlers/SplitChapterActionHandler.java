@@ -38,7 +38,12 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
 
         this.addFrom = addFrom;
         
-        this.nameField = new TextFormItem ("New {Chapter} Name",
+        this.nameField = new TextFormItem (Environment.getUIString (LanguageStrings.project,
+                                                                    LanguageStrings.actions,
+                                                                    LanguageStrings.splitchapter,
+                                                                    LanguageStrings.labels,
+                                                                    LanguageStrings.newchaptername),
+                                           //"New {Chapter} Name",
                                            null);
         
         final SplitChapterActionHandler _this = this;
@@ -64,7 +69,11 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
         if (this.nameField.getValue () == null)
         {
 
-            errs.add ("Please select a {chapter} name.");
+            errs.add (Environment.getUIString (LanguageStrings.project,
+                                               LanguageStrings.actions,
+                                               LanguageStrings.splitchapter,
+                                               LanguageStrings.errorlabel));
+                            //"Please select a {chapter} name.");
 
         }
 
@@ -168,7 +177,11 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE) + ".");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.splitchapter,
+                                                               LanguageStrings.actionerror));
+                                      //"An internal error has occurred.\n\nUnable to add new " + Environment.getObjectTypeName (Chapter.OBJECT_TYPE) + ".");
 
             return false;
 
@@ -226,8 +239,10 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
     public String getTitle ()
     {
 
-        return String.format ("Split %s",
-                              Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.splitchapter,
+                                        LanguageStrings.title);
 
     }
 
@@ -272,7 +287,11 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
             if (text.length () > 150)
             {
                 
-                text = text.trim ().substring (0, 150) + "...";
+                text = text.trim ().substring (0, 150) + Environment.getUIString (LanguageStrings.project,
+                                                                                  LanguageStrings.actions,
+                                                                                  LanguageStrings.splitchapter,
+                                                                                  LanguageStrings.moretextindicator);
+                //"...";
                     
             }
                                 
@@ -289,7 +308,12 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
             p.add (t);
             p.setOpaque (false);
             
-            items.add (new AnyFormItem ("Start at",
+            items.add (new AnyFormItem (Environment.getUIString (LanguageStrings.project,
+                                                                 LanguageStrings.actions,
+                                                                 LanguageStrings.splitchapter,
+                                                                 LanguageStrings.labels,
+                                                                 LanguageStrings.startat),
+                                        //"Start at",
                                         p));
 
             QTextEditor ed = this.viewer.getEditorForChapter (this.addFrom).getEditor ();
@@ -327,12 +351,22 @@ public class SplitChapterActionHandler extends AbstractFormPopup<ProjectViewer, 
                 ep.add (et);
                 ep.setOpaque (false);
                 
-                items.add (new AnyFormItem ("End at",
+                items.add (new AnyFormItem (Environment.getUIString (LanguageStrings.project,
+                                                                     LanguageStrings.actions,
+                                                                     LanguageStrings.splitchapter,
+                                                                     LanguageStrings.labels,
+                                                                     LanguageStrings.endat),
+                                            //"End at",
                                             ep));
                                      
             }
             
-            items.add (new AnyFormItem ("Words",
+            items.add (new AnyFormItem (Environment.getUIString (LanguageStrings.project,
+                                                                 LanguageStrings.actions,
+                                                                 LanguageStrings.splitchapter,
+                                                                 LanguageStrings.labels,
+                                                                 LanguageStrings.words),
+                                        //"Words",
                                         UIUtils.createLabel (Environment.formatNumber (count))));
 
         }

@@ -238,7 +238,12 @@ public abstract class AccordionItem extends Box
         final AccordionItem _this = this;
         
         this.header.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
-        this.header.setToolTipText ("Click to open/close the items below.");
+        this.header.setToolTipText (Environment.getUIString (LanguageStrings.project,
+                                                             LanguageStrings.sidebar,
+                                                             LanguageStrings.section,
+                                                             LanguageStrings.title,
+                                                             LanguageStrings.tooltip));
+                                                             //"Click to open/close the items below.");
         
         this.header.addMouseListener (new MouseEventHandler ()
         {

@@ -10,6 +10,7 @@ import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
@@ -104,7 +105,13 @@ public class SentenceLengthRule extends AbstractSentenceRule
         if (wc > this.wordCount)
         {
 
-            Issue iss = new Issue ("Sentence contains: <b>" + wc + "</b> words.",
+            Issue iss = new Issue (String.format (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                           LanguageStrings.issues,
+                                                                           LanguageStrings.sentencelength,
+                                                                           LanguageStrings.text),
+                                                  Environment.formatNumber (wc),
+                                                  Environment.formatNumber (this.wordCount)),
+                                                  //"Sentence contains: <b>" + wc + "</b> words.",
                                    sentence,
                                    sentence.getAllTextStartOffset (),
                                    sentence.getLastWord ().getAllTextEndOffset () - sentence.getAllTextStartOffset (),
@@ -131,6 +138,13 @@ public class SentenceLengthRule extends AbstractSentenceRule
     public Set<FormItem> getFormItems ()
     {
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.sentencelength);
+        pref.add (LanguageStrings.labels);
+    
         Set<FormItem> items = new LinkedHashSet ();
 
         this.count = new JSpinner (new SpinnerNumberModel (this.wordCount,
@@ -144,7 +158,9 @@ public class SentenceLengthRule extends AbstractSentenceRule
 
         this.count.setMaximumSize (this.count.getPreferredSize ());
 
-        items.add (new AnyFormItem ("No of Words",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.words),
+                                    //"No of Words",
                                     b));
 
         return items;

@@ -41,7 +41,8 @@ import com.quollwriter.ui.renderers.*;
 public class ImportProject extends Wizard implements ImportCallback
 {
 
-    public static FileNameExtensionFilter fileFilter = new FileNameExtensionFilter ("Supported Files (docx, doc)",
+    public static FileNameExtensionFilter fileFilter = new FileNameExtensionFilter (Environment.getUIString (LanguageStrings.importproject,
+                                                                                                             LanguageStrings.supportedfiletypesdescription) + " (docx, doc)",
                                                                                     "docx",
                                                                                     "doc");
 
@@ -87,14 +88,16 @@ public class ImportProject extends Wizard implements ImportCallback
         }
 
         this.addToProject = new JRadioButton ();
-        this.fileFindError = UIUtils.createErrorLabel ("Please select a file to import.");
+        this.fileFindError = UIUtils.createErrorLabel (Environment.getUIString (LanguageStrings.importproject,
+                                                                                LanguageStrings.nofileselectederror));
+                                                       //"Please select a file to import.");
         this.fileFind = new FileFinder ();
 
         this.itemsTree = UIUtils.createTree ();
         this.itemsTree.setModel (null);
 
-        this.importFromProject = UIUtils.createRadioButton ("Import from a {Project}");
-        this.importFromFile = UIUtils.createRadioButton ("Import from a file");
+        this.importFromProject = UIUtils.createRadioButton ("");
+        this.importFromFile = UIUtils.createRadioButton ("");
 
     }
 
@@ -152,7 +155,9 @@ public class ImportProject extends Wizard implements ImportCallback
     public String getFirstHelpText ()
     {
 
-        return "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function.  The import expects the file(s) to be in a certain format.";
+        return Environment.getUIString (LanguageStrings.importproject,
+                                        LanguageStrings.help);
+        //return "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function.  The import expects the file(s) to be in a certain format.";
 
     }
 
@@ -220,8 +225,9 @@ public class ImportProject extends Wizard implements ImportCallback
                                               e);
 
                         UIUtils.showErrorMessage (this,
-                                                  "Unable to save: " +
-                                                  a.getName ());
+                                                  String.format (Environment.getUIString (LanguageStrings.importproject,
+                                                                                          LanguageStrings.unabletosaveerror),
+                                                                 a.getName ()));                                                  
 
                     }
 
@@ -256,8 +262,10 @@ public class ImportProject extends Wizard implements ImportCallback
                                               e);
 
                         UIUtils.showErrorMessage (this,
-                                                  "Unable to save: " +
-                                                  c.getName ());
+                                                  String.format (Environment.getUIString (LanguageStrings.importproject,
+                                                                                          LanguageStrings.unabletosaveerror),
+                                                                 //"Unable to save: " +
+                                                                 c.getName ()));
 
                         continue;
 
@@ -303,8 +311,14 @@ public class ImportProject extends Wizard implements ImportCallback
                                       ProjectEvent.ANY);
 
             UIUtils.showMessage ((PopupsSupported) this.pv,
-                                 "Import complete",
-                                 String.format ("The items have been imported into your {project}"));
+                                 Environment.getUIString (LanguageStrings.importproject,
+                                                          LanguageStrings.importcompletepopup,
+                                                          LanguageStrings.title),
+                                 //"Import complete",
+                                 Environment.getUIString (LanguageStrings.importproject,
+                                                          LanguageStrings.importcompletepopup,
+                                                          LanguageStrings.text));
+                                 //String.format ("The items have been imported into your {project}"));
 
         } else
         {
@@ -360,7 +374,10 @@ public class ImportProject extends Wizard implements ImportCallback
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to create new project: " + this.proj.getName ());
+                                          String.format (Environment.getUIString (LanguageStrings.importproject,
+                                                                                  LanguageStrings.unabletocreateprojecterror),
+                                                         this.proj.getName ()));
+                                          //"Unable to create new project: " + this.proj.getName ());
 
                 return false;
 
@@ -837,9 +854,17 @@ public class ImportProject extends Wizard implements ImportCallback
         if (stage.equals (NEW_PROJECT_STAGE))
         {
 
-            ws.title = "Enter the new {Project} details";
+            ws.title = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.newproject,
+                                                LanguageStrings.title);
+            //"Enter the new {Project} details";
 
-            ws.helpText = "To create a new {Project} enter the name below and select the directory where it should be saved.";
+            ws.helpText = Environment.getUIString (LanguageStrings.importproject,
+                                                   LanguageStrings.stages,
+                                                   LanguageStrings.newproject,
+                                                   LanguageStrings.text);
+            //"To create a new {Project} enter the name below and select the directory where it should be saved.";
 
             this.newProjectPanel = new NewProjectPanel ();
 
@@ -849,12 +874,18 @@ public class ImportProject extends Wizard implements ImportCallback
                                                          null,
                                                          false);
 
+            return ws;
+                                                         
         }
 
         if (stage.equals (DECIDE_STAGE))
         {
 
-            ws.title = "What would you like to do?";
+            ws.title = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.decide,
+                                                LanguageStrings.title);
+            //"What would you like to do?";
 
             FormLayout fl = new FormLayout ("10px, p, 10px",
                                             "p, 6px, p, 6px, p, 6px");
@@ -866,11 +897,22 @@ public class ImportProject extends Wizard implements ImportCallback
             if (pv != null)
             {
 
-                this.addToProject.setText ("Add to " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + ": " + pv.getProject ().getName ());
+                this.addToProject.setText (String.format (Environment.getUIString (LanguageStrings.importproject,
+                                                                                   LanguageStrings.stages,
+                                                                                   LanguageStrings.decide,
+                                                                                   LanguageStrings.options,
+                                                                                   LanguageStrings.addtoproject),
+                                                          pv.getProject ().getName ()));
+                                           //"Add to " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + ": " + pv.getProject ().getName ());
 
                 this.addToProject.setOpaque (false);
 
-                this.createNewProject = new JRadioButton ("Create a new " + Environment.getObjectTypeName (Project.OBJECT_TYPE));
+                this.createNewProject = new JRadioButton (Environment.getUIString (LanguageStrings.importproject,
+                                                                                   LanguageStrings.stages,
+                                                                                   LanguageStrings.decide,
+                                                                                   LanguageStrings.options,
+                                                                                   LanguageStrings.newproject));
+                                                          //"Create a new " + Environment.getObjectTypeName (Project.OBJECT_TYPE));
 
                 this.createNewProject.setOpaque (false);
 
@@ -921,14 +963,28 @@ public class ImportProject extends Wizard implements ImportCallback
 
             ws.panel = p;
 
+            return ws;
+            
         }
 
         if (stage.equals (SELECT_ITEMS_STAGE))
         {
 
-            ws.title = "Select the items you wish to import";
+            ws.title = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.selectitems,
+                                                LanguageStrings.title);
+            //"Select the items you wish to import";
 
-            ws.helpText = "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item." + (this.addToProject.isSelected () ? ("  Only items not already in the " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + " will be listed.") : "");
+            ws.helpText = String.format (Environment.getUIString (LanguageStrings.importproject,
+                                                                  LanguageStrings.stages,
+                                                                  LanguageStrings.selectitems,
+                                                                  LanguageStrings.text),
+                                         (this.addToProject.isSelected () ? Environment.getUIString (LanguageStrings.importproject,
+                                                                                                     LanguageStrings.stages,
+                                                                                                     LanguageStrings.selectitems,
+                                                                                                     LanguageStrings.textextra) : ""));
+                                         //"Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item." + (this.addToProject.isSelected () ? ("  Only items not already in the " + Environment.getObjectTypeName (Project.OBJECT_TYPE) + " will be listed.") : "");
 
             this.itemsTree.addMouseListener (new MouseAdapter ()
                 {
@@ -1010,13 +1066,23 @@ public class ImportProject extends Wizard implements ImportCallback
 
             ws.panel = sp;
 
+            return ws;
+            
         }
 
         if (stage.equals (SELECT_FILE_STAGE))
         {
 
-            ws.title = "Select a file to import";
-            ws.helpText = "Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.";
+            ws.title = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.selectfile,
+                                                LanguageStrings.title);
+            //"Select a file to import";
+            ws.helpText = Environment.getUIString (LanguageStrings.importproject,
+                                                   LanguageStrings.stages,
+                                                   LanguageStrings.selectfile,
+                                                   LanguageStrings.text);
+            //"Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.";
 
             Box b = new Box (BoxLayout.Y_AXIS);
 
@@ -1045,9 +1111,18 @@ public class ImportProject extends Wizard implements ImportCallback
 
             });
 
-            this.fileFind.setApproveButtonText ("Select");
+            this.fileFind.setApproveButtonText (Environment.getUIString (LanguageStrings.importproject,
+                                                                         LanguageStrings.stages,
+                                                                         LanguageStrings.selectfile,
+                                                                         LanguageStrings.finder,
+                                                                         LanguageStrings.button));
+                                                //"Select");
             this.fileFind.setFinderSelectionMode (JFileChooser.FILES_ONLY);
-            this.fileFind.setFinderTitle ("Select a file to import");
+            this.fileFind.setFinderTitle (Environment.getUIString (LanguageStrings.importproject,
+                                                                   LanguageStrings.stages,
+                                                                   LanguageStrings.selectfile,
+                                                                   LanguageStrings.finder,
+                                                                   LanguageStrings.title));
 
             String def = null;
 
@@ -1082,11 +1157,21 @@ public class ImportProject extends Wizard implements ImportCallback
 
             this.fileFind.setFileFilter (ImportProject.fileFilter);
 
-            this.fileFind.setFindButtonToolTip ("Click to find a file");
+            this.fileFind.setFindButtonToolTip (Environment.getUIString (LanguageStrings.importproject,
+                                                                         LanguageStrings.stages,
+                                                                         LanguageStrings.selectfile,
+                                                                         LanguageStrings.finder,
+                                                                         LanguageStrings.title));
+            //"Click to find a file");
             this.fileFind.setClearOnCancel (true);
             this.fileFind.init ();
 
-            builder.addLabel ("File",
+            builder.addLabel (Environment.getUIString (LanguageStrings.importproject,
+                                                       LanguageStrings.stages,
+                                                       LanguageStrings.selectfile,
+                                                       LanguageStrings.finder,
+                                                       LanguageStrings.label),
+                              //"File",
                               cc.xy (2,
                                      1));
             builder.add (this.fileFind,
@@ -1101,6 +1186,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
             ws.panel = b;
 
+            return ws;
+            
         }
 
         if (stage.equals (CHOOSE_STAGE))
@@ -1119,9 +1206,19 @@ public class ImportProject extends Wizard implements ImportCallback
 
             };
 
-            this.importFromProject = UIUtils.createRadioButton ("Import from a {Project}",
+            this.importFromProject = UIUtils.createRadioButton (Environment.getUIString (LanguageStrings.importproject,
+                                                                                         LanguageStrings.stages,
+                                                                                         LanguageStrings.choose,
+                                                                                         LanguageStrings.options,
+                                                                                         LanguageStrings.importfromproject),
+                                                                //"Import from a {Project}",
                                                                 onSelect);
-            this.importFromFile = UIUtils.createRadioButton ("Import from a File",
+            this.importFromFile = UIUtils.createRadioButton (Environment.getUIString (LanguageStrings.importproject,
+                                                                                         LanguageStrings.stages,
+                                                                                         LanguageStrings.choose,
+                                                                                         LanguageStrings.options,
+                                                                                         LanguageStrings.importfromfile),
+                                                             //"Import from a File",
                                                              onSelect);
 
             this.importFromFile.setSelected (false);
@@ -1185,8 +1282,16 @@ public class ImportProject extends Wizard implements ImportCallback
             g.add (this.importFromFile);
             g.add (this.importFromProject);
 
-            ws.title = "What would you like to import?";
-            ws.helpText = "Select whether you wish to import from a file or from one of your {projects}.";
+            ws.title = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.choose,
+                                                LanguageStrings.title);
+            //"What would you like to import?";
+            ws.helpText = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.choose,
+                                                LanguageStrings.text);
+            //"Select whether you wish to import from a file or from one of your {projects}.";
 
             FormLayout fl = new FormLayout ("p",
                                             "p, 6px, p");
@@ -1209,12 +1314,20 @@ public class ImportProject extends Wizard implements ImportCallback
 
             ws.panel = p;
 
+            return ws;
+            
         }
 
         if (stage.equals (SELECT_PROJECT_STAGE))
         {
 
-            ws.title = "Select a {Project} to import from";
+            ws.title = Environment.getUIString (LanguageStrings.importproject,
+                                                LanguageStrings.stages,
+                                                LanguageStrings.selectproject,
+                                                LanguageStrings.title);
+            //"Select a {Project} to import from";
+            // TODO: Fix this, we need some text otherwise the textbox collapses.
+            ws.helpText = "&nbsp;";
 
             java.util.List<ProjectInfo> projs = null;
 
@@ -1229,7 +1342,11 @@ public class ImportProject extends Wizard implements ImportCallback
                                       e);
 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to get all the {projects}.");
+                                          Environment.getUIString (LanguageStrings.importproject,
+                                                                   LanguageStrings.stages,
+                                                                   LanguageStrings.selectproject,
+                                                                   LanguageStrings.getallprojectserror));
+                                          //"Unable to get all the {projects}.");
 
                 return null;
 
@@ -1249,7 +1366,12 @@ public class ImportProject extends Wizard implements ImportCallback
             this.projectList.setLayoutOrientation (JList.VERTICAL);
             this.projectList.setOpaque (true);
             this.projectList.setBackground (UIUtils.getComponentColor ());
-            this.projectList.setToolTipText (Environment.replaceObjectNames ("Click to select this {Project}."));
+            this.projectList.setToolTipText (Environment.getUIString (LanguageStrings.importproject,
+                                                                      LanguageStrings.stages,
+                                                                      LanguageStrings.selectproject,
+                                                                      LanguageStrings.projectslist,
+                                                                      LanguageStrings.tooltip));
+                                             //Environment.replaceObjectNames ("Click to select this {Project}."));
             UIUtils.setAsButton (this.projectList);
 
             this.projectList.addListSelectionListener (new ListSelectionListener ()
@@ -1315,6 +1437,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
             ws.panel = sp;
 
+            return ws;
+            
         }
 
         return ws;
@@ -1403,7 +1527,8 @@ public class ImportProject extends Wizard implements ImportCallback
         if (p.getSentenceCount () > 1)
         {
 
-            b.append (" ... ");
+            b.append (Environment.getUIString (LanguageStrings.importproject,
+                                               LanguageStrings.moretextindicator));
 
             b.append (p.getFirstSentence ().getNext ().getText ());
 

@@ -145,6 +145,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public List<Issue> getIssues (Paragraph paragraph)
     {
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.issues);
+        pref.add (LanguageStrings.paragraphlength);
+    
         List<Issue> issues = new ArrayList ();
 
         int wc = paragraph.getWordCount ();
@@ -155,7 +160,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
            )
         {
 
-            Issue iss = new Issue ("Paragraph word count is: <b>" + Environment.formatNumber (wc) + "</b>.  (Max is: " + Environment.formatNumber (this.wordCount) + ")",
+            Issue iss = new Issue (String.format (Environment.getUIString (pref,
+                                                                           LanguageStrings.wordtext),
+                                                  Environment.formatNumber (wc),
+                                                  Environment.formatNumber (this.wordCount)),
+                                                                           //"Paragraph word count is: <b>" + Environment.formatNumber (wc) + "</b>.  (Max is: " + Environment.formatNumber (this.wordCount) + ")",
                                    paragraph,
                                    paragraph.getAllTextStartOffset () + "-wordcount-" + wc,
                                    this);
@@ -172,7 +181,11 @@ public class ParagraphLengthRule extends AbstractParagraphRule
            )
         {
 
-            Issue iss = new Issue ("Paragraph sentence count is: <b>" + Environment.formatNumber (sc) + "</b>.  (Max is: " + Environment.formatNumber (this.sentenceCount) + ")",
+            Issue iss = new Issue (String.format (Environment.getUIString (pref,
+                                                                           LanguageStrings.sentencetext),
+                                                  Environment.formatNumber (sc),
+                                                  Environment.formatNumber (this.sentenceCount)),
+                                                  //"Paragraph sentence count is: <b>" + Environment.formatNumber (sc) + "</b>.  (Max is: " + Environment.formatNumber (this.sentenceCount) + ")",
                                    paragraph,
                                    paragraph.getAllTextStartOffset () + "-sentencecount-" + sc,
                                    this);
@@ -205,6 +218,13 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public Set<FormItem> getFormItems ()
     {
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.paragraphlength);
+        pref.add (LanguageStrings.labels);
+    
         Set<FormItem> items = new LinkedHashSet ();
 
         this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,
@@ -218,7 +238,9 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Words",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.words),
+                                    //"Words",
                                     b));
 
         this.sentCountF = new JSpinner (new SpinnerNumberModel (this.sentenceCount,
@@ -233,7 +255,9 @@ public class ParagraphLengthRule extends AbstractParagraphRule
 
         this.sentCountF.setMaximumSize (this.sentCountF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Sentences",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.sentences),
+                                    //"Sentences",
                                     b));
 
         return items;

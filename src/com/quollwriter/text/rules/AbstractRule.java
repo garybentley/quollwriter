@@ -7,6 +7,7 @@ import javax.swing.*;
 
 import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.forms.*;
 import com.quollwriter.text.*;
@@ -193,14 +194,20 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        final TextFormItem summary = new TextFormItem ("Summary",
+        final TextFormItem summary = new TextFormItem (Environment.getUIString (LanguageStrings.form,
+                                                                                LanguageStrings.labels,
+                                                                                LanguageStrings.summary),
+                                                       //"Summary",
                                                        this.getSummary ());
 
         items.add (summary);
 
         items.addAll (this.getFormItems ());
 
-        final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Description",
+        final MultiLineTextFormItem desc = new MultiLineTextFormItem (Environment.getUIString (LanguageStrings.form,
+                                                                                               LanguageStrings.labels,
+                                                                                               LanguageStrings.description),
+                                                                      //"Description",
                                                                       viewer,
                                                                       5);
         desc.setText (this.getDescription ());
@@ -252,7 +259,13 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                             if (summ == null)
                             {
             
-                                f.showError ("Please enter a summary.");
+                                f.showError (String.format (Environment.getUIString (LanguageStrings.form,
+                                                                                     LanguageStrings.errors,
+                                                                                     LanguageStrings.entervalue),
+                                                            Environment.getUIString (LanguageStrings.form,
+                                                                                     LanguageStrings.labels,
+                                                                                     LanguageStrings.summary)));
+                                                                      //"Please enter a summary.");
             
                                 return;
             

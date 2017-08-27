@@ -40,21 +40,33 @@ public class RenameChapterActionHandler extends TextInputActionHandler<AbstractP
     public String getTitle ()
     {
         
-        return "Rename {Chapter}";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renamechapter,
+                                        LanguageStrings.title);
+        //"Rename {Chapter}";
         
     }
     
     public String getHelp ()
     {
         
-        return "Enter the new {chapter} name below.";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renamechapter,
+                                        LanguageStrings.text);
+        //return "Enter the new {chapter} name below.";
         
     }
 
     public String getConfirmButtonLabel ()
     {
         
-        return "Change";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renamechapter,
+                                        LanguageStrings.confirm);
+        //"Change";
         
     }
     
@@ -74,7 +86,12 @@ public class RenameChapterActionHandler extends TextInputActionHandler<AbstractP
            )
         {
             
-            return "Please enter a new name.";
+            return Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.renamechapter,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a new name.";
             
         }
 
@@ -104,7 +121,12 @@ public class RenameChapterActionHandler extends TextInputActionHandler<AbstractP
         if (exists)
         {
                                                                         
-            return "Another {chapter} with that name already exists.";
+            return Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.renamechapter,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.chapterexists);
+            //"Another {chapter} with that name already exists.";
 
         }
                 
@@ -144,7 +166,11 @@ public class RenameChapterActionHandler extends TextInputActionHandler<AbstractP
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "An internal error has occurred.\n\nUnable to change name of {chapter}.");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.renamechapter,
+                                                               LanguageStrings.actionerror));
+                                      //"An internal error has occurred.\n\nUnable to change name of {chapter}.");
 
         }
         

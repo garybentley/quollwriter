@@ -31,10 +31,9 @@ import com.quollwriter.ui.components.*;
 public class WarmupPromptSelect extends Box
 {
 
-    public static final String PANEL_ID = "warmups";
     public static final int    WARMUP_SAVED = 0;
-    public static final String DEFAULT_WORDS = "500 words";
-    public static final String DEFAULT_MINS = "30 minutes";
+    public static final int DEFAULT_WORDS = 500;
+    public static final int DEFAULT_MINS = 30;
 
     private TextArea ownPrompt = null;
     private Prompt    prompt = null;
@@ -52,7 +51,10 @@ public class WarmupPromptSelect extends Box
 
         this.viewer = v;
         
-        this.ownPrompt = UIUtils.createTextArea ("Enter your prompt text here...",
+        this.ownPrompt = UIUtils.createTextArea (Environment.getUIString (LanguageStrings.dowarmup,
+                                                                          LanguageStrings.ownprompt,
+                                                                          LanguageStrings.tooltip),
+                                                 //"Enter your prompt text here...",
                                                  3,
                                                  -1);
         
@@ -80,6 +82,9 @@ public class WarmupPromptSelect extends Box
             
         }
     
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.dowarmup);
+    
         this.inited = true;
     
         final WarmupPromptSelect _this = this;
@@ -89,7 +94,10 @@ public class WarmupPromptSelect extends Box
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.setOpaque (false);
 
-        this.add (UIUtils.createBoldSubHeader ("Choose a prompt",
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                        LanguageStrings.chooseprompt,
+                                                                        LanguageStrings.title),
+                                               //"Choose a prompt",
                                                null));
 
         Box ppb = new Box (BoxLayout.Y_AXIS);
@@ -100,12 +108,17 @@ public class WarmupPromptSelect extends Box
         
         Box buts = new Box (BoxLayout.X_AXIS);
 
-        final JCheckBox doNotShow = new JCheckBox ("Do not show this prompt again");
+        final JCheckBox doNotShow = new JCheckBox (Environment.getUIString (prefix,
+                                                                            LanguageStrings.noshowpromptagain));
+                                                   //"Do not show this prompt again");
         doNotShow.setOpaque (false);
 
         final JButton links = new JButton (Environment.getIcon ("website-links",
                                                                 Constants.ICON_MENU));
-        links.setToolTipText ("Click to see a list of websites that have writing prompts");
+        links.setToolTipText (Environment.getUIString (prefix,
+                                                       LanguageStrings.weblinks,
+                                                       LanguageStrings.tooltip));
+        //"Click to see a list of websites that have writing prompts");
 
         buts.add (links);
 
@@ -126,7 +139,10 @@ public class WarmupPromptSelect extends Box
                                                                        w.getName (),
                                                                        w.getCount ()));
 
-                        item.setToolTipText (String.format ("Click to go to the %s website (%s)",
+                        item.setToolTipText (String.format (Environment.getUIString (prefix,
+                                                                                     LanguageStrings.weblinks,
+                                                                                     LanguageStrings.visitlink),
+                                                            //"Click to go to the %s website (%s)",
                                                             w.getName (),
                                                             w.getURL ()));
                         item.setActionCommand (w.getURL ());
@@ -165,7 +181,10 @@ public class WarmupPromptSelect extends Box
 
         JButton prev = new JButton (Environment.getIcon ("previous",
                                                          Constants.ICON_MENU));
-        prev.setToolTipText ("Go back to the previous prompt");
+        prev.setToolTipText (Environment.getUIString (prefix,
+                                                      LanguageStrings.previousprompt,
+                                                      LanguageStrings.tooltip));
+        //"Go back to the previous prompt");
 
         prev.addActionListener (new ActionAdapter ()
             {
@@ -198,7 +217,9 @@ public class WarmupPromptSelect extends Box
                         _this.promptPreview.setText ("");
 
                         UIUtils.showMessage (_this,
-                                             "You have excluded all the prompts.");
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.allpromptsexcluded));
+                                             //"You have excluded all the prompts.");
 
                     }
 
@@ -213,7 +234,10 @@ public class WarmupPromptSelect extends Box
         buts.add (prev);
         buts.add (Box.createHorizontalStrut (5));
 
-        JButton next = UIUtils.createButton ("Next prompt",
+        JButton next = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                      LanguageStrings.nextprompt,
+                                                                      LanguageStrings.text),
+                                             //"Next prompt",
                                              "next");
 
         next.addActionListener (new ActionAdapter ()
@@ -247,7 +271,9 @@ public class WarmupPromptSelect extends Box
                         _this.promptPreview.setText ("");
 
                         UIUtils.showMessage (_this,
-                                             "You have excluded all the prompts.");
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.allpromptsexcluded));                                             
+                                             //"You have excluded all the prompts.");
 
                     }
 
@@ -259,7 +285,10 @@ public class WarmupPromptSelect extends Box
 
             });
 
-        next.setToolTipText ("Go to the next prompt");
+        next.setToolTipText (Environment.getUIString (prefix,
+                                                      LanguageStrings.nextprompt,
+                                                      LanguageStrings.tooltip));
+        //"Go to the next prompt");
         next.setHorizontalTextPosition (SwingConstants.LEFT);
 
         buts.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -272,7 +301,10 @@ public class WarmupPromptSelect extends Box
         buts.add (doNotShow);
         this.add (buts);
 
-        this.add (UIUtils.createBoldSubHeader ("OR, Enter your own prompt",
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                        LanguageStrings.ownprompt,
+                                                                        LanguageStrings.title),
+                                               //"OR, Enter your own prompt",
                                                null));
         
         Box b = new Box (BoxLayout.Y_AXIS);
@@ -314,7 +346,10 @@ public class WarmupPromptSelect extends Box
 
             });
 */
-        this.add (UIUtils.createBoldSubHeader ("And do the {warmup} for",
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                        LanguageStrings.dofor,
+                                                                        LanguageStrings.title),
+                                               //"And do the {warmup} for",
                                                null));
 
         FormLayout fl = new FormLayout ("p, 6px, p, 6px, p, 6px, p",
@@ -328,7 +363,9 @@ public class WarmupPromptSelect extends Box
                      cc.xy (1,
                             1));
 
-        builder.addLabel ("and/or",
+        builder.addLabel (Environment.getUIString (prefix,
+                                                   LanguageStrings.andor),
+                          //"and/or",
                           cc.xy (3,
                                  1));
 
@@ -336,7 +373,9 @@ public class WarmupPromptSelect extends Box
                      cc.xy (5,
                             1));
 
-        builder.addLabel ("(whichever is reached first)",
+        builder.addLabel (Environment.getUIString (prefix,
+                                                   LanguageStrings.whicheverfirst),
+                          //"(whichever is reached first)",
                           cc.xy (7,
                                  1));
         
@@ -355,7 +394,9 @@ public class WarmupPromptSelect extends Box
 */
         this.add (p);
 
-        JButton start = UIUtils.createButton ("Start Writing",
+        JButton start = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                       LanguageStrings.startwriting),
+                                              //"Start Writing",
                                               new ActionListener ()
         {
 
@@ -373,7 +414,9 @@ public class WarmupPromptSelect extends Box
                 {
                     
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "o_O  The timer can't be unlimited for both time and words.");
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.starterror));
+                                              //"o_O  The timer can't be unlimited for both time and words.");
                     
                     return;
                     
@@ -400,7 +443,9 @@ public class WarmupPromptSelect extends Box
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to save your prompt, please contact support for assistance.");
+                                                  Environment.getUIString (prefix,
+                                                                           LanguageStrings.saveerror));
+                                                  //"Unable to save your prompt, please contact support for assistance.");
 
                         return;
 
@@ -421,11 +466,13 @@ public class WarmupPromptSelect extends Box
                 } catch (Exception e)
                 {
 
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to get {Warmups} {project}.");
-
                     Environment.logError ("Unable to get warmups projects",
                                           e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.getwarmupsprojecterror));
+                                              //"Unable to get {Warmups} {project}.");
 
                     return;
 
@@ -444,11 +491,13 @@ public class WarmupPromptSelect extends Box
                     } catch (Exception e)
                     {
 
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to open {Warmups} {project}.");
-
                         Environment.logError ("Unable to open warmups project",
                                               e);
+
+                        UIUtils.showErrorMessage (_this,
+                                                  Environment.getUIString (prefix,
+                                                                           LanguageStrings.openwarmupsprojecterror));
+                                                  //"Unable to open {Warmups} {project}.");
 
                         return;
 
@@ -459,8 +508,14 @@ public class WarmupPromptSelect extends Box
                     // If we don't then output a message telling the user that it will be created
                     // then create it.
                     UIUtils.showMessage (null,
-                                         "{Warmups} project",
-                                         "A {Warmups} {project} will now be created to hold your {warmups}.",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.createwarmupsproject,
+                                                                  LanguageStrings.title),
+                                         //"{Warmups} project",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.createwarmupsproject,
+                                                                  LanguageStrings.text),
+                                         //"A {Warmups} {project} will now be created to hold your {warmups}.",
                                          null,
                                          new ActionListener ()
                                          {
@@ -489,7 +544,10 @@ public class WarmupPromptSelect extends Box
                                                                           e);
                                                     
                                                     UIUtils.showErrorMessage (null,
-                                                                              "Unable to create {Warmups} project please contact Quoll Writer support for assistance.");
+                                                                              Environment.getUIString (prefix,
+                                                                                                       LanguageStrings.createwarmupsproject,
+                                                                                                       LanguageStrings.actionerror));
+                                                                              //"Unable to create {Warmups} project please contact Quoll Writer support for assistance.");
                                                     
                                                     return;
                                                     
@@ -552,7 +610,9 @@ public class WarmupPromptSelect extends Box
         {
             
             UIUtils.showErrorMessage (_this.viewer,
-                                      "o_O  The timer can't be unlimited for both time and words.");
+                                      Environment.getUIString (LanguageStrings.dowarmup,
+                                                               LanguageStrings.starterror));
+                                      //"o_O  The timer can't be unlimited for both time and words.");
             
             return;
             
@@ -574,11 +634,13 @@ public class WarmupPromptSelect extends Box
                 } catch (Exception e)
                 {
 
-                    UIUtils.showErrorMessage (null,
-                                              "Unable to get {Warmups} {project}.");
-
                     Environment.logError ("Unable to get warmups projects",
                                           e);
+
+                    UIUtils.showErrorMessage (null,
+                                              Environment.getUIString (LanguageStrings.dowarmup,
+                                                                       LanguageStrings.getwarmupsprojecterror));
+                                              //"Unable to get {Warmups} {project}.");
 
                     return;
 
@@ -607,12 +669,14 @@ public class WarmupPromptSelect extends Box
                     
                 } catch (Exception e) {
                     
-                    UIUtils.showErrorMessage (null,
-                                              "Unable to add {warmup}.");
-
                     Environment.logError ("Unable to add warm-up" +
                                           w,
                                           e);
+
+                    UIUtils.showErrorMessage (null,
+                                              Environment.getUIString (LanguageStrings.dowarmup,
+                                                                       LanguageStrings.addwarmuperror));
+                                              //"Unable to add {warmup}.");
                     
                 }
                 
@@ -626,54 +690,69 @@ public class WarmupPromptSelect extends Box
     {
 
         Vector minsV = new Vector ();
-        minsV.add ("Unlimited");
-        minsV.add ("10 minutes");
-        minsV.add ("20 minutes");
-        minsV.add (WarmupPromptSelect.DEFAULT_MINS); // 30 minutes
-        minsV.add ("1 hour");
+        minsV.add (Environment.getUIString (LanguageStrings.times,
+                                            LanguageStrings.unlimited));
+        //"Unlimited");
+        minsV.add (Environment.getUIString (LanguageStrings.times,
+                                            LanguageStrings.mins10));
+        //minsV.add ("10 minutes");
+        minsV.add (Environment.getUIString (LanguageStrings.times,
+                                            LanguageStrings.mins20));
+        //minsV.add ("20 minutes");
+        minsV.add (Environment.getUIString (LanguageStrings.times,
+                                            LanguageStrings.mins30));        
+        //minsV.add (WarmupPromptSelect.DEFAULT_MINS); // 30 minutes
+        minsV.add (Environment.getUIString (LanguageStrings.times,
+                                            LanguageStrings.hour1));        
+        //minsV.add ("1 hour");
 
         final JComboBox mins = new JComboBox (minsV);
 
-        if (minsC == -1)
+        String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+
+        if (minsDef == null)
         {
 
-            String minsDef = UserProperties.get (Constants.DEFAULT_WARMUP_MINS_PROPERTY_NAME);
+            minsC = WarmupPromptSelect.DEFAULT_MINS;
 
-            if (minsDef == null)
-            {
-
-                minsDef = WarmupPromptSelect.DEFAULT_MINS;
-
-            }
-
-            mins.setSelectedItem (minsDef);
-
-        } else
-        {
-
-            if (minsC == 0)
-            {
-
-                mins.setSelectedItem (minsV.get (0));
-
-            } else
-            {
-
-                if (minsC == 60)
-                {
-
-                    mins.setSelectedItem ("1 hour");
-
-                } else
-                {
-
-                    mins.setSelectedItem (minsC + " minutes");
-
-                }
-
-            }
-
+        } else {
+            
+            minsC = Integer.parseInt (minsDef);
+            
         }
+
+        // Unlimited.
+        int sel = 0;
+    
+        if (minsC == 60)
+        {
+
+            sel = 4;
+        
+        }
+        
+        if (minsC == 30)
+        {
+            
+            sel = 3;
+            
+        }
+        
+        if (minsC == 20)
+        {
+            
+            sel = 2;
+            
+        }
+        
+        if (minsC == 10)
+        {
+            
+            sel = 1;
+            
+        }
+        
+        mins.setSelectedItem (minsV.get (sel));
 
         mins.addActionListener (new ActionAdapter ()
         {
@@ -736,44 +815,75 @@ public class WarmupPromptSelect extends Box
     {
 
         Vector wordsV = new Vector ();
-        wordsV.add ("Unlimited");
-        wordsV.add ("100 words");
-        wordsV.add ("250 words");
-        wordsV.add (WarmupPromptSelect.DEFAULT_WORDS); // 500 words
-        wordsV.add ("1000 words");
+        wordsV.add (Environment.getUIString (LanguageStrings.words,
+                                             LanguageStrings.unlimited));
+        //wordsV.add ("Unlimited");
+        wordsV.add (Environment.getUIString (LanguageStrings.words,
+                                             LanguageStrings.words100));
+        //wordsV.add ("100 words");
+        wordsV.add (Environment.getUIString (LanguageStrings.words,
+                                             LanguageStrings.words250));
+        //wordsV.add ("250 words");
+        wordsV.add (Environment.getUIString (LanguageStrings.words,
+                                             LanguageStrings.words500));
+        //wordsV.add (WarmupPromptSelect.DEFAULT_WORDS); // 500 words
+        wordsV.add (Environment.getUIString (LanguageStrings.words,
+                                             LanguageStrings.words1000));
+        //wordsV.add ("1000 words");
 
         final JComboBox words = new JComboBox (wordsV);
 
+        String wordsDef = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
+
+        if (wordsDef == null)
+        {
+
+            wordsC = WarmupPromptSelect.DEFAULT_WORDS;
+
+        } else {
+            
+            wordsC = Integer.parseInt (wordsDef);
+            
+        }
+
+        int sel = 0;
+        
         if (wordsC == -1)
         {
-
-            String wordsDef = UserProperties.get (Constants.DEFAULT_WARMUP_WORDS_PROPERTY_NAME);
-
-            if (wordsDef == null)
-            {
-
-                wordsDef = WarmupPromptSelect.DEFAULT_WORDS;
-
-            }
-
-            words.setSelectedItem (wordsDef);
-
-        } else
-        {
-
-            if (wordsC == 0)
-            {
-
-                words.setSelectedItem (wordsV.get (0));
-
-            } else
-            {
-
-                words.setSelectedItem (wordsC + " words");
-
-            }
-
+            
+            sel = 3;
+            
         }
+        
+        if (wordsC == 100)
+        {
+            
+            sel = 1;
+            
+        }
+    
+        if (wordsC == 250)
+        {
+            
+            sel = 2;
+            
+        }
+
+        if (wordsC == 500)
+        {
+            
+            sel = 3;
+            
+        }
+        
+        if (wordsC == 1000)
+        {
+            
+            sel = 4;
+            
+        }
+        
+        words.setSelectedItem (wordsV.get (sel));
 
         words.addActionListener (new ActionAdapter ()
         {
@@ -795,7 +905,9 @@ public class WarmupPromptSelect extends Box
     public static JCheckBox getDoWarmupOnStartupCheckbox ()
     {
         
-        final JCheckBox doOnStartup = new JCheckBox (Environment.replaceObjectNames ("Do a {warmup} everytime Quoll Writer starts"));
+        final JCheckBox doOnStartup = new JCheckBox (Environment.getUIString (LanguageStrings.dowarmup,
+                                                                              LanguageStrings.dowarmuponstart));
+        //"Do a {warmup} everytime Quoll Writer starts"));
         doOnStartup.setOpaque (false);
         
         doOnStartup.setSelected (UserProperties.getAsBoolean (Constants.DO_WARMUP_ON_STARTUP_PROPERTY_NAME));

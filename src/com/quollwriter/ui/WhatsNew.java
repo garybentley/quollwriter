@@ -241,7 +241,9 @@ public class WhatsNew extends Wizard //PopupWizard
     public String getFirstHelpText ()
     {
 
-        return String.format ("Welcome to version <b>%s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%s'>full list of changes online</a>.",
+        return String.format (Environment.getUIString (LanguageStrings.whatsnew,
+                                                       LanguageStrings.text),
+                              //"Welcome to version <b>%s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%s'>full list of changes online</a>.",
                               Environment.getQuollWriterVersion ().getVersion (),
                               Environment.getQuollWriterVersion ().getVersion ().replace ('.', '_'));
 

@@ -11,6 +11,7 @@ import javax.swing.text.*;
 import javax.swing.tree.*;
 import javax.swing.border.*;
 
+import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.components.ScrollableBox;
@@ -57,13 +58,21 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
     public String getActiveTitle ()
     {
         
-        return this.panel.getForObject ().getName () + " appears in";
+        return String.format (Environment.getUIString (LanguageStrings.appearsinchapters,
+                                                       LanguageStrings.sidebar,
+                                                       LanguageStrings.activetitle),
+                              this.panel.getForObject ().getName ());
+                                        //this.panel.getForObject ().getName () + " appears in";
     }
     
     public String getTitle ()
     {
         
-        return this.panel.getForObject ().getName ();
+        return String.format (Environment.getUIString (LanguageStrings.appearsinchapters,
+                                                       LanguageStrings.sidebar,
+                                                       LanguageStrings.title),
+                              this.panel.getForObject ().getName ());
+        //return this.panel.getForObject ().getName ();
         
     }
     
@@ -169,7 +178,10 @@ public class AppearsInChaptersSideBar extends AbstractSideBar<AbstractProjectVie
         
         Box b = new Box (BoxLayout.Y_AXIS);
         
-        JComponent help = UIUtils.createHelpTextPane ("appears in the following {chapters}.",
+        JComponent help = UIUtils.createHelpTextPane (Environment.getUIString (LanguageStrings.appearsinchapters,
+                                                                               LanguageStrings.sidebar,
+                                                                               LanguageStrings.text),
+                                                      //"appears in the following {chapters}.",
                                                       this.viewer);
         
         help.setSize (new Dimension (250,

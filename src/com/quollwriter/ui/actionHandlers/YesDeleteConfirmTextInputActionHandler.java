@@ -23,16 +23,7 @@ public abstract class YesDeleteConfirmTextInputActionHandler<E extends AbstractV
     {
 
         super (viewer);
-        
-        /*
-        if (n == null)
-        {
-            
-            throw new IllegalArgumentException ("Object cannot be null");
-            
-        }
-        */
-        
+                
         this.object = n;
 
     }
@@ -56,32 +47,30 @@ public abstract class YesDeleteConfirmTextInputActionHandler<E extends AbstractV
     public String getTitle ()
     {
         
-        return "Delete " + this.getDeleteType ();
+        return String.format (Environment.getUIString (LanguageStrings.deleteitem,
+                                                       LanguageStrings.title),
+                              this.getDeleteType ());
         
     }
     
     public String getHelp ()
     {
-        
-        String h = "To delete " + this.getDeleteType () + " <b>" + this.object.getName () + "</b> please enter the word <b>Yes</b> into the box below.";
-        
+                
         String w = this.getWarning ();
-        
-        if (w != null)
-        {
-            
-            h = h + "<br /><br />" + w;
-        
-        }
-        
-        return h;
-        
+
+        return String.format (Environment.getUIString (LanguageStrings.deleteitem,
+                                                       LanguageStrings.text),
+                              this.getDeleteType (),
+                              this.object.getName (),
+                              (w != null ? "<br /><br />" + w : ""));
+                
     }
     
     public String getConfirmButtonLabel ()
     {
         
-        return "Yes, delete it";
+        return Environment.getUIString (LanguageStrings.deleteitem,
+                                        LanguageStrings.confirm);
         
     }
     
@@ -95,13 +84,17 @@ public abstract class YesDeleteConfirmTextInputActionHandler<E extends AbstractV
     public String isValid (String v)
     {
 
+        String confirmWord = Environment.getUIString (LanguageStrings.deleteitem,
+                                                      LanguageStrings.confirmword);
+    
         if ((v == null)
             ||
-            (!v.trim ().equalsIgnoreCase ("yes"))
+            (!v.trim ().equalsIgnoreCase (confirmWord))
            )
         {
             
-            return "Please enter yes to confirm deletion.";
+            return Environment.getUIString (LanguageStrings.deleteitem,
+                                            LanguageStrings.errorlabel);
             
         }
                 

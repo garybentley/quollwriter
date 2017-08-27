@@ -135,7 +135,10 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
         this.add (Box.createVerticalStrut (10));
 
         this.prevBut = new JButton ();
-        this.prevBut.setText ("< Back");
+        this.prevBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                       LanguageStrings.buttons,
+                                                       PREVIOUS_BUTTON_ID));
+                              //"< Back");
         this.prevBut.setEnabled (false);
 
         this.prevBut.addActionListener (new ActionAdapter ()
@@ -212,7 +215,10 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
             });
 
         this.nextBut = new JButton ();
-        this.nextBut.setText ("Next >");
+        this.nextBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                       LanguageStrings.buttons,
+                                                       NEXT_BUTTON_ID));
+                              //"Next >");
 
         this.nextBut.addActionListener (new ActionAdapter ()
             {
@@ -273,7 +279,9 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
                                                   next);
 
                             UIUtils.showErrorMessage (this,
-                                                      "Unable to show next stage.");
+                                                      Environment.getUIString (LanguageStrings.wizard,
+                                                                               LanguageStrings.nexterror));
+                                                      //"Unable to show next stage.");
 
                             return;
 
@@ -316,7 +324,10 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
             });
 
         this.cancelBut = new JButton ();
-        this.cancelBut.setText ("Cancel");
+        this.cancelBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                         LanguageStrings.buttons,
+                                                         CANCEL_BUTTON_ID));
+        //"Cancel");
 
         final ActionAdapter cancel = new ActionAdapter ()
         {
@@ -519,11 +530,17 @@ public abstract class Wizard<E extends AbstractViewer> extends Box
         if (next == null)
         {
 
-            return "Finish";
+            return Environment.getUIString (LanguageStrings.wizard,
+                                            LanguageStrings.buttons,
+                                            FINISH_BUTTON_ID);
+            //return "Finish";
 
         }
 
-        return "Next >";
+        return Environment.getUIString (LanguageStrings.wizard,
+                                        LanguageStrings.buttons,
+                                        NEXT_BUTTON_ID);
+        //return "Next >";
 
     }
 

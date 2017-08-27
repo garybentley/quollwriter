@@ -117,6 +117,18 @@ public class Constants
 
     public static final String BACKUPS_HTML_PANEL_ACTION = "backups";
     
+    public static final String COPYRIGHT_PROPERTY_NAME = "copyright";
+    
+    public static final String SOURCE_CODE_WEBSITE_PROPERTY_NAME = "sourceCodeWebsite";
+    
+    public static final String PATREON_WEBSITE_PROPERTY_NAME = "patreonWebsite";
+    
+    public static final String GOFUNDME_WEBSITE_PROPERTY_NAME = "gofundmeWebsite";
+    
+    public static final String DEFAULT_UI_LANGUAGE_PROPERTY_NAME = "defaultUILanguage";
+    
+    public static final String USER_UI_LANGUAGE_PROPERTY_NAME = "userUILanguage";
+
     public static final String EDIT_ASSETS_IN_POPUP_PROPERTY_NAME = "editAssetsInPopup";
 
     public static final String ADD_ASSETS_PROPERTY_NAME = "addAssets";
@@ -512,6 +524,7 @@ public class Constants
     public static final String NO_AVATAR_IMAGE_FILE_NAME = "noavatar.png";
 
     public static final String DATA_DIR = "/data/";
+    public static final String DEFAULT_UI_LANGUAGE_STRINGS_FILE = Constants.DATA_DIR + "default-ui-language-strings.json";
     public static final String TIPS_FILE = Constants.DATA_DIR + "tips.xml";
     public static final String PROBLEM_FINDER_RULES_FILE = Constants.DATA_DIR + "problem-finder-rules.xml";
     public static final String PROMPT_WEBSITES_FILE = Constants.DATA_DIR + "prompt-websites.xml";
@@ -697,7 +710,7 @@ public class Constants
     public static final String SEND_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "send$$__";
     public static final String UPDATE_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "update$$__";
     public static final String FINISH_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "finish$$__";
-    public static final String CREATE_BACKUP_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "create_backup$$__";
+    public static final String CREATE_BACKUP_BUTTON_LABEL_ID = BUTTON_LABEL_ID_PREFIX + "createbackup$$__";
 
     public static final String LAYOUT_PS_CH = "layout-ps-ch";
     public static final String LAYOUT_CH_PS = "layout-ch-ps";

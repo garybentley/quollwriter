@@ -6,6 +6,7 @@ import org.jdom.*;
 
 import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.ui.*;
 
 public abstract class AbstractAchievementRule implements AchievementRule
@@ -16,9 +17,9 @@ public abstract class AbstractAchievementRule implements AchievementRule
         
         public static final String id = "id";
         public static final String category = "category";
-        public static final String name = "name";
+        //public static final String name = "name";
         public static final String icon = "icon";
-        public static final String description = "description";
+        //public static final String description = "description";
         public static final String event = "event";
         public static final String hidden = "hidden";
         
@@ -53,12 +54,32 @@ public abstract class AbstractAchievementRule implements AchievementRule
         this.hidden = JDOMUtils.getAttributeValueAsBoolean (root,
                                                             XMLConstants.hidden,
                                                             false);
-        this.name = JDOMUtils.getChildElementContent (root,
-                                                      XMLConstants.name,
-                                                      true);
-        this.desc = JDOMUtils.getChildElementContent (root,
-                                                      XMLConstants.description,
-                                                      true);
+        
+        // Get the name from the language string.
+        this.name = Environment.getUIString (LanguageStrings.achievements,
+                                             this.id,
+                                             LanguageStrings.name);
+        
+        if (this.name == null)
+        {
+            
+            throw new JDOMException ("Unable to find name string for achievement: " +
+                                     this.id);
+            
+        }
+        
+        this.desc = Environment.getUIString (LanguageStrings.achievements,
+                                             this.id,
+                                             LanguageStrings.description);
+        
+        if (this.desc == null)
+        {
+            
+            throw new JDOMException ("Unable to find description string for achievement: " +
+                                     this.id);
+            
+        }
+
         this.icon = JDOMUtils.getAttributeValue (root,
                                                  XMLConstants.icon,
                                                  false);

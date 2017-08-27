@@ -130,8 +130,6 @@ public class Environment
     private static Map<String, SynonymProvider> synonymProviders = new WeakHashMap ();
     private static DictionaryProvider defaultDictProv = null;
 
-    private static Map<String, String> buttonLabels = new HashMap ();
-
     private static List<PropertyChangedListener> startupProgressListeners = new ArrayList ();
     private static int startupProgress = 0;
 
@@ -165,28 +163,12 @@ public class Environment
 
     private static Set<Tag> tags = null;
     
+    private static String UILanguage = null;
+    private static String defaultUILanguage = Constants.ENGLISH;
+    private static Map<String, LanguageStrings> UILanguageMaps = new HashMap ();
+    
     static
     {
-
-        Map m = Environment.buttonLabels;
-
-        // TODO: Make this into a configuration file.
-        m.put (Constants.CLOSE_BUTTON_LABEL_ID,
-               "Close");
-        m.put (Constants.CANCEL_BUTTON_LABEL_ID,
-               "Cancel");
-        m.put (Constants.CONFIRM_BUTTON_LABEL_ID,
-               "Ok, got it");
-        m.put (Constants.SAVE_BUTTON_LABEL_ID,
-               "Save");
-        m.put (Constants.SEND_BUTTON_LABEL_ID,
-               "Send");
-        m.put (Constants.UPDATE_BUTTON_LABEL_ID,
-               "Update");
-        m.put (Constants.FINISH_BUTTON_LABEL_ID,
-               "Finish");
-        m.put (Constants.CREATE_BACKUP_BUTTON_LABEL_ID,
-               "Create a Backup");
 
         // We use a synchronized weak hash map here so that we don't have to worry about all the
         // references since they will be transient compared to the potential length of the service
@@ -1511,31 +1493,48 @@ public class Environment
     public static String canOpenProject (Project p)
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.openproject);
+        prefix.add (LanguageStrings.openerrors);
+    
         if (p == null)
         {
 
-            return "{Project} does not exist.";
+            return Environment.getUIString (prefix,
+                                            LanguageStrings.projectnotexist);
+                                            //"{Project} does not exist.";
 
         }
 
         if (!p.getProjectDirectory ().exists ())
         {
 
-            return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.projectdirnotexist),
+                                  p.getProjectDirectory ());
+                                            //"Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
 
         }
 
         if (!p.getProjectDirectory ().isDirectory ())
         {
 
-            return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.projectdirisfile),
+                                  p.getProjectDirectory ());
+            //"Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
 
         }
 
         if (!Utils.getQuollWriterDirFile (p.getProjectDirectory ()).exists ())
         {
 
-            return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.invalidprojectdir),
+                                  p.getProjectDirectory ());
+            //"{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
 
         }
 
@@ -1545,7 +1544,9 @@ public class Environment
            )
         {
 
-            return String.format ("Unable to find {contact}: <b>%s</b> you are editing the {project} for.",
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.cantfindeditor),
+                                  //"Unable to find {contact}: <b>%s</b> you are editing the {project} for.",
                                   p.getForEditor ().getEmail ());
 
         }
@@ -1557,31 +1558,48 @@ public class Environment
     public static String canOpenProject (ProjectInfo p)
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.openproject);
+        prefix.add (LanguageStrings.openerrors);
+    
         if (p == null)
         {
 
-            return "{Project} does not exist.";
+            return Environment.getUIString (prefix,
+                                            LanguageStrings.projectnotexist);        
+            //return "{Project} does not exist.";
 
         }
 
         if (!p.getProjectDirectory ().exists ())
         {
 
-            return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.projectdirnotexist),
+                                  p.getProjectDirectory ());        
+            //return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
 
         }
 
         if (!p.getProjectDirectory ().isDirectory ())
         {
 
-            return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.projectdirisfile),
+                                  p.getProjectDirectory ());        
+            //return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
 
         }
 
         if (!Utils.getQuollWriterDirFile (p.getProjectDirectory ()).exists ())
         {
 
-            return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.invalidprojectdir),
+                                  p.getProjectDirectory ());        
+            //return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
 
         }
 
@@ -1593,7 +1611,9 @@ public class Environment
            )
         {
 
-            return String.format ("Unable to find {contact}: <b>%s</b> you are editing the {project} for.",
+            return String.format (Environment.getUIString (prefix,
+                                                           LanguageStrings.cantfindeditor),
+                                  //"Unable to find {contact}: <b>%s</b> you are editing the {project} for.",
                                   p.getForEditor ().getEmail ());
 
         }
@@ -1627,7 +1647,14 @@ public class Environment
             }
 
             UIUtils.showErrorMessage (null,
-                                      "Unable to open {project} <b>" + p.getName () + "</b>, reason:<br /><br />" + r);
+                                      String.format (Environment.getUIString (LanguageStrings.project,
+                                                                              LanguageStrings.actions,
+                                                                              LanguageStrings.openproject,
+                                                                              LanguageStrings.openerrors,
+                                                                              LanguageStrings.general),
+                                                     p.getName (),
+                                                     r));
+                                      //"Unable to open {project} <b>" + p.getName () + "</b>, reason:<br /><br />" + r);
 
             return false;
 
@@ -2503,15 +2530,28 @@ public class Environment
             */
             Environment.incrStartupProgress ();
 
+            Set<String> prefix = new LinkedHashSet ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.actions);
+            prefix.add (LanguageStrings.openproject);
+            prefix.add (LanguageStrings.enterpasswordpopup);
+            
             if (p.isEncrypted ())
             {
 
                 Environment.startupComplete ();
-
-                PasswordInputWindow.create ("Enter password",
+                
+                PasswordInputWindow.create (Environment.getUIString (prefix,
+                                                                     LanguageStrings.title),
+                                            //"Enter password",
                                             "lock",
-                                            "{Project}: <b>" + p.getName () + "</b> is encrypted, please enter the password.",
-                                            "Open",
+                                            String.format (Environment.getUIString (prefix,
+                                                                                    LanguageStrings.text),
+                                                           p.getName ()),
+                                            //"{Project}: <b>" + p.getName () + "</b> is encrypted, please enter the password.",
+                                            Environment.getUIString (LanguageStrings.buttons,
+                                                                     LanguageStrings.open),
+                                            //"Open",
                                             new ValueValidator<String> ()
                                             {
 
@@ -2524,7 +2564,10 @@ public class Environment
                                                        )
                                                     {
 
-                                                        return "Please enter the password.";
+                                                        return Environment.getUIString (prefix,
+                                                                                        LanguageStrings.errors,
+                                                                                        LanguageStrings.novalue);
+                                                        //"Please enter the password.";
 
                                                     }
 
@@ -2543,14 +2586,20 @@ public class Environment
                                                         if (ObjectManager.isDatabaseAlreadyInUseException (e))
                                                         {
 
-                                                            return "Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
+                                                            return Environment.getUIString (prefix,
+                                                                                            LanguageStrings.errors,
+                                                                                            LanguageStrings.projectalreadyopen);
+                                                            //"Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.";
 
                                                         }
 
                                                         if (ObjectManager.isEncryptionException (e))
                                                         {
 
-                                                            return "Password is not valid.";
+                                                            return Environment.getUIString (prefix,
+                                                                                            LanguageStrings.errors,
+                                                                                            LanguageStrings.invalidpassword);
+                                                            //return "Password is not valid.";
 
                                                         }
 
@@ -2559,7 +2608,10 @@ public class Environment
                                                                               e);
 
                                                         UIUtils.showErrorMessage (null,
-                                                                                  "Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
+                                                                                  Environment.getUIString (prefix,
+                                                                                                           LanguageStrings.errors,
+                                                                                                           LanguageStrings.general));
+                                                                    //"Sorry, the {project} can't be opened.  Please contact Quoll Writer support for assistance.");
 
                                                         return null;
 
@@ -2614,7 +2666,10 @@ public class Environment
                 {
 
                     UIUtils.showErrorMessage (null,
-                                              "Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.");
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.errors,
+                                                                       LanguageStrings.projectalreadyopen));
+                        //"Sorry, the {project} appears to already be open in Quoll Writer.  Please close all other instances of Quoll Writer first before trying to open the {project}.");
 
                     return;
 
@@ -2977,9 +3032,11 @@ public class Environment
             return id;
 
         }
+        
 
-        return Environment.buttonLabels.get (id.toLowerCase ());
-
+        return Environment.getUIString (LanguageStrings.buttons,
+                                        id);
+        
     }
 
     private static void initProjectsDBFromProjectsFile ()
@@ -3474,6 +3531,29 @@ public class Environment
 
         Environment.incrStartupProgress ();
 
+        // Load the default UI language map.
+        Environment.registerUILanguage (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
+        
+        Environment.defaultUILanguage = Environment.getProperty (Constants.DEFAULT_UI_LANGUAGE_PROPERTY_NAME);
+        
+        // XXX For now
+        Environment.UILanguage = Environment.defaultUILanguage;
+        
+        // Load the user default, if appropriate.
+        String uilang = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
+        
+        if (uilang != null)
+        {
+        /*
+            // Get the file.
+            String text = JSONDecoder.decode (Environment.getUserFile ("ui/languages/" + uilang + ".json"));
+        
+            Environment.registerUILanguage (text);
+        
+            Environment.UILanguage = uilang;
+        */
+        }
+        
         // Load the default object type names.
         // Object type names may be needed when initing the legacy object types.
         try
@@ -3949,6 +4029,10 @@ public class Environment
                         public void run ()
                         {
 
+                            Set<String> prefix = new LinkedHashSet ();
+                            prefix.add (LanguageStrings.targets);
+                            prefix.add (LanguageStrings.types);
+                        
                             Set<String> met = new LinkedHashSet ();
                             int sessWC = 0;
 
@@ -3971,7 +4055,9 @@ public class Environment
                                    )
                                 {
 
-                                    met.add ("Session");
+                                    met.add (Environment.getUIString (prefix,
+                                                                      LanguageStrings.session));
+                                             //"Session");
 
                                     Environment.userSession.shownSessionTargetReachedPopup ();
 
@@ -3983,7 +4069,7 @@ public class Environment
                                                       e);
 
                             }
-
+                            
                             // Check for the daily count.
                             // Get all sessions for today.
                             try
@@ -3997,7 +4083,9 @@ public class Environment
                                    )
                                 {
 
-                                    met.add ("Daily");
+                                    met.add (Environment.getUIString (prefix,
+                                                                      LanguageStrings.daily));
+                                    //"Daily");
 
                                     Environment.userSession.shownDailyTargetReachedPopup ();
 
@@ -4037,7 +4125,9 @@ public class Environment
                                     if (Environment.getPastSessionsWordCount (diff) >= Environment.targets.getMyWeeklyWriting ())
                                     {
 
-                                        met.add ("Weekly");
+                                        met.add (Environment.getUIString (prefix,
+                                                                          LanguageStrings.weekly));
+                                                 //"Weekly");
 
                                         Environment.userSession.shownWeeklyTargetReachedPopup ();
 
@@ -4074,7 +4164,9 @@ public class Environment
 
                                         AbstractViewer viewer = Environment.getFocusedViewer ();
 
-                                        met.add ("Monthly");
+                                        met.add (Environment.getUIString (prefix,
+                                                                          LanguageStrings.monthly));
+                                                 //"Monthly");
 
                                         Environment.userSession.shownMonthlyTargetReachedPopup ();
 
@@ -4108,8 +4200,14 @@ public class Environment
                                     AbstractViewer viewer = Environment.getFocusedViewer ();
 
                                     UIUtils.showMessage ((PopupsSupported) viewer,
-                                                         "Writing targets reached",
-                                                         String.format ("You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
+                                                         Environment.getUIString (LanguageStrings.targets,
+                                                                                  LanguageStrings.writingtargetreachedpopup,
+                                                                                  LanguageStrings.title),
+                                                         //"Writing targets reached",
+                                                         String.format (Environment.getUIString (LanguageStrings.targets,
+                                                                                                 LanguageStrings.writingtargetreachedpopup,
+                                                                                                 LanguageStrings.text),
+                                                        //"You have reached the following writing targets by writing <b>%s</b> words.<ul>%s</ul>Well done and keep it up!",
                                                                         Environment.formatNumber (sessWC),
                                                                         b.toString ()),
                                                          UIUtils.defaultLeftCornerShowPopupAt);
@@ -6209,7 +6307,11 @@ TODO: Add back in when appropriate.
                                                       e);
 
                                 UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                          "Unable to change status");
+                                                          Environment.getUIString (LanguageStrings.project,
+                                                                                   LanguageStrings.actions,
+                                                                                   LanguageStrings.changestatus,
+                                                                                   LanguageStrings.actionerror));
+                                //"Unable to change status");
 
                                 return;
 
@@ -6246,7 +6348,11 @@ TODO: Add back in when appropriate.
                                                           e);
 
                                     UIUtils.showErrorMessage (Environment.getFocusedViewer (),
-                                                              "Unable to change status");
+                                                              Environment.getUIString (LanguageStrings.project,
+                                                                                       LanguageStrings.actions,
+                                                                                       LanguageStrings.changestatus,
+                                                                                       LanguageStrings.actionerror));
+                                                              //"Unable to change status");
 
                                 }
 
@@ -6264,7 +6370,9 @@ TODO: Add back in when appropriate.
                                       e);
 
                 UIUtils.showErrorMessage (null,
-                                          "Unable to show all {projects}, please contact Quoll Writer support for assistance.");
+                                          Environment.getUIString (LanguageStrings.allprojects,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to show all {projects}, please contact Quoll Writer support for assistance.");
 
                 return;
 
@@ -7017,4 +7125,111 @@ TODO: Add back in when appropriate.
                                                                                              
     }
 
+    public static void registerUILanguage (String jsonData)
+    {
+        
+        LanguageStrings s = new LanguageStrings (jsonData);
+        
+        Environment.UILanguageMaps.put (s.getLanguageName ().toLowerCase (),
+                                        s);
+        
+    }
+    
+    public static String getUIString (Set<String> ids)
+    {
+
+        String s = Environment.getUIString (Environment.UILanguage,
+                                            ids);
+                                          
+        if (s == null)
+        {
+        
+            s = Environment.getUIString (Environment.defaultUILanguage,
+                                         ids);
+        
+        }
+    
+        if (s == null)
+        {
+            
+            return LanguageStrings.toId (ids);
+            
+        }
+    
+        return s;
+        
+    }
+    
+    public static String getUIString (String... ids)
+    {
+    
+        return Environment.getUIString (new LinkedHashSet (Arrays.asList (ids)));
+    
+    }
+    
+    public static String getUIString (Set<String> prefix,
+                                      String      id)
+    {
+        
+        Set<String> ids = new LinkedHashSet (prefix);
+        
+        ids.add (id);
+        
+        return Environment.getUIString (ids);
+        
+    }
+    
+    public static String getUIString (Set<String> prefix,
+                                      String...   ids)
+    {
+        
+        Set<String> _ids = new LinkedHashSet (prefix);
+        
+        for (String s : ids)
+        {
+            
+            _ids.add (s);
+            
+        }
+                
+        return Environment.getUIString (_ids);
+        
+    }
+
+    private static String getUIString (String      language,
+                                       Set<String> ids)
+    {
+        
+        if (language == null)
+        {
+            
+            return null;
+            
+        }
+        
+        LanguageStrings strings = Environment.UILanguageMaps.get (language.toLowerCase ());
+        
+        if (strings == null)
+        {
+        
+            return null;
+        
+        }
+        
+        String s = strings.getValue (ids);
+                
+        if (s == null)
+        {
+            
+            return null;
+                
+        }
+        
+        // Do our replacements.
+        s = Environment.replaceObjectNames (s);
+        
+        return s;
+    
+    }    
+    
 }

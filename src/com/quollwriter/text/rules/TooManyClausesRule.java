@@ -9,6 +9,7 @@ import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
@@ -126,7 +127,13 @@ public class TooManyClausesRule extends AbstractSentenceRule
         if (c > this.clauseCount)
         {
 
-            Issue iss = new Issue ("Sentence contains: <b>" + c + "</b> clauses.",
+            Issue iss = new Issue (String.format (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                           LanguageStrings.issues,
+                                                                           LanguageStrings.toomanyclauses,
+                                                                           LanguageStrings.text),
+                                                  Environment.formatNumber (c),
+                                                  Environment.formatNumber (this.clauseCount)),
+                                                  //"Sentence contains: <b>" + c + "</b> clauses.",
                                    sentence,
                                    sentence.getAllTextStartOffset () + "-toomanyclauses-" + c,
                                    this);
@@ -143,6 +150,13 @@ public class TooManyClausesRule extends AbstractSentenceRule
     public Set<FormItem> getFormItems ()
     {
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.toomanyclauses);
+        pref.add (LanguageStrings.labels);
+    
         Set<FormItem> items = new LinkedHashSet ();
 
         this.count = new JSpinner (new SpinnerNumberModel (this.clauseCount,
@@ -156,7 +170,9 @@ public class TooManyClausesRule extends AbstractSentenceRule
 
         this.count.setMaximumSize (this.count.getPreferredSize ());
 
-        items.add (new AnyFormItem ("No of Clauses",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.clauses),
+                                    //"No of Clauses",
                                     b));
 
         return items;

@@ -107,7 +107,7 @@ public class UserConfigurableObjectTypeEdit
         
     }
     
-    public static Wizard getAsWizard (final ProjectViewer              viewer,
+    public static Wizard getAsWizard (final AbstractViewer             viewer,
                                       final UserConfigurableObjectType userObjType)
     {
 
@@ -132,7 +132,7 @@ public class UserConfigurableObjectTypeEdit
         final LayoutAddEdit layout = new LayoutAddEdit (viewer,
                                                         userObjType);
         
-        Wizard w = new Wizard<ProjectViewer> (viewer)
+        Wizard w = new Wizard<AbstractViewer> (viewer)
         {
 
             @Override
@@ -228,7 +228,7 @@ public class UserConfigurableObjectTypeEdit
                     
                     Environment.updateUserConfigurableObjectType (userObjType);
 
-                    this.viewer.showUserConfigurableObjectType (userObjType);
+                    //this.viewer.showUserConfigurableObjectType (userObjType);
                     
                     return true;
                     

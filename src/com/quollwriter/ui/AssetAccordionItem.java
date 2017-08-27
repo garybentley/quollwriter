@@ -260,6 +260,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                      MouseEvent ev)
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.headerpopupmenu);
+        prefix.add (LanguageStrings.items);
+    
         final AssetAccordionItem _this = this;
 
         AbstractAction addNewItem = UIUtils.createAddAssetActionListener (this.objType,
@@ -267,12 +272,16 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                                                           null,
                                                                           null);
 
-        m.add (UIUtils.createMenuItem (String.format ("Add a new %s",
+        m.add (UIUtils.createMenuItem (String.format (Environment.getUIString (prefix,
+                                                                               LanguageStrings._new),
+                                                      //"Add a new %s",
                                                       this.objType.getObjectTypeName ()),
                                        Constants.ADD_ICON_NAME,
                                        addNewItem));
         
-        m.add (UIUtils.createMenuItem (String.format ("Edit the %s information/fields",
+        m.add (UIUtils.createMenuItem (String.format (Environment.getUIString (prefix,
+                                                                               LanguageStrings.edit),
+                                                      //"Edit the %s information/fields",
                                                       this.objType.getObjectTypeName ()),
                                        Constants.EDIT_ICON_NAME,
                                         new ActionListener ()
@@ -295,7 +304,9 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         if (fields.size () > 0)
         {
 
-            JMenu sortMenu = new JMenu (String.format ("Sort the %s by",
+            JMenu sortMenu = new JMenu (String.format (Environment.getUIString (prefix,
+                                                                                LanguageStrings.sort),
+                                                       //"Sort the %s by",
                                                        this.objType.getObjectTypeNamePlural ()));
 
             m.add (sortMenu);
@@ -551,6 +562,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                    MouseEvent ev)
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.treepopupmenu);
+        prefix.add (LanguageStrings.items);
+    
         final AssetAccordionItem _this = this;
 
         final TreePath tp = _this.tree.getPathForLocation (ev.getX (),
@@ -565,7 +581,9 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             final NamedObject d = (NamedObject) node.getUserObject ();
 
-            mi = new JMenuItem ("View",
+            mi = new JMenuItem (Environment.getUIString (prefix,
+                                                         LanguageStrings.view),
+                                //"View",
                                 Environment.getIcon ("view",
                                                      Constants.ICON_MENU));
 
@@ -583,7 +601,9 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             m.add (mi);
 
-            m.add (UIUtils.createMenuItem ("Edit",
+            m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                    LanguageStrings.edit),
+                                           //"Edit",
                                            Constants.EDIT_ICON_NAME,
                                            AssetViewPanel.getEditAssetAction (this.viewer,
                                                                               (Asset) d)));
@@ -591,7 +611,9 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
             m.add (UIUtils.createTagsMenu (d,
                                            this.viewer));
             
-            mi = new JMenuItem ("Delete",
+            mi = new JMenuItem (Environment.getUIString (prefix,
+                                                         LanguageStrings.delete),
+                                //"Delete",
                                 Environment.getIcon ("delete",
                                                      Constants.ICON_MENU));
 

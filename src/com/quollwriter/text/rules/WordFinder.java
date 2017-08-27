@@ -89,7 +89,11 @@ public class WordFinder extends AbstractDialogueRule
     public String getEditFormTitle (boolean add)
     {
         
-        return (add ? null : "Edit Word/Phrase Rule");
+        return (add ? null : Environment.getUIString (LanguageStrings.problemfinder,
+                                                      LanguageStrings.config,
+                                                      LanguageStrings.rules,
+                                                      LanguageStrings.wordfinder,
+                                                      LanguageStrings.edittitle));
         
     }
 
@@ -101,19 +105,39 @@ public class WordFinder extends AbstractDialogueRule
         if (this.where != null)
         {
 
+            Set<String> pref = new LinkedHashSet ();
+            pref.add (LanguageStrings.problemfinder);
+            pref.add (LanguageStrings.config);
+            pref.add (LanguageStrings.rules);
+            pref.add (LanguageStrings.wordfinder);
+            pref.add (LanguageStrings.description);
+        
+            String s = (this.ignoreInDialogue ? Environment.getUIString (pref,
+                                                                         LanguageStrings.suffixes,
+                                                                         LanguageStrings.ignoreindialogue) :
+                                                Environment.getUIString (pref,
+                                                                         LanguageStrings.suffixes,
+                                                                         LanguageStrings.onlyindialogue));
+        
             if (this.where.equals (DialogueConstraints.ANYWHERE))
             {
 
-                suffix = "anywhere in a sentence";
+                suffix = String.format (Environment.getUIString (pref,
+                                                                 LanguageStrings.anywhere),
+                                        s);
+                //"anywhere in a sentence";
 
             } else
             {
 
-                suffix = String.format ("at the %s of a sentence",
-                                        this.where);
+                suffix = String.format (Environment.getUIString (pref,
+                                                                 LanguageStrings.insentence),
+                                        //"at the %s of a sentence",
+                                        this.where,
+                                        s);
 
             }
-
+/*
             if (this.ignoreInDialogue)
             {
 
@@ -127,7 +151,7 @@ public class WordFinder extends AbstractDialogueRule
                 suffix += ", but only in dialogue";
 
             }
-
+*/
         }
 
         return suffix;
@@ -201,30 +225,50 @@ public class WordFinder extends AbstractDialogueRule
 
                 String suffix = "";
 
+                Set<String> pref = new LinkedHashSet ();
+                
+                pref.add (LanguageStrings.problemfinder);
+                pref.add (LanguageStrings.issues);
+                pref.add (LanguageStrings.wordfinder);
+                
                 if (this.onlyInDialogue)
                 {
 
-                    suffix = " (in dialogue)";
+                    suffix = Environment.getUIString (pref,
+                                                      LanguageStrings.suffixes,
+                                                      LanguageStrings.onlyindialogue);
+                                                      //" (in dialogue)";
 
                 }
 
                 if (!this.where.equals (DialogueConstraints.ANYWHERE))
                 {
 
-                    suffix = String.format (" (%s of sentence)",
-                                            this.where);
-
                     if (this.onlyInDialogue)
                     {
 
-                        suffix = String.format (" (%s of sentence, in dialogue)",
-                                                this.where);
+                        suffix = Environment.getUIString (pref,
+                                                          LanguageStrings.suffixes,
+                                                          LanguageStrings.indialogue);
+                        
+                    } else {
+                        
+                        suffix = Environment.getUIString (pref,
+                                                          LanguageStrings.suffixes,
+                                                          LanguageStrings.notindialogue);
 
                     }
-
+                        
+                    suffix = String.format (suffix,
+                                            this.where);
+                        
                 }
 
-                Issue iss = new Issue ("Contains: <b>" + this.word + "</b>" + suffix,
+                Issue iss = new Issue (String.format (Environment.getUIString (pref,
+                                                                               LanguageStrings.text),
+                                                      this.word,
+                                                      suffix),                                                                               
+                                        //"Contains: <b>" + this.word + "</b>" + suffix,
                                        sentence,
                                        w.getAllTextStartOffset (),
                                        l,
@@ -298,15 +342,30 @@ public class WordFinder extends AbstractDialogueRule
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        this.words = new TextFormItem ("Word/Phrase",
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.wordfinder);
+        pref.add (LanguageStrings.labels);
+        
+        this.words = new TextFormItem (Environment.getUIString (pref,
+                                                                LanguageStrings.wordphrase),
+                                                                //"Word/Phrase",
                                        this.word);
 
         items.add (this.words);
 
         Vector<String> whereVals = new Vector ();
-        whereVals.add ("Anywhere");
-        whereVals.add ("Start of sentence");
-        whereVals.add ("End of sentence");
+        whereVals.add (Environment.getUIString (pref,
+                                                LanguageStrings.anywhere));
+        //"Anywhere");
+        whereVals.add (Environment.getUIString (pref,
+                                                LanguageStrings.startofsentence));
+        //"Start of sentence");
+        whereVals.add (Environment.getUIString (pref,
+                                                LanguageStrings.endofsentence));
+        //"End of sentence");
 
         String selected = whereVals.get (0);
         
@@ -326,7 +385,9 @@ public class WordFinder extends AbstractDialogueRule
 
         }
 
-        this.whereCB = new ComboBoxFormItem ("Where",
+        this.whereCB = new ComboBoxFormItem (Environment.getUIString (pref,
+                                                                      LanguageStrings.where),
+        //"Where",
                                              whereVals,
                                              selected,
                                              null);
@@ -336,9 +397,13 @@ public class WordFinder extends AbstractDialogueRule
         items.add (this.whereCB);
 
         this.ignoreInDialogueCB = new CheckboxFormItem (null,
-                                                        "Ignore in dialogue");
+                                                        Environment.getUIString (pref,
+                                                                                 LanguageStrings.ignoreindialogue));
+                                                        //"Ignore in dialogue");
         this.onlyInDialogueCB = new CheckboxFormItem (null,
-                                                      "Only in dialogue");
+                                                      Environment.getUIString (pref,
+                                                                               LanguageStrings.onlyindialogue));
+                                                      //"Only in dialogue");
 
         this.ignoreInDialogueCB.addItemListener (new ItemListener ()
         {
@@ -390,12 +455,19 @@ public class WordFinder extends AbstractDialogueRule
     public String getFormError ()
     {
 
-        String newWords = this.words.getText ().trim ();
-
-        if (newWords.length () == 0)
+        String newWords = this.words.getText ();
+        
+        if ((newWords == null)
+            ||
+            (newWords.trim ().length () == 0)
+           )
         {
 
-            return "Please enter at least one word or symbol.";
+            return Environment.getUIString (LanguageStrings.problemfinder,
+                                            LanguageStrings.config,
+                                            LanguageStrings.rules,
+                                            LanguageStrings.wordfinder,
+                                            LanguageStrings.nowordserror);
 
         }
 

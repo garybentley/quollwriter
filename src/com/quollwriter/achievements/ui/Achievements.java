@@ -27,7 +27,9 @@ public class Achievements extends Box implements AchievementReachedListener
         
         this.viewer = viewer;
 
-        this.header = UIUtils.createHeader ("Achievements",
+        this.header = UIUtils.createHeader (Environment.getUIString (LanguageStrings.achievementspanel,
+                                                                     LanguageStrings.title),
+                                            //"Achievements",
                                             Constants.PANEL_TITLE,
                                             "achievement",
                                             null);
@@ -68,7 +70,12 @@ public class Achievements extends Box implements AchievementReachedListener
 
             Set<AchievementRule> userRules = man.getUserRules ();
 
-            h.setTitle ("General - " + achieved.get (t).size () + " / " + userRules.size ());
+            h.setTitle (String.format (Environment.getUIString (LanguageStrings.achievementspanel,
+                                                                LanguageStrings.sectiontitles,
+                                                                LanguageStrings.user),
+                                       Environment.formatNumber (achieved.get (t).size ()),
+                                       Environment.formatNumber (userRules.size ())));
+                        //"General - " + achieved.get (t).size () + " / " + userRules.size ());
             
             for (int i = 0; i < b.getComponentCount (); i++)
             {
@@ -105,7 +112,12 @@ public class Achievements extends Box implements AchievementReachedListener
 
             Set<AchievementRule> projRules = man.getPerProjectRules ();
             
-            h.setTitle ("Project - " + achieved.get (t).size () + " / " + projRules.size ());
+            h.setTitle (String.format (Environment.getUIString (LanguageStrings.achievementspanel,
+                                                                LanguageStrings.sectiontitles,
+                                                                LanguageStrings.project),
+                                       Environment.formatNumber (achieved.get (t).size ()),
+                                       Environment.formatNumber (projRules.size ())));
+            //"Project - " + achieved.get (t).size () + " / " + projRules.size ());
 
             for (int i = 0; i < b.getComponentCount (); i++)
             {
@@ -150,7 +162,9 @@ public class Achievements extends Box implements AchievementReachedListener
         
         this.add (header);
 
-        JComponent help = UIUtils.createHelpTextPane ("Listed below are all the achievements you have found/reached..  Some of the achievements apply to each {project} you create, others are just for general usage of {QW}.  There are also a number of hidden achievements, can you find them?",
+        JComponent help = UIUtils.createHelpTextPane (Environment.getUIString (LanguageStrings.achievementspanel,
+                                                                               LanguageStrings.text),
+                                                      //"Listed below are all the achievements you have found/reached..  Some of the achievements apply to each {project} you create, others are just for general usage of {QW}.  There are also a number of hidden achievements, can you find them?",
                                                       this.viewer);
         
         help.setMaximumSize (new Dimension (Short.MAX_VALUE,
@@ -182,7 +196,12 @@ public class Achievements extends Box implements AchievementReachedListener
                                                             achieved.get ("user"),
                                                             "user");
                 
-        AccordionItem gen = new AccordionItem ("General - " + achieved.get ("user").size () + " / " + userRules.size ())
+        AccordionItem gen = new AccordionItem (String.format (Environment.getUIString (LanguageStrings.achievementspanel,
+                                                                                       LanguageStrings.sectiontitles,
+                                                                                       LanguageStrings.user),
+                                                              Environment.formatNumber (achieved.get ("user").size ()),
+                                                              Environment.formatNumber (userRules.size ())))
+        //"General - " + achieved.get ("user").size () + " / " + userRules.size ())
         {
             
             @Override
@@ -210,7 +229,12 @@ public class Achievements extends Box implements AchievementReachedListener
                                                                  "project");
         
             gen.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-            AccordionItem proj = new AccordionItem (Environment.replaceObjectNames ("{Project} - " + achieved.get ("project").size () + " / " + projRules.size ()))
+            AccordionItem proj = new AccordionItem (String.format (Environment.getUIString (LanguageStrings.achievementspanel,
+                                                                                            LanguageStrings.sectiontitles,
+                                                                                            LanguageStrings.project),
+                                                                   Environment.formatNumber (achieved.get ("project").size ()),
+                                                                   Environment.formatNumber (projRules.size ())))
+                                                    //Environment.replaceObjectNames ("{Project} - " + achieved.get ("project").size () + " / " + projRules.size ()))
             {
                 
                 @Override
@@ -317,7 +341,10 @@ public class Achievements extends Box implements AchievementReachedListener
 
         final AchievementsManager man = Environment.getAchievementsManager ();
         
-        final JCheckBox fullScreenSoundsOn = UIUtils.createCheckBox ("Play the sound in full screen mode");
+        final JCheckBox fullScreenSoundsOn = UIUtils.createCheckBox (Environment.getUIString (LanguageStrings.options,
+                                                                                              LanguageStrings.achievements,
+                                                                                              LanguageStrings.playsoundinfullscreen));
+                                                                     //"Play the sound in full screen mode");
 
         fullScreenSoundsOn.setSelected (man.isSoundsInFullScreenEnabled ());
         
@@ -391,7 +418,10 @@ public class Achievements extends Box implements AchievementReachedListener
 
         final AchievementsManager man = Environment.getAchievementsManager ();
 
-        final JCheckBox achievementSounds = UIUtils.createCheckBox ("Play a sound when an achievement is reached");
+        final JCheckBox achievementSounds = UIUtils.createCheckBox (Environment.getUIString (LanguageStrings.options,
+                                                                                             LanguageStrings.achievements,
+                                                                                             LanguageStrings.playsound));
+                                                                    //"Play a sound when an achievement is reached");
         achievementSounds.setSelected (man.isSoundEnabled ());        
         
         achievementSounds.addActionListener (new ActionListener ()

@@ -3351,13 +3351,28 @@ public class UIUtils
 
     }
 
+    /**
+     * Get a combobox for the user to select the text alignment.
+     * The order is always, Left, Justified, Right.
+     *
+     * LanguageStrings - "textalignments".
+     *
+     * @param alignDef The default alignment, should be one of the ALIGN_* constants from QTextEditor, can be null.
+     * @returns The combobox.
+     */
     public static JComboBox getAlignmentComboBox (final String alignDef)
     {
 
         Vector<String> alignS = new Vector ();
-        alignS.add ("Left");
-        alignS.add ("Justified");
-        alignS.add ("Right");
+        alignS.add (Environment.getUIString (LanguageStrings.textalignments,
+                                             LanguageStrings.left));
+                    //QTextEditor.ALIGN_LEFT);
+        alignS.add (Environment.getUIString (LanguageStrings.textalignments,
+                                             LanguageStrings.justified));
+        //QTextEditor.ALIGN_JUSTIFIED);
+        alignS.add (Environment.getUIString (LanguageStrings.textalignments,
+                                             LanguageStrings.right));
+        //QTextEditor.ALIGN_RIGHT);
 
         final JComboBox align = new JComboBox (alignS);
 
@@ -3366,7 +3381,28 @@ public class UIUtils
         if (alignDef != null)
         {
 
-            align.setSelectedItem (alignDef);
+            if (alignDef.equals (QTextEditor.ALIGN_LEFT))
+            {
+                
+                align.setSelectedIndex (0);
+                
+            }
+        
+            if (alignDef.equals (QTextEditor.ALIGN_JUSTIFIED))
+            {
+                
+                align.setSelectedIndex (1);
+                
+            }
+
+            if (alignDef.equals (QTextEditor.ALIGN_RIGHT))
+            {
+                
+                align.setSelectedIndex (2);
+                
+            }
+            
+            //align.setSelectedItem (alignDef);
 
         }
 
@@ -8814,7 +8850,7 @@ public class UIUtils
         }
 
     }
-
+/*
     public static MessageWindow createQuestionPopup (PopupWindow           popup,
                                                      String                title,
                                                      String                icon,
@@ -8899,7 +8935,8 @@ public class UIUtils
                                             showAt);
 
     }
-
+*/
+/*
     public static MessageWindow createQuestionPopup (PopupWindow           popup,
                                                      String                title,
                                                      String                icon,
@@ -8994,7 +9031,7 @@ public class UIUtils
         return mw;
 
     }
-
+*/
     public static QPopup createQuestionPopup (AbstractViewer        viewer,
                                               String                title,
                                               String                icon,
@@ -10411,7 +10448,11 @@ public class UIUtils
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Current Backups",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.backups,
+                                                                          LanguageStrings.show,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.title),
+                                                 //"Current Backups",
                                                  Environment.getIcon (Constants.SNAPSHOT_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -10431,7 +10472,10 @@ public class UIUtils
                                       e);
 
                 UIUtils.showErrorMessage (viewer,
-                                          "Unable to show backups manager, please contact Quoll Writer support for assistance.");
+                                          Environment.getUIString (LanguageStrings.backups,
+                                                                   LanguageStrings.show,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to show backups manager, please contact Quoll Writer support for assistance.");
 
                 return;
 
@@ -11357,6 +11401,67 @@ public class UIUtils
 
     }
 
+    public static void showAddNewObjectType (AbstractViewer viewer)
+    {
+        
+        UserConfigurableObjectType type = new UserConfigurableObjectType ();
+        
+        type.setObjectTypeName ("Widget");
+        type.setObjectTypeNamePlural ("Widgets");
+        type.setLayout (null);
+        type.setAssetObjectType (true);
+        type.setIcon24x24 (Environment.getIcon ("whats-new",
+                                                Constants.ICON_TITLE));
+        type.setIcon16x16 (Environment.getIcon ("whats-new",
+                                                Constants.ICON_SIDEBAR));
+
+        // Name
+        ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
+        
+        nameF.setFormName ("Name");
+        
+        type.addConfigurableField (nameF);
+                                                                                
+        // Description
+        ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
+                
+        cdescF.setSearchable (true);
+        cdescF.setFormName ("Description");
+        
+        type.addConfigurableField (cdescF);
+                                        
+        Wizard w = UserConfigurableObjectTypeEdit.getAsWizard (viewer,
+                                                               type);
+        
+        final QPopup p = UIUtils.createWizardPopup ("Add a new type of Object",
+                                                    Constants.NEW_ICON_NAME,
+                                                    null,
+                                                    w);
+        w.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
+                              w.getPreferredSize ().height));
+        
+        viewer.showPopupAt (p,
+                            UIUtils.getCenterShowPosition (viewer,
+                                                           p),
+                            false);
+        p.setDraggable (viewer);        
+                            
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
+            {
+                
+                UIUtils.resizeParent (p);
+                
+            }
+            
+        });
+        
+        
+    }
+    
     public static void showObjectTypeEdit (UserConfigurableObjectType type,
                                            AbstractViewer             viewer)
     {

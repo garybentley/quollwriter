@@ -24,6 +24,7 @@ import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.TextProperties;
+import com.quollwriter.ui.components.QTextEditor;
 
 public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 {
@@ -395,7 +396,26 @@ public class TextPropertiesEditPanel extends Box implements UserPropertyListener
 
                 }
 
-                _this.textProps.setAlignment ((String) _this.align.getSelectedItem ());
+                int ind = _this.align.getSelectedIndex ();
+                
+                String a = QTextEditor.ALIGN_LEFT;
+                
+                // 0 = left, 1 = justified, 2 = right
+                if (ind == 1)
+                {
+                    
+                    a = QTextEditor.ALIGN_JUSTIFIED;
+                    
+                }
+                
+                if (ind == 2)
+                {
+                    
+                    a = QTextEditor.ALIGN_RIGHT;
+                    
+                }
+                
+                _this.textProps.setAlignment (a);
 
                 _this.viewer.fireProjectEvent (_this.eventType,
                                                ProjectEvent.CHANGE_ALIGNMENT);

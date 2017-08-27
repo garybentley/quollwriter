@@ -54,7 +54,12 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
 
         final AddChapterActionHandler _this = this;
 
-        this.nameField = new TextFormItem ("Name",
+        this.nameField = new TextFormItem (Environment.getUIString (LanguageStrings.project,
+                                                                    LanguageStrings.actions,
+                                                                    LanguageStrings.newchapter,
+                                                                    LanguageStrings.labels,
+                                                                    LanguageStrings.name),
+                                           //"Name",
                                            null);
         
         this.nameField.setDoOnReturnPressed (new ActionListener ()
@@ -96,7 +101,12 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
         if (this.nameField.getValue () == null)
         {
 
-            errs.add ("Please select a name.");
+            errs.add (Environment.getUIString (LanguageStrings.project,
+                                               LanguageStrings.actions,
+                                               LanguageStrings.newchapter,
+                                               LanguageStrings.labels,
+                                               LanguageStrings.name));
+                      //"Please select a name.");
 
         }
 
@@ -135,6 +145,11 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
 
             this.object = newChapter;
 
+            this.viewer.editChapter (newChapter);
+
+            this.viewer.addChapterToTreeAfter (newChapter,
+                                               this.addAfter);
+            
             this.viewer.fireProjectEvent (newChapter.getObjectType (),
                                           ProjectEvent.NEW,
                                           newChapter);
@@ -147,29 +162,11 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to add new {chapter}.");
-
-            return false;
-
-        }
-
-        try
-        {
-
-            this.viewer.editChapter (newChapter);
-
-            this.viewer.addChapterToTreeAfter (newChapter,
-                                               this.addAfter);
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to edit chapter: " +
-                                  newChapter,
-                                  e);
-
-            UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to edit {chapter}.");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.newchapter,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to add new {chapter}.");
 
             return false;
 
@@ -190,7 +187,11 @@ public class AddChapterActionHandler extends AbstractFormPopup<ProjectViewer, Na
     public String getTitle ()
     {
 
-        return "Add New {Chapter}";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.newchapter,
+                                        LanguageStrings.title);
+             //"Add New {Chapter}";
 
     }
 

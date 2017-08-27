@@ -625,4 +625,29 @@ This message will only be shown once during your current session using Quoll Wri
     <value>true</value>
   </property>
 
+  <property id="defaultUILanguage" type="string">
+    <description>The default language for the UI.</description>
+    <value>English</value>
+  </property>
+
+  <property id="copyright" type="string">
+    <description>The copyright notice used in the about popup.  %s1 is replaced with the current year.</description>
+    <value><![CDATA[&amp;copy;\u00A9 2009-%1s Gary Bentley]]></value>
+  </property>
+
+  <property id="sourceCodeWebsite" type="string">
+    <description>The website where the QW source code can be found.</description>
+    <value>https://github.com/garybentley/quollwriter</value>
+  </property>
+
+  <property id="patreonWebsite" type="string">
+    <description>The Patreon website for QW.</description>
+    <value>https://www.patreon.com/quollwriter?ty=h</value>
+  </property>
+
+  <property id="gofundmeWebsite" type="string">
+    <description>The gofundme website for QW.</description>
+    <value>https://www.gofundme.com/quollwriter</value>
+  </property>
+
 </properties>

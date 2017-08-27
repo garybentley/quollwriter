@@ -17,6 +17,7 @@ public class Tips
     {
         
         public static final String tip = "tip";
+        public static final String id = "id";
         
     }
     
@@ -44,7 +45,7 @@ public class Tips
         {
             
             Element el = (Element) tipEls.get (i);
-            
+                        
             this.baseTips.add (new Tip (el));
             
         }
@@ -99,6 +100,7 @@ public class Tips
         public class XMLConstants
         {
             
+            public static final String id = "id";
             public static final String item = "item";
             
         }
@@ -109,6 +111,9 @@ public class Tips
                     throws  JDOMException
         {
             
+            String id = JDOMUtils.getAttributeValue (root,
+                                                     XMLConstants.id);            
+            
             List els = JDOMUtils.getChildElements (root,
                                                    XMLConstants.item,
                                                    false);
@@ -118,7 +123,8 @@ public class Tips
                 
                 Element el = (Element) els.get (i);
                 
-                this.items.add (new Item (el));
+                this.items.add (new Item (id,
+                                          el));
                 
             }
             
@@ -149,6 +155,7 @@ public class Tips
             public class XMLConstants
             {
                 
+                public static final String id = "id";
                 public static final String condition = "condition";
                 
             }
@@ -156,9 +163,23 @@ public class Tips
             private List<String> conds = new ArrayList ();
             private String text = null;
             
-            public Item (Element root)
+            public Item (String  tipId,
+                         Element root)
                          throws  JDOMException
             {
+                
+                String id = tipId;
+                
+                String iid = JDOMUtils.getAttributeValue (root,
+                                                          XMLConstants.id,
+                                                          false);
+                
+                if (!iid.equals (""))
+                {
+                    
+                    id = tipId + "." + iid;
+                    
+                }
                 
                 String cs = JDOMUtils.getAttributeValue (root,
                                                          XMLConstants.condition,
@@ -179,7 +200,17 @@ public class Tips
                     
                 }
                 
-                this.text = JDOMUtils.getChildContent (root);
+                this.text = Environment.getUIString (LanguageStrings.tips,
+                                                     id);
+                
+                if (this.text == null)
+                {
+                    
+                    throw new JDOMException ("Unable to find language string for tip/item: " +
+                                             id);
+                    
+                }
+                //JDOMUtils.getChildContent (root);
                 
             }
             

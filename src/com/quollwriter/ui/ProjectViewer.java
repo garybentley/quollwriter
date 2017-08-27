@@ -524,26 +524,17 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
     {
 
-        this.fillTitleToolbar (toolbar);
-
-        WordCountTimerBox b = new WordCountTimerBox (this.getFullScreenFrame (),
-                                                     Constants.ICON_FULL_SCREEN_ACTION,
-                                                     this.getWordCountTimer ());
-
-        b.setBarHeight (20);
-
-        toolbar.add (b);
-
-    }
-
-    public void fillTitleToolbar (JToolBar toolbar)
-    {
-
         final ProjectViewer _this = this;
 
         toolbar.add (UIUtils.createButton (Constants.IDEA_ICON_NAME,
                                            Constants.ICON_TITLE_ACTION,
-                                           "Click to open the Idea Board",
+                                           Environment.getUIString (LanguageStrings.fullscreen,
+                                                                    LanguageStrings.title,
+                                                                    LanguageStrings.toolbar,
+                                                                    LanguageStrings.buttons,
+                                                                    LanguageStrings.ideaboard,
+                                                                    LanguageStrings.tooltip),
+                                           //"Click to open the Idea Board",
                                            new ActionAdapter ()
                                            {
 
@@ -556,6 +547,14 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
                                            }));
 
+        WordCountTimerBox b = new WordCountTimerBox (this.getFullScreenFrame (),
+                                                     Constants.ICON_FULL_SCREEN_ACTION,
+                                                     this.getWordCountTimer ());
+
+        b.setBarHeight (20);
+
+        toolbar.add (b);
+
     }
 
     public void fillSettingsPopup (JPopupMenu titlePopup)
@@ -563,51 +562,75 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         final ProjectViewer _this = this;
 
+        Set<String> prefix = new LinkedHashSet ();
+        
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.settingsmenu);
+        prefix.add (LanguageStrings.items);
+        
         JMenuItem mi = null;
 
         // Open project.
-        titlePopup.add (this.createMenuItem ("Open {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.openproject),
+                                             //"Open {Project}",
                                              Constants.OPEN_PROJECT_ICON_NAME,
                                              ProjectViewer.OPEN_PROJECT_ACTION));
 
-        titlePopup.add (this.createMenuItem ("New {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.newproject),
+                                             //"New {Project}",
                                              Constants.NEW_ICON_NAME,
                                              ProjectViewer.NEW_PROJECT_ACTION));
 
 		titlePopup.addSeparator ();
 
         // Rename project
-        titlePopup.add (this.createMenuItem ("Rename this {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.renameproject),
+                                             //"Rename this {Project}",
                                              Constants.RENAME_ICON_NAME,
                                              ProjectViewer.RENAME_PROJECT_ACTION));
 
-        titlePopup.add (this.createMenuItem ("Statistics",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.statistics),
+                                             //"Statistics",
                                              Constants.CHART_ICON_NAME,
                                              AbstractProjectViewer.SHOW_STATISTICS_ACTION));
 
-        titlePopup.add (this.createMenuItem ("Targets",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.targets),
+                                             //"Targets",
                                              Constants.TARGET_ICON_NAME,
                                              ProjectViewer.SHOW_TARGETS_ACTION));
 
         // Create Project Snapshot
-        titlePopup.add (this.createMenuItem ("Create a Backup",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.createbackup),
+                                             //"Create a Backup",
                                              Constants.SNAPSHOT_ICON_NAME,
                                              ProjectViewer.CREATE_PROJECT_SNAPSHOT_ACTION));
 
         // Close Project
-        titlePopup.add (this.createMenuItem ("Close {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.closeproject),
+                                             //"Close {Project}",
                                              Constants.CLOSE_ICON_NAME,
                                              ProjectViewer.CLOSE_PROJECT_ACTION));
 
         // Delete Project
-        titlePopup.add (this.createMenuItem ("Delete {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.deleteproject),
+                                             //"Delete {Project}",
                                              Constants.DELETE_ICON_NAME,
                                              ProjectViewer.DELETE_PROJECT_ACTION));
 
         titlePopup.addSeparator ();
 
         // Idea Board
-        titlePopup.add (this.createMenuItem ("Idea Board",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.ideaboard),
+                                             //"Idea Board",
                                              Constants.IDEA_ICON_NAME,
                                              new ActionAdapter ()
                                              {
@@ -622,14 +645,18 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                             }));
 
         // Do a Warm-up Exercise
-        titlePopup.add (this.createMenuItem (String.format ("Do a {Warmup} Exercise", Warmup.OBJECT_TYPE),
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.dowarmup),
+                                             //String.format ("Do a {Warmup} Exercise", Warmup.OBJECT_TYPE),
                                              Constants.WARMUPS_ICON_NAME,
                                              AbstractProjectViewer.WARMUP_EXERCISE_ACTION));
 
         titlePopup.addSeparator ();
 
         // Import File
-        titlePopup.add (this.createMenuItem ("Import File/{Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.importproject),
+                                             //"Import File/{Project}",
                                              Constants.PROJECT_IMPORT_ICON_NAME,
                                              new ActionAdapter ()
                                              {
@@ -644,7 +671,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                             }));
 
         // Export Project
-        titlePopup.add (this.createMenuItem (String.format ("Export {Project}", Project.OBJECT_TYPE),
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.exportproject),
+                                             //String.format ("Export {Project}", Project.OBJECT_TYPE),
                                              Constants.PROJECT_EXPORT_ICON_NAME,
                                              new ActionAdapter ()
                                              {
@@ -663,7 +692,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public void showExportProject ()
     {
 
-        QPopup popup = UIUtils.createWizardPopup ("Export {Project}",
+        QPopup popup = UIUtils.createWizardPopup (Environment.getUIString (LanguageStrings.exportproject,
+                                                                           LanguageStrings.popup,
+                                                                           LanguageStrings.title),
+                                                  //"Export {Project}",
                                                   Constants.PROJECT_EXPORT_ICON_NAME,
                                                   null,
                                                   new ExportProject (this));
@@ -703,7 +735,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
             }
 
-            QPopup popup = UIUtils.createWizardPopup ("Import a File or {Project}",
+            QPopup popup = UIUtils.createWizardPopup (Environment.getUIString (LanguageStrings.importproject,
+                                                                               LanguageStrings.popup,
+                                                                               LanguageStrings.title),
+                                                      //"Import a File or {Project}",
                                                       Constants.PROJECT_IMPORT_ICON_NAME,
                                                       null,
                                                       im);
@@ -726,18 +761,20 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to show import project wizard, please contact Quoll Writer support for assistance.");
+                                      Environment.getUIString (LanguageStrings.importproject,
+                                                                           LanguageStrings.actionerror));
+                                      //"Unable to show import project wizard, please contact Quoll Writer support for assistance.");
 
         }
 
     }
 
     public Action getAction (int               name,
-                                     final NamedObject other)
+                             final NamedObject other)
     {
 
         Action a = super.getAction (name,
-                                            other);
+                                    other);
 
         if (a != null)
         {
@@ -769,7 +806,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                               e);
 
                         UIUtils.showErrorMessage (pv,
-                                                  "Unable to view chapter information.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.viewchapterinformation,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to view chapter information.");
 
                     }
 
@@ -886,7 +927,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 													  e);
 
 								UIUtils.showErrorMessage (pv,
-														  "Unable to edit Outline Item");
+                                                          Environment.getUIString (LanguageStrings.project,
+                                                                                   LanguageStrings.actions,
+                                                                                   LanguageStrings.editoutlineitem,
+                                                                                   LanguageStrings.actionerror));
+														  //"Unable to edit Outline Item");
 
 							}
 
@@ -934,7 +979,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 													  e);
 
 								UIUtils.showErrorMessage (pv,
-														  "Unable to edit Note");
+                                                          Environment.getUIString (LanguageStrings.project,
+                                                                                   LanguageStrings.actions,
+                                                                                   LanguageStrings.editnote,
+                                                                                   LanguageStrings.actionerror));
+														  //"Unable to edit Note");
 
 							}
 
@@ -982,7 +1031,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 													  e);
 
 								UIUtils.showErrorMessage (pv,
-														  "Unable to edit Scene");
+                                                          Environment.getUIString (LanguageStrings.project,
+                                                                                   LanguageStrings.actions,
+                                                                                   LanguageStrings.editscene,
+                                                                                   LanguageStrings.actionerror));
+														  //"Unable to edit Scene");
 
 							}
 
@@ -1759,8 +1812,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (_this,
-                                      "Unable to edit {chapter}: " +
-                                      c.getName ());
+                                      String.format (Environment.getUIString (LanguageStrings.project,
+                                                                              LanguageStrings.actions,
+                                                                              LanguageStrings.editchapter,
+                                                                              LanguageStrings.actionerror),
+                                                     c.getName ()));
+                                      //"Unable to edit {chapter}: " +
+                                      //c.getName ());
 
             return false;
 
@@ -1770,7 +1828,6 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         qep.addActionListener (new ActionAdapter ()
         {
-
 
             public void actionPerformed (ActionEvent ev)
             {
@@ -1841,7 +1898,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to display {Plot Outline Item} in {Chapter}.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.viewoutlineitem,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to display {Plot Outline Item} in {Chapter}.");
 
                     }
 
@@ -1878,7 +1939,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to display {Scene} in {Chapter}.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.viewscene,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to display {Scene} in {Chapter}.");
 
                     }
 
@@ -1915,7 +1980,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to display {Note} in {Chapter}.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.viewnote,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to display {Note} in {Chapter}.");
 
                     }
 
@@ -1954,7 +2023,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                           e);
 
                     UIUtils.showErrorMessage (_this,
-                                              "Unable to show chapter information.");
+                                              Environment.getUIString (LanguageStrings.project,
+                                                                       LanguageStrings.actions,
+                                                                       LanguageStrings.viewchapterinformation,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to show chapter information.");
 
                 }
 
@@ -2186,7 +2259,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to view idea board");
+                                          Environment.getUIString (LanguageStrings.project,
+                                                                   LanguageStrings.actions,
+                                                                   LanguageStrings.viewideaboard,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to view idea board");
 
                 return false;
 
@@ -2244,8 +2321,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to add " +
-                                      a.getObjectTypeName ());
+                                      String.format (Environment.getUIString (LanguageStrings.project,
+                                                                              LanguageStrings.actions,
+                                                                              LanguageStrings.viewaddasset,
+                                                                              LanguageStrings.actionerror),
+                                                     a.getObjectTypeName ()));
+                                    //"Unable to add " +
+                                    //a.getObjectTypeName ());
 
             return;
 
@@ -2291,8 +2373,14 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                           a);
                     
                     UIUtils.showErrorMessage (_this,
-                                              Environment.replaceObjectNames (String.format ("Unable to edit %s",
-                                                                                             a.getObjectTypeName ())));
+                                              String.format (Environment.getUIString (LanguageStrings.project,
+                                                                                      LanguageStrings.actions,
+                                                                                      LanguageStrings.editasset,
+                                                                                      LanguageStrings.actionerror),
+                                                             a.getObjectTypeName (),
+                                                             a.getName ()));
+                                              //Environment.replaceObjectNames (String.format ("Unable to edit %s",
+                                                //                                             a.getObjectTypeName ())));
                     
                     return;
                     
@@ -2362,11 +2450,19 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (_this,
+                                      String.format (Environment.getUIString (LanguageStrings.project,
+                                                                              LanguageStrings.actions,
+                                                                              LanguageStrings.viewasset,
+                                                                              LanguageStrings.actionerror),
+                                                     a.getObjectTypeName (),
+                                                     a.getName ()));
+                                  /*
+            UIUtils.showErrorMessage (_this,
                                       "Unable to view " +
                                       a.getObjectTypeName () +
                                       ": " +
                                       a.getName ());
-
+*/
             return false;
 
         }
@@ -2584,7 +2680,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to delete Idea Type");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.deleteideatype,
+                                                               LanguageStrings.actionerror));                                      
+                                      //"Unable to delete Idea Type");
 
             return false;
 
@@ -2615,7 +2715,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to delete Idea");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.deleteidea,
+                                                               LanguageStrings.actionerror));                                      
+                                      //"Unable to delete Idea");
 
             return false;
 
@@ -2645,7 +2749,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to save Idea Type");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.saveideatype,
+                                                               LanguageStrings.actionerror));                                      
+                                      //"Unable to save Idea Type");
 
             return false;
 
@@ -2686,8 +2794,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to delete " +
-                                      Environment.getObjectTypeName (c));
+                                      String.format (Environment.getUIString (LanguageStrings.project,
+                                                                              LanguageStrings.actions,
+                                                                              LanguageStrings.deletechapter,
+                                                                              LanguageStrings.actionerror),
+                                                     c.getName ()));
+                                      //"Unable to delete " +
+                                      //Environment.getObjectTypeName (c));
 
             return;
 
@@ -2763,7 +2876,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to remove " + Environment.getObjectTypeName (a));
+                                      String.format (Environment.getUIString (LanguageStrings.project,
+                                                                              LanguageStrings.actions,
+                                                                              LanguageStrings.deleteasset,
+                                                                              LanguageStrings.actionerror),
+                                                     a.getObjectTypeName (),
+                                                     a.getName ()));                                      
+                                      //"Unable to remove " + Environment.getObjectTypeName (a));
 
             return;
 
@@ -3305,7 +3424,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 		final ProjectViewer _this = this;
 
 		JComponent c = null;
-
+/*
 		if (id.equals ("wordcloud"))
 		{
 
@@ -3325,13 +3444,19 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                                });
 
 		}
-
+*/
 		if (id.equals (IDEA_BOARD_HEADER_CONTROL_ID))
 		{
 
             return UIUtils.createButton (Constants.IDEA_ICON_NAME,
-                                               Constants.ICON_TITLE_ACTION,
-                                               "Click to open the Idea Board",
+                                         Constants.ICON_TITLE_ACTION,
+                                         Environment.getUIString (LanguageStrings.project,
+                                                                  LanguageStrings.title,
+                                                                  LanguageStrings.toolbar,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.ideaboard,
+                                                                  LanguageStrings.tooltip),
+                                            //"Click to open the Idea Board",
                                                new ActionAdapter ()
                                                {
 
@@ -3669,7 +3794,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to show problem finder sidebar.");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.viewproblemfindersidebar,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to show problem finder sidebar.");
 
         }
 
@@ -3691,7 +3820,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Configure the Problem Finder rules",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                          LanguageStrings.config,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.title),
+                                                 //"Configure the Problem Finder rules",
                                                  Environment.getIcon (Constants.CONFIG_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -3756,11 +3889,20 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
         {
 
+            UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
+        
+            if (ev.getAction ().equals (ProjectEvent.NEW))
+            {
+
+                this.sideBar.addAccordionItem (this.sideBar.createAssetAccordionItem (type));
+            
+                return;
+            
+            }
+            
             if (ev.getAction ().equals (ProjectEvent.DELETE))
             {
-                
-                UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
-                
+                                
                 // Removing an object type.
                 // Remove it from the project sidebar.
                 // Remove any tabs for objects of that type.
@@ -3835,7 +3977,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
             
             UIUtils.showErrorMessage (this,
-                                      "Unable to remove tag.");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.removetag,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to remove tag.");
             
         }
         

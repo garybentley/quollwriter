@@ -51,6 +51,7 @@ import com.quollwriter.ui.components.ChangeAdapter;
 import com.quollwriter.ui.components.ImagePanel;
 import com.quollwriter.ui.components.Accordion;
 import com.quollwriter.achievements.*;
+import com.quollwriter.achievements.ui.*;
 import com.quollwriter.editors.*;
 import com.quollwriter.data.editors.*;
 import com.quollwriter.ui.panels.*;
@@ -658,11 +659,17 @@ public class Options extends Box
     private SectionInfo createAchievementsSection ()
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.options);
+        prefix.add (LanguageStrings.achievements);
+    
         Box box = new Box (BoxLayout.Y_AXIS);
 
         final AchievementsManager man = Environment.getAchievementsManager ();
 
-        final JCheckBox achievementsOn = UIUtils.createCheckBox ("Enable achievements");
+        final JCheckBox achievementsOn = UIUtils.createCheckBox (Environment.getUIString (prefix,
+                                                                                          LanguageStrings.enable));
+                                                                 //"Enable achievements");
         achievementsOn.setSelected (man.isAchievementsEnabled ());
 
         achievementsOn.addActionListener (new ActionAdapter ()
@@ -683,10 +690,12 @@ public class Options extends Box
 
         box.add (c);
 
-        final JCheckBox achievementSounds = UIUtils.createCheckBox ("Play a sound when an achievement is reached");
+        final JCheckBox achievementSounds = Achievements.createAchievementsSoundEnabledCheckbox ();
+                                                                                             //"Play a sound when an achievement is reached");
         achievementSounds.setSelected (man.isSoundEnabled ());
 
-        final JCheckBox fullScreenSoundsOn = UIUtils.createCheckBox ("Play the sound in full screen mode");
+        final JCheckBox fullScreenSoundsOn = Achievements.createAchievementsSoundEnabledInFullScreenCheckbox ();        
+                                                                                              //"Play the sound in full screen mode");
 
         achievementSounds.addActionListener (new ActionAdapter ()
         {
@@ -732,9 +741,13 @@ public class Options extends Box
 
         box.add (c);
 
-        return new SectionInfo ("Achievements",
+        return new SectionInfo (Environment.getUIString (prefix,
+                                                         LanguageStrings.title),
+                                                         //"Achievements",
                                 Constants.ACHIEVEMENT_ICON_NAME,
-                                "Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
+                                Environment.getUIString (prefix,
+                                                         LanguageStrings.text),
+                                //"Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
                                 box);
 
     }
@@ -3253,8 +3266,21 @@ public class Options extends Box
             }
 
         });
+        JButton addType = new JButton ("Add Type");
 
-        JButton buts[] = new JButton[] { tags };
+        addType.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.showAddNewObjectType (_this.viewer);
+
+            }
+
+        });
+
+        JButton buts[] = new JButton[] { tags, addType };
 
         JPanel bp = UIUtils.createButtonBar2 (buts,
                                               Component.LEFT_ALIGNMENT);

@@ -165,8 +165,14 @@ public class AdverbRule extends AbstractSentenceRule
                                 // Maybe check to see if it's after a "
 
                                 // Add an issue.
-                                Issue iss = new Issue ("Use of adverb: <b>" + nw.getText () +
-                                                       "</b> to modify speech verb: <b>" + w.getText () + "</b>",
+                                Issue iss = new Issue (String.format (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                                               LanguageStrings.issues,
+                                                                                               LanguageStrings.adverb,
+                                                                                               LanguageStrings.text),
+                                                                      nw.getText (),
+                                                                      w.getText ()),
+                                                        //"Use of adverb: <b>" + nw.getText () +
+                                                       //"</b> to modify speech verb: <b>" + w.getText () + "</b>",
                                                        sentence,
                                                        sentence.getAllTextStartOffset () + "-" + nw.getText () + "-" + w.getText (),
                                                        this);
@@ -203,6 +209,13 @@ public class AdverbRule extends AbstractSentenceRule
 
         final AdverbRule _this = this;
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.adverb);
+        pref.add (LanguageStrings.labels);
+        
         Set<FormItem> items = new LinkedHashSet ();
 
         Box b = new Box (BoxLayout.Y_AXIS);
@@ -211,15 +224,16 @@ public class AdverbRule extends AbstractSentenceRule
 
         b.add (newVerbs);
 
-        JLabel label = new JLabel ("(separate with , or ;)");
-        label.setBorder (new EmptyBorder (0,
-                                          5,
-                                          0,
-                                          0));
+        JLabel label = new JLabel (Environment.getUIString (pref,
+                                                                LanguageStrings.separate));
+                                   //"(separate with , or ;)");
+        label.setBorder (UIUtils.createPadding (0, 5, 0, 0));
 
         b.add (label);
 
-        items.add (new AnyFormItem ("New Speech Verbs",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.newspeechverbs),
+                                    //"New Speech Verbs",
                                     b));
 
         Vector v = new Vector (this.speechVerbs);
@@ -252,7 +266,14 @@ public class AdverbRule extends AbstractSentenceRule
         
         buts.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        "Click to remove the selected Speech Verbs",
+                                        Environment.getUIString (LanguageStrings.problemfinder,
+                                                                 LanguageStrings.config,
+                                                                 LanguageStrings.rules,
+                                                                 LanguageStrings.adverb,
+                                                                 LanguageStrings.buttons,
+                                                                 LanguageStrings.removespeechverbs,
+                                                                 LanguageStrings.tooltip),
+                                        //"Click to remove the selected Speech Verbs",
                                         new ActionListener ()
         {
             
@@ -321,7 +342,9 @@ public class AdverbRule extends AbstractSentenceRule
         b.add (bb);
         b.add (Box.createHorizontalGlue ());
 
-        items.add (new AnyFormItem ("Speech Verbs",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.speechverbs),
+                                    //"Speech Verbs",
                                     b));
 
         return items;

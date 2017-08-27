@@ -383,6 +383,12 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         }
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.title);
+        prefix.add (LanguageStrings.toolbar);
+        prefix.add (LanguageStrings.buttons);
+        
         final AbstractViewer _this = this;
 
         JComponent c = null;
@@ -392,7 +398,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             c = UIUtils.createButton (Constants.WARMUPS_ICON_NAME,
                                       Constants.ICON_TITLE_ACTION,
-                                      "Click to do a new {Warmup} exercise",
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.warmup,
+                                                               LanguageStrings.tooltip),
+                                      //"Click to do a new {Warmup} exercise",
                                       new ActionListener ()
                                       {
 
@@ -413,7 +422,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             c = UIUtils.createButton (Constants.BUG_ICON_NAME,
                                               Constants.ICON_TITLE_ACTION,
-                                              "Click to report a bug/problem",
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.bug,
+                                                                       LanguageStrings.tooltip),
+                                              //"Click to report a bug/problem",
                                               new ActionListener ()
                                               {
 
@@ -433,8 +445,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         {
 
             c = UIUtils.createButton (Constants.BUG_ICON_NAME,
-                                              Constants.ICON_TITLE_ACTION,
-                                              "Click to report a bug/problem with the beta",
+                                      Constants.ICON_TITLE_ACTION,
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.betabug,
+                                                               LanguageStrings.tooltip),
+                                      //        "Click to report a bug/problem with the beta",
                                               new ActionListener ()
                                               {
 
@@ -456,11 +471,22 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             if (EditorsEnvironment.isEditorsServiceAvailable ())
             {
 
-                String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
+                String type = LanguageStrings.showcontacts;
+                
+                if (!EditorsEnvironment.hasRegistered ())
+                {
+                    
+                    type = LanguageStrings.editorsserviceregister;
+                    
+                }
+            
+                //String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
 
                 c = UIUtils.createButton (Constants.EDITORS_ICON_NAME,
-                                             Constants.ICON_TITLE_ACTION,
-                                             toolTip,
+                                          Constants.ICON_TITLE_ACTION,
+                                          Environment.getUIString (prefix,
+                                                                   type,
+                                                                   LanguageStrings.tooltip),
                                              new ActionListener ()
                                              {
 
@@ -494,7 +520,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                               e);
 
                                                         UIUtils.showErrorMessage (_this,
-                                                                                  "Unable to show the {editors}.");
+                                                                                  Environment.getUIString (LanguageStrings.project,
+                                                                                                           LanguageStrings.actions,
+                                                                                                           LanguageStrings.vieweditors,
+                                                                                                           LanguageStrings.actionerror));
+                                                                                  //"Unable to show the {editors}.");
 
                                                     }
 
@@ -510,8 +540,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         {
 
             c = UIUtils.createButton (Constants.SETTINGS_ICON_NAME,
-                                           Constants.ICON_TITLE_ACTION,
-                                           "Click to view the {Project} menu",
+                                      Constants.ICON_TITLE_ACTION,
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.projectmenu,
+                                                               LanguageStrings.tooltip),
+                                      //"Click to view the {Project} menu",
                                            new ActionListener ()
                                            {
 
@@ -552,7 +585,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                                                                                      }));
 */
-                                                titlePopup.add (_this.createMenuItem ("Options",
+
+                                                Set<String> prefix = new LinkedHashSet ();
+                                                
+                                                prefix.add (LanguageStrings.project);
+                                                prefix.add (LanguageStrings.settingsmenu);
+                                                prefix.add (LanguageStrings.items);
+
+                                                titlePopup.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                               LanguageStrings.options),
+                                                                                      //"Options",
                                                                                       Constants.OPTIONS_ICON_NAME,
                                                                                       new ActionListener ()
                                                                                       {
@@ -567,7 +609,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                                                                                       }));
 
-                                                titlePopup.add (_this.createMenuItem ("Achievements",
+                                                titlePopup.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                               LanguageStrings.achievements),
+                                                                                      //"Achievements",
                                                                                       Constants.ACHIEVEMENT_ICON_NAME,
                                                                                       new ActionListener ()
                                                                                       {
@@ -584,7 +628,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                                                 titlePopup.addSeparator ();
 
-                                                titlePopup.add (_this.createMenuItem ("What's New in this version",
+                                                titlePopup.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                               LanguageStrings.whatsnew),
+                                                                                      //"What's New in this version",
                                                                                       Constants.WHATS_NEW_ICON_NAME,
                                                                                       new ActionListener ()
                                                                                       {
@@ -600,24 +646,30 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                                      }));
 
                                                 // Help
-                                                JMenu m = new JMenu ("Help");
+                                                JMenu m = new JMenu (Environment.getUIString (prefix,
+                                                                                              LanguageStrings.help));
+                                                                     //"Help");
                                                 m.setIcon (Environment.getIcon (Constants.HELP_ICON_NAME,
                                                                                 Constants.ICON_MENU));
 
                                                 titlePopup.add (m);
 
                                                 // Report Bug/Problem
-                                                m.add (_this.createMenuItem ("Report Bug/Problem",
+                                                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                      LanguageStrings.reportbug),
                                                                              Constants.BUG_ICON_NAME,
                                                                              AbstractProjectViewer.REPORT_BUG_ACTION));
 
                                                 // Contact Support
-                                                m.add (_this.createMenuItem ("Contact Support",
+                                                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                      LanguageStrings.contactsupport),
                                                                              Constants.EMAIL_ICON_NAME,
                                                                              AbstractProjectViewer.CONTACT_SUPPORT_ACTION));
 
                                                 // View the User Guide
-                                                m.add (_this.createMenuItem ("View the User Guide",
+                                                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                      LanguageStrings.viewuserguide),
+                                                                             //"View the User Guide",
                                                                              Constants.HELP_ICON_NAME,
                                                                              new ActionListener ()
                                                                              {
@@ -633,7 +685,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                                                                              }));
 
-                                                m.add (_this.createMenuItem ("Keyboard Shortcuts",
+                                                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                      LanguageStrings.keyboardshortcuts),
+                                                                             //"Keyboard Shortcuts",
                                                                              null,
                                                                              new ActionListener ()
                                                                              {
@@ -650,7 +704,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                              }));
 
                                                 // About Quoll Writer
-                                                titlePopup.add (_this.createMenuItem ("About Quoll Writer",
+                                                titlePopup.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                                                               LanguageStrings.about),
+                                                                                      //"About Quoll Writer",
                                                                                       Constants.ABOUT_ICON_NAME,
                                                                                       AbstractProjectViewer.ABOUT_ACTION));
 
@@ -744,13 +800,21 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.contactsupport);
+        
         String popupName = "contactsupport";
         QPopup popup = this.getNamedPopup (popupName);
 
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Contact Support",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (prefix,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.title),
+                                                                          //"Contact Support",
                                                  Environment.getIcon (Constants.EMAIL_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -764,7 +828,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             Box content = new Box (BoxLayout.Y_AXIS);
 
-            JTextPane help = UIUtils.createHelpTextPane ("Use the form below to contact Quoll Writer support.  If you wish to receive a response then please provide an email address.",
+            JTextPane help = UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                                  LanguageStrings.popup,
+                                                                                  LanguageStrings.text),
+                                                         //"Use the form below to contact Quoll Writer support.  If you wish to receive a response then please provide an email address.",
                                                          this);
 
             help.setBorder (null);
@@ -772,20 +839,36 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             content.add (help);
             content.add (Box.createVerticalStrut (10));
 
-            final JLabel error = UIUtils.createErrorLabel ("Please enter a message.");
+            String errText = Environment.getUIString (prefix,
+                                                      LanguageStrings.popup,
+                                                      LanguageStrings.errorlabel);
+            
+            final JLabel error = UIUtils.createErrorLabel (errText);
+            //"Please enter a message.");
             error.setVisible (false);
             error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
 
             content.add (error);
             
-            final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Message",
-                                                                          "Enter your message here.",
+            final MultiLineTextFormItem desc = new MultiLineTextFormItem (Environment.getUIString (prefix,
+                                                                                                   LanguageStrings.popup,
+                                                                                                   LanguageStrings.message,
+                                                                                                   LanguageStrings.text),
+                                                                          //"Message",
+                                                                          Environment.getUIString (prefix,
+                                                                                                   LanguageStrings.popup,
+                                                                                                   LanguageStrings.message,
+                                                                                                   LanguageStrings.tooltip),
+                                                                          //"Enter your message here.",
                                                                           10,
                                                                           10000,
                                                                           false,
                                                                           null);
             
-            final TextFormItem email = new TextFormItem ("Email",
+            final TextFormItem email = new TextFormItem (Environment.getUIString (prefix,
+                                                                                  LanguageStrings.popup,
+                                                                                  LanguageStrings.email,
+                                                                                  LanguageStrings.text),
                                                          null);
 
             Set<FormItem> items = new LinkedHashSet ();
@@ -819,7 +902,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                     if (desc.getText ().trim ().equals (""))
                     {
 
-                        error.setText ("Please enter a message.");
+                        error.setText (errText);
                         error.setVisible (true);
 
                         qp.resize ();
@@ -850,10 +933,16 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                             {
 
 								desc.setText ("");
-
+                                
                                 UIUtils.showMessage ((PopupsSupported) _this,
-                                                     "Message sent",
-                                                     "Your request has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.confirmpopup,
+                                                                              LanguageStrings.title),
+                                                     //"Message sent",
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.confirmpopup,
+                                                                              LanguageStrings.text));
+                                                     //"Your request has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
 
                                 _this.fireProjectEvent (ProjectEvent.CONTACT,
                                                         ProjectEvent.SUBMIT);
@@ -869,7 +958,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to send message.");
+                                                  Environment.getUIString (prefix,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to send message.");
 
                     }
 
@@ -884,9 +975,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             UIUtils.addDoActionOnReturnPressed (email.getTextField (),
                                                 sendAction);
 
-            JButton send = UIUtils.createButton ("Send",
+            JButton send = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.buttons,
+                                                                          LanguageStrings.send),
+                                                 //"Send",
                                                  sendAction);
-            JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+            JButton cancel = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.buttons,
+                                                                          LanguageStrings.send),
+                                                   //Constants.CANCEL_BUTTON_LABEL_ID,
                                                    new ActionListener ()
             {
 
@@ -950,20 +1049,31 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.reportproblem);
+        
         String popupName = "bugreport";
         QPopup popup = this.getNamedPopup (popupName);
 
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Report a Bug/Problem",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (prefix,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.title),
+                                                 //"Report a Bug/Problem",
                                                  Environment.getIcon (Constants.BUG_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
 
             Box content = new Box (BoxLayout.Y_AXIS);
 
-            JTextPane help = UIUtils.createHelpTextPane ("Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
+            JTextPane help = UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.text),
+                                                         //"Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
                                                          this);
 
             help.setBorder (null);
@@ -971,20 +1081,37 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             content.add (help);
             content.add (Box.createVerticalStrut (10));
 
-            final JLabel error = UIUtils.createErrorLabel ("Please enter a description.");
+            String errLabel = Environment.getUIString (prefix,
+                                                       LanguageStrings.popup,
+                                                       LanguageStrings.errorlabel);
+            
+            final JLabel error = UIUtils.createErrorLabel (errLabel);
+                                                           //"Please enter a description.");
             error.setVisible (false);
             error.setBorder (UIUtils.createPadding (0, 5, 5, 5));
 
             content.add (error);
 
-            final MultiLineTextFormItem desc = new MultiLineTextFormItem ("Description",
-                                                                          "Enter the bug/problem description here.  The more information you can provide the better.",
+            final MultiLineTextFormItem desc = new MultiLineTextFormItem (Environment.getUIString (prefix,
+                                                                                                   LanguageStrings.popup,
+                                                                                                   LanguageStrings.description,
+                                                                                                   LanguageStrings.text),
+                                                                          //"Description",
+                                                                          Environment.getUIString (prefix,
+                                                                                                   LanguageStrings.popup,
+                                                                                                   LanguageStrings.description,
+                                                                                                   LanguageStrings.tooltip),
+                                                                          //"Enter the bug/problem description here.  The more information you can provide the better.",
                                                                           10,
                                                                           10000,
                                                                           false,
                                                                           null);
             
-            final TextFormItem email = new TextFormItem ("Email",
+            final TextFormItem email = new TextFormItem (Environment.getUIString (prefix,
+                                                                                  LanguageStrings.popup,
+                                                                                  LanguageStrings.email,
+                                                                                  LanguageStrings.text),
+                                                         //"Email",
                                                          null);
 
             Set<FormItem> items = new LinkedHashSet ();
@@ -992,14 +1119,26 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             items.add (desc);
             items.add (email);
 
-            final JCheckBox sendLogFiles = new JCheckBox ("Send the log files");
+            final JCheckBox sendLogFiles = new JCheckBox (Environment.getUIString (prefix,
+                                                                                   LanguageStrings.popup,
+                                                                                   LanguageStrings.sendlogfiles,
+                                                                                   LanguageStrings.text));
+                                                          //"Send the log files");
 
             items.add (new AnyFormItem (null,
                                         sendLogFiles));
 
-            final JCheckBox sendScreenshot = new JCheckBox ("Send a screenshot of current window");
+            final JCheckBox sendScreenshot = new JCheckBox (Environment.getUIString (prefix,
+                                                                                     LanguageStrings.popup,
+                                                                                     LanguageStrings.sendscreenshot,
+                                                                                     LanguageStrings.text));
+                                                            //"Send a screenshot of current window");
 
-            sendScreenshot.setToolTipText ("Takes a screenshot of the current window and sends it to support.  If you have information you would prefer not to share then please change the tab before sending.  Uncheck to not send a screenshot, but please remember a picture is worth 1,000 (and more) words.");
+            sendScreenshot.setToolTipText (Environment.getUIString (prefix,
+                                                                    LanguageStrings.popup,
+                                                                    LanguageStrings.sendscreenshot,
+                                                                    LanguageStrings.tooltip));
+                                           //"Takes a screenshot of the current window and sends it to support.  If you have information you would prefer not to share then please change the tab before sending.  Uncheck to not send a screenshot, but please remember a picture is worth 1,000 (and more) words.");
 
             items.add (new AnyFormItem (null,
                                         sendScreenshot));
@@ -1048,7 +1187,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                     if (desc.getText ().trim ().equals (""))
                     {
 
-                        error.setText ("Please enter a description of the problem/bug.");
+                        error.setText (errLabel);
+                        //"Please enter a description of the problem/bug.");
                         error.setVisible (true);
 
                         qp.resize ();
@@ -1119,8 +1259,14 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 								desc.setText ("");
 
                                 UIUtils.showMessage ((PopupsSupported) _this,
-                                                     "Problem/Bug reported",
-                                                     "Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.confirmpopup,
+                                                                              LanguageStrings.title),
+                                                     //"Problem/Bug reported",
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.confirmpopup,
+                                                                              LanguageStrings.text));
+                                                     //"Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again.");
 
                                 _this.fireProjectEvent (ProjectEvent.BUG_REPORT,
                                                         ProjectEvent.SUBMIT);
@@ -1136,7 +1282,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to send message.");
+                                                  Environment.getUIString (prefix,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to send message.");
 
                     }
 
@@ -1149,9 +1297,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             UIUtils.addDoActionOnReturnPressed (email.getTextField (),
                                                 sendAction);
 
-            JButton send = UIUtils.createButton ("Send",
+            JButton send = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.buttons,
+                                                                          LanguageStrings.send),
+                                                 //"Send",
                                                  sendAction);
-            JButton cancel = UIUtils.createButton (Constants.CANCEL_BUTTON_LABEL_ID,
+            JButton cancel = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                            LanguageStrings.popup,
+                                                                            LanguageStrings.buttons,
+                                                                            LanguageStrings.cancel),
+                                                   //Constants.CANCEL_BUTTON_LABEL_ID,
                                                    new ActionListener ()
             {
 
@@ -1272,10 +1428,12 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                         Environment.setDebugModeEnabled (!Environment.isDebugModeEnabled ());
 
                         _this.updateForDebugMode ();
-
+                        
                         // Add a notification.
-                        _this.addNotification (String.format ("Debug mode is now <b>%s</b>",
-                                                              (Environment.isDebugModeEnabled () ? "ENabled" : "DISabled")),
+                        _this.addNotification ((Environment.isDebugModeEnabled () ? Environment.getUIString (LanguageStrings.debugmode,
+                                                                                                             LanguageStrings.enabled)
+                                                                                  : Environment.getUIString (LanguageStrings.debugmode,
+                                                                                                             LanguageStrings.disabled)),
                                                Constants.BUG_ICON_NAME,
                                                10);
 
@@ -1347,7 +1505,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                   e);
 
                             UIUtils.showErrorMessage (_this,
-                                                      "Unable to show editors.");
+                                                      Environment.getUIString (LanguageStrings.editors,
+                                                                               LanguageStrings.vieweditorserror));
 
                         }
 
@@ -1473,8 +1632,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     //public abstract String getViewerTitle ();
 
     public abstract String getViewerIcon ();
-
-    //public abstract void fillTitleToolbar (JToolBar toolbar);
 
     public abstract void fillSettingsPopup (JPopupMenu popup);
 
@@ -1686,7 +1843,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to view the statistics");
+                                                  Environment.getUIString (LanguageStrings.statistics,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to view the statistics");
 
                     }
 
@@ -1789,7 +1948,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to view targets.");
+                                                  Environment.getUIString (LanguageStrings.targets,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to view targets.");
 
                     }
 
@@ -1805,8 +1966,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
     public void showWarmupPromptSelect ()
     {
-
-        final QPopup qp = UIUtils.createClosablePopup ("Do a {Warmup} Exercise",
+    
+        final QPopup qp = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.dowarmup,
+                                                                                LanguageStrings.popup,
+                                                                                LanguageStrings.title),
+                                                                                //"Do a {Warmup} Exercise",
                                                        Environment.getIcon (Warmup.OBJECT_TYPE,
                                                                             Constants.ICON_POPUP),
                                                        null);
@@ -1939,6 +2103,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.about);
+        prefix.add (LanguageStrings.popup);
+        
         String popupName = "about";
 
         QPopup popup = this.getNamedPopup (popupName);
@@ -1946,7 +2114,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (popup == null)
         {
 
-            final QPopup qp = UIUtils.createClosablePopup ("About",
+            final QPopup qp = UIUtils.createClosablePopup (Environment.getUIString (prefix,
+                                                                                    LanguageStrings.title),
                                                            Environment.getIcon (Constants.ABOUT_ICON_NAME,
                                                                                 Constants.ICON_POPUP),
                                                            null);
@@ -1967,7 +2136,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             Box content = new Box (BoxLayout.Y_AXIS);
 
             FormLayout pfl = new FormLayout ("5px, right:p, 6px, fill:p:grow",
-                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
+                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p"); /*, 6px, p");*/
 
             PanelBuilder pbuilder = new PanelBuilder (pfl);
 
@@ -1975,7 +2144,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             int y = 1;
 
-            pbuilder.addLabel ("Version",
+            pbuilder.addLabel (Environment.getUIString (prefix,
+                                                        LanguageStrings.qwversion),
+                               //"Version",
                                cc.xy (2,
                                       y));
 
@@ -1984,7 +2155,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                       y));
 
 			y += 2;
-
+/*
             pbuilder.addLabel ("Java Version",
                                cc.xy (2,
                                       y));
@@ -1996,8 +2167,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                       y));
 
             y += 2;
-
-            pbuilder.addLabel ("Copyright",
+*/
+            pbuilder.addLabel (Environment.getUIString (prefix,
+                                                        LanguageStrings.copyright),
+                               //"Copyright",
                                cc.xy (2,
                                       y));
 
@@ -2007,14 +2180,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             String year = sdf.format (d);
 
-            pbuilder.addLabel (String.format ("\u00A9 2009-%s Gary Bentley",
+            pbuilder.addLabel (String.format (Environment.getProperty (Constants.COPYRIGHT_PROPERTY_NAME),
+                                              //"\u00A9 2009-%1s Gary Bentley",
                                               year),
                                cc.xy (4,
                                       y));
 
             y += 2;
 
-            pbuilder.addLabel ("Website",
+            pbuilder.addLabel (Environment.getUIString (prefix,
+                                                        LanguageStrings.website),
+                               //"Website",
                                cc.xy (2,
                                       y));
 
@@ -2026,11 +2202,14 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             y += 2;
 
-            pbuilder.addLabel ("Source Code",
+            pbuilder.addLabel (Environment.getUIString (prefix,
+                                                        LanguageStrings.sourcecode),
+                               //"Source Code",
                                cc.xy (2,
                                       y));
 
-            pbuilder.add (UIUtils.createWebsiteLabel ("https://github.com/garybentley/quollwriter",
+            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.SOURCE_CODE_WEBSITE_PROPERTY_NAME),
+                                                      //"https://github.com/garybentley/quollwriter",
                                                       null,
                                                       false),
                           cc.xy (4,
@@ -2046,14 +2225,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                                                                  '_'));
 
             pbuilder.add (UIUtils.createWebsiteLabel (relNotesUrl,
-                                                      "Release Notes",
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.releasenotes),
+                                                      //"Release Notes",
                                                       false),
                           cc.xy (4,
                                  y));
 
             y += 2;
 
-            pbuilder.add (UIUtils.createWebsiteLabel ("https://www.patreon.com/quollwriter?ty=h",
+            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.PATREON_WEBSITE_PROPERTY_NAME),
+                                                      //"https://www.patreon.com/quollwriter?ty=h",
                                                       "Patreon",
                                                       false),
                           cc.xy (4,
@@ -2061,8 +2243,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             y += 2;
 
-            pbuilder.add (UIUtils.createWebsiteLabel ("https://www.gofundme.com/quollwriter",
-                                                      "Make a donation",
+            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.GOFUNDME_WEBSITE_PROPERTY_NAME),
+                                                      //"https://www.gofundme.com/quollwriter",
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.makeadonation),
+                                                      //"Make a donation",
                                                       false),
                           cc.xy (4,
                                  y));
@@ -2070,15 +2255,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             y += 2;
 
             pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME),
-                                                      "Acknowledgments",
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.acknowledgments),
+                                                      //"Acknowledgments",
                                                       false),
                           cc.xy (4,
                                  y));
 
             y += 2;
 
-            JButton closeBut = new JButton ();
-            closeBut.setText ("Close");
+            JButton closeBut = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
+            //closeBut.setText ("Close");
 
             closeBut.addActionListener (new ActionListener ()
             {
@@ -2151,7 +2338,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 			try
 			{
 
-				popup = UIUtils.createWizardPopup ("What's new in version " + Environment.getQuollWriterVersion (),
+				popup = UIUtils.createWizardPopup (String.format (Environment.getUIString (LanguageStrings.whatsnew,
+                                                                                           LanguageStrings.popup,
+                                                                                           LanguageStrings.title),
+                                                                  Environment.getQuollWriterVersion ()),
+                                                   //"What's new in version " + Environment.getQuollWriterVersion (),
 												   Constants.WHATS_NEW_ICON_NAME,
 												   null,
 												   new WhatsNew (this,
@@ -2166,7 +2357,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 									  e);
 
 				UIUtils.showErrorMessage (this,
-										  "Unable to show What's New, please contact Quoll Writer support for assistance.");
+                                          Environment.getUIString (LanguageStrings.whatsnew,
+                                                                   LanguageStrings.actionerror));
+										  //"Unable to show What's New, please contact Quoll Writer support for assistance.");
 
 				return;
 
@@ -2226,7 +2419,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                 JButton nextBut = UIUtils.createButton ("next",
                                                         Constants.ICON_MENU,
-                                                        "Click to view the next tip",
+                                                        Environment.getUIString (LanguageStrings.tipspanel,
+                                                                                 LanguageStrings.next,
+                                                                                 LanguageStrings.tooltip),
+                                                        //"Click to view the next tip",
                                                         null);
 
                 java.util.List<JButton> buts = new ArrayList ();
@@ -2234,7 +2430,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                 JButton offBut = UIUtils.createButton (Constants.STOP_ICON_NAME,
                                                        Constants.ICON_MENU,
-                                                       "Click to stop showing tips when Quoll Writer starts",
+                                                        Environment.getUIString (LanguageStrings.tipspanel,
+                                                                                 LanguageStrings.stop,
+                                                                                 LanguageStrings.tooltip),
+                                                       //"Click to stop showing tips when Quoll Writer starts",
                                                        null);
 
                 buts.add (offBut);
@@ -2292,12 +2491,27 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                0,
                                                                _this);
 
+                        Set<String> prefix = new LinkedHashSet ();
+                        prefix.add (LanguageStrings.tipspanel);
+                        prefix.add (LanguageStrings.stop);
+                        prefix.add (LanguageStrings.popup);
+                                                               
                         UIUtils.createQuestionPopup (_this,
-                                                     "Stop showing tips?",
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.title),
+                                                     //"Stop showing tips?",
                                                      Constants.STOP_ICON_NAME,
-                                                     "Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:options.start'>Options panel</a>.",
-                                                     "Yes, stop showing them",
-                                                     "No, keep them",
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.text),
+                                                     //"Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:options.start'>Options panel</a>.",
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.buttons,
+                                                                              LanguageStrings.confirm),
+                                                     //"Yes, stop showing them",
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.buttons,
+                                                                              LanguageStrings.cancel),
+                                                     //"No, keep them",
                                                      new ActionListener ()
                                                      {
 

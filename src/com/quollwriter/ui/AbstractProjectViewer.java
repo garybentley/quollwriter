@@ -1466,10 +1466,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     public abstract void fillFullScreenTitleToolbar (JToolBar toolbar);
 
-    //public abstract void fillTitleToolbar (JToolBar toolbar);
-
-    //public abstract void fillSettingsPopup (JPopupMenu popup);
-
     public abstract void doSaveState ();
 
     public abstract void handleOpenProject ()
@@ -1861,18 +1857,13 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                               e);
 
                         UIUtils.showErrorMessage (pv,
-                                                  "Unable to show the {projects} window, please contact Quoll Writer support for assistance.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.openproject));
+                                                  //"Unable to show the {projects} window, please contact Quoll Writer support for assistance.");
 
                     }
-                /*
-                    FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_OPEN);
 
-                    f.pack ();
-
-                    //UIUtils.setCenterOfScreenLocation (f);
-
-                    f.setVisible (true);
-*/
                 }
 
             };
@@ -1892,15 +1883,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                                null,
                                                null);
 
-/*
-                    FindOrOpen f = new FindOrOpen (FindOrOpen.SHOW_NEW);
-
-                    f.pack ();
-
-                    //UIUtils.setCenterOfScreenLocation (f);
-
-                    f.setVisible (true);
-*/
                 }
 
             };
@@ -2599,8 +2581,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         if (!this.isLanguageEnglish ())
         {
 
-            this.showNotificationPopup ("Function unavailable",
-                                        "Sorry, this function is only available when your spellchecker language is English.<br /><br /><a href='action:contact'>Click here to contact me to help add support for your language</a>",
+            this.showNotificationPopup (Environment.getUIString (LanguageStrings.functionunavailable,
+                                                                 LanguageStrings.title),
+                                                                 //"Function unavailable",
+                                        Environment.getUIString (LanguageStrings.functionunavailable,
+                                                                 LanguageStrings.text),
+                                        //"Sorry, this function is only available when your spellchecker language is English.<br /><br /><a href='action:contact'>Click here to contact me to help add support for your language</a>",
                                         20);
 
             return false;
@@ -3846,8 +3832,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             {
 
                 UIUtils.showMessage (this,
-                                     "The font <b>" + f +
-                                     "</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a chapter tab then <a href='action:textproperties'>click here to change the text properties</a>.");
+                                     String.format (Environment.getUIString (LanguageStrings.fontunavailable,
+                                                                             LanguageStrings.text),
+                                                    f));
+                //"The font <b>" + f + "</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a chapter tab then <a href='action:textproperties'>click here to change the text properties</a>.");
 
             }
 
@@ -3918,11 +3906,21 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 															  null,
 															  null);
 
-                        String text = String.format ("%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
-  													 Environment.formatNumber (chaps.size ()),
-  													 (s == 1 ? " is" : "s are"),
-  													 Environment.formatNumber (wc),
-  													 (s == 1 ? "" : "s"));
+                        String t = LanguageStrings.single;
+                                                              
+                        if (s > 1)
+                        {
+                               
+                            t = LanguageStrings.multiple;
+                                                              
+                        }
+                        
+                        String text = String.format (Environment.getUIString (LanguageStrings.targets,
+                                                                              LanguageStrings.chaptersoverwcmaximum,
+                                                                              t),
+                                                     Environment.formatNumber (chaps.size ()),
+                                                                    //"%s {chapter}%s over the word count maximum of <b>%s</b> words, click to view the {chapter}%s.",
+  													 Environment.formatNumber (wc));
 
   						l.setText (text);
 
@@ -3956,14 +3954,26 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 					if (s > 0)
 					{
 
+                        String t = LanguageStrings.single;
+                                                              
+                        if (s > 1)
+                        {
+                               
+                            t = LanguageStrings.multiple;
+                                                              
+                        }                    
+                    
 						final JLabel l = UIUtils.createLabel (null,
 															  null,
 															  null);
 
-                        String text = String.format ("%s {chapter}%s over one of the readability targets, click to view the {chapter}%s.",
-  													 Environment.formatNumber (chaps.size ()),
-  													 (s == 1 ? " is" : "s are"),
-  													 (s == 1 ? "" : "s"));
+                        String text = String.format (Environment.getUIString (LanguageStrings.targets,
+                                                                              LanguageStrings.chaptersoverreadabilitymaximum,
+                                                                              t),
+                                                     //"%s {chapter}%s over one of the readability targets, click to view the {chapter}%s.",
+  													 Environment.formatNumber (chaps.size ()));
+  													 //(s == 1 ? " is" : "s are"),
+  													 //(s == 1 ? "" : "s"));
 
   						l.setText (text);
 
@@ -4085,25 +4095,42 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 									final int s = over.size ();
 
-									final QPopup popup = UIUtils.createClosablePopup (String.format ("{Chapter}%s over word count target",
-																									 (s == 1 ? "" : "s")),
+									final QPopup popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.targets,
+                                                                                                               LanguageStrings.popup,
+                                                                                                               LanguageStrings.title),
+                                                                                      //String.format ("{Chapter}%s over word count target",
+																									 //(s == 1 ? "" : "s")),
 																					  Environment.getIcon (Constants.WORDCOUNT_ICON_NAME,
 																										   Constants.ICON_POPUP),
 																					  null);
-
+/*
 									String text = String.format ("%s {chapter}%s over the target word count, click to view them.",
 																 Environment.formatNumber (s),
 																 (s == 1 ? " is" : "s are"));
-
+*/
+                                    String text = null;
+                                                                 
 									if (s == 1)
 									{
 
 										Chapter c = over.iterator ().next ();
 
-										text = String.format ("{Chapter} <b>%s</b> is over the target word count, click to view it.",
-															  c.getName ());
+                                        text = String.format (Environment.getUIString (LanguageStrings.targets,
+                                                                                       LanguageStrings.popup,
+                                                                                       LanguageStrings.singleoverlimit),
+                                                              c.getName ());
+                                        
+										//text = String.format ("{Chapter} <b>%s</b> is over the target word count, click to view it.",
+											//				  c.getName ());
 
-									}
+									} else {
+                                        
+                                        text = String.format (Environment.getUIString (LanguageStrings.targets,
+                                                                                       LanguageStrings.popup,
+                                                                                       LanguageStrings.multipleoverlimit),
+                                                              Environment.formatNumber (s));
+                                        
+                                    }
 
 									Box content = new Box (BoxLayout.Y_AXIS);
 
@@ -4135,7 +4162,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
 									JButton cb = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
 
-									JButton sb = UIUtils.createButton ("Show detail",
+									JButton sb = UIUtils.createButton (Environment.getUIString (LanguageStrings.buttons,
+                                                                                                LanguageStrings.showdetail),
+                                                                       //"Show detail",
 																	   showChapter);
 
 									JButton[] buts = { sb, cb };
@@ -4259,7 +4288,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 									try
 									{
 
-										_this.addNotification (String.format ("An automatic backup has been created.  <a href='%s:%s'>Click to view the backups.</a>",
+										_this.addNotification (String.format (Environment.getUIString (LanguageStrings.backups,
+                                                                                                       LanguageStrings.autobackupnotification),
+                                                                              //"An automatic backup has been created.  <a href='%s:%s'>Click to view the backups.</a>",
                                                                               Constants.ACTION_PROTOCOL,
                                                                               Constants.BACKUPS_HTML_PANEL_ACTION),
 															  Constants.INFO_ICON_NAME,
@@ -4505,9 +4536,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                                                                 e);
 
                                                           UIUtils.showErrorMessage (_this,
-                                                                                    "Unable to set spell check language to <b>" +
-                                                                                    lang +
-                                                                                    "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
+                                                                                    String.format (Environment.getUIString (LanguageStrings.spellchecker,
+                                                                                                                            LanguageStrings.unabletosetlanguage),
+                                                                                                   lang));
+                                                                                    //"Unable to set spell check language to <b>" +
+                                                                                    //lang +
+                                                                                    //"</b>.<br /><br />Please contact Quoll Writer support for assistance.");
 
                                                       }
 
@@ -5487,7 +5521,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to view achievements");
+                                      Environment.getUIString (LanguageStrings.achievementspanel,
+                                                               LanguageStrings.actionerror));
+            //"Unable to view achievements");
 
             return false;
 
@@ -5631,9 +5667,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 						{
 
 							UIUtils.showErrorMessage (this,
-													  "Unable to save: <b>" +
-													  pqp.getTitle () +
-													  "</b>, aborting exit.");
+													  String.format (Environment.getUIString (LanguageStrings.closeproject,
+                                                                                              LanguageStrings.actionerror),
+                                                                     pqp.getTitle ()));
+                                                                     //"Unable to save: <b>" +
+													  //pqp.getTitle () +
+													  //"</b>, aborting exit.");
 
 							// Switch to the tab.
 							this.viewObject (pqp.getForObject ());
@@ -5786,7 +5825,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 Map<String, ActionListener> buttons = new LinkedHashMap ();
 
-                buttons.put ("Yes, save the changes",
+                buttons.put (Environment.getUIString (LanguageStrings.buttons,
+                                                      LanguageStrings.savechanges),
+                             //"Yes, save the changes",
                             new ActionListener ()
                             {
 
@@ -5800,7 +5841,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                             });
 
-                buttons.put ("No, discard the changes",
+                buttons.put (Environment.getUIString (LanguageStrings.buttons,
+                                                      LanguageStrings.discardchanges),
+                             //"No, discard the changes",
                             new ActionListener ()
                             {
 
@@ -5814,14 +5857,19 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                             });
 
-                buttons.put (Environment.getButtonLabel ("Cancel",
-                                                         Constants.CANCEL_BUTTON_LABEL_ID),
+                buttons.put (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
                              null);
 
                 UIUtils.createQuestionPopup (this,
-                                             "Save changes before exiting?",
+                                             Environment.getUIString (LanguageStrings.closeproject,
+                                                                      LanguageStrings.confirmpopup,
+                                                                      LanguageStrings.title),
+                                             //"Save changes before exiting?",
                                              Constants.SAVE_ICON_NAME,
-                                             String.format ("The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
+                                             String.format (Environment.getUIString (LanguageStrings.closeproject,
+                                                                                     LanguageStrings.confirmpopup,
+                                                                                     LanguageStrings.text),
+                                                            //"The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
                                                             b.toString ()),
                                              buttons,
                                              null,
@@ -6183,7 +6231,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to enter full screen mode");
+                                      Environment.getUIString (LanguageStrings.fullscreen,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to enter full screen mode");
 
         }
 
@@ -6612,7 +6662,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to show in full screen");
+                                          Environment.getUIString (LanguageStrings.fullscreen,
+                                                                   LanguageStrings.showpanelactionerror));
+                                          //"Unable to show in full screen");
 
             }
 
@@ -6916,12 +6968,27 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
             {
 
                 UIUtils.createQuestionPopup (this,
-                                             "Save before closing?",
+                                             Environment.getUIString (LanguageStrings.closepanel,
+                                                                      LanguageStrings.confirmpopup,
+                                                                      LanguageStrings.title),
+                                             //"Save before closing?",
                                              Constants.SAVE_ICON_NAME,
-                                             String.format ("The %s has unsaved changes.  Save before closing?",
-                                                            Environment.getObjectTypeName (p.getForObject ())),
-                                             "Yes, save the changes",
-                                             "No, discard the changes",
+                                             String.format (Environment.getUIString (LanguageStrings.closepanel,
+                                                                                     LanguageStrings.confirmpopup,
+                                                                                     LanguageStrings.text),
+                                                            p.getTitle ()),
+                                                            //"The %s has unsaved changes.  Save before closing?",
+                                                            //Environment.getObjectTypeName (p.getForObject ())),
+                                             Environment.getUIString (LanguageStrings.closepanel,
+                                                                      LanguageStrings.confirmpopup,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.save),
+                                             //"Yes, save the changes",
+                                             Environment.getUIString (LanguageStrings.closepanel,
+                                                                      LanguageStrings.confirmpopup,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.discard),
+                                             //"No, discard the changes",
                                              new ActionListener ()
                                              {
 
@@ -6947,8 +7014,10 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                                                               e);
 
                                                         UIUtils.showErrorMessage (_this,
-                                                                                  "Unable to save " +
-                                                                                  Environment.getObjectTypeName (p.getForObject ()));
+                                                                                  Environment.getUIString (LanguageStrings.closepanel,
+                                                                                                           LanguageStrings.actionerror));
+                                                                                  //"Unable to save " +
+                                                                                  //Environment.getObjectTypeName (p.getForObject ()));
 
                                                         return;
 
@@ -7869,7 +7938,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to view the options");
+                                          Environment.getUIString (LanguageStrings.options,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to view the options");
 
                 return false;
 
@@ -7971,7 +8042,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to view word count history");
+                                      Environment.getUIString (LanguageStrings.statistics,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to view statistics panel.");
 
             return false;
 
@@ -8068,12 +8141,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 } catch (Exception e) {
 
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to show Editor");
-
                     Environment.logError ("Unable to show editor: " +
                                           ed,
                                           e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.getUIString (LanguageStrings.editors,
+                                                                       LanguageStrings.vieweditorerror));
+                                              //"Unable to show Editor");
 
                 }
 
@@ -8116,13 +8191,15 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 } catch (Exception e) {
 
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to show Editor");
-
                     Environment.logError ("Unable to show editor: " +
                                           ed,
                                           e);
 
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.getUIString (LanguageStrings.editors,
+                                                                       LanguageStrings.vieweditorerror));
+                                              //"Unable to show Editor");
+                                          
                 }
 
             }
@@ -8152,7 +8229,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to show the editors register panel, please contact Quoll Writer support for assistance.");
+                                          Environment.getUIString (LanguageStrings.editors,
+                                                                   LanguageStrings.showregistererror));
+                                          //"Unable to show the editors register panel, please contact Quoll Writer support for assistance.");
 
                 return false;
 
@@ -8417,6 +8496,12 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.title);
+        prefix.add (LanguageStrings.toolbar);
+        prefix.add (LanguageStrings.buttons);
+        
         final AbstractProjectViewer _this = this;
 
         JComponent c = null;
@@ -8425,8 +8510,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         {
 
             return UIUtils.createButton (Constants.FIND_ICON_NAME,
-                                              Constants.ICON_TITLE_ACTION,
-                                              "Click to open the find",
+                                         Constants.ICON_TITLE_ACTION,
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.find,
+                                                                  LanguageStrings.tooltip),
+                                              //"Click to open the find",
                                               new ActionAdapter ()
                                               {
 
@@ -8445,8 +8533,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         {
 
             return UIUtils.createButton (Constants.CLOSE_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to close",
+                                         Constants.ICON_TITLE_ACTION,
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.close,
+                                                                  LanguageStrings.tooltip),
+                                          //"Click to close",
                                           new ActionAdapter ()
                                           {
 
@@ -8466,8 +8557,11 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         {
 
             return UIUtils.createButton (Constants.FULLSCREEN_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to work in full screen mode",
+                                         Constants.ICON_TITLE_ACTION,
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.fullscreen,
+                                                                  LanguageStrings.tooltip),
+                                          //"Click to work in full screen mode",
                                           new ActionAdapter ()
                                           {
 

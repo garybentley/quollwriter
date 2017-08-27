@@ -12,7 +12,6 @@ import com.gentlyweb.utils.*;
 import com.jgoodies.forms.factories.*;
 
 import com.quollwriter.*;
-
 import com.quollwriter.ui.components.*;
 
 public class QuestionWindow extends PopupWindow 
@@ -65,7 +64,9 @@ public class QuestionWindow extends PopupWindow
         ti.setWindowTitle (title);
                 
         JButton confirm = null;
-        JButton cancel = UIUtils.createButton ("Cancel",
+        JButton cancel = UIUtils.createButton (Environment.getUIString (LanguageStrings.actions,
+                                                                        LanguageStrings.cancel),
+                                               //"Cancel",
                                                new ActionListener ()
         {
            

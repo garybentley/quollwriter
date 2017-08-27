@@ -15,6 +15,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Date;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -167,7 +169,10 @@ public class BackupsManager extends Box implements ProjectEventListener
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to show list of backups, please contact Quoll Writer support for assistance.");
+                                      Environment.getUIString (LanguageStrings.backups,
+                                                               LanguageStrings.show,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to show list of backups, please contact Quoll Writer support for assistance.");
 
         }
 
@@ -179,7 +184,9 @@ public class BackupsManager extends Box implements ProjectEventListener
 
         final BackupsManager _this = this;
 
-        JTextPane tp = UIUtils.createHelpTextPane (String.format ("Listed below are the backups you have for {project} <b>%s</b>.",
+        JTextPane tp = UIUtils.createHelpTextPane (String.format (Environment.getUIString (LanguageStrings.backups,
+                                                                                           LanguageStrings.text),
+                                                                  //"Listed below are the backups you have for {project} <b>%s</b>.",
                                                                   this.proj.getName ()),
                                                    this.viewer);
 
@@ -187,7 +194,9 @@ public class BackupsManager extends Box implements ProjectEventListener
 
         this.add (tp);
 
-        this.backupsDir = UIUtils.createClickableLabel ("Click to view the backups directory",
+        this.backupsDir = UIUtils.createClickableLabel (Environment.getUIString (LanguageStrings.backups,
+                                                                                 LanguageStrings.viewbackupsdir),
+                                                        //"Click to view the backups directory",
                                                         Environment.getIcon (Constants.VIEW_ICON_NAME,
                                                                              Constants.ICON_MENU));
 
@@ -219,7 +228,9 @@ public class BackupsManager extends Box implements ProjectEventListener
 
         this.add (this.backupsDir);
 
-        this.noBackups = UIUtils.createLabel ("You currently have no backups for this {project}.");
+        this.noBackups = UIUtils.createLabel (Environment.getUIString (LanguageStrings.backups,
+                                                                       LanguageStrings.nobackups));
+        //"You currently have no backups for this {project}.");
         this.noBackups.setIcon (Environment.getIcon (Constants.INFO_ICON_NAME,
                                                      Constants.ICON_MENU));
 
@@ -328,16 +339,31 @@ public class BackupsManager extends Box implements ProjectEventListener
         public void restore ()
         {
 
+            Set<String> prefix = new LinkedHashSet ();
+            prefix.add (LanguageStrings.backups);
+            prefix.add (LanguageStrings.restore);
+            prefix.add (LanguageStrings.popup);
+        
             final Backup _this = this;
 
             UIUtils.createQuestionPopup ((AbstractViewer) BackupsManager.this.viewer,
-                                         "Confirm restore",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.title),
+                                         //"Confirm restore",
                                          Constants.RESTORE_ICON_NAME,
-                                         String.format ("Please confirm you wish to restore {project} <b>%s</b> using the backup file <b>%s</b>.<br /><br />A backup of the {project} will be created before the restore occurs.",
+                                         String.format (Environment.getUIString (prefix,
+                                                                                 LanguageStrings.text),
+                                                        //"Please confirm you wish to restore {project} <b>%s</b> using the backup file <b>%s</b>.<br /><br />A backup of the {project} will be created before the restore occurs.",
                                                         this.proj.getName (),
                                                         this.file.getName ()),
-                                         "Yes, restore it",
-                                         Constants.CANCEL_BUTTON_LABEL_ID,
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.confirm),
+                                         //"Yes, restore it",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.cancel),
+                                         //Constants.CANCEL_BUTTON_LABEL_ID,
                                          new ActionListener ()
                                          {
 
@@ -377,7 +403,10 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                                           e);
 
                                                                     UIUtils.showErrorMessage (BackupsManager.this.viewer,
-                                                                                              "Unable to create a backup of the {project} in its current state.");
+                                                                                              Environment.getUIString (LanguageStrings.backups,
+                                                                                                                       LanguageStrings._new,
+                                                                                                                       LanguageStrings.actionerror));
+                                                                                              //"Unable to create a backup of the {project} in its current state.");
 
                                                                 }
 
@@ -397,15 +426,23 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                                           e);
 
                                                                     UIUtils.showErrorMessage (BackupsManager.this.viewer,
-                                                                                              "Unable to restore backup");
+                                                                                              Environment.getUIString (LanguageStrings.backups,
+                                                                                                                       LanguageStrings.restore,
+                                                                                                                       LanguageStrings.actionerror));
+                                                                                              //"Unable to restore backup");
 
                                                                     return;
 
                                                                 }
 
+                                                                Set<String> prefix = new LinkedHashSet ();
+                                                                prefix.add (LanguageStrings.backups);
+                                                                prefix.add (LanguageStrings.restore);
+                                                                prefix.add (LanguageStrings.confirmpopup);
+
                                                                 if (pv != null)
                                                                 {
-
+                                                                
                                                                     try
                                                                     {
 
@@ -416,8 +453,12 @@ public class BackupsManager extends Box implements ProjectEventListener
 
                                                                         // Show confirmation.
                                                                         UIUtils.showMessage ((PopupsSupported) p,
-                                                                                             "{Project} restored",
-                                                                                             String.format ("The {project} has been restored from file <b>%s</b>.",
+                                                                                             Environment.getUIString (prefix,
+                                                                                                                      LanguageStrings.title),
+                                                                                             //"{Project} restored",
+                                                                                             String.format (Environment.getUIString (prefix,
+                                                                                                                                     LanguageStrings.text),
+                                                                                                            //"The {project} has been restored from file <b>%s</b>.",
                                                                                                             _this.file.getName ()));
 
                                                                         p.fireProjectEventLater (ProjectEvent.BACKUPS,
@@ -430,7 +471,9 @@ public class BackupsManager extends Box implements ProjectEventListener
                                                                                               e);
 
                                                                         UIUtils.showErrorMessage (BackupsManager.this.viewer,
-                                                                                                  "Unable to re-open backup");
+                                                                                                  Environment.getUIString (prefix,
+                                                                                                                           LanguageStrings.actionerror));
+                                                                                                  //"Unable to re-open backup");
 
                                                                         return;
 
@@ -442,8 +485,12 @@ public class BackupsManager extends Box implements ProjectEventListener
 
                                                                 // Show confirmation.
                                                                 UIUtils.showMessage ((PopupsSupported) BackupsManager.this.viewer,
-                                                                                     "{Project} restored",
-                                                                                     String.format ("{Project} <b>%s</b> has been restored using file <b>%s</b>.",
+                                                                                     Environment.getUIString (prefix,
+                                                                                                              LanguageStrings.title),
+                                                                                     //"{Project} restored",
+                                                                                     String.format (Environment.getUIString (prefix,
+                                                                                                                             LanguageStrings.text),
+                                                                                                    //"{Project} <b>%s</b> has been restored using file <b>%s</b>.",
                                                                                                     _this.proj.getName (),
                                                                                                     _this.file.getName ()));
 
@@ -490,18 +537,33 @@ public class BackupsManager extends Box implements ProjectEventListener
 
         }
 
-        public void delete ()
-        {
+     public void delete ()
+     {
 
+          Set<String> prefix = new LinkedHashSet ();
+          prefix.add (LanguageStrings.backups);
+          prefix.add (LanguageStrings.delete);
+          prefix.add (LanguageStrings.confirmpopup);
+        
             final Backup _this = this;
 
             UIUtils.createQuestionPopup ((AbstractViewer) BackupsManager.this.viewer,
-                                         "Confirm delete",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.title),
+                                         //"Confirm delete",
                                          Constants.DELETE_ICON_NAME,
-                                         String.format ("Please confirm you wish to delete backup file <b>%s</b>.",
+                                         String.format (Environment.getUIString (prefix,
+                                                                                 LanguageStrings.text),
+                                                        //"Please confirm you wish to delete backup file <b>%s</b>.",
                                                         this.file.getName ()),
-                                         "Yes, delete it",
-                                         "No, keep it",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.confirm),
+                                         //"Yes, delete it",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.cancel),
+                                         //"No, keep it",
                                          new ActionListener ()
                                          {
 
@@ -560,7 +622,10 @@ public class BackupsManager extends Box implements ProjectEventListener
 
             buttons.add (UIUtils.createButton (Constants.RESTORE_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               "Restore the {project} using this backup",
+                                               Environment.getUIString (LanguageStrings.backups,
+                                                                        LanguageStrings.restore,
+                                                                        LanguageStrings.tooltip),
+                                               //"Restore the {project} using this backup",
                                                new ActionAdapter ()
                                                {
 
@@ -575,7 +640,10 @@ public class BackupsManager extends Box implements ProjectEventListener
 
             buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               "Click to delete this backup",
+                                               Environment.getUIString (LanguageStrings.backups,
+                                                                        LanguageStrings.delete,
+                                                                        LanguageStrings.tooltip),
+                                               //"Click to delete this backup",
                                                new ActionAdapter ()
                                                {
 

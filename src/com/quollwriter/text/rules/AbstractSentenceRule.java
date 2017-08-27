@@ -1,5 +1,6 @@
 package com.quollwriter.text.rules;
 
+import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implements SentenceRule
@@ -28,7 +29,11 @@ public abstract class AbstractSentenceRule extends AbstractRule<Sentence> implem
     public String getEditFormTitle (boolean add)
     {
 
-        return (add ? "Add new Sentence Structure rule" : null);
+        return (add ? Environment.getUIString (LanguageStrings.problemfinder,
+                                               LanguageStrings.config,
+                                               LanguageStrings.rules,
+                                               LanguageStrings.sentence,
+                                               LanguageStrings.addtitle) : null);
 
     }
 

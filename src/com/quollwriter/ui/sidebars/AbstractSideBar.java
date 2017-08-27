@@ -40,7 +40,10 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
         this.otherSideBarsButton = UIUtils.createButton ("sidebars",
                                                          Constants.ICON_SIDEBAR,
-                                                         "Click to select another sidebar",
+                                                         Environment.getUIString (LanguageStrings.sidebars,
+                                                                                  LanguageStrings.othersidebarselect,
+                                                                                  LanguageStrings.tooltip),
+                                                         //"Click to select another sidebar",
                                                          new ActionAdapter ()
                                                          {
 
@@ -251,7 +254,10 @@ public abstract class AbstractSideBar<V extends AbstractViewer> extends Scrollab
 
             buts.add (UIUtils.createButton (Constants.CLOSE_ICON_NAME,
                                             Constants.ICON_SIDEBAR,
-                                            "Click to close",
+                                            Environment.getUIString (LanguageStrings.sidebars,
+                                                                     LanguageStrings.close,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to close",
                                             new ActionAdapter ()
                                             {
 

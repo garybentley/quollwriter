@@ -220,7 +220,12 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
                         int s = w.getAllTextStartOffset ();
 
-                        Issue iss = new Issue ("Passive voice, contains: <b>" + w.getText () + " " + nw.getText () + "</b>",
+                        Issue iss = new Issue (String.format (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                                       LanguageStrings.issues,
+                                                                                       LanguageStrings.passivesentence,
+                                                                                       LanguageStrings.text),
+                                                              w.getText () + " " + nw.getText ()),
+                                               //"Passive voice, contains: <b>" + w.getText () + " " + nw.getText () + "</b>",
                                                sentence,
                                                s,
                                                nw.getAllTextEndOffset () - s,
@@ -355,8 +360,17 @@ public class PassiveSentenceRule extends AbstractSentenceRule
 
         Set<FormItem> items = new LinkedHashSet ();
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.passivesentence);
+        pref.add (LanguageStrings.labels);        
+        
         this.ignoreDialogueF = new CheckboxFormItem (null,
-                                                     "Ignore in dialogue");
+                                                     Environment.getUIString (pref,
+                                                                              LanguageStrings.ignoreindialogue));
+                                                     //"Ignore in dialogue");
 
         this.ignoreDialogueF.setSelected (this.ignoreInDialogue);
 

@@ -10,6 +10,7 @@ import com.gentlyweb.utils.*;
 
 import com.gentlyweb.xml.*;
 
+import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 import com.quollwriter.ui.forms.*;
@@ -159,12 +160,19 @@ public class DoubleWordRule extends AbstractSentenceRule
                 if (curr.textEquals (prev))
                 {
 
+                    Set<String> pref = new LinkedHashSet ();
+                    pref.add (LanguageStrings.problemfinder);
+                    pref.add (LanguageStrings.issues);
+                    pref.add (LanguageStrings.doubleword);
+                
                     Issue iss = null;
 
                     if (curr.isPunctuation ())
                     {
 
-                        iss = new Issue (String.format ("Double punctuation: <b>%s%s</b>",
+                        iss = new Issue (String.format (Environment.getUIString  (pref,
+                                                                                  LanguageStrings.punctuationtext),
+                                                                                  //"Double punctuation: <b>%s%s</b>",
                                                         curr.getText (),
                                                         curr.getText ()),
                                          sentence,
@@ -175,7 +183,9 @@ public class DoubleWordRule extends AbstractSentenceRule
 
                     } else {
 
-                        iss = new Issue (String.format ("Double word: <b>%s %s</b>.",
+                        iss = new Issue (String.format (Environment.getUIString  (pref,
+                                                                                  LanguageStrings.wordtext),
+                                                        //"Double word: <b>%s %s</b>.",
                                                         curr.getText (),
                                                         curr.getText ()),
                                          sentence,

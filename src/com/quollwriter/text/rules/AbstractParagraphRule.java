@@ -2,6 +2,7 @@ package com.quollwriter.text.rules;
 
 import java.util.*;
 
+import com.quollwriter.*;
 import com.quollwriter.text.*;
 
 public abstract class AbstractParagraphRule extends AbstractRule<Paragraph> implements ParagraphRule
@@ -32,7 +33,13 @@ public abstract class AbstractParagraphRule extends AbstractRule<Paragraph> impl
     public String getEditFormTitle (boolean add)
     {
 
-        return (add ? "Add new Paragraph Structure rule" : null);
+        return (add ? Environment.getUIString (LanguageStrings.problemfinder,
+                                               LanguageStrings.config,
+                                               LanguageStrings.rules,
+                                               LanguageStrings.paragraph,
+                                               LanguageStrings.addtitle)
+                //"Add new Paragraph Structure rule"
+                : null);
 
     }
 

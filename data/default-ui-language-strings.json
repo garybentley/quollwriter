@@ -1,0 +1,2089 @@
+{
+    "_language" : "English",
+    "_nativeName" : "English",
+    "_version" : "1",
+    "_created" : "22/July/2017",
+    "startup" :
+    {
+        "cantopenlastprojecterror" :
+        {
+            "title" : "Unable to open last {project}",
+            "text" : "Unable to open last edited {project}, please select another {project} or create a new one."
+        },
+        "unabletostarterror" : "Unable to start {QW}",
+        "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
+    },
+    "targets" :
+    {
+        "types" :
+        {
+            "session" : "Session",
+            "daily" : "Daily",
+            "weekly" : "Weekly",
+            "monthly" : "Monthly"
+        },
+        "writingtargetreachedpopup" :
+        {
+            "title" : "Writing targets reached",
+            "text" : "You have reached the following writing targets by writing <b>%1s</b> words.<ul>%2s</ul>Well done and keep it up!",
+            ":comment.text" : "%1s is the number of words written.  %2s is the types of target reached.",
+            ":scount.text" : 2
+        },
+        "actionerror" : "Unable to view targets.",
+        "chaptersoverwcmaximum" :
+        {
+            "single" : "%1s {chapter} is over the word count maximum of <b>%2s</b> words, click to view the {chapter}.",
+            ":comment.single" : "%1s is the number of chapters over the maximum. %2s is the maximum word count.",
+            ":scount.single" : 2,
+            "multiple" : "%1s {chapters} are over the word count maximum of <b>%2s</b> words, click to view the {chapters}.",
+            ":comment.multiple" : "%1s is the number of chapters over the maximum count.  %2s is the maximum word count.",
+            ":scount.multiple" : 2
+        },
+        "chaptersoverreadabilitymaximum" :
+        {
+            "single" : "%1s {chapter} is over one of the readability targets, click to view the {chapter}.",
+            ":comment.single" : "%1s is the number of chapters over the readability target(s).",
+            ":scount.single" : 1,
+            "multiple" : "%1s {chapters} are over one of the readability targets, click to view the {chapters}.",
+            ":comment.multiple" : "%1s is the number of chapters over the readability target(s).",
+            ":scount.multiple" : 1
+        },
+        "popup" :
+        {
+            "title" : "{Chapters} over word count target",
+            "multipleoverlimit" : "%1s {chapters} are over the target word count, click to view them.",
+            ":comment.multipleoverlimit" : "%1s is the number of chapters over the limit.",
+            ":scount.multipleoverlimit" : 1,
+            "singleoverlimit" : "{Chapter} <b>%s</b> is over the target word count, click to view it.",
+            ":comment.singleoverlimit" : "%1s is the name of the chapter over the limit.",
+            ":scount.singleoverlimit" : 1
+        }
+    },
+    "fontunavailable" :
+    {
+        "text" : "The font <b>%s</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a {chapter} tab then <a href='action:textproperties'>click here to change the text properties</a>.",
+        ":comment.text" : "The %s is the name of the font that cannot be found.",
+        ":scount.text" : 1
+    },
+    "functionunavailable" :
+    {
+        "title" : "Function unavailable",
+        "text" : "Sorry, this function is only available when your spellchecker language is English.<br /><br /><a href='action:contact'>Click here to contact me to help add support for your language</a>"
+    },
+    "times" :
+    {
+        "unlimited" : "Unlimited",
+        "mins10" : "10 minutes",
+        "mins20" : "20 minutes",
+        "mins30" : "30 minutes",
+        "hour1" : "1 hour"
+    },
+    "words" :
+    {
+        "unlimited" : "Unlimited",
+        "words100" : "100 words",
+        "words250" : "250 words",
+        "words500" : "500 words",
+        "words1000" : "1000 words"        
+    },
+    "textalignments" :
+    {
+        "left" : "Left",
+        "right" : "Right",
+        "justified" : "Justified"
+    },
+    "names" :
+    {
+        "ideaboard" : "Idea Board",
+        "backup" : "Backup",
+        "backups" : "Backups",
+        "ideatype" : "Idea Type",
+        "idea" : "Idea",
+        "problemfinder" : "Problem Finder",
+        "tag" : "Tag",
+        "tags" : "Tags",
+        "editor" : "Editor",
+        "editors" : "Editors",
+        "goals" : "Goals",
+        "plan" : "Plan",
+        "fk" : "Flesch Kincaid grade level",
+        "fr" : "Flesch Reading ease level",
+        "gf" : "Gunning Fog Index",
+        "achievements" : "Achievements",
+        "find" : "Find",
+        "options" : "Options"
+    },
+    "buttons" :
+    {
+        "cancel" : "${actions.cancel}",
+        "showdetail" : "Show detail",
+        "savechanges" : "Yes, save the changes",
+        "discardchanges" : "No, discard the changes",
+        "close" : "${actions.close}",
+        "send" : "${actions.send}",
+        "open" : "${actions.open}",
+        "__$$confirm$$__" : "Ok, got it",
+        "__$$cancel$$__" : "${buttons.cancel}",
+        "__$$close$$__" : "${actions.close}",
+        "__$$createbackup$$__" : "Create a ${names.backup}",
+        "__$$save$$__" : "${actions.save}",
+        "__$$send$$__" : "${actions.send}",
+        "__$$update$$__" : "${actions.update}",
+        "__$$finish$$__" : "${actions.finish}"
+    },
+    "wizard" :
+    {
+        "nexterror" : "Unable to show next stage.",
+        "buttons" :
+        {
+            "next" : "Next >",
+            "finish" : "${actions.finish}",
+            "previous" : "< Back",
+            "cancel" : "${actions.cancel}"
+        }
+    },
+    "moretextindicator" : "...",
+    "form" :
+    {
+        "labels" :
+        {
+            "summary" : "Summary",
+            "description" : "Description",
+            "message" : "Message",
+            "email" : "Email",
+            "name" : "Name",
+            "aliases" : "Aliases"
+        },
+        "errors" :
+        {
+            "entervalue" : "Please enter a %s",
+            ":comment.entervalue" : "The %s will be replaced with the label of the form element.",
+            ":scount.entervalue" : 1,
+            "invalidemail" : "Email does not appear to be valid."
+        }
+    },
+    "actions" :
+    {
+        "open" : "Open",
+        "new" : "New",
+        "rename" : "Rename",
+        "create" : "Create",
+        "close" : "Close",
+        "delete" : "Delete",
+        "import" : "Import",
+        "export" : "Export",
+        "edit" : "Edit",
+        "save" : "Save",
+        "view" : "View",
+        "select" : "Select",
+        "finish" : "Finish",
+        "cancel" : "Cancel",
+        "send" : "Send",
+        "update" : "Update",
+        "add" : "Add",
+        "where" : "Where",
+        "anywhere" : "Anywhere",
+        "help" : "Help",
+        "change" : "Change"
+    },
+    "sidebars" :
+    {
+        "close" :
+        {
+            "tooltip" : "Click to close"
+        },
+        "othersidebarselect" :
+        {
+            "tooltip" : "Click to select another sidebar"
+        }
+    },
+    "deleteitem":
+    {
+        ":comment" : "This is a general purpose 'Delete this thing' action.  It is reused by a number of functions, such as deleting a chapter or warmup or project.",
+        "title" : "Delete %1s",
+        ":comment.title" : "%1s is the type of thing that is to be deleted.",
+        ":scount.title" : 1,
+        "text" : "To delete %1s <b>%2s</b> please enter the word <b>${deleteitem.confirmword}</b> into the box below.%3s",
+        ":comment.text" : "%1s is the type of thing that is to be deleted.  %2s is the name of the thing, such as chapter name.  %3s is an optional warning that some delete functions display to warn the user.  The confirmword value is the one used for confirmation of the deletion.  It should be an affirmative value, such as 'Yes' or 'Ok', i.e. short and fast to enter but indicates that the user agrees with the action.  When checked the case of the value entered will be ignored, so YES, Yes, or yes would work.",
+        ":scount.text" : 3,
+        "confirmword" : "Yes",
+        "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
+        "confirm" : "Yes, delete it"
+    },
+    "achievementspanel" :
+    {
+        "title" : "${names.achievements}",
+        "text" : "Listed below are all the achievements you have found/reached.  Some of the achievements apply to each {project} you create, others are just for general usage of {QW}.  There are also a number of hidden achievements, can you find them?",
+        "sectiontitles" :
+        {
+            "user" : "General - %1s/%2s",
+            ":comment.user" : "%1s is the number of achievements the user has reached.  %2s is the number of possible user level achievements.",
+            ":scount.user" : 2,
+            "project" : "{Project} - %1s/%2s",
+            ":comment.project" : "%1s is the number of achievements the project has reached.  %2s is the number of possible project level achievements.",
+            ":scount.project" : 2
+        },
+        "actionerror" : "Unable to view achievements."        
+    },
+    "achievements" :
+    {
+        "swear50" :
+        {
+            "name" : "Language Timothy!",
+            ":comment.name" : "This achievement is for the English language only and doesn't need to be translated.",
+            "description" : "Use 50 swear words in a {chapter}."
+        },
+        ":englishonly:swear50" : true,
+        "exclamation5" :
+        {
+            "name" : "I'm not crazy!",
+            ":comment.name" : "This achievement is for the English language only and doesn't need to be translated.",
+            "description" : "Use ! 5 times or more in a {chapter}."
+        },
+        ":englishonly.exclamation5" : true,
+        "speechverbs10" :
+        {
+            "name" : "Variation on a theme",
+            ":comment.name" : "This achievement is for the English language only and doesn't need to be translated.",
+            "description" : "Use 10 different speech verbs in a {chapter}."
+        },
+        ":englishonly.speechverbs10" : true,
+        "firstsentence" :
+        {
+            "name" : "I've started so I'll finish",
+            "description" : "Write the first sentence of the first {chapter}."
+        },
+        "chapter5over5000" :
+        {
+            "name" : "{Chapters} are for the weak",
+            "description" : "Have 5 {chapters} that are 5,000 words or more."
+        },
+        "chapterover5000" :
+        {
+            "name" : "Well... a lot happened",
+            "description" : "Have a {chapter} that is 5,000 words or more."
+        },
+        "wordcount1000" :
+        {
+            "name" : "Getting into it",
+            "description" : "You've written 1,000 words."  
+        },
+        "wordcount7500" : 
+        {
+            "name" : "Novellete",
+            "description" : "You've written 7,500 words."
+        },
+        "wordcount17500" :
+        {
+            "name" : "Novella",
+            "description" : "You've written 17,500 words."
+        },
+        "wordcount40000" :
+        {
+            "name" : "Novel",
+            "description" : "You've written 40,000 words."
+        },
+        "wordcount50000" :
+        {
+            "name" : "Ready for NaNoWriMo",
+            "description" : "You've written 50,000 words."
+        },
+        "wordcount100000" :
+        {
+            "name" : "Weighty tome",
+            "description" : "You've written 100,000 words."
+        },
+        "wordcount200000" :
+        {
+            "name" : "Gonna need a trolley",
+            "description" : "You've written 200,000 words."
+        },
+        "wordcount560000" :
+        {
+            "name" : "War and Peace",
+            "description" : "You've written 560,000 words."
+        },
+        "hourwrite" :
+        {
+            "name" : "My fingers ache",
+            "description" : "Write for 60 minutes (with only 5 minute breaks)."
+        },
+        "sessionwords1000" :
+        {
+            "name" : "On a roll",
+            "description" : "Write 1,000 words or more in one session."
+        },
+        "sessionwords2000" :
+        {
+            "name" : "Tearing up the keys",
+            "description" : "Write 2,000 words or more in one session."
+        },
+        "sessionwords5000" :
+        {
+            "name" : "Pact with the devil",
+            "description" : "Write 5,000 words or more in one session."
+        },
+        "session5sessions500words" :
+        {
+            "name" : "Steaming ahead",
+            "description" : "Over the course of 7 days have 5 or more writing sessions where you write 500 words or more."
+        },
+        "sessionEditChapters3" :
+        {
+            "name" : "A little of this, a little of that",
+            "description" : "Edit 3 {chapters} in one writing session."
+        },
+        "noeditdays7" :
+        {
+            "name" : "Thinking time",
+            "description" : "Don't edit your {project} for 7 days."
+        },
+        "noeditdays14" :
+        {
+            "name" : "Have you forgotten about me?",
+            "description" : "Don't edit your {project} for 14 days."
+        },
+        "noeditdays28" :
+        {
+            "name" : "No one visits me anymore",
+            "description" : "Don't edit your {project} for 28 days."
+        },
+        "autosaveon" :
+        {
+            "name" : "Save me",
+            "description" : "Turn on auto-save."
+        },
+        "autosaveoff" :
+        {
+            "name" : "I'll save myself thanks",
+            "description" : "Turn off auto-save."
+        },
+        "movetoolbar" :
+        {
+            "name" : "I did it my way",
+            "description" : "Move the toolbar location."
+        },
+        "moveprojectdir" :
+        {
+            "name" : "Move out",
+            "description" : "Change the {project} directory."
+        },
+        "renameproject" :
+        {
+            "name" : "A Book by Any Other Name",
+            "description" : "Rename your {project}."
+        },
+        "spellcheckon" :
+        {
+            "name" : "I'll be glad to be rid of them",
+            "description" : "Turn on the spellchecker."
+        },
+        "typewritersoundon" :
+        {
+            "name" : "Old School",
+            "description" : "Turn on the typewriter sound and listen to the clackity clack of years gone by."
+        },
+        "checkwordcounts" :
+        {
+            "name" : "How am I doing?",
+            "description" : "You checked the word counts, have you written as much as you think?"
+        },
+        "wordcounthistory" :
+        {
+            "name" : "Historian",
+            "description" : "You checked the word count history, are those lines going up?"
+        },
+        "addscene1" :
+        {
+            "name" : "Seen it",
+            "description" : "Add a {Scene}."
+        },
+        "addscene5" :
+        {
+            "name" : "Bringing order to chaos",
+            "description" : "Add 5 {Scenes}."
+        },
+        "addplotoutlineitem1" :
+        {
+            "name" : "So that's where it is",
+            "description" : "Add a {Outlineitem}."
+        },
+        "addplotoutlineitem5" :
+        {
+            "name" : "It's all becoming clear",
+            "description" : "Add 5 {Outlineitems}."
+        },
+        "addidea" :
+        {
+            "name" : "The Apple falls",
+            "description" : "Add an {Idea}."
+        },
+        "addidea5" :
+        {
+            "name" : "Brain dump",
+            "description" : "Add 5 {Ideas}."
+        },
+        "addidea10" :
+        {
+            "name" : "Einstein-a-go-go",
+            "description" : "Add 10 {Ideas}."
+        },
+        "addidea20" :
+        {
+            "name" : "So many ideas, so little time",
+            "description" : "Add 20 {Ideas}."
+        },
+        "addideatype" :
+        {
+            "name" : "Call the Patent Office",
+            "description" : "Add a new type of {Idea}."
+        },
+        "sortideas" :
+        {
+            "name" : "All sorted",
+            "description" : "Sort your ideas."
+        },
+        "rateideas" :
+        {
+            "name" : "Some are more equal than others",
+            "description" : "Rate your ideas."
+        },
+        "addlocation" :
+        {
+            "name" : "Home sweet home",
+            "description" : "Add {Location}."
+        },
+        "addlocation5" :
+        {
+            "name" : "Building the world",
+            "description" : "Add 5 {Locations}."
+        },
+        "addlocation10" :
+        {
+            "name" : "Gonna need a map",
+            "description" : "Add 10 {Locations}."
+        },
+        "addlocation20" :
+        {
+            "name" : "All your base are belong to us",
+            "description" : "Add 20 {Locations}."
+        },
+        "addcharacter5" :
+        {
+            "name" : "Quartet plus one",
+            "description" : "Add 5 {Characters}."
+        },
+        "addcharacter10" :
+        {
+            "name" : "I'm sorry I've completely forgotten your name",
+            "description" : "Add 10 {Characters}."
+        },
+        "addobject5" :
+        {
+            "name" : "Itemized",
+            "description" : "Add 5 {Objects}."
+        },
+        "addcharacter" :
+        {
+            "name" : "The name's Smith, probably",
+            "description" : "Add a {Character}."
+        },
+        "addobject10" :
+        {
+            "name" : "All the things",
+            "description" : "Add 10 {Characters}."
+        },
+        "manageitemtypes" :
+        {
+            "name" : "Spring cleaning",
+            "description" : "Manage the item types."
+        },
+        "problemfindershow" :
+        {
+            "name" : "Things can only get better",
+            "description" : "Use the ${names.problemfinder}."
+        },
+        "problemfindernewrule" :
+        {
+            "name" : "I set the rules",
+            "description" : "Add a new ${names.problemfinder} rule."
+        },
+        "problemfindereditrule" :
+        {
+            "name" : "I prefer it like this",
+            "description" : "Edit an existing ${names.problemfinder} rule."
+        },
+        "problemfinderignore10" :
+        {
+            "name" : "They're your rules not mine",
+            "description" : "Ignore 10 problems found by the ${names.problemfinder}."
+        },
+        "problemfinderunignore" :
+        {
+            "name" : "On second thoughts...",
+            "description" : "Un-ignore a problem found by the ${names.problemfinder}."
+        },
+        "changespellchecklanguage" :
+        {
+            "name" : "They talk so funny over there",
+            "description" : "Change the spellcheck language."
+        },
+        "usehelp" :
+        {
+            "name" : "Help me Obi Wan Kenobi",
+            "description" : "Use the help."
+        },
+        "submitbugreport" :
+        {
+            "name" : "Exterminate!",
+            "description" : "Submit a bug report."
+        },
+        "showaboutmenu" :
+        {
+            "name" : "See you do care",
+            "description" : "Click on the <b>About {QW}</b> menu item."
+        },
+        "movechapter" :
+        {
+            "name" : "First we do this, then this",
+            "description" : "Move a {chapter}."
+        },
+        "deletechapter" :
+        {
+            "name" : "It just wasn't working darling",
+            "description" : "Delete a {chapter}."
+        },
+        "export" :
+        {
+            "name" : "Export Duty",
+            "description" : "Export your {project}."
+        },
+        "import" :
+        {
+            "name" : "Something Important",
+            "description" : "Import something into your {project}."
+        },
+        "synonymreplace5" :
+        {
+            "name" : "Keeping it fresh",
+            "description" : "Replace 5 words with synonyms."
+        },
+        "synonymreplace10" :
+        {
+            "name" : "New for old",
+            "description" : "Replace 10 words with synonyms."
+        },
+        "fullscreenmode" :
+        {
+            "name" : "Don't distract me",
+            "description" : "Write in full screen mode."
+        },
+        "addnote" :
+        {
+            "name" : "So noted",
+            "description" : "Add a note."
+        },
+        "addnote5" :
+        {
+            "name" : "Scribbler",
+            "description" : "Add 5 notes."
+        },
+        "spellcheckreplace" :
+        {
+            "name" : "Correct me if I'm wrong",
+            "description" : "Change a word via the spellchecker."
+        },
+        "spellcheckreplace5" :
+        {
+            "name" : "Butterfingers",
+            "description" : "Change 5 words via the spellchecker."
+        },
+        "spellcheckreplace20" :
+        {
+            "name" : "I'll sort it later",
+            "description" : "Change 20 words via the spellchecker."
+        },
+        "spellcheckreplace50" :
+        {
+            "name" : "Be gone little red lines",
+            "description" : "Change 50 words via the spellchecker."
+        },
+        "addchapter5" :
+        {
+            "name" : "Chapter and Verse",
+            "description" : "Create 5 {Chapters}."
+        },
+        "addchapter10" :
+        {
+            "name" : "Meaty",
+            "description" : "Create 10 {Chapters}."
+        },
+        "addchapter20" :
+        {
+            "name" : "Bulking up",
+            "description" : "Create 20 {Chapters}."
+        },
+        "addchapter50" :
+        {
+            "name" : "Look out Tolstoy!",
+            "description" : "Create 50 {Chapters}."
+        },
+        "addeditneedednote1" :
+        {
+            "name" : "Where's my red pen?",
+            "description" : "Create an Edit Needed {Note}."
+        },
+        "addeditneedednote5" :
+        {
+            "name" : "",
+            "description" : "I'll fix it next time round<"
+        },
+        "addeditneedednote10" :
+        {
+            "name" : "Need a fresh pot of coffee",
+            "description" : "Create 10 Edit Needed {Notes}."
+        },
+        "addtodonote10" :
+        {
+            "name" : "So much to do",
+            "description" : "Create 10 <b>To Do</b> {Notes}."
+        },
+        "addresearchitem" :
+        {
+            "name" : "Backed up with facts",
+            "description" : "Create a {Research Item}."
+        },
+        "addresearchitem5weblinks" :
+        {
+            "name" : "I'll check on it later",
+            "description" : "Create {Research Item} with web links."
+        },
+        "personaldictionaryaddword" :
+        {
+            "name" : "I'll be needing that later",
+            "description" : "Add a word to your personal dictionary."
+        },
+        "managepersonaldictionary" :
+        {
+            "name" : "I'll spell it my way damnit",
+            "description" : "Manage your personal dictionary."
+        },
+        "showfind" :
+        {
+            "name" : "I know I put it somewhere",
+            "description" : "Use the global find."
+        },
+        "aliascharacter" :
+        {
+            "name" : "They call me Smith",
+            "description" : "Have an alias for a character."
+        },
+        "ideaboardbackgroundchange" :
+        {
+            "name" : "Seeing my ideas in a new way",
+            "description" : "Change the ${names.ideaboard} background."
+        },
+        "usestyle" :
+        {
+            "name" : "A little salt and pepper",
+            "description" : "Use bold, italic or underline on the text."
+        },
+        "convertwarmuptoproject" :
+        {
+            "name" : "Playtime is over",
+            "description" : "Convert a warm-up to a {project}."
+        },
+        "addwarmup5" :
+        {
+            "name" : "Warming up",
+            "description" : "Create 5 warm-ups."
+        },
+        "addownprompt" :
+        {
+            "name" : "Ideas Man",
+            "description" : "Write your own warm-up prompt."
+        },
+        "addownprompt5" :
+        {
+            "name" : "I amuse myself",
+            "description" : "Write 5 of your own warm-up prompts."
+        },
+        "warmuponstart" :
+        {
+            "name" : "Flex and stretch",
+            "description" : "Do a warm-up when Quoll Writer starts."
+        },
+        "warmupwordsreached" :
+        {
+            "name" : "Beating the clock",
+            "description" : "Do a warm-up and write the selected number of words before the timer runs out."
+        },
+        "warmuptimerrestart" :
+        {
+            "name" : "I'm on a roll",
+            "description" : "Continue the {warmup} after the timer runs out/word count is reached."
+        },
+        "settingschange" :
+        {
+            "name" : "Setting up",
+            "description" : "Change the colors/settings in normal mode."
+        },
+        "fullscreentimerstart" :
+        {
+            "name" : "Stay on target",
+            "description" : "Use the timer in full screen mode."
+        },
+        "fullscreensettingschange" :
+        {
+            "name" : "My way or the highway",
+            "description" : "Change the colors/settings for full screen mode."
+        },
+        "fullscreensbgchange" :
+        {
+            "name" : "Window of the soul",
+            "description" : "Change the size of the display and/or the background transparency in full screen mode."
+        },
+        "fullscreensbgimage" :
+        {
+            "name" : "My own private Zen",
+            "description" : "Change the background image in full screen mode."
+        },
+        "backupnew" :
+        {
+            "name" : "I need backup!",
+            "description" : "Create a backup for a {project}."
+        },
+        "backupsshow" :
+        {
+            "name" : "I've got your back",
+            "description" : "View the backups for a {project}."
+        },
+        "tips5" :
+        {
+            "name" : "Tipster",
+            "description" : "View more than 5 tips."
+        },
+        "addinvite" :
+        {
+            "name" : "It begins!",
+            "description" : "Send an invite to an {editor}."
+        },
+        "addinvite3" :
+        {
+            "name" : "Assembling the team",
+            "description" : "Invite 3 {editors}."
+        },
+        "addinvite5" :
+        {
+            "name" : "Editing Avengers",
+            "description" : "Invite 5 {editors}."
+        },
+        "acceptinvite" :
+        {
+            "name" : "Not your buddy, guy!",
+            "description" : "Accept an invite from {a contact}."
+        },
+        "acceptinvite3" :
+        {
+            "name" : "I'm not your guys, buddies... no wait...",
+            "description" : "Accept 3 {contact} invites."
+        },
+        "inviteaccepted" :
+        {
+            "name" : "Not alone in this",
+            "description" : "Receive an invite acceptance from {a contact}."
+        },
+        "inviteaccepted3" :
+        {
+            "name" : "Team Building",
+            "description" : "Receive invite acceptances from 3 {contacts}."
+        },
+        "acceptprojectinvite" :
+        {
+            "name" : "I'm your [wo]man",
+            "description" : "Accept an invite to edit a {project}."
+        },
+        "acceptprojectinvite3" :
+        {
+            "name" : "Team Player",
+            "description" : "Accept 3 invitations to edit a {project}."
+        },
+        "sendproject" :
+        {
+            "name" : "Projecting",
+            "description" : "Send a {project} to {an editor}."
+        },
+        "sendproject3" :
+        {
+            "name" : "Wait, what about this version",
+            "description" : "Send a {project} update to {an editor}."
+        },
+        "updateproject" :
+        {
+            "name" : "Wait, what about this version",
+            "description" : "Send a {project} update to {an editor}."
+        },
+        "projectcomments" :
+        {
+            "name" : "I've got something to say",
+            "description" : "Send some comments about a {project}."
+        }
+    },
+    "tips" :
+    {
+        "1" : "Quoll Writer has a Patreon page.  If you want to help speed up development why not consider donating?  <a href='https://www.patreon.com/quollwriter?ty=h'>Click here to view the Patreon page</a>",
+        "2" : "Did you know you can keep track of how much of a {chapter} you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.",
+        "3" : "Don't like what things are called?  <a href='action:editobjectnames'>Click here to change them.</a>",
+        "4" : "There is an option to compress the right click menu you see when editing a {chapter}. <a href='action:options.editing'>Click here to view options.</a>",
+        "5" : "Don't like the position of the tabs?  Change it in the options.  <a href='action:options.look'>Click here to view options.</a>",
+        "6" : "Want to see where you are writing?  Enable writing line highlighting in the text properties.  <a href='action:textproperties'>Click here to view the text properties now.</a>",
+        "7" : "Want to change something?  <a href='action:options'>Check out the options, there might be a setting for it.</a>",
+        "8" : "Changing the setting of an option will take effect straight away, no need to save.",
+        "9" : "Want to work in full screen mode?  <a href='action:fullscreen'>Click to enter full screen mode now.</a><br />You can also press F5 or use the [fullscreen,fullscreen] button on the toolbar to enter full screen mode.",
+        "10" : "Can't remember what the awesome was added in this release?  <a href='action:whatsnew'>Click to see what's new.</a>",
+        "11" : "Got writer's block?  <a href='action:warmup'>Why not try a {warmup} exercise?</a> To do a {warmup} at any time select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the {project} menu.",
+        "12" : "Want to record your ideas?  <a href='action:ideaboard'>Click to open the ${names.ideaboard}.</a><br />You can open the ${names.ideaboard} at any time by selecting [idea]<b>${project.settingsmenu.items.ideaboard}</b>.",
+        "13" : "Have you seen the user guide?  <a href='help:index.html'>Click to view the guide.</a> You can access the online help at any time from the {project} menu, then select [help]<b>${project.settingsmenu.items.help}</b> then [help]<b>${project.settingsmenu.items.viewuserguide}</b>.",
+        "14.1" : "Want to know how many words you've written?  <a href='action:wordcounts'>Click to see the word counts now.</a><br />You can also use <b>Ctrl+W</b> or the [wordcount] button from the toolbar to see how many words you've written.",
+        "14.2" : "Want to know how many words you've written?  Press <b>Ctrl+W</b> when editing a chapter or use the [wordcount] button from the toolbar to see how many words you've written.",
+        "15" : "Want to know see how many words you've written over time? <a href='action:wordcounthistory'>Click to see the word count history now.</a><br />Press <b>Ctrl+W</b> or use the [wordcount] button from the toolbar then [wordcount]<b>View Detail</b> to view the history.",
+        "16" : "Want to manage the words in your personal dictionary?  <a href='action:dictionarymanager'>Click to manage your personal dictionary now.</a><br />The dictionary can be accessed from the project menu then select [edit-properties]<b>Project Options</b> and the <b>{Chapter}</b> tab.",
+        "17" : "Sick of those little red lines?  <a href='action:spellcheckoff'>Click to turn the spellchecker off.</a><br />Press <b>Ctrl+L</b> when editing a chapter or use the [spellchecker] button on the toolbar to turn the spellchecker on or off.",
+        "18" : "Want to keep track of your achievements?  <a href='action:achievements'>Click to check your achievements now.</a><br />You can track your progress at any time by selecting [achievement]<b>${project.settingsmenu.items.achievements}</b> from the {project} menu.",
+        "19" : "Like to use the keyboard rather than the mouse?  <a href='help:main-window/keyboard-shortcuts'>Click to view the shortcuts.</a>",
+        "20" : "You can import Microsoft Word files into your {project}. <a href='action:import'>Click to import a file.</a><br />You can also select [project-import]<b>${project.settingsmenu.items.importproject}</b> from the {project} menu to import.",
+        "21" : "You can export your {project} to a number of different file formats?  <a href='action:export'>Click to export your {project}.</a><br />You can also select [project-export]<b>${project.settingsmenu.items.exportproject}</b> from the {project} menu to export.",
+        "22" : "Want to improve your writing and find problems with the text?   <a href='action:problemfinder'>Click to view the problem finder.</a><br />The problem finder can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>${names.problemfinder}</b>.",
+        "23" : "You can use the problem finder in full screen mode.  <a href='action:fullscreen,problemfinder'>Click to view the problem finder in full screen mode now.</a><br />Full screen mode can be accessed from the toolbar by selecting [fullscreen] or pressing <b>F5</b>. The ${names.problemfinder} can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>Find Problems</b> or using the shortcut <b>Ctrl+Shift+P</b>.",
+        "24" : "Want to check how readable your prose is?  <a href='action:wordcounts'>Click to view the check the readability now.</a><br />You can also check the readability by opening the word counts via <b>Ctrl+W</b> or use the [wordcount] button on the toolbar.",
+        "25" : "Don't like the font or font size?  <a href='action:textproperties'>Click to change the text properties.</a><br />The text properties can be accessed from the [tools] menu on the toolbar then select [edit-properties]<b>Edit Text Properties</b>.",
+        "26.1" : "Want to find a synonym?  Highlight a word while editing a {chapter} and right click.",
+        "26.2" : "Want to find a synonym?  Highlight a word and right click.",
+        "27" : "Missing the sound of a typewriter?  <a href='action:enabletypewritersound'>Click to try out the typewriter sound.</a><br />You can turn the sound on or off (and change it) in the <b>How things look and sound</b> section of the <a href='action:options.look'>options</a>.",
+        "28" : "{Warmups} can be converted into {projects}.  <a href='action:warmup'>Click to do a {warmup} now.</a><br />You can do a {warmup} at any time, just select [warmups]<b>${project.settingsmenu.items.dowarmup}</b> from the {project} menu.",
+        "29" : "In full screen mode you can change the size of the writing area and how transparent the background is?  Just move your cursor to the top of the screen to see the options.",
+        "30" : "Did you know that in full screen mode you can change the color of the text and the background of the writing area? <a href='action:fullscreen'>Click to enter full screen mode now.",
+        "31" : "Did you know that in full screen mode you can set an image for the background?  <a href='action:fullscreen'>Click to enter full screen mode now.</a>",
+        "32" : "Looking to find where a word or term is mentioned?  <a href='action:find'>Click to open the find.</a><br />You can open the find with <b>Ctrl+F</b> or select [find]<b>Find</b> from the project menu at any time."
+    },
+    "problemfinder" :
+    {
+        "issues" :
+        {
+            "toomanyclauses" :
+            {
+                "text" : "Sentence contains: <b>%1s</b> clauses (Max is: %2s)",
+                ":comment.text" : "%1s is the number of clauses.  %2s is the max value configured.",
+                ":scount.text" : 2
+            },
+            "sentencecomplexity" :
+            {
+                "text" : "Sentence syllable/word ratio is: <b>%1s</b> (Max is: %2s)",
+                ":comment.text" : "%1s is the ratio for the sentence.  %2s is the max value configured.",
+                ":scount.text" : 2
+            },
+            "sentencelength" :
+            {
+                "text" : "Sentence contains: <b>%1s</b> words (Max is: %2s)",
+                ":comment.text" : "%1s is the number of words in the sentence.  %2s is the max value configured.",
+                ":scount.text" : 2
+            },
+            "paragraphreadability" :
+            {
+                "fk" : "Paragraph has a ${names.fk} of: <b>%1s</b> (Max is: %2s)",
+                ":comment.fk" : "%1s is the FK value for the paragraph.  %2s is the max FK value configured.",
+                ":scount.fk" : 2,
+                "fr" : "Paragraph has a ${names.fr} of: <b>%1s</b> (Max is: %2s)",
+                ":comment.fr" : "%1s is the FR value for the paragraph.  %2s is the max FR value configured.",
+                ":scount.fr" : 2,
+                "gf" : "Paragraph has a ${names.gf} of: <b>%1s</b> (Max is: %2s)",
+                ":comment.gf" : "%1s is the GF value for the paragraph.  %2s is the max GF value configured.",
+                ":scount.gf" : 2
+            },
+            "paragraphlength" :
+            {
+                "wordtext" : "Paragraph word count is: <b>%1s</b> (Max is: %2s)",
+                ":comment.wordtext" : "%1s is the number of words in the paragraph.  %2s is the max value configured.",
+                ":scount.wordtext" : 2,
+                "sentencetext" : "Paragraph sentence count is: <b>%1s</b> (Max is: %2s)",
+                ":comment.sentencetext" : "%1s is the number of sentences in the paragraph.  %2s is the max value configured.",
+                ":scount.sentencetext" : 2
+            },
+            "doubleword" :
+            {
+                "wordtext" : "Double word: <b>%1s %2s</b>.",
+                ":comment.wordtext" : "%1s and %2s are replaced with the duplicated word.",
+                ":scount.wordtext" : 2,
+                "punctuationtext" : "Double punctuation: <b>%1s%2s</b>",
+                ":comment.punctuationtext" : "%1s and %2s are replaced with the punctuation mark.",
+                ":scount.punctuationtext" : 2
+            },
+            "passivesentence" :
+            {
+                "text" : "Passive voice, contains: <b>%s</b>",
+                ":comment.text" : "The %s is replaced with the word(s) found.",
+                ":scount.text" : 1
+            },
+            "adverb" :
+            {
+                "text" : "Use of adverb: <b>%1s</b> to modify speech verb: <b>%2s</b>",
+                ":comment.text" : "%1s is the adverb, %2s is the speech verb being modified.",
+                ":scount.text" : 2
+            },
+            "wordfinder" :
+            {
+                "text" : "Contains: <b>%1s</b>%2s",
+                ":comment.text" : "%1s is the word/phrase that is found.  %2s is the suffix showing where the word/phrase was found.",
+                ":scount.text" : 2,
+                "suffixes" :
+                {
+                    "onlyindialogue" : " (in dialogue)",
+                    "notindialogue" : " (%s of sentence)",
+                    ":comment.notindialogue" : "The %s is either start or end.",
+                    ":scount.notindialogue" : 1,
+                    "indialogue" : " (%s of sentence, in dialogue)",
+                    ":comment.indialogue" : "The %s is either start or end.",
+                    ":scount.indialogue" : 1,
+                    "start" : "start",
+                    "end" : "end",
+                    "anywhere" : "anywhere"
+                }
+            }
+        },
+        "config" :
+        {
+            "popup" :
+            {
+                "title" : "Configure the ${names.problemfinder} rules"  
+            },
+            "saveruleerror" : "Unable to save rule",
+            "tabtitles" :
+            {
+                "words" : "Words/Phrases",
+                "sentence" : "Sentence Structure",
+                "paragraph" : "Paragraph Structure"
+            },
+            "rules" :
+            {
+                "ignoreindialogue" : "Ignore in dialogue",
+                "sentence" :
+                {
+                    "addtitle" : "Add new Sentence Structure rule"
+                },
+                "paragraph" :
+                {
+                    "addtitle" : "Add new Paragraph Structure rule"  
+                },
+                "toomanyclauses" :
+                {
+                    "labels" :
+                    {
+                        "clauses" : "No of clauses"
+                    }
+                },
+                "sentencecomplexity" :
+                {
+                    "labels" :
+                    {
+                        "ratio" : "Ratio",
+                        "sentencelength" : "Sentence length (words)"
+                    }
+                },
+                "sentencelength" :
+                {
+                    "labels" :
+                    {
+                        "words" : "No of words"
+                    }
+                },
+                "paragraphreadability" :
+                {
+                    "labels" :
+                    {
+                        "fk" : "${names.fk}",
+                        "fr" : "${names.fr}",
+                        "gf" : "${names.gf}"
+                    }
+                },
+                "paragraphlength" :
+                {
+                    "labels" :
+                    {
+                        "words" : "Words",
+                        "sentences" : "Sentences"
+                    }
+                },
+                "adverb" :
+                {
+                    "buttons" :
+                    {
+                        "removespeechverbs" :
+                        {
+                            "tooltip" : "Click to remove the selected speech verbs"
+                        }
+                    },                    
+                    "labels" :
+                    {
+                        "separate" : "(separate with , or ;)",
+                        ":comment.separate" : "Commas and semi-colons are used to separate the verbs.",
+                        "newspeechverbs" : "New speech verbs",
+                        "speechverbs" : "Speech verbs"
+                    }
+                },  
+                "passivesentence" :
+                {
+                    "labels" :
+                    {
+                        "ignoreindialogue" : "${problemfinder.config.rules.ignoreindialogue}"
+                    }
+                },
+                "wordfinder" :
+                {
+                    "edittitle" : "Edit Word/Phrase Rule",
+                    "nowordserror" : "Please enter at least one word or symbol.",
+                    "description" :
+                    {
+                        "anywhere" : "anywhere in a sentence%s",
+                        ":comment.anywhere" : "The %s is replaced with one of the dialogue suffixes.",
+                        "scount.anywhere" : 1,
+                        "insentence" : "at the %1s of a sentence%2s",
+                        ":comment.insentence" : "%1s is replaced with either start or end, %2s is replaced with one of the dialogue suffixes.",
+                        "scount.insentence" : 2,
+                        "suffixes" :
+                        {
+                            "onlyindialogue" : ", but only in dialogue",
+                            "ignoreindialogue" : ", ignore in dialogue"
+                        }
+                    },
+                    "labels" :
+                    {
+                        "wordphrase" : "Word/Phrase",
+                        "onlyindialogue" : "Only in dialogue",
+                        "ignoreindialogue" : "${problemfinder.config.rules.ignoreindialogue}",
+                        "where" : "${actions.where}",
+                        "anywhere" : "${actions.anywhere}",
+                        "startofsentence" : "Start of sentence",
+                        "endofsentence" : "End of sentence"
+                    }
+                }
+            },
+            "editrule" :
+            {
+                "title" : "${actions.edit} Rule"  
+            },
+            "addrule" :
+            {
+                "title" : "${actions.add} Rule",
+                "words" :
+                {
+                    "buttons" :
+                    {
+                        "add" :
+                        {
+                            "tooltip" : "Click to add a new Words/Phrases rule"
+                        }
+                    }
+                },
+                "sentence" :
+                {
+                    "rulebox" :
+                    {
+                        "tooltip" : "Click to add this rule"  
+                    },
+                    "buttons" :
+                    {
+                        "add" :
+                        {
+                            "tooltip" : "Click to add a new Sentence Structure rule"
+                        }
+                    }
+                },
+                "paragraph" :
+                {
+                    "rulebox" :
+                    {
+                        "tooltip" : "Click to add this rule"  
+                    },
+                    "buttons" :
+                    {
+                        "add" :
+                        {
+                            "tooltip" : "Click to add a new Paragraph Structure rule"
+                        }
+                    }
+                }
+            },
+            "rulebox" :
+            {
+                "buttons" :
+                {
+                    "find" :
+                    {
+                        "tooltip" : "Click to find all problems for this rule"
+                    },
+                    "edit" :
+                    {
+                        "tooltip" : "Click to edit this rule"
+                    },
+                    "info" :
+                    {
+                        "tooltip" : "Click to show/hide the description of this rule"
+                    },
+                    "delete" :
+                    {
+                        "tooltip" : "Click to remove this rule"
+                    }
+                }
+            },
+            "removerule" :
+            {
+                "title" : "Confirm rule removal",
+                "text" : "Please confirm you wish to remove rule: <b>%s</b>",
+                ":comment.text" : "The %s here is the name/summary of the rule so the user knows which one is being removed.",
+                ":scount.text" : 1,
+                "buttons" :
+                {
+                    "thisproject" : "From this {project} only",
+                    "allprojects" : "All {projects}"
+                }
+            }
+        }
+    },
+    "debugmode" :
+    {
+        "enabled" : "Debug mode is now <b>ENabled</b>.",
+        "disabled" : "Debug mode is now <b>DISabled</b>."
+    },
+    "importproject" :
+    {
+        "actionerror" : "Unable to show import {project} wizard.",
+        "nexterror" : "Unable to go to next stage.",
+        "previouserror" : "Unable to go to previous stage.",
+        "unabletosaveerror" : "Unable to save: %s",
+        ":comment.unabletosaveerror" : "The %s is the name of the item that is trying to be saved.",
+        ":scount.unabletosaveerror" : 1,
+        "unabletocreateprojecterror" : "Unable to create new {project}: %s",
+        ":comment.unabletocreateprojecterror" : "The %s is the name of the project trying to be created.",
+        ":scount.unabletocreateprojecterror" : 1,
+        "supportedfiletypesdescription" : "Supported Files",
+        "nofileselectederror" : "Please select a file to import.",
+        "help" : "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function if you are importing a file.  The import expects the file(s) to be in a certain format.",
+        "moretextindicator" : " ${moretextindicator} ",
+        ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
+        "popup" :
+        {
+            "title" : "${actions.import} a File or {Project}"
+        },
+        "importcompletepopup" :
+        {
+            "title" : "${actions.import} complete",
+            "text" : "The items have been imported into your {project}"
+        },
+        "stages" :
+        {
+            "newproject" :
+            {
+                "title" : "Enter the new {project} details",
+                "text" : "To create a new {project} enter the name below and select the directory where it should be saved."
+            },
+            "decide" :
+            {
+                "title" : "What would you like to do?",
+                "options" :
+                {
+                    "addtoproject" : "Add to {project} %s",
+                    ":comment.addtoproject" : "The %s is the name of the current project.",
+                    ":scount.addtoproject" : 1,
+                    "newproject" : "Create a new {project}"
+                }
+            },
+            "selectitems" :
+            {
+                "title" : "Select the items you wish to import",
+                "text" : "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.%s",
+                ":comment.help" : "The %s is replaced with the {textextra} text if the user has selected 'Add to {project} for importing.  If new project is selected then blank text is used.",
+                ":scount.help" : 1,
+                "textextra" : "  Only items not already in the {project} will be listed."
+            },
+            "selectfile" :
+            {
+                "title" : "Select a file to import",
+                "text" : "Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.",
+                "finder" :
+                {
+                    "title" : "Select a file to import",
+                    "button" : "${actions.select}",
+                    "tooltip" : "Click to find a file",
+                    "label" : "File"
+                }
+            },
+            "choose" :
+            {
+                "title" : "What would you like to import?",
+                "text" : "Select whether you wish to import from a file or from one of your {projects}.",
+                "options" :
+                {
+                    "importfromproject" : "Import from a {Project}",
+                    "importfromfile" : "Import from a File"
+                }
+            },
+            "selectproject" :
+            {
+                "title" : "Select a {Project} to import from",
+                "getallprojectserror" : "Unable to get all the {projects}.",
+                "projectslist" :
+                {
+                    "tooltip" : "Click to select this {Project}."
+                }
+            }
+        }
+    },
+    "exportproject" :
+    {
+        "actionerror" : "Unable to export {project}.",
+        "nexterror" : "Unable to go to next stage.",
+        "previouserror" : "Unable to go to previous stage.",
+        "nodirselectederror" : "Please select a directory.",
+        "help" : "This wizard allows you to export the information in your {project}.",
+        "popup" :
+        {
+            "title" : "${actions.export} {Project}"
+        },
+        "exportcompletepopup" :
+        {
+            "title" : "Your {Project} has been exported",
+            "text" : "{Project} <b>%s</b> has been exported to:\n\n   <a href='%s'>%s</a>",
+            ":comment.text" : "The first %s is the name of the project.  The second %s is a special link that tells QW to open the folder where the project has been exported to.  The third %s is the folder path.  It is recommended that you DO NOT change the link in any way.",
+            ":scount.text" : 3
+        },
+        "sectiontitles" :
+        {
+            "notes" : "%s - {Notes}",
+            ":comment.notes" : "The %s here is replaced with the name of the project or chapter.",
+            ":scount.notes" : 1,
+            "scenesoutlineitems" : "%s - {Scenes} and Plot Outline",
+            ":comment.scenesoutlineitems" : "The %s here is replaced with the name of the project or chapter.",
+            ":scount.scenesoutlineitems" : 1,
+            "chapterinfo" : "%s - {Chapter} Information",
+            ":comment.chapterinfo" : "The %s here is replaced with the name of the project or chapter.",
+            ":scount.chapterinfo" : 1,
+            "assets" : "%s - Assets",
+            ":comment.assets" : "The %s here is replaced with the name of the project or chapter.",
+            ":scount.assets" : 1,
+            "goals" : "${names.goals}",
+            "plan" : "${names.plan}"
+        },
+        "stages" :
+        {
+            "wheretosave" :
+            {
+                "title" : "Select the file type and directory to save to",
+                "finder" :
+                {
+                    "title" : "Select a directory to export to",
+                    "button" : "${actions.select}",
+                    "tooltip" : "Click to find a directory to export to",
+                    "label" : "Directory"
+                },
+                "filetype" :
+                {
+                    "label" : "File Type"
+                }
+            },
+            "selectitems" :
+            {
+                "title" : "Select the items you wish to export",
+                "text" : "Select the items you wish to export, if you select any {chapters} then any associated {notes} and {outlineitems} will also be exported."
+            },
+            "howtosave" :
+            {
+                "title" : "How should the selected items be saved",
+                "text" : "The items can be saved in either a single file or in one file per type of item.  Any {notes} and {outlineitems} will be saved in separate files.",
+                "types" :
+                {
+                    "singlefile" : "Single file",
+                    "onefileperchapter" : "One file per {chapter}",
+                    "onefileperitemtype" : "One file per type of item"
+                },
+                "chapterslabel" : "{Chapters}",
+                "otheritemslabel" : "Other items"
+            }
+        }
+    },
+    "closeproject" :
+    {
+        "actionerror" : "Unable to ${actions.save}: <b>%1s</b>, aborting exit.",
+        ":comment.actionerror" : "The %1s is the name of the project.",
+        ":scount.actionerror" : 1,
+        "confirmpopup" :
+        {
+            "title" : "Save changes before exiting?",
+            "text" : "The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
+            ":comment.text" : "The %1s is a list of items that the user can click on to open up the tab with unsaved changes.  It is recommended you DO NOT change this.  Each item will be formatted within a li html tag.",
+            ":scount.text" : 1
+        }
+    },
+    "closepanel" :
+    {
+        "actionerror" : "Unable to save.",
+        "confirmpopup" :
+        {
+            "title" : "${actions.save} before closing?",
+            "text" : "<b>%1s</b> has unsaved changes.  ${actions.save} before closing?",
+            ":comment.text" : "The %1s is the title of the panel that has changes.",
+            ":scount.text" : 1,
+            "buttons" :
+            {
+                "save" : "${buttons.savechanges}",
+                "discard" : "${buttons.discardchanges}"
+            }            
+        }
+    },
+    "editors":
+    {
+        "vieweditorerror" : "Unable to show {contact}.",
+        "vieweditorserror" : "Unable to show {contacts}.",
+        "showregistererror" : "Unable to show the register panel."
+    },
+    "statistics" :
+    {
+        "actionerror" : "Unable to view statistics panel."
+    },
+    "options" :
+    {
+        "actionerror" : "Unable to show the options.",
+        "achievements" :
+        {
+            "title" : "Achievements",
+            "text" : "Are the achievements annoying you?  Use this section to switch them off and they will bug you no more you underachiever.",
+            "enable" : "Enable achievements",
+            "playsound" : "Play a sound when an achievement is reached",
+            "playsoundinfullscreen" : "Play the sound in full screen mode"
+        }
+    },
+    "fullscreen" :
+    {
+        "actionerror" : "Unable to enter full screen mode.",
+        "showpanelactionerror" : "Unable to show in full screen.",
+        "title" :
+        {
+            "toolbar" :
+            {
+                "buttons" :
+                {
+                    "find" :
+                    {
+                        "tooltip" : "Click to open the ${names.find}"  
+                    },
+                    "ideaboard" :
+                    {
+                        "tooltip" : "Click to open the ${names.ideaboard}"
+                    }
+                }
+            }
+        }        
+    },
+    "spellchecker" :
+    {
+        "unabletosetlanguage" : "Unable to set spell check language to <b>%s</b>."
+    },
+    "backups" :
+    {
+        "autobackupnotification" : "An automatic ${names.backup} has been created.  <a href='%1s:%1s'>Click to view the ${names.backups}.</a>",
+        ":comment.autobackupnotification" : "The %1s:%2s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
+        ":scount.autobackupnotification" : 2,
+        "text" : "Listed below are the backups you have for {project} <b>%1s</b>.",
+        ":comment.text" : "%1s is the project name.",
+        ":scount.text" : 1,
+        "viewbackupsdir" : "Click to view the backups directory",
+        "nobackups" : "Click to view the backups directory",
+        "show" :
+        {
+            "actionerror" : "Unable to show list of backups.",
+            "popup" :
+            {
+                "title" : "Current Backups"
+            }
+        },
+        "new" :
+        {
+            "actionerror" : "Unable to create a new backup."  
+        },
+        "restore" :
+        {
+            "tooltip" : "Restore the {project} using this backup",
+            "actionerror" : "Unable to restore backup.",
+            "popup" :
+            {
+                "title" : "Confirm restore",
+                "text" : "Please confirm you wish to restore {project} <b>%1s</b> using the backup file <b>%2s</b>.<br /><br />A backup of the {project} will be created before the restore occurs.",
+                ":comment.text" : "%1s is the project name.  %2s is the path to the file that will be used for the restore.",
+                ":scount.text" : 2,
+                "buttons" :
+                {
+                    "confirm" : "Yes, restore it",
+                    "cancel" : "${buttons.cancel}"
+                }
+            },                
+            "confirmpopup" :
+            {
+                "title" : "{Project} restored",
+                "text" : "The {project} has been restored from file <b>%1s</b>.",
+                ":comment.text" : "%1s is the path to file used for the restore.",
+                ":scount.text" : 1,
+                "actionerror" : "Unable to re-open {project}."
+            }
+        },
+        "delete" :
+        {
+            "tooltip" : "Click to delete this backup",
+            "confirmpopup" :
+            {
+                "title" : "Confirm delete",
+                "text" : "Please confirm you wish to delete backup file <b>%1s</b>.",
+                ":comment.text" : "%1s is the path to the file that will be deleted.",
+                ":scount.text" : 1,
+                "buttons" :
+                {
+                    "confirm" : "Yes, delete it",
+                    "cancel" : "No, keep it"
+                }
+            }
+        }
+    },
+    "tipspanel" :
+    {
+        "next" :
+        {
+            "tooltip" : "Click to view the next tip"
+        },
+        "stop" :
+        {
+            "tooltip" : "Click to stop showing tips when {QW} starts",
+            "popup" :
+            {
+                "title" : "Stop showing tips?",
+                "text" : "Stop showing tips when {QW} starts?<br /><br />They can enabled at any time in the <a href='action:options.start'>Options panel</a>.",
+                "buttons" :
+                {
+                    "confirm" : "Yes, stop showing them",
+                    "cancel" : "No, keep them"
+                }                
+            }
+        }
+    },
+    "whatsnew" :
+    {
+        "actionerror" : "Unable to show What's New",
+        "popup" :
+        {
+            "title" : "What's new in version %1s",
+            ":comment.title" : "%1s is the current QW version number.",
+            ":scount.title" : 1
+        },
+        "text" : "Welcome to version <b>%1s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%2s'>full list of changes online</a>.",
+        ":comment.text" : "%1s is the version number.  %2s is the version number but with all . (dot) replaced with _ (underscores) for use in a url.  It is recommended that you do not modify the href value.",
+        ":scount.text" : 2
+    },
+    "about" :
+    {
+        "popup" :
+        {
+            "title" : "About",
+            "qwversion" : "Version",
+            "copyright" : "Copyright",
+            "website" : "Website",
+            "sourcecode" : "Source Code",
+            "releasenotes" : "Release Notes",
+            "makeadonation" : "Make a donation",
+            "acknowledgments" : "Acknowledgments"
+        }
+    },
+    "dowarmup" :
+    {
+        "dowarmuponstart" : "Do a {warmup} every time {QW} starts",
+        "createwarmupsproject" :
+        {
+            "title" : "{Warmups} {project}",
+            "text" : "A {Warmups} {project} will now be created to hold your {warmups}.",
+            "actionerror" : "Unable to create {Warmups} {project}."
+        },
+        "addwarmuperror" : "Unable to add {warmup}.",
+        "openwarmupsprojecterror" : "Unable to open {Warmups} {project}.",
+        "getwarmupsprojecterror" : "Unable to get {Warmups} {project}.",
+        "saveerror" : "Unable to save your prompt.",
+        "starterror" : "o_O  The timer can't be unlimited for both time and words.",
+        "allpromptsexcluded" : "You have excluded all the prompts.",
+        "ownprompt" :
+        {
+            "title" : "OR, Enter your own prompt",
+            "tooltip" : "Enter your prompt text here..."
+        },
+        "dofor" :
+        {
+            "title" : "And do the {warmup} for"  
+        },
+        "andor" : "and/or",
+        "whicheverfirst" : "(whichever is reached first)",
+        "startwriting" : "Start Writing",
+        "chooseprompt" :
+        {
+            "title" : "Choose a prompt"
+        },
+        "noshowpromptagain" : "Do not show this prompt again",
+        "weblinks" :
+        {
+            "tooltip" : "Click to see a list of websites that have writing prompts",
+            "visitlink" : "Click to go to the %1s website (%2s)",
+            ":comment.visitlink" : "%1s is the name of the website, %2s is the url of the website.",
+            ":scount.visitlink" : 2
+        },
+        "nextprompt" :
+        {
+            "text" : "Next prompt",
+            "tooltip" : "Go to the next prompt"
+        },
+        "previousprompt" :
+        {
+            "tooltip" : "Go back to the previous prompt"  
+        },
+        "popup" :
+        {
+            "title" : "Do a {Warmup} Exercise"
+        }
+    },
+    "linkedto" :
+    {
+        "view" :
+        {
+            "title" : "Linked to",
+            "buttons" :
+            {
+                "edit" :
+                {
+                    "tooltip" : "Click to change what other objects this %1s is linked to",
+                    ":comment.tooltip" : "%1s is the object type name for the object.",
+                    ":scount.tooltip" : 1
+                }
+            }
+        },
+        "edit" :
+        {
+            "title" : "Edit",
+            "buttons" :
+            {
+                "save" :
+                {
+                    "tooltip" : "Click to save the %1s links",
+                    ":comment.tooltip" : "%1s is the object type name of the asset.",
+                    ":scount.tooltip" : 1
+                },
+                "cancel" :
+                {
+                    "tooltip" : "Click to cancel the editing"
+                }
+            }
+        },
+        "save" :
+        {
+            "actionerror" : "Unable to save the links."
+        }
+    },
+    "allprojects" :
+    {
+        "actionerror" : "Unable to show all {projects}."
+    },
+    "assets" :
+    {
+        "legacyfields" :
+        {
+            "name" : "${form.labels.name}",
+            "description" : "${form.labels.description}",
+            "aliases" : "${form.labels.aliases}",
+            "type" : "Type",
+            "webpage" : "Web Page"
+        },
+        "view" :
+        {
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "save" : "${actions.save}",
+                    "edit" : "${actions.edit}",
+                    "addfileordocument" : "Add File/Document",
+                    "delete" : "${actions.delete}",
+                    "editobjecttypeinfo" : "Edit the %1s information/fields",
+                    ":comment.editobjecttypeinfo" : "%1s is the asset object type name.",
+                    ":scount.editobjecttypeinfo" : 1
+                }
+            },
+            "toolbar" :
+            {
+                "new" :
+                {
+                    "tooltip" : "Click to add a new Asset"
+                },
+                "delete" :
+                {
+                    "tooltip" : "Click to delete this %1s",
+                    ":comment.tooltip" : "%1s is the object type name for the asset.",
+                    ":scount.tooltip" : 1
+                }
+            },
+            "aboutpanel" :
+            {
+                "buttons" :
+                {
+                    "edit" :
+                    {
+                        "tooltip" : "Click to edit the details for this %1s",
+                        ":comment.tooltip" : "%1s is the object type name for the asset.",
+                        ":scount.tooltip" : 1
+                    }
+                },
+                "title" : "About"  
+            }
+        },
+        "edit" :
+        {
+            "actionerror" : "Unable to edit the %1s.",
+            ":comment.actionerror" : "%1s is the object type name of the asset.",
+            ":scount.actionerror" : 1,
+            "aboutpanel" :
+            {
+                "title" : "Edit",
+                "buttons" :
+                {
+                    "save" :
+                    {
+                        "tooltip" : "Click to save the %1s details",
+                        ":comment.tooltip" : "%1s is the object type name of the asset.",
+                        ":scount.tooltip" : 1
+                    },
+                    "cancel" :
+                    {
+                        "tooltip" : "Click to cancel the editing"
+                    }
+                }
+            }
+        },
+        "delete" :
+        {
+            "actionerror" : "Unable to delete.",
+            "confirmpopup" :
+            {
+                "title" : "Delete %1s",
+                "text" : "Please confirm you wish to delete %1s <b>%2s</b>?",
+                ":comment.text" : "%1s is the object type name of the asset.  %2s is the name of the asset.",
+                ":scount.text" : 2,
+                "buttons" :
+                {
+                    "confirm" : "Yes, delete it",
+                    "cancel" : "No, keep it"
+                }
+            }
+        },
+        "save" :
+        {
+            "actionerror" : "Unable to save.",
+            "cancel" :
+            {
+                "popup" :
+                {
+                    "title" : "Discard changes?",
+                    "text" : "You have made some changes, do you want to discard them?",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, discard them",
+                        "cancel" : "No, keep them"
+                    }
+                }
+            }
+        },
+        "headerpopupmenu" :
+        {
+            "items" :
+            {
+                "new" : "Add a new %1s",
+                ":comment.new" : "%1s is the name of the object type, i.e. Character, Location etc.",
+                ":scount.new" : 1,
+                "edit" : "Edit the %1s information/fields",
+                ":comment.edit" : "%1s is the name of the object type, i.e. Character, Location etc.",
+                ":scount.edit" : 1,
+                "sort" : "Sort the %1s by",
+                ":comment.edit" : "%1s is the plural name of the object type, i.e. Characters, Locations etc.",
+                ":scount.edit" : 1
+            }
+        },
+        "treepopupmenu" :
+        {
+            "items" :
+            {
+                "view" : "${actions.view}",
+                "edit" : "${actions.edit}",
+                "delete" : "${actions.delete}"
+            }
+        }
+    },
+    "appearsinchapters" :
+    {
+        "title" : "Appears in {Chapters}",
+        "showinsidebar" :
+        {
+            "tooltip" : "Click to view these items in the sidebar",
+            "actionerror" : "Unable to show items in sidebar."
+        },
+        "sidebar" :
+        {
+            "text" : "appears in the following {chapters}.",
+            "title" : "%1s",
+            ":comment.title" : "Shown when the sidebar is active one.  %1s is the name of the object.",
+            ":scount.title" : 1,
+            "activetitle" : "%1s appears in",
+            ":comment.activetitle" : "Shown when the sidebar is shown in the inactive list.  %1s is the name of the object.",
+            ":scount.activetitle" : 1
+        }
+    },
+    "project" :
+    {
+        "sidebar" :
+        {
+            "section" :
+            {
+                "title" :
+                {
+                    "tooltip" : "Click to open/close the items below."
+                }
+            }
+        },
+        "actions" :
+        {
+            "splitchapter" :
+            {
+                "title" : "Split {Chapter}",
+                "actionerror" : "Unable to split {chapter}.",
+                "errorlabel" : "Please enter a {chapter} name.",
+                "moretextindicator" : " ${moretextindicator} ",
+                ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
+                "labels" : 
+                {
+                    "newchaptername" : "New {Chapter} Name",
+                    "startat" : "Start at",
+                    "endat" : "End at",
+                    "words" : "Words"            
+                }
+            },            
+            "changestatus" :
+            {
+                "actionerror" : "Unable to change status."  
+            },
+            "newchapter" :
+            {
+                "title" : "Add New {Chapter}",
+                "actionerror" : "Unable to add new {chapter}.",
+                "labels" :
+                {
+                    "name" : "${form.labels.name}"
+                },
+                "errors" :
+                {
+                    "novalue" : "Please enter a name."
+                }
+            },
+            "renamechapter" :
+            {
+                "actionerror" : "Unable to rename {chapter}.",
+                "title" : "Rename {Chapter}",
+                "text" : "Enter the new {chapter} name below.",
+                "confirm" : "${actions.rename}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a new name.",
+                    "chapterexists" : "A {chapter} with that name already exists."
+                }
+            },
+            "renameproject" :
+            {
+                "actionerror" : "Unable to rename {project}.",
+                "title" : "Rename {Project}",
+                "text" : "Enter the new {project} name below.  The {project} will then be closed and re-opened.",
+                "confirm" : "${actions.rename}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a new name.",
+                    "projectexists" : "A {project} with that name already exists.",
+                    "cantreopenproject" : "Unable to reopen {project}."
+                }
+            },
+            "openproject" :
+            {
+                "actionerror" : "Unable to show the {projects} window.",
+                "enterpasswordpopup" :
+                {
+                    "title" : "Enter password",
+                    "text" : "{Project}: <b>%1s</b> is encrypted, please enter the password.",
+                    ":comment.text" : "%1s is the project name.",
+                    ":scount.text" : 1,
+                    "errors" :
+                    {
+                        "general" : "Sorry, the {project} can't be opened.",
+                        "novalue" : "Please enter the password.",
+                        "invalidpassword" : "Password is not valid.",
+                        "projectalreadyopen" : "Sorry, the {project} appears to already be open in {QW}.  Please close all other instances of {QW} first before trying to open the {project}."
+                    }
+                },
+                "openerrors" :
+                {
+                    ":comment" : "These are error messages that may be displayed when a user is unable to open a project.",
+                    "general" : "Unable to open {project} <b>%1s</b>, reason:<br /><br />%2s",
+                    ":comment.general" : "%1s is the project name.  %2s is the reason which will be one of the reasons from this section.",
+                    ":scount.general" : 2,
+                    "projectnotexist" : "{Project} does not exist.",
+                    "projectdirnotexist" : "Cannot find {project} directory <b>%1s</b>.",
+                    ":comment.projectdirnotexist" : "%1s is the project directory.",
+                    ":scount.projectdirnotexist" : 1,
+                    "projectdirisfile" : "Path to {project} <b>%1s</b> is a file, but a directory is expected.",
+                    ":comment.projectdirisfile" : "%1s is the expected project directory.  This error occurs when the project directory is actually a file.",
+                    ":scount.projectdirisfile" : 1,
+                    "invalidprojectdir" : "{Project} directory <b>%1s</b> doesn't appear to be a valid {QW} {project}.",
+                    ":comment.invalidprojectdir" : "%1s is the project directory.",
+                    ":scount.invalidprojectdir" : 1,
+                    "cantfindeditor" : "Unable to find {contact}: <b>%1s</b> you are editing the {project} for.",
+                    ":comment.cantfindeditor" : "%1s is the email address of the contact/editor the user is editing the project for.",
+                    ":scount.cantfindeditor" : 1
+                }
+            },
+            "editchapter" :
+            {
+                "actionerror" : "Unable to edit {chapter} <b>%1s</b>.",
+                ":comment.actionerror" : "%1s is the name of the chapter.",
+                ":scount.actionerror" : 1
+            },
+            "deletechapter" :
+            {
+                ":comment" : "The delete chapter function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                "actionerror" : "Unable to delete {chapter} <b>%1s</b>.",
+                ":comment.actionerror" : "%1s is the name of the chapter.",
+                ":scount.actionerror" : 1,
+                "deletetype" : "{Chapter}",
+                "warning" : "Warning!  Once deleted a {chapter} cannot be restored."
+            },
+            "viewchapterinformation" :
+            {
+                "actionerror" : "Unable to view {chapter} information."
+            },
+            "viewoutlineitem" :
+            {
+                "actionerror" : "Unable to display {Plot Outline Item} in {chapter}."
+            },
+            "viewscene" :
+            {
+                "actionerror" : "Unable to display {Scene} in {chapter}."
+            },
+            "viewnote" :
+            {
+                "actionerror" : "Unable to display {Note}."
+            },
+            "viewideaboard" :
+            {
+                "actionerror" : "Unable to view ${names.ideaboard}."
+            },
+            "viewaddasset" :
+            {
+                "actionerror" : "Unable to display add new %1s.",
+                ":comment.actionerror" : "%1s is the object name for the asset.",
+                ":scount.actionerror" : 1
+            },
+            "viewasset" :
+            {
+                "actionerror" : "Unable to view %1s <b>%2s</b>.",
+                ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
+                ":scount.actionerror" : 2
+            },
+            "editasset" :
+            {
+                "actionerror" : "Unable to edit %1s <b>%2s</b>.",
+                ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
+                ":scount.actionerror" : 2
+            },
+            "deleteasset" :
+            {
+                "actionerror" : "Unable to delete %1s <b>%2s</b>.",
+                ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
+                ":scount.actionerror" : 2
+            },
+            "deleteideatype" :
+            {
+                "actionerror" : "Unable to delete ${names.ideatype}."
+            },
+            "saveideatype" :
+            {
+                "actionerror" : "Unable to save ${names.ideatype}."  
+            },
+            "deleteidea" :
+            {
+                "actionerror" : "Unable to delete ${names.idea}."
+            },
+            "saveidea" :
+            {
+                "actionerror" : "Unable to save ${names.idea}."
+            },
+            "viewproblemfindersidebar" :
+            {
+                "actionerror" : "Unable to show ${names.problemfinder} sidebar."
+            },
+            "removetag" :
+            {
+                "actionerror" : "Unable to remove ${names.tag}."
+            },
+            "vieweditors" :
+            {
+                "actionerror" : "Unable to show the {contacts}."
+            },
+            "reportproblem" :
+            {
+                "actionerror" : "Unable to send message.",
+                "popup" :
+                {
+                    "title" : "Report a Bug/Problem",
+                    "text" : "Complete the form below to report a bug/problem.  The email address is optional, only provide it if you would like a response.<br /><br />The operating system you are using and the Java version will also be sent (it helps with debugging).  No personal information will be sent.<br /><br />Please consider checking the box to send a screenshot, it helps a lot.",
+                    "errorlabel" : "Please enter a description of the problem/bug.",
+                    "description" :
+                    {
+                        "text" : "Description",
+                        "tooltip" : "Enter the bug/problem description here.  The more information you can provide the better."
+                    },
+                    "email" :
+                    {
+                        "text" : "${form.labels.email}"
+                    },
+                    "sendlogfiles" :
+                    {
+                        "text" : "Send the log files"
+                    },
+                    "sendscreenshot" :
+                    {
+                        "text" : "Send a screenshot of current window",
+                        "tooltip" : "Takes a screenshot of the current window and sends it to support.  If you have information you would prefer not to share then please change the tab before sending.  Uncheck to not send a screenshot, but please remember a picture is worth 1,000 (and more) words."
+                    },
+                    "buttons" :
+                    {
+                        "send" : "${buttons.send}",
+                        "cancel" : "${buttons.cancel}"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Problem/Bug reported",
+                    "text" : "Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 2-3 days.  If not feel then free to send the message again."
+                }
+            },
+            "contactsupport" :
+            {
+                "actionerror" : "Unable to send message.",
+                "popup" :
+                {
+                    "title" : "Contact Support",
+                    "text" : "Use the form below to contact {QW} support.  If you wish to receive a response then please provide an email address.",
+                    "errorlabel" : "Please enter a message.",
+                    "message" :
+                    {
+                        "text" : "${form.labels.message}",
+                        "tooltip" : "Enter your message here."
+                    },
+                    "email" :
+                    {
+                        "text" : "${form.labels.email}"
+                    },
+                    "buttons" :
+                    {
+                        "send" : "${buttons.send}",
+                        "cancel" : "${buttons.cancel}"
+                    }
+                },
+                "confirmpopup" :
+                {
+                    "title" : "Message sent",
+                    "text" : "Your request has been logged with {QW} support.  If you provided an email address then you should get a response within 1-2 days.  If not feel then free to send the message again."
+                }
+            }
+        },
+        "settingsmenu" :
+        {
+            "items" :
+            {
+                "openproject" : "${actions.open} {Project}",
+                "newproject" : "${actions.new} {Project}",
+                "renameproject" : "${actions.rename} this {Project}",
+                "statistics" : "Statistics",
+                "targets" : "Targets",
+                "createbackup" : "${actions.create} a ${names.backup}",
+                "closeproject" : "${actions.close} {Project}",
+                "deleteproject" : "${actions.delete} {Project}",
+                "ideaboard" : "${names.ideaboard}",
+                "dowarmup" : "Do a {Warmup} exercise",
+                "importproject" : "${actions.import} File/{Project}",
+                "exportproject" : "${actions.export} {Project}",
+                "options" : "${names.options}",
+                "achievements" : "${names.achievements}",
+                "whatsnew" : "What's New in this version",
+                "help" : "${actions.help}",
+                "reportbug" : "Report Bug/Problem",
+                "contactsupport" : "Contact Support",
+                "viewuserguide" : "View the User Guide",
+                "keyboardshortcuts" : "Keyboard Shortcuts",
+                "about" : "About {QW}"
+            }
+        },
+        "title" :
+        {
+            "toolbar" :
+            {
+                "buttons" :
+                {
+                    "projectmenu" :
+                    {
+                        "tooltip" : "Click to view the {Project} menu"  
+                    },
+                    "close" :
+                    {
+                        "tooltip" : "Click to close"  
+                    },
+                    "showcontacts" :
+                    {
+                        "tooltip" : "Click to show my {contacts}"  
+                    },
+                    "editorsserviceregister" :
+                    {
+                        "tooltip" : "Click to register for the Editors Service"  
+                    },
+                    "betabug" :
+                    {
+                        "tooltip" : "Click to report a bug/problem with the beta"  
+                    },
+                    "bug" :
+                    {
+                        "tooltip" : "Click to report a bug/problem"  
+                    },
+                    "warmup" :
+                    {
+                        "tooltip" : "Click to do a new {Warmup} exercise"  
+                    },
+                    "fullscreen" :
+                    {
+                        "tooltip" : "Click to work in full screen mode"  
+                    },
+                    "find" :
+                    {
+                        "tooltip" : "Click to open the ${names.find}"  
+                    },
+                    "ideaboard" :
+                    {
+                        "tooltip" : "Click to open the ${names.ideaboard}"
+                    }
+                }
+            }
+        }
+    }
+}

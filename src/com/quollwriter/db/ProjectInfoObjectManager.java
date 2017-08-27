@@ -575,7 +575,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
         
-        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.name));
+        //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
         
         characterType.addConfigurableField (nameF);
@@ -585,7 +588,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         
         aliasesF.setNameField (true);
         aliasesF.setSearchable (true);
-        aliasesF.setFormName (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
+        aliasesF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                       LanguageStrings.legacyfields,
+                                                       LanguageStrings.aliases));
+        //LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
         aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
         
         characterType.addConfigurableField (aliasesF);
@@ -595,7 +601,10 @@ public class ProjectInfoObjectManager extends ObjectManager
                 
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         cdescF.setSearchable (true);
-        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                     LanguageStrings.legacyfields,
+                                                     LanguageStrings.description));
+        //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         
         characterType.addConfigurableField (cdescF);
         
@@ -618,7 +627,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
         
-        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.name));
+        //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
         
         locType.addConfigurableField (nameF);
@@ -627,7 +639,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
         
         cdescF.setSearchable (true);
-        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                     LanguageStrings.legacyfields,
+                                                     LanguageStrings.description));
+        //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         
         locType.addConfigurableField (cdescF);
@@ -651,7 +666,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
         
-        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.name));
+        //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
         
         qobjType.addConfigurableField (nameF);
@@ -660,7 +678,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
         
         typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
-        typeF.setFormName (QObject.TYPE_LEGACY_FIELD_FORM_NAME);
+        typeF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.type));
+        //QObject.TYPE_LEGACY_FIELD_FORM_NAME);
         
         // Get the pre-defined types, they are stored in the user prefs.
         String nt = UserProperties.get (Constants.OBJECT_TYPES_PROPERTY_NAME);
@@ -699,7 +720,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
         
         cdescF.setSearchable (true);
-        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                     LanguageStrings.legacyfields,
+                                                     LanguageStrings.description));
+        //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         
         qobjType.addConfigurableField (cdescF);
@@ -723,7 +747,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
         
-        nameF.setFormName (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
+        nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                    LanguageStrings.legacyfields,
+                                                    LanguageStrings.name));
+        //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
         
         riType.addConfigurableField (nameF);
@@ -732,7 +759,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
         
         webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
-        webF.setFormName (ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
+        webF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                   LanguageStrings.legacyfields,
+                                                   LanguageStrings.webpage));
+                          //ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
                 
         riType.addConfigurableField (webF);
                                         
@@ -740,7 +770,10 @@ public class ProjectInfoObjectManager extends ObjectManager
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
         
         cdescF.setSearchable (true);
-        cdescF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
+                                                     LanguageStrings.legacyfields,
+                                                     LanguageStrings.description));
+        //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         
         riType.addConfigurableField (cdescF);

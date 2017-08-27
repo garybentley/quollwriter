@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -183,8 +184,10 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                                   a);
                             
                             UIUtils.showErrorMessage (pv,
-                                                      Environment.replaceObjectNames (String.format ("Unable to edit {%s}",
-                                                                                                     a.getObjectType ())));
+                                                      String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                                              LanguageStrings.edit,
+                                                                                              LanguageStrings.actionerror),
+                                                                     a.getObjectTypeName ()));
                             
                             return;
                             
@@ -221,17 +224,28 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
             public void actionPerformed (ActionEvent ev)
             {
 
+                Set<String> prefix = new LinkedHashSet ();
+                prefix.add (LanguageStrings.assets);
+                prefix.add (LanguageStrings.delete);
+                prefix.add (LanguageStrings.confirmpopup);
+            
                 UIUtils.createQuestionPopup (pv,
-                                             "Delete " +
-                                             Environment.getObjectTypeName (a),
+                                             String.format (Environment.getUIString (prefix,
+                                                                                     LanguageStrings.title),
+                                                            a.getObjectTypeName ()),
                                              Constants.DELETE_ICON_NAME,
-                                             "Please confirm you wish to delete " +
-                                             Environment.getObjectTypeName (a) +
-                                             " <b>" +
-                                             a.getName () +
-                                             "</b>?",
-                                             "Yes, delete it",
-                                             null,
+                                             String.format (Environment.getUIString (prefix,
+                                                                                     LanguageStrings.text),
+                                                            a.getObjectTypeName (),
+                                                            a.getName ()),
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.confirm),
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.cancel),
+                                             //"Yes, delete it",
+                                             //null,
                                              new ActionListener ()
                                              {
 
@@ -250,7 +264,10 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                                                               e);
 
                                                         UIUtils.showErrorMessage (pv,
-                                                                                  "Unable to delete");
+                                                                                  Environment.getUIString (LanguageStrings.assets,
+                                                                                                           LanguageStrings.delete,
+                                                                                                           LanguageStrings.actionerror));
+                                                                                  //"Unable to delete");
 
                                                     }
 
@@ -298,10 +315,18 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                boolean  fullScreen)
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.view);
+        prefix.add (LanguageStrings.toolbar);
+    
         final AssetViewPanel _this = this;
 
         final JButton b = UIUtils.createToolBarButton ("new",
-                                                       "Click to add a new " + Environment.getObjectTypeName (QCharacter.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (Location.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (QObject.OBJECT_TYPE) + " etc.",
+                                                       Environment.getUIString (prefix,
+                                                                                LanguageStrings._new,
+                                                                                LanguageStrings.tooltip),
+                                                       //"Click to add a new " + Environment.getObjectTypeName (QCharacter.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (Location.OBJECT_TYPE) + ", " + Environment.getObjectTypeName (QObject.OBJECT_TYPE) + " etc.",
                                                        "new",
                                                        null);
 
@@ -336,6 +361,16 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
         tb.add (UIUtils.createTagsMenuToolBarButton (this.obj,
                                                      this.viewer));
 
+        tb.add (UIUtils.createToolBarButton ("delete",
+                                             String.format (Environment.getUIString (prefix,
+                                                                                     LanguageStrings.delete,
+                                                                                     LanguageStrings.tooltip),
+                                                            this.obj.getObjectTypeName ()),
+                                             //"Click to delete this " + Environment.getObjectTypeName (this.obj.getObjectType ()),
+                                             "delete",
+                                             this.getDeleteObjectAction (this.viewer,
+                                                                         this.obj)));
+                                                     
     }
 
     public void doInit ()
@@ -448,11 +483,18 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                JPopupMenu popup)
     {
 
+        Set<String> prefix = new LinkedHashSet ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.view);
+        prefix.add (LanguageStrings.popupmenu);
+        prefix.add (LanguageStrings.items);
+    
         // Don't show the popup when we are editing the details.
         if (this.getDetailsPanel ().isEditing ())
         {
             
-            popup.add (UIUtils.createMenuItem (Constants.SAVE_BUTTON_LABEL_ID,
+            popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.save),
                                                Constants.SAVE_ICON_NAME,
                                                this.getDetailsPanel ().getDoSaveAction ()));
             
@@ -462,7 +504,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
     
         final AssetViewPanel _this = this;
     
-        popup.add (UIUtils.createMenuItem ("Edit",
+        popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                    LanguageStrings.edit),
                                            Constants.EDIT_ICON_NAME,
                                            this.getEditObjectAction (this.viewer,
                                                                      (Asset) this.obj)));
@@ -470,7 +513,9 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
         popup.add (UIUtils.createTagsMenu (this.obj,
                                            this.viewer));
 
-        popup.add (UIUtils.createMenuItem ("Add File/Document",
+        popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                    LanguageStrings.addfileordocument),
+                                           //"Add File/Document",
                                            Constants.ADD_ICON_NAME,
                                            new ActionListener ()
                                            {
@@ -485,15 +530,19 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                             
                                            }));
 
-        popup.add (UIUtils.createMenuItem ("Delete",
+        popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                    LanguageStrings.delete),
+                                           //"Delete",
                                            Constants.DELETE_ICON_NAME,
                                            this.getDeleteObjectAction (this.viewer,
                                                                        (Asset) this.obj)));
     
         popup.addSeparator ();
         
-        popup.add (UIUtils.createMenuItem (String.format ("Edit the %s information/fields",
-                                                          this.obj.getUserConfigurableObjectType ().getObjectTypeName ()),
+        popup.add (UIUtils.createMenuItem (String.format (Environment.getUIString (prefix,
+                                                                                   LanguageStrings.editobjecttypeinfo),
+                                                          //"Edit the %s information/fields",
+                                                          this.obj.getObjectTypeName ()),
                                            Constants.EDIT_ICON_NAME,
                                            new ActionListener ()
                                            {

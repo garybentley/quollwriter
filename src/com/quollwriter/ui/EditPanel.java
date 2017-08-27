@@ -166,274 +166,7 @@ public abstract class EditPanel extends Box
         this.panel.add (this.cards);
         
         this.showViewPanel ();
-        /*
-        this.viewPanel = new Box (BoxLayout.Y_AXIS);
-        
-        this.viewEdit.add (UIUtils.createScrollPane (this.viewPanel,
-                                                     "view"));
-        
-        this.viewPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.viewPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-        this.viewPanel.setMinimumSize (new Dimension (100,
-                                                      100));
 
-        JComponent view = null;
-        
-        // See if there are view items, if so create a form, otherwise
-        // call "getEditPanel".
-        Set<FormItem> viewItems = this.getViewItems ();
-
-        if ((viewItems != null) &&
-            (viewItems.size () > 0))
-        {
-
-            view = this.buildPanel (viewItems,
-                                    ip,
-                                    false,
-                                    false);
-
-        } else
-        {
-
-            view = this.getViewPanel ();
-
-        }
-
-        if (view != null)
-        {
-
-            view.setBackground (UIUtils.getComponentColor ());
-
-            this.viewPanel.add (view);
-            this.visiblePanel = view;
-
-            this.fireActionEvent (EditPanel.VIEW_VISIBLE,
-                                  "view-visible");
-
-        } 
-
-        this.editPanel = new Box (BoxLayout.Y_AXIS);
-
-        this.viewEdit.add (UIUtils.createScrollPane (this.editPanel,
-                                                     "edit"));
-        
-        this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.editPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-        this.editPanel.setMinimumSize (new Dimension (100,
-                                                      100));
-        
-        // See if there are edit items, if so create a form, otherwise
-        // call "getEditPanel".
-        Set<FormItem> editItems = this.getEditItems ();
-
-        if ((editItems != null) &&
-            (editItems.size () > 0))
-        {
-
-            this.editPanel = new Form (Form.Layout.stacked,
-                                       editItems,
-                                       null);
-
-        } else
-        {
-
-            this.editPanel = this.getEditPanel ();
-
-            if (this.editPanel != null)
-            {
-
-                this.editPanel.setMinimumSize (new Dimension (100,
-                                                              100));
-
-                this.editPanel = new JScrollPane (this.editPanel);
-                //this.editPanel.setBorder (null);
-                this.editPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));                
-
-            }
-
-        }
-
-        if (this.editPanel != null)
-        {
-
-            Box epb = new Box (BoxLayout.Y_AXIS);
-
-            this.editError = UIUtils.createErrorLabel ("Please enter a value.");
-            this.editError.setVisible (false);
-
-            this.editError.setBorder (UIUtils.createPadding (5, 0, 5, 5));
-
-            this.editPanel.setOpaque (false);
-            this.editPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                          Short.MAX_VALUE));
-            this.editPanel.setPreferredSize (new Dimension (Short.MAX_VALUE,
-                                                          Short.MAX_VALUE));
-
-            this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            final String ht = this.getHelpText ();
-
-            if (ht != null)
-            {
-
-                FormLayout fl = new FormLayout ("p, 3px, fill:90px:grow",
-                                                "top:p");
-
-                PanelBuilder pb = new PanelBuilder (fl);
-
-                CellConstraints cc = new CellConstraints ();
-
-                ImagePanel helpII = new ImagePanel (ip.getIcon ("help",
-                                                                Constants.ICON_PANEL_SECTION_ACTION),
-                                                    null);
-                helpII.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                pb.add (helpII,
-                        cc.xy (1,
-                               1));
-
-                pb.add (UIUtils.createHelpTextPane (ht,
-                                                    Environment.getFocusedViewer ()),
-                        cc.xy (3,
-                               1));
-
-                this.helpBox = pb.getPanel ();
-                this.helpBox.setOpaque (false);
-                this.helpBox.setVisible (false);
-
-                this.helpBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-                this.helpBox.setBorder (UIUtils.createPadding (0, 0, 5, 0));
-
-                epb.add (this.helpBox);
-
-            }
-
-            epb.add (this.editError);
-
-            epb.add (this.editPanel);
-
-            epb.add (Box.createVerticalGlue ());
-
-            this.editPanel = epb;
-
-            this.editPanel.setBorder (UIUtils.createPadding (5, 5, 5, 5));
-
-            this.panel.add (this.editPanel);
-
-            this.editPanel.setOpaque (false);
-
-            this.editPanel.setVisible (false);
-            this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            java.util.List<JComponent> buttons = new ArrayList ();
-
-            this.edit = UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
-                                                          Constants.ICON_PANEL_SECTION_ACTION),
-                                              "Click to edit this section",
-                                              null);
-
-            buttons.add (this.edit);
-
-            this.save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
-                                                          Constants.ICON_PANEL_SECTION_ACTION),
-                                              "Click to edit this section",
-                                              null);
-
-            buttons.add (this.save);
-            this.save.setVisible (false);
-            
-            this.cancel = UIUtils.createButton (ip.getIcon ("cancel",
-                                                            Constants.ICON_PANEL_SECTION_ACTION),
-                                               "Click to cancel editing",
-                                               null);
-            this.cancel.setVisible (false);
-
-            buttons.add (this.cancel);
-
-            if (ht != null)
-            {
-
-                this.help = UIUtils.createButton (ip.getIcon ("help",
-                                                              Constants.ICON_PANEL_SECTION_ACTION),
-                                                   "Click to view/hide the help for this section",
-                                                   null);
-                this.help.setVisible (false);
-
-                buttons.add (this.help);
-
-                this.help.addMouseListener (new MouseEventHandler ()
-                {
-
-                    @Override
-                    public void handlePress (MouseEvent ev)
-                    {
-
-                        _this.helpBox.setVisible (!_this.helpBox.isVisible ());
-
-                        _this.validate ();
-                        _this.repaint ();
-
-                    }
-
-                });
-
-            }
-
-            this.header.setControls (UIUtils.createButtonBar (buttons));
-
-            this.edit.addMouseListener (new MouseEventHandler ()
-            {
-
-                @Override
-                public void handlePress (MouseEvent ev)
-                {
-
-                    _this.doEdit ();
-                                
-                }
-
-            });
-
-            this.save.addMouseListener (new MouseEventHandler ()
-            {
-
-                @Override
-                public void handlePress (MouseEvent ev)
-                {
-
-                    _this.doSave ();
-                                
-                }
-
-            });
-
-            this.cancel.addMouseListener (new MouseEventHandler ()
-            {
-
-                @Override
-                public void handlePress (MouseEvent ev)
-                {
-
-                    _this.doCancel ();
-
-                }
-
-            });
-
-            if (this.viewPanel == null)
-            {
-
-                this.editPanel.setVisible (true);
-                this.visiblePanel = this.editPanel;
-
-                this.fireActionEvent (EditPanel.EDIT_VISIBLE,
-                                      "edit-visible");
-
-            }
-
-        }
-*/
         this.inited = true;
 
     }
@@ -470,25 +203,6 @@ public abstract class EditPanel extends Box
                                                           Short.MAX_VALUE));
 
         }
-
-        //IconProvider ip = this.getIconProvider ();
-        /*
-        Header header = new Header (Environment.replaceObjectNames (this.getTitle ()),
-                                    ip.getIcon ("header",
-                                                Constants.ICON_PANEL_SECTION),
-                                    null);
-                                    
-        header.setAlignmentX (Component.LEFT_ALIGNMENT);
-        header.setOpaque (false);
-        header.setBorder (UIUtils.createBottomLineWithPadding (0, 3, 3, 0));
-        header.setFont (header.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));
-        header.setTitleColor (UIUtils.getTitleColor ());
-        header.setPaintProvider (new GradientPainter (com.quollwriter.ui.UIUtils.getComponentColor (),
-                                                      com.quollwriter.ui.UIUtils.getComponentColor ()));
-                                            
-                
-        this.viewPanel.add (header);
-*/
         
         IconProvider ip = this.getIconProvider ();                    
         
@@ -518,22 +232,8 @@ public abstract class EditPanel extends Box
         
             java.util.List<JComponent> buttons = new ArrayList ();
     
-            JButton edit = UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
-                                                          Constants.ICON_PANEL_SECTION_ACTION),
-                                              "Click to edit this section",
-                                              new ActionListener ()
-                                              {
-                                                
-                                                  @Override
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
-                                                    
-                                                      _this.doEdit ();
-                                                    
-                                                  }
-                                                
-                                              });
-        
+            JComponent edit = this.getEditButton ();
+
             buttons.add (edit);
                 
             this.viewPanel.add (EditPanel.createHeader (this.getTitle (),
@@ -616,77 +316,16 @@ public abstract class EditPanel extends Box
             this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         }
-        
-        final String ht = this.getHelpText ();
-        
+                
         IconProvider ip = this.getIconProvider ();
         
         java.util.List<JComponent> buttons = new ArrayList ();
-
-        JButton save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
-                                                      Constants.ICON_PANEL_SECTION_ACTION),
-                                             "Click to save the details",
-                                             new ActionListener ()
-                                          {
-                                            
-                                              @Override
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-                                                
-                                                  _this.doSave ();
-                                                
-                                              }
-                                            
-                                          });
-
-        buttons.add (save);
-            
-        JButton cancel = UIUtils.createButton (ip.getIcon (Constants.CANCEL_ICON_NAME,
-                                                           Constants.ICON_PANEL_SECTION_ACTION),
-                                               "Click to cancel the editing",
-                                               new ActionListener ()
-                                               {
-                                                
-                                                  @Override
-                                                  public void actionPerformed (ActionEvent ev)
-                                                  {
-                                                    
-                                                      _this.doCancel ();
-                                                    
-                                                  }
-                                                
-                                               });
-        buttons.add (cancel);
-/*
-        if (ht != null)
-        {
-
-            final JComponent _hb = helpBox;
         
-            JButton help = UIUtils.createButton (ip.getIcon (Constants.HELP_ICON_NAME,
-                                                             Constants.ICON_PANEL_SECTION_ACTION),
-                                                 "Click to view/hide the help",
-                                                 new ActionListener ()
-                                                 {
-                                                  
-                                                    @Override
-                                                    public void actionPerformed (ActionEvent ev)
-                                                    {
-                                                        
-                                                        _hb.setVisible (!_hb.isVisible ());
+        buttons.add (this.getSaveButton ());
+        buttons.add (this.getCancelButton ());
 
-                                                        _this.validate ();
-                                                        _this.repaint ();                                                        
-                                                        
-                                                    }
-                                                    
-                                                 });
-
-            buttons.add (help);
-
-        }
-        */
-        this.editPanel.add (EditPanel.createHeader ("Edit",
+        this.editPanel.add (EditPanel.createHeader (this.getEditTitle (),
+                                                    //"Edit",
                                                     ip.getIcon (Constants.EDIT_ICON_NAME,
                                                                 Constants.ICON_PANEL_SECTION),
                                                     UIUtils.createButtonBar (buttons)));
@@ -696,44 +335,6 @@ public abstract class EditPanel extends Box
         this.editError.setOpaque (false);
 
         this.editError.setBorder (UIUtils.createPadding (5, 3, 5, 5));
-
-        JComponent helpBox = null;
-        
-        if (ht != null)
-        {
-
-            FormLayout fl = new FormLayout ("p, 3px, fill:90px:grow",
-                                            "top:p");
-
-            PanelBuilder pb = new PanelBuilder (fl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            ImagePanel helpII = new ImagePanel (ip.getIcon ("help",
-                                                            Constants.ICON_PANEL_SECTION_ACTION),
-                                                null);
-            helpII.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            pb.add (helpII,
-                    cc.xy (1,
-                           1));
-
-            pb.add (UIUtils.createHelpTextPane (ht,
-                                                Environment.getFocusedViewer ()),
-                    cc.xy (3,
-                           1));
-
-            helpBox = pb.getPanel ();
-            helpBox.setOpaque (false);
-            helpBox.setVisible (false);
-
-            helpBox.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-            helpBox.setBorder (UIUtils.createPadding (0, 0, 5, 0));
-
-            this.editPanel.add (helpBox);
-
-        }
 
         this.editPanel.add (this.editError);
 
@@ -996,9 +597,15 @@ public abstract class EditPanel extends Box
 
     public abstract void refreshViewPanel ();
 
-    public abstract String getTitle ();
+    public abstract JComponent getEditButton ();
+    
+    public abstract JComponent getSaveButton ();
 
-    public abstract String getHelpText ();
+    public abstract JComponent getCancelButton ();
+    
+    public abstract String getTitle ();
+    
+    public abstract String getEditTitle ();
 
     public abstract JComponent getEditPanel ();
 

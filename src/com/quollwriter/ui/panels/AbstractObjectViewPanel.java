@@ -144,23 +144,6 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         this.add (this.title,
                   0);
 
-        JToolBar titleC = new JToolBar ();
-        titleC.setFloatable (false);
-        titleC.setOpaque (false);
-
-        JButton sb = new JButton (Environment.getIcon ("delete",
-                                                       Constants.ICON_PANEL_ACTION));
-        sb.setOpaque (false);
-        titleC.add (sb);
-        //title.setControls (titleC);
-        sb.setToolTipText ("Click to delete this " + Environment.getObjectTypeName (this.obj));
-        UIUtils.setAsButton (sb);
-
-        this.deleteObjectAction = this.getDeleteObjectAction (this.viewer,
-                                                              this.obj);
-
-        sb.addActionListener (this.deleteObjectAction);
-
         final Box b = new Box (BoxLayout.Y_AXIS);
 
         b.setBorder (new EmptyBorder (0, 7, 0, 7));
@@ -431,6 +414,104 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
             }
 
             @Override
+            public JComponent getSaveButton ()
+            {
+                
+                final EditPanel _thisep = this;
+                
+                IconProvider ip = this.getIconProvider ();
+                
+                JButton save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
+                                                              Constants.ICON_PANEL_SECTION_ACTION),
+                                                     String.format (Environment.getUIString (LanguageStrings.linkedto,
+                                                                                             LanguageStrings.edit,
+                                                                                             LanguageStrings.buttons,
+                                                                                             LanguageStrings.save,
+                                                                                             LanguageStrings.tooltip),
+                                                                    _this.obj.getObjectTypeName ()),
+                                                     //"Click to save the details",
+                                                     new ActionListener ()
+                                                     {
+                                                    
+                                                        @Override
+                                                        public void actionPerformed (ActionEvent ev)
+                                                        {
+                                                          
+                                                            _thisep.doSave ();
+                                                          
+                                                        }
+                                                    
+                                                  });
+        
+                return save;
+                    
+            }
+            
+            @Override
+            public JComponent getCancelButton ()
+            {
+                
+                final EditPanel _thisep = this;
+                
+                IconProvider ip = this.getIconProvider ();        
+                
+                JButton cancel = UIUtils.createButton (ip.getIcon (Constants.CANCEL_ICON_NAME,
+                                                                   Constants.ICON_PANEL_SECTION_ACTION),
+                                                       Environment.getUIString (LanguageStrings.linkedto,
+                                                                                LanguageStrings.edit,
+                                                                                LanguageStrings.buttons,
+                                                                                LanguageStrings.cancel,
+                                                                                LanguageStrings.tooltip),                                              
+                                                       //"Click to cancel the editing",
+                                                       new ActionListener ()
+                                                       {
+                                                        
+                                                          @Override
+                                                          public void actionPerformed (ActionEvent ev)
+                                                          {
+                                                            
+                                                              _thisep.doCancel ();
+                                                            
+                                                          }
+                                                        
+                                                       });
+        
+                return cancel;
+                    
+            }
+            
+            @Override
+            public JComponent getEditButton ()
+            {
+                
+                final EditPanel _thisep = this;
+                
+                IconProvider ip = this.getIconProvider ();                            
+                
+                return UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
+                                                         Constants.ICON_PANEL_SECTION_ACTION),
+                                             String.format (Environment.getUIString (LanguageStrings.linkedto,
+                                                                                     LanguageStrings.view,
+                                                                                     LanguageStrings.buttons,
+                                                                                     LanguageStrings.edit,
+                                                                                     LanguageStrings.tooltip),
+                                                            _this.obj.getObjectTypeName ()),
+                                             new ActionListener ()
+                                             {
+                                              
+                                                @Override
+                                                public void actionPerformed (ActionEvent ev)
+                                                {
+                                                  
+                                                    _thisep.doEdit ();
+                                                  
+                                                }
+                                              
+                                             });
+
+            }            
+            
+            @Override
             public Set<FormItem> getEditItems ()
             {
 
@@ -470,7 +551,10 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
                                           e);
 
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "An internal error has occurred.\n\nUnable to add/edit object.");
+                                              Environment.getUIString (LanguageStrings.linkedto,
+                                                                       LanguageStrings.save,
+                                                                       LanguageStrings.actionerror));
+                                              //"An internal error has occurred.\n\nUnable to add/edit object.");
 
                     return false;
 
@@ -491,7 +575,10 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
                                           e);
 
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "An internal error has occurred.\n\nUnable to save links.");
+                                              Environment.getUIString (LanguageStrings.linkedto,
+                                                                       LanguageStrings.save,
+                                                                       LanguageStrings.actionerror));                                              
+                                              //"An internal error has occurred.\n\nUnable to save links.");
 
                     return false;
 
@@ -559,18 +646,23 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
             }
 
             @Override
-            public String getHelpText ()
+            public String getEditTitle ()
             {
 
-                return "Select the objects you wish to link the " + Environment.getObjectTypeName (_this.obj) + " to, press the Edit icon again to save.";
+                return Environment.getUIString (LanguageStrings.linkedto,
+                                                LanguageStrings.edit,
+                                                LanguageStrings.title);
 
             }
-
+            
             @Override
             public String getTitle ()
             {
 
-                return "Linked to";
+                return Environment.getUIString (LanguageStrings.linkedto,
+                                                LanguageStrings.view,
+                                                LanguageStrings.title);
+                //"Linked to";
 
             }
 
@@ -618,12 +710,13 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
                                              "print",
                                              UIUtils.getComingSoonAction (this.viewer)));
 */
+/*
         tb.add (UIUtils.createToolBarButton ("delete",
                                              "Click to delete this " + Environment.getObjectTypeName (this.obj.getObjectType ()),
                                              "delete",
                                              this.getDeleteObjectAction (this.viewer,
                                                                          this.obj)));
-
+*/
     }
 
     public void fillPopupMenu (MouseEvent ev,

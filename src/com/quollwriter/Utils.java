@@ -144,7 +144,10 @@ public class Utils
     public static String checkEmail (String em)
     {
         
-        String err = "Email does not appear to be valid.";
+        String err = Environment.getUIString (LanguageStrings.form,
+                                              LanguageStrings.errors,
+                                              LanguageStrings.invalidemail);
+        //"Email does not appear to be valid.";
         
         if ((em == null)
             ||

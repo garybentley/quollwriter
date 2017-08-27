@@ -35,13 +35,13 @@ public class Notification extends Box implements ActionListener
         super (BoxLayout.X_AXIS);
 
         this.content = comp;
-        
+
         this.duration = duration;
 
         final Notification _this = this;
 
         this.onRemove = onRemove;
-        
+
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         this.setBorder (new EmptyBorder (5,
@@ -50,7 +50,7 @@ public class Notification extends Box implements ActionListener
                                          7));
 
         Box b = this;
-        
+
         ImagePanel ip = new ImagePanel (Environment.getIcon (iconType,
                                                              Constants.ICON_NOTIFICATION),
                                         null);
@@ -62,11 +62,11 @@ public class Notification extends Box implements ActionListener
         this.contentBox = new Box (BoxLayout.X_AXIS);
         this.contentBox.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.contentBox.setAlignmentY (Component.TOP_ALIGNMENT);
-        
+
         b.add (this.contentBox);
-        
+
         this.contentBox.add (comp);
-        
+
         final ActionAdapter removeNotification = new ActionAdapter ()
         {
 
@@ -83,16 +83,16 @@ public class Notification extends Box implements ActionListener
 
         if (buttons != null)
         {
-            
+
             buts.addAll (buttons);
-            
+
         }
 
         this.cancel = UIUtils.createButton ("cancel",
                                             Constants.ICON_MENU,
                                             "Click to remove this notification",
                                             removeNotification);
-        
+
         buts.add (this.cancel);
 
         JToolBar butBar = UIUtils.createButtonBar (buts);
@@ -104,40 +104,40 @@ public class Notification extends Box implements ActionListener
         //b.setBackground (UIUtils.getComponentColor ());
 
         b.setOpaque (false);
-        
+
     }
-        
+
     public void setOnRemove (ActionListener onRemove)
     {
-        
-        this.onRemove = onRemove;        
-        
+
+        this.onRemove = onRemove;
+
     }
-    
+
     public void setContent (JComponent c)
     {
-        
+
         this.contentBox.removeAll ();
         this.contentBox.add (c);
-        
+
         this.content = c;
-        
+
     }
-    
+
     public JComponent getContent ()
     {
-        
+
         return this.content;
-        
+
     }
-        
+
     public static Notification createHelpNotification (AbstractProjectViewer viewer,
                                                        String                message,
                                                        int                   duration,
                                                        HyperlinkListener     clickListener,
                                                        ActionListener        onRemove)
     {
-        
+
         JTextPane htmlP = UIUtils.createHelpTextPane (message,
                                                       viewer);
 
@@ -145,11 +145,11 @@ public class Notification extends Box implements ActionListener
 
         if (clickListener != null)
         {
-            
+
             htmlP.addHyperlinkListener (clickListener);
-            
+
         }
-        
+
         return new Notification (htmlP,
                                  Constants.HELP_ICON_NAME,
                                  duration,
@@ -164,7 +164,7 @@ public class Notification extends Box implements ActionListener
                                                           HyperlinkListener     clickListener,
                                                           ActionListener        onRemove)
     {
-    
+
         JTextPane htmlP = UIUtils.createHelpTextPane (message,
                                                       viewer);
 
@@ -172,104 +172,104 @@ public class Notification extends Box implements ActionListener
 
         if (clickListener != null)
         {
-            
+
             htmlP.addHyperlinkListener (clickListener);
-            
+
         }
-        
+
         return new Notification (htmlP,
                                  Constants.INFO_ICON_NAME,
                                  duration,
                                  null,
                                  onRemove);
-        
+
     }
-    
+
     public static Notification createMessageNotification (AbstractProjectViewer viewer,
                                                           String                message,
                                                           int                   duration,
                                                           ActionListener        onRemove)
     {
-    
+
         return Notification.createMessageNotification (viewer,
                                                        message,
                                                        duration,
                                                        null,
                                                        onRemove);
-        
+
     }
-    
+
     public void addCancelListener (ActionListener l)
     {
-        
+
         this.cancel.addActionListener (l);
-        
+
     }
-    
+
     public void removeCancelListener (ActionListener l)
     {
-        
+
         this.cancel.removeActionListener (l);
-        
+
     }
-    
+
     public void init ()
     {
 
         final Notification _this = this;
-        
+
         if (this.timer != null)
         {
-            
+
             this.timer.stop ();
             this.timer.start ();
-            
+
             return;
-            
+
         }
-        
+
         if (this.duration > 0)
         {
 
             this.timer = new javax.swing.Timer (this.duration * 1000,
                                                 new ActionAdapter ()
                                                 {
-                                                    
+
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                   
+
                                                         _this.removeNotification ();
-                                                        
+
                                                     }
-                                                    
+
                                                 });
 
             this.timer.setRepeats (false);
             this.timer.start ();
 
-        }        
-        
+        }
+
     }
-    
+
     public void restartTimer ()
     {
-        
+
         this.timer.restart ();
-        
+
     }
-    
+
     public void removeNotification ()
     {
 
         if (this.timer != null)
         {
-    
+
             this.timer.stop ();
-            
+
         }
-        
+
         Container p = this.getParent ();
-        
+
         if (p != null)
         {
 
@@ -277,23 +277,23 @@ public class Notification extends Box implements ActionListener
 
             p.revalidate ();
             p.repaint ();
-            
+
         }
-        
+
         if (this.onRemove != null)
         {
-            
+
             this.onRemove.actionPerformed (new ActionEvent (this, 1, "removed"));
-            
+
         }
-        
+
     }
- 
+
     public void actionPerformed (ActionEvent ev)
     {
-        
+
         this.removeNotification ();
-        
+
     }
-    
+
 }

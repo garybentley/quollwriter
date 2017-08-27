@@ -144,7 +144,11 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
             String n = df.format (r);
 
-            Issue iss = new Issue (String.format ("Sentence syllable/word ratio is: <b>%s</b>.  (Max is: %s)",
+            Issue iss = new Issue (String.format (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                           LanguageStrings.issues,
+                                                                           LanguageStrings.sentencecomplexity,
+                                                                           LanguageStrings.text),
+                                                  //"Sentence syllable/word ratio is: <b>%s</b>.  (Max is: %s)",
                                                   n,
                                                   Environment.formatNumber (this.ratio)),
                                    sentence,
@@ -171,6 +175,13 @@ public class SentenceComplexityRule extends AbstractSentenceRule
     public Set<FormItem> getFormItems ()
     {
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.sentencecomplexity);
+        pref.add (LanguageStrings.labels);
+    
         Set<FormItem> items = new LinkedHashSet ();
 
         this.ratioF = new JSpinner (new SpinnerNumberModel (this.ratio,
@@ -184,7 +195,8 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         this.ratioF.setMaximumSize (this.ratioF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Ratio",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.ratio),
                                     b));
 
         this.wordCountF = new JSpinner (new SpinnerNumberModel (this.wordCount,
@@ -199,7 +211,9 @@ public class SentenceComplexityRule extends AbstractSentenceRule
 
         this.wordCountF.setMaximumSize (this.wordCountF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Sentence length (words)",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.sentencelength),
+                                    //"Sentence length (words)",
                                     b));
 
         return items;

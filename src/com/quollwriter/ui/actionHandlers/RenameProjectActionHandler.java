@@ -39,21 +39,33 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
     public String getTitle ()
     {
         
-        return "Rename {Project}";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renameproject,
+                                        LanguageStrings.title);
+        //"Rename {Project}";
         
     }
     
     public String getHelp ()
     {
         
-        return "Enter the new {project} name below.  The {project} will then be closed and re-opened.";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renameproject,
+                                        LanguageStrings.text);
+        //"Enter the new {project} name below.  The {project} will then be closed and re-opened.";
         
     }
     
     public String getConfirmButtonLabel ()
     {
         
-        return "Change";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renameproject,
+                                        LanguageStrings.confirm);
+        //"Change";
         
     }
     
@@ -73,7 +85,12 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
            )
         {
             
-            return "Please enter a new name.";
+            return Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.renameproject,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a new name.";
             
         }
 
@@ -87,7 +104,12 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
             if (newDir.exists ())
             {
 
-                return "A {project} with that name already exists.";
+                return Environment.getUIString (LanguageStrings.project,
+                                                LanguageStrings.actions,
+                                                LanguageStrings.renameproject,
+                                                LanguageStrings.errors,
+                                                LanguageStrings.projectexists);
+                //"A {project} with that name already exists.";
             
             }
 
@@ -175,7 +197,11 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
                                               newDir);
 
                         UIUtils.showErrorMessage (null,
-                                                  "Unable to rename {project} directory, please contact Quoll Writer support for assistance.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.renameproject,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to rename {project} directory, please contact Quoll Writer support for assistance.");
         
                         return;
         
@@ -197,7 +223,12 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
                                               e);
         
                         UIUtils.showErrorMessage (null,
-                                                  "Unable to reopen project, please contact Quoll Writer support for assistance.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.renameproject,
+                                                                           LanguageStrings.errors,
+                                                                           LanguageStrings.cantreopenproject));
+                                                  //"Unable to reopen project, please contact Quoll Writer support for assistance.");
 
                         return;
                                               

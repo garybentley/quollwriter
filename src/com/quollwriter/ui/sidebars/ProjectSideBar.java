@@ -146,7 +146,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             public void handleDoublePress (MouseEvent ev)
             {
                 
-                _this.showAddNewObjectType ();
+                UIUtils.showAddNewObjectType (_this.viewer);
                    
             }            
             
@@ -1052,68 +1052,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         return ret;
         
     }
- 
-    private void showAddNewObjectType ()
-    {
-        
-        UserConfigurableObjectType type = new UserConfigurableObjectType ();
-        
-        type.setObjectTypeName ("Widget");
-        type.setObjectTypeNamePlural ("Widgets");
-        type.setLayout (null);
-        type.setAssetObjectType (true);
-        type.setIcon24x24 (Environment.getIcon ("whats-new",
-                                                Constants.ICON_TITLE));
-        type.setIcon16x16 (Environment.getIcon ("whats-new",
-                                                Constants.ICON_SIDEBAR));
-
-        // Name
-        ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
-        
-        nameF.setFormName ("Name");
-        
-        type.addConfigurableField (nameF);
-                                                                                
-        // Description
-        ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
-                
-        cdescF.setSearchable (true);
-        cdescF.setFormName ("Description");
-        
-        type.addConfigurableField (cdescF);
-                                        
-        Wizard w = UserConfigurableObjectTypeEdit.getAsWizard (this.viewer,
-                                                               type);
-        
-        final QPopup p = UIUtils.createWizardPopup ("Add a new type of Object",
-                                                    Constants.NEW_ICON_NAME,
-                                                    null,
-                                                    w);
-        w.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                              w.getPreferredSize ().height));
-        
-        this.viewer.showPopupAt (p,
-                                  UIUtils.getCenterShowPosition (this.viewer,
-                                                                 p),
-                                 false);
-        p.setDraggable (this.viewer);        
-                            
-        UIUtils.doLater (new ActionListener ()
-        {
-            
-            @Override
-            public void actionPerformed (ActionEvent ev)
-            {
-                
-                UIUtils.resizeParent (p);
-                
-            }
-            
-        });
-        
-        
-    }
-  
+   
     private void addAddSectionMenu (final JPopupMenu m,
                                     final String     belowObjType)
     {
@@ -1151,7 +1090,7 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                             public void actionPerformed (ActionEvent ev)
                                             {
                                                 
-                                                _this.showAddNewObjectType ();
+                                                UIUtils.showAddNewObjectType (_this.viewer);
                                                                                                 
                                             }
                                         
@@ -1500,6 +1439,13 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
     public AccordionItem createAssetAccordionItem (final UserConfigurableObjectType type)
     {
+
+        if (type == null)
+        {
+            
+            return null;
+            
+        }
         
         if (!type.isAssetObjectType ())
         {

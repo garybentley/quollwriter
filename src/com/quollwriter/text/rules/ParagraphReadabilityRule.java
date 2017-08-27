@@ -142,6 +142,11 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
         if (paragraph.getWordCount () > 100)
         {
 
+            Set<String> pref = new LinkedHashSet ();
+            pref.add (LanguageStrings.problemfinder);
+            pref.add (LanguageStrings.issues);
+            pref.add (LanguageStrings.paragraphreadability);
+        
             ReadabilityIndices ri = new ReadabilityIndices ();
             ri.add (paragraph.getText ());
 
@@ -151,7 +156,11 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                )
             {
 
-                Issue iss = new Issue ("Paragraph has a Flesch Kincaid grade level of: <b>" + Environment.formatNumber (ri.getFleschKincaidGradeLevel ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschKincaid) + ")",
+                Issue iss = new Issue (String.format (Environment.getUIString (pref,
+                                                                               LanguageStrings.fk),
+                                                      Environment.formatNumber (ri.getFleschKincaidGradeLevel ()),
+                                                      Environment.formatNumber (this.fleschKincaid)),
+                                                      //"Paragraph has a Flesch Kincaid grade level of: <b>" + Environment.formatNumber (ri.getFleschKincaidGradeLevel ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschKincaid) + ")",
                                        paragraph,
                                        paragraph.getAllTextStartOffset () + "-fkgl-" + ri.getFleschKincaidGradeLevel (),
                                        this);
@@ -166,7 +175,11 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                )
             {
 
-                Issue iss = new Issue ("Paragraph has a Flesch Reading ease level of: <b>" + Environment.formatNumber (ri.getFleschReadingEase ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschReading) + ")",
+                Issue iss = new Issue (String.format (Environment.getUIString (pref,
+                                                                               LanguageStrings.fr),
+                                                      Environment.formatNumber (ri.getFleschReadingEase ()),
+                                                      Environment.formatNumber (this.fleschReading)),
+                                                      //"Paragraph has a Flesch Reading ease level of: <b>" + Environment.formatNumber (ri.getFleschReadingEase ()) + "</b>.  (Max is: " + Environment.formatNumber (this.fleschReading) + ")",
                                        paragraph,
                                        paragraph.getAllTextStartOffset () + "-fre-" + ri.getFleschReadingEase (),
                                        this);
@@ -181,7 +194,11 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
                )
             {
 
-                Issue iss = new Issue ("Paragraph has a Gunning Fog index of: <b>" + Environment.formatNumber (ri.getGunningFogIndex ()) + "</b>.  (Max is: " + Environment.formatNumber (this.gunningFog) + ")",
+                Issue iss = new Issue (String.format (Environment.getUIString (pref,
+                                                                               LanguageStrings.gf),
+                                                      Environment.formatNumber (ri.getGunningFogIndex ()),
+                                                      Environment.formatNumber (this.gunningFog)),
+                                                      //"Paragraph has a Gunning Fog index of: <b>" + Environment.formatNumber (ri.getGunningFogIndex ()) + "</b>.  (Max is: " + Environment.formatNumber (this.gunningFog) + ")",
                                        paragraph,
                                        paragraph.getAllTextStartOffset () + "-gfi-" + ri.getGunningFogIndex (),
                                        this);
@@ -208,6 +225,13 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
     public Set<FormItem> getFormItems ()
     {
 
+        Set<String> pref = new LinkedHashSet ();
+        pref.add (LanguageStrings.problemfinder);
+        pref.add (LanguageStrings.config);
+        pref.add (LanguageStrings.rules);
+        pref.add (LanguageStrings.paragraphreadability);
+        pref.add (LanguageStrings.labels);
+    
         Set<FormItem> items = new LinkedHashSet ();
 
         this.fkF = new JSpinner (new SpinnerNumberModel (this.fleschKincaid,
@@ -221,7 +245,9 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         this.fkF.setMaximumSize (this.fkF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Flesch Kincaid Grade level",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.fk),
+                                    //"Flesch Kincaid Grade level",
                                     b));
 
         this.frF = new JSpinner (new SpinnerNumberModel (this.fleschReading,
@@ -236,7 +262,9 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         this.frF.setMaximumSize (this.frF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Flesch Reading ease level",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.fr),
+                                    //"Flesch Reading ease level",
                                     b));
 
         this.gfF = new JSpinner (new SpinnerNumberModel (this.gunningFog,
@@ -251,7 +279,9 @@ public class ParagraphReadabilityRule extends AbstractParagraphRule
 
         this.gfF.setMaximumSize (this.gfF.getPreferredSize ());
 
-        items.add (new AnyFormItem ("Gunning Fog index",
+        items.add (new AnyFormItem (Environment.getUIString (pref,
+                                                             LanguageStrings.gf),
+                                    //"Gunning Fog index",
                                     b));
 
         return items;

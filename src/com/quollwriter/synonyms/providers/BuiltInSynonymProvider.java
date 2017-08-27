@@ -62,7 +62,8 @@ public class BuiltInSynonymProvider implements SynonymProvider
         if (Environment.isEnglish (lang))
         {
             
-            lang = "English";
+            lang = Constants.ENGLISH;
+            //"English";
             
         }
         
@@ -169,7 +170,8 @@ public class BuiltInSynonymProvider implements SynonymProvider
             if (Environment.isEnglish (language))
             {
                 
-                lang = "English";
+                lang = Constants.ENGLISH;
+                //"English";
                 
             }
                         

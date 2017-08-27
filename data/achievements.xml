@@ -12,17 +12,17 @@
   </item>
 -->
     
-  <item id="swear50" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="50" words="fuck,shit,twat,cunt,piss,wank,asswipe,asshole,bollocks,buttfucker,fucker,fuckwit,motherfucker">
+  <item id="swear50" englishOnly="true" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="50" words="fuck,shit,twat,cunt,piss,wank,asswipe,asshole,bollocks,buttfucker,fucker,fuckwit,motherfucker">
     <name>Language Timothy!</name>
     <description>Use 50 swear words in a chapter.</description>
   </item>
 
-  <item id="exclamation5" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="5" words="!">
+  <item id="exclamation5" englishOnly="true" category="project" hidden="true" type="word" chapter="true" allowRepeats="true" count="5" words="!">
     <name>I'm not crazy!</name>
     <description>Use ! 5 times or more in a chapter.</description>
   </item>
 
-  <item id="speechverbs10" category="project" type="word" chapter="true" allowRepeats="false" count="10" words="reported,questioned,read,added,said,asked,replied,shouted,suggested,commented,described,explained,mentioned,offered,warned,wondered,told,requested">
+  <item id="speechverbs10" englishOnly="true" category="project" type="word" chapter="true" allowRepeats="false" count="10" words="reported,questioned,read,added,said,asked,replied,shouted,suggested,commented,described,explained,mentioned,offered,warned,wondered,told,requested">
     <name>Variation on a theme</name>
     <description>Use 10 different speech verbs in a chapter.</description>
   </item>
@@ -270,11 +270,16 @@
     <description>Add 20 {Locations}.</description>
   </item>
 
+  <item id="addcharacter" category="project" type="item" icon="character" objectType="character" count="1" action="new">
+    <name>The name's Smith, probably</name>
+    <description>Add a {Character}.</description>
+  </item>
+
   <item id="addcharacter5" category="project" type="item" icon="character" objectType="character" count="5" action="new">
     <name>Quartet plus one</name>
     <description>Add 5 {Characters}.</description>
   </item>
-
+  
   <item id="addcharacter10" category="project" type="item" icon="character" objectType="character" count="10" action="new">
     <name>I'm sorry I've completely forgotten your name</name>
     <description>Add 10 {Characters}.</description>
@@ -515,7 +520,7 @@
   </item>
 
   <item id="addwarmup5" category="user" icon="warmups" type="event" event="warmup.new" count="5">
-    <name>Bulking up</name>
+    <name>Warming up</name>
     <description>Create 5 warm-ups.</description>
   </item>
 

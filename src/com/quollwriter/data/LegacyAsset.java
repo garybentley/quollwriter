@@ -11,11 +11,8 @@ public abstract class LegacyAsset extends Asset
 {
         
     public static final String NAME_LEGACY_FIELD_ID = "name";
-    public static final String NAME_LEGACY_FIELD_FORM_NAME = "Name";
     public static final String DESCRIPTION_LEGACY_FIELD_ID = "description";
-    public static final String DESCRIPTION_LEGACY_FIELD_FORM_NAME = "Description";
     public static final String ALIASES_LEGACY_FIELD_ID = "aliases";
-    public static final String ALIASES_LEGACY_FIELD_FORM_NAME = "Aliases";
         
     public static Map<String, Class> supportedLegacyTypes = new LinkedHashMap ();        
 

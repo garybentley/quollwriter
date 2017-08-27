@@ -5,7 +5,7 @@
 <project default="run" basedir=".">
 
   <property name="projectName" value="QuollWriter" />
-  <property name="currVersion" value="2.6.2" />
+  <property name="currVersion" value="2.6.3" />
   <property name="thesaurusVersion" value="1.0" />
   <property name="buildDir" value="./build" />
   <property name="imgsDir" value="./imgs" />
@@ -212,6 +212,7 @@
         <include name="data/asset-layout-6.png" />
         <include name="data/asset-layout-7.png" />
         <include name="data/asset-layout-8.png" />
+        <include name="data/default-ui-language-strings.json" />
       </fileset>
       <manifest>
         <attribute name="Built-By" value="${projectName}" />
