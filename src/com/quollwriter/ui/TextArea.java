@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
 
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
@@ -159,7 +161,9 @@ public class TextArea extends ScrollableBox
 
         this.maxChars = maxChars;
 
-        this.maxText = new JLabel ("Max " + Environment.formatNumber (maxChars) + " characters");
+        this.maxText = new JLabel (String.format (Environment.getUIString (LanguageStrings.textarea,
+                                                                           LanguageStrings.maxchars),
+                                                  Environment.formatNumber (maxChars)));
         this.maxText.setForeground (UIUtils.getHintTextColor ());
 
         this.scrollPane = UIUtils.createScrollPane (this.text);
@@ -426,10 +430,18 @@ public class TextArea extends ScrollableBox
                 if (l != null)
                 {
 
+                    java.util.List<String> prefix = new ArrayList ();
+                    prefix.add (LanguageStrings.dictionary);
+                    prefix.add (LanguageStrings.spellcheck);
+                    prefix.add (LanguageStrings.popupmenu);
+                    prefix.add (LanguageStrings.items);
+                
                     if (l.size () == 0)
                     {
 
-                        mi = new JMenuItem ("Add to Dictionary");
+                        mi = new JMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.add));
+                                            //"Add to Dictionary");
                         mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                         mi.setActionCommand (word);
                         mi.addActionListener (addToDict);
@@ -437,7 +449,9 @@ public class TextArea extends ScrollableBox
                         popup.add (mi,
                                    0);
 
-                        mi = new JMenuItem ("(No Spelling Suggestions)");
+                        mi = new JMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.nosuggestions));
+                                            //"(No Spelling Suggestions)");
                         mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                         mi.setEnabled (false);
 
@@ -447,7 +461,9 @@ public class TextArea extends ScrollableBox
                     } else
                     {
 
-                        JMenu more = new JMenu ("More Suggestions");
+                        JMenu more = new JMenu (Environment.getUIString (prefix,
+                                                                         LanguageStrings.more));
+                        //"More Suggestions");
 
                         int i = 0;
 
@@ -510,7 +526,9 @@ public class TextArea extends ScrollableBox
 
                         }
 
-                        mi = new JMenuItem ("Add to Dictionary");
+                        mi = new JMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.add));
+                        //"Add to Dictionary");
                         mi.setActionCommand (word);
                         mi.addActionListener (addToDict);
 
@@ -528,7 +546,7 @@ public class TextArea extends ScrollableBox
                             (word.length () > 0))
                         {
 
-                            String mt = "No synonyms found for: " + word;
+                            //String mt = "No synonyms found for: " + word;
 
                             try
                             {
@@ -537,7 +555,12 @@ public class TextArea extends ScrollableBox
                                 if (this.text.getSynonymProvider ().hasSynonym (word))
                                 {
 
-                                    mi = new JMenuItem ("Find synonyms for: " + word);
+                                    mi = new JMenuItem (String.format (Environment.getUIString (LanguageStrings.synonyms,
+                                                                                                LanguageStrings.popupmenu,
+                                                                                                LanguageStrings.items,
+                                                                                                LanguageStrings.find),
+                                                                       word));
+                                    //"Find synonyms for: " + word);
 
                                     mi.setIcon (Environment.getIcon ("find",
                                                                      Constants.ICON_MENU));
@@ -561,7 +584,9 @@ public class TextArea extends ScrollableBox
                                                                       e);
 
                                                 UIUtils.showErrorMessage (_this,
-                                                                          "Unable to show synonym selector");
+                                                                          Environment.getUIString (LanguageStrings.synonyms,
+                                                                                                   LanguageStrings.show,
+                                                                                                   LanguageStrings.actionerror));
 
                                             }
 
@@ -571,7 +596,12 @@ public class TextArea extends ScrollableBox
 
                                 } else {
 
-                                    mi = new JMenuItem ("(No synonyms for: " + word + ")");
+                                    mi = new JMenuItem (String.format (Environment.getUIString (LanguageStrings.synonyms,
+                                                                                                LanguageStrings.popupmenu,
+                                                                                                LanguageStrings.items,
+                                                                                                LanguageStrings.nosynonyms),
+                                                                       word));
+                                                        //"(No synonyms for: " + word + ")");
                                     mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                                     mi.setEnabled (false);
 
@@ -715,31 +745,53 @@ public class TextArea extends ScrollableBox
 
                 }
 
+                java.util.List<String> prefix = new ArrayList ();
+                prefix.add (LanguageStrings.formatting);
+                prefix.add (LanguageStrings.format);
+                prefix.add (LanguageStrings.popupmenu);
+                prefix.add (LanguageStrings.items);
+                
                 if (compress)
                 {
 
                     java.util.List<JComponent> buts = new java.util.ArrayList ();
                     buts.add (this.createButton (Constants.BOLD_ICON_NAME,
                                                  Constants.ICON_MENU,
-                                                 "Bold the selected text",
+                                                 Environment.getUIString (prefix,
+                                                                          LanguageStrings.bold,
+                                                                          LanguageStrings.tooltip),
+                                                 //"Bold the selected text",
                                                  QTextEditor.BOLD_ACTION_NAME));
                     buts.add (this.createButton (Constants.ITALIC_ICON_NAME,
                                                  Constants.ICON_MENU,
-                                                 "Italic the selected text",
+                                                 Environment.getUIString (prefix,
+                                                                          LanguageStrings.italic,
+                                                                          LanguageStrings.tooltip),
+                                                 //"Italic the selected text",
                                                  QTextEditor.ITALIC_ACTION_NAME));
                     buts.add (this.createButton (Constants.UNDERLINE_ICON_NAME,
                                                  Constants.ICON_MENU,
-                                                 "Underline the selected text",
+                                                 Environment.getUIString (prefix,
+                                                                          LanguageStrings.underline,
+                                                                          LanguageStrings.tooltip),
+                                                 //"Underline the selected text",
                                                  QTextEditor.UNDERLINE_ACTION_NAME));
 
-                    popup.add (UIUtils.createPopupMenuButtonBar ("Format",
+                    popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.formatting,
+                                                                                          LanguageStrings.format,
+                                                                                          LanguageStrings.popupmenu,
+                                                                                          LanguageStrings.title),
+                                                                 //"Format",
                                                                  popup,
                                                                  buts));
 
                 } else {
 
                     // Add the bold/italic/underline.
-                    mi = this.createMenuItem ("Bold",
+                    mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                       LanguageStrings.bold,
+                                                                       LanguageStrings.text),
+                                            //"Bold",
                                               Constants.BOLD_ICON_NAME,
                                               QTextEditor.BOLD_ACTION_NAME,
                                               KeyStroke.getKeyStroke (KeyEvent.VK_B,
@@ -748,7 +800,10 @@ public class TextArea extends ScrollableBox
                     mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                     popup.add (mi);
 
-                    mi = this.createMenuItem ("Italic",
+                    mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                       LanguageStrings.italic,
+                                                                       LanguageStrings.text),
+                                              //"Italic",
                                               Constants.ITALIC_ICON_NAME,
                                               QTextEditor.ITALIC_ACTION_NAME,
                                               KeyStroke.getKeyStroke (KeyEvent.VK_I,
@@ -757,7 +812,10 @@ public class TextArea extends ScrollableBox
                     mi.setFont (mi.getFont ().deriveFont (Font.ITALIC));
                     popup.add (mi);
 
-                    mi = this.createMenuItem ("Underline",
+                    mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                       LanguageStrings.underline,
+                                                                       LanguageStrings.text),
+                                              //"Underline",
                                               Constants.UNDERLINE_ICON_NAME,
                                               QTextEditor.UNDERLINE_ACTION_NAME,
                                               KeyStroke.getKeyStroke (KeyEvent.VK_U,
@@ -784,22 +842,34 @@ public class TextArea extends ScrollableBox
 
         }
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.formatting);
+        prefix.add (LanguageStrings.edit);
+        prefix.add (LanguageStrings.popupmenu);
+        prefix.add (LanguageStrings.items);
+
         if (compress)
         {
 
             java.util.List<JComponent> buts = new java.util.ArrayList ();
-
+            
             // Only add if there is something to cut.
             if (!sel.equals (""))
             {
 
                 buts.add (this.createButton (Constants.CUT_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Cut the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.cut,
+                                                                      LanguageStrings.tooltip),
+                                             //"Cut the selected text",
                                              QTextEditor.CUT_ACTION_NAME));
                 buts.add (this.createButton (Constants.COPY_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Copy the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.copy,
+                                                                      LanguageStrings.tooltip),
+                                             //"Copy the selected text",
                                              QTextEditor.COPY_ACTION_NAME));
 
             }
@@ -809,7 +879,10 @@ public class TextArea extends ScrollableBox
 
                 buts.add (this.createButton (Constants.PASTE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Paste",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.paste,
+                                                                      LanguageStrings.tooltip),
+                                             //"Paste",
                                              QTextEditor.PASTE_ACTION_NAME));
 
             }
@@ -817,14 +890,24 @@ public class TextArea extends ScrollableBox
             // Only add if there is an undo available.
             buts.add (this.createButton (Constants.UNDO_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Undo",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.undo,
+                                                                  LanguageStrings.tooltip),
+                                         //"Undo",
                                          QTextEditor.UNDO_ACTION_NAME));
             buts.add (this.createButton (Constants.REDO_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Redo",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.redo,
+                                                                  LanguageStrings.tooltip),
+                                         //"Redo",
                                          QTextEditor.REDO_ACTION_NAME));
 
-            popup.add (UIUtils.createPopupMenuButtonBar ("Edit",
+            popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.formatting,
+                                                                                  LanguageStrings.edit,
+                                                                                  LanguageStrings.popupmenu,
+                                                                                  LanguageStrings.title),
+                                                         //"Edit",
                                                          popup,
                                                          buts));
 
@@ -833,7 +916,10 @@ public class TextArea extends ScrollableBox
             if (!sel.equals (""))
             {
 
-                mi = this.createMenuItem ("Cut",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.cut,
+                                                                   LanguageStrings.text),
+                                          //"Cut",
                                           Constants.CUT_ICON_NAME,
                                           QTextEditor.CUT_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_X,
@@ -841,7 +927,10 @@ public class TextArea extends ScrollableBox
                 mi.setMnemonic (KeyEvent.VK_X);
                 popup.add (mi);
 
-                mi = this.createMenuItem ("Copy",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.copy,
+                                                                   LanguageStrings.text),
+                                          //"Copy",
                                           Constants.COPY_ICON_NAME,
                                           QTextEditor.COPY_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_C,
@@ -855,7 +944,10 @@ public class TextArea extends ScrollableBox
             if (UIUtils.clipboardHasContent ())
             {
 
-                mi = this.createMenuItem ("Paste",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.paste,
+                                                                   LanguageStrings.text),
+                                          //"Paste",
                                           Constants.PASTE_ICON_NAME,
                                           QTextEditor.PASTE_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_V,
@@ -866,7 +958,10 @@ public class TextArea extends ScrollableBox
 
             }
 
-            mi = this.createMenuItem ("Undo",
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               LanguageStrings.undo,
+                                                               LanguageStrings.text),
+                                      //"Undo",
                                       Constants.UNDO_ICON_NAME,
                                       QTextEditor.UNDO_ACTION_NAME,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_Z,
@@ -874,7 +969,10 @@ public class TextArea extends ScrollableBox
             mi.setMnemonic (KeyEvent.VK_Z);
             popup.add (mi);
 
-            mi = this.createMenuItem ("Redo",
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               LanguageStrings.redo,
+                                                               LanguageStrings.text),
+                                      //"Redo",
                                       Constants.REDO_ICON_NAME,
                                       QTextEditor.REDO_ACTION_NAME,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_Y,
@@ -952,7 +1050,9 @@ public class TextArea extends ScrollableBox
 
         int l = this.text.getText ().trim ().length ();
 
-        String t = "Max " + Environment.formatNumber (this.maxChars) + " characters";
+        String t = String.format (Environment.getUIString (LanguageStrings.textarea,
+                                                           LanguageStrings.maxchars),
+                                  Environment.formatNumber (this.maxChars));
 
         if (l > 0)
         {
@@ -960,12 +1060,16 @@ public class TextArea extends ScrollableBox
             if (l > this.maxChars)
             {
 
-                t += ", over " + Environment.formatNumber (this.maxChars) + " characters";
+                t += String.format (Environment.getUIString (LanguageStrings.textarea,
+                                                             LanguageStrings.charsover),
+                                    Environment.formatNumber (l - this.maxChars));
                 this.maxText.setForeground (Color.RED);
 
             } else {
 
-                t += ", " + Environment.formatNumber ((this.maxChars - l)) + " remaining";
+                t += String.format (Environment.getUIString (LanguageStrings.textarea,
+                                                             LanguageStrings.charsremaining),
+                                    Environment.formatNumber ((this.maxChars - l)));
 
             }
 

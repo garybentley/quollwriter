@@ -49,7 +49,11 @@ public class TargetsSideBar extends AbstractSideBar<AbstractViewer>
     public String getActiveTitle ()
     {
         
-        return "Targets";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.sidebar,
+                                        LanguageStrings.targets,
+                                        LanguageStrings.title);
+        //"Targets";
     }
     
     public String getTitle ()

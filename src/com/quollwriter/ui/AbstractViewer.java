@@ -383,7 +383,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         }
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.title);
         prefix.add (LanguageStrings.toolbar);
@@ -586,7 +586,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                                      }));
 */
 
-                                                Set<String> prefix = new LinkedHashSet ();
+                                                java.util.List<String> prefix = new ArrayList ();
                                                 
                                                 prefix.add (LanguageStrings.project);
                                                 prefix.add (LanguageStrings.settingsmenu);
@@ -800,7 +800,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.contactsupport);
@@ -1049,7 +1049,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.reportproblem);
@@ -2103,7 +2103,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         final AbstractViewer _this = this;
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.about);
         prefix.add (LanguageStrings.popup);
         
@@ -2491,7 +2491,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                0,
                                                                _this);
 
-                        Set<String> prefix = new LinkedHashSet ();
+                        java.util.List<String> prefix = new ArrayList ();
                         prefix.add (LanguageStrings.tipspanel);
                         prefix.add (LanguageStrings.stop);
                         prefix.add (LanguageStrings.popup);

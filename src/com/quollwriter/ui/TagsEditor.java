@@ -78,13 +78,25 @@ public class TagsEditor extends Box implements ProjectEventListener
         this.setBackground (null);
         this.add (Box.createVerticalStrut (5));
 
-        this.add (UIUtils.createBoldSubHeader (String.format ("New %s",
-                                                              this.getTypesName ()),
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (LanguageStrings.tags,
+                                                                        LanguageStrings.actions,
+                                                                        LanguageStrings.manage,
+                                                                        LanguageStrings.newtag,
+                                                                        LanguageStrings.title),
+                                                //String.format ("New %s",
+                                                  //            this.getTypesName ()),
                                                null));
 
-        JTextPane tp = UIUtils.createHelpTextPane (String.format ("Enter the new %s to add below, separate the %s with commas or semi-colons.",
+        JTextPane tp = UIUtils.createHelpTextPane (Environment.getUIString (LanguageStrings.tags,
+                                                                            LanguageStrings.actions,
+                                                                            LanguageStrings.manage,
+                                                                            LanguageStrings.newtag,
+                                                                            LanguageStrings.text),
+                                                   /*
+                                                   String.format ("Enter the new %s to add below, separate the %s with commas or semi-colons.",
                                                                   this.getTypesName ().toLowerCase (),
                                                                   this.getTypesName ().toLowerCase ()),
+                                                                  */
                                                    this.viewer);
 
         tp.setBorder (UIUtils.createPadding (5,
@@ -99,7 +111,12 @@ public class TagsEditor extends Box implements ProjectEventListener
 
         final JTable typeTable = UIUtils.createTable ();
         typeTable.setTableHeader (null);
-        typeTable.setToolTipText ("Double click to edit, press Enter when done.");
+        typeTable.setToolTipText (Environment.getUIString (LanguageStrings.tags,
+                                                           LanguageStrings.actions,
+                                                           LanguageStrings.manage,
+                                                           LanguageStrings.table,
+                                                           LanguageStrings.tooltip));
+                                  //"Double click to edit, press Enter when done.");
         typeTable.setDefaultRenderer (Object.class,
                                       new DefaultTableCellRenderer ()
         {
@@ -168,6 +185,13 @@ public class TagsEditor extends Box implements ProjectEventListener
             public boolean stopCellEditing ()
             {
                       
+                java.util.List<String> prefix = new ArrayList ();
+                prefix.add (LanguageStrings.tags);
+                prefix.add (LanguageStrings.actions);
+                prefix.add (LanguageStrings.manage);
+                prefix.add (LanguageStrings.table);
+                prefix.add (LanguageStrings.edit);
+                      
                 _this.error.setVisible (false);
                 
                 UIUtils.resizeParent (_this);
@@ -177,7 +201,10 @@ public class TagsEditor extends Box implements ProjectEventListener
                 if (newName.length () == 0)
                 {
                     
-                    return _this.showError ("Tag must have a value!");
+                    return _this.showError (Environment.getUIString (prefix,
+                                                                     LanguageStrings.errors,
+                                                                     LanguageStrings.novalue));
+                    //"Tag must have a value!");
                            
                 }
                 
@@ -193,8 +220,11 @@ public class TagsEditor extends Box implements ProjectEventListener
                        )
                     {
                         
-                        return _this.showError (String.format ("Already have a tag called <b>%s</b>.",
-                                                               ot.getName ()));
+                        return _this.showError (Environment.getUIString (prefix,
+                                                                         LanguageStrings.errors,
+                                                                         LanguageStrings.novalue));
+                                                //String.format ("Already have a tag called <b>%s</b>.",
+                                                  //             ot.getName ()));
                                                     
                     }
         
@@ -203,7 +233,9 @@ public class TagsEditor extends Box implements ProjectEventListener
                     Environment.logError ("Unable to get tag for name: " + newName,
                                           e);
                     
-                    return _this.showError ("Unable to check tag.");
+                    return _this.showError (Environment.getUIString (prefix,
+                                                                     LanguageStrings.actionerror));
+                                            //"Unable to check tag.");
                     
                 }
 
@@ -220,7 +252,9 @@ public class TagsEditor extends Box implements ProjectEventListener
                                           this.tag,
                                           e);
                     
-                    return _this.showError ("Unable to update tag.");
+                    return _this.showError (Environment.getUIString (prefix,
+                                                                     LanguageStrings.actionerror));
+                                            //"Unable to update tag.");
                     
                 }
                 
@@ -274,7 +308,14 @@ public class TagsEditor extends Box implements ProjectEventListener
                 typeTable.setRowSelectionInterval (rowInd,
                                                    rowInd);
 
-                m.add (UIUtils.createMenuItem ("Edit",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (LanguageStrings.tags,
+                                                                        LanguageStrings.actions,
+                                                                        LanguageStrings.manage,
+                                                                        LanguageStrings.table,
+                                                                        LanguageStrings.popupmenu,
+                                                                        LanguageStrings.items,
+                                                                        LanguageStrings.edit),
+                                                                        //"Edit",
                                                Constants.EDIT_ICON_NAME,
                                                new ActionListener ()
                                                {
@@ -308,7 +349,12 @@ public class TagsEditor extends Box implements ProjectEventListener
                                        20,
                                        5));
 
-        final JButton add = new JButton ("Add");
+        final JButton add = new JButton (Environment.getUIString (LanguageStrings.tags,
+                                                                  LanguageStrings.actions,
+                                                                  LanguageStrings.manage,
+                                                                  LanguageStrings.newtag,
+                                                                  LanguageStrings.add));
+                                         //"Add");
 
         JButton[] buts = new JButton[] { add };
         
@@ -371,7 +417,12 @@ public class TagsEditor extends Box implements ProjectEventListener
                                               e);
                         
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to add tag.");
+                                                  Environment.getUIString (LanguageStrings.tags,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.manage,
+                                                                           LanguageStrings.newtag,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to add tag.");
                         
                         return;
                         
@@ -399,7 +450,14 @@ public class TagsEditor extends Box implements ProjectEventListener
         
         this.add (fb);
         
-        this.add (UIUtils.createBoldSubHeader (Environment.replaceObjectNames (this.getTypesName ()),
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.tags);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.manage);
+        prefix.add (LanguageStrings.table);
+        
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                        LanguageStrings.title),
                                                null));
 
         fb = new Box (BoxLayout.Y_AXIS);
@@ -409,23 +467,19 @@ public class TagsEditor extends Box implements ProjectEventListener
                                        0,
                                        5));                                            
                                             
-        if (this.getNewTypeHelp () != null)
-        {
-                                            
-            tp = UIUtils.createHelpTextPane (Environment.replaceObjectNames (this.getNewTypeHelp ()),
-                                             this.viewer);
-            tp.setBorder (null);
-            fb.add (tp);
-            fb.add (Box.createVerticalStrut (10));
-
-        }
+        tp = UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                  LanguageStrings.text),
+                                         this.viewer);
+        tp.setBorder (null);
+        fb.add (tp);
+        fb.add (Box.createVerticalStrut (10));
         
         final JScrollPane ppsp = UIUtils.createScrollPane (typeTable);
 
         typeTable.setPreferredScrollableViewportSize (new Dimension (-1,
                                                                      (typeTable.getRowHeight () + 3) * 5));
 
-        this.error = UIUtils.createErrorLabel ("Please enter a value.");
+        this.error = UIUtils.createErrorLabel ("");//Please enter a value.");
         this.error.setVisible (false);
         
         this.error.setBorder (UIUtils.createPadding (5, 0, 5, 5));
@@ -434,7 +488,12 @@ public class TagsEditor extends Box implements ProjectEventListener
                                                                      
         fb.add (ppsp);
 
-        final JButton remove = new JButton ("Remove Selected");
+        final JButton remove = new JButton (Environment.getUIString (LanguageStrings.tags,
+                                                                     LanguageStrings.actions,
+                                                                     LanguageStrings.manage,
+                                                                     LanguageStrings.table,
+                                                                     LanguageStrings.remove));
+                                                                           //"Remove Selected");
 
         buts = new JButton[] { remove };
         
@@ -469,7 +528,13 @@ public class TagsEditor extends Box implements ProjectEventListener
                                               e);
                         
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to delete tag.");
+                                                  Environment.getUIString (LanguageStrings.tags,
+                                                                           LanguageStrings.actions,
+                                                                           LanguageStrings.manage,
+                                                                           LanguageStrings.table,
+                                                                           LanguageStrings.delete,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to delete tag.");
                         
                         return;
                         
@@ -489,7 +554,11 @@ public class TagsEditor extends Box implements ProjectEventListener
 
         this.add (fb);
         
-        JButton finish = new JButton ("Finish");
+        JButton finish = new JButton (Environment.getUIString (LanguageStrings.tags,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.manage,
+                                                               LanguageStrings.finish));
+                                      //"Finish");
 
         finish.addActionListener (new ActionAdapter ()
         {
@@ -497,6 +566,8 @@ public class TagsEditor extends Box implements ProjectEventListener
             public void actionPerformed (ActionEvent ev)
             {
 
+                _this.error.setVisible (false);
+            
                 UIUtils.closePopupParent (_this.getParent ());
 
             }
@@ -546,7 +617,12 @@ public class TagsEditor extends Box implements ProjectEventListener
                                   e);
             
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to get the tags.");
+                                      Environment.getUIString (LanguageStrings.tags,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.manage,
+                                                               LanguageStrings.table,
+                                                               LanguageStrings.loadallerror));
+//                                      "Unable to get the tags.");
             
             return;
             
@@ -575,47 +651,12 @@ public class TagsEditor extends Box implements ProjectEventListener
                                       cols);
         
     }
-    
-    public String getWindowTitle ()
-    {
-
-        return "Manage the Tags";
-
-    }
-
-    public String getHeaderTitle ()
-    {
-
-        return "Manage the Tags";
-
-    }
 
     public String getHeaderIconType ()
     {
 
         return Constants.TAG_ICON_NAME;
 
-    }
-
-    public String getHelpText ()
-    {
-
-        return null;
-
-    }
-
-    public String getNewTypeHelp ()
-    {
-        
-        return "Note: removing a tag will remove it from <b>all</b> {projects}.  You can change the tag name by editing the values below, double click on a type to edit it.";
-        
-    }
-
-    public String getTypesName ()
-    {
-        
-        return "Tags";
-        
     }
     
 }

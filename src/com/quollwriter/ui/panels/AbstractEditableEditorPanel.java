@@ -635,6 +635,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
     }
 
+    // TODO: Merge with TextArea.fillPopupMenu
     private void addFormatItemsToPopupMenu (JPopupMenu popup,
                                             boolean    compress)
     {
@@ -644,24 +645,42 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         if (!sel.equals (""))
         {
 
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.formatting);
+            prefix.add (LanguageStrings.format);
+            prefix.add (LanguageStrings.popupmenu);
+            prefix.add (LanguageStrings.items);
+        
             if (compress)
             {
 
                 List<JComponent> buts = new ArrayList ();
                 buts.add (this.createButton (Constants.BOLD_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Bold the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.bold,
+                                                                      LanguageStrings.tooltip),
+                                             //"Bold the selected text",
                                              QTextEditor.BOLD_ACTION_NAME));
                 buts.add (this.createButton (Constants.ITALIC_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Italic the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.italic,
+                                                                      LanguageStrings.tooltip),
+                                             //"Italic the selected text",
                                              QTextEditor.ITALIC_ACTION_NAME));
                 buts.add (this.createButton (Constants.UNDERLINE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Underline the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.underline,                                                                          LanguageStrings.tooltip),
+                                             //"Underline the selected text",
                                              QTextEditor.UNDERLINE_ACTION_NAME));
 
-                popup.add (UIUtils.createPopupMenuButtonBar ("Format",
+                popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.formatting,
+                                                                                      LanguageStrings.format,
+                                                                                      LanguageStrings.popupmenu,
+                                                                                      LanguageStrings.title),
+                                                             //"Format",
                                                              popup,
                                                              buts));
 
@@ -672,7 +691,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 popup.addSeparator ();
 
                 // Add the bold/italic/underline.
-                mi = this.createMenuItem ("Bold",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.bold,
+                                                                   LanguageStrings.text),
+                                          //"Bold",
                                           Constants.BOLD_ICON_NAME,
                                           QTextEditor.BOLD_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_B,
@@ -681,7 +703,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                 popup.add (mi);
 
-                mi = this.createMenuItem ("Italic",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.italic,
+                                                                   LanguageStrings.text),
+                                          //"Italic",
                                           Constants.ITALIC_ICON_NAME,
                                           QTextEditor.ITALIC_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_I,
@@ -690,7 +715,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 mi.setFont (mi.getFont ().deriveFont (Font.ITALIC));
                 popup.add (mi);
 
-                mi = this.createMenuItem ("Underline",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.underline,
+                                                                   LanguageStrings.text),
+                                          //"Underline",
                                           Constants.UNDERLINE_ICON_NAME,
                                           QTextEditor.UNDERLINE_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_U,
@@ -710,12 +738,19 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
     }
 
+    // TODO: Merge with TextArea.fillPopupMenu.
     private void addEditItemsToPopupMenu (JPopupMenu popup,
                                           boolean    compress)
     {
 
         JMenuItem mi = null;
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.formatting);
+        prefix.add (LanguageStrings.edit);
+        prefix.add (LanguageStrings.popupmenu);
+        prefix.add (LanguageStrings.items);
+        
         String sel = this.editor.getSelectedText ();
 
         if (compress)
@@ -729,11 +764,17 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                 buts.add (this.createButton (Constants.CUT_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Cut the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.cut,
+                                                                      LanguageStrings.tooltip),
+                                             //"Cut the selected text",
                                              QTextEditor.CUT_ACTION_NAME));
                 buts.add (this.createButton (Constants.COPY_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Copy the selected text",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.copy,
+                                                                      LanguageStrings.tooltip),
+                                             //"Copy the selected text",
                                              QTextEditor.COPY_ACTION_NAME));
 
             }
@@ -743,7 +784,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                 buts.add (this.createButton (Constants.PASTE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Paste",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.paste,
+                                                                      LanguageStrings.tooltip),
+                                             //"Paste",
                                              QTextEditor.PASTE_ACTION_NAME));
 
             }
@@ -751,21 +795,31 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             // Only add if there is an undo available.
             buts.add (this.createButton (Constants.UNDO_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Undo",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.undo,
+                                                                  LanguageStrings.tooltip),
+                                         //"Undo",
                                          QTextEditor.UNDO_ACTION_NAME));
             buts.add (this.createButton (Constants.REDO_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Redo",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.redo,
+                                                                  LanguageStrings.tooltip),
+                                         //"Redo",
                                          QTextEditor.REDO_ACTION_NAME));
 
-            popup.add (UIUtils.createPopupMenuButtonBar ("Edit",
+            popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.formatting,
+                                                                                  LanguageStrings.edit,
+                                                                                  LanguageStrings.popupmenu,
+                                                                                  LanguageStrings.title),
+                                                         //"Edit",
                                                          popup,
                                                          buts));
 
         } else {
 
             popup.addSeparator ();
-
+/*
             mi = this.createMenuItem ("Find",
                                       Constants.FIND_ICON_NAME,
                                       Constants.SHOW_FIND_ACTION,
@@ -773,11 +827,14 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                                               ActionEvent.CTRL_MASK));
             mi.setMnemonic (KeyEvent.VK_F);
             popup.add (mi);
-
+*/
             if (!sel.equals (""))
             {
 
-                mi = this.createMenuItem ("Cut",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.cut,
+                                                                   LanguageStrings.text),
+                                          //"Cut",
                                           Constants.CUT_ICON_NAME,
                                           QTextEditor.CUT_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_X,
@@ -785,7 +842,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 mi.setMnemonic (KeyEvent.VK_X);
                 popup.add (mi);
 
-                mi = this.createMenuItem ("Copy",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.copy,
+                                                                   LanguageStrings.text),
+                                          //"Copy",
                                           Constants.COPY_ICON_NAME,
                                           QTextEditor.COPY_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_C,
@@ -799,7 +859,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             if (UIUtils.clipboardHasContent ())
             {
 
-                mi = this.createMenuItem ("Paste",
+                mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.paste,
+                                                                   LanguageStrings.text),
+                                          //"Paste",
                                           Constants.PASTE_ICON_NAME,
                                           QTextEditor.PASTE_ACTION_NAME,
                                           KeyStroke.getKeyStroke (KeyEvent.VK_V,
@@ -810,7 +873,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
             }
 
-            mi = this.createMenuItem ("Undo",
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               LanguageStrings.undo,
+                                                               LanguageStrings.text),
+                                      //"Undo",
                                       Constants.UNDO_ICON_NAME,
                                       QTextEditor.UNDO_ACTION_NAME,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_Z,
@@ -818,7 +884,10 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             mi.setMnemonic (KeyEvent.VK_Z);
             popup.add (mi);
 
-            mi = this.createMenuItem ("Redo",
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               LanguageStrings.redo,
+                                                               LanguageStrings.text),
+                                      //"Redo",
                                       Constants.REDO_ICON_NAME,
                                       QTextEditor.REDO_ACTION_NAME,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_Y,
@@ -878,10 +947,18 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                 if (l != null)
                 {
 
+                    java.util.List<String> prefix = new ArrayList ();
+                    prefix.add (LanguageStrings.dictionary);
+                    prefix.add (LanguageStrings.spellcheck);
+                    prefix.add (LanguageStrings.popupmenu);
+                    prefix.add (LanguageStrings.items);
+                
                     if (l.size () == 0)
                     {
 
-                        mi = new JMenuItem ("Add to Dictionary");
+                        mi = new JMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.add));
+                        //"Add to Dictionary");
                         mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                         mi.setActionCommand (word);
                         mi.addActionListener (addToDict);
@@ -889,7 +966,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                         popup.add (mi,
                                    0);
 
-                        mi = new JMenuItem ("(No Spelling Suggestions)");
+                        mi = new JMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.nosuggestions));
+                        //"(No Spelling Suggestions)");
                         mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                         mi.setEnabled (false);
 
@@ -899,7 +978,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                     } else
                     {
 
-                        JMenu more = new JMenu ("More Suggestions");
+                        JMenu more = new JMenu (Environment.getUIString (prefix,
+                                                                         LanguageStrings.more));
+                                                //"More Suggestions");
 
                         int i = 0;
 
@@ -962,7 +1043,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                         }
 
-                        mi = new JMenuItem ("Add to Dictionary");
+                        mi = new JMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.add));
+                        //"Add to Dictionary");
                         mi.setActionCommand (word);
                         mi.addActionListener (addToDict);
 
@@ -987,7 +1070,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                 (word.length () > 0))
                             {
 
-                                String mt = "No synonyms found for: " + word;
+                                //String mt = "No synonyms found for: " + word;
 
                                 try
                                 {
@@ -996,7 +1079,12 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                     if (this.editor.getSynonymProvider ().hasSynonym (word))
                                     {
 
-                                        mi = new JMenuItem ("Find synonyms for: " + word);
+                                        mi = new JMenuItem (String.format (Environment.getUIString (LanguageStrings.synonyms,
+                                                                                                    LanguageStrings.popupmenu,
+                                                                                                    LanguageStrings.items,
+                                                                                                    LanguageStrings.find),
+                                                                           word));                                    
+                                        //mi = new JMenuItem ("Find synonyms for: " + word);
 
                                         mi.setIcon (Environment.getIcon ("find",
                                                                          Constants.ICON_MENU));
@@ -1007,7 +1095,12 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                                     } else {
 
-                                        mi = new JMenuItem ("(No synonyms for: " + word + ")");
+                                        mi = new JMenuItem (String.format (Environment.getUIString (LanguageStrings.synonyms,
+                                                                                                    LanguageStrings.popupmenu,
+                                                                                                    LanguageStrings.items,
+                                                                                                    LanguageStrings.nosynonyms),
+                                                                           word));                                    
+                                        //mi = new JMenuItem ("(No synonyms for: " + word + ")");
                                         mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                                         mi.setEnabled (false);
 

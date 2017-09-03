@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -238,13 +239,27 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
         if (this.itemViewer.getViewer ().isDistractionFreeModeEnabled ())
         {
             
-            this.itemViewer.getViewer ().showNotificationPopup ("Function unavailable",
-                                                                "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.iconcolumn);
+            prefix.add (LanguageStrings.viewitem);
+            prefix.add (LanguageStrings.distractionfreemode);
+            prefix.add (LanguageStrings.popup);
+            
+            this.itemViewer.getViewer ().showNotificationPopup (Environment.getUIString (prefix,
+                                                                                         LanguageStrings.title),
+                                                                //"Function unavailable",
+                                                                Environment.getUIString (prefix,
+                                                                                         LanguageStrings.text),
+                                                                //"Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
                                                                 5);
 
             return;            
             
         }    
+    
+        String viewError = Environment.getUIString (LanguageStrings.iconcolumn,
+                                                    LanguageStrings.viewitem,
+                                                    LanguageStrings.actionerror);
     
         ItemWrapper w = this.getWrapper (it);
         
@@ -266,7 +281,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
             {
     
                 r = this.editor.modelToView (pos);
-    
+
             } catch (Exception e)
             {
     
@@ -278,7 +293,8 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                       e);
     
                 UIUtils.showErrorMessage (this.itemViewer.getViewer (),
-                                          "Unable to display item.");
+                                          viewError);
+                                          //"Unable to display item.");
     
                 return;
     
@@ -301,7 +317,8 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                       e);
     
                 UIUtils.showErrorMessage (this.itemViewer.getViewer (),
-                                          "Unable to display item.");
+                                          viewError);
+                                          //"Unable to display item.");
                 
                 return;
                 
@@ -315,7 +332,8 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                       ", got null popup.");
     
                 UIUtils.showErrorMessage (this.itemViewer.getViewer (),
-                                          "Unable to display item.");
+                                          viewError);
+                                          //"Unable to display item.");
                 
                 return;
                 

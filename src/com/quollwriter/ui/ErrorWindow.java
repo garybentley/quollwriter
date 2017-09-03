@@ -40,14 +40,18 @@ public class ErrorWindow extends PopupWindow
     public String getWindowTitle ()
     {
 
-        return "Oops, an error has occurred...";
+        return Environment.getUIString (LanguageStrings.errormessage,
+                                        LanguageStrings.title);
+        //"Oops, an error has occurred...";
 
     }
 
     public String getHeaderTitle ()
     {
 
-        return "Oops, an error has occurred...";
+        return Environment.getUIString (LanguageStrings.errormessage,
+                                        LanguageStrings.title);
+        //return "Oops, an error has occurred...";
 
     }
 
@@ -61,7 +65,13 @@ public class ErrorWindow extends PopupWindow
     public String getHelpText ()
     {
 
-        return this.message + "<br /><br /><a href='qw:/report-a-bug'>Contact Quoll Writer support about this problem.</a>";
+        return String.format (Environment.getUIString (LanguageStrings.errormessage,
+                                                       LanguageStrings.text),
+                              this.message,
+                              Constants.ACTION_PROTOCOL,
+                              "reportbug");
+    
+        //return this.message + "<br /><br /><a href='qw:/report-a-bug'>Contact Quoll Writer support about this problem.</a>";
 
     }
 
@@ -100,8 +110,7 @@ public class ErrorWindow extends PopupWindow
 
         final ErrorWindow _this = this;
 
-        JButton closeBut = new JButton ();
-        closeBut.setText ("Close");
+        JButton closeBut = UIUtils.createButton (Constants.CLOSE_BUTTON_LABEL_ID);
 
         closeBut.addActionListener (new ActionAdapter ()
         {

@@ -45,14 +45,26 @@ public class FileFinder extends Box
 
         this.text = UIUtils.createTextField ();
                 
+        this.text.setToolTipText (Environment.getUIString (LanguageStrings.filefinder,
+                                                           LanguageStrings.text,
+                                                           LanguageStrings.tooltip));
+                
         this.findButton = UIUtils.createButton (Constants.FIND_ICON_NAME,
                                                 Constants.ICON_MENU,
-                                                Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")),
+                                                Environment.replaceObjectNames ((this.findButtonToolTip != null ?
+                                                                                 this.findButtonToolTip :
+                                                                                 Environment.getUIString (LanguageStrings.filefinder,
+                                                                                                          LanguageStrings.find,
+                                                                                                          LanguageStrings.tooltip))),
+                                                                                 //"Click to find the file/directory.")),
                                                 null);
 
         this.cancelButton = UIUtils.createButton ("cancel",
                                                   Constants.ICON_MENU,
-                                                  "Click to cancel.",
+                                                  Environment.getUIString (LanguageStrings.filefinder,
+                                                                           LanguageStrings.cancel,
+                                                                           LanguageStrings.tooltip),
+                                                  //"Click to cancel.",
                                                   null);
         
     }
@@ -206,14 +218,14 @@ public class FileFinder extends Box
         this.setMaximumSize (new Dimension (350,
                                                  this.getPreferredSize ().height));
   */                                               
-        this.text.setToolTipText (Environment.replaceObjectNames ("Click to open the finder"));
+        //this.text.setToolTipText (Environment.replaceObjectNames ("Click to open the finder"));
                                                  
         this.setAlignmentX (Component.LEFT_ALIGNMENT);                                              
                                               
         //this.add (text);
         //this.add (Box.createHorizontalStrut (2));
 
-        this.findButton.setToolTipText (Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")));
+        //this.findButton.setToolTipText (Environment.replaceObjectNames ((this.findButtonToolTip != null ? this.findButtonToolTip : "Click to find the file/directory.")));
                 
         //this.add (dbut);
 

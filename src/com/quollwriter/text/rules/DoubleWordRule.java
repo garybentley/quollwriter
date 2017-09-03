@@ -160,7 +160,7 @@ public class DoubleWordRule extends AbstractSentenceRule
                 if (curr.textEquals (prev))
                 {
 
-                    Set<String> pref = new LinkedHashSet ();
+                    List<String> pref = new ArrayList ();
                     pref.add (LanguageStrings.problemfinder);
                     pref.add (LanguageStrings.issues);
                     pref.add (LanguageStrings.doubleword);

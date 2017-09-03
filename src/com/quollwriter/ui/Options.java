@@ -659,7 +659,7 @@ public class Options extends Box
     private SectionInfo createAchievementsSection ()
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.options);
         prefix.add (LanguageStrings.achievements);
     

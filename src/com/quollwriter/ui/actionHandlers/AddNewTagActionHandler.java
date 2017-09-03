@@ -43,14 +43,22 @@ public class AddNewTagActionHandler extends TextInputActionHandler<AbstractProje
     public String getTitle ()
     {
         
-        return "Add New Tag(s)";
+        return Environment.getUIString (LanguageStrings.tags,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.newtag,                                        
+                                        LanguageStrings.title);
+        //"Add New Tag(s)";
         
     }
     
     public String getHelp ()
     {
         
-        return String.format ("Enter the new tag(s) below.  Separate the tags with commas or semi-colons.<br /><br />The tags will be added to <b>%s</b>.",
+        return String.format (Environment.getUIString (LanguageStrings.tags,
+                                                       LanguageStrings.actions,
+                                                       LanguageStrings.newtag,
+                                                       LanguageStrings.text),
+                              //"Enter the new tag(s) below.  Separate the tags with commas or semi-colons.<br /><br />The tags will be added to <b>%s</b>.",
                               this.obj.getName ());
         
     }
@@ -58,7 +66,11 @@ public class AddNewTagActionHandler extends TextInputActionHandler<AbstractProje
     public String getConfirmButtonLabel ()
     {
         
-        return "Add";
+        return Environment.getUIString (LanguageStrings.tags,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.newtag,                                        
+                                        LanguageStrings.confirm);
+        //"Add";
         
     }
     
@@ -78,7 +90,12 @@ public class AddNewTagActionHandler extends TextInputActionHandler<AbstractProje
            )
         {
             
-            return "Please enter a new tag.";
+            return Environment.getUIString (LanguageStrings.tags,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.newtag,                                        
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a new tag.";
             
         }
         
@@ -87,7 +104,12 @@ public class AddNewTagActionHandler extends TextInputActionHandler<AbstractProje
         if (ntags.size () == 0)
         {
             
-            return "Please enter a new tag.";
+            return Environment.getUIString (LanguageStrings.tags,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.newtag,                                        
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a new tag.";
             
         }
                 
@@ -163,7 +185,11 @@ public class AddNewTagActionHandler extends TextInputActionHandler<AbstractProje
                                       e);
                 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to add tag.");
+                                          Environment.getUIString (LanguageStrings.tags,
+                                                                   LanguageStrings.actions,
+                                                                   LanguageStrings.newtag,                                        
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to add tag.");
                 
                 return false;
                 
@@ -186,7 +212,11 @@ public class AddNewTagActionHandler extends TextInputActionHandler<AbstractProje
                                   e);
             
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to add tags.");
+                                      Environment.getUIString (LanguageStrings.tags,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.newtag,                                        
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to add tags.");
             
         }
                 

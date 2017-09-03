@@ -1493,7 +1493,7 @@ public class Environment
     public static String canOpenProject (Project p)
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.openproject);
@@ -1558,7 +1558,7 @@ public class Environment
     public static String canOpenProject (ProjectInfo p)
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.openproject);
@@ -2530,7 +2530,7 @@ public class Environment
             */
             Environment.incrStartupProgress ();
 
-            Set<String> prefix = new LinkedHashSet ();
+            java.util.List<String> prefix = new ArrayList ();
             prefix.add (LanguageStrings.project);
             prefix.add (LanguageStrings.actions);
             prefix.add (LanguageStrings.openproject);
@@ -4029,7 +4029,7 @@ public class Environment
                         public void run ()
                         {
 
-                            Set<String> prefix = new LinkedHashSet ();
+                            java.util.List<String> prefix = new ArrayList ();
                             prefix.add (LanguageStrings.targets);
                             prefix.add (LanguageStrings.types);
                         
@@ -7135,7 +7135,7 @@ TODO: Add back in when appropriate.
         
     }
     
-    public static String getUIString (Set<String> ids)
+    public static String getUIString (List<String> ids)
     {
 
         String s = Environment.getUIString (Environment.UILanguage,
@@ -7163,15 +7163,15 @@ TODO: Add back in when appropriate.
     public static String getUIString (String... ids)
     {
     
-        return Environment.getUIString (new LinkedHashSet (Arrays.asList (ids)));
+        return Environment.getUIString (Arrays.asList (ids));
     
     }
     
-    public static String getUIString (Set<String> prefix,
-                                      String      id)
+    public static String getUIString (List<String> prefix,
+                                      String       id)
     {
         
-        Set<String> ids = new LinkedHashSet (prefix);
+        List<String> ids = new ArrayList (prefix);
         
         ids.add (id);
         
@@ -7179,11 +7179,11 @@ TODO: Add back in when appropriate.
         
     }
     
-    public static String getUIString (Set<String> prefix,
-                                      String...   ids)
+    public static String getUIString (List<String> prefix,
+                                      String...    ids)
     {
         
-        Set<String> _ids = new LinkedHashSet (prefix);
+        List<String> _ids = new ArrayList (prefix);
         
         for (String s : ids)
         {
@@ -7196,8 +7196,8 @@ TODO: Add back in when appropriate.
         
     }
 
-    private static String getUIString (String      language,
-                                       Set<String> ids)
+    private static String getUIString (String       language,
+                                       List<String> ids)
     {
         
         if (language == null)

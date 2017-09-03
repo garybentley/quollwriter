@@ -108,7 +108,7 @@ public class RenameProjectActionHandler extends TextInputActionHandler<AbstractP
                                                 LanguageStrings.actions,
                                                 LanguageStrings.renameproject,
                                                 LanguageStrings.errors,
-                                                LanguageStrings.projectexists);
+                                                LanguageStrings.valueexists);
                 //"A {project} with that name already exists.";
             
             }

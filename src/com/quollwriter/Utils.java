@@ -53,11 +53,11 @@ public class Utils
         
     }
     
-    public static Set<String> splitString (String str,
-                                           String separator)
+    public static List<String> splitString (String str,
+                                            String separator)
     {
         
-        Set<String> ret = new LinkedHashSet ();
+        List<String> ret = new ArrayList ();
         
         if (str == null)
         {

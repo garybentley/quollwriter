@@ -260,7 +260,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                      MouseEvent ev)
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.headerpopupmenu);
         prefix.add (LanguageStrings.items);
@@ -562,7 +562,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                    MouseEvent ev)
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.treepopupmenu);
         prefix.add (LanguageStrings.items);

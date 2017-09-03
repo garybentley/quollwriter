@@ -1376,7 +1376,21 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                             Constants.EDIT_PROPERTIES_ICON_NAME,
                                             EDIT_TEXT_PROPERTIES_ACTION_NAME,
                                             null));                                            
-                                          
+
+            mi = this.createMenuItem ("Find",
+                                      Constants.FIND_ICON_NAME,
+                                      Constants.SHOW_FIND_ACTION,
+                                      KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                                              ActionEvent.CTRL_MASK));
+            mi.setMnemonic (KeyEvent.VK_F);
+
+            popup.add (mi);
+/*
+            popup.add (this.createMenuItem ("Find",
+                                            Constants.FIND_ICON_NAME,
+                                            Constants.SHOW_FIND_ACTION,
+                                            null));                                            
+*/
         }
 
     }

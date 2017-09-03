@@ -41,7 +41,10 @@ public class TextInputWindow extends PopupWindow
                Component.LEFT_ALIGNMENT);
     
         this.text = UIUtils.createTextField ();
-        this.error = UIUtils.createErrorLabel ("Please enter a value.");
+        this.error = UIUtils.createErrorLabel (Environment.getUIString (LanguageStrings.form,
+                                                                        LanguageStrings.errors,
+                                                                        LanguageStrings.entervalue));
+        //"Please enter a value.");
         
         this.error.setVisible (false);
         this.error.setBorder (UIUtils.createPadding (5, 0, 0, 0));

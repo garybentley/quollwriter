@@ -90,7 +90,10 @@ public class Notification extends Box implements ActionListener
 
         this.cancel = UIUtils.createButton ("cancel",
                                             Constants.ICON_MENU,
-                                            "Click to remove this notification",
+                                            Environment.getUIString (LanguageStrings.notifications,
+                                                                     LanguageStrings.remove,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to remove this notification",
                                             removeNotification);
 
         buts.add (this.cancel);

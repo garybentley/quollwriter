@@ -183,7 +183,7 @@ public class AssetDetailsEditPanel<E extends Asset> extends EditPanel implements
     public boolean handleCancel ()
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.save);
         prefix.add (LanguageStrings.cancel);

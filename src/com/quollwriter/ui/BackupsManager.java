@@ -339,7 +339,7 @@ public class BackupsManager extends Box implements ProjectEventListener
         public void restore ()
         {
 
-            Set<String> prefix = new LinkedHashSet ();
+            java.util.List<String> prefix = new ArrayList ();
             prefix.add (LanguageStrings.backups);
             prefix.add (LanguageStrings.restore);
             prefix.add (LanguageStrings.popup);
@@ -435,7 +435,7 @@ public class BackupsManager extends Box implements ProjectEventListener
 
                                                                 }
 
-                                                                Set<String> prefix = new LinkedHashSet ();
+                                                                java.util.List<String> prefix = new ArrayList ();
                                                                 prefix.add (LanguageStrings.backups);
                                                                 prefix.add (LanguageStrings.restore);
                                                                 prefix.add (LanguageStrings.confirmpopup);
@@ -540,7 +540,7 @@ public class BackupsManager extends Box implements ProjectEventListener
      public void delete ()
      {
 
-          Set<String> prefix = new LinkedHashSet ();
+          java.util.List<String> prefix = new ArrayList ();
           prefix.add (LanguageStrings.backups);
           prefix.add (LanguageStrings.delete);
           prefix.add (LanguageStrings.confirmpopup);

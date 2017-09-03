@@ -1113,7 +1113,10 @@ public class Form extends Box
 
         }
 
-        this.showError ("Please correct the following errors:<ul>" + b.toString () + "</ul>");
+        this.showError (String.format (Environment.getUIString (LanguageStrings.form,
+                                                                LanguageStrings.errors,
+                                                                LanguageStrings.general),
+                                       b.toString ()));
 
     }
 

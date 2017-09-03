@@ -38,7 +38,9 @@ public class MessageWindow extends PopupWindow
                Component.LEFT_ALIGNMENT);
         
         this.message = message;
-        this.title = (title != null ? title : "Just so you know...");
+        this.title = (title != null ? title : Environment.getUIString (LanguageStrings.generalmessage,
+                                                                       LanguageStrings.title));
+        //"Just so you know...");
 
     }
 
@@ -53,7 +55,9 @@ public class MessageWindow extends PopupWindow
                Component.LEFT_ALIGNMENT);
         
         this.message = message;
-        this.title = (title != null ? title : "Just so you know...");
+        this.title = (title != null ? title : Environment.getUIString (LanguageStrings.generalmessage,
+                                                                       LanguageStrings.title));
+                      //"Just so you know...");
         this.confirmButtonLabel = confirmButtonLabel;
         this.onConfirm = onConfirm;
 

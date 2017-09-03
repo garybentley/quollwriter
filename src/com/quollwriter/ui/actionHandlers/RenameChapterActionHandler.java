@@ -125,7 +125,7 @@ public class RenameChapterActionHandler extends TextInputActionHandler<AbstractP
                                             LanguageStrings.actions,
                                             LanguageStrings.renamechapter,
                                             LanguageStrings.errors,
-                                            LanguageStrings.chapterexists);
+                                            LanguageStrings.valueexists);
             //"Another {chapter} with that name already exists.";
 
         }

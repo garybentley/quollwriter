@@ -82,7 +82,7 @@ public class WarmupPromptSelect extends Box
             
         }
     
-        Set<String> prefix = new LinkedHashSet ();
+        List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.dowarmup);
     
         this.inited = true;

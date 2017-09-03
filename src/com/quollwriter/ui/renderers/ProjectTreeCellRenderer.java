@@ -96,7 +96,11 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
         }
 
-        this.setToolTipText ("Click to view");
+        this.setToolTipText (Environment.getUIString (LanguageStrings.project,
+                                                      LanguageStrings.sidebar,
+                                                      LanguageStrings.viewitem,
+                                                      LanguageStrings.tooltip));
+        //"Click to view");
         this.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
 
         return this;

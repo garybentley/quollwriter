@@ -2170,7 +2170,9 @@ public class UIUtils
 
                 }
 
-                JTextPane m = UIUtils.createHelpTextPane (String.format ("%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
+                JTextPane m = UIUtils.createHelpTextPane (String.format (Environment.getUIString (LanguageStrings.errormessage,
+                                                                                                  LanguageStrings.text),
+                                                                         //"%s<br /><br /><a href='%s:%s'>Click here to contact Quoll Writer support about this problem.</a>",
                                                                          message,
                                                                          Constants.ACTION_PROTOCOL,
                                                                          "reportbug"),
@@ -2192,7 +2194,9 @@ public class UIUtils
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-                final QPopup ep = UIUtils.createPopup ("Oops, an error has occurred...",
+                final QPopup ep = UIUtils.createPopup (Environment.getUIString (LanguageStrings.errormessage,
+                                                                                LanguageStrings.title),
+                                                       //"Oops, an error has occurred...",
                                                        Constants.ERROR_ICON_NAME,
                                                        content,
                                                        true,
@@ -2593,7 +2597,9 @@ public class UIUtils
                 content.add (buttons);
                 content.setBorder (new EmptyBorder (10, 10, 10, 10));
 
-                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : "Just so you know..."),
+                final QPopup ep = UIUtils.createClosablePopup ((title != null ? title : Environment.getUIString (LanguageStrings.generalmessage,
+                                                                                                                 LanguageStrings.title)),
+                                                                //"Just so you know..."),
                                                                Environment.getIcon (Constants.INFO_ICON_NAME,
                                                                                     Constants.ICON_POPUP),
                                                                onConfirm);

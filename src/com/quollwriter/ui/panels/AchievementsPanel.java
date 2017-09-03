@@ -90,7 +90,9 @@ public class AchievementsPanel extends QuollPanel<AbstractViewer> //implements A
     public String getTitle ()
     {
         
-        return "Achievements";
+        return Environment.getUIString (LanguageStrings.achievementspanel,
+                                        LanguageStrings.title);
+        //"Achievements";
         
     }
     

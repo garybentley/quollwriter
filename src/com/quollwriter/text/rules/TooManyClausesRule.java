@@ -150,7 +150,7 @@ public class TooManyClausesRule extends AbstractSentenceRule
     public Set<FormItem> getFormItems ()
     {
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);

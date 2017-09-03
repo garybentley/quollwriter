@@ -195,7 +195,10 @@ public class ChapterItemMoveHandler
         {
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to move item");
+                                      Environment.getUIString (LanguageStrings.iconcolumn,
+                                                               LanguageStrings.moveitem,
+                                                               LanguageStrings.actionerror));
+            //"Unable to move item");
             
             Environment.logError ("Unable to move item: " +
                                   this.item,

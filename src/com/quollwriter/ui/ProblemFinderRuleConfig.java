@@ -135,7 +135,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
             java.util.List<JButton> buttons = new ArrayList ();
 
-            Set<String> pref = new LinkedHashSet ();
+            List<String> pref = new ArrayList ();
             pref.add (LanguageStrings.problemfinder);
             pref.add (LanguageStrings.config);
             pref.add (LanguageStrings.rulebox);
@@ -371,7 +371,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         List<JButton> buts = new ArrayList ();
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.addrule);
@@ -574,7 +574,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         List<JButton> buts = new ArrayList ();
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.addrule);
@@ -766,7 +766,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         List<JButton> buts = new ArrayList ();
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.addrule);
@@ -930,7 +930,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         this.createWordsWrapper ();
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.tabtitles);
@@ -1116,7 +1116,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         final Box _editBox = editBox;
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
                 
@@ -1398,8 +1398,7 @@ public class ProblemFinderRuleConfig extends ScrollableBox implements ProjectEve
 
         final Map<String, ActionListener> buttons = new LinkedHashMap ();
 
-        Set<String> pref = new LinkedHashSet ();
-        
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.removerule);

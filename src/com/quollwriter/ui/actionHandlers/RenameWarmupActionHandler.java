@@ -40,21 +40,33 @@ public class RenameWarmupActionHandler extends TextInputActionHandler<WarmupsVie
     public String getTitle ()
     {
         
-        return "Rename {Warmup}";
+        return Environment.getUIString (LanguageStrings.warmups,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renamewarmup,
+                                        LanguageStrings.title);
+        //"Rename {Warmup}";
         
     }
     
     public String getHelp ()
     {
         
-        return "Enter the new {warmup} name below.";
+        return Environment.getUIString (LanguageStrings.warmups,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renamewarmup,
+                                        LanguageStrings.text);
+        //"Enter the new {warmup} name below.";
         
     }
 
     public String getConfirmButtonLabel ()
     {
         
-        return "Change";
+        return Environment.getUIString (LanguageStrings.warmups,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.renamewarmup,
+                                        LanguageStrings.confirm);
+        //"Change";
         
     }
     
@@ -74,7 +86,12 @@ public class RenameWarmupActionHandler extends TextInputActionHandler<WarmupsVie
            )
         {
             
-            return "Please enter a new name.";
+            return Environment.getUIString (LanguageStrings.warmups,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.renamewarmup,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a new name.";
             
         }
 
@@ -104,7 +121,12 @@ public class RenameWarmupActionHandler extends TextInputActionHandler<WarmupsVie
         if (exists)
         {
                                                                         
-            return "Another {warmup} with that name already exists.";
+            return Environment.getUIString (LanguageStrings.warmups,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.renamewarmup,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.valueexists);
+            //"Another {warmup} with that name already exists.";
 
         }
                 
@@ -144,7 +166,11 @@ public class RenameWarmupActionHandler extends TextInputActionHandler<WarmupsVie
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "An internal error has occurred.\n\nUnable to change name of {warmup}.");
+                                      Environment.getUIString (LanguageStrings.warmups,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.renamewarmup,
+                                                               LanguageStrings.actionerror));
+                                      //"An internal error has occurred.\n\nUnable to change name of {warmup}.");
 
         }
         

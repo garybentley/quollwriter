@@ -574,7 +574,12 @@ public class DataObjectTransferHandler extends TransferHandler
                                                   e);
 
                             UIUtils.showErrorMessage (this.projectViewer,
-                                                      "Unable to move.");
+                                                      Environment.getUIString (LanguageStrings.project,
+                                                                               LanguageStrings.sidebar,
+                                                                               LanguageStrings.section,
+                                                                               LanguageStrings.moveitem,
+                                                                               LanguageStrings.actionerror));
+                                                      //"Unable to move.");
 
                             return;
 

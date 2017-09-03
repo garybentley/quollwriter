@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -121,14 +122,23 @@ public class WarmupsSideBar extends AbstractSideBar<WarmupsViewer>
         
         this.warmupsItem = new WarmupsAccordionItem (this.viewer);
 
-        this.warmupsItem.setTitle ("Previous {Warmups}");
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.warmups);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.warmups);
+        
+        this.warmupsItem.setTitle (Environment.getUIString (prefix,
+                                                            LanguageStrings.title));
+        //"Previous {Warmups}");
 
         this.warmupsItem.init ();
               
         this.promptWrapper = new Box (BoxLayout.Y_AXIS);
         this.promptWrapper.setAlignmentX (Component.LEFT_ALIGNMENT);
         
-        com.quollwriter.ui.components.Header h = UIUtils.createBoldSubHeader ("Prompt",
+        com.quollwriter.ui.components.Header h = UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                                                       LanguageStrings.prompt),
+                                                                              //"Prompt",
                                                 null);
         h.setBorder (UIUtils.createPadding (5, 5, 0, 5));
         h.setFont (h.getFont ().deriveFont ((float) UIUtils.getScaledFontSize (14)).deriveFont (Font.PLAIN));        

@@ -8496,7 +8496,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.title);
         prefix.add (LanguageStrings.toolbar);

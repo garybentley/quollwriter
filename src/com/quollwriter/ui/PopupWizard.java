@@ -18,9 +18,13 @@ import com.quollwriter.*;
 
 import com.quollwriter.ui.components.*;
 
-
 public abstract class PopupWizard extends PopupWindow
 {
+
+    public static final String NEXT_BUTTON_ID = "next";
+    public static final String PREVIOUS_BUTTON_ID = "previous";
+    public static final String CANCEL_BUTTON_ID = "cancel";
+    public static final String FINISH_BUTTON_ID = "finish";
 
     private Box                     contentBox = null;
     private WizardStep              current = null;
@@ -77,7 +81,10 @@ public abstract class PopupWizard extends PopupWindow
         final PopupWizard _this = this;
 
         this.prevBut = new JButton ();
-        this.prevBut.setText ("< Back");
+        this.prevBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                       LanguageStrings.buttons,
+                                                       PREVIOUS_BUTTON_ID));
+        //"< Back");
         this.prevBut.setEnabled (false);
 
         this.prevBut.addActionListener (new ActionAdapter ()
@@ -152,7 +159,10 @@ public abstract class PopupWizard extends PopupWindow
             });
 
         this.nextBut = new JButton ();
-        this.nextBut.setText ("Next >");
+        this.nextBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                       LanguageStrings.buttons,
+                                                       NEXT_BUTTON_ID));
+        //"Next >");
 
         this.nextBut.addActionListener (new ActionAdapter ()
             {
@@ -167,6 +177,14 @@ public abstract class PopupWizard extends PopupWindow
                     if (next != null)
                     {
 
+                        if (!_this.handleStageChange (_this.currentStage,
+                                                      next))
+                        {
+
+                            return;
+
+                        }
+                        
                         ws = _this.stages.get (next);
 
                         if (ws == null)
@@ -196,14 +214,21 @@ public abstract class PopupWizard extends PopupWindow
 
                         }
                         
-                        if (!_this.handleStageChange (_this.currentStage,
-                                                      next))
+                        if (ws == null)
                         {
+
+                            Environment.logError ("Unable to get stage view component for: " +
+                                                  next);
+
+                            UIUtils.showErrorMessage (this,
+                                                      Environment.getUIString (LanguageStrings.wizard,
+                                                                               LanguageStrings.nexterror));
+                                                      //"Unable to show next stage.");
 
                             return;
 
-                        }
-
+                        }                        
+                        
                         if (_this.current.panel != null)
                         {
                             
@@ -247,7 +272,10 @@ _this.resize ();
             });
 
         this.cancelBut = new JButton ();
-        this.cancelBut.setText ("Cancel");
+        this.cancelBut.setText (Environment.getUIString (LanguageStrings.wizard,
+                                                         LanguageStrings.buttons,
+                                                         CANCEL_BUTTON_ID));        
+        //this.cancelBut.setText ("Cancel");
 
         final ActionAdapter cancel = new ActionAdapter ()
         {
@@ -374,28 +402,27 @@ _this.resize ();
                               boolean enable)
     {
 
-        if ((name.equals ("next")) ||
-            (name.equals ("finish")))
+        if ((name.equals (NEXT_BUTTON_ID)) ||
+            (name.equals (FINISH_BUTTON_ID)))
         {
 
             this.nextBut.setEnabled (enable);
 
         }
 
-        if (name.equals ("previous"))
+        if (name.equals (PREVIOUS_BUTTON_ID))
         {
 
             this.prevBut.setEnabled (enable);
 
         }
 
-        if (name.equals ("cancel"))
+        if (name.equals (CANCEL_BUTTON_ID))
         {
 
             this.cancelBut.setEnabled (enable);
 
         }
-
     }
 
     private void initUI ()
@@ -444,18 +471,24 @@ _this.resize ();
     
     public String getNextButtonLabel (String currStage)
     {
-        
+
         String next = this.getNextStage (currStage);
-        
+
         if (next == null)
         {
-            
-            return "Finish";
-        
+
+            return Environment.getUIString (LanguageStrings.wizard,
+                                            LanguageStrings.buttons,
+                                            FINISH_BUTTON_ID);
+            //return "Finish";
+
         }
-        
-        return "Next >";
-        
+
+        return Environment.getUIString (LanguageStrings.wizard,
+                                        LanguageStrings.buttons,
+                                        NEXT_BUTTON_ID);
+        //return "Next >";
+
     }
     
     protected void enableButtons (String currentStage)

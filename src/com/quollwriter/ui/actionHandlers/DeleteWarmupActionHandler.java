@@ -31,14 +31,22 @@ public class DeleteWarmupActionHandler extends YesDeleteConfirmTextInputActionHa
     public String getDeleteType ()
     {
         
-        return "{Warmup}";
+        return Environment.getUIString (LanguageStrings.warmups,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.deletewarmup,
+                                        LanguageStrings.deletetype);
+        //"{Warmup}";
         
     }
         
     public String getWarning ()
     {
         
-        return "Warning!  Once deleted a {warmup} cannot be restored.";
+        return Environment.getUIString (LanguageStrings.warmups,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.deletewarmup,
+                                        LanguageStrings.warning);
+        //"Warning!  Once deleted a {warmup} cannot be restored.";
         
     }
             

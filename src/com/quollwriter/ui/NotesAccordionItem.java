@@ -49,11 +49,22 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                      MouseEvent ev)
     {
                 
-        m.add (UIUtils.createMenuItem ("Add New Type",
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.notes);
+        prefix.add (LanguageStrings.headerpopupmenu);
+        prefix.add (LanguageStrings.items);
+                
+        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                LanguageStrings._new),
+                                       //"Add New Type",
                                        Constants.ADD_ICON_NAME,
                                        this.viewer.getAction (ProjectViewer.NEW_NOTE_TYPE_ACTION)));
 
-        m.add (UIUtils.createMenuItem ("Manage Types",
+        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                LanguageStrings.manage),
+                                       //"Manage Types",
                                        Constants.EDIT_ICON_NAME,
                                        this.viewer.getAction (ProjectViewer.MANAGE_NOTE_TYPES_ACTION)));
 
@@ -90,6 +101,13 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
         final NotesAccordionItem _this = this;
 
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.notes);
+        prefix.add (LanguageStrings.treepopupmenu);
+        prefix.add (LanguageStrings.items);        
+        
         final TreePath tp = this.tree.getPathForLocation (ev.getX (),
                                                           ev.getY ());
 
@@ -108,7 +126,9 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 if (!d.getName ().equals (Note.EDIT_NEEDED_NOTE_TYPE))
                 {
     
-                    m.add (UIUtils.createMenuItem ("Rename",
+                    m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                            LanguageStrings.rename),
+                                                   //"Rename",
                                                    Constants.EDIT_ICON_NAME,
                                                    new ActionAdapter ()
                                                    {
@@ -134,7 +154,9 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 if (node.getChildCount () == 0)
                 {
 
-                    m.add (UIUtils.createMenuItem ("Delete",
+                    m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                            LanguageStrings.delete),
+                                                   //"Delete",
                                                    Constants.DELETE_ICON_NAME,
                                                    new ActionAdapter ()
                                                    {
@@ -162,7 +184,9 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
             } else
             {
 
-                m.add (UIUtils.createMenuItem ("View",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.view),
+                                               //"View",
                                                Constants.VIEW_ICON_NAME,
                                                new ActionAdapter ()
                                                {
@@ -176,12 +200,16 @@ public class NotesAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                 
                                                }));
 
-                m.add (UIUtils.createMenuItem ("Edit",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.edit),
+                                               //"Edit",
                                                Constants.EDIT_ICON_NAME,
                                                _this.viewer.getAction (ProjectViewer.EDIT_NOTE_ACTION,
                                                                        d)));
 
-                m.add (UIUtils.createMenuItem ("Delete",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.delete),
+                                               //"Delete",
                                                Constants.DELETE_ICON_NAME,
                                                _this.viewer.getAction (ProjectViewer.DELETE_NOTE_ACTION,
                                                                        d)));

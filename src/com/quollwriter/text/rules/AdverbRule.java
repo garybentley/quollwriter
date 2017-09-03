@@ -209,7 +209,7 @@ public class AdverbRule extends AbstractSentenceRule
 
         final AdverbRule _this = this;
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);

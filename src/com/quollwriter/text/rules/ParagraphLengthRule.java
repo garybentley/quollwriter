@@ -145,7 +145,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public List<Issue> getIssues (Paragraph paragraph)
     {
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.issues);
         pref.add (LanguageStrings.paragraphlength);
@@ -218,7 +218,7 @@ public class ParagraphLengthRule extends AbstractParagraphRule
     public Set<FormItem> getFormItems ()
     {
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);

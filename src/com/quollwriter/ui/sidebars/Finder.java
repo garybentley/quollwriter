@@ -34,7 +34,6 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
 
     public static final String ID = "find";
 
-    private static final String TITLE_PREFIX = "Find";
     private JTextField text = null;
     private Object highlightId = null;
     private QTextEditor highlightedEditor = null;
@@ -79,7 +78,9 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
     public String getTitle ()
     {
 
-        return TITLE_PREFIX + (this.currentSearch != null ? ": " + this.currentSearch : "");
+        return Environment.getUIString (LanguageStrings.objectfinder,
+                                        LanguageStrings.sidebar,
+                                        LanguageStrings.title) + (this.currentSearch != null ? ": " + this.currentSearch : "");
 
     }
 
@@ -195,7 +196,9 @@ public class Finder extends AbstractSideBar<AbstractProjectViewer> implements Tr
         this.content.setMinimumSize (new Dimension (250,
                                          250));
 
-        this.noMatches = UIUtils.createInformationLabel ("No matches found.");
+        this.noMatches = UIUtils.createInformationLabel (Environment.getUIString (LanguageStrings.objectfinder,
+                                                                                  LanguageStrings.novalue));
+        //"No matches found.");
 
         this.noMatches.setVisible (false);
 

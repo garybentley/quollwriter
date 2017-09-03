@@ -33,14 +33,22 @@ public class DeleteIdeaTypeActionHandler extends YesDeleteConfirmTextInputAction
     public String getWarning ()
     {
         
-        return "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored.";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.deleteideatype,
+                                        LanguageStrings.warning);
+        //"Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored.";
         
     }
     
     public String getDeleteType ()
     {
         
-        return "Idea Type";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.deleteideatype,
+                                        LanguageStrings.deletetype);
+        //"Idea Type";
         
     }
     

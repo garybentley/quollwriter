@@ -43,21 +43,33 @@ public class EditIdeaTypeActionHandler extends TextInputActionHandler<AbstractPr
     public String getTitle ()
     {
         
-        return "Edit Idea Type";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.editideatype,
+                                        LanguageStrings.title);
+        //"Edit Idea Type";
         
     }
     
     public String getHelp ()
     {
         
-        return "Enter the new name of the Idea type below.";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.editideatype,
+                                        LanguageStrings.text);
+        //"Enter the new name of the Idea type below.";
         
     }
     
     public String getConfirmButtonLabel ()
     {
         
-        return "Change";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.editideatype,
+                                        LanguageStrings.confirm);
+        //"Change";
         
     }
     
@@ -77,7 +89,12 @@ public class EditIdeaTypeActionHandler extends TextInputActionHandler<AbstractPr
            )
         {
             
-            return "Please enter a name.";
+            return Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.editideatype,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a name.";
             
         }
         
@@ -92,7 +109,12 @@ public class EditIdeaTypeActionHandler extends TextInputActionHandler<AbstractPr
                )
             {
                 
-                return "Already have an Idea Type called: " + it.getName ();
+                return Environment.getUIString (LanguageStrings.project,
+                                                LanguageStrings.actions,
+                                                LanguageStrings.editideatype,
+                                                LanguageStrings.errors,
+                                                LanguageStrings.valueexists);
+                //"Already have an Idea Type called: " + it.getName ();
                 
             }
             

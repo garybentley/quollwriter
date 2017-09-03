@@ -100,6 +100,10 @@ public class QColorChooser extends Box implements UserPropertyListener
                                                            
         this.swatchesScrollPane.setBorder (null);
                 
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.colorchooser);
+        prefix.add (LanguageStrings.labels);
+                
         FormLayout rgbfl = new FormLayout ("right:p, 6px, 150px:grow, 3px, 48px",
                                            "p, 6px, p, 6px, p, 6px, p, 10px, top:p");
         
@@ -114,7 +118,9 @@ public class QColorChooser extends Box implements UserPropertyListener
 
         CellConstraints cc = new CellConstraints ();
 
-        rgbbuilder.addLabel ("HEX",
+        rgbbuilder.addLabel (Environment.getUIString (prefix,
+                                                      LanguageStrings.hex),
+                             //"HEX",
                              cc.xy (1,
                                     hr));
 
@@ -176,7 +182,9 @@ public class QColorChooser extends Box implements UserPropertyListener
                         cc.xy (3,
                                hr));
                                     
-        rgbbuilder.addLabel ("Red",
+        rgbbuilder.addLabel (Environment.getUIString (prefix,
+                                                      LanguageStrings.red),
+                             //"Red",
                              cc.xy (1,
                                     rr));
 
@@ -195,7 +203,9 @@ public class QColorChooser extends Box implements UserPropertyListener
         rgbbuilder.add (this.rsp,
                         cc.xy (5, rr));
                                
-        rgbbuilder.addLabel ("Green",
+        rgbbuilder.addLabel (Environment.getUIString (prefix,
+                                                      LanguageStrings.green),
+                                                      //"Green",
                              cc.xy (1,
                                     gr));
 
@@ -214,7 +224,9 @@ public class QColorChooser extends Box implements UserPropertyListener
         rgbbuilder.add (this.gsp,
                         cc.xy (5, gr));
             
-        rgbbuilder.addLabel ("Blue",
+        rgbbuilder.addLabel (Environment.getUIString (prefix,
+                                                      LanguageStrings.blue),
+                             //"Blue",
                              cc.xy (1,
                                     br));
 
@@ -234,7 +246,9 @@ public class QColorChooser extends Box implements UserPropertyListener
         rgbbuilder.add (this.bsp,
                         cc.xy (5, br));
         
-        rgbbuilder.addLabel ("Color",
+        rgbbuilder.addLabel (Environment.getUIString (prefix,
+                                                      LanguageStrings.color),
+                             //"Color",
                              cc.xy (1,
                                     cr));        
         
@@ -626,7 +640,12 @@ public class QColorChooser extends Box implements UserPropertyListener
                                                     
                         JMenuItem mi = null;
 
-                        mi = new JMenuItem ("Remove",
+                        mi = new JMenuItem (Environment.getUIString (LanguageStrings.colorchooser,
+                                                                     LanguageStrings.swatch,
+                                                                     LanguageStrings.popupmenu,
+                                                                     LanguageStrings.items,
+                                                                     LanguageStrings.remove),
+                                            //"Remove",
                                             Environment.getIcon (Constants.DELETE_ICON_NAME,
                                                                  Constants.ICON_MENU));
                         mi.addActionListener (new ActionAdapter ()
@@ -693,7 +712,10 @@ public class QColorChooser extends Box implements UserPropertyListener
         
         cc.setUserPropertyName (userPropName);
         
-        final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : "Select a color"),
+        final QPopup qp = UIUtils.createClosablePopup ((title != null ? title : Environment.getUIString (LanguageStrings.colorchooser,
+                                                                                                         LanguageStrings.popup,
+                                                                                                         LanguageStrings.title)),
+                                                        //"Select a color"),
                                                        null,
                                                        closeListener);
 
@@ -729,7 +751,11 @@ public class QColorChooser extends Box implements UserPropertyListener
             
         });
 
-        JButton r = UIUtils.createButton ("Reset",
+        JButton r = UIUtils.createButton (Environment.getUIString (LanguageStrings.colorchooser,
+                                                                   LanguageStrings.popup,
+                                                                   LanguageStrings.reset,
+                                                                   LanguageStrings.text),
+                                          //"Reset",
                                           new ActionListener ()
         {
             
@@ -743,7 +769,11 @@ public class QColorChooser extends Box implements UserPropertyListener
             
         });
 
-        r.setToolTipText ("Reset to the initial color.");
+        r.setToolTipText (Environment.getUIString (LanguageStrings.colorchooser,
+                                                   LanguageStrings.popup,
+                                                   LanguageStrings.reset,
+                                                   LanguageStrings.tooltip));
+                          //"Reset to the initial color.");
 
         JButton[] _buts = { f, r };
                         

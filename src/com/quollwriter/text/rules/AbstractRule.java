@@ -240,7 +240,18 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
             
                             _this.setDescription (desc.getText ().trim ());
             
-                            String summ = summary.getText ().trim ();
+                            String summ = summary.getText ();
+                            
+                            if (summ == null)
+                            {
+                                
+                                summ = "";
+                                
+                            } else {
+                                
+                                summ = summ.trim ();
+                                
+                            }
             
                             if (summ.length () == 0)
                             {
@@ -259,13 +270,9 @@ public abstract class AbstractRule<E extends TextBlock> implements Rule<E>
                             if (summ == null)
                             {
             
-                                f.showError (String.format (Environment.getUIString (LanguageStrings.form,
-                                                                                     LanguageStrings.errors,
-                                                                                     LanguageStrings.entervalue),
-                                                            Environment.getUIString (LanguageStrings.form,
-                                                                                     LanguageStrings.labels,
-                                                                                     LanguageStrings.summary)));
-                                                                      //"Please enter a summary.");
+                                f.showError (Environment.getUIString (LanguageStrings.problemfinder,
+                                                                      LanguageStrings.config,
+                                                                      LanguageStrings.entersummaryerror));
             
                                 return;
             

@@ -137,7 +137,10 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
         });
         
-        this.contentBox.setToolTipText ("Double click to add a new type of Object, right click to see the menu.");
+        this.contentBox.setToolTipText (Environment.getUIString (LanguageStrings.project,
+                                                                 LanguageStrings.sidebar,
+                                                                 LanguageStrings.tooltip));
+        //"Double click to add a new type of Object, right click to see the menu.");
         
         this.contentBox.addMouseListener (new MouseEventHandler ()
         {
@@ -1066,7 +1069,15 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
             
         }
         
-        m.add (UIUtils.createMenuItem ("Add/Manage the Tag(s)",
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.headerpopupmenu);
+        prefix.add (LanguageStrings.items);
+        
+        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                LanguageStrings.addtag),
+                                       //"Add/Manage the Tag(s)",
                                        Constants.EDIT_ICON_NAME,
                                        new ActionListener ()
                                        {
@@ -1081,7 +1092,9 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                              
                                        }));
         
-        m.add (UIUtils.createMenuItem ("Add new Type of Object",
+        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                LanguageStrings.newobject),
+                                                                //"Add new Type of Object",
                                        Constants.NEW_ICON_NAME,
                                        new ActionListener ()
                                        {
@@ -1142,7 +1155,10 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
         if (defSections.size () > 0)
         {
     
-            JMenu sm = new JMenu ("Add section" + (belowObjType != null ? " below" : ""));
+            JMenu sm = new JMenu (Environment.getUIString (prefix,
+                                                           LanguageStrings.addsection,
+                                                           (belowObjType != null ? LanguageStrings.below : LanguageStrings.normal)));
+                                  //"Add section" + (belowObjType != null ? " below" : ""));
             
             m.add (sm);
                                     
@@ -1188,9 +1204,17 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                          final String     objType)
     {
         
+        List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.headerpopupmenu);
+        prefix.add (LanguageStrings.items);
+        
         final ProjectSideBar _this = this;
         
-        m.add (UIUtils.createMenuItem ("Hide this section",
+        m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                LanguageStrings.hidesection),
+                                                           //"Hide this section",
                                        Constants.CLOSE_ICON_NAME,
                                        new ActionListener ()
                                        {
@@ -1475,7 +1499,14 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                 _this.addHideSectionMenuItem (m,
                                               type.getObjectTypeId ());
                                               
-                m.add (UIUtils.createMenuItem ("Delete all " + type.getObjectTypeNamePlural (),
+                m.add (UIUtils.createMenuItem (String.format (Environment.getUIString (LanguageStrings.project,
+                                                                                       LanguageStrings.sidebar,
+                                                                                       LanguageStrings.assets,
+                                                                                       LanguageStrings.headerpopupmenu,
+                                                                                       LanguageStrings.items,
+                                                                                       LanguageStrings.deleteall),
+                                                              type.getObjectTypeNamePlural ()),
+                                               //"Delete all " + type.getObjectTypeNamePlural (),
                                                Constants.DELETE_ICON_NAME,
                                                new ActionListener ()
                                                {
@@ -1492,11 +1523,16 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                                             public String getHelp ()
                                                             {
                                                                 
-                                                                return String.format ("To delete all <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%s</b> you have created will be deleted and <b>%s</b> won't be available in your other {projects}.",
+                                                                return String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                                                               LanguageStrings.deleteall,
+                                                                                                               LanguageStrings.text),
+                                                                                      type.getObjectTypeNamePlural ());
+/*                                                                
+                                                                String.format ("To delete all <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%s</b> you have created will be deleted and <b>%s</b> won't be available in your other {projects}.",
                                                                                       type.getObjectTypeNamePlural (),
                                                                                       type.getObjectTypeNamePlural (),
                                                                                       type.getObjectTypeNamePlural ());
-                                                                
+                                                                */
                                                             }
                                                                 
                                                             @Override                                                    
@@ -1525,7 +1561,10 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                                                                           e);
                                                                     
                                                                     UIUtils.showErrorMessage (_this.viewer,
-                                                                                              "Unable to remove object.");
+                                                                                              Environment.getUIString (LanguageStrings.assets,
+                                                                                                                       LanguageStrings.deleteall,
+                                                                                                                       LanguageStrings.actionerror));
+                                                                                              //"Unable to remove object.");
                                                                     
                                                                     return false;
                                                                             

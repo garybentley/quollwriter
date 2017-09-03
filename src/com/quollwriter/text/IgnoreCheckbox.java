@@ -3,6 +3,9 @@ package com.quollwriter.text;
 import java.awt.*;
 import java.awt.event.*;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -41,7 +44,10 @@ public class IgnoreCheckbox extends JCheckBox
 
             }
 
-            JEditorPane desc = UIUtils.createHelpTextPane (d + "Check the box to ignore this problem.",
+            JEditorPane desc = UIUtils.createHelpTextPane (d + Environment.getUIString (LanguageStrings.problemfinder,
+                                                                                        LanguageStrings.ignore,
+                                                                                        LanguageStrings.checkbox),
+                                                           //"Check the box to ignore this problem.",
                                                            null);
             desc.setBorder (UIUtils.createPadding (0, 10, 0, 10));
             desc.setSize (new Dimension (380,
@@ -185,7 +191,16 @@ public class IgnoreCheckbox extends JCheckBox
 
                                                }));
 */
-                m.add (UIUtils.createMenuItem ("Find all problems of this type",
+
+                List<String> prefix = new ArrayList ();
+                prefix.add (LanguageStrings.problemfinder);
+                prefix.add (LanguageStrings.ignore);
+                prefix.add (LanguageStrings.popupmenu);
+                prefix.add (LanguageStrings.items);
+
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.find),
+                                               //"Find all problems of this type",
                                                Constants.FIND_ICON_NAME,
                                                new ActionAdapter ()
                                                {
@@ -199,7 +214,9 @@ public class IgnoreCheckbox extends JCheckBox
 
                                                }));
 
-                m.add (UIUtils.createMenuItem ("Ignore this type of problem",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.ignore),
+                                                                        //"Ignore this type of problem",
                                                Constants.ERROR_ICON_NAME,
                                                new ActionAdapter ()
                                                {
@@ -226,7 +243,9 @@ public class IgnoreCheckbox extends JCheckBox
 
                                                }));
 
-                m.add (UIUtils.createMenuItem ("Edit this rule",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.edit),
+                                               //"Edit this rule",
                                                Constants.EDIT_ICON_NAME,
                                                new ActionAdapter ()
                                                {

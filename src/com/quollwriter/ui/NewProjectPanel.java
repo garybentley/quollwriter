@@ -83,7 +83,10 @@ public class NewProjectPanel
 
         final CellConstraints cc = new CellConstraints ();
 
-        builder.addLabel ("Name",
+        builder.addLabel (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                   LanguageStrings.labels,
+                                                   LanguageStrings.name),
+                          //"Name",
                           cc.xy (1,
                                  row));
         builder.add (this.nameField,
@@ -92,7 +95,10 @@ public class NewProjectPanel
 
         row += 2;
                             
-        builder.addLabel ("Save In",
+        builder.addLabel (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                   LanguageStrings.labels,
+                                                   LanguageStrings.savein),
+                          //"Save In",
                           cc.xy (1,
                                  row));
 
@@ -118,9 +124,15 @@ public class NewProjectPanel
                 {
 
                     JFileChooser f = new JFileChooser ();
-                    f.setDialogTitle ("Select a Directory");
+                    f.setDialogTitle (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                               LanguageStrings.find,
+                                                               LanguageStrings.title));
+                                      //"Select a Directory");
                     f.setFileSelectionMode (JFileChooser.DIRECTORIES_ONLY);
-                    f.setApproveButtonText ("Select");
+                    f.setApproveButtonText (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                                     LanguageStrings.find,
+                                                                     LanguageStrings.confirm));
+                                            //"Select");
                     f.setCurrentDirectory (new File (_this.saveField.getText ()));
 
                     // Need to run: attrib -r "%USERPROFILE%\My Documents" on XP to allow a new directory
@@ -143,7 +155,10 @@ public class NewProjectPanel
 
         row += 2;
                             
-        this.encryptField = UIUtils.createCheckBox ("Encrypt this {project}?  You will be prompted for a password.");
+        this.encryptField = UIUtils.createCheckBox (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                                             LanguageStrings.labels,
+                                                                             LanguageStrings.encrypt));
+                                                    //"Encrypt this {project}?  You will be prompted for a password.");
         this.encryptField.setBackground (Color.WHITE);
 
         builder.add (this.encryptField,
@@ -158,7 +173,10 @@ public class NewProjectPanel
 
         this.passwordField = new JPasswordField ();
 
-        pbuilder.addLabel ("Password",
+        pbuilder.addLabel (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                    LanguageStrings.labels,
+                                                    LanguageStrings.password),
+                           //"Password",
                            cc.xy (1,
                                   1));
 
@@ -168,7 +186,10 @@ public class NewProjectPanel
 
         this.passwordField2 = new JPasswordField ();
 
-        pbuilder.addLabel ("Confirm",
+        pbuilder.addLabel (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                    LanguageStrings.labels,
+                                                    LanguageStrings.confirmpassword),
+                           //"Confirm",
                            cc.xy (5,
                                   1));
 
@@ -247,12 +268,18 @@ public class NewProjectPanel
             row += 2;
             
             JButton createBut = new JButton ();
-            createBut.setText ("Create");
+            createBut.setText (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                        LanguageStrings.buttons,
+                                                        LanguageStrings.create));
+                               //"Create");
 
             createBut.addActionListener (createProjectAction);
                 
             JButton cancelBut = new JButton ();
-            cancelBut.setText ("Cancel");
+            cancelBut.setText (Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                        LanguageStrings.buttons,
+                                                        LanguageStrings.cancel));
+            //"Cancel");
 
             if (onCancel != null)
             {
@@ -361,7 +388,9 @@ public class NewProjectPanel
                                   e);
 
             UIUtils.showErrorMessage (parent,
-                                      "Unable to create new project: " + proj.getName ());
+                                      Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to create new project: " + proj.getName ());
 
             return false;
 
@@ -382,7 +411,9 @@ public class NewProjectPanel
                                   e);
 
             UIUtils.showErrorMessage (parent,
-                                      "Unable to create new project: " + proj.getName ());
+                                      Environment.getUIString (LanguageStrings.newprojectpanel,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to create new project: " + proj.getName ());
 
             return false;
 
@@ -424,6 +455,10 @@ public class NewProjectPanel
     public boolean checkForm (Container parent)
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.newprojectpanel);
+        prefix.add (LanguageStrings.errors);
+    
         this.hideError (parent);
     
         String n = this.nameField.getText ().trim ();
@@ -432,7 +467,9 @@ public class NewProjectPanel
         {
 
             return this.showError (parent,
-                                   "Please provide a name for the {project}.");
+                                   Environment.getUIString (prefix,
+                                                            LanguageStrings.novalue));
+                                   //"Please provide a name for the {project}.");
                 
         }
 
@@ -443,9 +480,8 @@ public class NewProjectPanel
         {
 
             return this.showError (parent,
-                                   "A {project} called: " +
-                                   n +
-                                   " already exists.");
+                                   Environment.getUIString (prefix,
+                                                            LanguageStrings.valueexists));
 
         }
 
@@ -463,7 +499,9 @@ public class NewProjectPanel
             {
 
                 return this.showError (parent,
-                                       "Please provide a password for securing the {project}.");
+                                       Environment.getUIString (prefix,
+                                                                LanguageStrings.nopassword));
+                                       //"Please provide a password for securing the {project}.");
 
             }
 
@@ -471,7 +509,9 @@ public class NewProjectPanel
             {
 
                 return this.showError (parent,
-                                       "Please confirm your password.");
+                                       Environment.getUIString (prefix,
+                                                                LanguageStrings.confirmpassword));
+                                       //"Please confirm your password.");
 
             }
 
@@ -479,7 +519,9 @@ public class NewProjectPanel
             {
 
                 return this.showError (parent,
-                                       "The passwords do not match.");
+                                       Environment.getUIString (prefix,
+                                                                LanguageStrings.nomatch));
+                                       //"The passwords do not match.");
 
             }
 

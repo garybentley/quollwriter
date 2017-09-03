@@ -205,15 +205,6 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                         
     }
 
-    public static ActionListener getRenameAssetAction (final ProjectViewer pv,
-                                                       final Asset         a)
-    {
-
-        return new RenameAssetActionHandler (a,
-                                             pv);
-
-    }
-
     public static ActionListener getDeleteAssetAction (final ProjectViewer pv,
                                                        final Asset         a)
     {
@@ -224,7 +215,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
             public void actionPerformed (ActionEvent ev)
             {
 
-                Set<String> prefix = new LinkedHashSet ();
+                List<String> prefix = new ArrayList ();
                 prefix.add (LanguageStrings.assets);
                 prefix.add (LanguageStrings.delete);
                 prefix.add (LanguageStrings.confirmpopup);
@@ -302,20 +293,11 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
 
     }
 
-    public ActionListener getRenameObjectAction (ProjectViewer pv,
-                                                 NamedObject   n)
-    {
-
-        return AssetViewPanel.getRenameAssetAction (pv,
-                                                    (Asset) n);
-
-    }
-
     public void doFillToolBar (JToolBar tb,
                                boolean  fullScreen)
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.view);
         prefix.add (LanguageStrings.toolbar);
@@ -483,7 +465,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                JPopupMenu popup)
     {
 
-        Set<String> prefix = new LinkedHashSet ();
+        List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.view);
         prefix.add (LanguageStrings.popupmenu);

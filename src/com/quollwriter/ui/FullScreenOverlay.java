@@ -30,7 +30,10 @@ public class FullScreenOverlay extends Box
         
         bb.add (Box.createHorizontalGlue ());
 
-        Header h = UIUtils.createHeader ("Quoll Writer is currently in full screen mode, click to exit",
+        Header h = UIUtils.createHeader (Environment.getUIString (LanguageStrings.fullscreen,
+                                                                  LanguageStrings.overlay,
+                                                                  LanguageStrings.title),
+                                         //"Quoll Writer is currently in full screen mode, click to exit",
                                          Constants.PANEL_TITLE,
                                          Constants.FULLSCREEN_EXIT_ICON_NAME,
                                          null);

@@ -255,6 +255,15 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
                                           CONVERT_TO_PROJECT_ACTION_NAME,
                                           null));
   
+          mi = this.createMenuItem ("Find",
+                                  Constants.FIND_ICON_NAME,
+                                  Constants.SHOW_FIND_ACTION,
+                                  KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                                          ActionEvent.CTRL_MASK));
+            mi.setMnemonic (KeyEvent.VK_F);
+
+            popup.add (mi);
+
         }
           
     }

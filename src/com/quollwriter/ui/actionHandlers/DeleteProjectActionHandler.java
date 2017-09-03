@@ -47,19 +47,33 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
     public String getDeleteType ()
     {
         
-        return "{Project}";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.deleteproject,
+                                        LanguageStrings.deletetype);
+        //"{Project}";
         
     }
         
     public String getWarning ()
     {
         
-        String m = "Warning!  All information/chapters associated with the {project} will be deleted. Once deleted a {project} cannot be restored.";
+        String m = Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.deleteproject,
+                                            LanguageStrings.warning,
+                                            LanguageStrings.normal);
+        //"Warning!  All information/chapters associated with the {project} will be deleted. Once deleted a {project} cannot be restored.";
 
         if (this.projInfo.isEditorProject ())
         {
             
-            m += String.format ("<br /><br />A message will also be sent to <b>%s</b> telling them you are no longer editing the {project}.",
+            m += String.format (Environment.getUIString (LanguageStrings.project,
+                                                         LanguageStrings.actions,
+                                                         LanguageStrings.deleteproject,
+                                                         LanguageStrings.warning,
+                                                         LanguageStrings.editor),
+                                //"<br /><br />A message will also be sent to <b>%s</b> telling them you are no longer editing the {project}.",
                                 this.projInfo.getForEditor ().getShortName ());
         
         }
@@ -90,8 +104,18 @@ public class DeleteProjectActionHandler extends YesDeleteConfirmTextInputActionH
                                                _this.onDelete);
 
                     UIUtils.showMessage ((Component) null,
-                                         "{Project} deleted",
-                                         String.format ("The {project} has been deleted and a message has been sent to <b>%s</b> to let them know.",
+                                         Environment.getUIString (LanguageStrings.project,
+                                                                  LanguageStrings.actions,
+                                                                  LanguageStrings.deleteproject,
+                                                                  LanguageStrings.editorproject,
+                                                                  LanguageStrings.confirmpopup,
+                                                                  LanguageStrings.title),
+                                         String.format (Environment.getUIString (LanguageStrings.project,
+                                                                                 LanguageStrings.actions,
+                                                                                 LanguageStrings.deleteproject,
+                                                                                 LanguageStrings.editorproject,
+                                                                                 LanguageStrings.confirmpopup,
+                                                                                 LanguageStrings.text),
                                                         _this.projInfo.getForEditor ().getShortName ()),
                                          null,
                                          null);

@@ -13,6 +13,63 @@
         "unabletostarterror" : "Unable to start {QW}",
         "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
     },
+    "objectfinder" :
+    {
+        "sidebar" :
+        {
+            "title" : "Find"  
+        },
+        "novalue" : "No matches found."  
+    },
+    "iconcolumn" :
+    {
+        "moveitem" :
+        {
+            "actionerror" : "Unable to move item."  
+        },
+        "viewitem" :
+        {
+            "actionerror" : "Unable to display item.",
+            "distractionfreemode" :
+            {
+                "popup" :
+                {
+                    "title" : "Function unavailable",
+                    "text" : "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>"
+                }
+            }
+        }
+    },
+    "colorchooser" :
+    {
+        "popup" :
+        {
+            "title" : "Select a Color",
+            "reset" :
+            {
+                "text" : "Reset",
+                "tooltip" : "Reset to the initial color."
+            }
+        },
+        "labels" :
+        {
+            "red" : "Red",
+            "green" : "Green",
+            "blue" : "Blue",
+            "color" : "Color",
+            "hex" : "HEX"
+        },
+        "swatch" :
+        {
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "remove" : "${actions.remove}"
+                }
+            }
+        }
+    },
     "targets" :
     {
         "types" :
@@ -111,7 +168,8 @@
         "gf" : "Gunning Fog Index",
         "achievements" : "Achievements",
         "find" : "Find",
-        "options" : "Options"
+        "options" : "Options",
+        "name" : "Name"
     },
     "buttons" :
     {
@@ -143,6 +201,18 @@
         }
     },
     "moretextindicator" : "...",
+    "textarea" :
+    {
+        "maxchars" : "Max %1s characters",
+        ":comment.maxchars" : "%1s is the maximum number of characters allowed.  This message is usually used for text boxes to indicate how many characters are allowed to be entered.",
+        ":scount.maxchars" : 1,
+        "charsremaining" : ", %1s remaining",
+        ":comment.charsremaining" : "%1s is the number of characters that can still be entered into the text area.  This message is appended to [maxchars] and shown below the text area.",
+        ":scount.charsremaining" : 1,
+        "charsover" : ", %1s over maximum",
+        ":comment.charsover" : "%1s is the number of characters over the maximum.  This message is appeded to [maxchars] and shown below the text area.",
+        ":scount.charsover" : 1
+    },
     "form" :
     {
         "labels" :
@@ -156,10 +226,13 @@
         },
         "errors" :
         {
-            "entervalue" : "Please enter a %s",
+            "entervalue" : "Please enter a value.",
             ":comment.entervalue" : "The %s will be replaced with the label of the form element.",
             ":scount.entervalue" : 1,
-            "invalidemail" : "Email does not appear to be valid."
+            "invalidemail" : "Email does not appear to be valid.",
+            "general" : "Please correct the following errors:<ul>%1s</ul>",
+            ":comment.general" : "%1s is the list of errors that need to be corrected by the user.  Each error is wrapped in a html li tag.",
+            ":scount.general" : 1
         }
     },
     "actions" :
@@ -184,7 +257,8 @@
         "where" : "Where",
         "anywhere" : "Anywhere",
         "help" : "Help",
-        "change" : "Change"
+        "change" : "Change",
+        "remove" : "Remove"
     },
     "sidebars" :
     {
@@ -209,6 +283,108 @@
         "confirmword" : "Yes",
         "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
         "confirm" : "Yes, delete it"
+    },
+    "formatting" :
+    {
+        "edit" :
+        {
+            "popupmenu" :
+            {
+                "title" : "Edit",
+                "items" :
+                {
+                    "cut" :
+                    {
+                        "text" : "Cut",
+                        "tooltip" : "Cut the selected text"  
+                    },
+                    "copy" :
+                    {
+                        "text" : "Copy",
+                        "tooltip" : "Copy the selected text"
+                    },
+                    "paste" :
+                    {
+                        "text" : "Paste",
+                        "tooltip" : "Paste the selected text"
+                    },
+                    "undo" :
+                    {
+                        "text" : "Undo",
+                        "tooltip" : "Undo the last edit"
+                    },
+                    "redo" :
+                    {
+                        "text" : "Redo",
+                        "tooltip" : "Redo the last edit"
+                    }                    
+                }
+            }
+        },
+        "format" :
+        {
+            "popupmenu" :
+            {
+                "title" : "Format",
+                "items" :
+                {
+                    "bold" :
+                    {
+                        "text" : "BoldX",
+                        "tooltip" : "Bold the selected text"
+                    },
+                    "italic" :
+                    {
+                        "text" : "Italic",
+                        "tooltip" : "Italic the selected text"
+                    },
+                    "underline" :
+                    {
+                        "text" : "Underline",
+                        "tooltip" : "Underline the selected text"
+                    }
+                }
+            }
+        }
+    },
+    "synonyms" :
+    {
+        ":englishonly" : true,
+        "show" :
+        {
+            "actionerror" : "Unable to show synonym selector."
+        },
+        "popupmenu" :
+        {
+            "items" :
+            {
+                "find" : "Find synonyms for: %1s",
+                ":comment:find" : "%1s is the word to find the synonyms for.",
+                ":scount.find" : 1,
+                "nosynonyms" : "(No synonyms for: %1s)",
+                ":comment.nosynonyms" : "%1s is the word we are looking for.",
+                ":scount.nosynonyms" : 1
+            }
+        }
+    },
+    "dictionary" :
+    {
+        "spellcheck" :
+        {
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "add" : "Add to Dictionary",
+                    "nosuggestions" : "(No spelling suggestions)",
+                    "more" : "More suggestions"
+                }
+            }
+        },
+        "manage" :
+        {
+            
+        }
     },
     "achievementspanel" :
     {
@@ -868,6 +1044,19 @@
     },
     "problemfinder" :
     {
+        "ignore" :
+        {
+            "checkbox" : "Check the box to ignore this problem.",
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "find" : "Find all problems of this type",
+                    "ignore" : "Ignore this type of problem",
+                    "edit" : "Edit this rule"
+                }
+            }
+        },
         "issues" :
         {
             "toomanyclauses" :
@@ -956,6 +1145,7 @@
             {
                 "title" : "Configure the ${names.problemfinder} rules"  
             },
+            "entersummaryerror" : "Please enter a summary.",
             "saveruleerror" : "Unable to save rule",
             "tabtitles" :
             {
@@ -1365,6 +1555,10 @@
     {
         "actionerror" : "Unable to enter full screen mode.",
         "showpanelactionerror" : "Unable to show in full screen.",
+        "overlay" :
+        {
+            "title" : "{QW} is currently in full screen mode, click to exit"
+        },
         "title" :
         {
             "toolbar" :
@@ -1589,9 +1783,135 @@
             "actionerror" : "Unable to save the links."
         }
     },
+    "errormessage" :
+    {
+        "title" : "Oops, an error has occurred...",
+        "text" : "%1s<br /><br /><a href='%2s:%3s'>Contact {QW} support about this problem.</a>",
+        ":comment.text" : "%1s is the message being displayed.  %2s and %3s are replaced with values that generate a url the user can click on to report the bug.",
+        ":scount.text" : 3
+    },
+    "generalmessage" :
+    {
+        "title" : "Just so you know..."  
+    },
+    "filefinder" :
+    {
+        "text" :
+        {
+            "tooltip" : "Click to open the finder"
+        },
+        "find" :
+        {
+            "tooltip" : "Click to find the file/directory"
+        },
+        "cancel" :
+        {
+            "tooltip" : "Click to cancel"
+        }
+    },
+    "notifications" :
+    {
+        "remove" :
+        {
+            "tooltip" : "Click to remove this notification"
+        }
+    },
     "allprojects" :
     {
         "actionerror" : "Unable to show all {projects}."
+    },
+    "newprojectpanel" :
+    {
+        "actionerror" : "Unable to create {project}.",
+        "labels" :
+        {
+            "name" : "${names.name}",
+            "savein" : "Save In",
+            "encrypt" : "Encrypt this {project}?  You will be prompted for a password.",
+            "password" : "Password",
+            "confirmpassword" : "Confirm"
+        },
+        "errors" :
+        {
+            "novalue" : "Please provide a name for the {project}.",
+            "valueexists" : "A {project} with that name already exists.",
+            "nopassword" : "Please provide a password for securing the {project}.",
+            "confirmpassword" : "Please confirm your password.",
+            "nomatch" : "The passwords do not match."
+        },
+        "buttons" :
+        {
+            "create" : "${actions.create}",
+            "cancel" : "${actions.cancel}"
+        },
+        "find" :
+        {
+            "title" : "Select a Directory",
+            "confirm" : "Select"
+        }
+    },
+    "tags" :
+    {
+        "actions" :
+        {
+            "manage" :
+            {
+                "title" : "Manage the ${names.tags}",
+                "finish" : "${actions.finish}",
+                "newtag" :
+                {
+                    "title" : "New ${names.tag}",
+                    "text" : "Enter the new tags to add below, separate the tags with commas or semi-colons.",
+                    "add" : "${actions.add}",
+                    "actionerror" : "Unable to add new tag.",
+                    "errors" :
+                    {
+                        "novalue" : "Please enter at least one tag."
+                    }
+                },
+                "table" :
+                {
+                    "tooltip" : "Double click to edit, press Enter when done.",
+                    "title" : "${names.tags}",
+                    "text" : "Note: removing a tag will remove it from <b>all</b> {projects}.  You can change the tag name by editing the values below, double click on a type to edit it.",
+                    "remove" : "Remove Selected",
+                    "loadallerror" : "Unable to get the tags.",
+                    "popupmenu" :
+                    {
+                        "items" :
+                        {
+                            "edit" : "${actions.edit}"
+                        }
+                    },
+                    "delete" :
+                    {
+                        "actionerror" : "Unable to delete tag."
+                    },
+                    "edit" :
+                    {
+                        "actionerror" : "Unable to update tag.",
+                        "errors" :
+                        {
+                            "novalue" : "Tag must have a value!",
+                            "valueexists" : "Already have a tag with that name."
+                        }
+                    }
+                }
+            },
+            "newtag" :
+            {
+                "title" : "Add New Tag(s)",
+                "text" : "Enter the new tag(s) below.  Separate the tags with commas or semi-colons.<br /><br />The tags will be added to <b>%1s</b>.",
+                ":comment.text" : "%1s is the name of the object the tags will be added to.",
+                ":scount.text" : 1,
+                "confirm" : "${actions.add}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a new tag.",
+                    "valueexists" : "A tag with that name already exists."
+                }                     
+            }
+        }
     },
     "assets" :
     {
@@ -1684,6 +2004,14 @@
                 }
             }
         },
+        "deleteall" :
+        {
+            "actionerror" : "Unable to remove asset type.",
+            ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+            "text" : "To delete all <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%<s</b> you have created will be deleted and <b>%<s</b> won't be available in your other {projects}.",
+            ":comment.text" : "%s is the object type name plural for the asset type.  %<s is a special usage which allows you to use the same value repeatedly.  So if you want to have multiple %s in your string, just use %s then %<s for all subsequent values.",
+            ":scount.text" : 1
+        },
         "save" :
         {
             "actionerror" : "Unable to save.",
@@ -1745,20 +2073,254 @@
             ":scount.activetitle" : 1
         }
     },
-    "project" :
+    "warmups" :
     {
         "sidebar" :
         {
-            "section" :
+            "warmups" :
             {
-                "title" :
+                "title" : "Previous {Warmups}",
+                "prompt" : "Prompt",
+                "headerpopupmenu" :
                 {
-                    "tooltip" : "Click to open/close the items below."
+                    "items" :
+                    {
+                        "new" : "Add New {Warmup}"
+                    }
+                },
+                "treepopupmenu" :
+                {
+                    "items" :
+                    {
+                        "edit" : "${actions.edit} {Warmup}",
+                        "converttoproject" : "Convert to a {Project}",
+                        "rename" : "${actions.rename} {Warmup}",
+                        "close" : "${actions.close} {Warmup}",
+                        "delete" : "${actions.delete} {Warmup}"
+                    }
                 }
             }
         },
         "actions" :
         {
+            "renamewarmup" :
+            {
+                "actionerror" : "Unable to rename {warmup}.",
+                "title" : "Rename {Warmup}",
+                "text" : "Enter the new {warmup} name below.",
+                "confirm" : "${actions.rename}"
+            },
+            "deletewarmup" :
+            {
+                ":comment" : "The delete warmup function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                "actionerror" : "Unable to delete {warmup}.",
+                "deletetype" : "{Warmup}",
+                "warning" : "Warning!  Once deleted a {warmup} cannot be restored."
+            }
+        }
+    },
+    "project" :
+    {
+        "sidebar" :
+        {
+            "headerpopupmenu" :
+            {
+                ":comment" : "These items are added to all sections in the sidebar.",
+                "items" :
+                {
+                    "addtag" : "Add/Manage the Tag(s)",
+                    "newobject" : "Add new Type of Object",
+                    "addsection" :
+                    {
+                        "below" : "Add section below",
+                        "normal" : "Add section"
+                    },
+                    "hidesection" : "Hide this section"
+                }
+            },
+            "tooltip" : "Double click to add a new type of Object, right click to see the menu.",
+            "viewitem" :
+            {
+                "tooltip" : "Click to view"
+            },
+            "section" :
+            {
+                "title" :
+                {
+                    "tooltip" : "Click to open/close the items below."
+                },
+                "moveitem" :
+                {
+                    "actionerror" : "Unable to move."
+                }
+            },
+            "targets" :
+            {
+                "title" : "Targets"  
+            },
+            "problemfinder" :
+            {
+                "unignore" :
+                {
+                    "actionerror" : "Unable to update ${names.problemfinder} ignores.",
+                    "confirmpopup" :
+                    {
+                        ":comment" : "The items here assume the plural case for problems to un-ignore, this is to simplify things.",
+                        "title" : "Un-ignore problems",
+                        "text" : "Please confirm you wish to un-ignore %1s problems for rule<br /><br /><b>%2s</b>",
+                        ":comment.text" : "%1s here is the number of problems that will be un-ignored or be able to be found again.  %2s is the description of the rule.",
+                        ":scount.text" : 2,
+                        "confirm" : "Yes, un-ignore them"
+                    }
+                },
+                "ignored" :
+                {
+                    "single" : "1 problem for this rule has been ignored, click to un-ignore it.",
+                    "plural" : "%1s problems for this rule have been ignored, click to un-ignore them.",
+                    ":comment.plural" : "%1s is the number of problems (greater than 1) that have been ignored for the problem.",
+                    ":scount.plural" : 1
+                },
+                "results" :
+                {
+                    "title" : "Found"
+                },
+                "notfound" : "No problems found.",
+                "loading" : "Finding problems... please wait...",
+                "title" : "Find Problems",
+                "headercontrols" :
+                {
+                    "items" :
+                    {
+                        "findall" :
+                        {
+                            "tooltip" : "Click to find all problems for this rule"
+                        },
+                        "options" :
+                        {
+                            "tooltip" : "Click to view the the options",
+                            "popupmenu" :
+                            {
+                                "items" :
+                                {
+                                    "edit" :
+                                    {
+                                        "tooltip" : "Edit this rule"
+                                    },
+                                    "view" :
+                                    {
+                                        "tooltip" : "Show the ${names.problemfinder} rules"
+                                    }
+                                }
+                            }                            
+                        }
+                    }
+                }
+            },
+            "tags" :
+            {
+                "headerpopupmenu" :
+                {
+                    "items" :
+                    {
+                        "rename" : "${actions.rename}",
+                        "delete" : "Remove this ${names.tag}"
+                    }
+                },
+                "treepopupmenu" :
+                {
+                    "items" :
+                    {
+                        "view" : "${actions.view}",
+                        "edit" : "${actions.edit}",
+                        "remove" : "${actions.remove} ${names.tag}"
+                    }
+                }
+            },
+            "assets" :
+            {
+                "headerpopupmenu" :
+                {
+                    "items" :
+                    {
+                        "deleteall" : "Delete all %1s",
+                        ":comment.deleteall" : "%1s is the object type plural name for the asset type.",
+                        ":scount.deleteall" : 1
+                    }
+                }
+            },
+            "notes" :
+            {
+                "headerpopupmenu" :
+                {
+                    "items" :
+                    {
+                        "new" : "Add New Type",
+                        "manage" : "Manage Types"
+                    }
+                },
+                "treepopupmenu" :
+                {
+                    "items" :
+                    {
+                        "rename" : "${actions.rename}",
+                        "delete" : "${actions.delete}",
+                        "view" : "${actions.view}",
+                        "edit" : "${actions.edit}"
+                    }
+                }
+            }
+        },
+        "actions" :
+        {
+            "deletetag" :
+            {
+                "actionerror" : "Unable to delete tag.",
+                "title" : "Delete ${names.tag}",
+                "text" : "Do you wish to delete tag <b>%1s</b> from <b>ALL</b> {projects} or just this one?",
+                ":comment.text" : "%1s is the tag that will be removed/deleted.  For a single project the tag is just removed or made unavailable.  If removed from all projects then it is deleted completely.",
+                ":scount.text" : 1,
+                "allprojects" : "Delete from all {projects}",
+                "thisproject" : "Just this {project}"
+            },
+            "newideatype" :
+            {
+                "title" : "Add New ${names.ideatype}",
+                "text" : "Enter the new ${names.ideatype} below.",
+                "confirm" : "${actions.add}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a name.",
+                    "valueexists" : "An ${names.ideatype} with that name already exists."
+                }
+            },
+            "editideatype" :
+            {
+                "actionerror" : "Unable to save ${names.ideatype}.",                
+                "title" : "${actions.edit} ${names.ideatype}",
+                "text" : "Enter the new name of the ${names.ideatype} below.",
+                "confirm" : "${actions.change}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a name.",
+                    "valueexists" : "An ${names.ideatype} with that name already exists."
+                }
+            },
+            "deleteideatype" :
+            {
+                "actionerror" : "Unable to delete ${names.ideatype}.",               
+                ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                "actionerror" : "Unable to delete ${names.ideatype}.",
+                "deletetype" : "${names.ideatype}",
+                "warning" : "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
+            },
+            "deleteidea" :
+            {
+                "actionerror" : "Unable to delete ${names.idea}."
+            },
+            "saveidea" :
+            {
+                "actionerror" : "Unable to save ${names.idea}."
+            },            
             "splitchapter" :
             {
                 "title" : "Split {Chapter}",
@@ -1800,9 +2362,24 @@
                 "errors" :
                 {
                     "novalue" : "Please enter a new name.",
-                    "chapterexists" : "A {chapter} with that name already exists."
+                    "valueexists" : "A {chapter} with that name already exists."
                 }
             },
+            "editchapter" :
+            {
+                "actionerror" : "Unable to edit {chapter} <b>%1s</b>.",
+                ":comment.actionerror" : "%1s is the name of the chapter.",
+                ":scount.actionerror" : 1
+            },
+            "deletechapter" :
+            {
+                ":comment" : "The delete chapter function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                "actionerror" : "Unable to delete {chapter} <b>%1s</b>.",
+                ":comment.actionerror" : "%1s is the name of the chapter.",
+                ":scount.actionerror" : 1,
+                "deletetype" : "{Chapter}",
+                "warning" : "Warning!  Once deleted a {chapter} cannot be restored."
+            },            
             "renameproject" :
             {
                 "actionerror" : "Unable to rename {project}.",
@@ -1812,7 +2389,7 @@
                 "errors" :
                 {
                     "novalue" : "Please enter a new name.",
-                    "projectexists" : "A {project} with that name already exists.",
+                    "valueexists" : "A {project} with that name already exists.",
                     "cantreopenproject" : "Unable to reopen {project}."
                 }
             },
@@ -1854,21 +2431,33 @@
                     ":scount.cantfindeditor" : 1
                 }
             },
-            "editchapter" :
+            "deleteproject" :
             {
-                "actionerror" : "Unable to edit {chapter} <b>%1s</b>.",
-                ":comment.actionerror" : "%1s is the name of the chapter.",
-                ":scount.actionerror" : 1
-            },
-            "deletechapter" :
-            {
-                ":comment" : "The delete chapter function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
-                "actionerror" : "Unable to delete {chapter} <b>%1s</b>.",
-                ":comment.actionerror" : "%1s is the name of the chapter.",
+                ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                "actionerror" : "Unable to delete {project} <b>%1s</b>.",
+                ":comment.actionerror" : "%1s is the name of the project.",
                 ":scount.actionerror" : 1,
-                "deletetype" : "{Chapter}",
-                "warning" : "Warning!  Once deleted a {chapter} cannot be restored."
-            },
+                "deletetype" : "{Project}",
+                "warning" :
+                {
+                    "normal" : "Warning!  Once deleted a {chapter} cannot be restored.",
+                    ":comment.normal" : "This message is always shown.",
+                    "editor" : "<br /><br />A message will also be sent to <b>%1s</b> telling them you are no longer editing the {project}.",
+                    ":comment.editor" : "%1s is the name/email address of the person the user is editing the project for.  This message is shown when the user is editing the project for someone else.  The normal message is always shown, so this message acts as a suffix.",
+                    ":scount.editor" : 1
+                },
+                "editorproject" :
+                {
+                    "confirmpopup" :
+                    {
+                        ":comment" : "This popup is shown when the user is editing the project for someone else.",
+                        "title" : "{Project} deleted",
+                        "text" : "The {project} has been deleted and a message has been sent to <b>%1s</b> to let them know.",
+                        ":comment.text" : "%1s is the name/email address of the person the user is editing the project for.",
+                        ":scount.text" : 1
+                    }
+                }
+            },                        
             "viewchapterinformation" :
             {
                 "actionerror" : "Unable to view {chapter} information."
@@ -1912,22 +2501,6 @@
                 "actionerror" : "Unable to delete %1s <b>%2s</b>.",
                 ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
                 ":scount.actionerror" : 2
-            },
-            "deleteideatype" :
-            {
-                "actionerror" : "Unable to delete ${names.ideatype}."
-            },
-            "saveideatype" :
-            {
-                "actionerror" : "Unable to save ${names.ideatype}."  
-            },
-            "deleteidea" :
-            {
-                "actionerror" : "Unable to delete ${names.idea}."
-            },
-            "saveidea" :
-            {
-                "actionerror" : "Unable to save ${names.idea}."
             },
             "viewproblemfindersidebar" :
             {

@@ -562,7 +562,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         final ProjectViewer _this = this;
 
-        Set<String> prefix = new LinkedHashSet ();
+        java.util.List<String> prefix = new ArrayList ();
         
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.settingsmenu);
@@ -1524,7 +1524,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 													  " with new type: " +
 													  ev.getNewValue (),
 													  e);
-
+// TODO: Language string
 								UIUtils.showErrorMessage (_this,
 														  "Unable to change type");
 
@@ -2751,7 +2751,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             UIUtils.showErrorMessage (this,
                                       Environment.getUIString (LanguageStrings.project,
                                                                LanguageStrings.actions,
-                                                               LanguageStrings.saveideatype,
+                                                               LanguageStrings.editideatype,
                                                                LanguageStrings.actionerror));                                      
                                       //"Unable to save Idea Type");
 

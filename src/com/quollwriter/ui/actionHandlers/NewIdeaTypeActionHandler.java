@@ -40,21 +40,33 @@ public class NewIdeaTypeActionHandler extends TextInputActionHandler
     public String getTitle ()
     {
         
-        return "Add New Idea Type";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.newideatype,
+                                        LanguageStrings.title);
+        //"Add New Idea Type";
         
     }
     
     public String getHelp ()
     {
         
-        return "Enter the new Idea type below.";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.newideatype,
+                                        LanguageStrings.text);
+        //"Enter the new Idea type below.";
         
     }
     
     public String getConfirmButtonLabel ()
     {
         
-        return "Add";
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.actions,
+                                        LanguageStrings.newideatype,
+                                        LanguageStrings.confirm);
+        //"Add";
         
     }
     
@@ -74,14 +86,24 @@ public class NewIdeaTypeActionHandler extends TextInputActionHandler
            )
         {
             
-            return "Please enter a name.";
+            return Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.newideatype,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.novalue);
+            //"Please enter a name.";
             
         }
 
         if (this.ideaBoard.hasTypeWithName (v))
         {
 
-            return "A type called: " + v + " already exists.";
+            return Environment.getUIString (LanguageStrings.project,
+                                            LanguageStrings.actions,
+                                            LanguageStrings.newideatype,
+                                            LanguageStrings.errors,
+                                            LanguageStrings.valueexists);
+            //"A type called: " + v + " already exists.";
 
         }
         

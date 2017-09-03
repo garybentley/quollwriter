@@ -860,7 +860,11 @@ public class WarmupsViewer extends AbstractProjectViewer
                                       c);
                 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to delete {warmup}.");
+                                          Environment.getUIString (LanguageStrings.warmups,
+                                                                   LanguageStrings.actions,
+                                                                   LanguageStrings.deletewarmup,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to delete {warmup}.");
                 
                 return;
                 
@@ -892,7 +896,11 @@ public class WarmupsViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to delete warm-up.");
+                                      Environment.getUIString (LanguageStrings.warmups,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.deletewarmup,
+                                                               LanguageStrings.actionerror));                                      
+                                      //"Unable to delete warm-up.");
 
             return;
 

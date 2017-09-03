@@ -420,7 +420,11 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                             {
                                 
                                 UIUtils.showErrorMessage (_this.viewer,
-                                                          "Unable to move.");
+                                                          Environment.getUIString (LanguageStrings.project,
+                                                                                   LanguageStrings.sidebar,
+                                                                                   LanguageStrings.moveitem,
+                                                                                   LanguageStrings.actionerror));
+                                                          //"Unable to move.");
                                 
                                 return false;
                                 
@@ -930,7 +934,11 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                     } catch (Exception e) {
                         
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to move item.");
+                                                  Environment.getUIString (LanguageStrings.project,
+                                                                           LanguageStrings.sidebar,
+                                                                           LanguageStrings.moveitem,
+                                                                           LanguageStrings.actionerror));
+                                                  //"Unable to move item.");
 
                         return false;
                         
@@ -1002,7 +1010,11 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                 {
                                     
                                     UIUtils.showErrorMessage (_this.viewer,
-                                                              "Unable to move.");
+                                                              Environment.getUIString (LanguageStrings.project,
+                                                                                       LanguageStrings.sidebar,
+                                                                                       LanguageStrings.moveitem,
+                                                                                       LanguageStrings.actionerror));
+                                                              //"Unable to move.");
                                     
                                     return false;
                                     
@@ -1108,7 +1120,11 @@ public abstract class ProjectObjectsAccordionItem<E extends AbstractProjectViewe
                                                   e);
 
                             UIUtils.showErrorMessage (_this.viewer,
-                                                      "Unable to move.");
+                                                      Environment.getUIString (LanguageStrings.project,
+                                                                               LanguageStrings.sidebar,
+                                                                               LanguageStrings.moveitem,
+                                                                               LanguageStrings.actionerror));
+                                                      //"Unable to move.");
 
                             return false;
                             

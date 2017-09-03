@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.awt.dnd.*;
 
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 
@@ -60,7 +62,13 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                                      MouseEvent ev)
     {
 
-        m.add (UIUtils.createMenuItem ("Add New " + Environment.getObjectTypeName (Warmup.OBJECT_TYPE),
+        m.add (UIUtils.createMenuItem (Environment.getUIString (LanguageStrings.warmups,
+                                                                LanguageStrings.sidebar,
+                                                                LanguageStrings.warmups,
+                                                                LanguageStrings.headerpopupmenu,
+                                                                LanguageStrings.items,
+                                                                LanguageStrings._new),
+                                       //"Add New " + Environment.getObjectTypeName (Warmup.OBJECT_TYPE),
                                        "add",
                                        this.viewer.getAction (WarmupsViewer.NEW_WARMUP_ACTION,
                                                               this.viewer.getProject ().getBooks ().get (0))));
@@ -100,6 +108,13 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         if (tp != null)
         {
 
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.warmups);
+            prefix.add (LanguageStrings.sidebar);
+            prefix.add (LanguageStrings.warmups);
+            prefix.add (LanguageStrings.treepopupmenu);
+            prefix.add (LanguageStrings.items);
+        
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
             final DataObject d = (DataObject) node.getUserObject ();
@@ -109,22 +124,30 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
 
                 final Chapter c = (Chapter) d;
 
-                m.add (UIUtils.createMenuItem ("Edit {Warmup}",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.edit),
+                                               //"Edit {Warmup}",
                                                Constants.EDIT_ICON_NAME,
                                                pv.getAction (WarmupsViewer.EDIT_WARMUP_ACTION,
                                                              c)));
 
-                m.add (UIUtils.createMenuItem ("Convert to a {Project}",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.converttoproject),
+                                               //"Convert to a {Project}",
                                                Constants.CONVERT_ICON_NAME,
                                                pv.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
                                                              c)));
 
-                m.add (UIUtils.createMenuItem ("Rename {Warmup}",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.rename),
+                                               //"Rename {Warmup}",
                                                Constants.RENAME_ICON_NAME,
                                                pv.getAction (WarmupsViewer.RENAME_WARMUP_ACTION,
                                                              c)));
                                                              
-                m.add (UIUtils.createMenuItem ("Close {Warmup}",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.close),
+                                               //"Close {Warmup}",
                                                Constants.CANCEL_ICON_NAME,
                                                new ActionAdapter ()
                 {
@@ -138,7 +161,9 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
 
                 }));
 
-                m.add (UIUtils.createMenuItem ("Delete {Warmup}",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.delete),
+                                               //"Delete {Warmup}",
                                                Constants.DELETE_ICON_NAME,
                                                pv.getAction (WarmupsViewer.DELETE_WARMUP_ACTION,
                                                              c)));

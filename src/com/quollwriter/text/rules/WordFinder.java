@@ -105,7 +105,7 @@ public class WordFinder extends AbstractDialogueRule
         if (this.where != null)
         {
 
-            Set<String> pref = new LinkedHashSet ();
+            List<String> pref = new ArrayList ();
             pref.add (LanguageStrings.problemfinder);
             pref.add (LanguageStrings.config);
             pref.add (LanguageStrings.rules);
@@ -225,7 +225,7 @@ public class WordFinder extends AbstractDialogueRule
 
                 String suffix = "";
 
-                Set<String> pref = new LinkedHashSet ();
+                List<String> pref = new ArrayList ();
                 
                 pref.add (LanguageStrings.problemfinder);
                 pref.add (LanguageStrings.issues);
@@ -342,7 +342,7 @@ public class WordFinder extends AbstractDialogueRule
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        Set<String> pref = new LinkedHashSet ();
+        List<String> pref = new ArrayList ();
         pref.add (LanguageStrings.problemfinder);
         pref.add (LanguageStrings.config);
         pref.add (LanguageStrings.rules);

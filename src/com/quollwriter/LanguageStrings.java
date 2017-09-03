@@ -313,12 +313,95 @@ public class LanguageStrings
     public static final String splitchapter = "splitchapter";
     public static final String newchaptername = "newchaptername";
     public static final String cantreopenproject = "cantreopenproject";
-    public static final String projectexists = "projectexists";
+    //public static final String projectexists = "projectexists";
     public static final String renamechapter = "renamechapter";
-    public static final String chapterexists = "chapterexists";
+    //public static final String chapterexists = "chapterexists";
     public static final String newchapter = "newchapter";
     public static final String deletetype = "deletetype";
     public static final String warning = "warning";
+    public static final String valueexists = "valueexists";
+    public static final String newideatype = "newideatype";
+    public static final String editideatype = "editideatype";
+    public static final String warmups = "warmups";
+    public static final String deletewarmup = "deletewarmup";
+    public static final String notifications = "notifications";
+    public static final String remove = "remove";
+    public static final String filefinder = "filefinder";
+    public static final String errormessage = "errormessage";
+    public static final String generalmessage = "generalmessage";
+    public static final String iconcolumn = "iconcolumn";
+    public static final String distractionfreemode = "distractionfreemode";
+    public static final String viewitem = "viewitem";
+    public static final String moveitem = "moveitem";
+    public static final String manage = "manage";
+    public static final String rename = "rename";
+    public static final String colorchooser = "colorchooser";
+    public static final String hex = "hex";
+    public static final String red = "red";
+    public static final String blue = "blue";
+    public static final String green = "green";
+    public static final String color = "color";
+    public static final String swatch = "swatch";
+    public static final String reset = "reset";
+    public static final String objectfinder = "objectfinder";
+    public static final String renamewarmup = "renamewarmup";
+    public static final String editorproject = "editorproject";
+    public static final String normal = "normal";
+    public static final String editor = "editor";
+    public static final String plural = "plural";
+    public static final String headercontrols = "headercontrols";
+    public static final String loading = "loading";
+    public static final String notfound = "notfound";
+    public static final String results = "results";
+    public static final String findall = "findall";
+    public static final String ignored = "ignored";
+    public static final String unignore = "unignore";
+    public static final String ignore = "ignore";
+    public static final String checkbox = "checkbox";
+    public static final String overlay = "overlay";
+    public static final String deleteall = "deleteall";
+    public static final String addsection = "addsection";
+    public static final String newobject = "newobject";
+    public static final String hidesection = "hidesection";
+    public static final String addtag = "addtag";
+    public static final String below = "below";
+    public static final String tags = "tags";
+    public static final String newtag = "newtag";
+    public static final String table = "table";
+    public static final String finish = "finish";
+    public static final String loadallerror = "loadallerror";
+    public static final String converttoproject = "converttoproject";
+    public static final String entersummaryerror = "entersummaryerror";
+    public static final String maxchars = "maxchars";
+    public static final String dictionary = "dictionary";
+    public static final String synonyms = "synonyms";
+    public static final String formatting = "formatting";
+    public static final String format = "format";
+    public static final String bold = "bold";
+    public static final String italic = "italic";
+    public static final String underline = "underline";
+    public static final String spellcheck = "spellcheck";
+    public static final String nosuggestions = "nosuggestions";
+    public static final String nosynonyms = "nosynonyms";
+    public static final String more = "more";
+    public static final String redo = "redo";
+    public static final String undo = "undo";
+    public static final String cut = "cut";
+    public static final String paste = "paste";
+    public static final String copy = "copy";
+    public static final String textarea = "textarea";
+    public static final String charsremaining = "charsremaining";
+    public static final String charsover = "charsover";
+    public static final String deletetag = "deletetag";
+    public static final String prompt = "prompt";
+    public static final String create = "create";
+    public static final String newprojectpanel = "newprojectpanel";
+    public static final String encrypt = "encrypt";
+    public static final String password = "password";
+    public static final String confirmpassword = "confirmpassword";
+    public static final String nopassword = "nopassword";
+    public static final String nomatch = "nomatch";
+    public static final String savein = "savein";
     
     private static String ID_PART_SEP = ".";
     
@@ -373,7 +456,7 @@ public class LanguageStrings
             
             String k = iter.next ().toString ();
             
-            Set ids = new LinkedHashSet ();
+            List ids = new ArrayList ();
             
             ids.add (k);
             
@@ -436,11 +519,11 @@ public class LanguageStrings
         
     }
     
-    private void testValue (String      val,
-                            Set<String> ids)
+    private void testValue (String       val,
+                            List<String> ids)
     {
 
-        Set<String> id = new LinkedHashSet ();
+        List<String> id = new ArrayList ();
         
         // Convert the current ids to a single id.
         id.add (this.toId (ids));                
@@ -458,8 +541,8 @@ public class LanguageStrings
         
     }
     
-    private void testMap (Map         m,
-                          Set<String> ids)
+    private void testMap (Map          m,
+                          List<String> ids)
     {
         
         // Ensure we can resolve everything.
@@ -470,7 +553,7 @@ public class LanguageStrings
             
             String k = iter.next ().toString ();
             
-            Set<String> _ids = new LinkedHashSet (ids);
+            List<String> _ids = new ArrayList (ids);
             
             _ids.add (k);
             
@@ -502,13 +585,20 @@ public class LanguageStrings
         
     }
             
-    private String doReplacements (String      val,
-                                   Set<String> ids)
+    private String doReplacements (String       val,
+                                   List<String> ids)
     {
+        
+        if (val == null)
+        {
+            
+            throw new IllegalArgumentException ("No value for ids: " + ids);
+            
+        }
         
         StringBuilder b = new StringBuilder (val);
                 
-        Set<String> thisids = new LinkedHashSet ();
+        List<String> thisids = new ArrayList ();
                 
         int start = 0;
         
@@ -643,7 +733,7 @@ public class LanguageStrings
         
     }
     
-    public static String toId (Set<String> ids)
+    public static String toId (List<String> ids)
     {
         
         return Utils.joinStrings (ids,
@@ -659,7 +749,7 @@ public class LanguageStrings
         
     }
     
-    public String getValue (Set<String> idParts)
+    public String getValue (List<String> idParts)
     {
                 
         String v = this.getIdValue (idParts);
@@ -673,7 +763,7 @@ public class LanguageStrings
             
         }
         
-        Set ids = new HashSet ();
+        List ids = new ArrayList ();
         ids.add (this.toId (idParts));
         
         v = this.doReplacements (v,
@@ -691,7 +781,7 @@ public class LanguageStrings
         
     }
     
-    private String getIdValue (Set<String> idParts)
+    private String getIdValue (List<String> idParts)
     {
         
         Map m = this.strings;
