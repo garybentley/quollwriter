@@ -224,9 +224,16 @@ public class WarmupsViewer extends AbstractProjectViewer
                                              final AbstractEditorPanel panel)
     {
         
+        final java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.warmups);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.convertwarmup);
+        
         final WarmupsViewer _this = this;
         
-        final QPopup popup = UIUtils.createClosablePopup ("Convert {warmup} to {a project}",
+        final QPopup popup = UIUtils.createClosablePopup (Environment.getUIString (prefix,
+                                                                                   LanguageStrings.title),
+                                                          //"Convert {warmup} to {a project}",
                                              Environment.getIcon (Project.OBJECT_TYPE,
                                                                   Constants.ICON_POPUP),
                                              null);        
@@ -297,7 +304,9 @@ public class WarmupsViewer extends AbstractProjectViewer
                                           e);
 
                     UIUtils.showErrorMessage (_this,
-                                              "Unable to create new project: " + p.getName ());
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to create new project: " + p.getName ());
 
                     return false;
 
@@ -337,7 +346,9 @@ public class WarmupsViewer extends AbstractProjectViewer
                     
         Box content = new Box (BoxLayout.Y_AXIS);
         
-        JTextPane help = UIUtils.createHelpTextPane ("To create the new {Project} enter the name below, select the directory it should be saved to and press the Create button.  Your warm-up text will be added as a {chapter} to the {Project}.",
+        JTextPane help = UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                              LanguageStrings.text),
+                                                     //"To create the new {Project} enter the name below, select the directory it should be saved to and press the Create button.  Your warm-up text will be added as a {chapter} to the {Project}.",
                                                      this);        
                
         help.setBorder (null);
@@ -735,8 +746,12 @@ public class WarmupsViewer extends AbstractProjectViewer
                                   e);
 
             UIUtils.showErrorMessage (_this,
-                                      "Unable to edit warmup: " +
-                                      c.getName ());
+                                      Environment.getUIString (LanguageStrings.warmups,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.editwarmup,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to edit warmup: " +
+                                      //c.getName ());
 
             return false;
 
@@ -946,34 +961,32 @@ public class WarmupsViewer extends AbstractProjectViewer
 
         this.editWarmup (w);
 
-        SwingUtilities.invokeLater (new Runner ()
+        UIUtils.doLater (new ActionListener ()
+        {
+            
+            @Override
+            public void actionPerformed (ActionEvent ev)
             {
-
-                public void run ()
+                
+                try
                 {
 
-                    try
-                    {
+                    _this.getEditorForWarmup (c).scrollToPosition (pos);
+                    _this.getEditorForWarmup (c).scrollToPosition (pos);
 
-                        _this.getEditorForWarmup (c).scrollToPosition (pos);
-                        _this.getEditorForWarmup (c).scrollToPosition (pos);
+                } catch (Exception e)
+                {
 
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to show snippet at position: " +
-                                              pos,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  "Unable to show snippet in context");
-
-                    }
+                    Environment.logError ("Unable to show snippet at position: " +
+                                          pos,
+                                          e);
 
                 }
 
-            });
+            }
 
+        });
+            
     }
 
     public ChapterCounts getAllChapterCounts ()
@@ -1015,43 +1028,65 @@ public class WarmupsViewer extends AbstractProjectViewer
     public void fillSettingsPopup (JPopupMenu titlePopup)
     {
 
-        titlePopup.add (this.createMenuItem ("Open {Project}",
-                                             Constants.OPEN_PROJECT_ICON_NAME,
-                                             AbstractProjectViewer.OPEN_PROJECT_ACTION));
+        java.util.List<String> prefix = new ArrayList ();
+        
+        prefix.add (LanguageStrings.warmups);
+        prefix.add (LanguageStrings.settingsmenu);
+        prefix.add (LanguageStrings.items);
 
-        titlePopup.add (this.createMenuItem ("New {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.openproject),
+                                             //"Open {Project}",
+                                             Constants.OPEN_PROJECT_ICON_NAME,
+                                             OPEN_PROJECT_ACTION));
+
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.newproject),
+                                             //"New {Project}",
                                              Constants.NEW_ICON_NAME,
-                                             AbstractProjectViewer.NEW_PROJECT_ACTION));
+                                             NEW_PROJECT_ACTION));
 
 		titlePopup.addSeparator ();
                                              
-        titlePopup.add (this.createMenuItem ("Rename {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.renameproject),
+                                             //"Rename {Project}",
                                              Constants.EDIT_ICON_NAME,
-                                             AbstractProjectViewer.RENAME_PROJECT_ACTION));
+                                             RENAME_PROJECT_ACTION));
 
-        titlePopup.add (this.createMenuItem ("Statistics",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.statistics),
+                                             //"Statistics",
                                              Constants.CHART_ICON_NAME,
-                                             AbstractProjectViewer.SHOW_STATISTICS_ACTION));
+                                             SHOW_STATISTICS_ACTION));
   
         // Create Project Snapshot
-        titlePopup.add (this.createMenuItem ("Create a Backup",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.createbackup),
+                                             //"Create a Backup",
                                              Constants.SNAPSHOT_ICON_NAME,
-                                             AbstractProjectViewer.CREATE_PROJECT_SNAPSHOT_ACTION));
+                                             CREATE_PROJECT_SNAPSHOT_ACTION));
                                              
-        titlePopup.add (this.createMenuItem ("Close {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.closeproject),
+                                             //"Close {Project}",
                                              Constants.CLOSE_ICON_NAME,
-                                             AbstractProjectViewer.CLOSE_PROJECT_ACTION));
+                                             CLOSE_PROJECT_ACTION));
         
-        titlePopup.add (this.createMenuItem ("Delete {Project}",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.deleteproject),
+                                             //"Delete {Project}",
                                              Constants.DELETE_ICON_NAME,
-                                             ProjectViewer.DELETE_PROJECT_ACTION));
+                                             DELETE_PROJECT_ACTION));
         
         titlePopup.addSeparator ();
 
         // Do a New Warm-up Exercise
-        titlePopup.add (this.createMenuItem ("Do a {Warmup} Exercise",
+        titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.dowarmup),
+                                             //"Do a {Warmup} Exercise",
                                              Constants.WARMUPS_ICON_NAME,
-                                             AbstractProjectViewer.WARMUP_EXERCISE_ACTION));
+                                             WARMUP_EXERCISE_ACTION));
         
     }
     

@@ -501,7 +501,9 @@ public class Constants
 
     public static final String EDITORS_EDITOR_FILE_NAME = "editor.xml";
 
-    public static final String OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names.xml";
+    public static final String LEGACY_OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names.xml";
+
+    public static final String OBJECT_TYPE_NAMES_FILE_NAME = "object-type-names.json";
 
     public static final String SQL_LOG_NAME = "sql.log";
     public static final String ERROR_LOG_NAME = "error.log";

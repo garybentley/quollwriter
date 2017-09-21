@@ -89,7 +89,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
         this.addToProject = new JRadioButton ();
         this.fileFindError = UIUtils.createErrorLabel (Environment.getUIString (LanguageStrings.importproject,
-                                                                                LanguageStrings.nofileselectederror));
+                                                                                LanguageStrings.errors,
+                                                                                LanguageStrings.nofileselected));
                                                        //"Please select a file to import.");
         this.fileFind = new FileFinder ();
 
@@ -226,7 +227,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
                         UIUtils.showErrorMessage (this,
                                                   String.format (Environment.getUIString (LanguageStrings.importproject,
-                                                                                          LanguageStrings.unabletosaveerror),
+                                                                                          LanguageStrings.errors,
+                                                                                          LanguageStrings.unabletosave),
                                                                  a.getName ()));                                                  
 
                     }
@@ -263,7 +265,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
                         UIUtils.showErrorMessage (this,
                                                   String.format (Environment.getUIString (LanguageStrings.importproject,
-                                                                                          LanguageStrings.unabletosaveerror),
+                                                                                          LanguageStrings.errors,
+                                                                                          LanguageStrings.unabletosave),
                                                                  //"Unable to save: " +
                                                                  c.getName ()));
 
@@ -375,7 +378,8 @@ public class ImportProject extends Wizard implements ImportCallback
 
                 UIUtils.showErrorMessage (this,
                                           String.format (Environment.getUIString (LanguageStrings.importproject,
-                                                                                  LanguageStrings.unabletocreateprojecterror),
+                                                                                  LanguageStrings.errors,
+                                                                                  LanguageStrings.unabletocreateproject),
                                                          this.proj.getName ()));
                                           //"Unable to create new project: " + this.proj.getName ());
 
@@ -555,7 +559,10 @@ public class ImportProject extends Wizard implements ImportCallback
         if (this.file == null)
         {
 
-            this.fileFindError.setText ("Please select a file to import.");
+            this.fileFindError.setText (Environment.getUIString (LanguageStrings.importproject,
+                                                                 LanguageStrings.errors,
+                                                                 LanguageStrings.nofileselected));
+                                        //"Please select a file to import.");
             this.fileFindError.setVisible (true);
 
             this.resize ();
@@ -566,7 +573,10 @@ public class ImportProject extends Wizard implements ImportCallback
         if (!this.file.exists ())
         {
 
-            this.fileFindError.setText ("File does not exist, please select a valid file.");
+            this.fileFindError.setText (Environment.getUIString (LanguageStrings.importproject,
+                                                                 LanguageStrings.errors,
+                                                                 LanguageStrings.filenotexist));
+            //"File does not exist, please select a valid file.");
             this.fileFindError.setVisible (true);
 
             this.resize ();
@@ -577,7 +587,10 @@ public class ImportProject extends Wizard implements ImportCallback
         if (this.file.isDirectory ())
         {
 
-            this.fileFindError.setText ("Selection is a directory, please select a file instead.");
+            this.fileFindError.setText (Environment.getUIString (LanguageStrings.importproject,
+                                                                 LanguageStrings.errors,
+                                                                 LanguageStrings.dirselected));
+            //"Selection is a directory, please select a file instead.");
             this.fileFindError.setVisible (true);
 
             this.resize ();
@@ -599,7 +612,10 @@ public class ImportProject extends Wizard implements ImportCallback
                                   " to a uri",
                                   e);
 
-            this.fileFindError.setText ("Unable to open selected file.");
+            this.fileFindError.setText (Environment.getUIString (LanguageStrings.importproject,
+                                                                 LanguageStrings.errors,
+                                                                 LanguageStrings.openfile));
+            //"Unable to open selected file.");
             this.fileFindError.setVisible (true);
 
             this.resize ();
@@ -661,7 +677,10 @@ public class ImportProject extends Wizard implements ImportCallback
                                               e);
 
                         UIUtils.showErrorMessage (_this.viewer,
-                                                  "Unable to open {project}");
+                                                  Environment.getUIString (LanguageStrings.importproject,
+                                                                           LanguageStrings.errors,
+                                                                           LanguageStrings.cantopenproject));
+                                                  //"Unable to open {project}");
 
                         return;
 

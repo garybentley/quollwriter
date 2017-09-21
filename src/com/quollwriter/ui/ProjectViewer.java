@@ -84,7 +84,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
     public static final int EDIT_PLOT_OUTLINE_ITEM_ACTION = 119; // "editPlotOutlineItem";
     public static final int DELETE_NOTE_ACTION = 120; // "deleteNote";
     public static final int EDIT_NOTE_ACTION = 121; // "editNote";
-    public static final int NEW_SCENE_ACTION = 122; // "newScene";
+    //public static final int NEW_SCENE_ACTION = 122; // "newScene";
     public static final int NEW_SCENE_BELOW_ACTION = 123; // "newSceneBelow";
     public static final int DELETE_SCENE_ACTION = 124; // "deleteScene";
     public static final int EDIT_SCENE_ACTION = 125; // "editScene";
@@ -1120,6 +1120,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         }
 
+        /*
         if (name == ProjectViewer.NEW_SCENE_ACTION)
         {
 
@@ -1160,7 +1161,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             };
 
         }
-
+*/
         if (name == ProjectViewer.NEW_SCENE_BELOW_ACTION)
         {
 

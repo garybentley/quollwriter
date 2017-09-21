@@ -13,6 +13,70 @@
         "unabletostarterror" : "Unable to start {QW}",
         "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
     },
+    "settingsmenu" :
+    {
+        ":comment" : "These items are used for the 'project' menu, the cog icon on a window, they are reused by most project 'viewers' hence the most frequently used items are defined here.",
+        "items" :
+        {
+            "openproject" : "${actions.open} ${objectnames.singular.project}",
+            "newproject" : "${actions.new} ${objectnames.singular.project}",
+            "renameproject" : "${actions.rename} this ${objectnames.singular.project}",
+            "statistics" : "Statistics",
+            "createbackup" : "${actions.create} a ${names.backup}",
+            "closeproject" : "${actions.close} ${objectnames.singular.project}",
+            "deleteproject" : "${actions.delete} ${objectnames.singular.project}",
+            "dowarmup" : "Do a {Warmup} exercise",
+            "options" : "${names.options}",
+            "achievements" : "${names.achievements}",
+            "whatsnew" : "What's New in this version",
+            "help" : "${actions.help}",
+            "reportbug" : "Report Bug/Problem",
+            "contactsupport" : "Contact Support",
+            "viewuserguide" : "View the User Guide",
+            "keyboardshortcuts" : "Keyboard Shortcuts",
+            "about" : "About {QW}"
+        }
+    },    
+    "objectnames" :
+    {
+        ":comment" : "These are the names of objects within the interface.  The user can change most of these.  They are split into singular and plural forms.",
+        "singular" :
+        {
+            "scene" : "Scene",
+            "outlineitem" : "Plot Outline Item",
+            "chapter" : "Chapter",
+            "warmup" : "Warm-up",
+            "character" : "Character",
+            "location" : "Location",
+            "object" : "Item",
+            "researchitem" : "Research Item",
+            "note" : "Note",
+            "editneedednote" : "Edit Needed",
+            "project" : "Project",
+            "contact" : "Contact",
+            "editor" : "Editor",
+            "document" : "Document",
+            "idea" : "Idea"
+        },
+        "plural" :
+        {
+            "scene" : "Scenes",
+            "outlineitem" : "Plot Outline Items",
+            "chapter" : "Chapters",
+            "warmup" : "Warm-ups",
+            "character" : "Characters",
+            "location" : "Locations",
+            "object" : "Items",
+            "researchitem" : "Research Items",
+            "note" : "Notes",
+            "editneedednote" : "Edit Needed Notes",
+            "project" : "Projects",
+            "contact" : "Contacts",
+            "editor" : "Editors",
+            "document" : "Documents",
+            "idea" : "Ideas"
+        }
+    },
     "objectfinder" :
     {
         "sidebar" :
@@ -23,6 +87,13 @@
     },
     "iconcolumn" :
     {
+        "tooltip" :
+        {
+            "shortcut" :
+            {
+                "prefix" : "Shortcut: Ctrl+Shift+"
+            }
+        },   
         "moveitem" :
         {
             "actionerror" : "Unable to move item."  
@@ -35,7 +106,7 @@
                 "popup" :
                 {
                     "title" : "Function unavailable",
-                    "text" : "Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>"
+                    "text" : "Sorry, you cannot view ${objectnames.plural.note}, ${objectnames.plural.outlineitem} and ${objectnames.plural.scene} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>"
                 }
             }
         }
@@ -383,7 +454,24 @@
         },
         "manage" :
         {
-            
+            "title" : "Manage the ${names.tags}",
+            "finish" : "${actions.finish}",            
+            "newwords" :
+            {
+                "title" : "New Words",
+                "text" : "Enter the new words to add below, separate the words with commas or semi-colons.",
+                "add" : "${actions.add}",
+                "actionerror" : "Unable to add new word(s)."
+            },
+            "table" :
+            {
+                "title" : "Words in Dictionary",
+                "remove" : "Remove Selected",
+                "delete" :
+                {
+                    "actionerror" : "Unable to remove word."
+                }
+            }
         }
     },
     "achievementspanel" :
@@ -787,52 +875,52 @@
         "addchapter5" :
         {
             "name" : "Chapter and Verse",
-            "description" : "Create 5 {Chapters}."
+            "description" : "Create 5 ${objectnames.plural.chapter}."
         },
         "addchapter10" :
         {
             "name" : "Meaty",
-            "description" : "Create 10 {Chapters}."
+            "description" : "Create 10 ${objectnames.plural.chapter}."
         },
         "addchapter20" :
         {
             "name" : "Bulking up",
-            "description" : "Create 20 {Chapters}."
+            "description" : "Create 20 ${objectnames.plural.chapter}."
         },
         "addchapter50" :
         {
             "name" : "Look out Tolstoy!",
-            "description" : "Create 50 {Chapters}."
+            "description" : "Create 50 ${objectnames.plural.chapter}."
         },
         "addeditneedednote1" :
         {
             "name" : "Where's my red pen?",
-            "description" : "Create an Edit Needed {Note}."
+            "description" : "Create an ${objectnames.singular.editneedednote} ${objectnames.singular.note}."
         },
         "addeditneedednote5" :
         {
             "name" : "",
-            "description" : "I'll fix it next time round<"
+            "description" : "I'll fix it next time round."
         },
         "addeditneedednote10" :
         {
             "name" : "Need a fresh pot of coffee",
-            "description" : "Create 10 Edit Needed {Notes}."
+            "description" : "Create 10 Edit Needed ${objectnames.plural.note}."
         },
         "addtodonote10" :
         {
             "name" : "So much to do",
-            "description" : "Create 10 <b>To Do</b> {Notes}."
+            "description" : "Create 10 <b>To Do</b> ${objectnames.plural.note}."
         },
         "addresearchitem" :
         {
             "name" : "Backed up with facts",
-            "description" : "Create a {Research Item}."
+            "description" : "Create a ${objectnames.singular.researchitem}."
         },
         "addresearchitem5weblinks" :
         {
             "name" : "I'll check on it later",
-            "description" : "Create {Research Item} with web links."
+            "description" : "Create ${objectnames.singular.researchitem} with web links."
         },
         "personaldictionaryaddword" :
         {
@@ -867,7 +955,7 @@
         "convertwarmuptoproject" :
         {
             "name" : "Playtime is over",
-            "description" : "Convert a warm-up to a {project}."
+            "description" : "Convert a warm-up to a ${objectnames.singular.project}."
         },
         "addwarmup5" :
         {
@@ -897,7 +985,7 @@
         "warmuptimerrestart" :
         {
             "name" : "I'm on a roll",
-            "description" : "Continue the {warmup} after the timer runs out/word count is reached."
+            "description" : "Continue the ${objectnames.singular.warmup} after the timer runs out/word count is reached."
         },
         "settingschange" :
         {
@@ -927,12 +1015,12 @@
         "backupnew" :
         {
             "name" : "I need backup!",
-            "description" : "Create a backup for a {project}."
+            "description" : "Create a backup for a ${objectnames.singular.project}."
         },
         "backupsshow" :
         {
             "name" : "I've got your back",
-            "description" : "View the backups for a {project}."
+            "description" : "View the backups for a ${objectnames.singular.project}."
         },
         "tips5" :
         {
@@ -942,47 +1030,47 @@
         "addinvite" :
         {
             "name" : "It begins!",
-            "description" : "Send an invite to an {editor}."
+            "description" : "Send an invite to an ${objectnames.singular.editor}."
         },
         "addinvite3" :
         {
             "name" : "Assembling the team",
-            "description" : "Invite 3 {editors}."
+            "description" : "Invite 3 ${objectnames.plural.editor}."
         },
         "addinvite5" :
         {
             "name" : "Editing Avengers",
-            "description" : "Invite 5 {editors}."
+            "description" : "Invite 5 ${objectnames.plural.editor}."
         },
         "acceptinvite" :
         {
             "name" : "Not your buddy, guy!",
-            "description" : "Accept an invite from {a contact}."
+            "description" : "Accept an invite from a ${objectnames.singular.contact}."
         },
         "acceptinvite3" :
         {
             "name" : "I'm not your guys, buddies... no wait...",
-            "description" : "Accept 3 {contact} invites."
+            "description" : "Accept 3 ${objectnames.plural.contact} invites."
         },
         "inviteaccepted" :
         {
             "name" : "Not alone in this",
-            "description" : "Receive an invite acceptance from {a contact}."
+            "description" : "Receive an invite acceptance from a ${objectnames.singular.contact}."
         },
         "inviteaccepted3" :
         {
             "name" : "Team Building",
-            "description" : "Receive invite acceptances from 3 {contacts}."
+            "description" : "Receive invite acceptances from 3 ${objectnames.plural.contact}."
         },
         "acceptprojectinvite" :
         {
             "name" : "I'm your [wo]man",
-            "description" : "Accept an invite to edit a {project}."
+            "description" : "Accept an invite to edit a ${objectnames.singular.project}."
         },
         "acceptprojectinvite3" :
         {
             "name" : "Team Player",
-            "description" : "Accept 3 invitations to edit a {project}."
+            "description" : "Accept 3 invitations to edit a ${objectnames.singular.project}."
         },
         "sendproject" :
         {
@@ -1347,16 +1435,21 @@
     "importproject" :
     {
         "actionerror" : "Unable to show import {project} wizard.",
-        "nexterror" : "Unable to go to next stage.",
-        "previouserror" : "Unable to go to previous stage.",
-        "unabletosaveerror" : "Unable to save: %s",
-        ":comment.unabletosaveerror" : "The %s is the name of the item that is trying to be saved.",
-        ":scount.unabletosaveerror" : 1,
-        "unabletocreateprojecterror" : "Unable to create new {project}: %s",
-        ":comment.unabletocreateprojecterror" : "The %s is the name of the project trying to be created.",
-        ":scount.unabletocreateprojecterror" : 1,
         "supportedfiletypesdescription" : "Supported Files",
-        "nofileselectederror" : "Please select a file to import.",
+        "errors" :
+        {
+            "unabletosave" : "Unable to save: %s",
+            ":comment.unabletosave" : "The %s is the name of the item that is trying to be saved.",
+            ":scount.unabletosave" : 1,
+            "unabletocreateproject" : "Unable to create new {project}: %s",
+            ":comment.unabletocreateproject" : "The %s is the name of the project trying to be created.",
+            ":scount.unabletocreateproject" : 1,            
+            "nofileselected" : "Please select a file to import.",
+            "filenotexist" : "File does not exist, please select a valid file.",
+            "cantopenproject" : "Unable to open {project}",
+            "dirselected" : "Selection is a directory, please select a file instead.",
+            "openfile" : "Unable to open selected file."
+        },
         "help" : "It is recommended that you read the <a href='help://projects/importing-a-file'>guide to importing</a> prior to using this function if you are importing a file.  The import expects the file(s) to be in a certain format.",
         "moretextindicator" : " ${moretextindicator} ",
         ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
@@ -1431,13 +1524,15 @@
     "exportproject" :
     {
         "actionerror" : "Unable to export {project}.",
-        "nexterror" : "Unable to go to next stage.",
-        "previouserror" : "Unable to go to previous stage.",
-        "nodirselectederror" : "Please select a directory.",
         "help" : "This wizard allows you to export the information in your {project}.",
         "popup" :
         {
             "title" : "${actions.export} {Project}"
+        },
+        "errors" :
+        {
+            "nodirselected" : "Please select a directory.",
+            "createexporter" : "Unable to create exporter."
         },
         "exportcompletepopup" :
         {
@@ -2101,26 +2196,95 @@
                 }
             }
         },
+        "settingsmenu" :
+        {
+            "items" :
+            {
+                "openproject" : "${settingsmenu.items.openproject}",
+                "newproject" : "${settingsmenu.items.newproject}",
+                "renameproject" : "${settingsmenu.items.renameproject}",
+                "statistics" : "${settingsmenu.items.statistics}",
+                "createbackup" : "${settingsmenu.items.createbackup}",
+                "closeproject" : "${settingsmenu.items.closeproject}",
+                "deleteproject" : "${settingsmenu.items.deleteproject}",
+                "dowarmup" : "${settingsmenu.items.dowarmup}",
+                "options" : "${settingsmenu.items.options}",
+                "achievements" : "${settingsmenu.items.achievements}",
+                "whatsnew" : "${settingsmenu.items.whatsnew}",
+                "help" : "${settingsmenu.items.help}",
+                "reportbug" : "${settingsmenu.items.reportbug}",
+                "contactsupport" : "${settingsmenu.items.contactsupport}",
+                "viewuserguide" : "${settingsmenu.items.viewuserguide}",
+                "keyboardshortcuts" : "${settingsmenu.items.keyboardshortcuts}",
+                "about" : "${settingsmenu.items.about}"
+            }
+        },
+        "title" :
+        {
+            "toolbar" :
+            {
+                "buttons" :
+                {
+
+                }
+                
+            }
+        },
         "actions" :
         {
+            "convertwarmup" :
+            {
+                "actionerror" : "Unable to create new ${objectnames.singular.project} from ${objectnames.singular.warmup}.",
+                "title" : "Convert ${objectnames.singular.warmup} to a ${objectnames.singular.project}",
+                "text" : "To create the new ${objectnames.singular.warmup} enter the name below, select the directory it should be saved to and press the Create button.  Your ${objectnames.singular.warmup} text will be added as a ${objectnames.singular.chapter} to the ${objectnames.singular.project}."
+            },
+            "editwarmup" :
+            {
+                "actionerror" : "Unable to edit ${objectnames.singular.warmup}."  
+            },
             "renamewarmup" :
             {
-                "actionerror" : "Unable to rename {warmup}.",
-                "title" : "Rename {Warmup}",
-                "text" : "Enter the new {warmup} name below.",
+                "actionerror" : "Unable to rename ${objectnames.singular.warmup}.",
+                "title" : "Rename ${objectnames.singular.warmup}",
+                "text" : "Enter the new ${objectnames.singular.warmup} name below.",
                 "confirm" : "${actions.rename}"
             },
             "deletewarmup" :
             {
                 ":comment" : "The delete warmup function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
-                "actionerror" : "Unable to delete {warmup}.",
-                "deletetype" : "{Warmup}",
-                "warning" : "Warning!  Once deleted a {warmup} cannot be restored."
+                "actionerror" : "Unable to delete ${objectnames.singular.warmup}.",
+                "deletetype" : "${objectnames.singular.warmup}",
+                "warning" : "Warning!  Once deleted a ${objectnames.singular.warmup} cannot be restored."
             }
         }
     },
     "project" :
     {
+        "editorpanel" :
+        {
+            "iconcolumn" :
+            {
+                "tooltip" :
+                {
+                    "shortcut" :
+                    {
+                        "prefix" : "Shortcut: Ctrl+Shift+"
+                    }
+                }
+            },
+            "toolbar" :
+            {
+                  
+            },
+            "tools" :
+            {
+                
+            },
+            "actions" :
+            {
+                
+            }
+        },
         "sidebar" :
         {
             "headerpopupmenu" :
@@ -2586,27 +2750,27 @@
         {
             "items" :
             {
-                "openproject" : "${actions.open} {Project}",
-                "newproject" : "${actions.new} {Project}",
-                "renameproject" : "${actions.rename} this {Project}",
-                "statistics" : "Statistics",
+                "openproject" : "${settingsmenu.items.openproject}",
+                "newproject" : "${settingsmenu.items.newproject}",
+                "renameproject" : "${settingsmenu.items.renameproject}",
+                "statistics" : "${settingsmenu.items.statistics}",
                 "targets" : "Targets",
-                "createbackup" : "${actions.create} a ${names.backup}",
-                "closeproject" : "${actions.close} {Project}",
-                "deleteproject" : "${actions.delete} {Project}",
+                "createbackup" : "${settingsmenu.items.createbackup}",
+                "closeproject" : "${settingsmenu.items.closeproject}",
+                "deleteproject" : "${settingsmenu.items.deleteproject}",
                 "ideaboard" : "${names.ideaboard}",
-                "dowarmup" : "Do a {Warmup} exercise",
-                "importproject" : "${actions.import} File/{Project}",
-                "exportproject" : "${actions.export} {Project}",
-                "options" : "${names.options}",
-                "achievements" : "${names.achievements}",
-                "whatsnew" : "What's New in this version",
-                "help" : "${actions.help}",
-                "reportbug" : "Report Bug/Problem",
-                "contactsupport" : "Contact Support",
-                "viewuserguide" : "View the User Guide",
-                "keyboardshortcuts" : "Keyboard Shortcuts",
-                "about" : "About {QW}"
+                "dowarmup" : "${settingsmenu.items.dowarmup}",
+                "importproject" : "${actions.import} File/${objectnames.singular.project}",
+                "exportproject" : "${actions.export} ${objectnames.singular.project}",
+                "options" : "${settingsmenu.items.options}",
+                "achievements" : "${settingsmenu.items.achievements}",
+                "whatsnew" : "${settingsmenu.items.whatsnew}",
+                "help" : "${settingsmenu.items.help}",
+                "reportbug" : "${settingsmenu.items.reportbug}",
+                "contactsupport" : "${settingsmenu.items.contactsupport}",
+                "viewuserguide" : "${settingsmenu.items.viewuserguide}",
+                "keyboardshortcuts" : "${settingsmenu.items.keyboardshortcuts}",
+                "about" : "${settingsmenu.items.about}"
             }
         },
         "title" :
@@ -2617,7 +2781,7 @@
                 {
                     "projectmenu" :
                     {
-                        "tooltip" : "Click to view the {Project} menu"  
+                        "tooltip" : "Click to view the ${objectnames.singular.project} menu"  
                     },
                     "close" :
                     {
@@ -2625,7 +2789,7 @@
                     },
                     "showcontacts" :
                     {
-                        "tooltip" : "Click to show my {contacts}"  
+                        "tooltip" : "Click to show my ${objectnames.plural.contact}"  
                     },
                     "editorsserviceregister" :
                     {
@@ -2641,7 +2805,7 @@
                     },
                     "warmup" :
                     {
-                        "tooltip" : "Click to do a new {Warmup} exercise"  
+                        "tooltip" : "Click to do a new ${objectnames.singular.warmup} exercise"  
                     },
                     "fullscreen" :
                     {

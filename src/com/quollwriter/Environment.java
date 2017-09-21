@@ -542,15 +542,15 @@ public class Environment
                                            throws Exception
     {
 
-        Map<String, String> newSingular = new HashMap ();
-        newSingular.putAll (Environment.objectTypeNamesSingular);
+        //Map<String, String> newSingular = new HashMap ();
+        //newSingular.putAll (Environment.objectTypeNamesSingular);
 
-        newSingular.putAll (singular);
+        //newSingular.putAll (singular);
 
-        Map<String, String> newPlural = new HashMap ();
-        newPlural.putAll (Environment.objectTypeNamesPlural);
+        //Map<String, String> newPlural = new HashMap ();
+        //newPlural.putAll (Environment.objectTypeNamesPlural);
 
-        newPlural.putAll (plural);
+        //newPlural.putAll (plural);
 
         UserConfigurableObjectType type = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
 
@@ -582,6 +582,20 @@ public class Environment
                                                throws Exception
     {
 
+        Map<String, Map<String, String>> t = new HashMap ();
+                
+        t.put (LanguageStrings.singular,
+               singular);
+        t.put (LanguageStrings.plural,
+               plural);
+        
+        IOUtils.writeStringToFile (Environment.getUserObjectTypeNamesFile (),
+                                   JSONEncoder.encode (t),
+                                   false);
+        
+        Environment.loadUserObjectTypeNames ();
+
+    /*
         Element root = new Element ("object-names");
 
         Map<String, Element> els = new HashMap ();
@@ -660,7 +674,7 @@ public class Environment
 
         // Now force a reload.
         Environment.loadObjectTypeNames (root);
-
+*/
     }
 
     public static Map<String, String> getObjectTypeNamePlurals ()
@@ -719,8 +733,19 @@ public class Environment
 
         }
 
-        return Environment.objectTypeNamesSingular.get (t);
+        String v = Environment.objectTypeNamesSingular.get (t);
+        
+        if (v == null)
+        {
+            
+            v = Environment.getUIString (LanguageStrings.objectnames,
+                                         LanguageStrings.singular,
+                                         t);
+            
+        }
 
+        return v;
+        
     }
 
     public static int getPercent (float t,
@@ -766,80 +791,21 @@ public class Environment
 
         t = t.toLowerCase ();
 
-        return Environment.objectTypeNamesPlural.get (t);
-/*
-        if (Warmup.OBJECT_TYPE.equals (t))
+        String v = Environment.objectTypeNamesPlural.get (t);
+        
+        if (v == null)
         {
-
-            return "Warm-ups";
-
+            
+            v = Environment.getUIString (LanguageStrings.objectnames,
+                                         LanguageStrings.plural,
+                                         t);
+            
         }
 
-        if (QCharacter.OBJECT_TYPE.equals (t))
-        {
+        return v;
+        
+        //return Environment.objectTypeNamesPlural.get (t);
 
-            return "Characters";
-
-        }
-
-        if (Scene.OBJECT_TYPE.equals (t))
-        {
-
-            return "Scenes";
-
-        }
-
-        if (Project.OBJECT_TYPE.equals (t))
-        {
-
-            return "Projects";
-
-        }
-
-        if (Location.OBJECT_TYPE.equals (t))
-        {
-
-            return "Locations";
-
-        }
-
-        if (Chapter.OBJECT_TYPE.equals (t))
-        {
-
-            return "Chapters";
-
-        }
-
-        if (QObject.OBJECT_TYPE.equals (t))
-        {
-
-            return "Items";
-
-        }
-
-        if (ResearchItem.OBJECT_TYPE.equals (t))
-        {
-
-            return "Research";
-
-        }
-
-        if (OutlineItem.OBJECT_TYPE.equals (t))
-        {
-
-            return "Plot Outline Items";
-
-        }
-
-        if (Note.OBJECT_TYPE.equals (t))
-        {
-
-            return "Notes";
-
-        }
-
-        return null;
-*/
     }
 
     public static String getObjectTypeName (NamedObject n)
@@ -3556,6 +3522,7 @@ public class Environment
         
         // Load the default object type names.
         // Object type names may be needed when initing the legacy object types.
+        /*
         try
         {
 
@@ -3567,26 +3534,16 @@ public class Environment
                                   Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE);
 
         }
-
-        // Load the user specific ones, if present.
-        File otf = Environment.getUserObjectTypeNamesFile ();
-
-        if (otf.exists ())
+*/
+        try
         {
 
-            try
-            {
+            Environment.loadUserObjectTypeNames ();
 
-                Environment.loadObjectTypeNames (JDOMUtils.getFileAsElement (otf,
-                                                                             Environment.GZIP_EXTENSION));
+        } catch (Exception e) {
 
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to load user object type names from file: " +
-                                      otf,
-                                      e);
-
-            }
+            Environment.logError ("Unable to load user object type names.",
+                                  e);
 
         }
 
@@ -4583,7 +4540,7 @@ public class Environment
 
         Environment.objectTypeNamesSingular.clear ();
         Environment.objectTypeNamesPlural.clear ();
-
+/*
         // Load the default object type names.
         try
         {
@@ -4596,16 +4553,110 @@ public class Environment
                                   Constants.DEFAULT_OBJECT_TYPE_NAMES_FILE);
 
         }
-
+*/
         File otf = Environment.getUserObjectTypeNamesFile ();
 
         // Remove the file.
         otf.delete ();
+        
+        otf = Environment.getUserFile (Constants.LEGACY_OBJECT_TYPE_NAMES_FILE_NAME);
+        
+        otf.delete ();
 
+        Environment.loadUserConfigurableObjectTypeNames ();        
+        
     }
 
-    public static void loadObjectTypeNames (Element root)
-                                            throws  Exception
+    private static void loadUserObjectTypeNames ()
+                                          throws Exception
+    {
+        
+        File f = Environment.getUserObjectTypeNamesFile ();
+        
+        if (f.exists ())
+        {
+            
+            // Use this one.
+            Map t = (Map) JSONDecoder.decode (IOUtils.getFile (f));
+            
+            Environment.objectTypeNamesSingular = (Map) t.get (LanguageStrings.singular);
+            Environment.objectTypeNamesPlural = (Map) t.get (LanguageStrings.plural);
+                    
+        } else {
+        
+            // Legacy: pre 2.6.2
+            f = Environment.getUserFile (Constants.LEGACY_OBJECT_TYPE_NAMES_FILE_NAME);
+            
+            if (f.exists ())
+            {
+            
+                Environment.loadLegacyObjectTypeNames (JDOMUtils.getStringAsElement (IOUtils.getFile (f)));
+                
+                Environment.setUserObjectTypeNames (Environment.objectTypeNamesSingular,
+                                                    Environment.objectTypeNamesPlural);
+
+                f.delete ();
+                
+            }
+
+        }
+        
+        Environment.loadUserConfigurableObjectTypeNames ();
+        
+    }
+    
+    private static void loadUserConfigurableObjectTypeNames ()
+    {
+        
+        Map<String, String> singular = Environment.objectTypeNamesSingular;
+        Map<String, String> plural = Environment.objectTypeNamesPlural;
+        
+        // Load the names from the configurable types.
+        for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
+        {
+
+            if (t.getUserObjectType () != null)
+            {
+
+                plural.put (t.getUserObjectType (),
+                            t.getObjectTypeNamePlural ());
+
+                singular.put (t.getUserObjectType (),
+                              t.getObjectTypeName ());
+
+            } else {
+
+                if (t.isAssetObjectType ())
+                {
+
+                    plural.put ("asset:" + t.getKey (),
+                                t.getObjectTypeNamePlural ());
+                    singular.put ("asset:" + t.getKey (),
+                                  t.getObjectTypeName ());
+
+                }
+
+            }
+
+        }
+
+        // TODO: Fix this, special for now.
+        UserConfigurableObjectType chapterType = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
+
+        if (chapterType != null)
+        {
+
+            plural.put (Chapter.OBJECT_TYPE,
+                        chapterType.getObjectTypeNamePlural ());
+            singular.put (Chapter.OBJECT_TYPE,
+                          chapterType.getObjectTypeName ());
+
+        }        
+        
+    }
+    
+    private static void loadLegacyObjectTypeNames (Element root)
+                                           throws  Exception
     {
 
         Map<String, String> singular = new HashMap ();
@@ -4650,7 +4701,7 @@ public class Environment
             }
 
         }
-
+/*
         // Load the names from the configurable types.
         for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
         {
@@ -4692,6 +4743,7 @@ public class Environment
                           chapterType.getObjectTypeName ());
 
         }
+*/
 
         Environment.objectTypeNamesSingular.putAll (singular);
         Environment.objectTypeNamesPlural.putAll (plural);

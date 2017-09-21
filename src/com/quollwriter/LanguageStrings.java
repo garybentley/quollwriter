@@ -65,10 +65,14 @@ public class LanguageStrings
     public static final String textextra = "textextra";
     public static final String addtoproject = "addtoproject";
     public static final String importcompletepopup = "importcompletepopup";
-    public static final String unabletosaveerror = "unabletosaveerror";
+    public static final String unabletosave = "unabletosave";
     public static final String supportedfiletypesdescription = "supportedfiletypesdescription";
-    public static final String unabletocreateprojecterror = "unabletocreateprojecterror";
-    public static final String nofileselectederror = "nofileselectederror";
+    public static final String unabletocreateproject = "unabletocreateproject";
+    public static final String nofileselected = "nofileselected";
+    public static final String filenotexist = "filenotexist";
+    public static final String dirselected = "dirselected";
+    public static final String openfile = "openfile";
+    public static final String cantopenproject = "cantopenproject";
     public static final String popup = "popup";
     public static final String wizard = "wizard";
     public static final String buttons = "buttons";
@@ -402,6 +406,13 @@ public class LanguageStrings
     public static final String nopassword = "nopassword";
     public static final String nomatch = "nomatch";
     public static final String savein = "savein";
+    public static final String newwords = "newwords";
+    public static final String nodirselected = "nodirselected";
+    public static final String createexporter = "createexporter";
+    public static final String objectnames = "objectnames";
+    public static final String singular = "singular";
+    public static final String convertwarmup = "convertwarmup";
+    public static final String editwarmup = "editwarmup";
     
     private static String ID_PART_SEP = ".";
     

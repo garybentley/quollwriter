@@ -163,10 +163,20 @@ public class DictionaryManager extends Box
 
         this.watcher.start ();    
 
-        this.add (UIUtils.createBoldSubHeader ("New Words",
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.dictionary);
+        prefix.add (LanguageStrings.manage);
+        
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                        LanguageStrings.newwords,
+                                                                        LanguageStrings.title),
+                                               //"New Words",
                                                null));
 
-        JTextPane tp = UIUtils.createHelpTextPane ("Enter the new words to add below, separate the words with commas or semi-colons.",
+        JTextPane tp = UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                            LanguageStrings.newwords,
+                                                                            LanguageStrings.text),
+                                                   //"Enter the new words to add below, separate the words with commas or semi-colons.",
                                                    this.viewer);
 
         tp.setBorder (new EmptyBorder (5,
@@ -194,7 +204,10 @@ public class DictionaryManager extends Box
                                        20,
                                        5));
 
-        final JButton add = new JButton ("Add");
+        final JButton add = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                           LanguageStrings.newwords,
+                                                                           LanguageStrings.add));
+                                         //"Add");
 
         JButton[] buts = new JButton[] { add };
         
@@ -204,33 +217,48 @@ public class DictionaryManager extends Box
             public void actionPerformed (ActionEvent ev)
             {
 
-                String n = newWords.getText ();
-
-                StringTokenizer t = new StringTokenizer (n,
-                                                         ",;");
-
-                while (t.hasMoreTokens ())
+                try
                 {
+            
+                    String n = newWords.getText ();
+    
+                    StringTokenizer t = new StringTokenizer (n,
+                                                             ",;");
+    
+                    while (t.hasMoreTokens ())
+                    {
+    
+                        String w = t.nextToken ().trim ();
+    
+                        DictionaryProvider.addUserWord (w);
+    
+                        _this.viewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
+                                                       ProjectEvent.ADD_WORD,
+                                                       w);
+    
+                        DefaultTableModel m = (DefaultTableModel) wordTable.getModel ();
+    
+                        Vector r = new Vector ();
+                        r.add (w);
+                        m.insertRow (0,
+                                     r);
+    
+                    }
+    
+                    newWords.setText ("");
 
-                    String w = t.nextToken ().trim ();
-
-                    DictionaryProvider.addUserWord (w);
-
-                    _this.viewer.fireProjectEvent (ProjectEvent.PERSONAL_DICTIONARY,
-                                                   ProjectEvent.ADD_WORD,
-                                                   w);
-
-                    DefaultTableModel m = (DefaultTableModel) wordTable.getModel ();
-
-                    Vector r = new Vector ();
-                    r.add (w);
-                    m.insertRow (0,
-                                 r);
-
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to add new words to dictionary",
+                                          e);
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.getUIString (LanguageStrings.dictionary,
+                                                                       LanguageStrings.manage,
+                                                                       LanguageStrings.newwords,
+                                                                       LanguageStrings.actionerror));
+                    
                 }
-
-                newWords.setText ("");
-
             }
 
         };
@@ -246,7 +274,10 @@ public class DictionaryManager extends Box
 
         this.add (fb);
         
-        this.add (UIUtils.createBoldSubHeader ("Words in Dictionary",
+        this.add (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                        LanguageStrings.table,
+                                                                        LanguageStrings.title),
+                                               //"Words in Dictionary",
                                                null));
 
         fb = new Box (BoxLayout.Y_AXIS);
@@ -265,37 +296,57 @@ public class DictionaryManager extends Box
         fb.add (ppsp);
         fb.add (Box.createVerticalStrut (5));
         
-        final JButton remove = new JButton ("Remove Selected");
+        final JButton remove = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                              LanguageStrings.table,
+                                                                              LanguageStrings.remove));
+                                            //"Remove Selected");
 
         buts = new JButton[] { remove };
 
         remove.addActionListener (new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
             {
 
-                public void actionPerformed (ActionEvent ev)
+                try
                 {
-
+            
                     DefaultTableModel m = (DefaultTableModel) wordTable.getModel ();
-
+    
                     int[] selection = wordTable.getSelectedRows ();
-
+    
                     for (int i = selection.length - 1; i > -1; i--)
                     {
-
+    
                         DictionaryProvider.removeUserWord (m.getValueAt (selection[i],
                                                                          0).toString ());
-
+    
                         // Remove the row.
                         m.removeRow (selection[i]);
-
+    
                     }
-
+    
                     // Clear the selection.
                     // ((DefaultListSelectionModel) wordTable.getSelectionModel ()).clearSelection ();
 
+                } catch (Exception e) {
+                    
+                    Environment.logError ("Unable to remove words from dictionary.",
+                                          e);
+                    
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.getUIString (LanguageStrings.dictionary,
+                                                                       LanguageStrings.manage,
+                                                                       LanguageStrings.table,
+                                                                       LanguageStrings.delete,
+                                                                       LanguageStrings.actionerror));
+                    
                 }
+                
+            }
 
-            });
+        });
 
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
                                          
@@ -303,7 +354,9 @@ public class DictionaryManager extends Box
 
         this.add (Box.createVerticalStrut (10));
         
-        JButton finish = new JButton ("Finish");
+        JButton finish = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                        LanguageStrings.finish));
+                                      //"Finish");
 
         finish.addActionListener (new ActionAdapter ()
         {

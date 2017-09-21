@@ -2671,11 +2671,13 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 											  WORDS_TAG,
 											  String.format ("%s words",
 															 Environment.formatNumber (this.project.getWordCount ())));
-			text = StringUtils.replaceString (text,
-											  CHAPTERS_TAG,
-											  String.format (Environment.replaceObjectNames ("%s {chapter%s}"),
-															 Environment.formatNumber (this.project.getChapterCount ()),
-															 (this.project.getChapterCount () == 1 ? "" : "s")));
+			                
+            text = StringUtils.replaceString (text,
+                                              CHAPTERS_TAG,
+                                              /*Environment.replaceObjectNames (*/String.format ("%s ${objectnames.%s.chapter}",
+                                                                                             Environment.formatNumber (this.project.getChapterCount ()),
+                                                                                             (this.project.getChapterCount () == 1 ? "singular" : "plural")));
+
 			text = StringUtils.replaceString (text,
 											  LAST_EDITED_TAG,
 											  lastEd);

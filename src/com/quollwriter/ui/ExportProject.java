@@ -264,7 +264,8 @@ public class ExportProject extends Wizard<ProjectViewer>
 
             UIUtils.showErrorMessage (this,
                                       Environment.getUIString (LanguageStrings.exportproject,
-                                                               LanguageStrings.nexterror));
+                                                               LanguageStrings.errors,
+                                                               LanguageStrings.createexporter));
             //"Unable to go to next page, please contact support for assistance.");
 
             Environment.logError ("Unable to get exporter",
@@ -357,7 +358,8 @@ public class ExportProject extends Wizard<ProjectViewer>
 
             UIUtils.showErrorMessage (this,
                                       Environment.getUIString (LanguageStrings.exportproject,
-                                                               LanguageStrings.previouserror));
+                                                               LanguageStrings.errors,
+                                                               LanguageStrings.createexporter));
                                       //"Unable to go to previous page, please contact support for assistance.");
 
             Environment.logError ("Unable to get exporter",
@@ -401,7 +403,8 @@ public class ExportProject extends Wizard<ProjectViewer>
         {
             
             this.fileFindError.setText (Environment.getUIString (LanguageStrings.exportproject,
-                                                                 LanguageStrings.nodirselectederror));
+                                                                 LanguageStrings.errors,
+                                                                 LanguageStrings.nodirselected));
             //"Please select a directory.");
             this.fileFindError.setVisible (true);
             
