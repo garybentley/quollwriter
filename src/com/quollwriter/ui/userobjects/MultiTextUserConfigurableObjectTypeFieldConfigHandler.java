@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import com.gentlyweb.utils.*;
 
@@ -27,15 +28,33 @@ public class MultiTextUserConfigurableObjectTypeFieldConfigHandler implements Us
         
         this.field = f;
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.multitext.getType ());
+        
         this.isOtherNames = new CheckboxFormItem (null,
-                                                  this.replaceObjName ("Is other names/aliases for the %s"),
+                                                  this.replaceObjName (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.othernames,
+                                                                                                LanguageStrings.text)),
+                                                                       //"Is other names/aliases for the %s"),
                                                   false,
-                                                  this.replaceObjName ("Check this box to mark this field as other name or aliases for the %s.  Separate each name/alias with a new line, a comma or a semi-colon."));
+                                                  this.replaceObjName (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.othernames,
+                                                                                                LanguageStrings.tooltip)));
+                                                  //"Check this box to mark this field as other name or aliases for the %s.  Separate each name/alias with a new line, a comma or a semi-colon."));
         
         this.displayAsBullets = new CheckboxFormItem (null,
-                                                      "Display as bullet points",
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.bulletpoints,
+                                                                               LanguageStrings.text),
+        //"Display as bullet points",
                                                       false,
-                                                      "Check this box to display the text in the field as a series of bullet points.  Each separate line of text will be treated as a bullet point.");
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.bulletpoints,
+                                                                               LanguageStrings.tooltip));
+                                                      //"Check this box to display the text in the field as a series of bullet points.  Each separate line of text will be treated as a bullet point.");
                 
     }
             
@@ -49,9 +68,8 @@ public class MultiTextUserConfigurableObjectTypeFieldConfigHandler implements Us
     public String replaceObjName (String s)
     {
         
-        return StringUtils.replaceString (s,
-                                          "%s",
-                                          this.getObjName ());
+        return String.format (s,
+                              this.getObjName ());
         
     }
             
@@ -99,19 +117,33 @@ public class MultiTextUserConfigurableObjectTypeFieldConfigHandler implements Us
         
         Set<String> strs = new LinkedHashSet ();
 
-        strs.add ("multi-line text");
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.multitext.getType ());
+        
+        strs.add (Environment.getUIString (prefix,
+                                           LanguageStrings.description));
+        //"multi-line text");
         
         if (this.field.isNameField ())
         {
             
-            strs.add (this.replaceObjName ("is other names/aliases for the %s"));
+            strs.add (this.replaceObjName (Environment.getUIString (prefix,
+                                                                    LanguageStrings.othernames,
+                                                                    LanguageStrings.description)));
+            //"is other names/aliases for the %s"));
 
         }
             
         if (this.field.isDisplayAsBullets ())
         {
                         
-            strs.add ("displayed as bullet points");
+            strs.add (Environment.getUIString (prefix,
+                                               LanguageStrings.bulletpoints,
+                                               LanguageStrings.description));
+                                               //"displayed as bullet points");
             
         }
                 

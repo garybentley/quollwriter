@@ -103,7 +103,13 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
             
             this.editItem.setSpellCheckEnabled (false);
             
-            this.editItem.setToolTipText ("Separate each name/alias with a comma or a semi-colon.");
+            this.editItem.setToolTipText (Environment.getUIString (LanguageStrings.form,
+                                                                   LanguageStrings.addedit,
+                                                                   LanguageStrings.types,
+                                                                   UserConfigurableObjectTypeField.Type.multitext.getType (),
+                                                                   LanguageStrings.othernames,
+                                                                   LanguageStrings.tooltip));
+            //"Separate each name/alias with a new line, comma or a semi-colon.");
                                                    
         }
 
@@ -233,7 +239,11 @@ public class MultiTextUserConfigurableObjectFieldViewEditHandler extends Abstrac
 
         } else {
             
-            item = this.createNoValueItem ();
+            item = this.createNoValueItem (Environment.getUIString (LanguageStrings.form,
+                                                                    LanguageStrings.view,
+                                                                    LanguageStrings.types,
+                                                                    UserConfigurableObjectTypeField.Type.multitext.getType (),
+                                                                    LanguageStrings.novalue));
             
         }
 

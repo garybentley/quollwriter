@@ -95,9 +95,19 @@ public abstract class AbstractUserConfigurableObjectFieldViewEditHandler<E exten
     
     public FormItem createNoValueItem ()
     {
+
+        return this.createNoValueItem (null);
+    
+    }
+    
+    public FormItem createNoValueItem (String label)
+    {
     
         return new AnyFormItem (this.typeField.getFormName (),
-                                UIUtils.createInformationLabel ("Not provided."));
+                                UIUtils.createInformationLabel ((label != null ? label : Environment.getUIString (LanguageStrings.form,
+                                                                                                                  LanguageStrings.view,
+                                                                                                                  LanguageStrings.novalue))));
+        //"Not provided."));
         
     }
     

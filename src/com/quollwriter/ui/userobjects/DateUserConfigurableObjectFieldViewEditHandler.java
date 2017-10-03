@@ -141,7 +141,11 @@ public class DateUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         } else {
             
-            items.add (this.createNoValueItem ());
+            items.add (this.createNoValueItem (Environment.getUIString (LanguageStrings.form,
+                                                                        LanguageStrings.view,
+                                                                        LanguageStrings.types,
+                                                                        UserConfigurableObjectTypeField.Type.date.getType (),
+                                                                        LanguageStrings.novalue)));
             
         } 
         

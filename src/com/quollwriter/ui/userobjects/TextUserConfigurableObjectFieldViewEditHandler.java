@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -117,7 +118,16 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
         if (this.typeField.isNameField ())
         {
             
-            this.editItem.setToolTipText ("Separate each name/alias with a comma or a semi-colon.");
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.form);
+            prefix.add (LanguageStrings.addedit);
+            prefix.add (LanguageStrings.types);
+            prefix.add (UserConfigurableObjectTypeField.Type.text.getType ());
+            prefix.add (LanguageStrings.othernames);
+            
+            this.editItem.setToolTipText (Environment.getUIString (prefix,
+                                                                   LanguageStrings.tooltip));
+            //"Separate each name/alias with a comma or a semi-colon.");
             
         }
         
@@ -197,7 +207,11 @@ public class TextUserConfigurableObjectFieldViewEditHandler extends AbstractUser
 
         } else {
             
-            items.add (this.createNoValueItem ());
+            items.add (this.createNoValueItem (Environment.getUIString (LanguageStrings.form,
+                                                                        LanguageStrings.view,
+                                                                        LanguageStrings.types,
+                                                                        UserConfigurableObjectTypeField.Type.text.getType (),
+                                                                        LanguageStrings.novalue)));
 
         }
         

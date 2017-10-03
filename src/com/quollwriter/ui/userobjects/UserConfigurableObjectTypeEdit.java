@@ -58,109 +58,114 @@ import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.ActionAdapter;
 import com.quollwriter.ui.components.QPopup;
 
-public class UserConfigurableObjectTypeEdit 
+public class UserConfigurableObjectTypeEdit
 {
 
     public static JTabbedPane getAsTabs (AbstractViewer             viewer,
                                          UserConfigurableObjectType userObjType)
     {
-        
+
         DnDTabbedPane tabs = new DnDTabbedPane ();
 
         tabs.setAlignmentX (Component.LEFT_ALIGNMENT);
 
-        tabs.setTabLayoutPolicy (JTabbedPane.SCROLL_TAB_LAYOUT);        
-        
+        tabs.setTabLayoutPolicy (JTabbedPane.SCROLL_TAB_LAYOUT);
+
         BasicInfoAddEdit basicInfoEdit = new BasicInfoAddEdit (viewer,
                                                                userObjType);
-        
+
         tabs.add ("General",
                   basicInfoEdit);
-        
+
         FieldsAddEdit fieldsEdit = new FieldsAddEdit (viewer,
                                                       userObjType,
                                                       true);
-        
+
         tabs.add ("Fields",
                   fieldsEdit);
 
         LayoutAddEdit layoutEdit = new LayoutAddEdit (viewer,
                                                       userObjType);
-        
+
         tabs.add ("Layout",
                   layoutEdit);
-        
+
         basicInfoEdit.refresh ();
-        
+
         fieldsEdit.refresh ();
-        
-        fieldsEdit.setHelpText (String.format ("Use the button below to add a new field for your %s.  Drag-n-drop the fields to change the order of them.  Use the layout tab above to change how the fields are laid out and displayed.",
-                                                    userObjType.getObjectTypeName ().toLowerCase ()));
-        
-        layoutEdit.setHelpText (String.format ("The layout tells Quoll Writer how you want to display the fields for your %s.  Certain fields like the %s description and picture are given special locations in the layouts.  For <b>Columns of fields</b> it just means that the fields are laid out in the order given in the <b>Fields</b> tab.",
-                                                userObjType.getObjectTypeNamePlural ().toLowerCase (),
-                                                userObjType.getObjectTypeName ().toLowerCase ()));
+
+        fieldsEdit.setHelpText (String.format (Environment.getUIString (LanguageStrings.userobjects,
+                                                                        LanguageStrings.fields,
+                                                                        LanguageStrings.view,
+                                                                        LanguageStrings.text),
+                                               userObjType.getObjectTypeName ()));
+
+        layoutEdit.setHelpText (String.format (Environment.getUIString (LanguageStrings.userobjects,
+                                                                        LanguageStrings.layout,
+                                                                        LanguageStrings.view,
+                                                                        LanguageStrings.text),
+                                                userObjType.getObjectTypeNamePlural ()));
 
         layoutEdit.refresh ();
-        
+
         return tabs;
-        
+
     }
-    
+
     public static Wizard getAsWizard (final AbstractViewer             viewer,
                                       final UserConfigurableObjectType userObjType)
     {
 
         final BasicInfoAddEdit basicInfo = new BasicInfoAddEdit (viewer,
                                                                  userObjType);
-        
+
         final FieldsAddEdit fields = new FieldsAddEdit (viewer,
                                                         userObjType,
                                                         false)
         {
-          
+
             @Override
             public void saveField (UserConfigurableObjectTypeField f)
             {
-                
+
                 // Do nothing.
-                
+
             }
-            
+
         };
-        
+
         final LayoutAddEdit layout = new LayoutAddEdit (viewer,
                                                         userObjType);
-        
+
         Wizard w = new Wizard<AbstractViewer> (viewer)
         {
 
             @Override
             public int getContentPreferredHeight ()
             {
-        
+
                 return 400;
-        
+
             }
-        
+
             @Override
             public String getNextStage (String currStage)
             {
 
                 if (currStage.equals ("fields"))
                 {
-                    
+
                     return "layout";
-                    
+
                 }
 
                 if (currStage.equals ("basic"))
                 {
-                    
+
                     return "fields";
-                    
+
                 }
-            
+
                 return null;
 
             }
@@ -171,16 +176,16 @@ public class UserConfigurableObjectTypeEdit
 
                 if (currStage.equals ("fields"))
                 {
-                    
+
                     return "basic";
-                    
+
                 }
 
                 if (currStage.equals ("layout"))
                 {
-                    
+
                     return "fields";
-                    
+
                 }
 
                 return null;
@@ -200,21 +205,21 @@ public class UserConfigurableObjectTypeEdit
 
                 if (oldStage == null)
                 {
-                    
+
                     return true;
-                    
+
                 }
-            
+
                 if ((oldStage.equals ("basic"))
                     &&
                     (newStage.equals ("fields"))
                    )
                 {
-                    
+
                     return basicInfo.checkForm ();
-                    
+
                 }
-            
+
                 return true;
 
             }
@@ -225,24 +230,28 @@ public class UserConfigurableObjectTypeEdit
                 // Add a new accordion type in the project sidebar for the type.
                 try
                 {
-                    
+
                     Environment.updateUserConfigurableObjectType (userObjType);
 
                     //this.viewer.showUserConfigurableObjectType (userObjType);
-                    
+
                     return true;
-                    
+
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to add user object type: " +
                                           userObjType,
                                           e);
-                    
+
                     UIUtils.showErrorMessage (viewer,
-                                              "Unable to add new type");
-                                                
+                                              Environment.getUIString (LanguageStrings.userobjects,
+                                                                       LanguageStrings.type,
+                                                                       LanguageStrings._new,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to add new type.");
+
                 }
-            
+
                 return false;
 
             }
@@ -258,53 +267,77 @@ public class UserConfigurableObjectTypeEdit
             {
 
                 return null;
-            
+
             }
 
             public WizardStep getStage (String stage)
             {
 
                 WizardStep ws = new WizardStep ();
-            
+
+                java.util.List<String> prefix = new ArrayList ();
+                prefix.add (LanguageStrings.userobjects);
+                prefix.add (LanguageStrings.type);
+                prefix.add (LanguageStrings._new);
+                prefix.add (LanguageStrings.wizard);
+
                 if (stage.equals ("basic"))
                 {
 
-                    ws.title = "The basic details";
-                    ws.helpText = "Enter the name and plural name (what do you call lots of your object) for your object.  For example, you might call it <b>Widget</b> and <b>Widgets</b>.";
-                
+                    ws.title = Environment.getUIString (prefix,
+                                                        LanguageStrings.basic,
+                                                        LanguageStrings.title);
+                                                        //"The basic details";
+                    ws.helpText = Environment.getUIString (prefix,
+                                                           LanguageStrings.basic,
+                                                           LanguageStrings.text);
+                                                        //"Enter the name and plural name (what do you call lots of your object) for your object.  For example, you might call it <b>Widget</b> and <b>Widgets</b>.";
+
                     basicInfo.showEdit (null,
                                         null,
                                         null,
                                         false);
-                
+
                     ws.panel = basicInfo;
 
                 }
-                
+
                 if (stage.equals ("fields"))
                 {
-                    
-                    ws.title = "Add the fields you want the object to have";
-                    ws.helpText = String.format ("Use the button below to add a new field for your object.  Drag-n-drop the fields to change the order of them.");
-                    
+
+                    ws.title = Environment.getUIString (prefix,
+                                                        LanguageStrings.fields,
+                                                        LanguageStrings.title);
+                                                        //"Add the fields you want the object to have";
+                    ws.helpText = Environment.getUIString (prefix,
+                                                           LanguageStrings.fields,
+                                                           LanguageStrings.text);
+                                                        //String.format ("Use the button below to add a new field for your object.  Drag-n-drop the fields to change the order of them.");
+
                     fields.init ();
-                    
+
                     ws.panel = fields;
-                    
+
                 }
-                
+
                 if (stage.equals ("layout"))
                 {
-                    
-                    ws.title = "How should the fields be displayed";
-                    ws.helpText = "Finally, and this step is optional, select how you want the fields to be displayed.  Remember you can change any of this information later so don't worry about it too much for now.";
-                    
+
+                    ws.title = Environment.getUIString (prefix,
+                                                        LanguageStrings.layout,
+                                                        LanguageStrings.title);
+                                                           //"How should the fields be displayed";
+                    ws.helpText = Environment.getUIString (prefix,
+                                                           LanguageStrings.layout,
+                                                           LanguageStrings.text);
+                                                           //"Finally, and this step is optional, select how you want the fields to be displayed.  Remember you can change any of this information later so don't worry about it too much for now.";
+
                     ws.panel = layout;
-                    
-                    layout.refresh ();
-                    
+
+                    //layout.refresh ();
+
                 }
-                
+
                 return ws;
 
             }
@@ -314,5 +347,5 @@ public class UserConfigurableObjectTypeEdit
         return w;
 
     }
-        
+
 }

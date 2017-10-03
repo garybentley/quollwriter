@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Date;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -28,9 +29,24 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
         
         this.field = f;
                 
-        this.editDefDate = new DateFormItem ("Default");
-        this.editMinDate = new DateFormItem ("Minimum");
-        this.editMaxDate = new DateFormItem ("Maximum");
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.date.getType ());
+                
+        this.editDefDate = new DateFormItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.defualt,
+                                                                      LanguageStrings.text));
+        //"Default");
+        this.editMinDate = new DateFormItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.min,
+                                                                      LanguageStrings.text));
+        //"Minimum");
+        this.editMaxDate = new DateFormItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.max,
+                                                                      LanguageStrings.text));
+        //"Maximum");
                         
     }
     
@@ -40,26 +56,48 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
         
         Set<String> strs = new LinkedHashSet ();
         
-        strs.add ("date");
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.date.getType ());
+        
+        strs.add (Environment.getUIString (prefix,
+                                           LanguageStrings.description));
+        
+        //strs.add ("date");
         
         if (this.field.getMinimum () != null)
         {
             
-            strs.add ("min: " + Environment.formatDate (this.field.getMinimum ()));
+            strs.add (String.format (Environment.getUIString (prefix,
+                                                              LanguageStrings.min,
+                                                              LanguageStrings.description),
+                                     Environment.formatDate (this.field.getMinimum ())));
+            
+            //strs.add ("min: " + Environment.formatDate (this.field.getMinimum ()));
             
         }
         
         if (this.field.getMaximum () != null)
         {
                         
-            strs.add ("max: " + Environment.formatDate (this.field.getMaximum ()));
+            strs.add (String.format (Environment.getUIString (prefix,
+                                                              LanguageStrings.max,
+                                                              LanguageStrings.description),
+                                     Environment.formatDate (this.field.getMaximum ())));                        
+            //strs.add ("max: " + Environment.formatDate (this.field.getMaximum ()));
             
         }
         
         if (this.field.getDefault () != null)
         {
                         
-            strs.add ("default: " + Environment.formatDate (this.field.getDefault ()));
+            strs.add (String.format (Environment.getUIString (prefix,
+                                                              LanguageStrings.defualt,
+                                                              LanguageStrings.description),
+                                     Environment.formatDate (this.field.getDefault ())));
+            //strs.add ("default: " + Environment.formatDate (this.field.getDefault ()));
             
         }
 
@@ -84,6 +122,13 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
     public Set<String> getExtraFormItemErrors (UserConfigurableObjectType objType)
     {
         
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.date.getType ());
+        prefix.add (LanguageStrings.errors);
+        
         Set<String> errors = new LinkedHashSet ();
                       
         Date defVal = this.editDefDate.getValue ();
@@ -98,7 +143,10 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
            )
         {
             
-            errors.add ("The maximum date must be after the minimum.");
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.max,
+                                                 LanguageStrings.greaterthanmin));            
+            //errors.add ("The maximum date must be after the minimum.");
             
         }
         
@@ -110,7 +158,10 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
            )
         {
             
-            errors.add ("The default date must be after the minimum.");
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.defualt,
+                                                 LanguageStrings.greaterthanmin));
+            //errors.add ("The default date must be after the minimum.");
                             
         }
         
@@ -122,7 +173,10 @@ public class DateUserConfigurableObjectTypeFieldConfigHandler implements UserCon
            )
         {
             
-            errors.add ("The default date must be before the maximum.");
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.defualt,
+                                                 LanguageStrings.lessthanmax));            
+            //errors.add ("The default date must be before the maximum.");
                             
         }
 

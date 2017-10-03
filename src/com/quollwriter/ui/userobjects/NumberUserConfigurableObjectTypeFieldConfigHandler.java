@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import java.math.*;
 import java.text.*;
@@ -29,8 +30,22 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
         
         this.field = f;
 
-        this.minsp = new TextFormItem ("Minimum", null);
-        this.maxsp = new TextFormItem ("Maximum", null);
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.number.getType ());
+
+        this.minsp = new TextFormItem (Environment.getUIString (prefix,
+                                                                LanguageStrings.min,
+                                                                LanguageStrings.text),
+                                       null);
+        //"Minimum", null);
+        this.maxsp = new TextFormItem (Environment.getUIString (prefix,
+                                                                LanguageStrings.max,
+                                                                LanguageStrings.text),
+                                       null);
+        //"Maximum", null);
         
     }
 
@@ -40,7 +55,15 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
         
         Set<String> strs = new LinkedHashSet ();
         
-        strs.add ("number");
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.number.getType ());
+        
+        strs.add (Environment.getUIString (prefix,
+                                           LanguageStrings.description));
+        //"number");
         
         try
         {
@@ -48,14 +71,21 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
             if (this.field.getMinimum () != null)
             {
                 
-                strs.add ("min: " + Environment.formatNumber (this.field.getMinimum ()));
+                strs.add (String.format (Environment.getUIString (prefix,
+                                                                  LanguageStrings.min,
+                                                                  LanguageStrings.description),
+                                         Environment.formatNumber (this.field.getMinimum ())));
                 
             }
             
             if (this.field.getMaximum () != null)
             {
                             
-                strs.add ("max: " + Environment.formatNumber (this.field.getMaximum ()));
+                strs.add (String.format (Environment.getUIString (prefix,
+                                                                  LanguageStrings.max,
+                                                                  LanguageStrings.description),
+                                         Environment.formatNumber (this.field.getMaximum ())));
+                //strs.add ("max: " + Environment.formatNumber (this.field.getMaximum ()));
                 
             }
 
@@ -141,6 +171,13 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
     public Set<String> getExtraFormItemErrors (UserConfigurableObjectType objType)
     {
         
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.number.getType ());
+        prefix.add (LanguageStrings.errors);
+        
         Set<String> errors = new LinkedHashSet ();
 
         Double min = null;
@@ -152,7 +189,10 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
             
         } catch (Exception e) {
             
-            errors.add ("The minimum value doesn't look like a number.");
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.min,
+                                                 LanguageStrings.invalidvalue));
+            //"The minimum value doesn't look like a number.");
             
         }
         
@@ -165,7 +205,10 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
             
         } catch (Exception e) {
             
-            errors.add ("The maximum value doesn't look like a number.");
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.max,
+                                                 LanguageStrings.invalidvalue));
+            //errors.add ("The maximum value doesn't look like a number.");
             
         }            
         
@@ -184,7 +227,10 @@ public class NumberUserConfigurableObjectTypeFieldConfigHandler implements UserC
            )
         {
         
-            errors.add ("The maximum value must be greater than the minimum.");
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.max,
+                                                 LanguageStrings.greaterthanmin));
+            //errors.add ("The maximum value must be greater than the minimum.");
             
         }
         

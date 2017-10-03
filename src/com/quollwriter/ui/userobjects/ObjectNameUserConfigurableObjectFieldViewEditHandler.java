@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -71,6 +72,13 @@ public class ObjectNameUserConfigurableObjectFieldViewEditHandler extends Abstra
     public Set<String> getInputFormItemErrors ()
     {
         
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.addedit);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.objectname.getType ());
+        prefix.add (LanguageStrings.errors);
+        
         Set<String> errs = new LinkedHashSet ();
         
         String name = this.getInputSaveValue ();
@@ -78,7 +86,10 @@ public class ObjectNameUserConfigurableObjectFieldViewEditHandler extends Abstra
         if (name == null)
         {
             
-            errs.add (this.typeField.getFormName () + " must be provided.");
+            errs.add (String.format (Environment.getUIString (prefix,
+                                                              LanguageStrings.novalue),
+                                     this.typeField.getFormName ()));
+            //+ " must be provided.");
             
         } else  {
         
@@ -91,9 +102,10 @@ public class ObjectNameUserConfigurableObjectFieldViewEditHandler extends Abstra
                )
             {
     
-                errs.add (Environment.replaceObjectNames (String.format ("Already have a {%s} called: <b>%s</b>",
-                                                                         a.getObjectTypeName (),
-                                                                         a.getName ())));
+                errs.add (String.format (Environment.getUIString (prefix,
+                                                                  LanguageStrings.valueexists),
+                                         a.getObjectTypeName (),
+                                         a.getName ()));
         
             }
     

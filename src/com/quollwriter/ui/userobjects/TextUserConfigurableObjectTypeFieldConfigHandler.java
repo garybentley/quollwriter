@@ -3,6 +3,7 @@ package com.quollwriter.ui.userobjects;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -24,10 +25,21 @@ public class TextUserConfigurableObjectTypeFieldConfigHandler implements UserCon
         
         this.field = field;
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.text.getType ());
+        prefix.add (LanguageStrings.othernames);
+        
         this.isOtherNames = new CheckboxFormItem (null,
-                                                  this.replaceObjName ("Is other names/aliases for the %s"),
+                                                  this.replaceObjName (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.text)),
+                                                                                                //"Is other names/aliases for the %s"),
                                                   false,
-                                                  this.replaceObjName ("Check this box to mark this field as other name or aliases for the %s.  Separate each name/alias with a new line, a comma or a semi-colon."));
+                                                  this.replaceObjName (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.tooltip)));
+        //"Check this box to mark this field as other name or aliases for the %s.  Separate each name/alias with a new line, a comma or a semi-colon."));
         
     }
           
@@ -41,24 +53,38 @@ public class TextUserConfigurableObjectTypeFieldConfigHandler implements UserCon
     public String replaceObjName (String s)
     {
         
+        return String.format (s,
+                              this.getObjName ());
+        /*
         return StringUtils.replaceString (s,
                                           "%s",
                                           this.getObjName ());
-        
+        */
     }
             
     @Override
     public String getConfigurationDescription ()
     {
         
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.text.getType ());
+        
         Set<String> strs = new LinkedHashSet ();
 
-        strs.add ("single line text");
+        strs.add (Environment.getUIString (prefix,
+                                           LanguageStrings.description));
+        //"single line text");
                 
         if (this.field.isNameField ())
         {
             
-            strs.add (this.replaceObjName ("is other names/aliases for the %s"));
+            strs.add (this.replaceObjName (Environment.getUIString (prefix,
+                                                                    LanguageStrings.othernames,
+                                                                    LanguageStrings.description)));
+                                           //"is other names/aliases for the %s"));
 
         }
                 

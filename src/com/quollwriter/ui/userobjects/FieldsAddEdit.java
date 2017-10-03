@@ -40,35 +40,35 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     private AbstractViewer viewer = null;
     private UserConfigurableObjectType type = null;
     private boolean showFormTitles = false;
-    
+
     public FieldsAddEdit (AbstractViewer             viewer,
                           UserConfigurableObjectType type,
                           boolean                    showFormTitles)
     {
-        
+
         super (BoxLayout.Y_AXIS);
-        
+
         try
         {
             COMPONENT_FLAVOR = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + Component[].class.getName() + "\"");
         }
         catch(Exception e)
         {
-            
+
         }
-        
+
         Environment.addUserProjectEventListener (this);
-        
+
         final FieldsAddEdit _this = this;
-        
+
         this.type = type;
         this.viewer = viewer;
         this.showFormTitles = showFormTitles;
-        
+
         this.fieldsPanel = new JPanel ();
-        
+
         this.add (this.fieldsPanel);
-        
+
         this.fieldsPanel.setLayout (new CardLayout ());
         this.fieldsPanel.setOpaque (false);
         this.fieldsPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -77,7 +77,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         this.fieldsList = new ScrollableBox (BoxLayout.Y_AXIS);
         this.fieldsList.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         this.fieldsView = new Box (BoxLayout.Y_AXIS);
         this.fieldsView.setAlignmentX (Component.LEFT_ALIGNMENT);
 
@@ -116,7 +116,13 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         buts.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        "Click to add a new field",
+                                        Environment.getUIString (LanguageStrings.userobjects,
+                                                                 LanguageStrings.fields,
+                                                                 LanguageStrings.view,
+                                                                 LanguageStrings.buttons,
+                                                                 LanguageStrings.add,
+                                                                 LanguageStrings.tooltip),
+                                                                 //)"Click to add a new field",
                                         new ActionListener ()
                                         {
 
@@ -136,7 +142,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                                 controls.getPreferredSize ().height));
 
         this.fieldsView.add (controls);
-        
+
         this.fieldsListScrollPane = UIUtils.createScrollPane (this.fieldsList);
         this.fieldsListScrollPane.getViewport ().setPreferredSize (new Dimension (450,
                                                                                   400));
@@ -145,102 +151,106 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         this.fieldsListScrollPane.setTransferHandler (new TransferHandler ()
         {
-                
+
             @Override
             public boolean canImport (TransferSupport support)
             {
-                
+
                 if (!support.isDrop ())
                 {
-                
+
                     return false;
                 }
-        
+
                 boolean canImport = support.isDataFlavorSupported (COMPONENT_FLAVOR);
-                
+
                 return canImport;
             }
-        
+
             @Override
             public boolean importData (TransferSupport support)
             {
-        
+
                 if (!canImport (support))
                 {
-                    
+
                     return false;
                 }
-        
+
                 Component[] components;
-        
+
                 try
                 {
                     components = (Component[]) support.getTransferable ().getTransferData (COMPONENT_FLAVOR);
-                    
+
                 } catch (Exception e) {
 
                     return false;
                 }
-                                    
+
                 // Item being transfered.
                 FieldViewBox component = (FieldViewBox) components[0];
-                                                                                                               
-                // Add the item below where we are.                
+
+                // Add the item below where we are.
                 _this.fieldsList.add (component);
 
                 _this.fieldsList.revalidate ();
                 _this.fieldsList.repaint ();
-                
+
                 int c = 0;
-                
+
                 for (FieldViewBox f : _this.getFieldViewBoxs ())
                 {
-                    
+
                     f.setSelected (false);
-                    
+
                     f.getField ().setOrder (c);
-                    
+
                     c++;
-                                                        
+
                 }
-                                    
+
                 try
                 {
-                
+
                     Environment.updateUserConfigurableObjectType (_this.type);
 
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to save type: " +
                                           _this.type,
                                           e);
-                    
+
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to move.");
-                    
+                                              Environment.getUIString (LanguageStrings.userobjects,
+                                                                       LanguageStrings.fields,
+                                                                       LanguageStrings.move,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to move.");
+
                     return false;
-                    
+
                 }
-                
+
                 return true;
-            
+
             }
-                
+
             @Override
             public void exportDone (JComponent   c,
                                     Transferable t,
                                     int          action)
             {
-                            
+
             }
 
-        });        
-        
+        });
+
         this.fieldsView.add (this.fieldsListScrollPane);
-        
-        
+
+
     }
-    
+
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
@@ -258,13 +268,13 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         }
 
     }
-    
+
     public void saveField (UserConfigurableObjectTypeField field)
     {
 
         try
         {
-    
+
             Environment.updateUserConfigurableObjectTypeField (field);
 
         } catch (Exception e) {
@@ -279,9 +289,9 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
             return;
 
         }
-        
+
     }
-    
+
     private void addField (UserConfigurableObjectTypeField field)
     {
 
@@ -302,7 +312,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             it);
 
         this.fieldsList.add (it);
-                
+
     }
 
     private void updateField (UserConfigurableObjectTypeField field)
@@ -323,11 +333,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
     private void removeField (UserConfigurableObjectTypeField field)
     {
-        
+
         FieldViewBox it = this.viewItems.get (field);
-                
+
         this.type.removeConfigurableField (field);
-        
+
         try
         {
 
@@ -342,7 +352,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to remove the field.");
+                                      Environment.getUIString (LanguageStrings.userobjects,
+                                                               LanguageStrings.fields,
+                                                               LanguageStrings.delete,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to remove the field.");
 
             return;
 
@@ -359,15 +373,15 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
     public void setHelpText (String t)
     {
-        
+
         this.fieldsHelp.setText (t);
         this.fieldsHelpBox.setVisible (true);
-        
+
     }
 
     public void init ()
     {
-    
+
         Set<UserConfigurableObjectTypeField> fields = this.type.getConfigurableFields ();
 
         this.viewItems = new LinkedHashMap ();
@@ -387,24 +401,24 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
             this.fieldsList.add (it);
 
             this.initFieldViewBox (it);
-            
+
         }
 
     }
 
     private void initFieldViewBox (final FieldViewBox it)
     {
-        
+
         final FieldsAddEdit _this = this;
-        
+
         // Used to initiate the drag.
         MouseEventHandler listener = new MouseEventHandler ()
         {
-            
+
             @Override
             public void mouseDragged(MouseEvent e)
             {
-                
+
                 JComponent c = (JComponent) e.getSource ();
                 TransferHandler handler = it.getTransferHandler ();
                 handler.setDragImage (UIUtils.getImageOfComponent (it,
@@ -414,161 +428,165 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                 handler.exportAsDrag (it,
                                       e,
                                       TransferHandler.MOVE);
-                                
+
             }
- 
-        };                
-        
+
+        };
+
         TransferHandler transferHandler = new TransferHandler ()
         {
-                
+
             private JComponent getParentOfType (JComponent comp,
                                                 Class      cl)
             {
-                
+
                 if (cl.isAssignableFrom (comp.getClass ()))
                 {
-                    
+
                     return comp;
-                    
+
                 }
-                
+
                 while ((comp = (JComponent) comp.getParent ()) != null)
                 {
-                    
+
                     if (cl.isAssignableFrom (comp.getClass ()))
                     {
-                        
+
                         return comp;
-                        
+
                     }
-                    
+
                 }
-                
+
                 return null;
-                
+
             }
-        
+
             private int getIndex (Component c)
             {
-                
+
                 Component[] comps = _this.fieldsList.getComponents ();
-                
+
                 for (int i = 0; i < comps.length; i++)
                 {
-                    
+
                     Component comp = comps[i];
-                    
+
                     if (c == comp)
                     {
-                        
+
                         return i;
-                        
+
                     }
-                
+
                 }
-                
+
                 return -1;
-                
+
             }
-        
+
             @Override
             public boolean canImport (TransferSupport support)
             {
-                
+
                 if (!support.isDrop ())
                 {
-                
+
                     return false;
                 }
-        
+
                 boolean canImport = support.isDataFlavorSupported (COMPONENT_FLAVOR);
-                             
+
                 support.setShowDropLocation (false);
-                                
+
                 return canImport;
             }
-        
+
             @Override
             public boolean importData (TransferSupport support)
             {
-        
+
                 if (!canImport (support))
                 {
-                    
+
                     return false;
                 }
-        
+
                 Component[] components;
-        
+
                 try
                 {
                     components = (Component[]) support.getTransferable ().getTransferData (COMPONENT_FLAVOR);
-                    
+
                 } catch (Exception e) {
 
                     return false;
                 }
-        
+
                 // Item being transfered.
                 FieldViewBox component = (FieldViewBox) components[0];
-                                                
+
                 FieldViewBox it = (FieldViewBox) this.getParentOfType ((JComponent) support.getComponent (),
                                                                        FieldViewBox.class);
-                                                               
+
                 // Add the item below where we are.
                 int ind = this.getIndex (it);
-                
+
                 _this.fieldsList.add (component,
                                       ind);
 
                 _this.fieldsList.revalidate ();
                 _this.fieldsList.repaint ();
-                
+
                 int c = 0;
-                
+
                 for (FieldViewBox f : _this.getFieldViewBoxs ())
                 {
-                    
+
                     f.setSelected (false);
-                    
+
                     f.getField ().setOrder (c);
-                    
+
                     c++;
-                                                        
+
                 }
-                                    
+
                 try
                 {
-                
+
                     Environment.updateUserConfigurableObjectType (_this.type);
 
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to save type: " +
                                           _this.type,
                                           e);
-                    
+
                     UIUtils.showErrorMessage (_this.viewer,
-                                              "Unable to move.");
-                    
+                                              Environment.getUIString (LanguageStrings.userobjects,
+                                                                       LanguageStrings.fields,
+                                                                       LanguageStrings.move,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to move.");
+
                     return false;
-                    
+
                 }
-                
+
                 UIUtils.doLater (new ActionListener ()
                 {
-                    
+
                     @Override
                     public void actionPerformed (ActionEvent ev)
                     {
-                        
+
                         _this.fieldsList.scrollRectToVisible (component.getBounds ());
-                        
+
                     }
-                    
+
                 });
-        
+
                 return true;
 
             }
@@ -578,215 +596,219 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
             {
 
                 return MOVE;
-            
+
             }
-        
+
             @Override
             public Transferable createTransferable (final JComponent c)
             {
-                
+
                 return new Transferable ()
                 {
-                    
+
                     @Override
                     public Object getTransferData (DataFlavor flavor)
                     {
-                        
+
                         Component[] components = new Component[1];
                         components[0] = c;
                         return components;
-                    
+
                     }
-        
+
                     @Override
                     public DataFlavor[] getTransferDataFlavors()
                     {
-                        
+
                         DataFlavor[] flavors = new DataFlavor[1];
                         flavors[0] = COMPONENT_FLAVOR;
                         return flavors;
-                    
+
                     }
-        
+
                     @Override
                     public boolean isDataFlavorSupported (DataFlavor flavor)
                     {
-                        
+
                         return flavor.equals (COMPONENT_FLAVOR);
-                    
+
                     }
-                    
+
                 };
             }
-        
+
             @Override
             public void exportDone (JComponent   c,
                                     Transferable t,
                                     int          action)
             {
-                
+
             }
 
         };
-            
+
         DropTargetListener dropTargetListener = new DropTargetAdapter ()
         {
-                            
+
             @Override
             public void dragOver (DropTargetDragEvent ev)
             {
-                
+
                 java.awt.Point mp = _this.fieldsListScrollPane.getMousePosition ();
-                
+
                 if (mp == null)
                 {
-                    
+
                     return;
-                    
+
                 }
-                                
+
                 int a = _this.fieldsListScrollPane.getVerticalScrollBar ().getUnitIncrement ();
-                
+
                 java.awt.Point vp = _this.fieldsListScrollPane.getViewport ().getViewPosition ();
 
                 if (mp.y <= 5 * a)
                 {
-                                       
+
                     int newy = vp.y - (a / 2);
-                    
+
                     if (newy < 0)
                     {
-                        
+
                         newy = 0;
-                        
+
                     }
-                    
+
                     _this.fieldsListScrollPane.getViewport ().setViewPosition (new java.awt.Point (vp.x, newy));
-                    
+
                     return;
-                    
+
                 }
 
                 int h = _this.fieldsListScrollPane.getViewport ().getExtentSize ().height;
 
                 if (mp.y >= (h - (5 * a)))
                 {
-                                            
+
                     int newy = vp.y + (a / 2);
-                    
+
                     if (newy > (vp.y + h))
                     {
-                        
+
                         newy = (vp.y + h);
-                        
+
                     }
-                    
+
                     _this.fieldsListScrollPane.getViewport ().setViewPosition (new java.awt.Point (vp.x, newy));
-                    
-                    return;                        
-                                    
+
+                    return;
+
                 }
-                
+
             }
-                        
+
             @Override
             public void drop (DropTargetDropEvent ev)
             {
 
             }
-                        
+
             @Override
             public void dragEnter (DropTargetDragEvent ev)
             {
-                
+
                 try
                 {
-                
+
                     if (ev.getTransferable ().getTransferData (COMPONENT_FLAVOR) == null)
                     {
-                      
+
                         return;
-                        
+
                     }
 
                 } catch (Exception e) {
-                    
+
                     return;
-                    
+
                 }
-                
+
                 for (FieldViewBox f : _this.getFieldViewBoxs ())
                 {
-                    
+
                     f.setSelected (false);
-                    
+
                 }
-                                
+
                 FieldViewBox f = (FieldViewBox) ev.getDropTargetContext ().getComponent ();
 
                 f.setSelected (true);
-                
+
             }
 
         };
-        
+
         it.setTransferHandler (transferHandler);
-                        
+
         it.addMouseMotionListener (listener);
-        
+
         try
         {
-        
+
             it.getDropTarget ().addDropTargetListener (dropTargetListener);
 
         } catch (Exception e) {
-                        
-        }                
-        
+
+        }
+
     }
-    
+
     private void setSelected (FieldViewBox f,
                               boolean      selected)
     {
-        
+
     }
-    
+
     private Set<FieldViewBox> getFieldViewBoxs ()
     {
-        
+
         Set<FieldViewBox> boxes = new LinkedHashSet ();
-        
+
         for (int i = 0; i < this.fieldsList.getComponentCount (); i++)
         {
-            
+
             Component c = this.fieldsList.getComponent (i);
-            
+
             if (c instanceof FieldViewBox)
             {
-                
+
                 boxes.add ((FieldViewBox) c);
-                
+
             }
-            
+
         }
 
         return boxes;
-        
+
     }
-    
+
     public void refresh ()
     {
-        
+
         this.init ();
-        
+
     }
-    
+
     private void showAdd ()
     {
 
         this.formTypeFields = new HashMap ();
 
-        this.showFormForAddType ("Add a new field",
+        this.showFormForAddType (Environment.getUIString (LanguageStrings.userobjects,
+                                                          LanguageStrings.fields,
+                                                          LanguageStrings.add,
+                                                          LanguageStrings.title),
+                                                          //"Add a new field",
                                  UserConfigurableObjectTypeField.Type.text,
                                  null);
 
@@ -808,7 +830,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         this.repaint ();
 
     }
-    
+
     private void showPanel (String type)
     {
 
@@ -825,6 +847,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                      final String                               formName)
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.userobjects);
+        prefix.add (LanguageStrings.fields);
+        prefix.add (LanguageStrings.add);
+
         this.editPanel.removeAll ();
 
         if (this.showFormTitles)
@@ -832,9 +859,9 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
             JComponent h = UIUtils.createBoldSubHeader (formTitle,
                                                         null);
-    
+
             h.setBorder (UIUtils.createPadding (3, 5, 0, 0));
-    
+
             this.editPanel.add (h);
 
         }
@@ -843,14 +870,17 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        TextFormItem name = new TextFormItem ("Name",
+        TextFormItem name = new TextFormItem (Environment.getUIString (prefix,
+                                                                       LanguageStrings.labels,
+                                                                       LanguageStrings.name),
+                                                                       //"Name",
                                               formName);
 
         items.add (name);
 
         // Create
 
-        Vector<String> vals = new Vector ();
+        Vector<UserConfigurableObjectTypeField.Type> vals = new Vector ();
 
         for (UserConfigurableObjectTypeField.Type t : UserConfigurableObjectTypeField.Type.values ())
         {
@@ -876,28 +906,58 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                 (this.type.getObjectDescriptionField () != null)
                )
             {
-                
+
                 continue;
-                
+
             }
-            
+
             // Only allow a single object desc.
             if ((t == UserConfigurableObjectTypeField.Type.objectimage)
                 &&
                 (this.type.getObjectImageField () != null)
                )
             {
-                
+
                 continue;
-                
+
             }
 
-            vals.add (t.getName ());
+            vals.add (t);
 
         }
 
-        ComboBoxFormItem types = new ComboBoxFormItem ("Type",
+        ComboBoxFormItem types = new ComboBoxFormItem (Environment.getUIString (prefix,
+                                                                                LanguageStrings.labels,
+                                                                                LanguageStrings.type),
+                                                                       //"Type",
                                                        vals);
+
+        types.setRenderer (new DefaultListCellRenderer ()
+        {
+
+            @Override
+            public Component getListCellRendererComponent (JList<?> list,
+                                                           Object   value,
+                                                           int      index,
+                                                           boolean  isSelected,
+                                                           boolean  cellHasFocus)
+            {
+
+                super.getListCellRendererComponent (list,
+                                                    value,
+                                                    index,
+                                                    isSelected,
+                                                    cellHasFocus);
+
+                UserConfigurableObjectTypeField.Type t = (UserConfigurableObjectTypeField.Type) value;
+
+                this.setText (t.getName ());
+
+                return this;
+
+            }
+
+        });
 
         UserConfigurableObjectTypeField field = this.formTypeFields.get (type);
 
@@ -922,7 +982,7 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         types.setEditable (false);
 
-        types.setSelectedItem (type.getName ());
+        types.setSelectedItem (type);
 
         types.addItemListener (new ItemListener ()
         {
@@ -944,10 +1004,8 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                     public void actionPerformed (ActionEvent ev)
                     {
 
-                        UserConfigurableObjectTypeField.Type newType = UserConfigurableObjectTypeField.Type.getTypeForName (types.getValue ());
-
                         _this.showFormForAddType (formTitle,
-                                                  newType,
+                                                  (UserConfigurableObjectTypeField.Type) types.getValue (),
                                                   (name.getText () != null ? name.getText () : null));
 
                     }
@@ -984,7 +1042,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             if (name.getText () == null)
                             {
 
-                                f.showError ("The name of the field must be specified.");
+                                f.showError (Environment.getUIString (prefix,
+                                                                      LanguageStrings.errors,
+                                                                      LanguageStrings.name,
+                                                                      LanguageStrings.novalue));
+                                //"The name of the field must be specified.");
 
                                 UIUtils.resizeParent (f);
 
@@ -1022,7 +1084,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                     if (uf.getFormName ().toLowerCase ().equals (lformName))
                                     {
 
-                                        f.showError (String.format ("Already have a field called <b>%s</b>.",
+                                        f.showError (String.format (Environment.getUIString (prefix,
+                                                                                             LanguageStrings.errors,
+                                                                                             LanguageStrings.name,
+                                                                                             LanguageStrings.valueexists),
+                                                                    //"Already have a field called <b>%s</b>.",
                                                                     uf.getFormName ()));
 
                                         UIUtils.resizeParent (f);
@@ -1123,20 +1189,31 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
     private void showFormForEditType (final UserConfigurableObjectTypeField field)
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.userobjects);
+        prefix.add (LanguageStrings.fields);
+        prefix.add (LanguageStrings.edit);
+
         this.editPanel.removeAll ();
 
         final FieldsAddEdit _this = this;
 
         Set<FormItem> items = new LinkedHashSet ();
 
-        final TextFormItem name = new TextFormItem ("Name",
+        final TextFormItem name = new TextFormItem (Environment.getUIString (prefix,
+                                                                             LanguageStrings.labels,
+                                                                             LanguageStrings.name),
+                                                                             //"Name",
                                                     field.getFormName ());
 
         items.add (name);
 
         final UserConfigurableObjectTypeFieldConfigHandler handler = field.getConfigHandler ();
 
-        items.add (new AnyFormItem ("Type",
+        items.add (new AnyFormItem (Environment.getUIString (prefix,
+                                                             LanguageStrings.labels,
+                                                             LanguageStrings.name),
+                                                                             //"Type",
                                     UIUtils.createInformationLabel (field.getType ().getName ())));
 
         Set<FormItem> nitems = handler.getExtraFormItems ();
@@ -1169,7 +1246,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                             if (formName.equals (""))
                             {
 
-                                f.showError ("The name of the field must be specified.");
+                                f.showError (Environment.getUIString (prefix,
+                                                                      LanguageStrings.errors,
+                                                                      LanguageStrings.name,
+                                                                      LanguageStrings.novalue));
+                                //f.showError ("The name of the field must be specified.");
 
                                 UIUtils.resizeParent (f);
 
@@ -1186,7 +1267,11 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                     if (uf.getFormName ().toLowerCase ().equals (lformName))
                                     {
 
-                                        f.showError (String.format ("Already have a field called <b>%s</b>.",
+                                        f.showError (String.format (Environment.getUIString (prefix,
+                                                                                             LanguageStrings.errors,
+                                                                                             LanguageStrings.name,
+                                                                                             LanguageStrings.valueexists),
+                                                                    //"Already have a field called <b>%s</b>.",
                                                                     uf.getFormName ()));
 
                                         UIUtils.resizeParent (f);
@@ -1269,11 +1354,13 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
         if (this.showFormTitles)
         {
 
-            JComponent h = UIUtils.createBoldSubHeader ("Edit field",
+            JComponent h = UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                                 LanguageStrings.title),
+                                                                                 //"Edit field",
                                                         null);
-    
+
             h.setBorder (UIUtils.createPadding (3, 5, 0, 0));
-    
+
             this.editPanel.add (h);
 
         }
@@ -1295,143 +1382,172 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
 
         });
 
-    }        
+    }
 
     private class FieldViewBox extends Box
     {
-    
+
         private UserConfigurableObjectTypeField item = null;
         private FieldsAddEdit edit = null;
         private JLabel formNameLabel = null;
         private JLabel formDescLabel = null;
-    
+
         public FieldViewBox (UserConfigurableObjectTypeField item,
                              FieldsAddEdit                   edit)
         {
-    
+
             super (BoxLayout.X_AXIS);
-    
+
             this.item = item;
             this.edit = edit;
-    
+
         }
 
         public UserConfigurableObjectTypeField getField ()
         {
-            
+
             return this.item;
-            
+
         }
-        
+
         public void setSelected (boolean sel)
         {
-            
+
             this.setOpaque (true);
-            
+
             if (!sel)
             {
-                                
+
                 java.awt.Color c = new JLabel ().getForeground ();
-                
+
                 this.formNameLabel.setForeground (c);
                 this.formDescLabel.setForeground (c);
                 this.setBackground (UIUtils.getComponentColor ());
-    
+
             } else {
-                        
+
                 this.formNameLabel.setForeground (UIManager.getColor ("Tree.selectionForeground"));
                 this.formDescLabel.setForeground (UIManager.getColor ("Tree.selectionForeground"));
-                this.setBackground (UIManager.getColor ("Tree.selectionBackground"));            
-                
+                this.setBackground (UIManager.getColor ("Tree.selectionBackground"));
+
             }
-            
+
         }
-    
+
         public void update ()
         {
-    
+
             this.formNameLabel.setText (item.getFormName ());
             this.formDescLabel.setText (item.getConfigHandler ().getConfigurationDescription ());
-    
+
         }
-    
+
         public void init ()
         {
-    
+
             final FieldViewBox _this = this;
-    
+
             this.setAlignmentX (Component.LEFT_ALIGNMENT);
             this.setOpaque (false);
-    
+
             this.setBorder (UIUtils.createBottomLineWithPadding (5, 5, 5, 5));
-    
+
             this.formNameLabel = UIUtils.createLabel (null);
-    
+
             this.formDescLabel = UIUtils.createInformationLabel (null);
-    
+
             Box b = new Box (BoxLayout.Y_AXIS);
-    
+
             this.formDescLabel.setBorder (UIUtils.createPadding (3, 5, 3, 0));
-    
+
             b.add (this.formNameLabel);
             b.add (this.formDescLabel);
-    
+
             this.add (b);
             this.add (Box.createHorizontalGlue ());
-    
+
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.userobjects);
+            prefix.add (LanguageStrings.fields);
+            prefix.add (LanguageStrings.view);
+            prefix.add (LanguageStrings.items);
+            prefix.add (LanguageStrings.buttons);
+
             java.util.List<JButton> buttons = new ArrayList ();
-    
+
             if (this.item.canEdit ())
             {
-    
+
                 buttons.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                                    Constants.ICON_MENU,
-                                                   "Click to edit this field",
+                                                   Environment.getUIString (prefix,
+                                                                            LanguageStrings.edit,
+                                                                            LanguageStrings.tooltip),
+                                                   //"Click to edit this field",
                                                    new ActionListener ()
                                                    {
-    
+
                                                         @Override
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
-    
+
                                                             _this.edit.showEdit (_this.item);
-    
+
                                                         }
-    
+
                                                    }));
-    
+
             }
-    
+
             if (this.item.canDelete ())
             {
-    
+
                 buttons.add (UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                    Constants.ICON_MENU,
-                                                   "Click to remove this field",
+                                                   Environment.getUIString (prefix,
+                                                                            LanguageStrings.edit,
+                                                                            LanguageStrings.tooltip),
+                                                   //"Click to remove this field",
                                                    new ActionListener ()
                                                    {
-    
+
                                                         @Override
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
-    
+
+                                                            java.util.List<String> prefix = new ArrayList ();
+                                                            prefix.add (LanguageStrings.userobjects);
+                                                            prefix.add (LanguageStrings.fields);
+                                                            prefix.add (LanguageStrings.delete);
+                                                            prefix.add (LanguageStrings.confirmpopup);
+
                                                             UIUtils.createQuestionPopup (_this.edit.viewer,
-                                                                                         "Remove field",
+                                                                                         Environment.getUIString (prefix,
+                                                                                                                  LanguageStrings.title),
+                                                                                         //"Remove field",
                                                                                          Constants.DELETE_ICON_NAME,
-                                                                                         "Remove this field?  Note: any data associated with the field will also be removed.",
-                                                                                         "Yes, remove it",
-                                                                                         Constants.CANCEL_BUTTON_LABEL_ID,
+                                                                                         Environment.getUIString (prefix,
+                                                                                                                  LanguageStrings.text),
+                                                                                         //"Remove this field?  Note: any data associated with the field will also be removed.",
+                                                                                         Environment.getUIString (prefix,
+                                                                                                                  LanguageStrings.buttons,
+                                                                                                                  LanguageStrings.confirm),
+                                                                                                                  //"Yes, remove it",
+                                                                                         Environment.getUIString (prefix,
+                                                                                                                  LanguageStrings.buttons,
+                                                                                                                  LanguageStrings.cancel),
+                                                                                         //Constants.CANCEL_BUTTON_LABEL_ID,
                                                                                          new ActionListener ()
                                                                                          {
-    
+
                                                                                             @Override
                                                                                             public void actionPerformed (ActionEvent ev)
                                                                                             {
-    
+
                                                                                                 _this.edit.removeField (_this.item);
-        
+
                                                                                             }
-    
+
                                                                                          },
                                                                                          null,
                                                                                          null,
@@ -1439,23 +1555,23 @@ public class FieldsAddEdit extends Box implements ProjectEventListener
                                                                                                                       5,
                                                                                                                       5,
                                                                                                                       _this.edit.viewer));
-    
+
                                                         }
-    
+
                                                    }));
-    
+
             }
-    
+
             JComponent buts = UIUtils.createButtonBar (buttons);
-    
+
             buts.setAlignmentX (Component.LEFT_ALIGNMENT);
-    
+
             this.add (buts);
-    
+
             this.update ();
-    
+
         }
-    
+
     }
 
 }

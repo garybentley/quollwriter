@@ -5,13 +5,13 @@ import java.util.*;
 
 import javax.swing.*;
 
-public class ComboBoxFormItem extends FormItem<String>
+public class ComboBoxFormItem<E> extends FormItem<E>
 {
     
-    private JComboBox combo = null;
+    private JComboBox<E> combo = null;
     
-    public ComboBoxFormItem (String             label,
-                             Collection<String> values)
+    public ComboBoxFormItem (String        label,
+                             Collection<E> values)
     {
         
         this (label,
@@ -21,17 +21,17 @@ public class ComboBoxFormItem extends FormItem<String>
         
     }
     
-    public ComboBoxFormItem (String             label,
-                             Collection<String> values,
-                             String             defaultValue,
-                             String             helpText)
+    public ComboBoxFormItem (String        label,
+                             Collection<E> values,
+                             E             defaultValue,
+                             String        helpText)
     {
         
         super (label,
                true,
                helpText);
         
-        this.combo = new JComboBox (new Vector (values));
+        this.combo = new JComboBox<E> (new Vector (values));
         
         if (defaultValue != null)
         {
@@ -42,6 +42,13 @@ public class ComboBoxFormItem extends FormItem<String>
         
     }
 
+    public void setRenderer (ListCellRenderer<E> r)
+    {
+        
+        this.combo.setRenderer (r);
+        
+    }
+    
     public int getSelectedIndex ()
     {
         
@@ -49,7 +56,7 @@ public class ComboBoxFormItem extends FormItem<String>
         
     }
 
-    public void setSelectedItem (String v)
+    public void setSelectedItem (E v)
     {
         
         this.combo.setSelectedItem (v);
@@ -71,10 +78,10 @@ public class ComboBoxFormItem extends FormItem<String>
     }
     
     @Override
-    public String getValue ()
+    public E getValue ()
     {
         
-        return this.combo.getSelectedItem ().toString ();
+        return (E) this.combo.getSelectedItem ();//.toString ();
         
     }
     

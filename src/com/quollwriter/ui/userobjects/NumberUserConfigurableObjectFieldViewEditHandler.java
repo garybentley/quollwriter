@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import java.math.*;
 
@@ -101,6 +102,13 @@ public class NumberUserConfigurableObjectFieldViewEditHandler extends AbstractUs
     public Set<String> getInputFormItemErrors ()
     {
         
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.addedit);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.number.getType ());
+        prefix.add (LanguageStrings.errors);
+        
         Set<String> errors = new LinkedHashSet ();
         
         String val = this.editItem.getValue ();
@@ -120,7 +128,9 @@ public class NumberUserConfigurableObjectFieldViewEditHandler extends AbstractUs
                 
             } catch (Exception e) {
                 
-                errors.add (String.format ("%s does not appear to be a number.",
+                errors.add (String.format (Environment.getUIString (prefix,
+                                                                    LanguageStrings.invalidvalue),
+                                           //"%s does not appear to be a number.",
                                            this.typeField.getFormName ()));
                 
             }
@@ -151,7 +161,9 @@ public class NumberUserConfigurableObjectFieldViewEditHandler extends AbstractUs
                 if (v > max)
                 {
                     
-                    errors.add (String.format ("%s must be a maximum of %s",
+                    errors.add (String.format (Environment.getUIString (prefix,
+                                                                        LanguageStrings.max),
+                                               //"%s must be a maximum of %s",
                                                this.typeField.getFormName (),
                                                Environment.formatNumber (max)));
                     
@@ -179,7 +191,9 @@ public class NumberUserConfigurableObjectFieldViewEditHandler extends AbstractUs
                 if (v < min)
                 {
                     
-                    errors.add (String.format ("%s must be a minimum of %s",
+                    errors.add (String.format (Environment.getUIString (prefix,
+                                                                        LanguageStrings.min),
+                                               //"%s must be a minimum of %s",
                                                this.typeField.getFormName (),
                                                Environment.formatNumber (min)));
                     
@@ -284,7 +298,11 @@ public class NumberUserConfigurableObjectFieldViewEditHandler extends AbstractUs
 
         } else {
             
-            items.add (this.createNoValueItem ());
+            items.add (this.createNoValueItem (Environment.getUIString (LanguageStrings.form,
+                                                                        LanguageStrings.view,
+                                                                        LanguageStrings.types,
+                                                                        UserConfigurableObjectTypeField.Type.number.getType (),
+                                                                        LanguageStrings.novalue)));
             
         } 
         

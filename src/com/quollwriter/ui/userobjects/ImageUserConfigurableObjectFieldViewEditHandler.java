@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.UUID;
+import java.util.ArrayList;
 
 import java.io.*;
 
@@ -202,6 +203,12 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
     public Set<FormItem> getViewFormItems ()
     {
         
+        final java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.view);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.image.getType ());
+        
         final ImageUserConfigurableObjectFieldViewEditHandler _this = this;
         
         Set<FormItem> items = new LinkedHashSet ();
@@ -262,7 +269,9 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
                                                     } catch (Exception e) {
                                                         
                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                  "Unable to show image.");
+                                                                                  Environment.getUIString (prefix,
+                                                                                                           LanguageStrings.actionerror));
+                                                                                  //"Unable to show image.");
                                                         
                                                         Environment.logError ("Unable to show image: " +
                                                                               pf +
@@ -276,13 +285,16 @@ public class ImageUserConfigurableObjectFieldViewEditHandler extends AbstractUse
                                             
                                             });
 
-            l.setToolTipText ("Click to view the full image");
+            l.setToolTipText (Environment.getUIString (prefix,
+                                                       LanguageStrings.tooltip));                                            
+            //l.setToolTipText ("Click to view the full image");
             items.add (new AnyFormItem (this.typeField.getFormName (),
                                         l));
 
         } else {
             
-            items.add (this.createNoValueItem ());
+            items.add (this.createNoValueItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.novalue)));
             
         } 
         

@@ -39,7 +39,10 @@ public class LinkedToAccordionItem extends AccordionItem
                                   NamedObject   c)
     {
         
-        super ("Linked to",
+        super (Environment.getUIString (LanguageStrings.linkedto,
+                                        LanguageStrings.view,
+                                        LanguageStrings.title),
+               //"Linked to",
                Constants.LINK_ICON_NAME);
             
         this.object= c;
@@ -59,7 +62,9 @@ public class LinkedToAccordionItem extends AccordionItem
         
         this.view = new Box (BoxLayout.Y_AXIS);
 
-        this.noLinks = UIUtils.createClickableLabel ("<i>No Links set, click to edit.</i>",
+        this.noLinks = UIUtils.createClickableLabel (Environment.getUIString (LanguageStrings.linkedto,
+                                                                              LanguageStrings.nolinksedit),
+                                                    //"<i>No Links set, click to edit.</i>",
                                                      null);
 
         this.noLinks.setBorder (UIUtils.createPadding (0, 5, 0, 0));
@@ -101,7 +106,13 @@ public class LinkedToAccordionItem extends AccordionItem
 
         JButton save = UIUtils.createButton (Constants.SAVE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Click to save the links",
+                                             String.format (Environment.getUIString (LanguageStrings.linkedto,
+                                                                                     LanguageStrings.edit,
+                                                                                     LanguageStrings.buttons,
+                                                                                     LanguageStrings.save,
+                                                                                     LanguageStrings.tooltip),
+                                                            Environment.getObjectTypeName (this.object)),
+                                             //"Click to save the links",
                                              new ActionAdapter ()
                                              {
                                                 
@@ -116,7 +127,12 @@ public class LinkedToAccordionItem extends AccordionItem
 
         JButton cancel = UIUtils.createButton (Constants.CANCEL_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               "Click to cancel",
+                                               Environment.getUIString (LanguageStrings.linkedto,
+                                                                        LanguageStrings.edit,
+                                                                        LanguageStrings.buttons,
+                                                                        LanguageStrings.cancel,
+                                                                        LanguageStrings.tooltip),                                               
+                                               //"Click to cancel",
                                                new ActionAdapter ()
                                                {
                                                 
@@ -198,7 +214,10 @@ public class LinkedToAccordionItem extends AccordionItem
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to add/edit object.");
+                                      Environment.getUIString (LanguageStrings.linkedto,
+                                                               LanguageStrings.save,
+                                                               LanguageStrings.actionerror));                                      
+                                      //"An internal error has occurred.\n\nUnable to add/edit object.");
 
             return;
 
@@ -219,7 +238,10 @@ public class LinkedToAccordionItem extends AccordionItem
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "An internal error has occurred.\n\nUnable to save links.");
+                                      Environment.getUIString (LanguageStrings.linkedto,
+                                                               LanguageStrings.save,
+                                                               LanguageStrings.actionerror));                                      
+                                      //"An internal error has occurred.\n\nUnable to save links.");
 
             return;
 
@@ -318,7 +340,13 @@ public class LinkedToAccordionItem extends AccordionItem
         
         conts.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                          Constants.ICON_SIDEBAR,
-                                         "Click to edit",
+                                         String.format (Environment.getUIString (LanguageStrings.linkedto,
+                                                                                 LanguageStrings.view,
+                                                                                 LanguageStrings.buttons,
+                                                                                 LanguageStrings.edit,
+                                                                                 LanguageStrings.tooltip),
+                                                        Environment.getObjectTypeName (this.object)),
+                                         //"Click to edit",
                                          action));
 
         this.setHeaderControls (UIUtils.createButtonBar (conts));                
@@ -351,7 +379,11 @@ public class LinkedToAccordionItem extends AccordionItem
             
         };        
         
-        m.add (UIUtils.createMenuItem ("Edit",
+        m.add (UIUtils.createMenuItem (Environment.getUIString (LanguageStrings.linkedto,
+                                                                LanguageStrings.headerpopupmenu,
+                                                                LanguageStrings.items,
+                                                                LanguageStrings.edit),
+                                                                //"Edit",
                                        Constants.EDIT_ICON_NAME,
                                        action));
     

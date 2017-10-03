@@ -35,9 +35,8 @@ public class ObjectNameUserConfigurableObjectTypeFieldConfigHandler implements U
     public String replaceObjName (String s)
     {
         
-        return StringUtils.replaceString (s,
-                                          "%s",
-                                          this.getObjName ());
+        return String.format (s,
+                              this.getObjName ());
         
     }
             
@@ -47,7 +46,12 @@ public class ObjectNameUserConfigurableObjectTypeFieldConfigHandler implements U
         
         Set<String> strs = new LinkedHashSet ();
                 
-        strs.add (this.replaceObjName ("is the %s name"));
+        strs.add (this.replaceObjName (Environment.getUIString (LanguageStrings.form,
+                                                                LanguageStrings.config,
+                                                                LanguageStrings.types,
+                                                                UserConfigurableObjectTypeField.Type.objectname.getType (),
+                                                                LanguageStrings.description)));
+        //"is the %s name"));
         
         return Utils.joinStrings (strs,
                                   null);

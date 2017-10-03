@@ -124,7 +124,11 @@ public class WebpageUserConfigurableObjectFieldViewEditHandler extends AbstractU
         
         } else {
             
-            items.add (this.createNoValueItem ());
+            items.add (this.createNoValueItem (Environment.getUIString (LanguageStrings.form,
+                                                                        LanguageStrings.view,
+                                                                        LanguageStrings.types,
+                                                                        LanguageStrings.webpage,
+                                                                        LanguageStrings.novalue)));
             
         }
         

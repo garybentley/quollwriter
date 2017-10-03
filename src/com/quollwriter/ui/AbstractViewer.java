@@ -2727,7 +2727,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Edit Object Names",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.objectnames,
+                                                                          LanguageStrings.changer,
+                                                                          LanguageStrings.popup,
+                                                                          LanguageStrings.title),
+                                                 //"Edit Object Names",
                                                  Environment.getIcon (Constants.CONFIG_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);

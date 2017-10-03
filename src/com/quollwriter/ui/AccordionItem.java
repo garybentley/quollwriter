@@ -193,6 +193,13 @@ public abstract class AccordionItem extends Box
         
     }
         
+    public void setHeader (Header h)
+    {
+        
+        this.header = h;
+        
+    }
+    
     public void setContentVisible (boolean v)
     {
         

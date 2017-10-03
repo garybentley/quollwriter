@@ -56,12 +56,12 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
     private JSplitPane             leftSplitPane = null;
     private JSplitPane             rightSplitPane = null;
     private JSplitPane             mainSplitPane = null;
-    private JTree                  linkedToEditTree = null;
-    private JTree                  linkedToViewTree = null;
+    //private JTree                  linkedToEditTree = null;
+    //private JTree                  linkedToViewTree = null;
     private boolean                panesInited = false;
     private EditPanel              detailsPanel = null;
     protected JComponent           bottomPanel = null;
-    protected EditPanel              linkedToPanel = null;
+    protected LinkedToEditPanel              linkedToPanel = null;
     private ActionListener         deleteObjectAction = null;
     private Map<EditPanel, String> sectionsNeedingSave = new HashMap ();
     private ObjectDocumentsEditPanel objDocsEditPanel = null;
@@ -221,7 +221,8 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         this.leftSplitPane.setTopComponent (this.detailsPanel);
         this.leftSplitPane.setBottomComponent (botEp);
 
-        this.linkedToPanel = this.createLinkedToPanel ();
+        this.linkedToPanel = new LinkedToEditPanel<UserConfigurableObject, AbstractProjectViewer> (this.obj,
+                                                                                                   this.viewer);
 
         this.rightSplitPane.setBottomComponent (this.linkedToPanel);
 
@@ -370,332 +371,6 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
     public abstract void doFillToolBar (JToolBar tb,
                                         boolean  fullScreen);
 
-    private EditPanel createLinkedToPanel ()
-    {
-
-        // Need to specify the viewer type here to let the compiler know
-        // what to do.
-        final AbstractObjectViewPanel<AbstractProjectViewer, UserConfigurableObject> _this = (AbstractObjectViewPanel<AbstractProjectViewer, UserConfigurableObject>) this;
-
-        return new EditPanel ()
-        {
-
-            @Override
-            public void refreshViewPanel ()
-            {
-
-                List exclude = new ArrayList ();
-                exclude.add (_this.obj);
-
-                // Painful but just about the only way.
-                _this.viewer.setLinks (_this.obj);
-
-                // Get all the "other objects" for the links the note has.
-                Iterator<Link> it = _this.obj.getLinks ().iterator ();
-
-                Set links = new HashSet ();
-
-                while (it.hasNext ())
-                {
-
-                    links.add (it.next ().getOtherObject (_this.obj));
-
-                }
-
-                DefaultTreeModel m = new DefaultTreeModel (UIUtils.createLinkToTree (_this.viewer.getProject (),
-                                                                                     exclude,
-                                                                                     links,
-                                                                                     false));
-
-                _this.linkedToViewTree.setModel (m);
-
-                UIUtils.expandAllNodesWithChildren (_this.linkedToViewTree);
-
-            }
-
-            @Override
-            public JComponent getSaveButton ()
-            {
-                
-                final EditPanel _thisep = this;
-                
-                IconProvider ip = this.getIconProvider ();
-                
-                JButton save = UIUtils.createButton (ip.getIcon (Constants.SAVE_ICON_NAME,
-                                                              Constants.ICON_PANEL_SECTION_ACTION),
-                                                     String.format (Environment.getUIString (LanguageStrings.linkedto,
-                                                                                             LanguageStrings.edit,
-                                                                                             LanguageStrings.buttons,
-                                                                                             LanguageStrings.save,
-                                                                                             LanguageStrings.tooltip),
-                                                                    _this.obj.getObjectTypeName ()),
-                                                     //"Click to save the details",
-                                                     new ActionListener ()
-                                                     {
-                                                    
-                                                        @Override
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-                                                          
-                                                            _thisep.doSave ();
-                                                          
-                                                        }
-                                                    
-                                                  });
-        
-                return save;
-                    
-            }
-            
-            @Override
-            public JComponent getCancelButton ()
-            {
-                
-                final EditPanel _thisep = this;
-                
-                IconProvider ip = this.getIconProvider ();        
-                
-                JButton cancel = UIUtils.createButton (ip.getIcon (Constants.CANCEL_ICON_NAME,
-                                                                   Constants.ICON_PANEL_SECTION_ACTION),
-                                                       Environment.getUIString (LanguageStrings.linkedto,
-                                                                                LanguageStrings.edit,
-                                                                                LanguageStrings.buttons,
-                                                                                LanguageStrings.cancel,
-                                                                                LanguageStrings.tooltip),                                              
-                                                       //"Click to cancel the editing",
-                                                       new ActionListener ()
-                                                       {
-                                                        
-                                                          @Override
-                                                          public void actionPerformed (ActionEvent ev)
-                                                          {
-                                                            
-                                                              _thisep.doCancel ();
-                                                            
-                                                          }
-                                                        
-                                                       });
-        
-                return cancel;
-                    
-            }
-            
-            @Override
-            public JComponent getEditButton ()
-            {
-                
-                final EditPanel _thisep = this;
-                
-                IconProvider ip = this.getIconProvider ();                            
-                
-                return UIUtils.createButton (ip.getIcon (Constants.EDIT_ICON_NAME,
-                                                         Constants.ICON_PANEL_SECTION_ACTION),
-                                             String.format (Environment.getUIString (LanguageStrings.linkedto,
-                                                                                     LanguageStrings.view,
-                                                                                     LanguageStrings.buttons,
-                                                                                     LanguageStrings.edit,
-                                                                                     LanguageStrings.tooltip),
-                                                            _this.obj.getObjectTypeName ()),
-                                             new ActionListener ()
-                                             {
-                                              
-                                                @Override
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-                                                  
-                                                    _thisep.doEdit ();
-                                                  
-                                                }
-                                              
-                                             });
-
-            }            
-            
-            @Override
-            public Set<FormItem> getEditItems ()
-            {
-
-                return null;
-
-            }
-
-            @Override
-            public Set<FormItem> getViewItems ()
-            {
-
-                return null;
-
-            }
-
-            @Override
-            public boolean handleSave ()
-            {
-
-                // Get all the link items from the tree.
-                DefaultTreeModel dtm = (DefaultTreeModel) _this.linkedToEditTree.getModel ();
-
-                Set s = new HashSet ();
-
-                try
-                {
-
-                    UIUtils.getSelectedObjects ((DefaultMutableTreeNode) dtm.getRoot (),
-                                                _this.obj,
-                                                s);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to get objects to link to for: " +
-                                          _this.obj,
-                                          e);
-
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              Environment.getUIString (LanguageStrings.linkedto,
-                                                                       LanguageStrings.save,
-                                                                       LanguageStrings.actionerror));
-                                              //"An internal error has occurred.\n\nUnable to add/edit object.");
-
-                    return false;
-
-                }
-
-                // Save the links
-                try
-                {
-
-                    _this.viewer.saveLinks (_this.obj,
-                                            s);
-
-                } catch (Exception e)
-                {
-
-                    Environment.logError ("Unable to save links: " +
-                                          _this.obj,
-                                          e);
-
-                    UIUtils.showErrorMessage (_this.viewer,
-                                              Environment.getUIString (LanguageStrings.linkedto,
-                                                                       LanguageStrings.save,
-                                                                       LanguageStrings.actionerror));                                              
-                                              //"An internal error has occurred.\n\nUnable to save links.");
-
-                    return false;
-
-                }
-
-                _this.refreshLinkedToTree ();
-
-                java.util.Set<NamedObject> otherObjects = _this.obj.getOtherObjectsInLinks ();
-
-                _this.viewer.refreshObjectPanels (otherObjects);
-
-                return true;
-
-            }
-
-            @Override
-            public boolean handleCancel ()
-            {
-
-                return true;
-
-            }
-
-            @Override
-            public void handleEditStart ()
-            {
-
-                _this.linkedToEditTree.setModel (UIUtils.getLinkedToTreeModel (_this.viewer,
-                                                                               _this.obj,
-                                                                               true));
-
-                UIUtils.expandPathsForLinkedOtherObjects (_this.linkedToEditTree,
-                                                          _this.obj);
-
-            }
-
-            @Override
-            public IconProvider getIconProvider ()
-            {
-
-                DefaultIconProvider iconProv = new DefaultIconProvider ()
-                {
-
-                    @Override
-                    public ImageIcon getIcon (String name,
-                                              int    type)
-                    {
-
-                        if (name.equals ("header"))
-                        {
-
-                            name = Link.OBJECT_TYPE;
-
-                        }
-
-                        return super.getIcon (name,
-                                              type);
-
-                    }
-
-                };
-
-                return iconProv;
-
-            }
-
-            @Override
-            public String getEditTitle ()
-            {
-
-                return Environment.getUIString (LanguageStrings.linkedto,
-                                                LanguageStrings.edit,
-                                                LanguageStrings.title);
-
-            }
-            
-            @Override
-            public String getTitle ()
-            {
-
-                return Environment.getUIString (LanguageStrings.linkedto,
-                                                LanguageStrings.view,
-                                                LanguageStrings.title);
-                //"Linked to";
-
-            }
-
-            @Override
-            public JComponent getEditPanel ()
-            {
-
-                _this.linkedToEditTree = UIUtils.createLinkedToTree (_this.viewer,
-                                                                     _this.obj,
-                                                                     true);
-
-                return _this.linkedToEditTree;
-
-            }
-
-            @Override
-            public JComponent getViewPanel ()
-            {
-
-                _this.linkedToViewTree = UIUtils.createLinkedToTree (_this.viewer,
-                                                                     _this.obj,
-                                                                     false);
-
-                UIUtils.expandAllNodesWithChildren (_this.linkedToViewTree);
-
-                return _this.linkedToViewTree;
-
-            }
-
-        };
-
-    }
-
     public void fillToolBar (JToolBar tb,
                              boolean  fullScreen)
     {
@@ -810,6 +485,8 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
     public void refreshLinkedToTree ()
     {
 
+        this.linkedToPanel.refreshLinkedToTree ();
+    /*
         List exclude = new ArrayList ();
         exclude.add (this.obj);
 
@@ -836,7 +513,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         this.linkedToViewTree.setModel (m);
 
         UIUtils.expandAllNodesWithChildren (this.linkedToViewTree);
-
+*/
     }
 
     @Override

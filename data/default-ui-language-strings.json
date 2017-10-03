@@ -36,7 +36,7 @@
             "keyboardshortcuts" : "Keyboard Shortcuts",
             "about" : "About {QW}"
         }
-    },    
+    },
     "objectnames" :
     {
         ":comment" : "These are the names of objects within the interface.  The user can change most of these.  They are split into singular and plural forms.",
@@ -75,15 +75,62 @@
             "editor" : "Editors",
             "document" : "Documents",
             "idea" : "Ideas"
+        },
+        "changer" :
+        {
+            "popup" :
+            {
+                "title" : "Edit Object Names",
+                "text" : "After saving any changes to names will appear when you next open the ${objectnames.singular.project}.",
+                "labels" :
+                {
+                    "singular" : "Singular",
+                    "plural" : "Plural"
+                },
+                "buttons" :
+                {
+                    "save" : "${actions.save}",
+                    "cancel" : "${actions.cancel}",
+                    "reset" : "Reset to defaults"
+                }
+            },
+            "resetchange" :
+            {
+                "actionerror" : "Unable to reset the names.",
+                "popup" :
+                {
+                    "title" : "Confirm name changes?",
+                    "text" : "Warning!  To reset the object names back to the defaults the ${objectnames.singular.project} must first be saved then reopened.<br /><br />Do you wish to continue?",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, reset the names",
+                        "cancel" : "${actions.cancel}"
+                    }
+                }
+            },
+            "confirmchange" :
+            {
+                "actionerror" : "Unable to update the object names.",
+                "popup" :
+                {
+                    "title" : "Confirm name changes?",
+                    "text" : "Warning!  To change the object names the ${objectnames.singular.project} must first be saved then reopened.<br /><br />Do you wish to continue?",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, change the names",
+                        "cancel" : "${actions.cancel}"
+                    }
+                }
+            }
         }
     },
     "objectfinder" :
     {
         "sidebar" :
         {
-            "title" : "Find"  
+            "title" : "Find"
         },
-        "novalue" : "No matches found."  
+        "novalue" : "No matches found."
     },
     "iconcolumn" :
     {
@@ -93,10 +140,10 @@
             {
                 "prefix" : "Shortcut: Ctrl+Shift+"
             }
-        },   
+        },
         "moveitem" :
         {
-            "actionerror" : "Unable to move item."  
+            "actionerror" : "Unable to move item."
         },
         "viewitem" :
         {
@@ -153,37 +200,37 @@
         "writingtargetreachedpopup" :
         {
             "title" : "Writing targets reached",
-            "text" : "You have reached the following writing targets by writing <b>%1s</b> words.<ul>%2s</ul>Well done and keep it up!",
-            ":comment.text" : "%1s is the number of words written.  %2s is the types of target reached.",
+            "text" : "You have reached the following writing targets by writing <b>%1$s</b> words.<ul>%2$s</ul>Well done and keep it up!",
+            ":comment.text" : "%1$s is the number of words written.  %2$s is the types of target reached.",
             ":scount.text" : 2
         },
         "actionerror" : "Unable to view targets.",
         "chaptersoverwcmaximum" :
         {
-            "single" : "%1s {chapter} is over the word count maximum of <b>%2s</b> words, click to view the {chapter}.",
-            ":comment.single" : "%1s is the number of chapters over the maximum. %2s is the maximum word count.",
+            "single" : "%1$s {chapter} is over the word count maximum of <b>%2$s</b> words, click to view the {chapter}.",
+            ":comment.single" : "%1$s is the number of chapters over the maximum. %2$s is the maximum word count.",
             ":scount.single" : 2,
-            "multiple" : "%1s {chapters} are over the word count maximum of <b>%2s</b> words, click to view the {chapters}.",
-            ":comment.multiple" : "%1s is the number of chapters over the maximum count.  %2s is the maximum word count.",
+            "multiple" : "%1$s {chapters} are over the word count maximum of <b>%2$s</b> words, click to view the {chapters}.",
+            ":comment.multiple" : "%1$s is the number of chapters over the maximum count.  %2$s is the maximum word count.",
             ":scount.multiple" : 2
         },
         "chaptersoverreadabilitymaximum" :
         {
-            "single" : "%1s {chapter} is over one of the readability targets, click to view the {chapter}.",
-            ":comment.single" : "%1s is the number of chapters over the readability target(s).",
+            "single" : "%1$s {chapter} is over one of the readability targets, click to view the {chapter}.",
+            ":comment.single" : "%1$s is the number of chapters over the readability target(s).",
             ":scount.single" : 1,
-            "multiple" : "%1s {chapters} are over one of the readability targets, click to view the {chapters}.",
-            ":comment.multiple" : "%1s is the number of chapters over the readability target(s).",
+            "multiple" : "%1$s {chapters} are over one of the readability targets, click to view the {chapters}.",
+            ":comment.multiple" : "%1$s is the number of chapters over the readability target(s).",
             ":scount.multiple" : 1
         },
         "popup" :
         {
             "title" : "{Chapters} over word count target",
-            "multipleoverlimit" : "%1s {chapters} are over the target word count, click to view them.",
-            ":comment.multipleoverlimit" : "%1s is the number of chapters over the limit.",
+            "multipleoverlimit" : "%1$s {chapters} are over the target word count, click to view them.",
+            ":comment.multipleoverlimit" : "%1$s is the number of chapters over the limit.",
             ":scount.multipleoverlimit" : 1,
             "singleoverlimit" : "{Chapter} <b>%s</b> is over the target word count, click to view it.",
-            ":comment.singleoverlimit" : "%1s is the name of the chapter over the limit.",
+            ":comment.singleoverlimit" : "%1$s is the name of the chapter over the limit.",
             ":scount.singleoverlimit" : 1
         }
     },
@@ -212,7 +259,7 @@
         "words100" : "100 words",
         "words250" : "250 words",
         "words500" : "500 words",
-        "words1000" : "1000 words"        
+        "words1000" : "1000 words"
     },
     "textalignments" :
     {
@@ -274,15 +321,241 @@
     "moretextindicator" : "...",
     "textarea" :
     {
-        "maxchars" : "Max %1s characters",
-        ":comment.maxchars" : "%1s is the maximum number of characters allowed.  This message is usually used for text boxes to indicate how many characters are allowed to be entered.",
+        "maxchars" : "Max %1$s characters",
+        ":comment.maxchars" : "%1$s is the maximum number of characters allowed.  This message is usually used for text boxes to indicate how many characters are allowed to be entered.",
         ":scount.maxchars" : 1,
-        "charsremaining" : ", %1s remaining",
-        ":comment.charsremaining" : "%1s is the number of characters that can still be entered into the text area.  This message is appended to [maxchars] and shown below the text area.",
+        "charsremaining" : ", %1$s remaining",
+        ":comment.charsremaining" : "%1$s is the number of characters that can still be entered into the text area.  This message is appended to [maxchars] and shown below the text area.",
         ":scount.charsremaining" : 1,
-        "charsover" : ", %1s over maximum",
-        ":comment.charsover" : "%1s is the number of characters over the maximum.  This message is appeded to [maxchars] and shown below the text area.",
+        "charsover" : ", %1$s over maximum",
+        ":comment.charsover" : "%1$s is the number of characters over the maximum.  This message is appeded to [maxchars] and shown below the text area.",
         ":scount.charsover" : 1
+    },
+    "userobjects" :
+    {
+        "type" :
+        {
+            "new" :
+            {
+                "actionerror" : "Unable to add new type.",
+                "wizard" :
+                {
+                    "basic" :
+                    {
+                        "title" : "The basic details",
+                        "text" : "Enter the name and plural name (what do you call lots of your object) for your object.  For example, you might call it <b>Widget</b> and <b>Widgets</b>."
+                    },
+                    "fields" :
+                    {
+                        "title" : "Add the fields you want the object to have",
+                        "text" : "Use the button below to add a new field for your object.  Drag-n-drop the fields to change the order of them."
+                    },
+                    "layout" :
+                    {
+                        "title" : "How should the fields be displayed",
+                        "text" : "Finally, and this step is optional, select how you want the fields to be displayed.  Remember you can change any of this information later so don't worry about it too much for now."
+                    }
+                }
+            }
+        },
+        ":comment" : "This section relates to the adding/editing of custom objects by the user.",
+        "layout" :
+        {
+            "edit" :
+            {
+                "actionerror" : "Unable to update the object type."
+            },
+            "view" :
+            {
+                "text" : "The layout tells Quoll Writer how you want to display the fields for your %1$s.  Certain fields like the object description and object image are given special locations in the layouts.  For <b>Columns of fields</b> it just means that the fields are laid out in the order given in the <b>Fields</b> tab.",
+                ":comment.text" : "%1$s is the object type plural name.",
+                ":scount.text" : 1,
+                "layouts" :
+                {
+                    "0" : "Fields are laid out in a single column.",
+                    "1" : "The object image, if present, is displayed in the top left corner and the object description is shown to the right.  Two columns of fields are displayed underneath.",
+                    "2" : "The object image is shown in the top left corner with the object description underneath.  The other fields are shown in a column on the right.",
+                    "3" : "Two columns of fields are displayed.",
+                    "4" : "The object image is shown in the top right corner with the object description underneath.  The other fields are shown in a column on the left.",
+                    "5" : "The object description is shown in a column on the right, all others fields are shown in a column on the left.",
+                    "6" : "The object description is shown in a column on the left, all others fields are shown in a column on the right.",
+                    "7" : "The object description is shown in a column on the left, the object image is shown in the top right corner with all other fields in a column underneath.",
+                    "8" : "The object image is shown in the top left corner with the object description in a column on the right.  The other object fields are shown underneath the object image."
+                }
+            }
+        },
+        "fields" :
+        {
+            "view" :
+            {
+                "text" : "Use the button below to add a new field for your %1$s.  Drag-n-drop the fields to change the order of them.  Use the layout tab above to change how the fields are laid out and displayed.",
+                ":comment.text" : "%1$s is the object type name.",
+                ":scount.text" : 1,
+                "buttons" :
+                {
+                    "add" :
+                    {
+                        "tooltip" : "Click to add a new field"
+                    }
+                },
+                "items" :
+                {
+                    "buttons" :
+                    {
+                        "edit" :
+                        {
+                            "tooltip" : "Click to edit this field"
+                        },
+                        "delete" :
+                        {
+                            "tooltip" : "Click to remove this field"
+                        }
+                    }
+                }
+            },
+            "add" :
+            {
+                "title" : "Add a new field",
+                "labels" :
+                {
+                    "name" : "Name",
+                    "type" : "Type"
+                },
+                "errors" :
+                {
+                    "name" :
+                    {
+                        "novalue" : "The name of the field must be specified.",
+                        "valueexists" : "Already have a field called <b>%1$s</b>.",
+                        ":comment.valueexists" : "%1$s is the name of the field.",
+                        ":scount.valueexists" : 1
+                    }
+                }
+            },
+            "edit" :
+            {
+                "title" : "Edit field",
+                "labels" :
+                {
+                    "name" : "Name",
+                    "type" : "Type"
+                },
+                "errors" :
+                {
+                    "name" :
+                    {
+                        "novalue" : "The name of the field must be specified.",
+                        "valueexists" : "Already have a field called <b>%1$s</b>.",
+                        ":comment.valueexists" : "%1$s is the name of the field.",
+                        ":scount.valueexists" : 1
+                    }
+                }
+            },
+            "move" :
+            {
+                "actionerror" : "Unable to move."
+            },
+            "delete" :
+            {
+                "actionerror" : "Unable to remove the field.",
+                "confirmpopup" :
+                {
+                    "title" : "Remove field",
+                    "text" : "Remove this field?  Note: any data associated with the field will also be removed.",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, remove it",
+                        "cancel" : "${actions.cancel}"
+                    }
+                }
+            }
+        },
+        "basic" :
+        {
+            "view" :
+            {
+                "buttons" :
+                {
+                    "edit" :
+                    {
+                        "text" : "Click to edi the information"
+                    }
+                },
+                "text" : "Use the button below to change the general information for your %1$s such as the name and what icons to use.",
+                ":comment.text" : "%1$s is the object type name",
+                ":scount.text" : 1,
+                "labels" :
+                {
+                    "name" : "Name",
+                    "plural" : "Plural",
+                    "bigicon" : "Header icon (%1$spx by %1$spx)",
+                    ":comment.bigicon" : "%1$s the width of the icon, this is usually 24.",
+                    ":scount.bigicon" : 1,
+                    "smallicon" : "Sidebar/Popup Icon (%1$spx by %1$spx)",
+                    ":comment.smallicon" : "%1$s the width of the icon, this is usually 16.",
+                    ":scount.smallicon" : 1
+                }
+            },
+            "edit" :
+            {
+                "actionerror" : "Unable to update.",
+                "labels" :
+                {
+                    "name" : "Name",
+                    "plural" : "Plural",
+                    "bigicon" : "Header icon (24px by 24px)",
+                    "smallicon" : "Sidebar/Popup Icon (16px by 16px)"
+                },
+                "errors" :
+                {
+                    "name" :
+                    {
+                        "novalue" : "Name must be provided.",
+                        "valueexists" : "You already have a type called: %1$s.",
+                        ":comment.valueexists" : "%1$s is the object type name.",
+                        ":scount.valueexists" : 1
+                    },
+                    "plural" :
+                    {
+                        "novalue" : "Plural name must be provided.",
+                        "valueexists" : "You already have a type called: %1$s.",
+                        ":comment.valueexists" : "%1$s is the object type name.",
+                        ":scount.valueexists" : 1
+                    },
+                    "bigicon" :
+                    {
+                        "novalue" : "Header icon must be provided."
+                    },
+                    "smallicon" :
+                    {
+                        "novalue" : "Sidebar/Popup icon must be provided."
+                    }
+                },
+                "warnings" :
+                {
+                    "bigicon" :
+                    {
+                        "popup" :
+                        {
+                            "title" : "Warning!",
+                            "text" : "Note: the image you have selected will be resized to: %1$spx by %1$spx when saved.",
+                            ":comment.text" : "%1$s the width of the icon, this is usually 24.",
+                            ":scount.text" : 1
+                        }
+                    },
+                    "smallicon" :
+                    {
+                        "popup" :
+                        {
+                            "title" : "Warning!",
+                            "text" : "Note: the image you have selected will be resized to: %1$spx by %1$spx when saved.",
+                            ":comment.text" : "%1$s the width of the icon, this is usually 16.",
+                            ":scount.text" : 1
+                        }
+                    }
+                }
+            }
+        }
     },
     "form" :
     {
@@ -301,9 +574,277 @@
             ":comment.entervalue" : "The %s will be replaced with the label of the form element.",
             ":scount.entervalue" : 1,
             "invalidemail" : "Email does not appear to be valid.",
-            "general" : "Please correct the following errors:<ul>%1s</ul>",
-            ":comment.general" : "%1s is the list of errors that need to be corrected by the user.  Each error is wrapped in a html li tag.",
+            "general" : "Please correct the following errors:<ul>%1$s</ul>",
+            ":comment.general" : "%1$s is the list of errors that need to be corrected by the user.  Each error is wrapped in a html li tag.",
             ":scount.general" : 1
+        },
+        "types" :
+        {
+            "webpage" : "Web page",
+            "file" : "File",
+            "text" : "Single-line text",
+            "multitext" : "Multi-line text",
+            "select" : "List",
+            "date" : "Date",
+            "number" : "Number",
+            "image" : "Image",
+            "objectname" : "Name",
+            "objectdesc" : "Object Description",
+            "objectimage" : "Object Image"
+        },
+        "view" :
+        {
+            "novalue" : "Not provided.",
+            "types" :
+            {
+                "image" :
+                {
+                    "actionerror" : "Unable to show image.",
+                    "novalue" : "${form.view.novalue}",
+                    "tooltip" : "Click to view the full image"
+                },
+                "webpage" :
+                {
+                    "novalue" : "${form.view.novalue}"
+                },
+                "select" :
+                {
+                    "novalue" : "${form.view.novalue}",
+                    "valueseparator" : ", "
+                },
+                "text" :
+                {
+                    "novalue" : "${form.view.novalue}"
+                },
+                "objectimage" :
+                {
+                    "actionerror" : "Unable to show image.",
+                    "novalue" : "${form.view.novalue}",
+                    "tooltip" : "Click to view the full image"
+                },
+                "multitext" :
+                {
+                    "novalue" : "${form.view.novalue}"
+                },
+                "number" :
+                {
+                    "novalue" : "${form.view.novalue}"
+                },
+                "date" :
+                {
+                    "novalue" : "${form.view.novalue}"
+                }
+            }
+        },
+        "addedit" :
+        {
+            "types" :
+            {
+                "multitext" :
+                {
+                    "othernames" :
+                    {
+                        "tooltip" : "Separate each name/alias with a new line, comma or a semi-colon."
+                    }
+                },
+                "number" :
+                {
+                    "errors" :
+                    {
+                        "invalidvalue" : "%1$s does not appear to be a number.",
+                        ":comment.invalidvalue" : "%1$s is the value that doesn't appear to be valid.",
+                        ":scount.invalidvalue" : 1,
+                        "max" : "%1$s must be a maximum of %2$s",
+                        ":comment.max" : "%1$s is the value entered by the user.  %2$s is the maximum allowed value.",
+                        ":scount.max" : 2,
+                        "min" : "%1$s must be a minimum of %2$s",
+                        ":comment.min" : "%1$s is the value entered by the user.  %2$s is the minimum allowed value.",
+                        ":scount.min" : 2
+                    }
+                },
+                "objectname" :
+                {
+                    "errors" :
+                    {
+                        "novalue" : "%1$s must be provided.",
+                        ":comment.novalue" : "%1$s is the name of the field.",
+                        ":scount.novalue" : 1,
+                        "valueexists" : "Already have a %1$s called: <b>%2$s</b>",
+                        ":comment.valueexists" : "%1$s is the object type name, %2$s is the name of the object with the name.",
+                        ":scount.novalue" : 2
+                    }
+                },
+                "text" :
+                {
+                    "othernames" :
+                    {
+                        "tooltip" : "Separate each name/alias with a comma or a semi-colon."
+                    }
+                }
+            }
+        },
+        "config" :
+        {
+            "types" :
+            {
+                "descriptionseparator" : ";",
+                ":comment.descriptionseparator" : "This is used to separator the various parts of the description for a field.  For instance there might be 'Single-line text; Is other names/aliases for the furby' as the description of the field.",
+                "date" :
+                {
+                    "description" : "${form.types.date}",
+                    "default" :
+                    {
+                        "text" : "Default",
+                        "description" : "Default: %1$s",
+                        ":comment.description" : "%1$s is the default value.",
+                        ":scount.description" : 1
+                    },
+                    "max" :
+                    {
+                        "text" : "Maximum",
+                        "description" : "Max: %1$s",
+                        ":comment.description" : "%1$s is the maximum value.",
+                        ":scount.description" : 1
+                    },
+                    "min" :
+                    {
+                        "text" : "Minimum",
+                        "description" : "Min: %1$s",
+                        ":comment.description" : "%1$s is the minimum value.",
+                        ":scount.description" : 1
+                    },
+                    "errors" :
+                    {
+                        "max" :
+                        {
+                            "greaterthanmin" : "The maximum date must be after the minimum."
+                        },
+                        "default" :
+                        {
+                            "greaterthanmin" : "The default date must be after the minimum.",
+                            "lessthanmax" : "The default date must be before the maximum."
+                        }
+                    }
+                },
+                "number" :
+                {
+                    "description" : "${form.types.number}",
+                    "max" :
+                    {
+                        "text" : "Maximum",
+                        "description" : "Max: %1$s",
+                        ":comment.description" : "%1$s is the maximum value.",
+                        ":scount.description" : 1
+                    },
+                    "min" :
+                    {
+                        "text" : "Minimum",
+                        "description" : "Min: %1$s",
+                        ":comment.description" : "%1$s is the minimum value.",
+                        ":scount.description" : 1
+                    },
+                    "errors" :
+                    {
+                        "max" :
+                        {
+                            "invalidvalue" : "The maximum value doesn't look like a number.",
+                            "greaterthanmin" : "The maximum value must be greater than the minimum."
+                        },
+                        "min" :
+                        {
+                            "invalidvalue" : "The minimum value doesn't look like a number."
+                        }
+                    }
+                },
+                "objectdesc" :
+                {
+                    "description" : "Is the %1$s description",
+                    ":comment.description" : "%1$s is the object type name.",
+                    ":scount.description" : 1,
+                    "bulletpoints" :
+                    {
+                        "text" : "Display as bullet points",
+                        "tooltip" : "Check this box to display the text in the field as a series of bullet points.  Each separate line of text will be treated as a bullet point.",
+                        "description" : "Displayed as bullet points"
+                    }
+                },
+                "objectname" :
+                {
+                    "description" : "Is the %1$s name",
+                    ":comment.description" : "%1$s is the object type name.",
+                    ":scount.description" : 1
+                },
+                "objectimage" :
+                {
+                    "description" : "Is the %1$s image",
+                    ":comment.description" : "%1$s is the object type name.",
+                    ":scount.description" : 1
+                },
+                "webpage" :
+                {
+                    "description" : "${form.types.webpage}"
+                },
+                "select" :
+                {
+                    "description" : "${form.types.select}",
+                    "text" : "Items",
+                    "tooltip" : "Enter the items that can be selected, separate each item by a comma (,) or a semi-colon (;).",
+                    "errors" :
+                    {
+                        "novalue" : "At least one item must be specified."
+                    },
+                    "allowmulti" :
+                    {
+                        "text" : "Allow multiple items to be selected",
+                        "description" : "Can select multiple items"
+                    },
+                    "multi" :
+                    {
+                        "text" : "Items: ",
+                        "valueseparator" : ", ",
+                        "more" :
+                        {
+                            "text" : ", +%1$s others",
+                            ":comment.text" : "%1$s is the number of other items, the first five are shown.",
+                            ":scount.text" : 1
+                        }
+                    }
+                },
+                "text" :
+                {
+                    "description" : "${form.types.text}",
+                    "othernames" :
+                    {
+                        "text" : "Is other names/aliases for the %1$s",
+                        "description" : "${form.config.types.text.othernames.text}",
+                        ":comment.text" : "%1$s is the object type name. This is the text for a checkbox allowing the user to mark the field as other names/aliases for the object.  It is also used as part of the field description to indicate what the field is used for.",
+                        ":scount.text" : 1,
+                        "tooltip" : "Check this box to mark this field as other name or aliases for the %1$s.  Separate each name/alias with a comma or a semi-colon.",
+                        ":comment.tooltip" : "%1$s is the object type name.",
+                        ":scount.tooltip" : 1
+                    }
+                },
+                "multitext" :
+                {
+                    "description" : "${form.types.multitext}",
+                    "othernames" :
+                    {
+                        "text" : "Is other names/aliases for the %1$s",
+                        "description" : "${form.config.types.multitext.othernames.text}",
+                        ":comment.text" : "%1$s is the object type name. This is the text for a checkbox allowing the user to mark the field as other names/aliases for the object.  It is also used as part of the field description to indicate what the field is used for.",
+                        ":scount.text" : 1,
+                        "tooltip" : "Check this box to mark this field as other name or aliases for the %1$s.  Separate each name/alias with a comma or a semi-colon.",
+                        ":comment.tooltip" : "%1$s is the object type name.",
+                        ":scount.tooltip" : 1
+                    },
+                    "bulletpoints" :
+                    {
+                        "text" : "Display as bullet points",
+                        "tooltip" : "Check this box to display the text in the field as a series of bullet points.  Each separate line of text will be treated as a bullet point.",
+                        "description" : "Displayed as bullet points"
+                    }
+                }
+            }
         }
     },
     "actions" :
@@ -345,11 +886,11 @@
     "deleteitem":
     {
         ":comment" : "This is a general purpose 'Delete this thing' action.  It is reused by a number of functions, such as deleting a chapter or warmup or project.",
-        "title" : "Delete %1s",
-        ":comment.title" : "%1s is the type of thing that is to be deleted.",
+        "title" : "Delete %1$s",
+        ":comment.title" : "%1$s is the type of thing that is to be deleted.",
         ":scount.title" : 1,
-        "text" : "To delete %1s <b>%2s</b> please enter the word <b>${deleteitem.confirmword}</b> into the box below.%3s",
-        ":comment.text" : "%1s is the type of thing that is to be deleted.  %2s is the name of the thing, such as chapter name.  %3s is an optional warning that some delete functions display to warn the user.  The confirmword value is the one used for confirmation of the deletion.  It should be an affirmative value, such as 'Yes' or 'Ok', i.e. short and fast to enter but indicates that the user agrees with the action.  When checked the case of the value entered will be ignored, so YES, Yes, or yes would work.",
+        "text" : "To delete %1$s <b>%2$s</b> please enter the word <b>${deleteitem.confirmword}</b> into the box below.%3s",
+        ":comment.text" : "%1$s is the type of thing that is to be deleted.  %2$s is the name of the thing, such as chapter name.  %3s is an optional warning that some delete functions display to warn the user.  The confirmword value is the one used for confirmation of the deletion.  It should be an affirmative value, such as 'Yes' or 'Ok', i.e. short and fast to enter but indicates that the user agrees with the action.  When checked the case of the value entered will be ignored, so YES, Yes, or yes would work.",
         ":scount.text" : 3,
         "confirmword" : "Yes",
         "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
@@ -367,7 +908,7 @@
                     "cut" :
                     {
                         "text" : "Cut",
-                        "tooltip" : "Cut the selected text"  
+                        "tooltip" : "Cut the selected text"
                     },
                     "copy" :
                     {
@@ -388,7 +929,7 @@
                     {
                         "text" : "Redo",
                         "tooltip" : "Redo the last edit"
-                    }                    
+                    }
                 }
             }
         },
@@ -429,11 +970,11 @@
         {
             "items" :
             {
-                "find" : "Find synonyms for: %1s",
-                ":comment:find" : "%1s is the word to find the synonyms for.",
+                "find" : "Find synonyms for: %1$s",
+                ":comment:find" : "%1$s is the word to find the synonyms for.",
                 ":scount.find" : 1,
-                "nosynonyms" : "(No synonyms for: %1s)",
-                ":comment.nosynonyms" : "%1s is the word we are looking for.",
+                "nosynonyms" : "(No synonyms for: %1$s)",
+                ":comment.nosynonyms" : "%1$s is the word we are looking for.",
                 ":scount.nosynonyms" : 1
             }
         }
@@ -455,7 +996,7 @@
         "manage" :
         {
             "title" : "Manage the ${names.tags}",
-            "finish" : "${actions.finish}",            
+            "finish" : "${actions.finish}",
             "newwords" :
             {
                 "title" : "New Words",
@@ -480,14 +1021,18 @@
         "text" : "Listed below are all the achievements you have found/reached.  Some of the achievements apply to each {project} you create, others are just for general usage of {QW}.  There are also a number of hidden achievements, can you find them?",
         "sectiontitles" :
         {
-            "user" : "General - %1s/%2s",
-            ":comment.user" : "%1s is the number of achievements the user has reached.  %2s is the number of possible user level achievements.",
+            "user" : "General - %1$s/%2$s",
+            ":comment.user" : "%1$s is the number of achievements the user has reached.  %2$s is the number of possible user level achievements.",
             ":scount.user" : 2,
-            "project" : "{Project} - %1s/%2s",
-            ":comment.project" : "%1s is the number of achievements the project has reached.  %2s is the number of possible project level achievements.",
+            "project" : "{Project} - %1$s/%2$s",
+            ":comment.project" : "%1$s is the number of achievements the project has reached.  %2$s is the number of possible project level achievements.",
             ":scount.project" : 2
         },
-        "actionerror" : "Unable to view achievements."        
+        "actionerror" : "Unable to view achievements."
+    },
+    "achievementreached" :
+    {
+        "title" : "You've got an Achievement"
     },
     "achievements" :
     {
@@ -530,9 +1075,9 @@
         "wordcount1000" :
         {
             "name" : "Getting into it",
-            "description" : "You've written 1,000 words."  
+            "description" : "You've written 1,000 words."
         },
-        "wordcount7500" : 
+        "wordcount7500" :
         {
             "name" : "Novellete",
             "description" : "You've written 7,500 words."
@@ -1149,50 +1694,50 @@
         {
             "toomanyclauses" :
             {
-                "text" : "Sentence contains: <b>%1s</b> clauses (Max is: %2s)",
-                ":comment.text" : "%1s is the number of clauses.  %2s is the max value configured.",
+                "text" : "Sentence contains: <b>%1$s</b> clauses (Max is: %2$s)",
+                ":comment.text" : "%1$s is the number of clauses.  %2$s is the max value configured.",
                 ":scount.text" : 2
             },
             "sentencecomplexity" :
             {
-                "text" : "Sentence syllable/word ratio is: <b>%1s</b> (Max is: %2s)",
-                ":comment.text" : "%1s is the ratio for the sentence.  %2s is the max value configured.",
+                "text" : "Sentence syllable/word ratio is: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.text" : "%1$s is the ratio for the sentence.  %2$s is the max value configured.",
                 ":scount.text" : 2
             },
             "sentencelength" :
             {
-                "text" : "Sentence contains: <b>%1s</b> words (Max is: %2s)",
-                ":comment.text" : "%1s is the number of words in the sentence.  %2s is the max value configured.",
+                "text" : "Sentence contains: <b>%1$s</b> words (Max is: %2$s)",
+                ":comment.text" : "%1$s is the number of words in the sentence.  %2$s is the max value configured.",
                 ":scount.text" : 2
             },
             "paragraphreadability" :
             {
-                "fk" : "Paragraph has a ${names.fk} of: <b>%1s</b> (Max is: %2s)",
-                ":comment.fk" : "%1s is the FK value for the paragraph.  %2s is the max FK value configured.",
+                "fk" : "Paragraph has a ${names.fk} of: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.fk" : "%1$s is the FK value for the paragraph.  %2$s is the max FK value configured.",
                 ":scount.fk" : 2,
-                "fr" : "Paragraph has a ${names.fr} of: <b>%1s</b> (Max is: %2s)",
-                ":comment.fr" : "%1s is the FR value for the paragraph.  %2s is the max FR value configured.",
+                "fr" : "Paragraph has a ${names.fr} of: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.fr" : "%1$s is the FR value for the paragraph.  %2$s is the max FR value configured.",
                 ":scount.fr" : 2,
-                "gf" : "Paragraph has a ${names.gf} of: <b>%1s</b> (Max is: %2s)",
-                ":comment.gf" : "%1s is the GF value for the paragraph.  %2s is the max GF value configured.",
+                "gf" : "Paragraph has a ${names.gf} of: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.gf" : "%1$s is the GF value for the paragraph.  %2$s is the max GF value configured.",
                 ":scount.gf" : 2
             },
             "paragraphlength" :
             {
-                "wordtext" : "Paragraph word count is: <b>%1s</b> (Max is: %2s)",
-                ":comment.wordtext" : "%1s is the number of words in the paragraph.  %2s is the max value configured.",
+                "wordtext" : "Paragraph word count is: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.wordtext" : "%1$s is the number of words in the paragraph.  %2$s is the max value configured.",
                 ":scount.wordtext" : 2,
-                "sentencetext" : "Paragraph sentence count is: <b>%1s</b> (Max is: %2s)",
-                ":comment.sentencetext" : "%1s is the number of sentences in the paragraph.  %2s is the max value configured.",
+                "sentencetext" : "Paragraph sentence count is: <b>%1$s</b> (Max is: %2$s)",
+                ":comment.sentencetext" : "%1$s is the number of sentences in the paragraph.  %2$s is the max value configured.",
                 ":scount.sentencetext" : 2
             },
             "doubleword" :
             {
-                "wordtext" : "Double word: <b>%1s %2s</b>.",
-                ":comment.wordtext" : "%1s and %2s are replaced with the duplicated word.",
+                "wordtext" : "Double word: <b>%1$s %2$s</b>.",
+                ":comment.wordtext" : "%1$s and %2$s are replaced with the duplicated word.",
                 ":scount.wordtext" : 2,
-                "punctuationtext" : "Double punctuation: <b>%1s%2s</b>",
-                ":comment.punctuationtext" : "%1s and %2s are replaced with the punctuation mark.",
+                "punctuationtext" : "Double punctuation: <b>%1$s%2$s</b>",
+                ":comment.punctuationtext" : "%1$s and %2$s are replaced with the punctuation mark.",
                 ":scount.punctuationtext" : 2
             },
             "passivesentence" :
@@ -1203,14 +1748,14 @@
             },
             "adverb" :
             {
-                "text" : "Use of adverb: <b>%1s</b> to modify speech verb: <b>%2s</b>",
-                ":comment.text" : "%1s is the adverb, %2s is the speech verb being modified.",
+                "text" : "Use of adverb: <b>%1$s</b> to modify speech verb: <b>%2$s</b>",
+                ":comment.text" : "%1$s is the adverb, %2$s is the speech verb being modified.",
                 ":scount.text" : 2
             },
             "wordfinder" :
             {
-                "text" : "Contains: <b>%1s</b>%2s",
-                ":comment.text" : "%1s is the word/phrase that is found.  %2s is the suffix showing where the word/phrase was found.",
+                "text" : "Contains: <b>%1$s</b>%2$s",
+                ":comment.text" : "%1$s is the word/phrase that is found.  %2$s is the suffix showing where the word/phrase was found.",
                 ":scount.text" : 2,
                 "suffixes" :
                 {
@@ -1231,7 +1776,7 @@
         {
             "popup" :
             {
-                "title" : "Configure the ${names.problemfinder} rules"  
+                "title" : "Configure the ${names.problemfinder} rules"
             },
             "entersummaryerror" : "Please enter a summary.",
             "saveruleerror" : "Unable to save rule",
@@ -1250,7 +1795,7 @@
                 },
                 "paragraph" :
                 {
-                    "addtitle" : "Add new Paragraph Structure rule"  
+                    "addtitle" : "Add new Paragraph Structure rule"
                 },
                 "toomanyclauses" :
                 {
@@ -1299,7 +1844,7 @@
                         {
                             "tooltip" : "Click to remove the selected speech verbs"
                         }
-                    },                    
+                    },
                     "labels" :
                     {
                         "separate" : "(separate with , or ;)",
@@ -1307,7 +1852,7 @@
                         "newspeechverbs" : "New speech verbs",
                         "speechverbs" : "Speech verbs"
                     }
-                },  
+                },
                 "passivesentence" :
                 {
                     "labels" :
@@ -1324,8 +1869,8 @@
                         "anywhere" : "anywhere in a sentence%s",
                         ":comment.anywhere" : "The %s is replaced with one of the dialogue suffixes.",
                         "scount.anywhere" : 1,
-                        "insentence" : "at the %1s of a sentence%2s",
-                        ":comment.insentence" : "%1s is replaced with either start or end, %2s is replaced with one of the dialogue suffixes.",
+                        "insentence" : "at the %1$s of a sentence%2$s",
+                        ":comment.insentence" : "%1$s is replaced with either start or end, %2$s is replaced with one of the dialogue suffixes.",
                         "scount.insentence" : 2,
                         "suffixes" :
                         {
@@ -1347,7 +1892,7 @@
             },
             "editrule" :
             {
-                "title" : "${actions.edit} Rule"  
+                "title" : "${actions.edit} Rule"
             },
             "addrule" :
             {
@@ -1366,7 +1911,7 @@
                 {
                     "rulebox" :
                     {
-                        "tooltip" : "Click to add this rule"  
+                        "tooltip" : "Click to add this rule"
                     },
                     "buttons" :
                     {
@@ -1380,7 +1925,7 @@
                 {
                     "rulebox" :
                     {
-                        "tooltip" : "Click to add this rule"  
+                        "tooltip" : "Click to add this rule"
                     },
                     "buttons" :
                     {
@@ -1443,7 +1988,7 @@
             ":scount.unabletosave" : 1,
             "unabletocreateproject" : "Unable to create new {project}: %s",
             ":comment.unabletocreateproject" : "The %s is the name of the project trying to be created.",
-            ":scount.unabletocreateproject" : 1,            
+            ":scount.unabletocreateproject" : 1,
             "nofileselected" : "Please select a file to import.",
             "filenotexist" : "File does not exist, please select a valid file.",
             "cantopenproject" : "Unable to open {project}",
@@ -1597,14 +2142,14 @@
     },
     "closeproject" :
     {
-        "actionerror" : "Unable to ${actions.save}: <b>%1s</b>, aborting exit.",
-        ":comment.actionerror" : "The %1s is the name of the project.",
+        "actionerror" : "Unable to ${actions.save}: <b>%1$s</b>, aborting exit.",
+        ":comment.actionerror" : "The %1$s is the name of the project.",
         ":scount.actionerror" : 1,
         "confirmpopup" :
         {
             "title" : "Save changes before exiting?",
             "text" : "The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
-            ":comment.text" : "The %1s is a list of items that the user can click on to open up the tab with unsaved changes.  It is recommended you DO NOT change this.  Each item will be formatted within a li html tag.",
+            ":comment.text" : "The %1$s is a list of items that the user can click on to open up the tab with unsaved changes.  It is recommended you DO NOT change this.  Each item will be formatted within a li html tag.",
             ":scount.text" : 1
         }
     },
@@ -1614,14 +2159,14 @@
         "confirmpopup" :
         {
             "title" : "${actions.save} before closing?",
-            "text" : "<b>%1s</b> has unsaved changes.  ${actions.save} before closing?",
-            ":comment.text" : "The %1s is the title of the panel that has changes.",
+            "text" : "<b>%1$s</b> has unsaved changes.  ${actions.save} before closing?",
+            ":comment.text" : "The %1$s is the title of the panel that has changes.",
             ":scount.text" : 1,
             "buttons" :
             {
                 "save" : "${buttons.savechanges}",
                 "discard" : "${buttons.discardchanges}"
-            }            
+            }
         }
     },
     "editors":
@@ -1654,15 +2199,46 @@
         {
             "title" : "{QW} is currently in full screen mode, click to exit"
         },
+        "actions" :
+        {
+            "showproperties" :
+            {
+                "actionerror" : "Unable to show properties."
+            }
+        },
         "title" :
         {
             "toolbar" :
             {
                 "buttons" :
                 {
+                    "distractionfreemodeenter" :
+                    {
+                        "tooltip" : "Click to enter distraction free mode"
+                    },
+                    "distractionfreemodexit" :
+                    {
+                        "tooltip" : "Click to exit distraction free mode"
+                    },
+                    "showcontacts" :
+                    {
+                        "tooltip" : "Click to show my ${objectnames.plural.contact}"
+                    },
+                    "editorsserviceregister" :
+                    {
+                        "tooltip" : "Click to register for the Editors Service"
+                    },
                     "find" :
                     {
-                        "tooltip" : "Click to open the ${names.find}"  
+                        "tooltip" : "Click to open the ${names.find}"
+                    },
+                    "fullscreenexit" :
+                    {
+                        "tooltip" : "Click to exit full screen mode"
+                    },
+                    "editproperties" :
+                    {
+                        "tooltip" : "Click to edit the full screen properties"
                     },
                     "ideaboard" :
                     {
@@ -1670,7 +2246,37 @@
                     }
                 }
             }
-        }        
+        },
+        "info" :
+        {
+            "word" : "word",
+            "words" : "words",
+            "sessionwordcount" :
+            {
+                "tooltip" : "Session word count"
+            },
+            "chapterwordcount" :
+            {
+                "tooltip" : "${objectnames.singular.chapter} word count"
+            }
+        },
+        "distractionfreemode" :
+        {
+            "firsttimepopup" :
+            {
+                "title" : "Welcome to Distraction Free Mode",
+                "text" : "Since this is your first time using <i>Distraction Free Mode</i> it is recommended you spend a bit of time reading about how it works.  It may work in different ways to how you expect and/or how other writing applications implement similar modes.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more</a>"
+            },
+            "enter" : "Click to enter distraction free mode",
+            "exit" : "Click to exit distraction free mode"
+        },
+        "popupmenu" :
+        {
+            "items" :
+            {
+                "editproperties" : "${actions.edit} full screen properties"
+            }
+        }
     },
     "spellchecker" :
     {
@@ -1678,11 +2284,11 @@
     },
     "backups" :
     {
-        "autobackupnotification" : "An automatic ${names.backup} has been created.  <a href='%1s:%1s'>Click to view the ${names.backups}.</a>",
-        ":comment.autobackupnotification" : "The %1s:%2s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
+        "autobackupnotification" : "An automatic ${names.backup} has been created.  <a href='%1$s:%1$s'>Click to view the ${names.backups}.</a>",
+        ":comment.autobackupnotification" : "The %1$s:%2$s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
         ":scount.autobackupnotification" : 2,
-        "text" : "Listed below are the backups you have for {project} <b>%1s</b>.",
-        ":comment.text" : "%1s is the project name.",
+        "text" : "Listed below are the backups you have for {project} <b>%1$s</b>.",
+        ":comment.text" : "%1$s is the project name.",
         ":scount.text" : 1,
         "viewbackupsdir" : "Click to view the backups directory",
         "nobackups" : "Click to view the backups directory",
@@ -1696,7 +2302,7 @@
         },
         "new" :
         {
-            "actionerror" : "Unable to create a new backup."  
+            "actionerror" : "Unable to create a new backup."
         },
         "restore" :
         {
@@ -1705,20 +2311,20 @@
             "popup" :
             {
                 "title" : "Confirm restore",
-                "text" : "Please confirm you wish to restore {project} <b>%1s</b> using the backup file <b>%2s</b>.<br /><br />A backup of the {project} will be created before the restore occurs.",
-                ":comment.text" : "%1s is the project name.  %2s is the path to the file that will be used for the restore.",
+                "text" : "Please confirm you wish to restore {project} <b>%1$s</b> using the backup file <b>%2$s</b>.<br /><br />A backup of the {project} will be created before the restore occurs.",
+                ":comment.text" : "%1$s is the project name.  %2$s is the path to the file that will be used for the restore.",
                 ":scount.text" : 2,
                 "buttons" :
                 {
                     "confirm" : "Yes, restore it",
                     "cancel" : "${buttons.cancel}"
                 }
-            },                
+            },
             "confirmpopup" :
             {
                 "title" : "{Project} restored",
-                "text" : "The {project} has been restored from file <b>%1s</b>.",
-                ":comment.text" : "%1s is the path to file used for the restore.",
+                "text" : "The {project} has been restored from file <b>%1$s</b>.",
+                ":comment.text" : "%1$s is the path to file used for the restore.",
                 ":scount.text" : 1,
                 "actionerror" : "Unable to re-open {project}."
             }
@@ -1729,8 +2335,8 @@
             "confirmpopup" :
             {
                 "title" : "Confirm delete",
-                "text" : "Please confirm you wish to delete backup file <b>%1s</b>.",
-                ":comment.text" : "%1s is the path to the file that will be deleted.",
+                "text" : "Please confirm you wish to delete backup file <b>%1$s</b>.",
+                ":comment.text" : "%1$s is the path to the file that will be deleted.",
                 ":scount.text" : 1,
                 "buttons" :
                 {
@@ -1757,7 +2363,7 @@
                 {
                     "confirm" : "Yes, stop showing them",
                     "cancel" : "No, keep them"
-                }                
+                }
             }
         }
     },
@@ -1766,12 +2372,12 @@
         "actionerror" : "Unable to show What's New",
         "popup" :
         {
-            "title" : "What's new in version %1s",
-            ":comment.title" : "%1s is the current QW version number.",
+            "title" : "What's new in version %1$s",
+            ":comment.title" : "%1$s is the current QW version number.",
             ":scount.title" : 1
         },
-        "text" : "Welcome to version <b>%1s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%2s'>full list of changes online</a>.",
-        ":comment.text" : "%1s is the version number.  %2s is the version number but with all . (dot) replaced with _ (underscores) for use in a url.  It is recommended that you do not modify the href value.",
+        "text" : "Welcome to version <b>%1$s</b>.  This window describes the various changes that have been made since the last version and lets you setup new features.  You can also see the <a href='help://version-changes/%2$s'>full list of changes online</a>.",
+        ":comment.text" : "%1$s is the version number.  %2$s is the version number but with all . (dot) replaced with _ (underscores) for use in a url.  It is recommended that you do not modify the href value.",
         ":scount.text" : 2
     },
     "about" :
@@ -1810,7 +2416,7 @@
         },
         "dofor" :
         {
-            "title" : "And do the {warmup} for"  
+            "title" : "And do the {warmup} for"
         },
         "andor" : "and/or",
         "whicheverfirst" : "(whichever is reached first)",
@@ -1823,8 +2429,8 @@
         "weblinks" :
         {
             "tooltip" : "Click to see a list of websites that have writing prompts",
-            "visitlink" : "Click to go to the %1s website (%2s)",
-            ":comment.visitlink" : "%1s is the name of the website, %2s is the url of the website.",
+            "visitlink" : "Click to go to the %1$s website (%2$s)",
+            ":comment.visitlink" : "%1$s is the name of the website, %2$s is the url of the website.",
             ":scount.visitlink" : 2
         },
         "nextprompt" :
@@ -1834,7 +2440,7 @@
         },
         "previousprompt" :
         {
-            "tooltip" : "Go back to the previous prompt"  
+            "tooltip" : "Go back to the previous prompt"
         },
         "popup" :
         {
@@ -1843,6 +2449,15 @@
     },
     "linkedto" :
     {
+        "headerpopupmenu" :
+        {
+            "items" :
+            {
+                "edit" : "Edit the links"
+            }
+        },
+        "nolinksedit" : "<i>No Links set, click to edit.</i>",
+        ":comment.nolinksedit" : "This text is shown as a clickable link when there are no Links set for the object.  Clicking on the link will show the edit form.",
         "view" :
         {
             "title" : "Linked to",
@@ -1850,8 +2465,8 @@
             {
                 "edit" :
                 {
-                    "tooltip" : "Click to change what other objects this %1s is linked to",
-                    ":comment.tooltip" : "%1s is the object type name for the object.",
+                    "tooltip" : "Click to change what other objects this %1$s is linked to",
+                    ":comment.tooltip" : "%1$s is the object type name for the object.",
                     ":scount.tooltip" : 1
                 }
             }
@@ -1863,8 +2478,8 @@
             {
                 "save" :
                 {
-                    "tooltip" : "Click to save the %1s links",
-                    ":comment.tooltip" : "%1s is the object type name of the asset.",
+                    "tooltip" : "Click to save the %1$s links",
+                    ":comment.tooltip" : "%1$s is the object type name of the asset.",
                     ":scount.tooltip" : 1
                 },
                 "cancel" :
@@ -1881,13 +2496,13 @@
     "errormessage" :
     {
         "title" : "Oops, an error has occurred...",
-        "text" : "%1s<br /><br /><a href='%2s:%3s'>Contact {QW} support about this problem.</a>",
-        ":comment.text" : "%1s is the message being displayed.  %2s and %3s are replaced with values that generate a url the user can click on to report the bug.",
+        "text" : "%1$s<br /><br /><a href='%2$s:%3s'>Contact {QW} support about this problem.</a>",
+        ":comment.text" : "%1$s is the message being displayed.  %2$s and %3s are replaced with values that generate a url the user can click on to report the bug.",
         ":scount.text" : 3
     },
     "generalmessage" :
     {
-        "title" : "Just so you know..."  
+        "title" : "Just so you know..."
     },
     "filefinder" :
     {
@@ -1996,15 +2611,15 @@
             "newtag" :
             {
                 "title" : "Add New Tag(s)",
-                "text" : "Enter the new tag(s) below.  Separate the tags with commas or semi-colons.<br /><br />The tags will be added to <b>%1s</b>.",
-                ":comment.text" : "%1s is the name of the object the tags will be added to.",
+                "text" : "Enter the new tag(s) below.  Separate the tags with commas or semi-colons.<br /><br />The tags will be added to <b>%1$s</b>.",
+                ":comment.text" : "%1$s is the name of the object the tags will be added to.",
                 ":scount.text" : 1,
                 "confirm" : "${actions.add}",
                 "errors" :
                 {
                     "novalue" : "Please enter a new tag.",
                     "valueexists" : "A tag with that name already exists."
-                }                     
+                }
             }
         }
     },
@@ -2028,8 +2643,8 @@
                     "edit" : "${actions.edit}",
                     "addfileordocument" : "Add File/Document",
                     "delete" : "${actions.delete}",
-                    "editobjecttypeinfo" : "Edit the %1s information/fields",
-                    ":comment.editobjecttypeinfo" : "%1s is the asset object type name.",
+                    "editobjecttypeinfo" : "Edit the %1$s information/fields",
+                    ":comment.editobjecttypeinfo" : "%1$s is the asset object type name.",
                     ":scount.editobjecttypeinfo" : 1
                 }
             },
@@ -2041,8 +2656,8 @@
                 },
                 "delete" :
                 {
-                    "tooltip" : "Click to delete this %1s",
-                    ":comment.tooltip" : "%1s is the object type name for the asset.",
+                    "tooltip" : "Click to delete this %1$s",
+                    ":comment.tooltip" : "%1$s is the object type name for the asset.",
                     ":scount.tooltip" : 1
                 }
             },
@@ -2052,18 +2667,51 @@
                 {
                     "edit" :
                     {
-                        "tooltip" : "Click to edit the details for this %1s",
-                        ":comment.tooltip" : "%1s is the object type name for the asset.",
+                        "tooltip" : "Click to edit the details for this %1$s",
+                        ":comment.tooltip" : "%1$s is the object type name for the asset.",
                         ":scount.tooltip" : 1
                     }
                 },
-                "title" : "About"  
+                "title" : "About"
+            }
+        },
+        "add" :
+        {
+            "actionerror" : "Unable to add new %1$s.",
+            ":comment.actionerror" : "%1$s is the object type name of the asset.",
+            ":scount.actionerror" : 1,
+            "panel" :
+            {
+                "title" : "Add new %1$s",
+                ":comment.title" : "%1$s is the object type name such as Location, Research Item etc.",
+                ":scount.title" : 1,
+                "buttons" :
+                {
+                    "save" :
+                    {
+                        "tooltip" : "Click to save"
+                    },
+                    "cancel" :
+                    {
+                        "tooltip" : "Click to cancel"
+                    }
+                },
+                "errors" :
+                {
+                    "form" : "Please correct the following errors:<ul>%1$s</ul>",
+                    ":comment.form" : "%1$s is the list of errors found in the form.  Each error is wrapped in a html li tag.",
+                    ":scount.form" : 1
+                }
+            },
+            "popup" :
+            {
+
             }
         },
         "edit" :
         {
-            "actionerror" : "Unable to edit the %1s.",
-            ":comment.actionerror" : "%1s is the object type name of the asset.",
+            "actionerror" : "Unable to edit the %1$s.",
+            ":comment.actionerror" : "%1$s is the object type name of the asset.",
             ":scount.actionerror" : 1,
             "aboutpanel" :
             {
@@ -2072,8 +2720,8 @@
                 {
                     "save" :
                     {
-                        "tooltip" : "Click to save the %1s details",
-                        ":comment.tooltip" : "%1s is the object type name of the asset.",
+                        "tooltip" : "Click to save the %1$s details",
+                        ":comment.tooltip" : "%1$s is the object type name of the asset.",
                         ":scount.tooltip" : 1
                     },
                     "cancel" :
@@ -2088,9 +2736,9 @@
             "actionerror" : "Unable to delete.",
             "confirmpopup" :
             {
-                "title" : "Delete %1s",
-                "text" : "Please confirm you wish to delete %1s <b>%2s</b>?",
-                ":comment.text" : "%1s is the object type name of the asset.  %2s is the name of the asset.",
+                "title" : "Delete %1$s",
+                "text" : "Please confirm you wish to delete %1$s <b>%2$s</b>?",
+                ":comment.text" : "%1$s is the object type name of the asset.  %2$s is the name of the asset.",
                 ":scount.text" : 2,
                 "buttons" :
                 {
@@ -2128,14 +2776,14 @@
         {
             "items" :
             {
-                "new" : "Add a new %1s",
-                ":comment.new" : "%1s is the name of the object type, i.e. Character, Location etc.",
+                "new" : "Add a new %1$s",
+                ":comment.new" : "%1$s is the name of the object type, i.e. Character, Location etc.",
                 ":scount.new" : 1,
-                "edit" : "Edit the %1s information/fields",
-                ":comment.edit" : "%1s is the name of the object type, i.e. Character, Location etc.",
+                "edit" : "Edit the %1$s information/fields",
+                ":comment.edit" : "%1$s is the name of the object type, i.e. Character, Location etc.",
                 ":scount.edit" : 1,
-                "sort" : "Sort the %1s by",
-                ":comment.edit" : "%1s is the plural name of the object type, i.e. Characters, Locations etc.",
+                "sort" : "Sort the %1$s by",
+                ":comment.edit" : "%1$s is the plural name of the object type, i.e. Characters, Locations etc.",
                 ":scount.edit" : 1
             }
         },
@@ -2160,11 +2808,11 @@
         "sidebar" :
         {
             "text" : "appears in the following {chapters}.",
-            "title" : "%1s",
-            ":comment.title" : "Shown when the sidebar is active one.  %1s is the name of the object.",
+            "title" : "%1$s",
+            ":comment.title" : "Shown when the sidebar is active one.  %1$s is the name of the object.",
             ":scount.title" : 1,
-            "activetitle" : "%1s appears in",
-            ":comment.activetitle" : "Shown when the sidebar is shown in the inactive list.  %1s is the name of the object.",
+            "activetitle" : "%1$s appears in",
+            ":comment.activetitle" : "Shown when the sidebar is shown in the inactive list.  %1$s is the name of the object.",
             ":scount.activetitle" : 1
         }
     },
@@ -2227,7 +2875,7 @@
                 {
 
                 }
-                
+
             }
         },
         "actions" :
@@ -2240,7 +2888,7 @@
             },
             "editwarmup" :
             {
-                "actionerror" : "Unable to edit ${objectnames.singular.warmup}."  
+                "actionerror" : "Unable to edit ${objectnames.singular.warmup}."
             },
             "renamewarmup" :
             {
@@ -2274,15 +2922,15 @@
             },
             "toolbar" :
             {
-                  
+
             },
             "tools" :
             {
-                
+
             },
             "actions" :
             {
-                
+
             }
         },
         "sidebar" :
@@ -2320,7 +2968,7 @@
             },
             "targets" :
             {
-                "title" : "Targets"  
+                "title" : "Targets"
             },
             "problemfinder" :
             {
@@ -2331,8 +2979,8 @@
                     {
                         ":comment" : "The items here assume the plural case for problems to un-ignore, this is to simplify things.",
                         "title" : "Un-ignore problems",
-                        "text" : "Please confirm you wish to un-ignore %1s problems for rule<br /><br /><b>%2s</b>",
-                        ":comment.text" : "%1s here is the number of problems that will be un-ignored or be able to be found again.  %2s is the description of the rule.",
+                        "text" : "Please confirm you wish to un-ignore %1$s problems for rule<br /><br /><b>%2$s</b>",
+                        ":comment.text" : "%1$s here is the number of problems that will be un-ignored or be able to be found again.  %2$s is the description of the rule.",
                         ":scount.text" : 2,
                         "confirm" : "Yes, un-ignore them"
                     }
@@ -2340,8 +2988,8 @@
                 "ignored" :
                 {
                     "single" : "1 problem for this rule has been ignored, click to un-ignore it.",
-                    "plural" : "%1s problems for this rule have been ignored, click to un-ignore them.",
-                    ":comment.plural" : "%1s is the number of problems (greater than 1) that have been ignored for the problem.",
+                    "plural" : "%1$s problems for this rule have been ignored, click to un-ignore them.",
+                    ":comment.plural" : "%1$s is the number of problems (greater than 1) that have been ignored for the problem.",
                     ":scount.plural" : 1
                 },
                 "results" :
@@ -2375,7 +3023,7 @@
                                         "tooltip" : "Show the ${names.problemfinder} rules"
                                     }
                                 }
-                            }                            
+                            }
                         }
                     }
                 }
@@ -2406,8 +3054,8 @@
                 {
                     "items" :
                     {
-                        "deleteall" : "Delete all %1s",
-                        ":comment.deleteall" : "%1s is the object type plural name for the asset type.",
+                        "deleteall" : "Delete all %1$s",
+                        ":comment.deleteall" : "%1$s is the object type plural name for the asset type.",
                         ":scount.deleteall" : 1
                     }
                 }
@@ -2440,8 +3088,8 @@
             {
                 "actionerror" : "Unable to delete tag.",
                 "title" : "Delete ${names.tag}",
-                "text" : "Do you wish to delete tag <b>%1s</b> from <b>ALL</b> {projects} or just this one?",
-                ":comment.text" : "%1s is the tag that will be removed/deleted.  For a single project the tag is just removed or made unavailable.  If removed from all projects then it is deleted completely.",
+                "text" : "Do you wish to delete tag <b>%1$s</b> from <b>ALL</b> {projects} or just this one?",
+                ":comment.text" : "%1$s is the tag that will be removed/deleted.  For a single project the tag is just removed or made unavailable.  If removed from all projects then it is deleted completely.",
                 ":scount.text" : 1,
                 "allprojects" : "Delete from all {projects}",
                 "thisproject" : "Just this {project}"
@@ -2459,7 +3107,7 @@
             },
             "editideatype" :
             {
-                "actionerror" : "Unable to save ${names.ideatype}.",                
+                "actionerror" : "Unable to save ${names.ideatype}.",
                 "title" : "${actions.edit} ${names.ideatype}",
                 "text" : "Enter the new name of the ${names.ideatype} below.",
                 "confirm" : "${actions.change}",
@@ -2471,7 +3119,7 @@
             },
             "deleteideatype" :
             {
-                "actionerror" : "Unable to delete ${names.ideatype}.",               
+                "actionerror" : "Unable to delete ${names.ideatype}.",
                 ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
                 "actionerror" : "Unable to delete ${names.ideatype}.",
                 "deletetype" : "${names.ideatype}",
@@ -2484,7 +3132,7 @@
             "saveidea" :
             {
                 "actionerror" : "Unable to save ${names.idea}."
-            },            
+            },
             "splitchapter" :
             {
                 "title" : "Split {Chapter}",
@@ -2492,17 +3140,17 @@
                 "errorlabel" : "Please enter a {chapter} name.",
                 "moretextindicator" : " ${moretextindicator} ",
                 ":comment.moretextindicator" : "The ellipsis here, in English, indicates that there is more text available.  i.e. there is more to come in this ...",
-                "labels" : 
+                "labels" :
                 {
                     "newchaptername" : "New {Chapter} Name",
                     "startat" : "Start at",
                     "endat" : "End at",
-                    "words" : "Words"            
+                    "words" : "Words"
                 }
-            },            
+            },
             "changestatus" :
             {
-                "actionerror" : "Unable to change status."  
+                "actionerror" : "Unable to change status."
             },
             "newchapter" :
             {
@@ -2531,19 +3179,19 @@
             },
             "editchapter" :
             {
-                "actionerror" : "Unable to edit {chapter} <b>%1s</b>.",
-                ":comment.actionerror" : "%1s is the name of the chapter.",
+                "actionerror" : "Unable to edit {chapter} <b>%1$s</b>.",
+                ":comment.actionerror" : "%1$s is the name of the chapter.",
                 ":scount.actionerror" : 1
             },
             "deletechapter" :
             {
                 ":comment" : "The delete chapter function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
-                "actionerror" : "Unable to delete {chapter} <b>%1s</b>.",
-                ":comment.actionerror" : "%1s is the name of the chapter.",
+                "actionerror" : "Unable to delete {chapter} <b>%1$s</b>.",
+                ":comment.actionerror" : "%1$s is the name of the chapter.",
                 ":scount.actionerror" : 1,
                 "deletetype" : "{Chapter}",
                 "warning" : "Warning!  Once deleted a {chapter} cannot be restored."
-            },            
+            },
             "renameproject" :
             {
                 "actionerror" : "Unable to rename {project}.",
@@ -2554,17 +3202,17 @@
                 {
                     "novalue" : "Please enter a new name.",
                     "valueexists" : "A {project} with that name already exists.",
-                    "cantreopenproject" : "Unable to reopen {project}."
+                    "cantreopenproject" : "Unable to reopen ${objectnames.singular.project}."
                 }
             },
             "openproject" :
             {
-                "actionerror" : "Unable to show the {projects} window.",
+                "actionerror" : "Unable to show the ${objectnames.plural.project} window.",
                 "enterpasswordpopup" :
                 {
                     "title" : "Enter password",
-                    "text" : "{Project}: <b>%1s</b> is encrypted, please enter the password.",
-                    ":comment.text" : "%1s is the project name.",
+                    "text" : "{Project}: <b>%1$s</b> is encrypted, please enter the password.",
+                    ":comment.text" : "%1$s is the project name.",
                     ":scount.text" : 1,
                     "errors" :
                     {
@@ -2577,37 +3225,37 @@
                 "openerrors" :
                 {
                     ":comment" : "These are error messages that may be displayed when a user is unable to open a project.",
-                    "general" : "Unable to open {project} <b>%1s</b>, reason:<br /><br />%2s",
-                    ":comment.general" : "%1s is the project name.  %2s is the reason which will be one of the reasons from this section.",
+                    "general" : "Unable to open {project} <b>%1$s</b>, reason:<br /><br />%2$s",
+                    ":comment.general" : "%1$s is the project name.  %2$s is the reason which will be one of the reasons from this section.",
                     ":scount.general" : 2,
                     "projectnotexist" : "{Project} does not exist.",
-                    "projectdirnotexist" : "Cannot find {project} directory <b>%1s</b>.",
-                    ":comment.projectdirnotexist" : "%1s is the project directory.",
+                    "projectdirnotexist" : "Cannot find {project} directory <b>%1$s</b>.",
+                    ":comment.projectdirnotexist" : "%1$s is the project directory.",
                     ":scount.projectdirnotexist" : 1,
-                    "projectdirisfile" : "Path to {project} <b>%1s</b> is a file, but a directory is expected.",
-                    ":comment.projectdirisfile" : "%1s is the expected project directory.  This error occurs when the project directory is actually a file.",
+                    "projectdirisfile" : "Path to {project} <b>%1$s</b> is a file, but a directory is expected.",
+                    ":comment.projectdirisfile" : "%1$s is the expected project directory.  This error occurs when the project directory is actually a file.",
                     ":scount.projectdirisfile" : 1,
-                    "invalidprojectdir" : "{Project} directory <b>%1s</b> doesn't appear to be a valid {QW} {project}.",
-                    ":comment.invalidprojectdir" : "%1s is the project directory.",
+                    "invalidprojectdir" : "{Project} directory <b>%1$s</b> doesn't appear to be a valid {QW} {project}.",
+                    ":comment.invalidprojectdir" : "%1$s is the project directory.",
                     ":scount.invalidprojectdir" : 1,
-                    "cantfindeditor" : "Unable to find {contact}: <b>%1s</b> you are editing the {project} for.",
-                    ":comment.cantfindeditor" : "%1s is the email address of the contact/editor the user is editing the project for.",
+                    "cantfindeditor" : "Unable to find {contact}: <b>%1$s</b> you are editing the {project} for.",
+                    ":comment.cantfindeditor" : "%1$s is the email address of the contact/editor the user is editing the project for.",
                     ":scount.cantfindeditor" : 1
                 }
             },
             "deleteproject" :
             {
                 ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
-                "actionerror" : "Unable to delete {project} <b>%1s</b>.",
-                ":comment.actionerror" : "%1s is the name of the project.",
+                "actionerror" : "Unable to delete {project} <b>%1$s</b>.",
+                ":comment.actionerror" : "%1$s is the name of the project.",
                 ":scount.actionerror" : 1,
                 "deletetype" : "{Project}",
                 "warning" :
                 {
                     "normal" : "Warning!  Once deleted a {chapter} cannot be restored.",
                     ":comment.normal" : "This message is always shown.",
-                    "editor" : "<br /><br />A message will also be sent to <b>%1s</b> telling them you are no longer editing the {project}.",
-                    ":comment.editor" : "%1s is the name/email address of the person the user is editing the project for.  This message is shown when the user is editing the project for someone else.  The normal message is always shown, so this message acts as a suffix.",
+                    "editor" : "<br /><br />A message will also be sent to <b>%1$s</b> telling them you are no longer editing the {project}.",
+                    ":comment.editor" : "%1$s is the name/email address of the person the user is editing the project for.  This message is shown when the user is editing the project for someone else.  The normal message is always shown, so this message acts as a suffix.",
                     ":scount.editor" : 1
                 },
                 "editorproject" :
@@ -2616,12 +3264,12 @@
                     {
                         ":comment" : "This popup is shown when the user is editing the project for someone else.",
                         "title" : "{Project} deleted",
-                        "text" : "The {project} has been deleted and a message has been sent to <b>%1s</b> to let them know.",
-                        ":comment.text" : "%1s is the name/email address of the person the user is editing the project for.",
+                        "text" : "The {project} has been deleted and a message has been sent to <b>%1$s</b> to let them know.",
+                        ":comment.text" : "%1$s is the name/email address of the person the user is editing the project for.",
                         ":scount.text" : 1
                     }
                 }
-            },                        
+            },
             "viewchapterinformation" :
             {
                 "actionerror" : "Unable to view {chapter} information."
@@ -2644,26 +3292,26 @@
             },
             "viewaddasset" :
             {
-                "actionerror" : "Unable to display add new %1s.",
-                ":comment.actionerror" : "%1s is the object name for the asset.",
+                "actionerror" : "Unable to display add new %1$s.",
+                ":comment.actionerror" : "%1$s is the object name for the asset.",
                 ":scount.actionerror" : 1
             },
             "viewasset" :
             {
-                "actionerror" : "Unable to view %1s <b>%2s</b>.",
-                ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
+                "actionerror" : "Unable to view %1$s <b>%2$s</b>.",
+                ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
                 ":scount.actionerror" : 2
             },
             "editasset" :
             {
-                "actionerror" : "Unable to edit %1s <b>%2s</b>.",
-                ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
+                "actionerror" : "Unable to edit %1$s <b>%2$s</b>.",
+                ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
                 ":scount.actionerror" : 2
             },
             "deleteasset" :
             {
-                "actionerror" : "Unable to delete %1s <b>%2s</b>.",
-                ":comment.actionerror" : "%1s is the object name of the asset.  %2s is the name of the asset.",
+                "actionerror" : "Unable to delete %1$s <b>%2$s</b>.",
+                ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
                 ":scount.actionerror" : 2
             },
             "viewproblemfindersidebar" :
@@ -2781,39 +3429,39 @@
                 {
                     "projectmenu" :
                     {
-                        "tooltip" : "Click to view the ${objectnames.singular.project} menu"  
+                        "tooltip" : "Click to view the ${objectnames.singular.project} menu"
                     },
                     "close" :
                     {
-                        "tooltip" : "Click to close"  
+                        "tooltip" : "Click to close"
                     },
                     "showcontacts" :
                     {
-                        "tooltip" : "Click to show my ${objectnames.plural.contact}"  
+                        "tooltip" : "Click to show my ${objectnames.plural.contact}"
                     },
                     "editorsserviceregister" :
                     {
-                        "tooltip" : "Click to register for the Editors Service"  
+                        "tooltip" : "Click to register for the Editors Service"
                     },
                     "betabug" :
                     {
-                        "tooltip" : "Click to report a bug/problem with the beta"  
+                        "tooltip" : "Click to report a bug/problem with the beta"
                     },
                     "bug" :
                     {
-                        "tooltip" : "Click to report a bug/problem"  
+                        "tooltip" : "Click to report a bug/problem"
                     },
                     "warmup" :
                     {
-                        "tooltip" : "Click to do a new ${objectnames.singular.warmup} exercise"  
+                        "tooltip" : "Click to do a new ${objectnames.singular.warmup} exercise"
                     },
                     "fullscreen" :
                     {
-                        "tooltip" : "Click to work in full screen mode"  
+                        "tooltip" : "Click to work in full screen mode"
                     },
                     "find" :
                     {
-                        "tooltip" : "Click to open the ${names.find}"  
+                        "tooltip" : "Click to open the ${names.find}"
                     },
                     "ideaboard" :
                     {

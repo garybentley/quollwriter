@@ -31,14 +31,27 @@ public class SelectUserConfigurableObjectTypeFieldConfigHandler implements UserC
         
         this.field = field;
         
-        this.editItems = new MultiLineTextFormItem ("Items",
-                                                    "Enter the items that can be selected, separate each item by a comma (,) or a semi-colon (;).",
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.select.getType ());
+
+        this.editItems = new MultiLineTextFormItem (Environment.getUIString (prefix,
+                                                                             LanguageStrings.text),
+                                                    //"Items",
+                                                    Environment.getUIString (prefix,
+                                                                             LanguageStrings.tooltip),
+                                                    //"Enter the items that can be selected, separate each item by a comma (,) or a semi-colon (;).",
                                                     3,
                                                     -1,
                                                     false,
                                                     null);
-                                       
-        this.editAllowMulti = UIUtils.createCheckBox ("Allow multiple items to be selected");
+                                                                              
+        this.editAllowMulti = UIUtils.createCheckBox (Environment.getUIString (prefix,
+                                                                               LanguageStrings.allowmulti,
+                                                                               LanguageStrings.text));
+        //"Allow multiple items to be selected");
         
     }
                 
@@ -78,7 +91,16 @@ public class SelectUserConfigurableObjectTypeFieldConfigHandler implements UserC
         if (t.countTokens () == 0)
         {
             
-            errors.add ("At least one item must be specified.");
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.form);
+            prefix.add (LanguageStrings.config);
+            prefix.add (LanguageStrings.types);
+            prefix.add (UserConfigurableObjectTypeField.Type.select.getType ());
+            prefix.add (LanguageStrings.errors);
+            
+            errors.add (Environment.getUIString (prefix,
+                                                 LanguageStrings.novalue));
+            //"At least one item must be specified.");
             
         }
                     
@@ -137,14 +159,25 @@ public class SelectUserConfigurableObjectTypeFieldConfigHandler implements UserC
     public String getConfigurationDescription ()
     {
         
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.config);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.select.getType ());
+        
         Set<String> strs = new LinkedHashSet ();
 
-        strs.add ("select list");
+        strs.add (Environment.getUIString (prefix,
+                                           LanguageStrings.description));
+        //"select list");
         
         if (this.field.isAllowMulti ())
         {
             
-            strs.add ("can select multiple items");
+            strs.add (Environment.getUIString (prefix,
+                                               LanguageStrings.allowmulti,
+                                               LanguageStrings.description));
+                      //"can select multiple items");
             
         }
 
@@ -153,23 +186,15 @@ public class SelectUserConfigurableObjectTypeFieldConfigHandler implements UserC
         if (items.size () > 0)
         {
             
-            StringBuilder b = new StringBuilder ("items: ");
+            StringBuilder b = new StringBuilder (Environment.getUIString (prefix,
+                                                                          LanguageStrings.multi,
+                                                                          LanguageStrings.text));
+            //"items: ");
         
             int i = 0;
             
             for (String v : items)
             {
-                
-                if (i > 0)
-                {
-                    
-                    b.append (", ");
-                    
-                }
-                
-                b.append (v);
-                
-                i++;
                 
                 if (i == 5)
                 {
@@ -178,17 +203,35 @@ public class SelectUserConfigurableObjectTypeFieldConfigHandler implements UserC
                     
                 }
                 
+                if (i > 0)
+                {
+                    
+                    b.append (Environment.getUIString (prefix,
+                                                       LanguageStrings.multi,
+                                                       LanguageStrings.valueseparator));
+                              //", ");
+                    
+                }
+                
+                b.append (v);
+                
+                i++;
+                                
             }
-        
-            strs.add (b.toString ());
-        
+                
             if (items.size () > 5)
             {
                 
-                strs.add (String.format (", +%s others",
+                b.append (String.format (Environment.getUIString (prefix,
+                                                                  LanguageStrings.multi,
+                                                                  LanguageStrings.more,
+                                                                  LanguageStrings.text),
+                                         //", +%s others",
                                          Environment.formatNumber (items.size () - 5)));
                 
             }
+            
+            strs.add (b.toString ());            
         
         }
         

@@ -29,7 +29,12 @@ public class WebpageUserConfigurableObjectTypeFieldConfigHandler implements User
         
         Set<String> strs = new LinkedHashSet ();
         
-        strs.add ("web page");
+        strs.add (Environment.getUIString (LanguageStrings.form,
+                                           LanguageStrings.config,
+                                           LanguageStrings.types,
+                                           LanguageStrings.webpage,
+                                           LanguageStrings.description));
+        //"web page");
         
         return Utils.joinStrings (strs,
                                   null);

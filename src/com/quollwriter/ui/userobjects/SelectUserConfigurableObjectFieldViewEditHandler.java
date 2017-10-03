@@ -139,9 +139,17 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
     public Set<FormItem> getViewFormItems ()
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.form);
+        prefix.add (LanguageStrings.view);
+        prefix.add (LanguageStrings.types);
+        prefix.add (UserConfigurableObjectTypeField.Type.select.getType ());
+    
         Set<FormItem> items = new LinkedHashSet ();
         
-        String label = "Not provided.";
+        String label = Environment.getUIString (prefix,
+                                                LanguageStrings.novalue);
+        //"Not provided.";
         
         Set<String> value = null;
         
@@ -159,11 +167,13 @@ public class SelectUserConfigurableObjectFieldViewEditHandler extends AbstractUs
         {                
         
             items.add (new AnyFormItem (this.typeField.getFormName (),
-                                        UIUtils.createLabel (Utils.joinStrings (value, ", "))));
+                                        UIUtils.createLabel (Utils.joinStrings (value, Environment.getUIString (prefix,
+                                                                                                                LanguageStrings.valueseparator)))));
         
         } else {
             
-            items.add (this.createNoValueItem ());
+            items.add (this.createNoValueItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.novalue)));
             
         }    
         

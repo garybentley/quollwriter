@@ -63,47 +63,16 @@ public abstract class UserConfigurableObjectTypeField extends NamedObject
             }            
             
         }            
-        
-        public static Type getTypeForName (String n)
-        {
-            
-            switch (n)
-            {
-                case "Text" : return Type.text;
-                case "Multi-line text" : return Type.multitext;
-                case "List" : return Type.select;
-                case "Date" : return Type.date;
-                case "Number" : return Type.number;
-                case "Web page" : return Type.webpage;
-                case "File" : return Type.file;
-                case "Image" : return Type.image;
-                case "Object Image" : return Type.objectimage;
-                case "Object Description" : return Type.objectdesc;
-                default : return null;
-                
-            }            
-            
-        }
-        
+
         public String getName ()
         {
             
-            switch (this)
-            {
-                case text : return "Text";
-                case multitext : return "Multi-line text";
-                case select : return "List";
-                case date : return "Date";
-                case number : return "Number";
-                case webpage : return "Web page";
-                case file : return "File";
-                case image : return "Image";
-                case objectname : return "Name";
-                case objectdesc : return "Object Description";
-                case objectimage : return "Object Image";
-                default : return "Unknown";
-                
-            }
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.form);
+            prefix.add (LanguageStrings.types);
+
+            return Environment.getUIString (prefix,
+                                            this.type);
             
         }
         

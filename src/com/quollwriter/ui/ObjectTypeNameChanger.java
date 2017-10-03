@@ -97,6 +97,11 @@ public class ObjectTypeNameChanger extends Box
         if (changing)
         {
 
+            final java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.objectnames);
+            prefix.add (LanguageStrings.changer);
+            prefix.add (LanguageStrings.confirmchange);
+        
             if (this.viewer instanceof AbstractProjectViewer)
             {
                 
@@ -104,17 +109,31 @@ public class ObjectTypeNameChanger extends Box
                 
                 final Project proj = pv.getProject ();
                 final ObjectTypeNameChanger _this = this;
-            
+                        
             //XXX xxx handle ALL open projects
             //xxx recreate the landing
             
                 // Offer to reopen project.
                 UIUtils.createQuestionPopup (this.viewer,
-                                             "Confirm name changes?",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.popup,
+                                                                      LanguageStrings.title),
+                                             //"Confirm name changes?",
                                              Constants.EDIT_ICON_NAME,
-                                             "Warning!  To change the object names the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
-                                             "Yes, change the names",
-                                             null,
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.popup,
+                                                                      LanguageStrings.text),
+                                             //"Warning!  To change the object names the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.popup,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.confirm),
+                                             //"Yes, change the names",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.popup,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.cancel),
+                                             //null,
                                              new ActionListener ()
                                              {
                                     
@@ -130,7 +149,9 @@ public class ObjectTypeNameChanger extends Box
                                                     } catch (Exception e) {
                                                         
                                                         UIUtils.showErrorMessage (_this,
-                                                                                  "Unable to modify names");
+                                                                                  Environment.getUIString (prefix,
+                                                                                                           LanguageStrings.actionerror));
+                                                                                  //"Unable to modify names");
                                                         
                                                         Environment.logError ("Unable to modify names",
                                                                               e);
@@ -152,17 +173,30 @@ public class ObjectTypeNameChanger extends Box
                                                                                   try
                                                                                   {
                                                                       
-                                                                                      Environment.openProject (proj);
+                                                                                        Environment.openProject (proj);
                                                                       
                                                                                   } catch (Exception e)
                                                                                   {
                                                                       
-                                                                                      Environment.logError ("Unable to reopen project: " +
-                                                                                                            proj,
-                                                                                                            e);
+                                                                                        Environment.logError ("Unable to reopen project: " +
+                                                                                                              proj,
+                                                                                                              e);
 
-                                                                                      UIUtils.showErrorMessage (_this,
-                                                                                                                "Unable to reopen {project}.  Please contact Quoll Writer support for assistance.");
+                                                                                        try
+                                                                                        {
+                                                                                            
+                                                                                            Environment.relaunchLanding ();
+                                                                                                            
+                                                                                        } catch (Exception ee) {
+                                                                                            
+                                                                                            Environment.logError ("Unable to open landing.",
+                                                                                                                  e);
+                                                                                            
+                                                                                            UIUtils.showErrorMessage (this,
+                                                                                                                      Environment.getUIString (LanguageStrings.allprojects,
+                                                                                                                                               LanguageStrings.actionerror));
+                                                                                            
+                                                                                        }
                                                                                       
                                                                                   }
                               
@@ -190,7 +224,9 @@ public class ObjectTypeNameChanger extends Box
                 } catch (Exception e) {
                     
                     UIUtils.showErrorMessage (this,
-                                              "Unable to modify names");
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to modify names");
                     
                     Environment.logError ("Unable to modify names",
                                           e);
@@ -207,7 +243,9 @@ public class ObjectTypeNameChanger extends Box
                 } catch (Exception e) {
                     
                     UIUtils.showErrorMessage (this,
-                                              "Unable to show start window, please contact Quoll Writer support for assistance.");
+                                              Environment.getUIString (LanguageStrings.allprojects,
+                                                                       LanguageStrings.actionerror));
+                                              //"Unable to show start window, please contact Quoll Writer support for assistance.");
                     
                     Environment.logError ("Unable to show start window",
                                           e);
@@ -230,20 +268,39 @@ public class ObjectTypeNameChanger extends Box
         
         final ObjectTypeNameChanger _this = this;
         
+        final java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.objectnames);
+        prefix.add (LanguageStrings.changer);
+        prefix.add (LanguageStrings.resetchange);
+        
         if (this.viewer instanceof AbstractProjectViewer)
         {
             
             AbstractProjectViewer pv = (AbstractProjectViewer) this.viewer;
                 
             final Project proj = pv.getProject ();
-    
+        
             // Offer to reopen project.
             UIUtils.createQuestionPopup (this.viewer,
-                                         "Confirm name changes?",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.popup,
+                                                                  LanguageStrings.title),
+                                         //"Confirm name changes?",
                                          Constants.EDIT_ICON_NAME,
-                                         "Warning!  To reset the object names back to the defaults the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
-                                         "Yes, reset the names",
-                                         null,
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.popup,
+                                                                  LanguageStrings.text),
+                                         //"Warning!  To reset the object names back to the defaults the {project} must first be saved then reopened.<br /><br />Do you wish to continue?",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.popup,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.confirm),
+                                         //"Yes, reset the names",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.popup,
+                                                                  LanguageStrings.buttons,
+                                                                  LanguageStrings.cancel),
+                                         //null,
                                          new ActionListener ()
                                          {
                                             
@@ -258,7 +315,9 @@ public class ObjectTypeNameChanger extends Box
                                                 } catch (Exception e) {
                                                     
                                                     UIUtils.showErrorMessage (_this,
-                                                                              "Unable to modify names");
+                                                                              Environment.getUIString (prefix,
+                                                                                                       LanguageStrings.actionerror));
+                                                                              //"Unable to modify names");
                                                     
                                                     Environment.logError ("Unable to modify names",
                                                                           e);
@@ -286,13 +345,25 @@ public class ObjectTypeNameChanger extends Box
                                                                              } catch (Exception e)
                                                                              {
                                                                  
-                                                                                 Environment.logError ("Unable to reopen project: " +
-                                                                                                       proj,
-                                                                                                       e);
-                                                                                 
-                                                                                 UIUtils.showErrorMessage (null,
-                                                                                                           "Unable to reopen project.  Please contact Quoll Writer support for assistance.");
-                                                                                 
+                                                                                Environment.logError ("Unable to reopen project: " +
+                                                                                                      proj,
+                                                                                                      e);                                                                                
+                                                                                try
+                                                                                {
+                                                                                    
+                                                                                    Environment.relaunchLanding ();
+                                                                                    
+                                                                                } catch (Exception ee) {
+                                                                                    
+                                                                                    Environment.logError ("Unable to open landing.",
+                                                                                                          e);
+                                                                                    
+                                                                                    UIUtils.showErrorMessage (this,
+                                                                                                              Environment.getUIString (LanguageStrings.allprojects,
+                                                                                                                                       LanguageStrings.actionerror));
+                                                                                                                                                                        
+                                                                                }
+
                                                                              }
                              
                                                                        }
@@ -315,7 +386,9 @@ public class ObjectTypeNameChanger extends Box
             } catch (Exception e) {
                 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to modify names");
+                                          Environment.getUIString (prefix,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to modify names");
                 
                 Environment.logError ("Unable to modify names",
                                       e);
@@ -332,9 +405,11 @@ public class ObjectTypeNameChanger extends Box
             } catch (Exception e) {
                 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to show start window, please contact Quoll Writer support for assistance.");
+                                          Environment.getUIString (LanguageStrings.allprojects,
+                                                                   LanguageStrings.actionerror));
+                                          //"Unable to show start window, please contact Quoll Writer support for assistance.");
                 
-                Environment.logError ("Unable to show start window",
+                Environment.logError ("Unable to show landing.",
                                       e);
                 
                 return;
@@ -393,7 +468,14 @@ public class ObjectTypeNameChanger extends Box
 
         final ObjectTypeNameChanger _this = this;
     
-        JTextPane help = UIUtils.createHelpTextPane ("After saving any changes to names will appear when you next open the {project}.", 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.objectnames);
+        prefix.add (LanguageStrings.changer);
+        prefix.add (LanguageStrings.popup);
+    
+        JTextPane help = UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                              LanguageStrings.text),
+                                                     //"After saving any changes to names will appear when you next open the {project}.", 
                                                      this.viewer);
 
         help.setBorder (null);
@@ -443,10 +525,16 @@ public class ObjectTypeNameChanger extends Box
 
         int row = 1;
         
-        builder.addLabel ("Singular",
+        builder.addLabel (Environment.getUIString (prefix,
+                                                   LanguageStrings.labels,
+                                                   LanguageStrings.singular),
+                          //"Singular",
                      cc.xy (3,
                             row));
-        builder.addLabel ("Plural",
+        builder.addLabel (Environment.getUIString (prefix,
+                                                   LanguageStrings.labels,
+                                                   LanguageStrings.plural),
+                          //"Plural",
                      cc.xy (5,
                             row));
 
@@ -463,7 +551,10 @@ public class ObjectTypeNameChanger extends Box
             
         }
         
-        JButton save = new JButton ("Save");
+        JButton save = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.save));
+                                    //"Save");
 
         save.addActionListener (new ActionAdapter ()
         {
@@ -477,7 +568,10 @@ public class ObjectTypeNameChanger extends Box
 
         });
 
-        JButton cancel = new JButton ("Cancel");
+        JButton cancel = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                        LanguageStrings.buttons,
+                                                                        LanguageStrings.cancel));
+        //"Cancel");
 
         cancel.addActionListener (new ActionAdapter ()
         {
@@ -491,7 +585,10 @@ public class ObjectTypeNameChanger extends Box
 
         });
 
-        JButton reset = new JButton ("Reset to defaults");
+        JButton reset = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                       LanguageStrings.buttons,
+                                                                       LanguageStrings.reset));
+        //"Reset to defaults");
 
         reset.addActionListener (new ActionAdapter ()
         {

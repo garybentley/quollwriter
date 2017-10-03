@@ -4,11 +4,11 @@ import java.util.*;
 
 public class LanguageStrings
 {
-    
+
     public static final String project = "project";
     public static final String settingsmenu = "settingsmenu";
     public static final String items = "items";
-    
+
     public static final String renameproject = "renameproject";
     public static final String statistics = "statistics";
     public static final String targets = "targets";
@@ -20,7 +20,7 @@ public class LanguageStrings
     public static final String exportproject = "exportproject";
     public static final String ideaboard = "ideaboard";
     public static final String dowarmup = "dowarmup";
-    
+
     public static final String actionerror = "actionerror";
     public static final String label = "label";
     public static final String filetype = "filetype";
@@ -301,6 +301,7 @@ public class LanguageStrings
     public static final String session = "session";
     public static final String enterpasswordpopup = "enterpasswordpopup";
     public static final String novalue = "novalue";
+    public static final String invalidvalue = "invalidvalue";
     public static final String projectalreadyopen = "projectalreadyopen";
     public static final String invalidpassword = "invalidpassword";
     public static final String open = "open";
@@ -413,440 +414,487 @@ public class LanguageStrings
     public static final String singular = "singular";
     public static final String convertwarmup = "convertwarmup";
     public static final String editwarmup = "editwarmup";
-    
+    public static final String enter = "enter";
+    public static final String exit = "exit";
+    public static final String firsttimepopup = "firsttimepopup";
+    public static final String editproperties = "editproperties";
+    public static final String sessionwordcount = "sessionwordcount";
+    public static final String chapterwordcount = "chapterwordcount";
+    public static final String word = "word";
+    public static final String distractionfreemodeenter = "distractionfreemodeenter";
+    public static final String distractionfreemodeexit = "distractionfreemodeexit";
+    public static final String showproperties = "showproperties";
+    public static final String achievementreached = "achievementreached";
+    public static final String fullscreenexit = "fullscreenexit";
+    public static final String changer = "changer";
+    public static final String resetchange = "resetchange";
+    public static final String confirmchange = "confirmchange";
+    public static final String panel = "panel";
+    public static final String nolinksedit = "nolinksedit";
+    public static final String file = "file";
+    public static final String othernames = "othernames";
+    public static final String allowmulti = "allowmulti";
+    public static final String multi = "multi";
+    public static final String valueseparator = "valueseparator";
+    public static final String addedit = "addedit";
+    public static final String bulletpoints = "bulletpoints";
+    public static final String max = "max";
+    public static final String min = "min";
+    public static final String greaterthanmin = "greaterthanmin";
+    public static final String defualt = "default";
+    public static final String lessthanmax = "lessthanmax";
+    public static final String smallicon = "smallicon";
+    public static final String bigicon = "bigicon";
+    public static final String warnings = "warnings";
+    public static final String basic = "basic";
+    public static final String userobjects = "userobjects";
+    public static final String fields = "fields";
+    public static final String move = "move";
+    public static final String layout = "layout";
+    public static final String layouts = "layouts";
+    public static final String layout0 = "0";
+    public static final String layout1 = "1";
+    public static final String layout2 = "2";
+    public static final String layout3 = "3";
+    public static final String layout4 = "4";
+    public static final String layout5 = "5";
+    public static final String layout6 = "6";
+    public static final String layout7 = "7";
+    public static final String layout8 = "8";
+
     private static String ID_PART_SEP = ".";
-    
+
     private String languageName = null;
     private String nativeName = null;
     private int version = 1;
     private Date created = null;
     private Map strings = null;
     private Map<String, String> builtIds = new HashMap ();
-    
+
     public LanguageStrings (String jsonData)
     {
-        
+
         Object obj = JSONDecoder.decode (jsonData);
-        
+
         if (!(obj instanceof Map))
         {
-            
+
             throw new IllegalArgumentException ("String does parse to a Map");
-            
+
         }
-        
+
         Map m = (Map) obj;
-        
+
         this.strings = m;
-        
+
         this.languageName = this.getString ("_language",
                                             this.strings);
-                
+
         if (this.languageName == null)
         {
-            
+
             throw new IllegalArgumentException ("No language name found.");
-                
+
         }
-                        
+
         this.nativeName = this.getString ("_nativeName",
                                           this.strings);
-                
+
         if (this.nativeName == null)
         {
-            
+
             throw new IllegalArgumentException ("No language name found.");
-                
+
         }
-        
+
         // Ensure we can resolve everything.
         Iterator iter = m.keySet ().iterator ();
-        
+
         while (iter.hasNext ())
         {
-            
+
             String k = iter.next ().toString ();
-            
+
             List ids = new ArrayList ();
-            
+
             ids.add (k);
-            
+
             Object v = m.get (k);
-            
+
             if (v instanceof Map)
             {
-                
+
                 Map om = (Map) v;
-                
+
                 this.testMap (om,
                               ids);
-                
+
                 continue;
-                
+
             }
-            
+
             if (v instanceof String)
             {
-                
+
                 String val = v.toString ();
-                
+
                 this.testValue (val,
                                 ids);
 
             }
-            
-        }        
-                                    
+
+        }
+
     }
-    
+
     public String getNativeName ()
     {
-        
+
         return this.nativeName;
-        
+
     }
-    
+
     public String getLanguageName ()
     {
-        
+
         return this.languageName;
-        
+
     }
-    
+
     private String getString (String id,
                               Map    from)
     {
-        
+
         Object o = from.get (id);
-        
+
         if (o == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         return o.toString ();
-        
+
     }
-    
+
     private void testValue (String       val,
                             List<String> ids)
     {
 
         List<String> id = new ArrayList ();
-        
+
         // Convert the current ids to a single id.
-        id.add (this.toId (ids));                
-        
+        id.add (this.toId (ids));
+
         val = this.doReplacements (val,
                                    id);
-        
+
         if (val != null)
         {
-            
+
             this.builtIds.put (this.toId (ids),
                                val);
-            
+
         }
-        
+
     }
-    
+
     private void testMap (Map          m,
                           List<String> ids)
     {
-        
+
         // Ensure we can resolve everything.
         Iterator iter = m.keySet ().iterator ();
-        
+
         while (iter.hasNext ())
         {
-            
+
             String k = iter.next ().toString ();
-            
+
             List<String> _ids = new ArrayList (ids);
-            
+
             _ids.add (k);
-            
+
             Object v = m.get (k);
-            
+
             if (v instanceof Map)
             {
-                
+
                 Map om = (Map) v;
-                
+
                 this.testMap (om,
                               _ids);
-                
+
                 continue;
-                
+
             }
-            
+
             if (v instanceof String)
             {
-                
+
                 String val = v.toString ();
-                
+
                 this.testValue (val,
                                 _ids);
 
             }
-            
-        }        
-        
+
+        }
+
     }
-            
+
     private String doReplacements (String       val,
                                    List<String> ids)
     {
-        
+
         if (val == null)
         {
-            
+
             throw new IllegalArgumentException ("No value for ids: " + ids);
-            
+
         }
-        
+
         StringBuilder b = new StringBuilder (val);
-                
+
         List<String> thisids = new ArrayList ();
-                
+
         int start = 0;
-        
+
         while ((start = b.indexOf ("${",
                                    start)) > -1)
         {
-                  
+
             int end = b.indexOf ("}",
                                  start);
-                    
+
             if (end > (start + 2))
             {
-                            
+
                 String sid = b.substring (start + 2,
                                           end);
-                               
+
                 int bind = sid.indexOf ("|");
                 String sub = null;
-                
+
                 if (bind > -1)
                 {
-                    
+
                     sub = sid.substring (0, bind);
-                    
+
                     sid = sid.substring (bind + 1);
-                             
+
                 }
-                
+
                 String sv = this.builtIds.get (sid);
-                
+
                 if (sv == null)
                 {
-                
+
                     if (ids.contains (sid))
                     {
-                        
+
                         throw new IllegalArgumentException ("Loop detected between: " + sid + ", and one of: " + ids + ", found in: " +
                                                             val);
-                                        
+
                     } else {
-                    
+
                         if (thisids.contains (sid))
                         {
-                            
+
                             throw new IllegalArgumentException ("Loop detected between: " + sid + ", and one of: " + thisids + ", found in: " +
-                                                                val);                    
-                            
+                                                                val);
+
                         }
-    
+
                     }
-                    
+
                     thisids.add (sid);
-                    
+
                     ids.add (sid);
-                    
+
                     sv = this.getIdValue (sid);
 
                 }
-                                
+
                 if (sv == null)
                 {
-                    
+
                     throw new IllegalArgumentException ("Unable to find value for: " + sid);
-                    
+
                 }
-                
+
                 String idv = this.doReplacements (sv,
                                                   ids);
-                                    
+
                 if (sub != null)
                 {
-                    
+
                     if (sub.equalsIgnoreCase ("u"))
                     {
-                        
+
                         // Uppercase the first letter.
-                        
+
                     }
-                    
+
                     if (sub.equalsIgnoreCase ("l"))
                     {
-                        
+
                         // Lowercase the first letter.
                         //char c[] = idv.toCharArray ();
-                        
+
                         //c[0] = Character.toLowerCase (c[0]);
-                        
+
                         //idv = new String (c);
-                        
+
                     }
 
                     if (sub.equalsIgnoreCase ("ua"))
                     {
-                        
+
                         // Uppercase the first letter of each word.
-                        
+
                     }
-                    
+
                     if (sub.equalsIgnoreCase ("la"))
                     {
-                        
+
                         // Lowercase the first letter of each word.
-                        
+
                     }
 
                 }
-                
+
                 if (idv != null)
                 {
-                
+
                     b.replace (start,
                                end + 1,
                                idv);
-                
+
                     start += idv.length ();
-                
+
                 } else {
-                    
+
                     start += 2;
-                            
+
                 }
-                
+
             } else {
-                
+
                 start += 2;
-                
+
             }
-        
+
         }
 
         return b.toString ();
-        
+
     }
-    
+
     public static String toId (List<String> ids)
     {
-        
+
         return Utils.joinStrings (ids,
                                   ID_PART_SEP);
-        
+
     }
-    
+
     private String getIdValue (String id)
     {
-        
+
         return this.getIdValue (Utils.splitString (id,
                                                    ID_PART_SEP));
-        
+
     }
-    
+
     public String getValue (List<String> idParts)
     {
-                
+
         String v = this.getIdValue (idParts);
 
         String val = this.builtIds.get (v);
-        
+
         if (val != null)
         {
-            
+
             return val;
-            
+
         }
-        
+
         List ids = new ArrayList ();
         ids.add (this.toId (idParts));
-        
+
         v = this.doReplacements (v,
                                  ids);
-        
+
         if (v != null)
         {
-        
+
             this.builtIds.put (this.toId (idParts),
                                v);
-            
+
         }
-        
+
         return v;
-        
+
     }
-    
+
     private String getIdValue (List<String> idParts)
     {
-        
+
         Map m = this.strings;
         String val = null;
-        
+
         int i = 0;
-        
+
         for (String id : idParts)
         {
-            
+
             i++;
-                        
+
             Object o = m.get (id);
-            
+
             if (o == null)
             {
-                
+
                 throw new IllegalArgumentException ("Unable to find part: " +
                                                     id +
                                                     " for id: " +
                                                     this.toId (idParts));
-                
+
             }
-            
+
             if (o instanceof String)
             {
-                
+
                 if (i < idParts.size ())
                 {
-                    
+
                     throw new IllegalArgumentException ("Expected part: " +
                                                         id +
                                                         " to point to another map, instead is string: " +
                                                         o +
                                                         " for id: " +
                                                         this.toId (idParts));
-                    
+
                 }
-                
+
                 return o.toString ();
-                
+
             }
-            
+
             if (o instanceof Map)
             {
-                
+
                 m = (Map) o;
-                
+
             }
-            
+
         }
-        
-        return null;        
-        
+
+        return null;
+
     }
-    
+
 }

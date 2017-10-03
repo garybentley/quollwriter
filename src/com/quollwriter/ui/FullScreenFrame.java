@@ -615,7 +615,17 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         this.distModeButton.setIcon (Environment.getIcon ((this.distractionFreeModeEnabled ? Constants.DISTRACTION_FREE_EXIT_ICON_NAME : Constants.DISTRACTION_FREE_ICON_NAME),
                                      Constants.ICON_TITLE_ACTION));
 
-        this.distModeButton.setToolTipText ((this.distractionFreeModeEnabled ? "Click to exit distraction free mode" : "Click to enter distraction free mode"));
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.fullscreen);
+        prefix.add (LanguageStrings.distractionfreemode);
+                                     
+        this.distModeButton.setToolTipText ((this.distractionFreeModeEnabled ?
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.exit)
+                                             :
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.enter)));
+        //"Click to exit distraction free mode" : "Click to enter distraction free mode"));
 
         // See if they have been in this mode before, if not then show the help popup.
         this.showFirstTimeInDistractionFreeModeInfoPopup ();
@@ -643,8 +653,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
            )
         {
 
-            this.projectViewer.showNotificationPopup ("Welcome to Distraction Free Mode",
-                                                      "Since this is your first time using <i>Distraction Free Mode</i> it is recommended you spend a bit of time reading about how it works.  It may work in different ways to how you expect and/or how other writing applications implement similar modes.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more</a>",
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.fullscreen);
+            prefix.add (LanguageStrings.distractionfreemode);
+            prefix.add (LanguageStrings.firsttimepopup);
+        
+            this.projectViewer.showNotificationPopup (Environment.getUIString (prefix,
+                                                                               LanguageStrings.title),
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.text),
+                                                      //"Since this is your first time using <i>Distraction Free Mode</i> it is recommended you spend a bit of time reading about how it works.  It may work in different ways to how you expect and/or how other writing applications implement similar modes.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out more</a>",
                                                       -1);
 
             UserProperties.set (propName,
@@ -936,7 +954,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                     String oName = Environment.getObjectTypeName (Chapter.OBJECT_TYPE);
 
-                    JMenuItem mi = new JMenuItem ("Edit full screen properties",
+                    JMenuItem mi = new JMenuItem (Environment.getUIString (LanguageStrings.fullscreen,
+                                                                           LanguageStrings.popupmenu,
+                                                                           LanguageStrings.items,
+                                                                           LanguageStrings.editproperties),
+                                                  //"Edit full screen properties",
                                                   Environment.getIcon (Constants.SETTINGS_ICON_NAME,
                                                                        Constants.ICON_MENU));
 
@@ -1615,6 +1637,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             public void actionPerformed (ActionEvent ev)
             {
 
+                java.util.List<String> prefix = new ArrayList ();
+                prefix.add (LanguageStrings.fullscreen);
+                prefix.add (LanguageStrings.info);
+            
                 info.setVisible (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
 
                 time.setText (_this.clockFormat.format (new Date ()));
@@ -1639,11 +1665,25 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                 }
 
-                sessWords.setToolTipText ("Session word count");
+                sessWords.setToolTipText (Environment.getUIString (prefix,
+                                                                   LanguageStrings.sessionwordcount,
+                                                                   LanguageStrings.tooltip));
+                //"Session word count");
 
-                sessWords.setText (String.format ("%s word%s%s",
+                String pl = LanguageStrings.words;
+                
+                if (sessWC == 1)
+                {
+                    
+                    pl = LanguageStrings.word;
+                    
+                }
+                
+                sessWords.setText (String.format ("%s %s%s",
                                                   Environment.formatNumber (sessWC),
-                                                  (sessWC == 1 ? "" : "s"),
+                                                  Environment.getUIString (prefix,
+                                                                           pl),
+                                                  //(sessWC == 1 ? "" : "s"),
                                                   t));
 
                 QuollPanel qp = _this.panel.getChild ();
@@ -1672,10 +1712,24 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
                     }
 
-                    chapWords.setToolTipText ("{Chapter} word count");
+                    chapWords.setToolTipText (Environment.getUIString (prefix,
+                                                                   LanguageStrings.chapterwordcount,
+                                                                   LanguageStrings.tooltip));
+                    //"{Chapter} word count");
 
-                    chapWords.setText (String.format ("%s words%s",
+                    pl = LanguageStrings.words;
+                    
+                    if (cc.wordCount == 1)
+                    {
+                        
+                        pl = LanguageStrings.word;
+                        
+                    }
+                    
+                    chapWords.setText (String.format ("%s %s%s",
                                                       Environment.formatNumber (cc.wordCount),
+                                                      Environment.getUIString (prefix,
+                                                                               pl),
                                                       t));
 
                 } else {
@@ -1823,9 +1877,18 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         this.clockTimer.start ();
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.fullscreen);
+        prefix.add (LanguageStrings.title);
+        prefix.add (LanguageStrings.toolbar);
+        prefix.add (LanguageStrings.buttons);
+        
         this.distModeButton = UIUtils.createButton (Constants.DISTRACTION_FREE_ICON_NAME,
                                                     Constants.ICON_TITLE_ACTION,
-                                                    "Click to enter distraction free mode",
+                                                    Environment.getUIString (prefix,
+                                                                             LanguageStrings.showcontacts,//distractionfreemodeenter,
+                                                                             LanguageStrings.tooltip),
+                                                    //"Click to enter distraction free mode",
                                                     new ActionAdapter ()
         {
 
@@ -1848,7 +1911,16 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         if (EditorsEnvironment.isEditorsServiceAvailable ())
         {
 
-            String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show the {editors}" : "Click to register for the Editors Service.");
+            String toolTip = (EditorsEnvironment.hasRegistered () ?
+                                Environment.getUIString (prefix,
+                                                         LanguageStrings.showcontacts,
+                                                         LanguageStrings.tooltip)
+                                :
+                                Environment.getUIString (prefix,
+                                                         LanguageStrings.editorsserviceregister,
+                                                         LanguageStrings.tooltip));
+
+                              //"Click to show the {editors}" : "Click to register for the Editors Service.");
 
             titleC.add (UIUtils.createButton (Constants.EDITORS_ICON_NAME,
                                                Constants.ICON_TITLE_ACTION,
@@ -1870,7 +1942,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                                                                   e);
 
                                                             UIUtils.showErrorMessage (_this,
-                                                                                      "Unable to show the {editors}.");
+                                                                                      Environment.getUIString (LanguageStrings.editors,
+                                                                                                               LanguageStrings.vieweditorserror));
+                                                                                      //"Unable to show the {editors}.");
 
                                                         }
 
@@ -1882,7 +1956,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         titleC.add (UIUtils.createButton ("find",
                                            Constants.ICON_FULL_SCREEN_ACTION,
-                                           "Click to find some text",
+                                           Environment.getUIString (prefix,
+                                                                    LanguageStrings.find,
+                                                                    LanguageStrings.tooltip),
+                                           //"Click to find some text",
                                            new ActionAdapter ()
                                            {
 
@@ -1897,7 +1974,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         JButton sb = UIUtils.createButton ("fullscreen-exit",
                                            Constants.ICON_FULL_SCREEN_ACTION,
-                                           "Click to exit full screen mode",
+                                           Environment.getUIString (prefix,
+                                                                    LanguageStrings.fullscreenexit,
+                                                                    LanguageStrings.tooltip),
+                                           //"Click to exit full screen mode",
                                            new ActionAdapter ()
                                            {
 
@@ -1914,7 +1994,10 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
         JButton eb = UIUtils.createButton ("edit-properties",
                                            Constants.ICON_FULL_SCREEN_ACTION,
-                                           "Click to edit the full screen properties",
+                                           Environment.getUIString (prefix,
+                                                                    LanguageStrings.editproperties,
+                                                                    LanguageStrings.tooltip),
+                                           //"Click to edit the full screen properties",
                                            new ActionAdapter ()
                                            {
 
@@ -2353,7 +2436,9 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 b.setBackground (UIUtils.getComponentColor ());
                 b.setOpaque (true);
 
-                this.achievementsPopup = UIUtils.createPopup ("You've got an Achievement",
+                this.achievementsPopup = UIUtils.createPopup (Environment.getUIString (LanguageStrings.achievementreached,
+                                                                                       LanguageStrings.title),
+                                                              //"You've got an Achievement",
                                                               Constants.ACHIEVEMENT_ICON_NAME,
                                                               b,
                                                               true,
@@ -2571,7 +2656,11 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to show properties.");
+                                      Environment.getUIString (LanguageStrings.fullscreen,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.showproperties,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to show properties.");
 
         }
 

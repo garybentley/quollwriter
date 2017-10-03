@@ -78,8 +78,12 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
 
         final AddAssetPanel _this = this;
     
-        Header title = UIUtils.createHeader (String.format ("Add new %s",
-                                                            this.obj.getObjectTypeName ()),
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.add);
+        prefix.add (LanguageStrings.panel);
+    
+        Header title = UIUtils.createHeader (this.getTitle (),
                                              Constants.PANEL_TITLE,
                                              this.obj.getUserConfigurableObjectType ().getIcon24x24 (),
                                              null);
@@ -133,13 +137,21 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
                         
         JButton save = UIUtils.createButton (Constants.SAVE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Click to save",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.save,
+                                                                      LanguageStrings.tooltip),
+                                             //"Click to save",
                                              formSave);
 
         JButton cancel = UIUtils.createButton (Constants.CANCEL_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               "Click to cancel",
-                                              new ActionListener ()
+                                               Environment.getUIString (prefix,
+                                                                        LanguageStrings.buttons,
+                                                                        LanguageStrings.cancel,
+                                                                        LanguageStrings.tooltip),
+                                               //"Click to cancel",
+                                               new ActionListener ()
         {
 
             public void actionPerformed (ActionEvent ev)
@@ -234,12 +246,18 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
         for (String m : messages)
         {
 
-            b.append (String.format ("<li>%s</li>",
+            b.append (String.format ("<li>%1s</li>",
                                      m));
 
         }
         
-        this.showError ("Please correct the following errors:<ul>" + b.toString () + "</ul>");
+        this.showError (String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                LanguageStrings.add,
+                                                                LanguageStrings.panel,
+                                                                LanguageStrings.errors,
+                                                                LanguageStrings.form),
+                                       b.toString ()));
+        //"Please correct the following errors:<ul>" + b.toString () + "</ul>");
         
     }
     
@@ -280,7 +298,7 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
             return false;
             
         }
-                
+                                
         // Now setup the values.
         for (UserConfigurableObjectFieldViewEditHandler h : this.addHandlers)
         {            
@@ -297,7 +315,9 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
                                       e);
                 
                 UIUtils.showErrorMessage (this.viewer,
-                                          "Unable to save.");
+                                          Environment.getUIString (LanguageStrings.assets,
+                                                                   LanguageStrings.add,
+                                                                   LanguageStrings.actionerror));
                 
                 return false;
                 
@@ -323,7 +343,9 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to save.");
+                                      Environment.getUIString (LanguageStrings.assets,
+                                                               LanguageStrings.add,
+                                                               LanguageStrings.actionerror));
 
             return false;
 
@@ -370,7 +392,15 @@ public class AddAssetPanel extends ProjectObjectQuollPanel<ProjectViewer, Asset>
     public String getTitle ()
     {
         
-        return "Add a new " + this.obj.getObjectTypeName ();
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.assets);
+        prefix.add (LanguageStrings.add);
+        prefix.add (LanguageStrings.panel);
+        
+        return String.format (Environment.getUIString (prefix,
+                                                       LanguageStrings.title),
+                                                       this.obj.getObjectTypeName ());
+        //return "Add a new " + this.obj.getObjectTypeName ();
         
     }
     
