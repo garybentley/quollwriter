@@ -164,7 +164,7 @@ public class Environment
     private static PropertyChangedListener userConfigurableObjectTypeNameListener = null;
 
     private static Set<Tag> tags = null;
-    
+
     static
     {
 
@@ -6724,6 +6724,13 @@ TODO: Add back in when appropriate.
 
     }
 
+    public static boolean hasUserConfigurableObjectType (String userObjType)
+    {
+
+        return Environment.getUserConfigurableObjectType (userObjType) != null;
+
+    }
+
     public static UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
     {
 
@@ -6897,14 +6904,14 @@ TODO: Add back in when appropriate.
         }
 
         Environment.projectInfoManager.saveObject (tag);
-        
+
         if (ev.equals (ProjectEvent.NEW))
         {
-            
+
             Environment.tags.add (tag);
-            
+
         }
-        
+
         // Tell all projects about it.
         Environment.fireUserProjectEvent (tag,
                                           ProjectEvent.TAG,
@@ -6925,9 +6932,9 @@ TODO: Add back in when appropriate.
 
         Environment.projectInfoManager.deleteObject (tag,
                                                      true);
-                                   
+
         Environment.tags.remove (tag);
-                                                     
+
         // Tell all projects about it.
         Environment.fireUserProjectEvent (tag,
                                           ProjectEvent.TAG,
@@ -6948,19 +6955,19 @@ TODO: Add back in when appropriate.
     {
 
         Set<Tag> tags = Environment.getAllTags ();
-        
+
         for (Tag t : tags)
         {
-            
+
             if (t.getKey () == key)
             {
-                
+
                 return t;
-                
+
             }
-            
+
         }
-        
+
         return null;
 
     }
@@ -6974,25 +6981,25 @@ TODO: Add back in when appropriate.
     public static Tag getTagByName (String name)
                              throws GeneralException
     {
-        
+
         Set<Tag> tags = Environment.getAllTags ();
-        
+
         for (Tag t : tags)
         {
-            
+
             if (t.getName ().equalsIgnoreCase (name))
             {
-                
+
                 return t;
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     /**
      * Get all the tags.
      *
@@ -7005,16 +7012,16 @@ TODO: Add back in when appropriate.
 
         if (Environment.tags == null)
         {
-    
+
             Environment.tags = new LinkedHashSet (Environment.projectInfoManager.getObjects (Tag.class,
                                                                                              null,
                                                                                              null,
                                                                                              true));
-                                                                                             
+
         }
-        
+
         return Environment.tags;
-                                                                                             
+
     }
 
 }

@@ -114,7 +114,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.chapterItemViewPopupProvider = new DefaultChapterItemViewPopupProvider ();
 
         Environment.addUserProjectEventListener (this);
-        
+
         this.problemFinderRuleConfig  = new ProblemFinderRuleConfig (this);
 
 		InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -360,7 +360,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         im.put (KeyStroke.getKeyStroke (KeyEvent.VK_F2,
                                         0),
                 "ideaboard-show");
-                
+
     }
 
     public AbstractSideBar getMainSideBar ()
@@ -381,28 +381,28 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             {
 
                 Asset as = null;
-                
+
                 try
                 {
-                    
+
                     as = Asset.createAsset (type);
-                    
+
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to create new asset of type: " +
                                           type,
                                           e);
-                    
+
                     UIUtils.showErrorMessage (pv,
                                               String.format ("Unable to create new %s.",
                                                              type.getObjectTypeName ()));
-                    
+
                     return;
-                    
+
                 }
-            
+
                 String addAsset = UserProperties.get (Constants.ADD_ASSETS_PROPERTY_NAME);
-                    
+
                 // Should we use a popup?
                 if (((addAsset.equals ("trypopup"))
                      &&
@@ -412,21 +412,21 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                     (addAsset.equals ("popup"))
                    )
                 {
-            
+
                     AssetActionHandler aah = new AssetActionHandler (as,
                                                                      pv);
-    
+
                     aah.setPopupOver (pv);
-    
+
                     aah.actionPerformed (ev);
 
                     return;
-                    
+
                 }
-                    
+
                 pv.showAddAsset (as,
                                  null);
-                
+
             }
 
         };
@@ -498,12 +498,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         for (UserConfigurableObjectType type : assetObjTypes)
         {
-        
+
             if (type.getCreateShortcutKeyStroke () != null)
             {
-        
+
                 String id = "newuserobject" + type.getKey ();
-                
+
                 im.put (type.getCreateShortcutKeyStroke (),
                         id);
                 actions.put (id,
@@ -516,9 +516,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                                                       ppv));
 */
             }
-        
+
         }
-                                                                  
+
     }
 
     public void fillFullScreenTitleToolbar (JToolBar toolbar)
@@ -1055,7 +1055,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
                     OutlineItem o = new OutlineItem (-1,
                                                      c);
-        
+
                     new ChapterItemActionHandler<OutlineItem> (o,
                                                                qep,
                                                                AbstractFormPopup.ADD,
@@ -1336,13 +1336,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         if (v.equals ("problemfinderconfig"))
         {
-            
+
             this.showProblemFinderRuleConfig ();
-         
+
             return;
-            
-        }        
-        
+
+        }
+
         if (v.equals ("ideaboard"))
         {
 
@@ -1355,10 +1355,10 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         super.handleHTMLPanelAction (v);
 
     }
-    
+
     public void handleOpenProject ()
     {
-    
+
         //this.initProjectItemBoxes ();
 
 		final ProjectViewer _this = this;
@@ -1426,7 +1426,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
 		Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME).addPropertyChangedListener (this.objectTypePropChangedListener);
         */
-        
+
 		// Called whenever a note type is changed.
 		this.noteTypePropChangedListener = new PropertyChangedListener ()
 		{
@@ -1573,7 +1573,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         this.sideBar.reloadTreeForObjectType (objType);
 
     }
-    
+
     public void reloadTreeForObjectType (NamedObject obj)
     {
 
@@ -1800,11 +1800,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         if (d == null)
         {
-            
+
             return false;
-            
+
         }
-    
+
         return this.viewObject (d,
                                 null);
 
@@ -2221,13 +2221,13 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         if (a.getKey () != null)
         {
-            
+
             throw new IllegalStateException ("Asset already has a key.");
-            
+
         }
-    
+
         AddAssetPanel avp = null;
-        
+
         try
         {
 
@@ -2264,55 +2264,55 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                               "afterview");
 
         }
-        
+
     }
-    
+
     public void editAsset (final Asset          a,
                            final ActionListener doAfterEdit)
     {
-        
+
         final ProjectViewer _this = this;
-        
+
         // Display the object then edit it.
         this.viewAsset (a,
                         new ActionListener ()
         {
-  
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 AssetViewPanel p = (AssetViewPanel) _this.getQuollPanelForObject (a);
-                
+
                 if (p == null)
                 {
-                    
+
                     Environment.logError ("Unable to edit asset: " +
                                           a);
-                    
+
                     UIUtils.showErrorMessage (_this,
                                               Environment.replaceObjectNames (String.format ("Unable to edit %s",
                                                                                              a.getObjectTypeName ())));
-                    
+
                     return;
-                    
+
                 }
-                
+
                 p.editObject ();
 
                 if (doAfterEdit != null)
                 {
-                    
+
                     UIUtils.doLater (doAfterEdit);
-                    
+
                 }
-                
+
             }
-            
+
         });
-                                
+
     }
-    
+
     /**
      * This is a top-level action so it can handle showing the user a message, it returns a boolean to indicate
      * whether the asset is viewed.
@@ -2481,11 +2481,11 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     public void openObjectSection (Asset a)
     {
-        
+
         this.sideBar.setObjectsOpen (a.getUserConfigurableObjectType ().getObjectTypeId ());
-        
+
     }
-    
+
     public void openObjectSection (String objType)
     {
 
@@ -2720,6 +2720,20 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                       e);
 
             }
+
+        }
+
+    }
+
+    public void deleteAllAssetsOfType (UserConfigurableObjectType type)
+    {
+
+        Set<Asset> nassets = new LinkedHashSet (this.proj.getAssets (type));
+
+        for (Asset a : nassets)
+        {
+
+            this.deleteAsset (a);
 
         }
 
@@ -3210,7 +3224,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
         }
 
         Set<UserConfigurableObjectType> types = Environment.getAssetUserConfigurableObjectTypes (true);
-                
+
         for (UserConfigurableObjectType type : types)
         {
 
@@ -3435,113 +3449,113 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                     _this.doForSideBars (AppearsInChaptersSideBar.class,
                                          new QuollSideBarAction<AppearsInChaptersSideBar> ()
                                          {
-    
+
                                             public void doAction (final AppearsInChaptersSideBar sb)
                                             {
-    
+
                                                 final NamedObject n = sb.getForObject ();
-    
+
                                                 try
                                                 {
-    
+
                                                     final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
                                                                                                                             _this);
-    
+
                                                     UIUtils.doLater (new ActionListener ()
                                                     {
-    
+
                                                         @Override
                                                         public void actionPerformed (ActionEvent ev)
                                                         {
-    
+
                                                             try
                                                             {
-    
+
                                                                 sb.updateSnippets (snippets);
-    
+
                                                             } catch (Exception e) {
-    
+
                                                                 Environment.logError ("Unable to update appears in chapters sidebar for object: " +
                                                                                       n,
                                                                                       e);
-    
+
                                                             }
-    
+
                                                         }
-    
+
                                                     });
-    
+
                                                 } catch (Exception e) {
-    
+
                                                     Environment.logError ("Unable to update appears in chapters sidebar for object: " +
                                                                           n,
                                                                           e);
-    
+
                                                 }
-    
+
                                             }
-    
+
                                          });
-    
+
                     _this.doForPanels (AssetViewPanel.class,
                                        new QuollPanelAction<AssetViewPanel> ()
                                        {
-    
+
                                         public void doAction (final AssetViewPanel vp)
                                         {
-    
+
                                             final NamedObject n = vp.getForObject ();
-    
+
                                             final AppearsInChaptersEditPanel p = vp.getAppearsInChaptersEditPanel ();
-    
+
                                             try
                                             {
-    
+
                                                 final Map<Chapter, java.util.List<Segment>> snippets = UIUtils.getObjectSnippets (n,
                                                                                                                         _this);
-    
+
                                                 UIUtils.doLater (new ActionListener ()
                                                 {
-    
+
                                                     @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-    
+
                                                         try
                                                         {
-    
+
                                                             p.updateChapterTree (snippets);
-    
+
                                                         } catch (Exception e) {
-    
+
                                                             Environment.logError ("Unable to update appears in chapters tree(2) for object: " +
                                                                                   n,
                                                                                   e);
-    
+
                                                         }
-    
+
                                                     }
-    
+
                                                 });
-    
+
                                             } catch (Exception e) {
-    
+
                                                 Environment.logError ("Unable to update appears in chapters tree for object: " +
                                                                       n,
                                                                       e);
-    
+
                                             }
-    
+
                                         }
-    
+
                                        },
                                        false);
-                    
+
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to update sidebars/panels",
                                           e);
-                    
+
                 }
 
             }
@@ -3730,9 +3744,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
     public void showUserConfigurableObjectType (UserConfigurableObjectType type)
     {
-        
+
         this.sideBar.addAccordionItem (this.sideBar.createAssetAccordionItem (type));
-        
+
     }
 
     @Override
@@ -3748,60 +3762,60 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                 Tag tag = (Tag) ev.getSource ();
 
                 this.removeTag (tag);
-            
+
             }
-            
+
         }
-            
+
         if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
         {
 
             if (ev.getAction ().equals (ProjectEvent.DELETE))
             {
-                
+
                 UserConfigurableObjectType type = (UserConfigurableObjectType) ev.getSource ();
-                
+
                 // Removing an object type.
                 // Remove it from the project sidebar.
                 // Remove any tabs for objects of that type.
                 this.sideBar.removeSection (type);
-                
+
                 if (type.isAssetObjectType ())
                 {
-                
+
                     this.removeAssetsOfType (type);
-                    
+
                 }
-                
+
             }
-        
+
         }
 
     }
-    
+
     private void removeAssetsOfType (UserConfigurableObjectType type)
     {
 
         Set<Asset> assets = this.proj.getAssets (type);
-        
+
         if (assets == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         assets = new HashSet (assets);
-                
+
         for (Asset a : assets)
         {
 
             this.deleteAsset (a);
 
         }
-        
+
     }
-    
+
     /**
      * Remove the specified tag from all objects in this project.
      *
@@ -3809,36 +3823,36 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
      */
     public void removeTag (Tag tag)
     {
-        
+
         try
         {
-        
+
             // Get all objects with the tag, remove the tag.
             Set<NamedObject> objs = this.proj.getAllObjectsWithTag (tag);
-            
+
             for (NamedObject o : objs)
             {
-                
+
                 o.removeTag (tag);
-                
+
             }
-            
+
             this.saveObjects (new ArrayList (objs),
                               true);
-            
+
             this.sideBar.removeTagSection (tag);
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to remove tag: " +
                                   tag,
                                   e);
-            
+
             UIUtils.showErrorMessage (this,
                                       "Unable to remove tag.");
-            
+
         }
-        
+
     }
-    
+
 }

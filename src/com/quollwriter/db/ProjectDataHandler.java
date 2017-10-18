@@ -51,23 +51,23 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             p.setDateCreated (rs.getTimestamp (ind++));
             p.setPropertiesAsString (rs.getString (ind++));
 
-            Connection conn = rs.getStatement ().getConnection ();            
-            
+            Connection conn = rs.getStatement ().getConnection ();
+
             if (pv != null)
             {
-                
+
                 p.setProjectVersion (pv);
-                
-            } 
-            
+
+            }
+
             if (p.isEditorProject ())
             {
-                
+
                 if (pv == null)
                 {
-                    
+
                     ProjectVersionDataHandler pvh = (ProjectVersionDataHandler) this.objectManager.getHandler (ProjectVersion.class);
-                    
+
                     p.setProjectVersion (pvh.getLatest (conn));
 
                 }
@@ -77,22 +77,22 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
                 if (edEmail == null)
                 {
-                    
+
                     // This is a strange situation, what to do?
-                    
+
                 }
-                
+
                 EditorEditor ed = EditorsEnvironment.getEditorByEmail (edEmail);
-                
+
                 p.setForEditor (ed);
                 */
             } else {
-                
+
                 // Get the project editors.
                 p.setProjectEditors (EditorsEnvironment.getProjectEditors (p.getId ()));
-                
+
             }
-            
+
             if (loadChildObjects)
             {
 /*
@@ -100,53 +100,73 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                p,
                                                conn,
                                                loadChildObjects);
-                        
+
                 // If we have no user config object types then create the ones we need.
                 // We should always have at least the chapter type!
                 UserConfigurableObjectType chapT = p.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
-                
+
                 if (chapT.getKey () == null)
                 {
-                    
+
                     // Init the user config object types.
                     this.createUserConfigurableObjectTypes (p,
                                                             conn);
-                    
+
                 }
-  */          
+  */
                 this.objectManager.getObjects (Book.class,
                                                p,
                                                conn,
                                                loadChildObjects);
 
-                this.objectManager.getObjects (QCharacter.class,
-                                               p,
-                                               conn,
-                                               loadChildObjects);
+                if (Environment.hasUserConfigurableObjectType (QCharacter.OBJECT_TYPE))
+                {
 
-                this.objectManager.getObjects (Location.class,
-                                               p,
-                                               conn,
-                                               loadChildObjects);
+                    this.objectManager.getObjects (QCharacter.class,
+                                                   p,
+                                                   conn,
+                                                   loadChildObjects);
 
-                this.objectManager.getObjects (QObject.class,
-                                               p,
-                                               conn,
-                                               loadChildObjects);
-                                               
-                this.objectManager.getObjects (ResearchItem.class,
-                                               p,
-                                               conn,
-                                               loadChildObjects);
+                }
+
+                if (Environment.hasUserConfigurableObjectType (Location.OBJECT_TYPE))
+                {
+
+                    this.objectManager.getObjects (Location.class,
+                                                   p,
+                                                   conn,
+                                                   loadChildObjects);
+
+                }
+
+                if (Environment.hasUserConfigurableObjectType (QObject.OBJECT_TYPE))
+                {
+
+                    this.objectManager.getObjects (QObject.class,
+                                                   p,
+                                                   conn,
+                                                   loadChildObjects);
+
+                }
+
+                if (Environment.hasUserConfigurableObjectType (ResearchItem.OBJECT_TYPE))
+                {
+
+                    this.objectManager.getObjects (ResearchItem.class,
+                                                   p,
+                                                   conn,
+                                                   loadChildObjects);
+
+                }
 
                 this.objectManager.getObjects (Asset.class,
                                                p,
                                                conn,
                                                loadChildObjects);
-                                               
+
                 this.objectManager.loadNotes (p,
                                               conn);
-                                               
+
                 this.objectManager.getObjects (IdeaType.class,
                                                p,
                                                conn,
@@ -157,108 +177,108 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                                                        -1,
                                                                                        conn,
                                                                                        loadChildObjects));
-  */              
+  */
             }
 
             // Do a check of the positions of the chapter items.
             // There is a situation where the position could be greater than the length of the chapter
             // (if you create a chapter, add some items but then don't save the text).
             Set<NamedObject> chaps = p.getAllNamedChildObjects (Chapter.class);
-                    
+
             for (NamedObject n : chaps)
             {
-                
+
                 Chapter c = (Chapter) n;
-                
+
                 int l = 0;
-                
+
                 String t = c.getChapterText ();
-                
+
                 if (t != null)
                 {
-                
+
                     l = t.length ();
-                    
+
                 }
-                
+
                 Set<NamedObject> items = c.getAllNamedChildObjects ();
-                
+
                 for (NamedObject ni : items)
                 {
-                    
+
                     ChapterItem i = (ChapterItem) ni;
-                    
+
                     if ((i.getPosition () >= l)
                          ||
                         (i.getPosition () < 0)
                        )
                     {
-                        
+
                         i.setPosition ((l > 0 ? l : 0));
-                        
+
                         try
                         {
-                        
+
                             this.objectManager.saveObject (i,
                                                            conn);
-                            
+
                         } catch (Exception e) {
-                            
+
                             Environment.logError ("Unable to update item: " +
                                                   i,
                                                   e);
-                            
+
                         }
-                        
+
                     }
-                    
+
                     if (i instanceof Scene)
                     {
-                        
+
                         Scene s = (Scene) i;
-                        
+
                         Set<OutlineItem> oitems = s.getOutlineItems ();
-                        
+
                         if (oitems != null)
                         {
-                            
+
                             for (OutlineItem oi : oitems)
                             {
-                                
+
                                 if ((oi.getPosition () >= l)
                                      ||
                                     (oi.getPosition () < 0)
                                    )
                                 {
-                                    
+
                                     oi.setPosition ((l > 0 ? l : 0));
-                                    
+
                                     try
                                     {
-                                    
+
                                         this.objectManager.saveObject (oi,
                                                                        conn);
-                                        
+
                                     } catch (Exception e) {
-                                        
+
                                         Environment.logError ("Unable to update item: " +
                                                               oi,
                                                               e);
-                                        
+
                                     }
-                                    
-                                }                                
-                                
+
+                                }
+
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
             }
-            
+
             return p;
 
         } catch (Exception e)
@@ -275,71 +295,71 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                     Connection conn)
                                              throws GeneralException
     {
-        
+
         UserConfigurableObjectType chapterType = p.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
-        
+
         this.objectManager.saveObject (chapterType,
-                                       conn);        
-        
+                                       conn);
+
         // Save the chapter type against all current chapters.
         this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (Chapter.OBJECT_TYPE,
                                                                           chapterType,
                                                                           conn);
-                                
+
         UserConfigurableObjectType characterType = p.getUserConfigurableObjectType (QCharacter.OBJECT_TYPE);
 
         this.objectManager.saveObject (characterType,
-                                       conn);        
-                        
+                                       conn);
+
         // Save the character type against all current characters.
         this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (QCharacter.OBJECT_TYPE,
                                                                           characterType,
                                                                           conn);
-                        
+
         UserConfigurableObjectType locType = p.getUserConfigurableObjectType (Location.OBJECT_TYPE);
-        
+
         this.objectManager.saveObject (locType,
-                                       conn);        
-                
+                                       conn);
+
         // Save the location type against all current locations.
         this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (Location.OBJECT_TYPE,
                                                                           locType,
                                                                           conn);
 
         UserConfigurableObjectType qobjType = p.getUserConfigurableObjectType (QObject.OBJECT_TYPE);
-        
+
         this.objectManager.saveObject (qobjType,
-                                       conn);        
-                
+                                       conn);
+
         // Save the location type against all current locations.
         this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (QObject.OBJECT_TYPE,
                                                                           qobjType,
                                                                           conn);
 
         UserConfigurableObjectType riType = p.getUserConfigurableObjectType (ResearchItem.OBJECT_TYPE);
-        
+
         this.objectManager.saveObject (riType,
-                                       conn);        
-                
+                                       conn);
+
         // Save the research item type against all current research items.
         this.objectManager.setUserConfigurableObjectTypeForObjectsOfType (ResearchItem.OBJECT_TYPE,
                                                                           riType,
                                                                           conn);
-        
+
         // Notes
-        
+
         // Links?
-        
+
         // Idea Type
-        
+
         // Ideas
-        
+
         // Editors?
-        
+
         // Outline items
-        
+
         // Scenes
-                
+
     }
     */
     @Override
@@ -365,7 +385,7 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         return this._getProject (null,
                                  conn,
                                  loadChildObjects);
-    
+
     }
 
     public List<WordCount> getWordCounts (Project p,
@@ -374,23 +394,23 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
     {
 
         Connection conn = null;
-    
+
         try
         {
 
             conn = this.objectManager.getConnection ();
 
         } catch (Exception e) {
-            
+
             this.objectManager.throwException (null,
                                                "Unable to get connection",
                                                e);
-            
+
         }
-                        
+
         try
         {
-            
+
             List params = new ArrayList ();
             params.add (p.getKey ());
 
@@ -436,11 +456,11 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                                e);
 
         } finally {
-            
+
             this.objectManager.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
 
     }
@@ -448,19 +468,19 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
     private Project _getProject (ProjectVersion pv,
                                  Connection     conn,
                                  boolean        loadChildObjects)
-                          throws GeneralException    
+                          throws GeneralException
     {
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-            
+
             conn = this.objectManager.getConnection ();
             closeConn = true;
-            
+
         }
-        
+
         ResultSet rs = null;
 
         try
@@ -490,31 +510,31 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
 
         } finally
         {
-            
+
             if (closeConn)
             {
-                
+
                 this.objectManager.releaseConnection (conn);
-                
+
             }
 
         }
-        
+
         return null;
-        
+
     }
-    
+
     public Project getProjectAtVersion (ProjectVersion pv,
                                         Connection     conn)
                                  throws GeneralException
     {
-        
+
         return this._getProject (pv,
                                  conn,
                                  true);
-        
+
     }
-    
+
     public Project getProject (Connection conn)
                         throws GeneralException
     {
@@ -539,11 +559,11 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
             )
            )
         {
-            
+
             throw new IllegalStateException ("If the project is for an editor then the forEditor must be specified.");
-            
-        }        
-        
+
+        }
+
         List params = new ArrayList ();
         params.add (p.getKey ());
         params.add (Environment.getSchemaVersion ());
@@ -556,31 +576,31 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
         // Need to create the project version first since the chapters rely on it.
         if (p.getProjectVersion () != null)
         {
-            
+
             this.objectManager.saveObject (p.getProjectVersion (),
                                            conn);
-            
+
         }
-                 
+
         // Get all the assets.
         Set<UserConfigurableObjectType> asTypes = p.getAssetTypes ();
-        
+
         for (UserConfigurableObjectType t : asTypes)
         {
-            
+
             Set<Asset> assets = p.getAssets (t);
-            
+
             for (Asset a : assets)
             {
-                
+
                 this.objectManager.saveObject (a,
                                                conn);
-                
+
             }
-            
+
         }
         /*
-                                                            
+
         // Get all the other objects.
         for (QCharacter c : p.getCharacters ())
         {
@@ -621,12 +641,12 @@ public class ProjectDataHandler implements DataHandler<Project, NamedObject>
                                            conn);
 
         }
-        
+
     }
 
     @Override
     public void deleteObject (Project    p,
-                              boolean    deleteChildObjects,                              
+                              boolean    deleteChildObjects,
                               Connection conn)
                        throws GeneralException
     {

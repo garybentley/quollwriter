@@ -1,5 +1,12 @@
 <whatsnew>
 
+    <version id="2.6.4">
+      <item onlyIfCurrentVersion="true">
+        <title>Missing asset type bug fix</title>
+        <description><![CDATA[Fixed a bug that prevented the {project} from opening when one of the asset object types has been deleted.]]></description>
+      </item>
+    </version>
+
   <version id="2.6.2">
     <item onlyIfCurrentVersion="true">
       <title>More bug squashing</title>
@@ -78,7 +85,7 @@
       <item>
         <title>New double word rule</title>
         <description><![CDATA[A new Problem Finder rule to find double word or double punctuation has been added.]]></description>
-      </item>        
+      </item>
     </version>
 
     <version id="2.5.3">
