@@ -1205,8 +1205,6 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
 
             JMenu sm = new JMenu ("Add section" + (belowObjType != null ? " below" : ""));
 
-            m.add (sm);
-
             for (final String sect : defSections)
             {
 
@@ -1248,6 +1246,14 @@ public class ProjectSideBar extends AbstractSideBar<ProjectViewer>
                                                     }
 
                                                 }));
+
+            }
+
+            // Only add the section menu if there are children.
+            if (sm.getComponentCount () > 0)
+            {
+
+                m.add (sm);
 
             }
 
