@@ -870,7 +870,9 @@
         "anywhere" : "Anywhere",
         "help" : "Help",
         "change" : "Change",
-        "remove" : "Remove"
+        "remove" : "Remove",
+        "find" : "Find",
+        "print" : "Print"
     },
     "sidebars" :
     {
@@ -2818,6 +2820,81 @@
     },
     "warmups" :
     {
+        "editorpanel" :
+        {
+            "toolbar" :
+            {
+                "new" :
+                {
+                    "tooltip" : "Click to start a new ${objectnames.singular.warmup}"
+                },
+                "save" :
+                {
+                    "tooltip" : "Click to save the ${objectnames.singular.warmup} text"
+                },
+                "convert" :
+                {
+                    "tooltip" : "Click to convert this ${objectnames.singular.warmup} to a ${objectnames.singular.project}"
+                },
+                "wordcount" :
+                {
+                    "tooltip" : "Click to view the word counts and readability indices"
+                },
+                "spellcheckon" :
+                {
+                    "tooltip" : "Click to turn the spell checker on"
+                },
+                "spellcheckoff" :
+                {
+                    "tooltip" : "Click to turn the spell checker off"
+                },
+                "delete" :
+                {
+                    "tooltip" : "Click to delete this ${objectnames.singular.warmup}"
+                },
+                "tools" :
+                {
+                    "tooltip" : "Click to view the tools menu"
+                }
+            },
+            "tools" :
+            {
+                "textproperties" :
+                {
+                    "text" : "Edit Text Properties"
+                },
+                "find" :
+                {
+                    "text" : "${actions.find}"
+                },
+                "print" :
+                {
+                    "text" : "${actions.print} ${objectnames.singular.warmup}"
+                }
+            },
+            "popupmenu" :
+            {
+                "title" : "${objectnames.singular.warmup}",
+                "items" :
+                {
+                    "save" :
+                    {
+                        "text" : "Save ${objectnames.singular.warmup}",
+                        "tooltip" : "${warmups.editorpanel.popupmenu.items.save.text}"
+                    },
+                    "convert" :
+                    {
+                        "text" : "${objectnames.singular.warmup} to a ${objectnames.singular.project}",
+                        "tooltip" : "${warmups.editorpanel.popupmenu.items.convert.text}"
+                    },
+                    "find" :
+                    {
+                        "text" : "${actions.find}",
+                        "tooltip" : "${warmups.editorpanel.popupmenu.items.find.text}"
+                    }
+                }
+            }
+        },
         "sidebar" :
         {
             "warmups" :

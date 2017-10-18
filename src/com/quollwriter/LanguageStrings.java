@@ -461,6 +461,14 @@ public class LanguageStrings
     public static final String layout6 = "6";
     public static final String layout7 = "7";
     public static final String layout8 = "8";
+    public static final String spellcheckon = "spellcheckon";
+    public static final String spellcheckoff = "spellcheckoff";
+    public static final String tools = "tools";
+    public static final String wordcount = "wordcount";
+    public static final String editorpanel = "editorpanel";
+    public static final String textproperties = "textproperties";
+    public static final String print = "print";
+    public static final String convert = "convert";
 
     private static String ID_PART_SEP = ".";
 

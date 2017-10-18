@@ -40,7 +40,7 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
 
      public static final String CONVERT_TO_PROJECT_ACTION_NAME = "convert-to-project";
      public static final String DELETE_WARMUP_ACTION_NAME = "delete-warmup";
-     
+
     protected WarmupsViewer projectViewer = null;
     private Warmup          warmup = null;
 
@@ -58,18 +58,18 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
         this.actions.put (DELETE_WARMUP_ACTION_NAME,
                           new DeleteWarmupActionHandler ((Chapter) this.obj,
                                                          this.projectViewer));
-        
+
         this.actions.put (CONVERT_TO_PROJECT_ACTION_NAME,
                           this.projectViewer.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
                                                         this.warmup.getChapter ()));
-        
+
      }
 
     public Warmup getWarmup ()
     {
-      
+
          return this.warmup;
-      
+
     }
 
     public JComponent getEditorWrapper (final QTextEditor q)
@@ -104,31 +104,65 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
                              final boolean fullScreen)
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.warmups);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.toolbar);
+
         final AbstractEditableEditorPanel _this = this;
 
         acts.add (this.createToolbarButton (Constants.SAVE_ICON_NAME,
-                                            "Click to save the {Warmup} text",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.save,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to save the {Warmup} text",
                                             SAVE_ACTION_NAME));
 
         this.doFillToolBar (acts);
 
         acts.add (this.createToolbarButton (Constants.WORDCOUNT_ICON_NAME,
-                                            "Click to view the word counts and readability indices",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.wordcount,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to view the word counts and readability indices",
                                             TOGGLE_WORDCOUNTS_ACTION_NAME));
 
         String type = (this.projectViewer.isSpellCheckingEnabled () ? "off" : "on");
 
-        acts.add (this.createToolbarButton ("spellchecker-turn-" + type,
-                                            "Click to turn the spell checker " + type,
-                                            TOGGLE_SPELLCHECK_ACTION_NAME));
+        if (this.projectViewer.isSpellCheckingEnabled ())
+        {
+
+            acts.add (this.createToolbarButton ("spellchecker-turn-off",
+                                                Environment.getUIString (prefix,
+                                                                         LanguageStrings.spellcheckoff,
+                                                                         LanguageStrings.tooltip),
+                                                //"Click to turn the spell checker " + type,
+                                                TOGGLE_SPELLCHECK_ACTION_NAME));
+
+        } else {
+
+            acts.add (this.createToolbarButton ("spellchecker-turn-on",
+                                                Environment.getUIString (prefix,
+                                                                         LanguageStrings.spellcheckon,
+                                                                         LanguageStrings.tooltip),
+                                                //"Click to turn the spell checker " + type,
+                                                TOGGLE_SPELLCHECK_ACTION_NAME));
+
+        }
 
         acts.add (this.createToolbarButton (Constants.DELETE_ICON_NAME,
-                                            "Click to delete this {Warmup}",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.delete,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to delete this {Warmup}",
                                             DELETE_WARMUP_ACTION_NAME));
 
         // Add a tools menu.
         final JButton b = UIUtils.createToolBarButton ("tools",
-                                                       "Click to view the tools menu",
+                                                       Environment.getUIString (prefix,
+                                                                                LanguageStrings.tools,
+                                                                                LanguageStrings.tooltip),
+                                                       //"Click to view the tools menu",
                                                        "tools",
                                                        null);
 
@@ -145,24 +179,38 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
 
                 JMenuItem mi = null;
 
-                m.add (_this.createMenuItem ("Edit Text Properties",
+                java.util.List<String> prefix = new ArrayList ();
+                prefix.add (LanguageStrings.warmups);
+                prefix.add (LanguageStrings.editorpanel);
+                prefix.add (LanguageStrings.tools);
+
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.textproperties,
+                                                                      LanguageStrings.text),
+                                         //"Edit Text Properties",
                                              Constants.EDIT_PROPERTIES_ICON_NAME,
                                              EDIT_TEXT_PROPERTIES_ACTION_NAME,
                                              KeyStroke.getKeyStroke (KeyEvent.VK_E,
                                                                      ActionEvent.CTRL_MASK)));
-                        
-                m.add (_this.createMenuItem ("Find",
+
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.find,
+                                                                      LanguageStrings.text),
+                                         //"Find",
                                              Constants.FIND_ICON_NAME,
                                              Constants.SHOW_FIND_ACTION,
                                              KeyStroke.getKeyStroke (KeyEvent.VK_F,
                                                                      ActionEvent.CTRL_MASK)));
 
-                m.add (_this.createMenuItem ("Print {Warmup}",
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.print,
+                                                                      LanguageStrings.text),
+                                                                      //"Print {Warmup}",
                                              Constants.PRINT_ICON_NAME,
                                              QTextEditor.PRINT_ACTION_NAME,
                                              KeyStroke.getKeyStroke (KeyEvent.VK_P,
                                                                      ActionEvent.CTRL_MASK)));
-                                                                       
+
                 m.show (b,
                         10,
                         10);
@@ -176,30 +224,41 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
         acts.add (b);
 
     }
-    
+
     @Override
     public void doFillToolBar (JToolBar acts)
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.warmups);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.toolbar);
+
         final WarmupEditorPanel _this = this;
-    
+
         acts.add (UIUtils.createToolBarButton (Constants.NEW_ICON_NAME,
-                                               "Click to start a new {warmup}",
+                                               Environment.getUIString (prefix,
+                                                                        LanguageStrings._new,
+                                                                        LanguageStrings.tooltip),
+                                               //"Click to start a new {warmup}",
                                                "addwarmup",
                                                new ActionAdapter ()
                                                {
-                                                  
+
                                                    public void actionPerformed (ActionEvent ev)
                                                    {
-                                                       
+
                                                        _this.projectViewer.showWarmupPromptSelect ();
-                                                                                                              
+
                                                    }
-                                                  
+
                                                }));
-    
+
         acts.add (UIUtils.createToolBarButton (Constants.CONVERT_ICON_NAME,
-                                               "Click to convert this {warmup} to a " + Environment.getObjectTypeName (Project.OBJECT_TYPE),
+                                               Environment.getUIString (prefix,
+                                                                        LanguageStrings.convert,
+                                                                        LanguageStrings.tooltip),
+                                               //"Click to convert this {warmup} to a " + Environment.getObjectTypeName (Project.OBJECT_TYPE),
                                                "convert",
                                                this.projectViewer.getAction (WarmupsViewer.CONVERT_TO_PROJECT_ACTION,
                                                                              this.warmup.getChapter ())));
@@ -211,37 +270,59 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
                                        boolean    compress)
     {
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.warmups);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.popupmenu);
+        prefix.add (LanguageStrings.items);
+
         final WarmupEditorPanel _this = this;
-    
+
         if (compress)
         {
-                         
+
             List<JComponent> buts = new ArrayList ();
 
             buts.add (this.createButton (Constants.SAVE_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Save {Warmup}",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.save,
+                                                                  LanguageStrings.tooltip),
+                                                                  //"Save {Warmup}",
                                          SAVE_ACTION_NAME));
 
             buts.add (this.createButton (Constants.CONVERT_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Convert to a {Project}",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.convert,
+                                                                  LanguageStrings.tooltip),
+                                         //"Convert to a {Project}",
                                          CONVERT_TO_PROJECT_ACTION_NAME));
-            
+
             buts.add (this.createButton (Constants.FIND_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Find",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.find,
+                                                                  LanguageStrings.tooltip),
+                                         //"Find",
                                          Constants.SHOW_FIND_ACTION));
-                                                                                        
-            popup.add (UIUtils.createPopupMenuButtonBar (Environment.replaceObjectNames ("{Warmup}"),
+
+            popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.warmups,
+                                                                                  LanguageStrings.editorpanel,
+                                                                                  LanguageStrings.popupmenu,
+                                                                                  LanguageStrings.title),
+            //Environment.replaceObjectNames ("{Warmup}"),
                                                          popup,
                                                          buts));
-                                            
-        } else {    
+
+        } else {
 
           JMenuItem mi = null;
-        
-          mi = this.createMenuItem ("Save {Warmup}",
+
+          mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                             LanguageStrings.save,
+                                                             LanguageStrings.text),
+                                                             //"Save {Warmup}",
                                     Constants.SAVE_ICON_NAME,
                                     SAVE_ACTION_NAME,
                                     KeyStroke.getKeyStroke (KeyEvent.VK_S,
@@ -249,23 +330,29 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
           mi.setMnemonic (KeyEvent.VK_S);
 
           popup.add (mi);
-            
-          popup.add (this.createMenuItem ("Convert to a {Project}",
+
+          popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.convert,
+                                                                   LanguageStrings.text),
+                                                             //"Convert to a {Project}",
                                           Constants.CONVERT_ICON_NAME,
                                           CONVERT_TO_PROJECT_ACTION_NAME,
                                           null));
-  
-          mi = this.createMenuItem ("Find",
-                                  Constants.FIND_ICON_NAME,
-                                  Constants.SHOW_FIND_ACTION,
-                                  KeyStroke.getKeyStroke (KeyEvent.VK_F,
-                                                          ActionEvent.CTRL_MASK));
+
+          mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                             LanguageStrings.find,
+                                                             LanguageStrings.text),
+                                                             //"Find",
+                                    Constants.FIND_ICON_NAME,
+                                    Constants.SHOW_FIND_ACTION,
+                                    KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                                            ActionEvent.CTRL_MASK));
             mi.setMnemonic (KeyEvent.VK_F);
 
             popup.add (mi);
 
         }
-          
+
     }
 
     public List<Component> getTopLevelComponents ()
@@ -290,14 +377,14 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
      {
 
           super.init ();
-        
-        this.setReadyForUse (true);                  
-                  
+
+        this.setReadyForUse (true);
+
     }
 
     public void startWarmup ()
     {
-    
+
         this.projectViewer.getWordCountTimer ().start (this.warmup.getMins (),
                                                        this.warmup.getWords ());
 
