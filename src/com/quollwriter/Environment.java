@@ -166,7 +166,7 @@ public class Environment
     private static String UILanguage = null;
     private static String defaultUILanguage = Constants.ENGLISH;
     private static Map<String, LanguageStrings> UILanguageMaps = new HashMap ();
-    
+
     static
     {
 
@@ -583,16 +583,16 @@ public class Environment
     {
 
         Map<String, Map<String, String>> t = new HashMap ();
-                
+
         t.put (LanguageStrings.singular,
                singular);
         t.put (LanguageStrings.plural,
                plural);
-        
+
         IOUtils.writeStringToFile (Environment.getUserObjectTypeNamesFile (),
                                    JSONEncoder.encode (t),
                                    false);
-        
+
         Environment.loadUserObjectTypeNames ();
 
     /*
@@ -734,18 +734,18 @@ public class Environment
         }
 
         String v = Environment.objectTypeNamesSingular.get (t);
-        
+
         if (v == null)
         {
-            
+
             v = Environment.getUIString (LanguageStrings.objectnames,
                                          LanguageStrings.singular,
                                          t);
-            
+
         }
 
         return v;
-        
+
     }
 
     public static int getPercent (float t,
@@ -792,18 +792,18 @@ public class Environment
         t = t.toLowerCase ();
 
         String v = Environment.objectTypeNamesPlural.get (t);
-        
+
         if (v == null)
         {
-            
+
             v = Environment.getUIString (LanguageStrings.objectnames,
                                          LanguageStrings.plural,
                                          t);
-            
+
         }
 
         return v;
-        
+
         //return Environment.objectTypeNamesPlural.get (t);
 
     }
@@ -1464,7 +1464,7 @@ public class Environment
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.openproject);
         prefix.add (LanguageStrings.openerrors);
-    
+
         if (p == null)
         {
 
@@ -1529,12 +1529,12 @@ public class Environment
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.openproject);
         prefix.add (LanguageStrings.openerrors);
-    
+
         if (p == null)
         {
 
             return Environment.getUIString (prefix,
-                                            LanguageStrings.projectnotexist);        
+                                            LanguageStrings.projectnotexist);
             //return "{Project} does not exist.";
 
         }
@@ -1544,7 +1544,7 @@ public class Environment
 
             return String.format (Environment.getUIString (prefix,
                                                            LanguageStrings.projectdirnotexist),
-                                  p.getProjectDirectory ());        
+                                  p.getProjectDirectory ());
             //return "Cannot find {project} directory <b>" + p.getProjectDirectory () + "</b>.";
 
         }
@@ -1554,7 +1554,7 @@ public class Environment
 
             return String.format (Environment.getUIString (prefix,
                                                            LanguageStrings.projectdirisfile),
-                                  p.getProjectDirectory ());        
+                                  p.getProjectDirectory ());
             //return "Path to {project} <b>" + p.getProjectDirectory () + "</b> is a file, but a directory is expected.";
 
         }
@@ -1564,7 +1564,7 @@ public class Environment
 
             return String.format (Environment.getUIString (prefix,
                                                            LanguageStrings.invalidprojectdir),
-                                  p.getProjectDirectory ());        
+                                  p.getProjectDirectory ());
             //return "{Project} directory <b>" + p.getProjectDirectory () + "</b> doesn't appear to be a valid Quoll Writer {project}.";
 
         }
@@ -2501,12 +2501,12 @@ public class Environment
             prefix.add (LanguageStrings.actions);
             prefix.add (LanguageStrings.openproject);
             prefix.add (LanguageStrings.enterpasswordpopup);
-            
+
             if (p.isEncrypted ())
             {
 
                 Environment.startupComplete ();
-                
+
                 PasswordInputWindow.create (Environment.getUIString (prefix,
                                                                      LanguageStrings.title),
                                             //"Enter password",
@@ -2998,11 +2998,11 @@ public class Environment
             return id;
 
         }
-        
+
 
         return Environment.getUIString (LanguageStrings.buttons,
                                         id);
-        
+
     }
 
     private static void initProjectsDBFromProjectsFile ()
@@ -3499,27 +3499,27 @@ public class Environment
 
         // Load the default UI language map.
         Environment.registerUILanguage (Environment.getResourceFileAsString (Constants.DEFAULT_UI_LANGUAGE_STRINGS_FILE));
-        
+
         Environment.defaultUILanguage = Environment.getProperty (Constants.DEFAULT_UI_LANGUAGE_PROPERTY_NAME);
-        
+
         // XXX For now
         Environment.UILanguage = Environment.defaultUILanguage;
-        
+
         // Load the user default, if appropriate.
         String uilang = UserProperties.get (Constants.USER_UI_LANGUAGE_PROPERTY_NAME);
-        
+
         if (uilang != null)
         {
         /*
             // Get the file.
             String text = JSONDecoder.decode (Environment.getUserFile ("ui/languages/" + uilang + ".json"));
-        
+
             Environment.registerUILanguage (text);
-        
+
             Environment.UILanguage = uilang;
         */
         }
-        
+
         // Load the default object type names.
         // Object type names may be needed when initing the legacy object types.
         /*
@@ -3989,7 +3989,7 @@ public class Environment
                             java.util.List<String> prefix = new ArrayList ();
                             prefix.add (LanguageStrings.targets);
                             prefix.add (LanguageStrings.types);
-                        
+
                             Set<String> met = new LinkedHashSet ();
                             int sessWC = 0;
 
@@ -4026,7 +4026,7 @@ public class Environment
                                                       e);
 
                             }
-                            
+
                             // Check for the daily count.
                             // Get all sessions for today.
                             try
@@ -4558,59 +4558,59 @@ public class Environment
 
         // Remove the file.
         otf.delete ();
-        
+
         otf = Environment.getUserFile (Constants.LEGACY_OBJECT_TYPE_NAMES_FILE_NAME);
-        
+
         otf.delete ();
 
-        Environment.loadUserConfigurableObjectTypeNames ();        
-        
+        Environment.loadUserConfigurableObjectTypeNames ();
+
     }
 
     private static void loadUserObjectTypeNames ()
                                           throws Exception
     {
-        
+
         File f = Environment.getUserObjectTypeNamesFile ();
-        
+
         if (f.exists ())
         {
-            
+
             // Use this one.
             Map t = (Map) JSONDecoder.decode (IOUtils.getFile (f));
-            
+
             Environment.objectTypeNamesSingular = (Map) t.get (LanguageStrings.singular);
             Environment.objectTypeNamesPlural = (Map) t.get (LanguageStrings.plural);
-                    
+
         } else {
-        
+
             // Legacy: pre 2.6.2
             f = Environment.getUserFile (Constants.LEGACY_OBJECT_TYPE_NAMES_FILE_NAME);
-            
+
             if (f.exists ())
             {
-            
+
                 Environment.loadLegacyObjectTypeNames (JDOMUtils.getStringAsElement (IOUtils.getFile (f)));
-                
+
                 Environment.setUserObjectTypeNames (Environment.objectTypeNamesSingular,
                                                     Environment.objectTypeNamesPlural);
 
                 f.delete ();
-                
+
             }
 
         }
-        
+
         Environment.loadUserConfigurableObjectTypeNames ();
-        
+
     }
-    
+
     private static void loadUserConfigurableObjectTypeNames ()
     {
-        
+
         Map<String, String> singular = Environment.objectTypeNamesSingular;
         Map<String, String> plural = Environment.objectTypeNamesPlural;
-        
+
         // Load the names from the configurable types.
         for (UserConfigurableObjectType t : Environment.userConfigObjTypes)
         {
@@ -4651,10 +4651,10 @@ public class Environment
             singular.put (Chapter.OBJECT_TYPE,
                           chapterType.getObjectTypeName ());
 
-        }        
-        
+        }
+
     }
-    
+
     private static void loadLegacyObjectTypeNames (Element root)
                                            throws  Exception
     {
@@ -6884,6 +6884,13 @@ TODO: Add back in when appropriate.
 
     }
 
+    public static boolean hasUserConfigurableObjectType (String userObjType)
+    {
+
+        return Environment.getUserConfigurableObjectType (userObjType) != null;
+
+    }
+
     public static UserConfigurableObjectType getUserConfigurableObjectType (String userObjType)
     {
 
@@ -7057,14 +7064,14 @@ TODO: Add back in when appropriate.
         }
 
         Environment.projectInfoManager.saveObject (tag);
-        
+
         if (ev.equals (ProjectEvent.NEW))
         {
-            
+
             Environment.tags.add (tag);
-            
+
         }
-        
+
         // Tell all projects about it.
         Environment.fireUserProjectEvent (tag,
                                           ProjectEvent.TAG,
@@ -7085,9 +7092,9 @@ TODO: Add back in when appropriate.
 
         Environment.projectInfoManager.deleteObject (tag,
                                                      true);
-                                   
+
         Environment.tags.remove (tag);
-                                                     
+
         // Tell all projects about it.
         Environment.fireUserProjectEvent (tag,
                                           ProjectEvent.TAG,
@@ -7108,19 +7115,19 @@ TODO: Add back in when appropriate.
     {
 
         Set<Tag> tags = Environment.getAllTags ();
-        
+
         for (Tag t : tags)
         {
-            
+
             if (t.getKey () == key)
             {
-                
+
                 return t;
-                
+
             }
-            
+
         }
-        
+
         return null;
 
     }
@@ -7134,25 +7141,25 @@ TODO: Add back in when appropriate.
     public static Tag getTagByName (String name)
                              throws GeneralException
     {
-        
+
         Set<Tag> tags = Environment.getAllTags ();
-        
+
         for (Tag t : tags)
         {
-            
+
             if (t.getName ().equalsIgnoreCase (name))
             {
-                
+
                 return t;
-                
+
             }
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     /**
      * Get all the tags.
      *
@@ -7165,123 +7172,123 @@ TODO: Add back in when appropriate.
 
         if (Environment.tags == null)
         {
-    
+
             Environment.tags = new LinkedHashSet (Environment.projectInfoManager.getObjects (Tag.class,
                                                                                              null,
                                                                                              null,
                                                                                              true));
-                                                                                             
+
         }
-        
+
         return Environment.tags;
-                                                                                             
+
     }
 
     public static void registerUILanguage (String jsonData)
     {
-        
+
         LanguageStrings s = new LanguageStrings (jsonData);
-        
+
         Environment.UILanguageMaps.put (s.getLanguageName ().toLowerCase (),
                                         s);
-        
+
     }
-    
+
     public static String getUIString (List<String> ids)
     {
 
         String s = Environment.getUIString (Environment.UILanguage,
                                             ids);
-                                          
+
         if (s == null)
         {
-        
+
             s = Environment.getUIString (Environment.defaultUILanguage,
                                          ids);
-        
+
         }
-    
+
         if (s == null)
         {
-            
+
             return LanguageStrings.toId (ids);
-            
+
         }
-    
+
         return s;
-        
+
     }
-    
+
     public static String getUIString (String... ids)
     {
-    
+
         return Environment.getUIString (Arrays.asList (ids));
-    
+
     }
-    
+
     public static String getUIString (List<String> prefix,
                                       String       id)
     {
-        
+
         List<String> ids = new ArrayList (prefix);
-        
+
         ids.add (id);
-        
+
         return Environment.getUIString (ids);
-        
+
     }
-    
+
     public static String getUIString (List<String> prefix,
                                       String...    ids)
     {
-        
+
         List<String> _ids = new ArrayList (prefix);
-        
+
         for (String s : ids)
         {
-            
+
             _ids.add (s);
-            
+
         }
-                
+
         return Environment.getUIString (_ids);
-        
+
     }
 
     private static String getUIString (String       language,
                                        List<String> ids)
     {
-        
+
         if (language == null)
         {
-            
+
             return null;
-            
+
         }
-        
+
         LanguageStrings strings = Environment.UILanguageMaps.get (language.toLowerCase ());
-        
+
         if (strings == null)
         {
-        
+
             return null;
-        
+
         }
-        
+
         String s = strings.getValue (ids);
-                
+
         if (s == null)
         {
-            
+
             return null;
-                
+
         }
-        
+
         // Do our replacements.
         s = Environment.replaceObjectNames (s);
-        
+
         return s;
-    
-    }    
-    
+
+    }
+
 }

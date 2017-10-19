@@ -701,11 +701,11 @@ public class ObjectManager
                 // Only really need the project when we have actually found something.
                 if (this.project == null)
                 {
-        
+
                     throw new IllegalStateException ("No project set yet, either call getProject or setProject first.");
-        
-                }            
-            
+
+                }
+
                 long   o1key = rs.getLong (1);
                 String o1type = rs.getString (2);
                 long   o2key = rs.getLong (3);
@@ -1382,13 +1382,13 @@ public class ObjectManager
                               boolean    deleteChildObjects)
                        throws GeneralException
     {
-        
+
         this.deleteObject (d,
                            deleteChildObjects,
                            null);
-        
+
     }
-    
+
     public void deleteObject (DataObject d,
                               boolean    deleteChildObjects,
                               Connection conn)
@@ -1434,18 +1434,18 @@ public class ObjectManager
             // Fields are first.
             if (d instanceof UserConfigurableObject)
             {
-                
+
                 UserConfigurableObject o = (UserConfigurableObject) d;
-                                
+
                 this.deleteObjects (o.getFields (),
-                                    conn);                
-                             
+                                    conn);
+
             }
 
             dh.deleteObject (d,
                              deleteChildObjects,
                              conn);
-            
+
             PreparedStatement ps = null;
 
             if (d instanceof NamedObject)
@@ -1826,12 +1826,12 @@ public class ObjectManager
     public void saveObject (DataObject d)
                      throws GeneralException
     {
-        
+
         this.saveObject (d,
                          null);
-        
+
     }
-    
+
     public void saveObject (DataObject d,
                             Connection conn)
                      throws GeneralException
@@ -1972,19 +1972,19 @@ public class ObjectManager
 
                         if (n instanceof UserConfigurableObject)
                         {
-                            
+
                             UserConfigurableObject o = (UserConfigurableObject) n;
-                            
+
                             UserConfigurableObjectType t = o.getUserConfigurableObjectType ();
-                            
+
                             params.add (t.getKey ());
-                            
+
                         } else {
-                            
+
                             params.add (null);
-                            
+
                         }
-                        
+
                         StringWithMarkup descm = n.getDescription ();
 
                         String desc = null;
@@ -2040,7 +2040,7 @@ public class ObjectManager
                                               n.getLinks ());
 
                         }
-                        
+
                     }
 
                 } else
@@ -2125,15 +2125,15 @@ public class ObjectManager
                     }
 
                 }
-                
+
                 if (d instanceof UserConfigurableObject)
                 {
-                    
+
                     UserConfigurableObject o = (UserConfigurableObject) d;
-                    
+
                     this.saveObjects (o.getFields (),
                                       conn);
-                    
+
                 }
 
             }
@@ -3062,12 +3062,12 @@ public class ObjectManager
             // See if there is a files dir.
             if (!Utils.isDirectoryEmpty (project.getFilesDirectory ()))
             {
-             
+
                 // Add the files dir to the backup.
                 Utils.addDirToZip (f,
                                    project.getFilesDirectory ());
-                
-            }            
+
+            }
 
             // Test the backup?
 
@@ -3093,25 +3093,25 @@ public class ObjectManager
                                                                Connection                 conn)
                                                         throws GeneralException
     {
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-        
+
             conn = this.getConnection ();
 
             closeConn = true;
-            
-        }        
-        
+
+        }
+
         try
         {
 
             List params = new ArrayList ();
             params.add (type.getKey ());
             params.add (objType);
-    
+
             this.executeStatement ("UPDATE namedobject SET userobjecttypedbkey = ? WHERE dbkey IN (SELECT dbkey FROM dataobject WHERE objecttype = ?)",
                                    params,
                                    conn);
@@ -3129,15 +3129,15 @@ public class ObjectManager
 
             if (closeConn)
             {
-        
+
                 this.releaseConnection (conn);
-                
+
             }
 
         }
-        
+
     }
-    
+
     public void setUserConfigurableObjectFields (UserConfigurableObject obj,
                                                  Connection             conn)
                                           throws GeneralException
@@ -3145,32 +3145,32 @@ public class ObjectManager
 
         Set<UserConfigurableObjectField> fields = this.getUserConfigurableObjectFields (obj,
                                                                                         conn);
-        
+
         for (UserConfigurableObjectField f : fields)
         {
-            
+
             obj.addField (f);
-            
+
         }
-    
+
     }
-    
+
     public Set<UserConfigurableObjectField> getUserConfigurableObjectFields (UserConfigurableObject obj,
                                                                              Connection             conn)
                                                                       throws GeneralException
     {
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-        
+
             conn = this.getConnection ();
 
             closeConn = true;
-            
-        }        
-        
+
+        }
+
         try
         {
 
@@ -3190,34 +3190,34 @@ public class ObjectManager
 
             if (closeConn)
             {
-        
+
                 this.releaseConnection (conn);
-                
+
             }
 
         }
 
         return null;
-     
-    }    
-    
+
+    }
+
     public UserConfigurableObjectType getUserConfigurableObjectType (long        key,
                                                                      NamedObject obj,
                                                                      Connection  conn)
                                                               throws GeneralException
     {
-        
+
         boolean closeConn = false;
-        
+
         if (conn == null)
         {
-        
+
             conn = this.getConnection ();
 
             closeConn = true;
-            
-        }        
-        
+
+        }
+
         try
         {
 
@@ -3238,17 +3238,17 @@ public class ObjectManager
 
             if (closeConn)
             {
-        
+
                 this.releaseConnection (conn);
-                
+
             }
 
         }
 
         return null;
-     
+
     }
-    
+
     public void closeConnectionPool ()
     {
 
