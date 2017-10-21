@@ -73,18 +73,18 @@ public abstract class EditPanel extends Box
 
     public boolean isEditing ()
     {
-        
+
         if (this.editPanel == null)
         {
-            
+
             return false;
-            
+
         }
-        
+
         return this.editPanel.isShowing ();
-        
+
     }
-    
+
     public void removeActionListener (ActionListener l)
     {
 
@@ -164,50 +164,50 @@ public abstract class EditPanel extends Box
         this.cards = new JPanel (new CardLayout ());
         this.cards.setOpaque (false);
         this.panel.add (this.cards);
-        
+
         this.showViewPanel ();
 
         this.inited = true;
 
     }
-    
+
     public void showEditPanel ()
     {
-        
+
         this.showEdit ();
-        
+
     }
-    
+
     public void showViewPanel ()
     {
-        
+
         final EditPanel _this = this;
-        
+
         if (this.viewPanel != null)
         {
-            
+
             this.viewPanel.removeAll ();
-            
+
         } else {
-            
+
             this.viewPanel = new Box (BoxLayout.Y_AXIS);
-                        
+
             this.cards.add (this.viewPanel,
                             "view");
-            
+
             this.viewPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
             this.viewPanel.setMinimumSize (new Dimension (100,
                                                           100));
-                    
+
             this.viewPanel.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                           Short.MAX_VALUE));
 
         }
-        
-        IconProvider ip = this.getIconProvider ();                    
-        
+
+        IconProvider ip = this.getIconProvider ();
+
         JComponent view = null;
-        
+
         // See if there are view items, if so create a form, otherwise
         // call "getEditPanel".
         Set<FormItem> viewItems = this.getViewItems ();
@@ -229,61 +229,61 @@ public abstract class EditPanel extends Box
 
         if (view != null)
         {
-        
+
             java.util.List<JComponent> buttons = new ArrayList ();
-    
+
             JComponent edit = this.getEditButton ();
 
             buttons.add (edit);
-                
+
             this.viewPanel.add (EditPanel.createHeader (this.getTitle (),
                                                         ip.getIcon ("header",
                                                                     Constants.ICON_PANEL_SECTION),
                                                         UIUtils.createButtonBar (buttons)));
-        
-        
+
+
             //header.setControls (UIUtils.createButtonBar (buttons));
-        
+
             Border b = UIUtils.createPadding (0, 3, 0, 0);
-                        
+
             if (view instanceof JTree)
             {
-            
+
                 view.setBorder (UIUtils.createPadding (3, 0, 5, 0));
-            
+
                 JScrollPane sp = UIUtils.createScrollPane (view);
-                
+
                 sp.setBorder (b);
-            
+
                 this.viewPanel.add (sp);
-            
+
             } else {
-            
+
                 if (view instanceof JScrollPane)
                 {
-                    
+
                     view.setBorder (b);
-                    
+
                     this.viewPanel.add (view);
-                   
+
                 } else {
-            
-                    view.setBorder (UIUtils.createPadding (10, 5, 5, 5));            
-            
+
+                    view.setBorder (UIUtils.createPadding (10, 5, 5, 5));
+
                     Box _view = new ScrollableBox (BoxLayout.Y_AXIS);
                     _view.setOpaque (false);
                     _view.add (view);
-                
+
                     JComponent sp = UIUtils.createScrollPane (_view);
-                    
+
                     sp.setBorder (b);
-            
+
                     this.viewPanel.add (sp);
 
                 }
-    
-            } 
-                    
+
+            }
+
         }
 
         this.fireActionEvent (EditPanel.VIEW_VISIBLE,
@@ -291,36 +291,36 @@ public abstract class EditPanel extends Box
 
         ((CardLayout) this.cards.getLayout ()).show (this.cards,
                                                      "view");
-                
-    }        
-    
+
+    }
+
     private void showEdit ()
     {
-        
+
         final EditPanel _this = this;
-        
+
         if (this.editPanel != null)
         {
-            
+
             this.editPanel.removeAll ();
-            
+
         } else {
-            
+
             this.editPanel = new Box (BoxLayout.Y_AXIS);
             this.editPanel.setOpaque (false);
             this.editPanel.setMaximumSize (new java.awt.Dimension (Short.MAX_VALUE,
                                                                    Short.MAX_VALUE));
             this.cards.add (this.editPanel,
                             "edit");
-                    
+
             this.editPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         }
-                
+
         IconProvider ip = this.getIconProvider ();
-        
+
         java.util.List<JComponent> buttons = new ArrayList ();
-        
+
         buttons.add (this.getSaveButton ());
         buttons.add (this.getCancelButton ());
 
@@ -329,7 +329,7 @@ public abstract class EditPanel extends Box
                                                     ip.getIcon (Constants.EDIT_ICON_NAME,
                                                                 Constants.ICON_PANEL_SECTION),
                                                     UIUtils.createButtonBar (buttons)));
-        
+
         this.editError = UIUtils.createErrorLabel ("Please enter a value.");
         this.editError.setVisible (false);
         this.editError.setOpaque (false);
@@ -339,7 +339,7 @@ public abstract class EditPanel extends Box
         this.editPanel.add (this.editError);
 
         JComponent edit = null;
-        
+
         // See if there are edit items, if so create a form, otherwise
         // call "getEditPanel".
         Set<FormItem> editItems = this.getEditItems ();
@@ -356,31 +356,31 @@ public abstract class EditPanel extends Box
             edit = this.getEditPanel ();
 
         }
-        
+
         Border b = UIUtils.createPadding (3, 3, 0, 0);
-        
+
         if (edit instanceof JTree)
         {
-        
+
             edit.setBorder (UIUtils.createPadding (3, 0, 5, 5));
-        
+
             JScrollPane sp = UIUtils.createScrollPane (edit);
-        
+
             sp.setBorder (b);
-            
+
             this.editPanel.add (sp);
-        
+
         } else {
-        
+
             if (edit instanceof JScrollPane)
             {
-                
+
                 edit.setBorder (b);
 
                 this.editPanel.add (edit);
-        
+
             } else {
-        
+
                 //edit.setBorder (UIUtils.createPadding (3, 0, 5, 5));
 
                 Box _edit = new ScrollableBox (BoxLayout.Y_AXIS);
@@ -390,30 +390,30 @@ public abstract class EditPanel extends Box
                                                               Short.MAX_VALUE));
             /*
                 JComponent sp = UIUtils.createScrollPane (_edit);
-                
+
                 sp.setBorder (null);
                 this.editPanel.add (sp);
 */
             this.editPanel.add (edit);
             }
-                
-        } 
+
+        }
 
         ((CardLayout) this.cards.getLayout ()).show (this.cards,
                                                      "edit");
-        
+
         this.fireActionEvent (EditPanel.EDIT_VISIBLE,
                               "edit-visible");
-     
+
     }
-    
+
     public void doEdit ()
     {
-                    
-        this.showEdit ();        
-        
+
+        this.showEdit ();
+
     }
-    
+
     public void doCancel ()
     {
 
@@ -428,83 +428,55 @@ public abstract class EditPanel extends Box
             return;
 
         }
-        
+
         this.fireActionEvent (EditPanel.CANCELLED,
                               "cancelled");
 
         this.showViewPanel ();
-        
-/*        
-        //this.visiblePanel = null;
 
-        if (this.viewPanel != null)
-        {
-
-            this.viewPanel.setVisible (true);
-
-            this.fireActionEvent (EditPanel.CANCELLED,
-                                  "cancelled");
-
-            this.fireActionEvent (EditPanel.VIEW_VISIBLE,
-                                  "view-visible");
-
-            this.visiblePanel = this.viewPanel;
-
-        }
-        */
-/*
-        this.editPanel.setVisible (false);
-        this.edit.setToolTipText ("Click to edit this section");
-
-        this.edit.setVisible (true);
-        this.save.setVisible (false);
-        this.cancel.setVisible (false);
-        this.help.setVisible (false);
-        this.helpBox.setVisible (false);
-*/
         this.repaint ();
 
     }
 
     public void showEditError (Set<String> ms)
     {
-        
+
         if ((ms == null)
             ||
             (ms.size () == 0)
            )
         {
-            
+
             return;
-            
+
         }
-        
+
         if (ms.size () == 1)
         {
-            
+
             this.showEditError (ms.iterator ().next ());
-            
+
             return;
-            
+
         }
-        
+
         StringBuilder b = new StringBuilder ("<ul>");
-        
+
         for (String s : ms)
         {
-            
+
             b.append ("<li>");
             b.append (s);
             b.append ("</li>");
-            
+
         }
-        
+
         b.append ("</ul>");
-        
+
         this.showEditError (b.toString ());
-        
+
     }
-    
+
     public void showEditError (String m)
     {
 
@@ -598,13 +570,13 @@ public abstract class EditPanel extends Box
     public abstract void refreshViewPanel ();
 
     public abstract JComponent getEditButton ();
-    
+
     public abstract JComponent getSaveButton ();
 
     public abstract JComponent getCancelButton ();
-    
+
     public abstract String getTitle ();
-    
+
     public abstract String getEditTitle ();
 
     public abstract JComponent getEditPanel ();
@@ -614,7 +586,7 @@ public abstract class EditPanel extends Box
     public abstract Set<FormItem> getEditItems ();
 
     public abstract Set<FormItem> getViewItems ();
-    
+
     public abstract boolean handleSave ();
 
     public abstract boolean handleCancel ();
@@ -648,13 +620,6 @@ public abstract class EditPanel extends Box
             h.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 2, 0),
                                              h.getBorder ()));
 
-        } else {
-/*
-            h.setBorder (new EmptyBorder (0,
-                                          0,
-                                          0,
-                                          0));
-*/
         }
 
         return h;
@@ -666,7 +631,7 @@ public abstract class EditPanel extends Box
                                boolean                  scrollPaneBorder,
                                boolean                  headerBottomBorder)
     {
-    
+
         StringBuilder rowSpec = new StringBuilder ();
 
         for (FormItem item : items)
@@ -705,16 +670,6 @@ public abstract class EditPanel extends Box
                                  3,
                                  1));
 
-        /*
-                pb.add (this.createHeader (item.label.toString (),
-                                           null,
-                                           ip,
-                                           headerBottomBorder),
-                        cc.xywh (1,
-                                 row,
-                                 3,
-                                 1));
-*/
             }
 
             row += 2;
@@ -776,14 +731,14 @@ public abstract class EditPanel extends Box
                                        Icon       icon,
                                        JComponent controls)
     {
-/*        
+/*
                                     Environment.getIcon (iconType,
                                                          Constants.ICON_PANEL_SECTION),
 */
         Header header = new Header (Environment.replaceObjectNames (title),
                                     icon,
                                     null);
-                                    
+
         header.setAlignmentX (Component.LEFT_ALIGNMENT);
         header.setOpaque (false);
         header.setBorder (UIUtils.createBottomLineWithPadding (0, 3, 3, 0));
@@ -793,9 +748,9 @@ public abstract class EditPanel extends Box
                                                       com.quollwriter.ui.UIUtils.getComponentColor ()));
 
         header.setControls (controls);
-                                                      
-        return header;        
-        
+
+        return header;
+
     }
-    
+
 }

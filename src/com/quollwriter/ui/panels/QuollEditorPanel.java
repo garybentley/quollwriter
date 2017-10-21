@@ -48,7 +48,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 {
 
     public static final String SHOW_WORD_CLOUD_ACTION_NAME = "show-word-cloud";
-    public static final String SHOW_EDITORS_ACTION_NAME = "show-editors";
     public static final String CHAPTER_INFO_ACTION_NAME = "chapter-info";
     public static final String PROBLEM_FINDER_ACTION_NAME = "problem-finder";
     public static final String SPLIT_CHAPTER_ACTION_NAME = "split-chapter";
@@ -68,12 +67,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
     private static final CutNPasteTransferHandler cnpTransferHandler = new CutNPasteTransferHandler ();
 
-    // private QTextEditor editor = null;
     private IconColumn<ProjectViewer> iconColumn = null;
     protected ProjectViewer         projectViewer = null;
     private Box                     problemFinderPanel = null;
     private ProblemFinder           problemFinder = null;
-    //private ProblemFinderRuleConfig problemFinderRuleConfig = null;
     private JLabel                  ignoredProblemsLabel = null;
     private int                     lastCaret = -1;
     private ChapterItemTransferHandler chItemTransferHandler = null;
@@ -132,41 +129,28 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                          this.projectViewer.getChapterItemViewPopupProvider ());
 
         //this.iconColumn.addMouseListener (this);
-        
+
         this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
 
             public void handleDoublePress (MouseEvent ev)
             {
 
+                java.util.List<String> prefix = new ArrayList<> ();
+                prefix.add (LanguageStrings.iconcolumn);
+                prefix.add (LanguageStrings.doubleclickmenu);
+                prefix.add (LanguageStrings.items);
+
                 JPopupMenu popup = new JPopupMenu ();
 
                 // Convert the mouse position to a point in the text.
 
-                String pref = "Shortcut: Ctrl+Shift+";
-                /*
-                Environment.getUIString (LanguageStrings.iconcolumn,
-                                                       LanguageStrings.tooltip,
-                                                       LanguageStrings.shortcut,
-                                                       LanguageStrings.prefix);
-                                                       
-    public static String
-    {
-        
-        keystroke = "ctrl shift S";
-        neumonic = "S";
-        keystroketooltip = "Ctrl+Shift+S";
-        newtooltip = "Add a new %s";
-        
-    }
-                                                       
-                                                       
-                                                       */
-                //"Shortcut: Ctrl+Shift+";
+                String pref = Environment.getUIString (LanguageStrings.shortcutprefix);
 
                 JMenuItem mi = null;
 
-                mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
+                mi = UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                      Scene.OBJECT_TYPE),
                                              Scene.OBJECT_TYPE,
                                              _this.getActionListenerForTextPosition (NEW_SCENE_ACTION_NAME,
                                                                                      ev.getPoint ()),
@@ -175,12 +159,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 popup.add (mi);
 
-                char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
+                // TODO: Abstract this.
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0)));
+                mi.setToolTipText (pref + "S");
 
-                mi.setMnemonic (fc);
-                mi.setToolTipText (pref + fc);
-
-                mi = UIUtils.createMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
+                mi = UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                      OutlineItem.OBJECT_TYPE),
                                              OutlineItem.OBJECT_TYPE,
                                              _this.getActionListenerForTextPosition (NEW_OUTLINE_ITEM_ACTION_NAME,
                                                                                      ev.getPoint ()),
@@ -189,12 +173,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 popup.add (mi);
 
-                fc = Character.toUpperCase ("O".charAt (0));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0)));
+                mi.setToolTipText (pref + "O");
 
-                mi.setMnemonic (fc);
-                mi.setToolTipText (pref + fc);
-
-                mi = UIUtils.createMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                mi = UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                      Note.OBJECT_TYPE),
                                              Note.OBJECT_TYPE,
                                              _this.getActionListenerForTextPosition (NEW_NOTE_ACTION_NAME,
                                                                                      ev.getPoint ()),
@@ -203,12 +186,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 popup.add (mi);
 
-                fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+                mi.setMnemonic (Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0)));
+                mi.setToolTipText (pref + "N");
 
-                mi.setMnemonic (fc);
-                mi.setToolTipText (pref + fc);
-
-                mi = UIUtils.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
+                mi = UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                      Note.EDIT_NEEDED_OBJECT_TYPE),
                                              Constants.EDIT_NEEDED_NOTE_ICON_NAME,
                                              _this.getActionListenerForTextPosition (NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
                                                                                      ev.getPoint ()),
@@ -217,10 +199,8 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 popup.add (mi);
 
-                fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
-
-                mi.setMnemonic (fc);
-                mi.setToolTipText (pref + fc);
+                mi.setMnemonic ('E');
+                mi.setToolTipText (pref + "E");
 
                 popup.show ((Component) ev.getSource (),
                             ev.getPoint ().x,
@@ -229,6 +209,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             }
 
         });
+
+        final java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.actions);
 
         this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
 
@@ -268,7 +253,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                           e);
 
                                     UIUtils.showErrorMessage (_this.projectViewer,
-                                                              "Unable to remove edit position.");
+                                                              Environment.getUIString (prefix,
+                                                                                       LanguageStrings.removeeditposition,
+                                                                                       LanguageStrings.actionerror));
+                                                              //"Unable to remove edit position.");
 
 
                                  }
@@ -297,7 +285,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                           e);
 
                                     UIUtils.showErrorMessage (_this.projectViewer,
-                                                              "Unable to set {chapter} as edit complete.");
+                                                              Environment.getUIString (prefix,
+                                                                                       LanguageStrings.seteditcomplete,
+                                                                                       LanguageStrings.actionerror));
+                                                              //"Unable to set {chapter} as edit complete.");
 
                                  }
 
@@ -400,34 +391,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                                             e);
 
                                       UIUtils.showErrorMessage (_this,
-                                                                Environment.replaceObjectNames ("Unable to show {chapter}."));
-
-                                  }
-
-                              }
-
-                          });
-
-        this.actions.put (SHOW_EDITORS_ACTION_NAME,
-                          new ActionAdapter ()
-                          {
-
-                              public void actionPerformed (ActionEvent ev)
-                              {
-
-                                  try
-                                  {
-
-                                      _this.projectViewer.viewEditors ();
-
-                                  } catch (Exception e)
-                                  {
-
-                                      Environment.logError ("Unable to show editors",
-                                                            e);
-
-                                      UIUtils.showErrorMessage (_this,
-                                                                Environment.replaceObjectNames ("Unable to show editors."));
+                                                                Environment.getUIString (LanguageStrings.project,
+                                                                                         LanguageStrings.actions,
+                                                                                         LanguageStrings.showchapterinfo,
+                                                                                         LanguageStrings.actionerror));
+                                                                //Environment.replaceObjectNames ("Unable to show {chapter}."));
 
                                   }
 
@@ -481,12 +449,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
                                                                "none");
 
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0))),
+        im.put (KeyStroke.getKeyStroke ("ctrl shift S"),
                 NEW_SCENE_ACTION_NAME);
 
         im.put (KeyStroke.getKeyStroke ("ctrl shift O"),
                 NEW_OUTLINE_ITEM_ACTION_NAME);
-        im.put (KeyStroke.getKeyStroke ("ctrl shift " + Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0))),
+        im.put (KeyStroke.getKeyStroke ("ctrl shift N"),
                 NEW_NOTE_ACTION_NAME);
         im.put (KeyStroke.getKeyStroke ("ctrl shift E"),
                 NEW_EDIT_NEEDED_NOTE_ACTION_NAME);
@@ -577,50 +545,149 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     {
 
          this.projectViewer.showProblemFinderRuleConfig ();
-    /*
-        if (this.problemFinderRuleConfig == null)
+
+    }
+
+    @Override
+    public void fillToolBar (JToolBar acts,
+                             final boolean  fullScreen)
+    {
+
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.toolbar);
+
+        final QuollEditorPanel _this = this;
+
+        acts.add (this.createToolbarButton (Constants.SAVE_ICON_NAME,
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.save,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to save the {Chapter} text",
+                                            SAVE_ACTION_NAME));
+
+        this.doFillToolBar (acts);
+
+        acts.add (this.createToolbarButton (Constants.WORDCOUNT_ICON_NAME,
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.wordcount,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to view the word counts and readability indices",
+                                            TOGGLE_WORDCOUNTS_ACTION_NAME));
+
+        if (this.projectViewer.isSpellCheckingEnabled ())
         {
 
-            this.problemFinderRuleConfig = new ProblemFinderRuleConfig (this.projectViewer);
+            acts.add (this.createToolbarButton ("spellchecker-turn-off",
+                                                Environment.getUIString (prefix,
+                                                                         LanguageStrings.spellcheckoff,
+                                                                         LanguageStrings.tooltip),
+                                                //"Click to turn the spell checker " + type,
+                                                TOGGLE_SPELLCHECK_ACTION_NAME));
 
-            this.problemFinderRuleConfig.init ();
+        } else {
+
+            acts.add (this.createToolbarButton ("spellchecker-turn-on",
+                                                Environment.getUIString (prefix,
+                                                                         LanguageStrings.spellcheckon,
+                                                                         LanguageStrings.tooltip),
+                                                //"Click to turn the spell checker " + type,
+                                                TOGGLE_SPELLCHECK_ACTION_NAME));
 
         }
 
-        this.problemFinderRuleConfig.setVisible (true);
+        acts.add (this.createToolbarButton (Constants.DELETE_ICON_NAME,
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.delete,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to delete this {Chapter}",
+                                            DELETE_CHAPTER_ACTION_NAME));
+
+        // Add a tools menu.
+        final JButton b = UIUtils.createToolBarButton ("tools",
+                                                       Environment.getUIString (prefix,
+                                                                                LanguageStrings.tools,
+                                                                                LanguageStrings.tooltip),
+                                                       //"Click to view the tools such as Print, Find Problems and Edit the text properties",
+                                                       "tools",
+                                                       null);
+
+        ActionAdapter ab = new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                java.util.List<String> prefix = new ArrayList<> ();
+                prefix.add (LanguageStrings.project);
+                prefix.add (LanguageStrings.editorpanel);
+                prefix.add (LanguageStrings.tools);
+
+                JPopupMenu m = new JPopupMenu ();
+/*
+                _this.doFillToolsPopupMenu (ev,
+                                            m);
 */
+                JMenuItem mi = null;
+
+                // Need a more elegant way of handling this, maybe via cue.language?
+                if (_this.viewer.isLanguageEnglish ())
+                {
+
+                   m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                         LanguageStrings.problemfinder,
+                                                                         LanguageStrings.text),
+                                                                        //"Find Problems",
+                                                Constants.PROBLEM_FINDER_ICON_NAME,
+                                                PROBLEM_FINDER_ACTION_NAME,
+                                                KeyStroke.getKeyStroke (KeyEvent.VK_P,
+                                                                        ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)));
+
+                }
+
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.textproperties,
+                                                                      LanguageStrings.text),
+                                                                      //"Edit Text Properties",
+                                             Constants.EDIT_PROPERTIES_ICON_NAME,
+                                             EDIT_TEXT_PROPERTIES_ACTION_NAME,
+                                             KeyStroke.getKeyStroke (KeyEvent.VK_E,
+                                                                     ActionEvent.CTRL_MASK)));
+
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.find,
+                                                                      LanguageStrings.text),
+                                                                      //"Find",
+                                             Constants.FIND_ICON_NAME,
+                                             Constants.SHOW_FIND_ACTION,
+                                             KeyStroke.getKeyStroke (KeyEvent.VK_F,
+                                                                     ActionEvent.CTRL_MASK)));
+
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.print,
+                                                                      LanguageStrings.text),
+                                                                      //"Print {Chapter}",
+                                             Constants.PRINT_ICON_NAME,
+                                             QTextEditor.PRINT_ACTION_NAME,
+                                             KeyStroke.getKeyStroke (KeyEvent.VK_P,
+                                                                     ActionEvent.CTRL_MASK)));
+
+                m.show (b,
+                        10,
+                        10);
+
+            }
+
+        };
+
+        b.addActionListener (ab);
+
+        acts.add (b);
+
     }
 
-    public void doFillToolsPopupMenu (ActionEvent ev,
-                                      JPopupMenu  p)
-    {
-
-         // Need a more elegant way of handling this, maybe via cue.language?
-         if (this.projectViewer.isLanguageEnglish ())
-         {
-
-            p.add (this.createMenuItem ("Find Problems",
-                                        Constants.PROBLEM_FINDER_ICON_NAME,
-                                        PROBLEM_FINDER_ACTION_NAME,
-                                         KeyStroke.getKeyStroke (KeyEvent.VK_P,
-                                                                 ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)));
-
-         }
-/*
-        p.add (this.createMenuItem ("Editors",
-                                    Constants.EDITORS_ICON_NAME,
-                                    SHOW_EDITORS_ACTION_NAME,
-                                    null));
-*/
-/*
-        p.add (this.createMenuItem ("Word Cloud",
-                                    Constants.EDITORS_ICON_NAME,
-                                    SHOW_WORD_CLOUD_ACTION_NAME,
-                                    null));
-  */
-    }
-
-    public void doFillToolBar (JToolBar acts)
+    private void doFillToolBar (JToolBar acts)
     {
 
         final QuollEditorPanel _this = this;
@@ -637,8 +704,16 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         };
 
-        final JButton b = UIUtils.createToolBarButton ("new",
-                                                       "Click to add a new {Outlineitem}, {Character}, {Note}, {Object} etc.",
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.toolbar);
+
+        final JButton b = UIUtils.createToolBarButton (Constants.NEW_ICON_NAME,
+                                                       Environment.getUIString (prefix,
+                                                                                LanguageStrings._new,
+                                                                                LanguageStrings.tooltip),
+                                                       //"Click to add a new {Outlineitem}, {Character}, {Note}, {Object} etc.",
                                                        "new",
                                                        null);
 
@@ -669,7 +744,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         acts.add (b);
         acts.add (this.createToolbarButton (Constants.INFO_ICON_NAME,
-                                            "Click to view/edit the {chapter} information",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.showchapterinfo,
+                                                                     LanguageStrings.tooltip),
+                                            //"Click to view/edit the {chapter} information",
                                             CHAPTER_INFO_ACTION_NAME));
 
     }
@@ -769,92 +847,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                             pos);
 
     }
-/*
-    private void addNewItemsForPopupMenu (final JComponent popup,
-                                          Component        showAt,
-                                          int              pos)
-    {
 
-        final QuollEditorPanel _this = this;
-
-        final PositionActionAdapter aa = new PositionActionAdapter (pos)
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                _this.performAction (ev,
-                                     this.pos);
-
-            }
-
-        };
-
-        JMenuItem mi = new JMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
-                                      Environment.getIcon (Scene.OBJECT_TYPE,
-                                                           Constants.ICON_MENU));
-
-        char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
-
-        String pref = "Shortcut: Ctrl+Shift+";
-
-        mi.setMnemonic (fc);
-        mi.setToolTipText (pref + fc);
-        // mi.setAccelerator (KeyStroke.getKeyStroke ("ctrl shift " + fc));
-
-        mi.addActionListener (aa);
-
-        mi.setActionCommand ("new" + Scene.OBJECT_TYPE);
-
-        popup.add (mi);
-
-        mi = new JMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
-                            Environment.getIcon (OutlineItem.OBJECT_TYPE,
-                                                 Constants.ICON_MENU));
-
-        fc = Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0));
-
-        mi.setMnemonic (fc);
-        mi.setToolTipText (pref + fc);
-        mi.setActionCommand ("new" + OutlineItem.OBJECT_TYPE);
-
-        mi.addActionListener (aa);
-        popup.add (mi);
-
-        mi = new JMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
-                            Environment.getIcon (Note.OBJECT_TYPE,
-                                                 Constants.ICON_MENU));
-        fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
-
-        mi.setMnemonic (fc);
-        mi.setToolTipText (pref + fc);
-        mi.setActionCommand ("new" + Note.OBJECT_TYPE);
-
-        mi.addActionListener (aa);
-
-        popup.add (mi);
-
-        mi = new JMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
-                            Environment.getIcon ("edit-needed-note",
-                                                 Constants.ICON_MENU));
-        fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
-
-        mi.setMnemonic (fc);
-        mi.setToolTipText (pref + fc);
-        mi.setActionCommand ("new-edit-needed" + Note.OBJECT_TYPE);
-
-        mi.addActionListener (aa);
-
-        popup.add (mi);
-
-        UIUtils.addNewAssetItemsToPopupMenu (popup,
-                                             showAt,
-                                             this.projectViewer,
-                                             null,
-                                             null);
-
-    }
-*/
     private void addNewItemsForPopupMenu (final JComponent popup,
                                                 Component  showAt,
                                                 int        pos,
@@ -876,38 +869,60 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         };
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.popupmenu);
+        prefix.add (LanguageStrings._new);
+        prefix.add (LanguageStrings.items);
+
         if (compress)
         {
 
-            List<JComponent> buts = new ArrayList ();
+            List<JComponent> buts = new ArrayList<> ();
 
             buts.add (this.createButton (Scene.OBJECT_TYPE,
                                          Constants.ICON_MENU,
-                                         String.format ("Add a new {%s}", Scene.OBJECT_TYPE),
+                                         Environment.getUIString (prefix,
+                                                                  Scene.OBJECT_TYPE,
+                                                                  LanguageStrings.tooltip),
+                                         //String.format ("Add a new {%s}", Scene.OBJECT_TYPE),
                                          NEW_SCENE_ACTION_NAME,
                                          aa));
 
             buts.add (this.createButton (OutlineItem.OBJECT_TYPE,
                                          Constants.ICON_MENU,
-                                         String.format ("Add a new {%s}", OutlineItem.OBJECT_TYPE),
+                                         Environment.getUIString (prefix,
+                                                                  OutlineItem.OBJECT_TYPE,
+                                                                  LanguageStrings.tooltip),
+                                         //String.format ("Add a new {%s}", OutlineItem.OBJECT_TYPE),
                                          NEW_OUTLINE_ITEM_ACTION_NAME,
                                          aa));
 
             buts.add (this.createButton (Note.OBJECT_TYPE,
                                          Constants.ICON_MENU,
-                                         String.format ("Add a new {%s}", Note.OBJECT_TYPE),
+                                         Environment.getUIString (prefix,
+                                                                  Note.OBJECT_TYPE,
+                                                                  LanguageStrings.tooltip),
+                                         //String.format ("Add a new {%s}", Note.OBJECT_TYPE),
                                          NEW_NOTE_ACTION_NAME,
                                          aa));
 
             buts.add (this.createButton ("edit-needed-note",
                                          Constants.ICON_MENU,
-                                         String.format ("Add a new Edit Needed Note"),
+                                         Environment.getUIString (prefix,
+                                                                  Note.EDIT_NEEDED_OBJECT_TYPE,
+                                                                  LanguageStrings.tooltip),
+                                         //String.format ("Add a new Edit Needed Note"),
                                          NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
                                          aa));
 
             buts.add (this.createButton (Chapter.OBJECT_TYPE,
                                          Constants.ICON_MENU,
-                                         String.format ("Add a new {%s}", Chapter.OBJECT_TYPE),
+                                         Environment.getUIString (prefix,
+                                                                  Chapter.OBJECT_TYPE,
+                                                                  LanguageStrings.tooltip),
+                                         //String.format ("Add a new {%s}", Chapter.OBJECT_TYPE),
                                          NEW_CHAPTER_ACTION_NAME,
                                          aa));
 
@@ -918,7 +933,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                pm.addSeparator ();
 
-               popup.add (UIUtils.createPopupMenuButtonBar ("New",
+               popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.project,
+                                                                                     LanguageStrings.editorpanel,
+                                                                                     LanguageStrings.popupmenu,
+                                                                                     LanguageStrings._new,
+                                                                                     LanguageStrings.text),
+                                                                                     //"New",
                                                             pm,
                                                             buts));
 
@@ -934,11 +954,16 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         } else {
 
-            String pref = "Shortcut: Ctrl+Shift+";
+            String pref = Environment.getUIString (LanguageStrings.shortcutprefix);
+
+            //"Shortcut: Ctrl+Shift+";
 
             JMenuItem mi = null;
 
-            mi = this.createMenuItem (Environment.getObjectTypeName (Scene.OBJECT_TYPE),
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Scene.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+//Environment.getObjectTypeName (Scene.OBJECT_TYPE),
                                       Scene.OBJECT_TYPE,
                                       NEW_SCENE_ACTION_NAME,
                                       null,
@@ -946,12 +971,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             popup.add (mi);
 
-            char fc = Character.toUpperCase (Environment.getObjectTypeName (Scene.OBJECT_TYPE).charAt (0));
+            mi.setMnemonic ('S');
+            mi.setToolTipText (pref + "S");
 
-            mi.setMnemonic (fc);
-            mi.setToolTipText (pref + fc);
-
-            mi = this.createMenuItem (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               OutlineItem.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE),
                                       OutlineItem.OBJECT_TYPE,
                                       NEW_OUTLINE_ITEM_ACTION_NAME,
                                       null,
@@ -959,12 +985,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             popup.add (mi);
 
-            fc = Character.toUpperCase (Environment.getObjectTypeName (OutlineItem.OBJECT_TYPE).charAt (0));
+            mi.setMnemonic ('O');
+            mi.setToolTipText (pref + "O");
 
-            mi.setMnemonic (fc);
-            mi.setToolTipText (pref + fc);
-
-            mi = this.createMenuItem (Environment.getObjectTypeName (Note.OBJECT_TYPE),
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Note.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Environment.getObjectTypeName (Note.OBJECT_TYPE),
                                       Note.OBJECT_TYPE,
                                       NEW_NOTE_ACTION_NAME,
                                       null,
@@ -972,12 +999,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             popup.add (mi);
 
-            fc = Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
+            mi.setMnemonic ('N');
+            mi.setToolTipText (pref + "N");
 
-            mi.setMnemonic (fc);
-            mi.setToolTipText (pref + fc);
-
-            mi = this.createMenuItem (Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Note.EDIT_NEEDED_OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Note.EDIT_NEEDED_NOTE_TYPE + " " + Environment.getObjectTypeName (Note.OBJECT_TYPE),
                                       Constants.EDIT_NEEDED_NOTE_ICON_NAME,
                                       NEW_EDIT_NEEDED_NOTE_ACTION_NAME,
                                       null,
@@ -985,7 +1013,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             popup.add (mi);
 
-            mi = this.createMenuItem (Environment.getObjectTypeName (Chapter.OBJECT_TYPE),
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               Chapter.OBJECT_TYPE,
+                                                               LanguageStrings.text),
+                                                               //Environment.getObjectTypeName (Chapter.OBJECT_TYPE),
                                       Chapter.OBJECT_TYPE,
                                       NEW_CHAPTER_ACTION_NAME,
                                       null,
@@ -993,10 +1024,8 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             popup.add (mi);
 
-            fc = 'E'; // Character.toUpperCase (Environment.getObjectTypeName (Note.OBJECT_TYPE).charAt (0));
-
-            mi.setMnemonic (fc);
-            mi.setToolTipText (pref + fc);
+            mi.setMnemonic ('E');
+            mi.setToolTipText (pref + "E");
 
             UIUtils.addNewAssetItemsToPopupMenu (popup,
                                                  showAt,
@@ -1017,143 +1046,34 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
          this.repaint ();
 
     }
-    /*
-    public void setEditPosition (int textPos)
-    {
 
-        try
-        {
-
-            int tl = Utils.stripEnd (this.editor.getText ()).length ();
-
-            if (textPos > tl)
-            {
-
-                textPos = tl;
-
-            }
-
-            this.iconColumn.setEditPosition (textPos);
-
-            // See if we are on the last line (it may be that the user is in the icon
-            // column).
-            Rectangle pp = this.editor.modelToView (textPos);
-
-            if (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
-            {
-
-                if (textPos < tl)
-                {
-
-                    Rectangle ep = this.editor.modelToView (tl);
-
-                    boolean complete = false;
-
-                    if (ep.y == pp.y)
-                    {
-
-                        complete = true;
-
-                    }
-
-                    // Last line.
-                    this.chapter.setEditComplete (complete);
-
-                }
-
-            }
-
-            ((ProjectViewer) this.projectViewer).reloadChapterTree ();
-
-            this.projectViewer.saveObject (this.chapter,
-                                           false);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to set edit position for chapter: " +
-                                  this.chapter,
-                                  e);
-
-        }
-
-    }
-    */
     public void setEditPosition (Point mouseP)
-                          throws Exception
-    {
-
-        this.projectViewer.setChapterEditPosition (this.obj,
-                                                   this.editor.viewToModel (mouseP));
-
-    }
-    /*
-    public void removeEditPosition ()
     {
 
         try
         {
 
-            this.iconColumn.setEditPosition (-1);
-
-            this.setEditComplete (false);
-
-            this.projectViewer.saveObject (this.chapter,
-                                           false);
-
-            ((ProjectViewer) this.projectViewer).reloadChapterTree ();
+            this.projectViewer.setChapterEditPosition (this.obj,
+                                                       this.editor.viewToModel (mouseP));
 
         } catch (Exception e) {
 
-            Environment.logError ("Unable to set edit position for chapter: " +
-                                  this.chapter,
-                                  e);
+           Environment.logError ("Unable to set edit position for chapter: " +
+                                 this.obj,
+                                 e);
+
+           UIUtils.showErrorMessage (this.projectViewer,
+                                     Environment.getUIString (LanguageStrings.project,
+                                                              LanguageStrings.editorpanel,
+                                                              LanguageStrings.actions,
+                                                              LanguageStrings.seteditposition,
+                                                              LanguageStrings.actionerror));
+                                     //"Unable to set edit position.");
 
         }
 
     }
-    */
-    /*
-    public void setEditComplete (boolean v)
-    {
 
-        try
-        {
-
-            this.chapter.setEditComplete (v);
-
-            if (v)
-            {
-
-                int tl = Utils.stripEnd (this.editor.getText ()).length ();
-
-                this.iconColumn.setEditPosition (tl);
-
-            }
-
-            this.projectViewer.saveObject (this.chapter,
-                                           false);
-
-            this.iconColumn.init ();
-
-            if (this.projectViewer instanceof ProjectViewer)
-            {
-
-                ProjectViewer pv = (ProjectViewer) this.projectViewer;
-
-                pv.reloadChapterTree ();
-
-            }
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to set edit complete for chapter: " +
-                                  this.chapter,
-                                  e);
-
-        }
-
-    }
-    */
     public void doFillPopupMenu (final MouseEvent ev,
                                  final JPopupMenu popup,
                                        boolean    compress)
@@ -1179,6 +1099,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         // before what was clicked on.
         // pos++;
 
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.popupmenu);
+        prefix.add (Chapter.OBJECT_TYPE);
+        prefix.add (LanguageStrings.items);
+
         JMenuItem mi = null;
 
         if (compress)
@@ -1188,7 +1115,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             buts.add (this.createButton (Constants.SAVE_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Save {Chapter}",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.save,
+                                                                  LanguageStrings.tooltip),
+                                         //"Save {Chapter}",
                                          SAVE_ACTION_NAME));
 
             if ((this.editor.getCaret ().getDot () > 0)
@@ -1202,7 +1132,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                   buts.add (this.createButton (Constants.CHAPTER_SPLIT_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               "Split {Chapter}",
+                                               Environment.getUIString (prefix,
+                                                                        LanguageStrings.splitchapter,
+                                                                        LanguageStrings.tooltip),
+                                               //"Split {Chapter}",
                                                SPLIT_CHAPTER_ACTION_NAME));
 
                }
@@ -1211,20 +1144,34 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             buts.add (this.createButton (Constants.PROBLEM_FINDER_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Find Problems",
+                                         //"Find Problems",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.problemfinder,
+                                                                  LanguageStrings.tooltip),
                                          PROBLEM_FINDER_ACTION_NAME));
 
             buts.add (this.createButton (Constants.EDIT_PROPERTIES_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Edit Text Properties",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.textproperties,
+                                                                  LanguageStrings.tooltip),
+                                         //"Edit Text Properties",
                                          EDIT_TEXT_PROPERTIES_ACTION_NAME));
 
             buts.add (this.createButton (Constants.FIND_ICON_NAME,
                                          Constants.ICON_MENU,
-                                         "Find",
+                                         Environment.getUIString (prefix,
+                                                                  LanguageStrings.find,
+                                                                  LanguageStrings.tooltip),
+                                         //"Find",
                                          Constants.SHOW_FIND_ACTION));
 
-            popup.add (UIUtils.createPopupMenuButtonBar (Environment.replaceObjectNames ("{Chapter}"),
+            popup.add (UIUtils.createPopupMenuButtonBar (Environment.getUIString (LanguageStrings.project,
+                                                                                  LanguageStrings.editorpanel,
+                                                                                  LanguageStrings.popupmenu,
+                                                                                  Chapter.OBJECT_TYPE,
+                                                                                  LanguageStrings.compresstext),
+            //Environment.replaceObjectNames ("{Chapter}"),
                                                          popup,
                                                          buts));
 
@@ -1232,28 +1179,17 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             buts.add (UIUtils.createButton (Constants.EDIT_IN_PROGRESS_ICON_NAME,
                                             Constants.ICON_MENU,
-                                            "Set Edit Point",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.seteditposition,
+                                                                     LanguageStrings.tooltip),
+                                            //"Set Edit Point",
                                             new ActionAdapter ()
                                             {
 
                                                public void actionPerformed (ActionEvent ev)
                                                {
 
-                                                   try
-                                                   {
-
-                                                      _this.setEditPosition (mouseP);
-
-                                                   } catch (Exception e) {
-
-                                                      Environment.logError ("Unable to set edit position for chapter: " +
-                                                                            _this.obj,
-                                                                            e);
-
-                                                      UIUtils.showErrorMessage (_this.projectViewer,
-                                                                                "Unable to set edit position.");
-
-                                                   }
+                                                   _this.setEditPosition (mouseP);
 
                                                }
 
@@ -1264,7 +1200,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 buts.add (this.createButton (Constants.REMOVE_EDIT_POINT_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Remove Edit Point",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.removeeditposition,
+                                                                      LanguageStrings.tooltip),
+                                             //"Remove Edit Point",
                                              REMOVE_EDIT_POINT_ACTION_NAME));
 
             }
@@ -1274,7 +1213,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
                 buts.add (this.createButton (Constants.EDIT_COMPLETE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Set as Edit Complete",
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.seteditcomplete,
+                                                                      LanguageStrings.tooltip),
+                                             //"Set as Edit Complete",
                                              SET_EDIT_COMPLETE_ACTION_NAME));
 
             }
@@ -1292,7 +1234,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             // Save.
 
-            mi = this.createMenuItem ("Save {Chapter}",
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               LanguageStrings.save,
+                                                               LanguageStrings.text),
+                                                                //"Save {Chapter}",
                                       Constants.SAVE_ICON_NAME,
                                       SAVE_ACTION_NAME,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_S,
@@ -1301,7 +1246,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             popup.add (mi);
 
-            JMenu m = new JMenu (Environment.replaceObjectNames ("{Chapter} Edit"));
+            JMenu m = new JMenu (Environment.getUIString (LanguageStrings.project,
+                                                          LanguageStrings.editorpanel,
+                                                          LanguageStrings.popupmenu,
+                                                          Chapter.OBJECT_TYPE,
+                                                          LanguageStrings.text));
+            //Environment.replaceObjectNames ("{Chapter} Edit"));
             m.setIcon (Environment.getIcon (Constants.EDIT_ICON_NAME,
                                             Constants.ICON_MENU));
 
@@ -1316,7 +1266,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                if (this.editor.getCaret ().getDot () < this.editor.getTextWithMarkup ().getText ().length ())
                {
 
-                  m.add (this.createMenuItem ("Split {Chapter}",
+                  m.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                       LanguageStrings.splitchapter,
+                                                                       LanguageStrings.text),
+                                                                     //"Split {Chapter}",
                                               Constants.CHAPTER_SPLIT_ICON_NAME,
                                               SPLIT_CHAPTER_ACTION_NAME,
                                               null));
@@ -1325,7 +1278,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             }
 
-            mi = UIUtils.createMenuItem ("Set Edit Point",
+            mi = UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                  LanguageStrings.seteditposition,
+                                                                  LanguageStrings.text),
+                                                               //"Set Edit Point",
                                          Constants.EDIT_IN_PROGRESS_ICON_NAME,
                                          new ActionAdapter ()
                                          {
@@ -1333,21 +1289,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                             public void actionPerformed (ActionEvent ev)
                                             {
 
-                                                try
-                                                {
-
-                                                   _this.setEditPosition (mouseP);
-
-                                                } catch (Exception e) {
-
-                                                   Environment.logError ("Unable to set edit position for chapter: " +
-                                                                         _this.obj,
-                                                                         e);
-
-                                                   UIUtils.showErrorMessage (_this.projectViewer,
-                                                                             "Unable to set edit position.");
-
-                                                }
+                                                _this.setEditPosition (mouseP);
 
                                             }
 
@@ -1358,7 +1300,10 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             if (this.obj.getEditPosition () > 0)
             {
 
-                m.add (this.createMenuItem ("Remove Edit Point",
+                m.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                   LanguageStrings.removeeditposition,
+                                                                   LanguageStrings.text),
+                                                                   //"Remove Edit Point",
                                             Constants.REMOVE_EDIT_POINT_ICON_NAME,
                                             REMOVE_EDIT_POINT_ACTION_NAME,
                                             null));
@@ -1368,19 +1313,30 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             if (!this.obj.isEditComplete ())
             {
 
-                m.add (this.createMenuItem ("Set as Edit Complete",
+                m.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.seteditcomplete,
+                                                                     LanguageStrings.text),
+                                                                   //"Set as Edit Complete",
                                             Constants.EDIT_COMPLETE_ICON_NAME,
                                             SET_EDIT_COMPLETE_ACTION_NAME,
                                             null));
 
             }
 
-            popup.add (this.createMenuItem ("Find Problems",
+            popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.problemfinder,
+                                                                     LanguageStrings.text),
+                                                               //"Find Problems",
                                             Constants.PROBLEM_FINDER_ICON_NAME,
                                             PROBLEM_FINDER_ACTION_NAME,
                                             null));
-                                            
-            JMenu nm = new JMenu ("New");
+
+            JMenu nm = new JMenu (Environment.getUIString (LanguageStrings.project,
+                                                          LanguageStrings.editorpanel,
+                                                          LanguageStrings.popupmenu,
+                                                          LanguageStrings._new,
+                                                          LanguageStrings.text));
+                                                          //"New");
             nm.setIcon (Environment.getIcon (Constants.NEW_ICON_NAME,
                                              Constants.ICON_MENU));
 
@@ -1391,12 +1347,18 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                           pos,
                                           compress);
 
-            popup.add (this.createMenuItem ("Edit Text Properties",
+            popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.textproperties,
+                                                                     LanguageStrings.text),
+                                                                     //"Edit Text Properties",
                                             Constants.EDIT_PROPERTIES_ICON_NAME,
                                             EDIT_TEXT_PROPERTIES_ACTION_NAME,
-                                            null));                                            
+                                            null));
 
-            mi = this.createMenuItem ("Find",
+            mi = this.createMenuItem (Environment.getUIString (prefix,
+                                                               LanguageStrings.find,
+                                                               LanguageStrings.text),
+                                                                     //"Find",
                                       Constants.FIND_ICON_NAME,
                                       Constants.SHOW_FIND_ACTION,
                                       KeyStroke.getKeyStroke (KeyEvent.VK_F,
@@ -1404,12 +1366,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             mi.setMnemonic (KeyEvent.VK_F);
 
             popup.add (mi);
-/*
-            popup.add (this.createMenuItem ("Find",
-                                            Constants.FIND_ICON_NAME,
-                                            Constants.SHOW_FIND_ACTION,
-                                            null));                                            
-*/
+
         }
 
     }
@@ -1443,14 +1400,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
     }
 
-    public void scrollToOutlineItem (OutlineItem oi)
-                              throws GeneralException
-    {
-
-        this.scrollToPosition (oi.getPosition ());
-
-    }
-
     public void scrollToItem (ChapterItem i)
                        throws GeneralException
     {
@@ -1460,7 +1409,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     }
 
     public void editNote (final Note n)
-                   throws GeneralException
     {
 
       final QuollEditorPanel _this = this;
@@ -1475,7 +1423,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             {
 
 
-               _this.scrollToNote (n);
+               _this.scrollToItem (n);
 
                new NoteActionHandler (n,
                                      _this).actionPerformed (new ActionEvent (_this,
@@ -1489,43 +1437,9 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                      e);
 
                UIUtils.showErrorMessage (_this,
-                                         "Unable to edit item, please contact Quoll Writer support for assistance.");
-
-            }
-
-         }
-
-      });
-
-    }
-
-   public void showNote (final  Note n)
-                         throws GeneralException
-   {
-
-      final QuollEditorPanel _this = this;
-
-      UIUtils.doLater (new ActionListener ()
-      {
-
-         public void actionPerformed (ActionEvent ev)
-         {
-
-            try
-            {
-
-               _this.scrollToNote (n);
-
-               _this.iconColumn.showItem (n);
-
-            } catch (Exception e) {
-
-               Environment.logError ("Unable to show item: " +
-                                     n,
-                                     e);
-
-               UIUtils.showErrorMessage (_this,
-                                         "Unable to show item, please contact Quoll Writer support for assistance.");
+                                         String.format (Environment.getUIString (LanguageStrings.edititem,
+                                                                                 LanguageStrings.actionerror),
+                                                        Environment.getObjectTypeName (n)));
 
             }
 
@@ -1536,7 +1450,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     }
 
    public void editScene (final  Scene s)
-                          throws GeneralException
    {
 
       final QuollEditorPanel _this = this;
@@ -1565,43 +1478,9 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                      e);
 
                UIUtils.showErrorMessage (_this,
-                                         "Unable to edit item, please contact Quoll Writer support for assistance.");
-
-            }
-
-         }
-
-      });
-
-    }
-
-   public void showScene (final  Scene s)
-                          throws GeneralException
-    {
-
-      final QuollEditorPanel _this = this;
-
-      UIUtils.doLater (new ActionListener ()
-      {
-
-         public void actionPerformed (ActionEvent ev)
-         {
-
-            try
-            {
-
-               _this.scrollToItem (s);
-
-               _this.iconColumn.showItem (s);
-
-            } catch (Exception e) {
-
-               Environment.logError ("Unable to show item: " +
-                                     s,
-                                     e);
-
-               UIUtils.showErrorMessage (_this,
-                                         "Unable to show item, please contact Quoll Writer support for assistance.");
+                                         String.format (Environment.getUIString (LanguageStrings.edititem,
+                                                                                 LanguageStrings.actionerror),
+                                                        Environment.getObjectTypeName (s)));
 
             }
 
@@ -1612,7 +1491,6 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
     }
 
     public void editOutlineItem (final  OutlineItem n)
-                                 throws GeneralException
     {
 
       final QuollEditorPanel _this = this;
@@ -1626,7 +1504,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
             try
             {
 
-               _this.scrollToOutlineItem (n);
+               _this.scrollToItem (n);
 
                new ChapterItemActionHandler (n,
                                              _this,
@@ -1641,43 +1519,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                      e);
 
                UIUtils.showErrorMessage (_this,
-                                         "Unable to show item, please contact Quoll Writer support for assistance.");
-
-            }
-
-         }
-
-      });
-
-    }
-
-   public void showOutlineItem (final  OutlineItem n)
-   {
-
-      final QuollEditorPanel _this = this;
-
-      UIUtils.doLater (new ActionListener ()
-      {
-
-         public void actionPerformed (ActionEvent ev)
-         {
-
-            try
-            {
-
-               _this.scrollToOutlineItem (n);
-
-               _this.iconColumn.showItem (n);
-
-            } catch (Exception e) {
-
-               Environment.logError ("Unable to show item: " +
-                                     n,
-                                     e);
-
+                                         String.format (Environment.getUIString (LanguageStrings.edititem,
+                                                                                 LanguageStrings.actionerror),
+                                                        Environment.getObjectTypeName (n)));
+/*
                UIUtils.showErrorMessage (_this,
                                          "Unable to show item, please contact Quoll Writer support for assistance.");
-
+*/
             }
 
          }
@@ -1686,13 +1534,43 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
     }
 
-    public void scrollToNote (Note n)
-                       throws GeneralException
+    public void showItem (final  ChapterItem n)
     {
 
-        this.scrollToPosition (n.getPosition ());
+       final QuollEditorPanel _this = this;
 
-    }
+       UIUtils.doLater (new ActionListener ()
+       {
+
+          public void actionPerformed (ActionEvent ev)
+          {
+
+             try
+             {
+
+                _this.scrollToItem (n);
+
+                _this.iconColumn.showItem (n);
+
+             } catch (Exception e) {
+
+                Environment.logError ("Unable to show item: " +
+                                      n,
+                                      e);
+
+                UIUtils.showErrorMessage (_this,
+                                          String.format (Environment.getUIString (LanguageStrings.viewitem,
+                                                                                  LanguageStrings.actionerror),
+                                                         Environment.getObjectTypeName (n)));
+                                          //"Unable to show item, please contact Quoll Writer support for assistance.");
+
+             }
+
+          }
+
+       });
+
+     }
 
     public List<Component> getTopLevelComponents ()
     {
@@ -1719,8 +1597,15 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         String type = (v ? "off" : "on");
 
+        String tooltip = Environment.getUIString (LanguageStrings.dictionary,
+                                                  LanguageStrings.spellcheck,
+                                                  LanguageStrings.buttons,
+                                                  (v ? "off" : "on"),
+                                                  LanguageStrings.tooltip);
+
         this.setToolBarButtonIcon ("toggle-spellcheck",
-                                   "Click turn the spell checker " + type,
+                                   tooltip,
+                                   //"Click turn the spell checker " + type,
                                    "spellchecker-turn-" + type);
 
     }
@@ -1751,6 +1636,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
          super.init ();
 
+         final java.util.List<String> prefix = new ArrayList<> ();
+         prefix.add (LanguageStrings.project);
+         prefix.add (LanguageStrings.editorpanel);
+         prefix.add (LanguageStrings.actions);
+         prefix.add (LanguageStrings.problemfinder);
+
         final QuollEditorPanel _this = this;
 
         this.problemFinderPanel = new Box (BoxLayout.Y_AXIS);
@@ -1766,7 +1657,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         hbuts.add (UIUtils.createButton ("config",
                                         Constants.ICON_MENU,
-                                        "Click to configure the text rules.",
+                                        Environment.getUIString (prefix,
+                                                                 LanguageStrings.headercontrols,
+                                                                 LanguageStrings.items,
+                                                                 LanguageStrings.config,
+                                                                 LanguageStrings.tooltip),
+                                        //"Click to configure the text rules.",
                                         new ActionAdapter ()
                                         {
 
@@ -1797,9 +1693,14 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
          };
 
-        hbuts.add (UIUtils.createButton ("cancel",
+        hbuts.add (UIUtils.createButton (Constants.CANCEL_ICON_NAME,
                                         Constants.ICON_MENU,
-                                        "Click to stop looking for problems.",
+                                        Environment.getUIString (prefix,
+                                                                 LanguageStrings.headercontrols,
+                                                                 LanguageStrings.items,
+                                                                 LanguageStrings.cancel,
+                                                                 LanguageStrings.tooltip),
+                                        //"Click to stop looking for problems.",
                                         finishAction));
 
         hbuts.add (UIUtils.createHelpPageButton ("chapters/problem-finder",
@@ -1810,9 +1711,11 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         tb.setBorder (UIUtils.createPadding (0, 0, 0, 5));
 
-        Header h = UIUtils.createHeader ("Find Problems",
+        Header h = UIUtils.createHeader (Environment.getUIString (prefix,
+                                                                  LanguageStrings.title),
+                                                                  //"Find Problems",
                                          Constants.SUB_PANEL_TITLE,
-                                         "eye",
+                                         Constants.PROBLEM_FINDER_ICON_NAME,
                                          tb);
 
         this.problemFinderPanel.add (h);
@@ -1855,7 +1758,9 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                           e);
 
                     UIUtils.showErrorMessage (_this,
-                                              "Unable to go to previous.");
+                                              Environment.getUIString (prefix,
+                                                                       LanguageStrings.previouserror));
+                                              //"Unable to go to previous.");
 
                 }
 
@@ -1863,12 +1768,20 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         });
 
-        prev.setToolTipText ("Go back to the problem(s)");
+        prev.setToolTipText (Environment.getUIString (prefix,
+                                                      LanguageStrings.buttons,
+                                                      LanguageStrings.previous,
+                                                      LanguageStrings.tooltip));
+                                 //"Go back to the problem(s)");
 
         buts.add (prev);
         buts.add (Box.createHorizontalStrut (5));
 
-        JButton next = UIUtils.createButton ("Next",
+        JButton next = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.next,
+                                                                      LanguageStrings.text),
+                                                                      //"Next",
                                              "next");
 
         next.addActionListener (new ActionAdapter ()
@@ -1890,11 +1803,13 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                     } catch (Exception e)
                     {
 
-                        Environment.logError ("Unable to goto next sentence",
+                        Environment.logError ("Unable to goto next problem",
                                               e);
 
                         UIUtils.showErrorMessage (_this,
-                                                  "Unable to go to next sentence.");
+                                                  Environment.getUIString (prefix,
+                                                                           LanguageStrings.nexterror));
+                                                  //"Unable to go to next sentence.");
 
                     }
 
@@ -1902,17 +1817,29 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
             });
 
-        next.setToolTipText ("Find the next problem(s)");
+        next.setToolTipText (Environment.getUIString (prefix,
+                                                      LanguageStrings.buttons,
+                                                      LanguageStrings.next,
+                                                      LanguageStrings.tooltip));
+                                                                      //"Find the next problem(s)");
         next.setHorizontalTextPosition (SwingConstants.LEFT);
 
         buts.add (next);
 
         buts.add (Box.createHorizontalStrut (5));
 
-        JButton finish = UIUtils.createButton ("Finish",
+        JButton finish = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                        LanguageStrings.buttons,
+                                                                        LanguageStrings.finish,
+                                                                        LanguageStrings.text),
+                                                      //"Finish",
                                                finishAction);
 
-        finish.setToolTipText ("Stop looking for problems");
+        finish.setToolTipText (Environment.getUIString (prefix,
+                                                        LanguageStrings.buttons,
+                                                        LanguageStrings.finish,
+                                                        LanguageStrings.tooltip));
+                                                      //"Stop looking for problems");
         finish.setHorizontalTextPosition (SwingConstants.LEFT);
 
         buts.add (finish);
@@ -1937,12 +1864,25 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                String pl = (s > 1 ? "s" :"");
 
                UIUtils.createQuestionPopup (_this.projectViewer,
-                                            "Un-ignore " + s + " problem" + pl,
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.unignore,
+                                                                     LanguageStrings.confirmpopup,
+                                                                     LanguageStrings.title),
+                                            //"Un-ignore " + s + " problem" + pl,
                                             Constants.PROBLEM_FINDER_ICON_NAME,
-                                            "Please confirm you wish to un-ignore the " +
-                                            s +
-                                            " problem" + pl + "?",
-                                            "Yes, un-ignore " + (s == 1 ? "it" : "them"),
+                                            String.format (Environment.getUIString (prefix,
+                                                                                    LanguageStrings.unignore,
+                                                                                    LanguageStrings.confirmpopup,
+                                                                                    LanguageStrings.text),
+                                                           Environment.formatNumber (s)),
+                                            //"Please confirm you wish to un-ignore the " +
+                                            //s +
+                                            //" problem" + pl + "?",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.unignore,
+                                                                     LanguageStrings.confirmpopup,
+                                                                     LanguageStrings.confirm),
+                                            //"Yes, un-ignore " + (s == 1 ? "it" : "them"),
                                             null,
                                             new ActionListener ()
                                             {
@@ -1968,10 +1908,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         buts.add (this.ignoredProblemsLabel);
         buts.add (Box.createHorizontalGlue ());
 
-        buts.setBorder (new EmptyBorder (10,
-                                         10,
-                                         7,
-                                         10));
+        buts.setBorder (UIUtils.createPadding (10, 10, 7, 10));
 
         this.problemFinderPanel.add (buts);
 
@@ -2017,7 +1954,12 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                                e);
 
          UIUtils.showErrorMessage (this,
-                                   "Unable to open problem finding panel");
+                                   Environment.getUIString (LanguageStrings.project,
+                                                            LanguageStrings.editorpanel,
+                                                            LanguageStrings.actions,
+                                                            LanguageStrings.problemfinder,
+                                                            LanguageStrings.actionerror));
+                                   //"Unable to open problem finding panel");
 
          return;
 
@@ -2092,8 +2034,33 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
         if (s > 0)
         {
 
-            this.ignoredProblemsLabel.setText (Environment.replaceObjectNames (s + " problem" + (s > 1 ? "s" : "") + " currently ignored in this {chapter}, click to un-ignore."));
             this.ignoredProblemsLabel.setVisible (true);
+
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.editorpanel);
+            prefix.add (LanguageStrings.actions);
+            prefix.add (LanguageStrings.problemfinder);
+            prefix.add (LanguageStrings.ignored);
+
+            String t = null;
+
+            if (s == 1)
+            {
+
+                t = Environment.getUIString (prefix,
+                                             LanguageStrings.single);
+
+            } else {
+
+                t = String.format (Environment.getUIString (prefix,
+                                                            LanguageStrings.plural),
+                                   Environment.formatNumber (s));
+
+            }
+
+            this.ignoredProblemsLabel.setText (t);
+            //Environment.replaceObjectNames (s + " problem" + (s > 1 ? "s" : "") + " currently ignored in this {chapter}, click to un-ignore."));
 
         } else {
 

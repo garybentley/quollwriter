@@ -13,6 +13,7 @@
         "unabletostarterror" : "Unable to start {QW}",
         "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
     },
+    "shortcutprefix" : "Shortcut: Ctrl+Shift+",
     "settingsmenu" :
     {
         ":comment" : "These items are used for the 'project' menu, the cog icon on a window, they are reused by most project 'viewers' hence the most frequently used items are defined here.",
@@ -51,12 +52,14 @@
             "object" : "Item",
             "researchitem" : "Research Item",
             "note" : "Note",
-            "editneedednote" : "Edit Needed",
+            "editneedednote" : "Edit Needed ${objectnames.singular.note}",
             "project" : "Project",
             "contact" : "Contact",
             "editor" : "Editor",
             "document" : "Document",
-            "idea" : "Idea"
+            "idea" : "Idea",
+            "tag" : "Tag",
+            "asset" : "Asset"
         },
         "plural" :
         {
@@ -69,12 +72,14 @@
             "object" : "Items",
             "researchitem" : "Research Items",
             "note" : "Notes",
-            "editneedednote" : "Edit Needed Notes",
+            "editneedednote" : "Edit Needed ${objectnames.plural.note}",
             "project" : "Projects",
             "contact" : "Contacts",
             "editor" : "Editors",
             "document" : "Documents",
-            "idea" : "Ideas"
+            "idea" : "Ideas",
+            "tag" : "Tags",
+            "asset" : "Assets"
         },
         "changer" :
         {
@@ -134,11 +139,14 @@
     },
     "iconcolumn" :
     {
-        "tooltip" :
+        "doubleclickmenu" :
         {
-            "shortcut" :
+            "items" :
             {
-                "prefix" : "Shortcut: Ctrl+Shift+"
+                "scene" : "${objectnames.singular.scene}",
+                "outlineitem" : "${objectnames.singular.outlineitem}",
+                "note" : "${objectnames.singular.note}",
+                "editneedednote" : "${objectnames.singular.editneedednote}"
             }
         },
         "moveitem" :
@@ -147,7 +155,6 @@
         },
         "viewitem" :
         {
-            "actionerror" : "Unable to display item.",
             "distractionfreemode" :
             {
                 "popup" :
@@ -166,7 +173,7 @@
             "reset" :
             {
                 "text" : "Reset",
-                "tooltip" : "Reset to the initial color."
+                "tooltip" : "Reset to the initial color"
             }
         },
         "labels" :
@@ -229,15 +236,15 @@
             "multipleoverlimit" : "%1$s {chapters} are over the target word count, click to view them.",
             ":comment.multipleoverlimit" : "%1$s is the number of chapters over the limit.",
             ":scount.multipleoverlimit" : 1,
-            "singleoverlimit" : "{Chapter} <b>%s</b> is over the target word count, click to view it.",
+            "singleoverlimit" : "{Chapter} <b>%1$s</b> is over the target word count, click to view it.",
             ":comment.singleoverlimit" : "%1$s is the name of the chapter over the limit.",
             ":scount.singleoverlimit" : 1
         }
     },
     "fontunavailable" :
     {
-        "text" : "The font <b>%s</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a {chapter} tab then <a href='action:textproperties'>click here to change the text properties</a>.",
-        ":comment.text" : "The %s is the name of the font that cannot be found.",
+        "text" : "The font <b>%1$s</b> selected for use in {chapters} is not available on this computer.<br /><br />To select a new font, switch to a {chapter} tab then <a href='action:textproperties'>click here to change the text properties</a>.",
+        ":comment.text" : "The %1$s is the name of the font that cannot be found.",
         ":scount.text" : 1
     },
     "functionunavailable" :
@@ -275,8 +282,8 @@
         "ideatype" : "Idea Type",
         "idea" : "Idea",
         "problemfinder" : "Problem Finder",
-        "tag" : "Tag",
-        "tags" : "Tags",
+        "tag" : "${objectnames.singular.tag}",
+        "tags" : "${objectnames.plural.tag}",
         "editor" : "Editor",
         "editors" : "Editors",
         "goals" : "Goals",
@@ -571,8 +578,6 @@
         "errors" :
         {
             "entervalue" : "Please enter a value.",
-            ":comment.entervalue" : "The %s will be replaced with the label of the form element.",
-            ":scount.entervalue" : 1,
             "invalidemail" : "Email does not appear to be valid.",
             "general" : "Please correct the following errors:<ul>%1$s</ul>",
             ":comment.general" : "%1$s is the list of errors that need to be corrected by the user.  Each error is wrapped in a html li tag.",
@@ -872,7 +877,10 @@
         "change" : "Change",
         "remove" : "Remove",
         "find" : "Find",
-        "print" : "Print"
+        "print" : "Print",
+        "findproblems" : "Find Problems",
+        "edittextproperties" : "Edit Text Properties"
+
     },
     "sidebars" :
     {
@@ -885,7 +893,21 @@
             "tooltip" : "Click to select another sidebar"
         }
     },
-    "deleteitem":
+    "viewitem" :
+    {
+        ":comment" : "This is a general purpose 'View this thing' action.  It is reused by a number of functions, such as editing a scene or outline item.",
+        "actionerror" : "Unable to show %1$s.",
+        ":comment.actionerror" : "%1$s is the object type name of the item that cannot be edited.",
+        ":scount.actionerror" : 1
+    },
+    "edititem" :
+    {
+        ":comment" : "This is a general purpose 'Edit this thing' action.  It is reused by a number of functions, such as viewing a scene or outline item.",
+        "actionerror" : "Unable to show %1$s.",
+        ":comment.actionerror" : "%1$s is the object type name of the item that cannot be shown.",
+        ":scount.actionerror" : 1
+    },
+    "deleteitem" :
     {
         ":comment" : "This is a general purpose 'Delete this thing' action.  It is reused by a number of functions, such as deleting a chapter or warmup or project.",
         "title" : "Delete %1$s",
@@ -993,11 +1015,22 @@
                     "nosuggestions" : "(No spelling suggestions)",
                     "more" : "More suggestions"
                 }
+            },
+            "buttons" :
+            {
+                "on" :
+                {
+                    "tooltip" : "Click to turn the spell checker on"
+                },
+                "off" :
+                {
+                    "tooltip" : "Click to turn the spell checker off"
+                }
             }
         },
         "manage" :
         {
-            "title" : "Manage the ${names.tags}",
+            "title" : "Manage your personal Dictionary",
             "finish" : "${actions.finish}",
             "newwords" :
             {
@@ -1442,7 +1475,7 @@
         "addeditneedednote1" :
         {
             "name" : "Where's my red pen?",
-            "description" : "Create an ${objectnames.singular.editneedednote} ${objectnames.singular.note}."
+            "description" : "Create an ${objectnames.singular.editneedednote}."
         },
         "addeditneedednote5" :
         {
@@ -1744,8 +1777,8 @@
             },
             "passivesentence" :
             {
-                "text" : "Passive voice, contains: <b>%s</b>",
-                ":comment.text" : "The %s is replaced with the word(s) found.",
+                "text" : "Passive voice, contains: <b>%1$s</b>",
+                ":comment.text" : "The %1$s is replaced with the word(s) found.",
                 ":scount.text" : 1
             },
             "adverb" :
@@ -1762,11 +1795,11 @@
                 "suffixes" :
                 {
                     "onlyindialogue" : " (in dialogue)",
-                    "notindialogue" : " (%s of sentence)",
-                    ":comment.notindialogue" : "The %s is either start or end.",
+                    "notindialogue" : " (%1$s of sentence)",
+                    ":comment.notindialogue" : "The %1$s is either start or end.",
                     ":scount.notindialogue" : 1,
-                    "indialogue" : " (%s of sentence, in dialogue)",
-                    ":comment.indialogue" : "The %s is either start or end.",
+                    "indialogue" : " (%1$s of sentence, in dialogue)",
+                    ":comment.indialogue" : "The %1$s is either start or end.",
                     ":scount.indialogue" : 1,
                     "start" : "start",
                     "end" : "end",
@@ -1868,8 +1901,8 @@
                     "nowordserror" : "Please enter at least one word or symbol.",
                     "description" :
                     {
-                        "anywhere" : "anywhere in a sentence%s",
-                        ":comment.anywhere" : "The %s is replaced with one of the dialogue suffixes.",
+                        "anywhere" : "anywhere in a sentence%1$s",
+                        ":comment.anywhere" : "The %1$s is replaced with one of the dialogue suffixes.",
                         "scount.anywhere" : 1,
                         "insentence" : "at the %1$s of a sentence%2$s",
                         ":comment.insentence" : "%1$s is replaced with either start or end, %2$s is replaced with one of the dialogue suffixes.",
@@ -1963,8 +1996,8 @@
             "removerule" :
             {
                 "title" : "Confirm rule removal",
-                "text" : "Please confirm you wish to remove rule: <b>%s</b>",
-                ":comment.text" : "The %s here is the name/summary of the rule so the user knows which one is being removed.",
+                "text" : "Please confirm you wish to remove rule: <b>%1$s</b>",
+                ":comment.text" : "The %1$s here is the name/summary of the rule so the user knows which one is being removed.",
                 ":scount.text" : 1,
                 "buttons" :
                 {
@@ -1979,17 +2012,66 @@
         "enabled" : "Debug mode is now <b>ENabled</b>.",
         "disabled" : "Debug mode is now <b>DISabled</b>."
     },
+    "ideaboard" :
+    {
+        "actionerror" : "Unable to view the ${names.ideaboard}.",
+        "ideatypes" :
+        {
+            "new" :
+            {
+                "title" : "Add New ${names.ideatype}",
+                "text" : "Enter the new ${names.ideatype} below.",
+                "confirm" : "${actions.add}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a name.",
+                    "valueexists" : "An ${names.ideatype} with that name already exists."
+                }
+            },
+            "edit" :
+            {
+                "actionerror" : "Unable to save ${names.ideatype}.",
+                "title" : "${actions.edit} ${names.ideatype}",
+                "text" : "Enter the new name of the ${names.ideatype} below.",
+                "confirm" : "${actions.change}",
+                "errors" :
+                {
+                    "novalue" : "Please enter a name.",
+                    "valueexists" : "An ${names.ideatype} with that name already exists."
+                }
+            },
+            "delete" :
+            {
+                "actionerror" : "Unable to delete ${names.ideatype}.",
+                ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
+                "actionerror" : "Unable to delete ${names.ideatype}.",
+                "deletetype" : "${names.ideatype}",
+                "warning" : "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
+            }
+        },
+        "ideas" :
+        {
+            "delete" :
+            {
+                "actionerror" : "Unable to delete ${names.idea}."
+            },
+            "save" :
+            {
+                "actionerror" : "Unable to save ${names.idea}."
+            }
+        }
+    },
     "importproject" :
     {
         "actionerror" : "Unable to show import {project} wizard.",
         "supportedfiletypesdescription" : "Supported Files",
         "errors" :
         {
-            "unabletosave" : "Unable to save: %s",
-            ":comment.unabletosave" : "The %s is the name of the item that is trying to be saved.",
+            "unabletosave" : "Unable to save: %1$s",
+            ":comment.unabletosave" : "The %1$s is the name of the item that is trying to be saved.",
             ":scount.unabletosave" : 1,
-            "unabletocreateproject" : "Unable to create new {project}: %s",
-            ":comment.unabletocreateproject" : "The %s is the name of the project trying to be created.",
+            "unabletocreateproject" : "Unable to create new {project}: %1$s",
+            ":comment.unabletocreateproject" : "The %1$s is the name of the project trying to be created.",
             ":scount.unabletocreateproject" : 1,
             "nofileselected" : "Please select a file to import.",
             "filenotexist" : "File does not exist, please select a valid file.",
@@ -2021,8 +2103,8 @@
                 "title" : "What would you like to do?",
                 "options" :
                 {
-                    "addtoproject" : "Add to {project} %s",
-                    ":comment.addtoproject" : "The %s is the name of the current project.",
+                    "addtoproject" : "Add to {project} %1$s",
+                    ":comment.addtoproject" : "The %1$s is the name of the current project.",
                     ":scount.addtoproject" : 1,
                     "newproject" : "Create a new {project}"
                 }
@@ -2030,8 +2112,8 @@
             "selectitems" :
             {
                 "title" : "Select the items you wish to import",
-                "text" : "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.%s",
-                ":comment.help" : "The %s is replaced with the {textextra} text if the user has selected 'Add to {project} for importing.  If new project is selected then blank text is used.",
+                "text" : "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.%1$s",
+                ":comment.help" : "The %1$s is replaced with the {textextra} text if the user has selected 'Add to {project} for importing.  If new project is selected then blank text is used.",
                 ":scount.help" : 1,
                 "textextra" : "  Only items not already in the {project} will be listed."
             },
@@ -2084,23 +2166,23 @@
         "exportcompletepopup" :
         {
             "title" : "Your {Project} has been exported",
-            "text" : "{Project} <b>%s</b> has been exported to:\n\n   <a href='%s'>%s</a>",
-            ":comment.text" : "The first %s is the name of the project.  The second %s is a special link that tells QW to open the folder where the project has been exported to.  The third %s is the folder path.  It is recommended that you DO NOT change the link in any way.",
+            "text" : "{Project} <b>%1$s</b> has been exported to:\n\n   <a href='%2$s'>%3$s</a>",
+            ":comment.text" : "%1$s is the name of the project.  %2$s is a special link that tells QW to open the folder where the project has been exported to.  %3$s is the folder path.  It is recommended that you DO NOT change the link in any way.",
             ":scount.text" : 3
         },
         "sectiontitles" :
         {
-            "notes" : "%s - {Notes}",
-            ":comment.notes" : "The %s here is replaced with the name of the project or chapter.",
+            "notes" : "%1$s - {Notes}",
+            ":comment.notes" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.notes" : 1,
-            "scenesoutlineitems" : "%s - {Scenes} and Plot Outline",
-            ":comment.scenesoutlineitems" : "The %s here is replaced with the name of the project or chapter.",
+            "scenesoutlineitems" : "%1$s - {Scenes} and Plot Outline",
+            ":comment.scenesoutlineitems" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.scenesoutlineitems" : 1,
-            "chapterinfo" : "%s - {Chapter} Information",
-            ":comment.chapterinfo" : "The %s here is replaced with the name of the project or chapter.",
+            "chapterinfo" : "%1$s - {Chapter} Information",
+            ":comment.chapterinfo" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.chapterinfo" : 1,
-            "assets" : "%s - Assets",
-            ":comment.assets" : "The %s here is replaced with the name of the project or chapter.",
+            "assets" : "%1$s - Assets",
+            ":comment.assets" : "%1$s is replaced with the name of the project or chapter.",
             ":scount.assets" : 1,
             "goals" : "${names.goals}",
             "plan" : "${names.plan}"
@@ -2150,7 +2232,7 @@
         "confirmpopup" :
         {
             "title" : "Save changes before exiting?",
-            "text" : "The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%s</ul>Do you wish to save the changes before exiting?",
+            "text" : "The following items have unsaved changes (click on an item to go to the relevant tab):<ul>%1$s</ul>Do you wish to save the changes before exiting?",
             ":comment.text" : "The %1$s is a list of items that the user can click on to open up the tab with unsaved changes.  It is recommended you DO NOT change this.  Each item will be formatted within a li html tag.",
             ":scount.text" : 1
         }
@@ -2282,7 +2364,9 @@
     },
     "spellchecker" :
     {
-        "unabletosetlanguage" : "Unable to set spell check language to <b>%s</b>."
+        "unabletosetlanguage" : "Unable to set spell check language to <b>%1$s</b>.",
+        ":comment.unabletosetlanguage" : "%1$s is the language name.",
+        ":scount.unabletosetlanguage" : 1
     },
     "backups" :
     {
@@ -2562,32 +2646,42 @@
             "confirm" : "Select"
         }
     },
+    "notetypes" :
+    {
+        "actions" :
+        {
+            "manage" :
+            {
+                "title" : "Manage the ${objectnames.singular.note} Types"
+            }
+        }
+    },
     "tags" :
     {
         "actions" :
         {
             "manage" :
             {
-                "title" : "Manage the ${names.tags}",
+                "title" : "Manage the ${objectnames.plural.tag}",
                 "finish" : "${actions.finish}",
                 "newtag" :
                 {
-                    "title" : "New ${names.tag}",
+                    "title" : "New ${objectnames.singular.tag}",
                     "text" : "Enter the new tags to add below, separate the tags with commas or semi-colons.",
                     "add" : "${actions.add}",
-                    "actionerror" : "Unable to add new tag.",
+                    "actionerror" : "Unable to add new ${objectnames.singular.tag}.",
                     "errors" :
                     {
-                        "novalue" : "Please enter at least one tag."
+                        "novalue" : "Please enter at least one ${objectnames.singular.tag}."
                     }
                 },
                 "table" :
                 {
                     "tooltip" : "Double click to edit, press Enter when done.",
-                    "title" : "${names.tags}",
+                    "title" : "${objectnames.plural.tag}",
                     "text" : "Note: removing a tag will remove it from <b>all</b> {projects}.  You can change the tag name by editing the values below, double click on a type to edit it.",
                     "remove" : "Remove Selected",
-                    "loadallerror" : "Unable to get the tags.",
+                    "loadallerror" : "Unable to get the ${objectnames.plural.tag}.",
                     "popupmenu" :
                     {
                         "items" :
@@ -2597,15 +2691,15 @@
                     },
                     "delete" :
                     {
-                        "actionerror" : "Unable to delete tag."
+                        "actionerror" : "Unable to delete ${objectnames.singular.tag}."
                     },
                     "edit" :
                     {
-                        "actionerror" : "Unable to update tag.",
+                        "actionerror" : "Unable to update ${objectnames.singular.tag}.",
                         "errors" :
                         {
-                            "novalue" : "Tag must have a value!",
-                            "valueexists" : "Already have a tag with that name."
+                            "novalue" : "${objectnames.singular.tag} must have a value!",
+                            "valueexists" : "Already have a ${objectnames.singular.tag} with that name."
                         }
                     }
                 }
@@ -2637,6 +2731,9 @@
         },
         "view" :
         {
+            "actionerror" : "Unable to view %1$s <b>%2$s</b>.",
+            ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
+            ":scount.actionerror" : 2,
             "popupmenu" :
             {
                 "items" :
@@ -2712,9 +2809,9 @@
         },
         "edit" :
         {
-            "actionerror" : "Unable to edit the %1$s.",
-            ":comment.actionerror" : "%1$s is the object type name of the asset.",
-            ":scount.actionerror" : 1,
+            "actionerror" : "Unable to edit %1$s <b>%2$s</b>.",
+            ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
+            ":scount.actionerror" : 2,
             "aboutpanel" :
             {
                 "title" : "Edit",
@@ -2735,7 +2832,9 @@
         },
         "delete" :
         {
-            "actionerror" : "Unable to delete.",
+            "actionerror" : "Unable to delete %1$s <b>%2$s</b>.",
+            ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
+            ":scount.actionerror" : 2,
             "confirmpopup" :
             {
                 "title" : "Delete %1$s",
@@ -2753,8 +2852,8 @@
         {
             "actionerror" : "Unable to remove asset type.",
             ":comment" : "The delete project function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
-            "text" : "To delete all <b>%s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%<s</b> you have created will be deleted and <b>%<s</b> won't be available in your other {projects}.",
-            ":comment.text" : "%s is the object type name plural for the asset type.  %<s is a special usage which allows you to use the same value repeatedly.  So if you want to have multiple %s in your string, just use %s then %<s for all subsequent values.",
+            "text" : "To delete all <b>%1$s</b> please enter the word <b>Yes</b> into the box below.<br /><br />Warning!  All <b>%$1s</b> you have created will be deleted and <b>%1$s</b> won't be available in your other {projects}.",
+            ":comment.text" : "%1$s is the object type name plural for the asset type.",
             ":scount.text" : 1
         },
         "save" :
@@ -2842,11 +2941,11 @@
                 },
                 "spellcheckon" :
                 {
-                    "tooltip" : "Click to turn the spell checker on"
+                    "tooltip" : "${dictionary.spellcheck.buttons.on.tooltip}"
                 },
                 "spellcheckoff" :
                 {
-                    "tooltip" : "Click to turn the spell checker off"
+                    "tooltip" : "${dictionary.spellcheck.buttons.off.tooltip}"
                 },
                 "delete" :
                 {
@@ -2987,27 +3086,219 @@
     {
         "editorpanel" :
         {
-            "iconcolumn" :
+            "popupmenu" :
             {
-                "tooltip" :
+                "chapter" :
                 {
-                    "shortcut" :
+                    "compresstext" : "${objectnames.singular.chapter}",
+                    "text" : "${objectnames.singular.chapter} Edit",
+                    "items" :
                     {
-                        "prefix" : "Shortcut: Ctrl+Shift+"
+                        "save" :
+                        {
+                            "text" : "Save ${objectnames.singular.chapter}",
+                            "tooltip" : "Save ${objectnames.singular.chapter}"
+                        },
+                        "splitchapter" :
+                        {
+                            "text" : "Split ${objectnames.singular.chapter}",
+                            "tooltip" : "Split ${objectnames.singular.chapter}"
+                        },
+                        "problemfinder" :
+                        {
+                            "text" : "${actions.findproblems}",
+                            "tooltip" : "${actions.findproblems}"
+                        },
+                        "textproperties" :
+                        {
+                            "text" : "${actions.edittextproperties}",
+                            "tooltip" : "${actions.edittextproperties}"
+                        },
+                        "find" :
+                        {
+                            "text" : "${actions.find}",
+                            "tooltip" : "${actions.find}"
+                        },
+                        "seteditposition" :
+                        {
+                            "text" : "Set Edit Point",
+                            "tooltip" : "Set Edit Point"
+                        },
+                        "removeeditposition" :
+                        {
+                            "text" : "Remove Edit Point",
+                            "tooltip" : "Remove Edit Point"
+                        },
+                        "seteditcomplete" :
+                        {
+                            "text" : "Set as Edit Complete",
+                            "tooltip" : "Set as Edit Complete"
+                        }
+                    }
+                },
+                "new" :
+                {
+                    "text" : "New",
+                    "items" :
+                    {
+                        "scene" :
+                        {
+                            "text" : "${objectnames.singular.scene}",
+                            "tooltip" : "Add a new ${objectnames.singular.scene}"
+                        },
+                        "outlineitem" :
+                        {
+                            "text" : "${objectnames.singular.outlineitem}",
+                            "tooltip" : "Add a new ${objectnames.singular.outlineitem}"
+                        },
+                        "note" :
+                        {
+                            "text" : "${objectnames.singular.note}",
+                            "tooltip" : "Add a new ${objectnames.singular.note}"
+                        },
+                        "editneedednote" :
+                        {
+                            "text" : "${objectnames.singular.editneedednote}",
+                            "tooltip" : "Add a new ${objectnames.singular.editneedednote}"
+                        },
+                        "chapter" :
+                        {
+                            "text" : "${objectnames.singular.chapter}",
+                            "tooltip" : "Add a new ${objectnames.singular.chapter}"
+                        }
                     }
                 }
             },
             "toolbar" :
             {
-
+                "save" :
+                {
+                    "tooltip" : "Click to save the ${objectnames.singular.chapter} text"
+                },
+                "wordcount" :
+                {
+                    "tooltip" : "Click to view the word counts and readability indices"
+                },
+                "spellcheckon" :
+                {
+                    "tooltip" : "${dictionary.spellcheck.buttons.on.tooltip}"
+                },
+                "spellcheckoff" :
+                {
+                    "tooltip" : "${dictionary.spellcheck.buttons.off.tooltip}"
+                },
+                "delete" :
+                {
+                    "tooltip" : "Click to delete this ${objectnames.singular.chapter}"
+                },
+                "tools" :
+                {
+                    "tooltip" : "Click to view the tools such as ${actions.print}, ${actions.findproblems} and ${actions.edittextproperties}"
+                },
+                "new" :
+                {
+                    "tooltip" : "Click to add a new ${objectnames.singular.outlineitem}, ${objectnames.singular.asset}, ${objectnames.singular.note} etc"
+                },
+                "showchapterinfo" :
+                {
+                    "tooltip" : "Click to view the ${objectnames.singular.chapter} information"
+                }
             },
             "tools" :
             {
-
+                "problemfinder" :
+                {
+                    "text" : "${actions.findproblems}"
+                },
+                "textproperties" :
+                {
+                    "text" : "${actions.edittextproperties}"
+                },
+                "find" :
+                {
+                    "text" : "${actions.find}"
+                },
+                "print" :
+                {
+                    "text" : "${actions.print} ${objectnames.singular.chapter}"
+                }
             },
             "actions" :
             {
-
+                "problemfinder" :
+                {
+                    "title" : "${actions.findproblems}",
+                    "actionerror" : "Unable to open the ${names.problemfinder} panel.",
+                    "headercontrols" :
+                    {
+                        "items" :
+                        {
+                            "config" :
+                            {
+                                "tooltip" : "Click to configure the ${names.problemfinder} rules."
+                            },
+                            "cancel" :
+                            {
+                                "tooltip" : "Click to stop looking for problems."
+                            }
+                        }
+                    },
+                    "nexterror" : "Unable to find the next problem.",
+                    "previouserror" : "Unable to find the previous problem.",
+                    "buttons" :
+                    {
+                        "next" :
+                        {
+                            "text" : "Next",
+                            "tooltip" : "Find the next problem."
+                        },
+                        "previous" :
+                        {
+                            "tooltip" : "Go back to the previous problem."
+                        },
+                        "finish" :
+                        {
+                            "text" : "${actions.finish}",
+                            "tooltip" : "Stop looking for problems."
+                        }
+                    },
+                    "ignored" :
+                    {
+                        "single" : "1 problem has been ignored in this ${objectnames.singular.chapter}, click to un-ignore it.",
+                        "plural" : "%1$s problems have been ignored ${objectnames.singular.chapter}, click to un-ignore them.",
+                        ":comment.plural" : "%1$s is the number of problems (greater than 1) that have been ignored for the problem.",
+                        ":scount.plural" : 1
+                    },
+                    "unignore" :
+                    {
+                        "actionerror" : "Unable to update ${names.problemfinder} ignores.",
+                        "confirmpopup" :
+                        {
+                            ":comment" : "The items here assume the plural case for problems to un-ignore, this is to simplify things.",
+                            "title" : "Un-ignore problems",
+                            "text" : "Please confirm you wish to un-ignore <b>%1$s</b> problems.",
+                            ":comment.text" : "%1$s here is the number of problems that will be un-ignored or be able to be found again.",
+                            ":scount.text" : 1,
+                            "confirm" : "Yes, un-ignore them"
+                        }
+                    }
+                },
+                "edittextproperties" :
+                {
+                    "actionerror" : "Unable to show the text properties."
+                },
+                "removeeditposition" :
+                {
+                    "actionerror" : "Unable to remove edit position."
+                },
+                "seteditcomplete" :
+                {
+                    "actionerror" : "Unable to set ${objectnames.singular.chapter} as edit complete."
+                },
+                "seteditposition" :
+                {
+                    "actionerror" : "Unable to set edit position."
+                }
             }
         },
         "sidebar" :
@@ -3027,10 +3318,18 @@
                     "hidesection" : "Hide this section"
                 }
             },
+            "objectpreview" :
+            {
+                "assets" :
+                {
+
+                    "novalue" : "<b><i>No description.</i></b>"
+                }
+            },
             "tooltip" : "Double click to add a new type of Object, right click to see the menu.",
             "viewitem" :
             {
-                "tooltip" : "Click to view"
+                "tooltip" : "Click to view."
             },
             "section" :
             {
@@ -3075,7 +3374,7 @@
                 },
                 "notfound" : "No problems found.",
                 "loading" : "Finding problems... please wait...",
-                "title" : "Find Problems",
+                "title" : "${actions.findproblems}",
                 "headercontrols" :
                 {
                     "items" :
@@ -3171,44 +3470,9 @@
                 "allprojects" : "Delete from all {projects}",
                 "thisproject" : "Just this {project}"
             },
-            "newideatype" :
+            "showchapterinfo" :
             {
-                "title" : "Add New ${names.ideatype}",
-                "text" : "Enter the new ${names.ideatype} below.",
-                "confirm" : "${actions.add}",
-                "errors" :
-                {
-                    "novalue" : "Please enter a name.",
-                    "valueexists" : "An ${names.ideatype} with that name already exists."
-                }
-            },
-            "editideatype" :
-            {
-                "actionerror" : "Unable to save ${names.ideatype}.",
-                "title" : "${actions.edit} ${names.ideatype}",
-                "text" : "Enter the new name of the ${names.ideatype} below.",
-                "confirm" : "${actions.change}",
-                "errors" :
-                {
-                    "novalue" : "Please enter a name.",
-                    "valueexists" : "An ${names.ideatype} with that name already exists."
-                }
-            },
-            "deleteideatype" :
-            {
-                "actionerror" : "Unable to delete ${names.ideatype}.",
-                ":comment" : "The delete idea type function uses the generic 'Delete item' function and thus is based on the values from [deleteitem] rather than having its own values here.",
-                "actionerror" : "Unable to delete ${names.ideatype}.",
-                "deletetype" : "${names.ideatype}",
-                "warning" : "Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored."
-            },
-            "deleteidea" :
-            {
-                "actionerror" : "Unable to delete ${names.idea}."
-            },
-            "saveidea" :
-            {
-                "actionerror" : "Unable to save ${names.idea}."
+                "actionerror" : "Unable to show ${objectnames.singular.chapter} information."
             },
             "splitchapter" :
             {
@@ -3351,39 +3615,11 @@
             {
                 "actionerror" : "Unable to view {chapter} information."
             },
-            "viewoutlineitem" :
-            {
-                "actionerror" : "Unable to display {Plot Outline Item} in {chapter}."
-            },
-            "viewscene" :
-            {
-                "actionerror" : "Unable to display {Scene} in {chapter}."
-            },
-            "viewnote" :
-            {
-                "actionerror" : "Unable to display {Note}."
-            },
-            "viewideaboard" :
-            {
-                "actionerror" : "Unable to view ${names.ideaboard}."
-            },
             "viewaddasset" :
             {
                 "actionerror" : "Unable to display add new %1$s.",
                 ":comment.actionerror" : "%1$s is the object name for the asset.",
                 ":scount.actionerror" : 1
-            },
-            "viewasset" :
-            {
-                "actionerror" : "Unable to view %1$s <b>%2$s</b>.",
-                ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
-                ":scount.actionerror" : 2
-            },
-            "editasset" :
-            {
-                "actionerror" : "Unable to edit %1$s <b>%2$s</b>.",
-                ":comment.actionerror" : "%1$s is the object name of the asset.  %2$s is the name of the asset.",
-                ":scount.actionerror" : 2
             },
             "deleteasset" :
             {

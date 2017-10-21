@@ -252,7 +252,12 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
                                                               e);
 
                                         UIUtils.showErrorMessage (_this,
-                                                                  "Unable to show text properties.");
+                                                                  Environment.getUIString (LanguageStrings.project,
+                                                                                           LanguageStrings.editorpanel,
+                                                                                           LanguageStrings.actions,
+                                                                                           LanguageStrings.edittextproperties,
+                                                                                           LanguageStrings.actionerror));
+                                                                  //"Unable to show text properties.");
 
                                     }
 
@@ -282,9 +287,9 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
                 if (_this.isReadyForUse ())
                 {
-            
+
                     _this.scrollCaretIntoView ();
-                    
+
                 }
 
             }
@@ -309,77 +314,77 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
     @Override
     public void propertyChanged (UserPropertyEvent ev)
     {
-        
+
         TextProperties props = this.viewer.getTextProperties ();
-        
+
         if (ev.getName ().equals (Constants.EDITOR_FONT_PROPERTY_NAME))
         {
-            
+
             this.setFontFamily (props.getFontFamily ());
-            
+
         }
-        
+
         if (ev.getName ().equals (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME))
         {
-            
+
             this.setFontSize (props.getFontSize ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_BGCOLOR_PROPERTY_NAME))
         {
-            
+
             this.setBackgroundColor (props.getBackgroundColor ());
-            
+
         }
-        
+
         if (ev.getName ().equals (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME))
         {
-            
+
             this.setTextColor (props.getTextColor ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME))
         {
-            
+
             this.setTextBorder (props.getTextBorder ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME))
         {
-            
+
             this.setAlignment (props.getAlignment ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME))
         {
-            
+
             this.setFirstLineIndent (props.getFirstLineIndent ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME))
         {
-            
+
             this.setLineSpacing (props.getLineSpacing ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME))
         {
-            
+
             this.setWritingLineColor (props.getWritingLineColor ());
-            
+
         }
 
         if (ev.getName ().equals (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME))
         {
-            
+
             this.setHighlightWritingLine (props.isHighlightWritingLine ());
-            
+
         }
 
     }
@@ -672,11 +677,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
             {
 
                 _this.initScrollBar ();
-/*XXX
-                _this.viewer.fireProjectEvent (Chapter.OBJECT_TYPE,
-                                               ev.getType (),
-                                               ev);
-*/
+
             }
 
         });
@@ -1013,83 +1014,83 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         if (this.isScrolling)
         {
-            
+
             final AbstractEditorPanel _this = this;
-            
+
             UIUtils.doLater (new ActionListener ()
             {
-                
+
                 @Override
                 public void actionPerformed (ActionEvent ev)
                 {
-                
+
                     try
                     {
-                
+
                         _this.scrollToPosition (p);
-                        
+
                     } catch (Exception e) {
-                     
+
                         Environment.logError ("Unable to scroll to: " + p,
                                               e);
-                        
+
                     }
-                    
+
                 }
-                
+
             });
-            
+
             return;
-            
+
         }
-        
+
         try
         {
-            
+
             this.isScrolling = true;
-        
+
             Rectangle r = null;
-    
+
             try
             {
-    
+
                 r = this.editor.modelToView (p);
-    
+
             } catch (Exception e)
             {
-    
+
                 // BadLocationException!
                 throw new GeneralException ("Position: " +
                                             p +
                                             " is not valid.",
                                             e);
-    
+
             }
-    
+
             if (r == null)
             {
-    
+
                 throw new GeneralException ("Position: " +
                                             p +
                                             " is not valid.");
-    
+
             }
-    
+
             int y = r.y - r.height;
-    
+
             if (y < 0)
             {
-    
+
                 y = 0;
-    
+
             }
-    
+
             this.scrollPane.getVerticalScrollBar ().setValue (y);
-            
+
         } finally {
-            
+
             this.isScrolling = false;
-            
+
         }
 
     }
@@ -1206,21 +1207,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         TextProperties props = this.viewer.getTextProperties ();
 
         this.initEditor (props);
-/*
-        this.editor.setLineSpacing (UserProperties.getAsFloat (Constants.EDITOR_LINE_SPACING_PROPERTY_NAME));
-
-        this.setFontSize (UserProperties.getAsInt (Constants.EDITOR_FONT_SIZE_PROPERTY_NAME));
-        this.setFontFamily (UserProperties.get (Constants.EDITOR_FONT_PROPERTY_NAME));
-        this.setAlignment (UserProperties.get (Constants.EDITOR_ALIGNMENT_PROPERTY_NAME));
-        this.setFirstLineIndent (UserProperties.getAsBoolean (Constants.EDITOR_INDENT_FIRST_LINE_PROPERTY_NAME));
-        this.setWritingLineColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_WRITING_LINE_COLOR_PROPERTY_NAME)));
-        this.setHighlightWritingLine (UserProperties.getAsBoolean (Constants.EDITOR_HIGHLIGHT_WRITING_LINE_PROPERTY_NAME));
-        this.setTextBorder (UserProperties.getAsInt (Constants.EDITOR_TEXT_BORDER_PROPERTY_NAME));
-        this.setTextColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_FONT_COLOR_PROPERTY_NAME)));
-        this.setBackgroundColor (UIUtils.getColor (UserProperties.get (Constants.EDITOR_BGCOLOR_PROPERTY_NAME)));
-*/
-        //this.restoreBackgroundColor ();
-        //this.restoreFontColor ();
 
         this.ignoreDocumentChange = false;
 
@@ -1293,7 +1279,7 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
                                     type);
 
     }
-    
+
     public void setCaretPosition (int dot)
     {
 
@@ -1429,8 +1415,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         this.ignoreDocumentChange = false;
 
-        //this.scrollCaretIntoView ();
-
     }
 
     public void setFontFamily (String name)
@@ -1441,8 +1425,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.editor.setFontFamily (name);
 
         this.ignoreDocumentChange = false;
-
-        //this.scrollCaretIntoView ();
 
     }
 
@@ -1455,8 +1437,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         this.ignoreDocumentChange = false;
 
-        //this.scrollCaretIntoView ();
-
     }
 
     public void setFirstLineIndent (boolean v)
@@ -1467,8 +1447,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.editor.setFirstLineIndent (v);
 
         this.ignoreDocumentChange = false;
-
-        //this.scrollCaretIntoView ();
 
     }
 
@@ -1483,8 +1461,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
 
         this.ignoreDocumentChange = false;
 
-        //this.scrollCaretIntoView ();
-
     }
 
     public void setLineSpacing (float v)
@@ -1495,8 +1471,6 @@ public abstract class AbstractEditorPanel extends ProjectObjectQuollPanel<Abstra
         this.editor.setLineSpacing (v);
 
         this.ignoreDocumentChange = false;
-
-        //this.scrollCaretIntoView ();
 
     }
 

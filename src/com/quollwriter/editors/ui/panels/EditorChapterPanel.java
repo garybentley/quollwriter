@@ -50,13 +50,12 @@ import com.swabunga.spell.event.*;
 public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements ChapterItemViewer
 {
 
-   public static final String SHOW_EDITORS_ACTION_NAME = "show-editors";
    public static final String CHAPTER_INFO_ACTION_NAME = "chapter-info";
    public static final String SET_EDIT_COMPLETE_ACTION_NAME = "set-edit-complete";
    public static final String REMOVE_EDIT_POINT_ACTION_NAME = "remove-edit-point";
 
    public static final String NEW_COMMENT_ACTION_NAME = "newcomment";
-       
+
    private IconColumn<EditorProjectViewer>              iconColumn = null;
    protected EditorProjectViewer   projectViewer = null;
    private int                     lastCaret = -1;
@@ -71,38 +70,38 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
         super (pv,
                c);
-        
+
         this.projectViewer = pv;
 
         final EditorChapterPanel _this = this;
 
         this.editor.setEditable (false);
         this.editor.setCanCopy (false);
-                
+
         this.iconColumn = new IconColumn<EditorProjectViewer> (this,
                                                                c,
                                                                this.projectViewer.getIconProvider (),
                                                                this.projectViewer.getChapterItemViewPopupProvider ());
-                                          
+
         this.iconColumn.addMouseListener (new MouseEventHandler ()
         {
 
             public void handleDoublePress (MouseEvent ev)
             {
-               
+
                _this.getActionListenerForTextPosition (NEW_COMMENT_ACTION_NAME,
                                                        ev.getPoint ()).actionPerformed (new ActionEvent (_this, 1, "show"));
-                  
+
             }
-         
+
         });
-        
+
         this.editor.addCaretListener (new CaretListener ()
         {
-         
+
             public void caretUpdate (CaretEvent ev)
             {
-               
+
                if ((_this.editor.getSelectionEnd () > _this.editor.getSelectionStart ())
                    &&
                    (!_this.isChapterItemEditVisible ())
@@ -110,47 +109,47 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                    (_this.isReadyForUse ())
                   )
                {
-                  
+
                   _this.performAction (new ActionEvent (_this, 1, "show"),
                                        NEW_COMMENT_ACTION_NAME,
                                        _this.editor.getSelectionStart ());
-                  
+
                }
-               
+
             }
-         
+
         });
-        
+
         this.chItemTransferHandler = new ChapterItemTransferHandler (this.getIconColumn ());
-        
+
         this.setTransferHandler (this.chItemTransferHandler);
 
         this.actions.put (REMOVE_EDIT_POINT_ACTION_NAME,
                           new ActionAdapter ()
                           {
-                           
+
                              public void actionPerformed (ActionEvent ev)
                              {
-                               
+
                                  _this.removeEditPosition ();
-                                                                               
+
                              }
-                           
+
                           });
-        
+
         this.actions.put (SET_EDIT_COMPLETE_ACTION_NAME,
                           new ActionAdapter ()
                           {
-                           
+
                              public void actionPerformed (ActionEvent ev)
                              {
-                               
+
                                  _this.setEditComplete (true);
-                                                                               
+
                              }
-                           
+
                           });
-        
+
         this.actions.put (NEW_COMMENT_ACTION_NAME,
                           new ActionAdapter ()
                           {
@@ -193,85 +192,85 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                               }
 
                           });
-                                                    
+
         InputMap im = this.editor.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // Remove ctrl+shift+O from the when_focused set since it conflicts.
         this.editor.getInputMap (JComponent.WHEN_FOCUSED).put (KeyStroke.getKeyStroke ("ctrl shift O"),
                                                                "none");
-        
+
         im.put (KeyStroke.getKeyStroke ("ctrl shift C"),
                 NEW_COMMENT_ACTION_NAME);
 
-        this.highlight = new BlockPainter (Environment.getHighlightColor ());        
-                
+        this.highlight = new BlockPainter (Environment.getHighlightColor ());
+
     }
-    
+
     public void setChapterItemEditVisible (boolean v)
     {
-      
+
          this.chapterItemEditVisible = v;
-      
+
     }
-    
+
     public boolean isChapterItemEditVisible ()
     {
-      
+
          return this.chapterItemEditVisible;
-      
+
     }
-    
+
     public int getTextPositionForMousePosition (Point p)
     {
-      
+
        Point pp = p;
-      
+
        if (this.iconColumn.getMousePosition () != null)
        {
-         
+
           pp = new Point (0,
                           p.y);
-         
+
        }
 
        return this.editor.viewToModel (pp);
-      
+
     }
-    
+
     public ActionListener getActionListenerForTextPosition (final String actionName,
                                                             final Point  p)
     {
-      
+
          final EditorChapterPanel _this = this;
 
          final int pos = this.getTextPositionForMousePosition (p);
-      
+
          return new ActionAdapter ()
          {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                              
+
                _this.performAction (ev,
                                     actionName,
                                     pos);
-               
+
             }
-            
-         };      
-      
+
+         };
+
     }
-    
+
     public ChapterItemTransferHandler getChapterItemTransferHandler ()
     {
-        
+
         return this.chItemTransferHandler;
-        
+
     }
-    
+
    public int getIconColumnXOffset (ChapterItem i)
    {
-     
+
       int xOffset = 22;
 
       if (i instanceof OutlineItem)
@@ -280,11 +279,11 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
           xOffset = 22;
 
       }
-      
+
       return xOffset;
-     
+
    }
-    
+
     public JComponent getEditorWrapper (QTextEditor q)
     {
 
@@ -302,7 +301,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         this.iconColumn.setMinimumSize (new Dimension (32, 200));
         this.iconColumn.setPreferredSize (new Dimension (32, 200));
         this.iconColumn.setMaximumSize (new Dimension (32, Integer.MAX_VALUE));
-        
+
         JPanel p = new ScrollablePanel (new BorderLayout ());
         p.add (b);
 
@@ -328,9 +327,9 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
       acts.add (this.createToolbarButton (Constants.EDIT_PROPERTIES_ICON_NAME,
                                           "Click to edit the text properties",
                                           EDIT_TEXT_PROPERTIES_ACTION_NAME));
-      
+
    }
-    
+
     public void doFillToolBar (JToolBar acts)
     {
 
@@ -442,7 +441,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
         if (compress)
         {
-        
+
             List<JComponent> buts = new ArrayList ();
 
             buts.add (this.createButton (Constants.COMMENT_ICON_NAME,
@@ -452,24 +451,24 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                          aa));
 
             if (popup instanceof JPopupMenu)
-            {                                            
-            
+            {
+
                JPopupMenu pm = (JPopupMenu) popup;
-            
+
                pm.addSeparator ();
-                                                           
+
                popup.add (UIUtils.createPopupMenuButtonBar ("New",
                                                             pm,
                                                             buts));
-                            
+
             }
-                                          
+
         } else {
-        
+
             String pref = "Shortcut: Ctrl+Shift+";
-            
+
             JMenuItem mi = null;
-            
+
             mi = this.createMenuItem ("Comment",
                                       Constants.COMMENT_ICON_NAME,
                                       NEW_COMMENT_ACTION_NAME,
@@ -477,16 +476,16 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                                       aa);
 
             popup.add (mi);
-                                         
+
             char fc = 'C';
-                                          
+
             mi.setMnemonic (fc);
             mi.setToolTipText (pref + fc);
-    
+
         }
-                                                 
+
     }
-    
+
     public void setEditPosition (int textPos)
     {
 
@@ -494,137 +493,137 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         {
 
             int tl = Utils.stripEnd (this.editor.getText ()).length ();
-        
+
             if (textPos > tl)
             {
-                
+
                 textPos = tl;
-                
+
             }
-        
+
             this.iconColumn.setEditPosition (textPos);
-            
+
             // See if we are on the last line (it may be that the user is in the icon
             // column).
             Rectangle pp = this.editor.modelToView (textPos);
-            
+
             if (UserProperties.getAsBoolean (Constants.SET_CHAPTER_AS_EDIT_COMPLETE_WHEN_EDIT_POSITION_IS_AT_END_OF_CHAPTER_PROPERTY_NAME))
             {
-            
+
                 if (textPos < tl)
                 {
-                    
+
                     Rectangle ep = this.editor.modelToView (tl);
 
                     boolean complete = false;
-                    
-                    if (ep.y == pp.y)                    
+
+                    if (ep.y == pp.y)
                     {
-                        
+
                         complete = true;
-                        
+
                     }
-                        
+
                     // Last line.
                     this.obj.setEditComplete (complete);
-                                                                
+
                 }
 
             }
 
             this.projectViewer.reloadChapterTree ();
-            
+
             this.projectViewer.saveObject (this.obj,
                                            false);
-                                                                
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set edit position for chapter: " +
                                   this.obj,
                                   e);
-                                                            
+
         }
-        
+
     }
-    
+
     public void setEditPosition (Point mouseP)
     {
 
         this.setEditPosition (this.editor.viewToModel (mouseP));
-        
+
     }
-    
+
     public void removeEditPosition ()
     {
-        
+
         try
         {
-            
+
             this.iconColumn.setEditPosition (-1);
 
             this.setEditComplete (false);
-            
+
             this.projectViewer.saveObject (this.obj,
                                            false);
 
             this.projectViewer.reloadChapterTree ();
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set edit position for chapter: " +
                                   this.obj,
                                   e);
-                                                            
+
         }
-        
+
     }
-    
+
     public void setEditComplete (boolean v)
     {
-        
+
         try
         {
-            
+
             this.obj.setEditComplete (v);
-            
+
             if (v)
             {
-            
+
                 int tl = Utils.stripEnd (this.editor.getText ()).length ();
-            
+
                 this.iconColumn.setEditPosition (tl);
-                                
+
             }
-            
+
             this.projectViewer.saveObject (this.obj,
                                            false);
 
             this.iconColumn.init ();
 
             this.projectViewer.reloadChapterTree ();
-            
+
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to set edit complete for chapter: " +
                                   this.obj,
                                   e);
-                                                            
-        }        
-        
+
+        }
+
     }
 
     public void fillPopupMenu (final MouseEvent ev,
                                final JPopupMenu popup)
     {
 
-      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);    
-      
+      boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
+
       this.doFillPopupMenu (ev,
                             popup,
                             compress);
-    
+
     }
-    
+
     public void doFillPopupMenu (final MouseEvent ev,
                                  final JPopupMenu popup,
                                        boolean    compress)
@@ -635,70 +634,70 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         final QTextEditor         editor = this.editor;
 
         JMenuItem mi = null;
-        
+
         // Get the mouse position, don't get it later since the mouse could have moved.
-        Point mP = this.editor.getMousePosition ();        
-        
+        Point mP = this.editor.getMousePosition ();
+
         if (mP == null)
         {
-            
+
             mP = this.iconColumn.getMousePosition ();
-            
+
         }
-        
+
         final Point mouseP = mP;
-        
+
         int pos = this.getTextPositionForMousePosition (ev.getPoint ());
 
         // This is needed to move to the correct character, the call above seems to get the character
         // before what was clicked on.
         // pos++;
-                  
+
         if (compress)
         {
-                         
+
             List<JComponent> buts = new ArrayList ();
-                                                                                                                             
+
             buts.add (UIUtils.createButton (Constants.EDIT_IN_PROGRESS_ICON_NAME,
                                             Constants.ICON_MENU,
                                             "Set Edit Point",
                                             new ActionAdapter ()
                                             {
-                                               
+
                                                public void actionPerformed (ActionEvent ev)
                                                {
-                                                   
+
                                                    _this.setEditPosition (mouseP);
-                                                   
+
                                                }
-                                               
+
                                             }));
 
             if (this.obj.getEditPosition () > 0)
             {
-    
+
                 buts.add (this.createButton (Constants.REMOVE_EDIT_POINT_ICON_NAME,
                                              Constants.ICON_MENU,
                                              "Remove Edit Point",
                                              REMOVE_EDIT_POINT_ACTION_NAME));
-                   
+
             }
 
             if (!this.obj.isEditComplete ())
             {
-                
+
                 buts.add (this.createButton (Constants.EDIT_COMPLETE_ICON_NAME,
                                              Constants.ICON_MENU,
                                              "Set as Edit Complete",
                                              SET_EDIT_COMPLETE_ACTION_NAME));
-                    
-            } 
+
+            }
 
             buts.add (this.createButton (Constants.FIND_ICON_NAME,
                                          Constants.ICON_MENU,
                                          "Find",
                                          Constants.SHOW_FIND_ACTION));
-            
+
             popup.add (UIUtils.createPopupMenuButtonBar ("{Chapter}",
                                                          popup,
                                                          buts));
@@ -706,54 +705,54 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             this.addNewItemsForPopupMenu (popup,
                                           this,
                                           pos,
-                                          compress);        
-                         
+                                          compress);
+
         } else {
 
             // Save.
-                            
+
             JMenu m = new JMenu (Environment.replaceObjectNames ("{Chapter} Edit"));
             m.setIcon (Environment.getIcon (Constants.EDIT_ICON_NAME,
                                             Constants.ICON_MENU));
-    
+
             popup.add (m);
-                        
+
             mi = UIUtils.createMenuItem ("Set Edit Point",
                                          Constants.EDIT_IN_PROGRESS_ICON_NAME,
                                          new ActionAdapter ()
                                          {
-                                            
+
                                             public void actionPerformed (ActionEvent ev)
                                             {
-                                                
+
                                                 _this.setEditPosition (mouseP);
-                                                
+
                                             }
-                                            
+
                                          });
-                
+
             m.add (mi);
 
             if (this.obj.getEditPosition () > 0)
             {
-    
+
                 m.add (this.createMenuItem ("Remove Edit Point",
                                             Constants.REMOVE_EDIT_POINT_ICON_NAME,
                                             REMOVE_EDIT_POINT_ACTION_NAME,
                                             null));
-    
+
             }
-    
+
             if (!this.obj.isEditComplete ())
             {
-                
+
                 m.add (this.createMenuItem ("Set as Edit Complete",
                                             Constants.EDIT_COMPLETE_ICON_NAME,
                                             SET_EDIT_COMPLETE_ACTION_NAME,
                                             null));
-    
-            } 
-            
+
+            }
+
             JMenu nm = new JMenu ("New");
             nm.setIcon (Environment.getIcon (Constants.NEW_ICON_NAME,
                                              Constants.ICON_MENU));
@@ -763,10 +762,10 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             this.addNewItemsForPopupMenu (nm,
                                           this,
                                           pos,
-                                          compress);        
-                                            
+                                          compress);
+
         }
-                    
+
     }
 
     public IconColumn getIconColumn ()
@@ -830,31 +829,31 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 
         if (doAfterShow != null)
         {
-         
+
             doAfterShow.actionPerformed (new ActionEvent (this, 1, "noteshown"));
-         
+
         }
-        
+
     }
 
    public void removeItemHighlightTextFromEditor (ChapterItem it)
    {
-      
-      this.editor.removeAllHighlights (this.highlight);      
-    
+
+      this.editor.removeAllHighlights (this.highlight);
+
    }
-   
+
    public void highlightItemTextInEditor (ChapterItem it)
    {
-      
+
       this.editor.removeAllHighlights (this.highlight);
       this.editor.addHighlight (it.getStartPosition (),
                                 it.getEndPosition (),
                                 this.highlight,
-                                false);                    
-      
+                                false);
+
    }
-    
+
     public void scrollToNote (Note n)
                        throws GeneralException
     {
@@ -880,30 +879,30 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
         // No need to do anything.
 
     }
-    
+
    @Override
    public void init ()
               throws GeneralException
    {
-     
+
         super.init ();
 
         try
         {
-    
+
             this.iconColumn.init ();
-            
+
         } catch (Exception e) {
-            
+
             throw new GeneralException ("Unable to init icon column",
                                         e);
-            
+
         }
 
         this.setCaretPosition (0);
-        
-        this.setReadyForUse (true);         
-               
+
+        this.setReadyForUse (true);
+
    }
 
     public void restoreBackgroundColor ()
@@ -934,16 +933,16 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
 */
     }
 
-   private static class CutNPasteTransferHandler extends TransferHandler 
+   private static class CutNPasteTransferHandler extends TransferHandler
    {
         public void exportToClipboard(JComponent comp, Clipboard clipboard,
                                       int action)
         throws IllegalStateException
         {
-         
+
             if (comp instanceof JTextComponent)
             {
-               
+
                 JTextComponent text = (JTextComponent)comp;
                 int p0 = text.getSelectionStart();
                 int p1 = text.getSelectionEnd();
@@ -951,7 +950,7 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                     try {
                         Document doc = text.getDocument();
                         String srcData = doc.getText(p0, p1 - p0);
-         
+
                         StringSelection contents =new StringSelection(srcData);
 
                         // this may throw an IllegalStateException,
@@ -966,10 +965,10 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
                 }
             }
         }
-        
+
         public boolean importData(JComponent comp, Transferable t)
         {
-        
+
             if (comp instanceof JTextComponent) {
                 DataFlavor flavor = getFlavor(t.getTransferDataFlavors());
 
@@ -990,25 +989,25 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             }
             return false;
         }
-        
+
         public boolean canImport(JComponent comp,
                                  DataFlavor[] transferFlavors)
         {
-         
+
             JTextComponent c = (JTextComponent)comp;
             if (!(c.isEditable() && c.isEnabled())) {
                 return false;
             }
             return (getFlavor(transferFlavors) != null);
         }
-        
+
         public int getSourceActions(JComponent c)
         {
-        
+
             return NONE;
-        
+
         }
-        
+
         private DataFlavor getFlavor(DataFlavor[] flavors)
         {
             if (flavors != null) {
@@ -1020,6 +1019,6 @@ public class EditorChapterPanel extends AbstractViewOnlyEditorPanel implements C
             }
             return null;
         }
-    }    
-    
+    }
+
 }

@@ -42,9 +42,9 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
                       final Point       po,
                       final ActionListener onHide)
     {
-     
+
         throw new UnsupportedOperationException ("Not supported, use show(NamedObject,int,int,Point,ActionListener) instead.");
-        
+
     }
 
     public void show (final NamedObject obj,
@@ -67,20 +67,20 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
                     hideDelay,
                     po,
                     onHide);
-        
+
     }
 
     @Override
     public JComponent getContent ()
     {
-        
+
         if (this.obj == null)
         {
-            
+
             throw new IllegalStateException ("No object set.");
-            
+
         }
-        
+
         // TODO: Make this nicer later.
         if (this.obj instanceof Chapter)
         {
@@ -93,12 +93,12 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
 
             if (t == null)
             {
-            
-                // May be a fake chapter, return null.    
+
+                // May be a fake chapter, return null.
                 return null;
-                                                          
+
             }
-            
+
             t.setSize (new Dimension (300,
                                       Short.MAX_VALUE));
 
@@ -106,7 +106,12 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
 
         } else {
 
-            String firstLine = "<b><i>No description.</i></b>";
+            String firstLine = Environment.getUIString (LanguageStrings.project,
+                                                        LanguageStrings.sidebar,
+                                                        LanguageStrings.objectpreview,
+                                                        LanguageStrings.assets,
+                                                        LanguageStrings.novalue);
+                                                        //"<b><i>No description.</i></b>";
 
             String t = (obj.getDescription () != null ? obj.getDescription ().getText () : null);
 
@@ -140,8 +145,8 @@ public class NamedObjectPreviewPopup extends HideablePopup<AbstractProjectViewer
 
             return p;
 
-        }        
-        
+        }
+
     }
-    
+
 }

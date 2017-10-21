@@ -25,92 +25,92 @@ public class NewIdeaTypeActionHandler extends TextInputActionHandler
     {
 
         super (ib.getViewer ());
-    
+
         this.ideaBoard = ib;
 
     }
 
     public String getIcon ()
     {
-        
+
         return Constants.ADD_ICON_NAME;
-        
+
     }
-    
+
     public String getTitle ()
     {
-        
-        return Environment.getUIString (LanguageStrings.project,
-                                        LanguageStrings.actions,
-                                        LanguageStrings.newideatype,
+
+        return Environment.getUIString (LanguageStrings.ideaboard,
+                                        LanguageStrings.ideatypes,
+                                        LanguageStrings._new,
                                         LanguageStrings.title);
         //"Add New Idea Type";
-        
+
     }
-    
+
     public String getHelp ()
     {
-        
-        return Environment.getUIString (LanguageStrings.project,
-                                        LanguageStrings.actions,
-                                        LanguageStrings.newideatype,
+
+        return Environment.getUIString (LanguageStrings.ideaboard,
+                                        LanguageStrings.ideatypes,
+                                        LanguageStrings._new,
                                         LanguageStrings.text);
         //"Enter the new Idea type below.";
-        
+
     }
-    
+
     public String getConfirmButtonLabel ()
     {
-        
-        return Environment.getUIString (LanguageStrings.project,
-                                        LanguageStrings.actions,
-                                        LanguageStrings.newideatype,
+
+        return Environment.getUIString (LanguageStrings.ideaboard,
+                                        LanguageStrings.ideatypes,
+                                        LanguageStrings._new,
                                         LanguageStrings.confirm);
         //"Add";
-        
+
     }
-    
+
     public String getInitialValue ()
     {
-        
+
         return null;
-        
+
     }
-    
+
     public String isValid (String v)
     {
-        
+
         if ((v == null)
             ||
             (v.trim ().length () == 0)
            )
         {
-            
-            return Environment.getUIString (LanguageStrings.project,
-                                            LanguageStrings.actions,
-                                            LanguageStrings.newideatype,
+
+            return Environment.getUIString (LanguageStrings.ideaboard,
+                                            LanguageStrings.ideatypes,
+                                            LanguageStrings._new,
                                             LanguageStrings.errors,
                                             LanguageStrings.novalue);
             //"Please enter a name.";
-            
+
         }
 
         if (this.ideaBoard.hasTypeWithName (v))
         {
 
-            return Environment.getUIString (LanguageStrings.project,
-                                            LanguageStrings.actions,
-                                            LanguageStrings.newideatype,
+            return Environment.getUIString (LanguageStrings.ideaboard,
+                                            LanguageStrings.ideatypes,
+                                            LanguageStrings._new,
                                             LanguageStrings.errors,
                                             LanguageStrings.valueexists);
             //"A type called: " + v + " already exists.";
 
         }
-        
+
         return null;
-    
+
     }
-    
+
     public boolean onConfirm (String v)
                               throws Exception
     {
@@ -130,24 +130,24 @@ public class NewIdeaTypeActionHandler extends TextInputActionHandler
                                         e);
 
         }
-        
+
         return true;
-        
+
     }
-    
+
     public boolean onCancel ()
                              throws Exception
     {
-        
+
         return true;
-        
+
     }
-    
+
     public Point getShowAt ()
     {
-        
+
         return null;
-        
+
     }
 
 }

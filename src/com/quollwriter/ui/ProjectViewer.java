@@ -912,28 +912,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                         public void actionPerformed (ActionEvent ev)
 						{
 
-							try
-							{
+							QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
 
-								QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
-
-								qep.editOutlineItem ((OutlineItem) other);
-
-							} catch (Exception e)
-							{
-
-								Environment.logError ("Unable to edit outline item: " +
-													  other,
-													  e);
-
-								UIUtils.showErrorMessage (pv,
-                                                          Environment.getUIString (LanguageStrings.project,
-                                                                                   LanguageStrings.actions,
-                                                                                   LanguageStrings.editoutlineitem,
-                                                                                   LanguageStrings.actionerror));
-														  //"Unable to edit Outline Item");
-
-							}
+							qep.editOutlineItem ((OutlineItem) other);
 
 						}
 
@@ -964,28 +945,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 						public void actionPerformed (ActionEvent ev)
 						{
 
-							try
-							{
+							QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
 
-								QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
-
-								qep.editNote ((Note) other);
-
-							} catch (Exception e)
-							{
-
-								Environment.logError ("Unable to edit note: " +
-													  other,
-													  e);
-
-								UIUtils.showErrorMessage (pv,
-                                                          Environment.getUIString (LanguageStrings.project,
-                                                                                   LanguageStrings.actions,
-                                                                                   LanguageStrings.editnote,
-                                                                                   LanguageStrings.actionerror));
-														  //"Unable to edit Note");
-
-							}
+							qep.editNote ((Note) other);
 
 						}
 
@@ -1016,28 +978,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 						public void actionPerformed (ActionEvent ev)
 						{
 
-							try
-							{
+							QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
 
-								QuollEditorPanel qep = (QuollEditorPanel) pv.getEditorForChapter (c);
-
-								qep.editScene ((Scene) other);
-
-							} catch (Exception e)
-							{
-
-								Environment.logError ("Unable to edit scene: " +
-													  other,
-													  e);
-
-								UIUtils.showErrorMessage (pv,
-                                                          Environment.getUIString (LanguageStrings.project,
-                                                                                   LanguageStrings.actions,
-                                                                                   LanguageStrings.editscene,
-                                                                                   LanguageStrings.actionerror));
-														  //"Unable to edit Scene");
-
-							}
+							qep.editScene ((Scene) other);
 
 						}
 
@@ -1055,10 +998,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             return new DeleteChapterItemActionHandler ((OutlineItem) other,
                                                        this,
                                                        false);
-/*
-            return new DeleteOutlineItemActionHandler ((OutlineItem) other,
-                                                       pv);
-*/
+
         }
 
         if (name == ProjectViewer.DELETE_SCENE_ACTION)
@@ -1874,120 +1814,19 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         final ProjectViewer _this = this;
 
-        if (d instanceof OutlineItem)
+        if (d instanceof ChapterItem)
         {
 
-            final OutlineItem oi = (OutlineItem) d;
+            final ChapterItem ci = (ChapterItem) d;
 
-            this.viewObject (oi.getChapter (),
+            this.viewObject (ci.getChapter (),
                              new ActionListener ()
             {
 
                 public void actionPerformed (ActionEvent ev)
                 {
 
-                    try
-                    {
-
-                        _this.getEditorForChapter (oi.getChapter ()).showOutlineItem (oi);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to scroll to outline item: " +
-                                              oi,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  Environment.getUIString (LanguageStrings.project,
-                                                                           LanguageStrings.actions,
-                                                                           LanguageStrings.viewoutlineitem,
-                                                                           LanguageStrings.actionerror));
-                                                  //"Unable to display {Plot Outline Item} in {Chapter}.");
-
-                    }
-
-                }
-
-            });
-
-            return true;
-
-        }
-
-        if (d instanceof Scene)
-        {
-
-            final Scene s = (Scene) d;
-
-            this.viewObject (s.getChapter (),
-                             new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    try
-                    {
-
-                        _this.getEditorForChapter (s.getChapter ()).showScene (s);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to scroll to scene: " +
-                                              s,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  Environment.getUIString (LanguageStrings.project,
-                                                                           LanguageStrings.actions,
-                                                                           LanguageStrings.viewscene,
-                                                                           LanguageStrings.actionerror));
-                                                  //"Unable to display {Scene} in {Chapter}.");
-
-                    }
-
-                }
-
-            });
-
-            return true;
-
-        }
-
-        if (d instanceof Note)
-        {
-
-            final Note n = (Note) d;
-
-            this.viewObject (n.getChapter (),
-                             new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    try
-                    {
-
-                        _this.getEditorForChapter (n.getChapter ()).showNote (n);
-
-                    } catch (Exception e)
-                    {
-
-                        Environment.logError ("Unable to scroll to note: " +
-                                              n,
-                                              e);
-
-                        UIUtils.showErrorMessage (_this,
-                                                  Environment.getUIString (LanguageStrings.project,
-                                                                           LanguageStrings.actions,
-                                                                           LanguageStrings.viewnote,
-                                                                           LanguageStrings.actionerror));
-                                                  //"Unable to display {Note} in {Chapter}.");
-
-                    }
+                    _this.getEditorForChapter (ci.getChapter ()).showItem (ci);
 
                 }
 
@@ -2260,9 +2099,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          Environment.getUIString (LanguageStrings.project,
-                                                                   LanguageStrings.actions,
-                                                                   LanguageStrings.viewideaboard,
+                                          Environment.getUIString (LanguageStrings.ideaboard,
                                                                    LanguageStrings.actionerror));
                                           //"Unable to view idea board");
 
@@ -2374,9 +2211,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                           a);
 
                     UIUtils.showErrorMessage (_this,
-                                              String.format (Environment.getUIString (LanguageStrings.project,
-                                                                                      LanguageStrings.actions,
-                                                                                      LanguageStrings.editasset,
+                                              String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                                      LanguageStrings.edit,
                                                                                       LanguageStrings.actionerror),
                                                              a.getObjectTypeName (),
                                                              a.getName ()));
@@ -2451,19 +2287,12 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (_this,
-                                      String.format (Environment.getUIString (LanguageStrings.project,
-                                                                              LanguageStrings.actions,
-                                                                              LanguageStrings.viewasset,
+                                      String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                              LanguageStrings.view,
                                                                               LanguageStrings.actionerror),
                                                      a.getObjectTypeName (),
                                                      a.getName ()));
-                                  /*
-            UIUtils.showErrorMessage (_this,
-                                      "Unable to view " +
-                                      a.getObjectTypeName () +
-                                      ": " +
-                                      a.getName ());
-*/
+
             return false;
 
         }
@@ -2681,9 +2510,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.project,
-                                                               LanguageStrings.actions,
-                                                               LanguageStrings.deleteideatype,
+                                      Environment.getUIString (LanguageStrings.ideaboard,
+                                                               LanguageStrings.ideatypes,
+                                                               LanguageStrings.delete,
                                                                LanguageStrings.actionerror));
                                       //"Unable to delete Idea Type");
 
@@ -2716,9 +2545,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.project,
-                                                               LanguageStrings.actions,
-                                                               LanguageStrings.deleteidea,
+                                      Environment.getUIString (LanguageStrings.ideaboard,
+                                                               LanguageStrings.ideas,
+                                                               LanguageStrings.delete,
                                                                LanguageStrings.actionerror));
                                       //"Unable to delete Idea");
 
@@ -2750,9 +2579,9 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      Environment.getUIString (LanguageStrings.project,
-                                                               LanguageStrings.actions,
-                                                               LanguageStrings.editideatype,
+                                      Environment.getUIString (LanguageStrings.ideaboard,
+                                                               LanguageStrings.ideatypes,
+                                                               LanguageStrings.edit,
                                                                LanguageStrings.actionerror));
                                       //"Unable to save Idea Type");
 
@@ -2891,9 +2720,8 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      String.format (Environment.getUIString (LanguageStrings.project,
-                                                                              LanguageStrings.actions,
-                                                                              LanguageStrings.deleteasset,
+                                      String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                              LanguageStrings.delete,
                                                                               LanguageStrings.actionerror),
                                                      a.getObjectTypeName (),
                                                      a.getName ()));

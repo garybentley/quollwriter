@@ -81,18 +81,18 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
     @Override
     public String getTitle ()
     {
-        
+
         return this.getForObject ().getName ();
-        
+
     }
-    
+
     public Header getHeader ()
     {
-        
+
         return this.title;
-        
+
     }
-    
+
     public ObjectDocumentsEditPanel getObjectDocumentsEditPanel ()
     {
 
@@ -159,7 +159,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
 
         this.leftSplitPane = UIUtils.createSplitPane (JSplitPane.VERTICAL_SPLIT);
         this.leftSplitPane.setResizeWeight (1d);
-            
+
         this.rightSplitPane = UIUtils.createSplitPane (JSplitPane.VERTICAL_SPLIT);
         this.rightSplitPane.setBorder (null);
         this.rightSplitPane.setResizeWeight (0.5d);
@@ -174,11 +174,11 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
 
             if (botEp instanceof RefreshablePanel)
             {
-        
+
                 ((RefreshablePanel) botEp).init ();
 
             }
-                
+
             this.bottomPanel = botEp;
 
         }
@@ -190,34 +190,34 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
 
         this.detailsPanel.addActionListener (new ActionListener ()
         {
-           
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 if (ev.getActionCommand ().equals ("edit-visible"))
                 {
-                    
+
                     botEp.setVisible (false);
                     _this.bottomPanelHeight = botEp.getSize ().height;
-                    
+
                 }
-                
+
                 if (ev.getActionCommand ().equals ("view-visible"))
                 {
-                  
+
                     botEp.setPreferredSize (new Dimension (botEp.getPreferredSize ().width,
                                                            _this.bottomPanelHeight));
                     botEp.setVisible (true);
-                    
+
                     _this.leftSplitPane.setDividerLocation (_this.leftSplitPane.getSize ().height - _this.bottomPanelHeight);
 
                 }
 
             }
-            
+
         });
-                
+
         this.leftSplitPane.setTopComponent (this.detailsPanel);
         this.leftSplitPane.setBottomComponent (botEp);
 
@@ -276,7 +276,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
         this.repaint ();
 
         this.doInit ();
-        
+
         ActionMap actions = this.getActionMap ();
 
         InputMap im = this.getInputMap (JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -299,7 +299,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
                     {
 
                         _this.editObject ();
-                        
+
                     }
 
                 });
@@ -329,32 +329,32 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
                     }
 
                 });
-        
-        this.setReadyForUse (true);        
-        
+
+        this.setReadyForUse (true);
+
         UIUtils.doLater (new ActionListener ()
         {
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 _this.leftSplitPane.setDividerLocation (0.8d);
                 _this.rightSplitPane.setDividerLocation (0.5d);
-                
+
             }
-            
+
         });
 
     }
 
     public void editObject ()
     {
-        
+
         this.detailsPanel.showEditPanel ();
-        
+
     }
-    
+
     public abstract JComponent getBottomPanel ();
 
     public abstract EditPanel getDetailEditPanel (E           viewer,
@@ -486,34 +486,7 @@ public abstract class AbstractObjectViewPanel<E extends AbstractProjectViewer, O
     {
 
         this.linkedToPanel.refreshLinkedToTree ();
-    /*
-        List exclude = new ArrayList ();
-        exclude.add (this.obj);
 
-        // Painful but just about the only way.
-        this.viewer.setLinks (this.obj);
-
-        // Get all the "other objects" for the links the note has.
-        Iterator<Link> it = this.obj.getLinks ().iterator ();
-
-        Set links = new HashSet ();
-
-        while (it.hasNext ())
-        {
-
-            links.add (it.next ().getOtherObject (this.obj));
-
-        }
-
-        DefaultTreeModel m = new DefaultTreeModel (UIUtils.createLinkToTree (this.viewer.getProject (),
-                                                                             exclude,
-                                                                             links,
-                                                                             false));
-
-        this.linkedToViewTree.setModel (m);
-
-        UIUtils.expandAllNodesWithChildren (this.linkedToViewTree);
-*/
     }
 
     @Override

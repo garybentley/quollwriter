@@ -172,23 +172,10 @@ public class LanguageStrings
     public static final String vieweditorserror = "vieweditorserror";
     public static final String showregistererror = "showregistererror";
     public static final String deletechapter = "deletechapter";
-    public static final String deleteasset = "deleteasset";
     public static final String toolbar = "toolbar";
-    public static final String saveideatype = "saveideatype";
-    public static final String deleteidea = "deleteidea";
-    public static final String deleteideatype = "deleteideatype";
-    public static final String viewasset = "viewasset";
-    public static final String editasset = "editasset";
     public static final String viewaddasset = "viewaddasset";
-    public static final String viewideaboard = "viewideaboard";
     public static final String viewchapterinformation = "viewchapterinformation";
-    public static final String viewnote = "viewnote";
-    public static final String viewscene = "viewscene";
-    public static final String viewoutlineitem = "viewoutlineitem";
     public static final String editchapter = "editchapter";
-    public static final String editscene = "editscene";
-    public static final String editnote = "editnote";
-    public static final String editoutlineitem = "editoutlineitem";
     public static final String viewproblemfindersidebar = "viewproblemfindersidebar";
     public static final String removetag = "removetag";
     public static final String close = "close";
@@ -257,6 +244,7 @@ public class LanguageStrings
     public static final String stop = "stop";
     public static final String tipspanel = "tipspanel";
     public static final String next = "next";
+    public static final String previous = "previous";
     public static final String name = "name";
     public static final String tips = "tips";
     public static final String sidebar = "sidebar";
@@ -325,8 +313,6 @@ public class LanguageStrings
     public static final String deletetype = "deletetype";
     public static final String warning = "warning";
     public static final String valueexists = "valueexists";
-    public static final String newideatype = "newideatype";
-    public static final String editideatype = "editideatype";
     public static final String warmups = "warmups";
     public static final String deletewarmup = "deletewarmup";
     public static final String notifications = "notifications";
@@ -337,6 +323,7 @@ public class LanguageStrings
     public static final String iconcolumn = "iconcolumn";
     public static final String distractionfreemode = "distractionfreemode";
     public static final String viewitem = "viewitem";
+    public static final String edititem = "edititem";
     public static final String moveitem = "moveitem";
     public static final String manage = "manage";
     public static final String rename = "rename";
@@ -469,6 +456,20 @@ public class LanguageStrings
     public static final String textproperties = "textproperties";
     public static final String print = "print";
     public static final String convert = "convert";
+    public static final String notetypes = "notetypes";
+    public static final String removeeditposition = "removeeditposition";
+    public static final String seteditcomplete = "seteditcomplete";
+    public static final String showchapterinfo = "showchapterinfo";
+    public static final String seteditposition = "seteditposition";
+    public static final String compresstext = "compresstext";
+    public static final String shortcutprefix = "shortcutprefix";
+    public static final String doubleclickmenu = "doubleclickmenu";
+    public static final String ideatypes = "ideatypes";
+    public static final String ideas = "ideas";
+    public static final String on = "on";
+    public static final String off = "off";
+    public static final String objectpreview = "objectpreview";
+    public static final String edittextproperties = "edittextproperties";
 
     private static String ID_PART_SEP = ".";
 

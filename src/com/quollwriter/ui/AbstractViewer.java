@@ -102,7 +102,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
     private QPopup                achievementsPopup = null;
     private Map<String, QPopup> popups = new HashMap ();
 
-    private ScheduledThreadPoolExecutor generalTimer = null;    
+    private ScheduledThreadPoolExecutor generalTimer = null;
 
     private Timer achievementsHideTimer = null;
 
@@ -121,23 +121,23 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.generalTimer = new ScheduledThreadPoolExecutor (2,
                                                              new ThreadFactory ()
         {
-            
+
             @Override
             public Thread newThread (Runnable r)
             {
-                
+
                 Thread t = new Thread (r);
-                
+
                 t.setDaemon (true);
                 t.setPriority (Thread.MIN_PRIORITY);
                 t.setName ("Viewer-general-" + t.getId ());
-                
+
                 return t;
-                
+
             }
-            
-        });                                                
-        
+
+        });
+
         this.addWindowListener (new WindowAdapter ()
             {
 
@@ -273,61 +273,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             {
 
                 c.setName (s);
-                /*
-                c.addMouseListener (new MouseEventHandler ()
-                {
-
-                    public void fillPopup (JPopupMenu m,
-                                           MouseEvent ev)
-                    {
-
-                        //titleC.setEditable (true);
-
-                        final QPopup ep = UIUtils.createClosablePopup ("Configure",
-                                                                       null,
-                                                                       null);
-
-                        Box b = new Box (BoxLayout.Y_AXIS);
-
-                        b.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-                        final DraggableToolbar tb = new DraggableToolbar ();//UIUtils.createButtonBar (new ArrayList ());
-                        //tb.setConnectTo (titleC);
-                        //titleC.setConnectTo (tb);
-                        tb.setMinimumSize (new Dimension (250, 30));
-                        tb.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                          Short.MAX_VALUE));
-                        tb.setEditable (true);
-                        tb.setBorder (UIUtils.createTestLineBorder ());
-
-                        b.add (tb);
-
-                        for (String s : ftids)
-                        {
-
-                            JComponent c = _this.getTitleHeaderControl (s);
-
-                            if (c != null)
-                            {
-
-                                c.setName (s);
-
-                                tb.add (c);
-
-                            }
-
-                        }
-
-                        ep.setContent (b);
-
-                        _this.showPopupAt (ep,
-                                           titleC,
-                                           true);
-
-                    }
-
-                });
-                */
 
                 titleC.add (c);
 
@@ -340,8 +285,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         this.setIconImage (Environment.getWindowIcon ().getImage ());
 
         this.updateForDebugMode ();
-
-        //Environment.addToAchievementsManager (this);
 
     }
 
@@ -388,7 +331,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         prefix.add (LanguageStrings.title);
         prefix.add (LanguageStrings.toolbar);
         prefix.add (LanguageStrings.buttons);
-        
+
         final AbstractViewer _this = this;
 
         JComponent c = null;
@@ -472,14 +415,14 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             {
 
                 String type = LanguageStrings.showcontacts;
-                
+
                 if (!EditorsEnvironment.hasRegistered ())
                 {
-                    
+
                     type = LanguageStrings.editorsserviceregister;
-                    
+
                 }
-            
+
                 //String toolTip = (EditorsEnvironment.hasRegistered () ? "Click to show my {contacts}" : "Click to register for the Editors Service.");
 
                 c = UIUtils.createButton (Constants.EDITORS_ICON_NAME,
@@ -570,24 +513,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                 titlePopup.addSeparator ();
 
                                                 JMenuItem mi = null;
-/*
-                                                titlePopup.add (_this.createMenuItem ("Find",
-                                                                                      Constants.FIND_ICON_NAME,
-                                                                                      new ActionAdapter ()
-                                                                                      {
-
-                                                                                        public void actionPerformed (ActionEvent ev)
-                                                                                        {
-
-                                                                                            _this.showFind (null);
-
-                                                                                        }
-
-                                                                                     }));
-*/
 
                                                 java.util.List<String> prefix = new ArrayList ();
-                                                
+
                                                 prefix.add (LanguageStrings.project);
                                                 prefix.add (LanguageStrings.settingsmenu);
                                                 prefix.add (LanguageStrings.items);
@@ -804,7 +732,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.contactsupport);
-        
+
         String popupName = "contactsupport";
         QPopup popup = this.getNamedPopup (popupName);
 
@@ -819,8 +747,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                       Constants.ICON_POPUP),
                                                  null);
 
-            final QPopup qp = popup;                                                 
-                                                 
+            final QPopup qp = popup;
+
             popup.setPopupName (popupName);
 
             this.addNamedPopup (popupName,
@@ -842,14 +770,14 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             String errText = Environment.getUIString (prefix,
                                                       LanguageStrings.popup,
                                                       LanguageStrings.errorlabel);
-            
+
             final JLabel error = UIUtils.createErrorLabel (errText);
             //"Please enter a message.");
             error.setVisible (false);
             error.setBorder (UIUtils.createPadding (0, 0, 5, 5));
 
             content.add (error);
-            
+
             final MultiLineTextFormItem desc = new MultiLineTextFormItem (Environment.getUIString (prefix,
                                                                                                    LanguageStrings.popup,
                                                                                                    LanguageStrings.message,
@@ -864,7 +792,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                           10000,
                                                                           false,
                                                                           null);
-            
+
             final TextFormItem email = new TextFormItem (Environment.getUIString (prefix,
                                                                                   LanguageStrings.popup,
                                                                                   LanguageStrings.email,
@@ -872,10 +800,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                          null);
 
             Set<FormItem> items = new LinkedHashSet ();
-            
+
             items.add (desc);
             items.add (email);
-                                    
+
             ActionListener sendAction = new ActionListener ()
             {
 
@@ -933,7 +861,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                             {
 
 								desc.setText ("");
-                                
+
                                 UIUtils.showMessage ((PopupsSupported) _this,
                                                      Environment.getUIString (prefix,
                                                                               LanguageStrings.confirmpopup,
@@ -998,11 +926,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 }
 
             });
-                   
+
             Set<JButton> buttons = new LinkedHashSet ();
             buttons.add (send);
             buttons.add (cancel);
-            
+
             Form f = new Form (Form.Layout.stacked,
                                items,
                                buttons);
@@ -1025,17 +953,17 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             UIUtils.doLater (new ActionListener ()
             {
-            
+
                 @Override
                 public void actionPerformed (ActionEvent ev)
                 {
-                    
-                    desc.grabFocus ();   
-                              
+
+                    desc.grabFocus ();
+
                 }
-                
+
             });
-            
+
         } else {
 
             popup.setVisible (true);
@@ -1053,7 +981,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.reportproblem);
-        
+
         String popupName = "bugreport";
         QPopup popup = this.getNamedPopup (popupName);
 
@@ -1084,7 +1012,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             String errLabel = Environment.getUIString (prefix,
                                                        LanguageStrings.popup,
                                                        LanguageStrings.errorlabel);
-            
+
             final JLabel error = UIUtils.createErrorLabel (errLabel);
                                                            //"Please enter a description.");
             error.setVisible (false);
@@ -1106,7 +1034,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                                           10000,
                                                                           false,
                                                                           null);
-            
+
             final TextFormItem email = new TextFormItem (Environment.getUIString (prefix,
                                                                                   LanguageStrings.popup,
                                                                                   LanguageStrings.email,
@@ -1115,7 +1043,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                                          null);
 
             Set<FormItem> items = new LinkedHashSet ();
-            
+
             items.add (desc);
             items.add (email);
 
@@ -1239,12 +1167,12 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
                         if (sendScreenshot.isSelected ())
                         {
-                                                        
+
                             details.put ("screenshot",
                                          Base64.encodeBytes (UIUtils.getImageBytes (UIUtils.getImageOfComponent (_this,
                                                                                                             _this.getSize ().width,
                                                                                                             _this.getSize ().height))));
-                            
+
                         }
 
                         Environment.sendMessageToSupport ("bug",
@@ -1320,15 +1248,15 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 }
 
             });
-                   
+
             Set<JButton> buttons = new LinkedHashSet ();
             buttons.add (send);
             buttons.add (cancel);
-            
+
             Form f = new Form (Form.Layout.stacked,
                                items,
                                buttons);
-            
+
             content.add (f);
 
             content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
@@ -1352,15 +1280,15 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             UIUtils.doLater (new ActionListener ()
             {
-            
+
                 @Override
                 public void actionPerformed (ActionEvent ev)
                 {
-                    
-                    desc.grabFocus ();   
-                              
+
+                    desc.grabFocus ();
+
                 }
-                
+
             });
 
         } else {
@@ -1428,7 +1356,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                         Environment.setDebugModeEnabled (!Environment.isDebugModeEnabled ());
 
                         _this.updateForDebugMode ();
-                        
+
                         // Add a notification.
                         _this.addNotification ((Environment.isDebugModeEnabled () ? Environment.getUIString (LanguageStrings.debugmode,
                                                                                                              LanguageStrings.enabled)
@@ -1966,7 +1894,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
     public void showWarmupPromptSelect ()
     {
-    
+
         final QPopup qp = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.dowarmup,
                                                                                 LanguageStrings.popup,
                                                                                 LanguageStrings.title),
@@ -2106,7 +2034,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.about);
         prefix.add (LanguageStrings.popup);
-        
+
         String popupName = "about";
 
         QPopup popup = this.getNamedPopup (popupName);
@@ -2155,19 +2083,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                       y));
 
 			y += 2;
-/*
-            pbuilder.addLabel ("Java Version",
-                               cc.xy (2,
-                                      y));
 
-            pbuilder.addLabel (String.format ("%s %sbit",
-											  System.getProperty ("java.version"),
-											  System.getProperty ("sun.arch.data.model")),
-                               cc.xy (4,
-                                      y));
-
-            y += 2;
-*/
             pbuilder.addLabel (Environment.getUIString (prefix,
                                                         LanguageStrings.copyright),
                                //"Copyright",
@@ -2181,7 +2097,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
             String year = sdf.format (d);
 
             pbuilder.addLabel (String.format (Environment.getProperty (Constants.COPYRIGHT_PROPERTY_NAME),
-                                              //"\u00A9 2009-%1s Gary Bentley",
                                               year),
                                cc.xy (4,
                                       y));
@@ -2459,8 +2374,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                             htmlP.setText (t);
 
                             htmlP.validate ();
-                            //htmlP.getParent ().validate ();
-                            //htmlP.getParent ().repaint ();
 
                             n.setMinimumSize (n.getPreferredSize ());
 
@@ -2495,7 +2408,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                         prefix.add (LanguageStrings.tipspanel);
                         prefix.add (LanguageStrings.stop);
                         prefix.add (LanguageStrings.popup);
-                                                               
+
                         UIUtils.createQuestionPopup (_this,
                                                      Environment.getUIString (prefix,
                                                                               LanguageStrings.title),
@@ -2777,8 +2690,8 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.dispose ();
 
-        this.generalTimer.shutdown ();        
-        
+        this.generalTimer.shutdown ();
+
 		UIUtils.doLater (afterClose);
 
         return true;
@@ -2820,8 +2733,6 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
         this.getLayeredPane ().moveToFront (c);
 
-//      this.getLayeredPane ().repaint ();
-
     }
 
     @Override
@@ -2851,7 +2762,9 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                 b.setBackground (UIUtils.getComponentColor ());
                 b.setOpaque (true);
 
-                this.achievementsPopup = UIUtils.createPopup ("You've got an Achievement",
+                this.achievementsPopup = UIUtils.createPopup (Environment.getUIString (LanguageStrings.achievementreached,
+                                                                                       LanguageStrings.title),
+                                                                                       //"You've got an Achievement",
                                                               Constants.ACHIEVEMENT_ICON_NAME,
                                                               b,
                                                               true,
@@ -3434,7 +3347,10 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
 
             dictMan.init ();
 
-            popup = UIUtils.createClosablePopup ("Manage your personal Dictionary",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.dictionary,
+                                                                          LanguageStrings.manage,
+                                                                          LanguageStrings.title),
+            //"Manage your personal Dictionary",
                                                  Environment.getIcon (Constants.DICTIONARY_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -3480,7 +3396,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Manage the {Note} Types",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.notetypes,
+                                                                          LanguageStrings.actions,
+                                                                          LanguageStrings.manage,
+                                                                          LanguageStrings.title),
+                                                                          //"Manage the {Note} Types",
                                                  Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -3519,7 +3439,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                ProjectEvent.SHOW);
 
     }
-    
+
     public void showEditTags ()
     {
 
@@ -3529,7 +3449,11 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Manage the Tags",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.tags,
+                                                                          LanguageStrings.actions,
+                                                                          LanguageStrings.manage,
+                                                                          LanguageStrings.title),
+                                                                    //)"Manage the Tags",
                                                  Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -3569,59 +3493,7 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
                                ProjectEvent.EDIT);
 
     }
-    
-/*
-    public void showEditItemTypes ()
-    {
 
-        String popupName = "edititemtypes";
-        QPopup popup = this.getNamedPopup (popupName);
-
-        if (popup == null)
-        {
-
-            popup = UIUtils.createClosablePopup ("Manage the {Object} Types",
-                                                 Environment.getIcon (Constants.EDIT_ICON_NAME,
-                                                                      Constants.ICON_POPUP),
-                                                 null);
-
-            popup.setRemoveOnClose (false);
-
-            popup.setPopupName (popupName);
-
-            this.addNamedPopup (popupName,
-                                popup);
-
-            EditItemTypes content = new EditItemTypes (this);
-            content.init ();
-
-            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-            content.setPreferredSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                             content.getPreferredSize ().height));
-
-            popup.setContent (content);
-
-            popup.setDraggable (this);
-
-            popup.resize ();
-            this.showPopupAt (popup,
-                              UIUtils.getCenterShowPosition (this,
-                                                             popup),
-                              false);
-
-        } else {
-
-            popup.setVisible (true);
-
-
-        }
-
-        this.fireProjectEvent (ProjectEvent.ITEM_TYPES,
-                               ProjectEvent.SHOW);
-
-    }
-*/
     /**
      * Un-schedule the scheduledfuture (gained from a call to Environment.schedule).
      *
@@ -3630,21 +3502,21 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
      */
     public void unschedule (ScheduledFuture f)
     {
-                
+
         if (f == null)
         {
-            
+
             return;
-            
+
         }
-                
+
         // Let the task run to completion.
         f.cancel (false);
-                        
+
         this.generalTimer.purge ();
-                
+
     }
-    
+
     /**
      * Schedule the runnable to run after delay and repeat (use -1 or 0 for no repeat).
      *
@@ -3661,20 +3533,20 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         {
 
             Environment.logError ("Unable to schedule timer is no longer valid.");
-            
+
             return null;
-        
+
         }
-             
+
         if (r == null)
         {
-            
+
             Environment.logError ("Unable to schedule timer, runnable is null.");
-            
+
             return null;
-            
+
         }
-                
+
         if (repeat < 1)
         {
 
@@ -3692,5 +3564,5 @@ public abstract class AbstractViewer extends JFrame implements PopupsSupported,
         }
 
     }
-            
+
 }

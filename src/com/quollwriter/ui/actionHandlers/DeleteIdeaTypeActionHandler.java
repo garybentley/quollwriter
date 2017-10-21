@@ -24,7 +24,7 @@ public class DeleteIdeaTypeActionHandler extends YesDeleteConfirmTextInputAction
 
         super (ib.getViewer (),
                it);
-    
+
         this.ideaType = it;
         this.ideaBoard = ib;
 
@@ -32,34 +32,34 @@ public class DeleteIdeaTypeActionHandler extends YesDeleteConfirmTextInputAction
 
     public String getWarning ()
     {
-        
-        return Environment.getUIString (LanguageStrings.project,
-                                        LanguageStrings.actions,
-                                        LanguageStrings.deleteideatype,
+
+        return Environment.getUIString (LanguageStrings.ideaboard,
+                                        LanguageStrings.ideatypes,
+                                        LanguageStrings.delete,
                                         LanguageStrings.warning);
         //"Warning!  All ideas associated with the type will be deleted.  Once deleted the type and ideas cannot be restored.";
-        
+
     }
-    
+
     public String getDeleteType ()
     {
-        
-        return Environment.getUIString (LanguageStrings.project,
-                                        LanguageStrings.actions,
-                                        LanguageStrings.deleteideatype,
+
+        return Environment.getUIString (LanguageStrings.ideaboard,
+                                        LanguageStrings.ideatypes,
+                                        LanguageStrings.delete,
                                         LanguageStrings.deletetype);
         //"Idea Type";
-        
+
     }
-    
+
     public boolean onConfirm (String v)
                               throws Exception
     {
-        
+
         this.ideaBoard.deleteIdeaType (this.ideaType);
-        
+
         return true;
-        
+
     }
 
 }

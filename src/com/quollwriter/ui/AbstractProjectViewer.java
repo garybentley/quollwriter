@@ -186,11 +186,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         // Create a split pane.
         this.splitPane = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
-        /*
-        this.splitPane = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
-                                         false);
-                                         */
-        //this.splitPane.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
+
         this.splitPane.setBorder (null);
 
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
@@ -199,11 +195,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.splitPane.setBackground (UIUtils.getComponentColor ());
 
         this.splitPane2 = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
-        /*
-        this.splitPane2 = new JSplitPane (JSplitPane.HORIZONTAL_SPLIT,
-                                         false);
-                                         */
-        //this.splitPane2.setDividerSize (0);//UIUtils.getSplitPaneDividerSize ());
         this.splitPane2.setBorder (null);
 
         div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane2.getUI ()).getDivider ();
@@ -372,20 +363,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     }
 
                 });
-        /*
-        am.put ("do-warmup",
-                new ActionAdapter ()
-                {
 
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.getAction (AbstractProjectViewer.WARMUP_EXERCISE_ACTION).actionPerformed (ev);
-
-                    }
-
-                });
-        */
         am.put ("show-main-sidebar",
                 new ActionAdapter ()
                 {
@@ -407,70 +385,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                 this.getAction (AbstractProjectViewer.OPEN_PROJECT_ACTION,
                                 null));
 
-        /*
-        am.put ("debug",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        new DebugConsole (_this);
-
-                    }
-
-                });
-*/
-        /*
-        am.put ("debug-mode",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        Environment.setDebugModeEnabled (!Environment.isDebugModeEnabled ());
-
-                        _this.updateForDebugMode ();
-
-                        // Add a notification.
-                        _this.addNotification (String.format ("Debug mode is now <b>%s</b>",
-                                                              (Environment.isDebugModeEnabled () ? "ENabled" : "DISabled")),
-                                               Constants.BUG_ICON_NAME,
-                                               10);
-
-                    }
-
-                });
-*/
-        /*
-        am.put ("whatsnew",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        try
-                        {
-
-                            Environment.setUserProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                                         new StringProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME,
-                                                                             "0"));
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to set the whats new version viewed property",
-                                                  e);
-
-                        }
-
-                        _this.showWhatsNew (true);
-
-                    }
-
-                });
-          */
         am.put (Constants.SHOW_FIND_ACTION,
                 new ActionAdapter ()
                 {
@@ -483,34 +397,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     }
 
                 });
-/*
-        am.put ("contact",
-                new ActionAdapter ()
-                {
 
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.showContactSupport ();
-
-                    }
-
-                });
-  */
-/*
-        am.put ("editobjectnames",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        _this.showObjectTypeNameChanger ();
-
-                    }
-
-                });
-                */
         am.put ("fullscreen",
                 new ActionAdapter ()
                 {
@@ -523,52 +410,9 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     }
 
                 });
-        /*
-        am.put ("vieweditors",
-                new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        try
-                        {
-
-                            _this.viewEditors ();
-
-                        } catch (Exception e) {
-
-                            Environment.logError ("Unable to show editors",
-                                                  e);
-
-                            UIUtils.showErrorMessage (_this,
-                                                      "Unable to show editors.");
-
-                        }
-
-                    }
-
-                });
-*/
-    }
-    /*
-    private void updateForDebugMode ()
-    {
-
-        String iconName = this.getViewerIcon ();
-
-        if (Environment.isDebugModeEnabled ())
-        {
-
-            iconName = Constants.BUG_ICON_NAME;
-
-        }
-
-        this.title.setIcon (Environment.getIcon (iconName,
-                                                 Constants.ICON_TITLE));
 
     }
-    */
+
     @Override
     public void initKeyMappings (InputMap im)
     {
@@ -610,29 +454,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         return this.wordCountTimer;
 
     }
-    /*
-    protected JMenuItem createMenuItem (String label,
-                                        String icon,
-                                        int    action)
-    {
 
-        return UIUtils.createMenuItem (label,
-                                       icon,
-                                       this.getAction (action));
-
-    }
-
-    protected JMenuItem createMenuItem (String label,
-                                        String icon,
-                                        ActionListener action)
-    {
-
-        return UIUtils.createMenuItem (label,
-                                       icon,
-                                       action);
-
-    }
-    */
     protected void initSideBars ()
                           throws GeneralException
     {
@@ -805,54 +627,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     public void closeSideBar ()
     {
-        /*
-        if (this.activeSideBars.size () > 0)
-        {
-
-            AbstractSideBar curr = this.activeSideBars.pop ();
-
-            curr.onClose ();
-
-            if (curr.removeOnClose ())
-            {
-
-                this.removeSideBar (curr);
-
-                this.removeMainPanelListener (curr);
-
-            }
-
-
-        }
-        */
-        /*
-        if (this.currentOtherSideBar != null)
-        {
-
-            this.currentOtherSideBar.onClose ();
-
-            if (this.currentOtherSideBar.removeOnClose ())
-            {
-
-                this.removeSideBar (this.currentOtherSideBar);
-
-                this.removeMainPanelListener (this.currentOtherSideBar);
-
-            }
-
-        }
-
-        */
-        /*
-        if (this.activeSideBars.size () > 0)
-        {
-
-            this.showSideBar (this.activeSideBars.pop ().getName ());
-
-            return;
-
-        }
-        */
 
         if (this.currentOtherSideBar != null)
         {
@@ -1094,14 +868,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         return this.mainSideBar.getId ();
 
     }
-    /*
-    public Component getCurrentSideBarCard ()
-    {
-
-        return this.currentSideBar;
-
-    }
-      */
 
     public int getActiveSideBarCount ()
     {
@@ -1303,21 +1069,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.fireSideBarShownEvent (b);
 
     }
-    /*
-    public Map getTempOptions ()
-    {
 
-        return this.tempOptions;
-
-    }
-
-    public boolean hasTempOption (String name)
-    {
-
-        return this.getTempOption (name) != null;
-
-    }
-*/
     public void setSplitPaneColor (Color c)
     {
 
@@ -1335,46 +1087,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.setSplitPaneColor (UIUtils.getComponentColor ());
 
     }
-    /*
-    public boolean isTempOption (String name)
-    {
 
-        Object o = this.getTempOption (name);
-
-        if (o == null)
-        {
-
-            return false;
-
-        }
-
-        if (o instanceof Boolean)
-        {
-
-            return ((Boolean) o).booleanValue ();
-
-        }
-
-        return false;
-
-    }
-
-    public Object getTempOption (String name)
-    {
-
-        return this.tempOptions.get (name);
-
-    }
-
-    public void setTempOption (String name,
-                               Object value)
-    {
-
-        this.tempOptions.put (name,
-                              value);
-
-    }
-*/
     public void addTabChangeListener (ChangeListener cl)
     {
 
@@ -1496,184 +1209,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public abstract void handleItemChangedEvent (ItemChangedEvent ev);
 
     public abstract Set<FindResultsBox> findText (String t);
-        /*
-    @Override
-    public ActionMap getActionMap ()
-    {
 
-        return this.splitPane.getActionMap ();
-
-    }
-
-    @Override
-    public InputMap getInputMap (int m)
-    {
-
-        return this.splitPane.getInputMap (m);
-
-    }
-*/
-        /*
-    public Notification addNotification (JComponent comp,
-                                         String     iconType,
-                                         int        duration)
-    {
-
-        return this.addNotification (comp,
-                                     iconType,
-                                     duration,
-                                     null);
-
-    }
-*/
-    /**
-     * Adds a notification to the notification area, the action listener can be used
-     * to remove the notification, it can be safely called with a null event.
-     *
-     * @param comp The component to add to the notification.
-     * @param iconType The type of notification, supported values are "information" and "notify".
-     * @param duration The time, in seconds, that the notification should be shown for, if less than 1 then
-     *                 the notification won't be auto removed.
-     * @return An action listener that can be called to remove the notification.
-     */
-    /*
-    public Notification addNotification (JComponent comp,
-                                         String     iconType,
-                                         int        duration,
-                                         java.util.List<JButton> buttons)
-    {
-
-        final AbstractProjectViewer _this = this;
-
-        Notification n = new Notification (comp,
-                                           iconType,
-                                           duration,
-                                           buttons,
-                                           new ActionListener ()
-                                           {
-
-                                                public void actionPerformed (ActionEvent ev)
-                                                {
-
-                                                    Notification n = (Notification) ev.getSource ();
-
-                                                    _this.removeNotification (n);
-
-                                                }
-
-                                           });
-
-        this.addNotification (n);
-
-        return n;
-
-    }
-*/
-    /*
-    public void removeNotification (Notification n)
-    {
-
-        // Remove the box.
-        this.notifications.remove (n);
-
-        if (this.notifications.getComponentCount () == 0)
-        {
-
-            this.notifications.setVisible (false);
-
-        } else {
-
-            int c = this.notifications.getComponentCount ();
-
-            JComponent jc = (JComponent) this.notifications.getComponent (c - 1);
-
-            Border b = jc.getBorder ();
-
-            // Eek, not good but ok for now.
-            // TODO: Fix this nasty.
-            if (b instanceof CompoundBorder)
-            {
-
-                CompoundBorder cb = (CompoundBorder) b;
-
-                jc.setBorder (cb.getInsideBorder ());
-
-            }
-
-        }
-
-        this.notifications.getParent ().validate ();
-        this.notifications.getParent ().repaint ();
-
-    }
-*/
-    /*
-    public void addNotification (Notification n)
-    {
-
-        if (this.notifications.getComponentCount () > 0)
-        {
-
-            n.setBorder (new CompoundBorder (UIUtils.createBottomLineWithPadding (0, 0, 1, 0),
-                                             n.getBorder ()));
-
-        }
-
-        this.notifications.add (n,
-                                0);
-
-        this.notifications.setVisible (true);
-
-        n.init ();
-
-        this.notifications.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                                          this.notifications.getPreferredSize ().height));
-
-        this.validate ();
-        this.repaint ();
-
-    }
-    */
-    /*
-    public Notification addNotification (String text,
-                                         String type,
-                                         int    duration)
-    {
-
-        return this.addNotification (text,
-                                     type,
-                                     duration,
-                                     null);
-
-    }
-    */
-    /*
-    public Notification addNotification (String            text,
-                                         String            type,
-                                         int               duration,
-                                         HyperlinkListener clickListener)
-    {
-
-        JTextPane p = UIUtils.createHelpTextPane (text,
-                                                  this);
-
-        p.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         Short.MAX_VALUE));
-        p.setBorder (null);
-
-        if (clickListener != null)
-        {
-
-            p.addHyperlinkListener (clickListener);
-
-        }
-
-        return this.addNotification (p,
-                                     type,
-                                     duration);
-
-    }
-*/
     public Action getAction (int name)
     {
 
@@ -2087,40 +1623,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         throw new UnsupportedOperationException ("Not supported.");
 
     }
-/*
-    public void showWarmupPromptSelect ()
-    {
-
-        final QPopup qp = UIUtils.createClosablePopup ("Do a {Warmup} Exercise",
-                                                       Environment.getIcon (Warmup.OBJECT_TYPE,
-                                                                            Constants.ICON_POPUP),
-                                                       null);
-
-        WarmupPromptSelect w = new WarmupPromptSelect (this);
-
-        w.init ();
-
-        w.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-        qp.setContent (w);
-
-        qp.setDraggable (this);
-
-        qp.resize ();
-
-        this.showPopupAt (qp,
-                          UIUtils.getCenterShowPosition (this,
-                                                         qp),
-                           false);
-
-        // TODO: Investigate why this is needed, without it the qp has a strange preferred size.
-        this.showPopupAt (qp,
-                          UIUtils.getCenterShowPosition (this,
-                                                         qp),
-                           false);
-
-    }
-*/
 
     public void doForSideBars (final Class              type,
                                final QuollSideBarAction act,
@@ -2275,106 +1777,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
-    /*
-	public void setPlaySoundFileOnKeyStroke (boolean v)
-	{
-
-		this.playSoundOnKeyStroke = v;
-
-	}
-
-    public void setKeyStrokeSoundFile (File    f)
-                                throws Exception
-    {
-
-        this.fireProjectEvent (ProjectEvent.TYPE_WRITER_SOUND,
-                               (play ? ProjectEvent.ON : ProjectEvent.OFF));
-
-        // See if the user has specified a sound.
-        if (this.playSoundOnKeyStroke)
-        {
-
-            try
-            {
-
-                InputStream is = null;
-
-                if ((f != null) &&
-                    (f.exists ()))
-                {
-
-                    is = new BufferedInputStream (new FileInputStream (f));
-
-                }
-
-                if (is == null)
-                {
-
-                    // Play the default.
-                    is = new BufferedInputStream (Environment.getResourceStream (Constants.DEFAULT_KEY_STROKE_SOUND_FILE));
-
-                }
-
-                // Get the clip.
-                AudioInputStream ais = AudioSystem.getAudioInputStream (is);
-
-                this.keyStrokeSound = AudioSystem.getClip ();
-
-                this.keyStrokeSound.open (ais);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to get sound file to play on key stroke",
-                                      e);
-
-            }
-
-        }
-
-    }
-*/
-    /**
-     * Done here so that we don't have multiple clips taking up memory, the user can
-     * only type in one editor at once.
-     */
-	/*
-    public void playKeyStrokeSound ()
-    {
-
-        if (!this.playSoundOnKeyStroke)
-        {
-
-            return;
-
-        }
-
-        try
-        {
-
-            if (this.keyStrokeSound.isRunning ())
-            {
-
-                this.keyStrokeSound.stop ();
-
-            }
-
-            this.keyStrokeSound.setFramePosition (0);
-
-            this.keyStrokeSound.start ();
-
-        } catch (Exception e)
-        {
-
-            Environment.logError ("Unable to play key stroke sound",
-                                  e);
-
-            this.playSoundOnKeyStroke = false;
-
-        }
-
-    }
-*/
     /**
      * Set the spell check language for the project.  Note: this DOES NOT affect the project property:
      * {@link Constants.SPELL_CHECK_LANGUAGE_PROPERTY_NAME}.  Also this does not affect the spell check enabled
@@ -2665,12 +2067,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                                                               5,
                                                                               0,
                                                                               5)));
-/*
-            this.toolbarPanel.setBorder (new EmptyBorder (7,
-                                                          7,
-                                                          0,
-                                                          0));
-*/
+
             this.sideBar.add (this.toolbarPanel);
 
         }
@@ -3383,86 +2780,8 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
-        //this.playSoundOnKeyStroke = this.proj.getPropertyAsBoolean (Constants.PLAY_SOUND_ON_KEY_STROKE_PROPERTY_NAME);
-
-        //this.initKeyStrokeSound ();
-
-        // TODO: Remove when 2.3 is released.
-        /*
-        if ((Environment.getJavaVersion () < 7)
-            &&
-            (!Environment.isNewVersionGreater ("2.3",
-                                               Environment.getQuollWriterVersion ()))
-           )
-        {
-
-            Environment.logError ("A user is using version: " + Environment.getJavaVersion ());
-
-            this.addNotification (String.format ("You are currently using version %s of Java.  The next version of Quoll Writer will require at least Java 7.  It is recommended that you upgrade Java now to prevent potential problems.  <a href='%s'>Click here to upgrade Java now</a>",
-                                                 Environment.getJavaVersion (),
-                                                 "https://java.com/en/download"),
-                                  "information",
-                                  90);
-
-        }
-        */
     }
-/*
-    private void initKeyStrokeSound ()
-    {
 
-        // See if the user has specified a sound.
-        if (this.playSoundOnKeyStroke)
-        {
-
-            try
-            {
-
-                String sf = this.proj.getProperty (Constants.KEY_STROKE_SOUND_FILE_PROPERTY_NAME);
-
-                InputStream is = null;
-
-                if (sf != null)
-                {
-
-                    File f = new File (sf);
-
-                    if (f.exists ())
-                    {
-
-                        is = new BufferedInputStream (new FileInputStream (f));
-
-                    }
-
-                }
-
-                if (is == null)
-                {
-
-                    // Play the default.
-                    is = new BufferedInputStream (Environment.getResourceStream (Constants.DEFAULT_KEY_STROKE_SOUND_FILE));
-
-                }
-
-                // Get the clip.
-                AudioInputStream ais = AudioSystem.getAudioInputStream (is);
-
-                this.keyStrokeSound = AudioSystem.getClip ();
-
-                this.keyStrokeSound.open (ais);
-
-            } catch (Exception e)
-            {
-
-                Environment.logError ("Unable to get sound file to play on key stroke",
-                                      e);
-
-            }
-
-        }
-
-    }
-*/
     public void newProject (File    saveDir,
                             Project p,
                             String  filePassword)
@@ -3625,11 +2944,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                     } catch (Exception e) {
 
                         // Just ignore any errors, it's next to impossible to stop them.
-                        /*
-                        Environment.logError ("Unable to get a4 page count for chapter: " +
-                                              c,
-                                              e);
-                        */
+
                     }
 
                 }
@@ -3648,19 +2963,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         this.toolbarPanel.setVisible (v);
 
     }
-/*
-    public void newProject (File   dir,
-                            String name,
-                            String filePassword)
-                     throws Exception
-    {
-
-        this.newProject (dir,
-                         name,
-                         filePassword);
-
-    }
-*/
 
     public void openProject (ProjectInfo    p,
                              String         filePassword)
@@ -3907,14 +3209,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 															  null);
 
                         String t = LanguageStrings.single;
-                                                              
+
                         if (s > 1)
                         {
-                               
+
                             t = LanguageStrings.multiple;
-                                                              
+
                         }
-                        
+
                         String text = String.format (Environment.getUIString (LanguageStrings.targets,
                                                                               LanguageStrings.chaptersoverwcmaximum,
                                                                               t),
@@ -3955,14 +3257,14 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 					{
 
                         String t = LanguageStrings.single;
-                                                              
+
                         if (s > 1)
                         {
-                               
+
                             t = LanguageStrings.multiple;
-                                                              
-                        }                    
-                    
+
+                        }
+
 						final JLabel l = UIUtils.createLabel (null,
 															  null,
 															  null);
@@ -4109,7 +3411,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 																 (s == 1 ? " is" : "s are"));
 */
                                     String text = null;
-                                                                 
+
 									if (s == 1)
 									{
 
@@ -4119,17 +3421,17 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                                                                        LanguageStrings.popup,
                                                                                        LanguageStrings.singleoverlimit),
                                                               c.getName ());
-                                        
+
 										//text = String.format ("{Chapter} <b>%s</b> is over the target word count, click to view it.",
 											//				  c.getName ());
 
 									} else {
-                                        
+
                                         text = String.format (Environment.getUIString (LanguageStrings.targets,
                                                                                        LanguageStrings.popup,
                                                                                        LanguageStrings.multipleoverlimit),
                                                               Environment.formatNumber (s));
-                                        
+
                                     }
 
 									Box content = new Box (BoxLayout.Y_AXIS);
@@ -4572,239 +3874,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 		UIUtils.downloadDictionaryFiles (lang,
 										 this,
 										 onComplete);
-/*
-        if (Environment.isEnglish (lang))
-        {
 
-            lang = Constants.ENGLISH;
-
-        }
-
-        final String langOrig = lang;
-        final String language = lang;
-
-        String fileLang = lang;
-
-        // Legacy, if the user doesn't have the language file but DOES have a thesaurus then just
-        // download the English-dictionary-only.zip.
-        if ((Environment.isEnglish (lang))
-            &&
-            (!Environment.getDictionaryFile (lang).exists ())
-            &&
-            (Environment.hasSynonymsDirectory (lang))
-           )
-        {
-
-            fileLang = "English-dictionary-only";
-
-        }
-
-        URL url = null;
-
-        try
-        {
-
-            url = new URL (Environment.getQuollWriterWebsite () + "/" + StringUtils.replaceString (Environment.getProperty (Constants.QUOLL_WRITER_LANGUAGE_FILES_URL_PROPERTY_NAME),
-                                                                                                   "[[LANG]]",
-                                                                                                   StringUtils.replaceString (fileLang,
-                                                                                                                              " ",
-                                                                                                                              "%20")));
-
-        } catch (Exception e) {
-
-            UIUtils.showErrorMessage (this,
-                                      "Unable to download language files");
-
-            Environment.logError ("Unable to download language files, cant create url",
-                                  e);
-
-            return;
-
-        }
-
-        Environment.logDebugMessage ("Downloading language file(s) from: " + url + ", for language: " + lang);
-
-        File _file = null;
-
-        // Create a temp file for it.
-        try
-        {
-
-            _file = File.createTempFile ("quollwriter-language-" + fileLang,
-                                         null);
-
-        } catch (Exception e) {
-
-            UIUtils.showErrorMessage (this,
-                                      "Unable to download language files");
-
-            Environment.logError ("Unable to download language files, cant create temp file",
-                                  e);
-
-            return;
-
-        }
-
-        _file.deleteOnExit ();
-
-        final File file = _file;
-
-        Box b = new Box (BoxLayout.Y_AXIS);
-
-        final JTextPane htmlP = UIUtils.createHelpTextPane ("The language files for <b>" + language + "</b> are now being downloaded.",
-                                                            this);
-        htmlP.setBorder (null);
-        htmlP.setBackground (null);
-        htmlP.setOpaque (false);
-        htmlP.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        b.add (htmlP);
-        b.add (Box.createVerticalStrut (10));
-
-        final JProgressBar prog = new JProgressBar (0, 100);
-
-        prog.setPreferredSize (new Dimension (500, 25));
-        prog.setMaximumSize (new Dimension (500, 25));
-        prog.setAlignmentX (Component.LEFT_ALIGNMENT);
-
-        b.add (prog);
-
-        final Notification n = this.addNotification (b,
-                                                     Constants.DOWNLOAD_ICON_NAME,
-                                                     -1,
-                                                     null);
-
-        final AbstractProjectViewer _this = this;
-
-        final Runnable removeNotification = new Runnable ()
-        {
-
-            public void run ()
-            {
-
-               n.removeNotification ();
-
-            }
-        };
-
-        final UrlDownloader downloader = new UrlDownloader (url,
-                                                            file,
-                                                            new DownloadListener ()
-                                                            {
-
-                                                                public void handleError (Exception e)
-                                                                {
-
-                                                                    UIUtils.showErrorMessage (_this,
-                                                                                              "A problem has occurred while downloading the language files for <b>" + langOrig + "</b>.<br /><br />Please contact Quoll Writer support for assistance.");
-
-                                                                    Environment.logError ("Unable to download language files",
-                                                                                          e);
-
-                                                                    SwingUtilities.invokeLater (removeNotification);
-
-                                                                }
-
-                                                                public void progress (final int downloaded,
-                                                                                      final int total)
-                                                                {
-
-                                                                    SwingUtilities.invokeLater (new Runner ()
-                                                                    {
-
-                                                                        public void run ()
-                                                                        {
-
-                                                                            int val = (int) (((double) downloaded / (double) total) * 100);
-
-                                                                            prog.setValue (val);
-
-                                                                        }
-
-                                                                    });
-
-                                                                }
-
-                                                                public void finished (int total)
-                                                                {
-
-                                                                    prog.setValue (100);
-                                                                    prog.setIndeterminate (true);
-
-                                                                    new Thread (new Runner ()
-                                                                    {
-
-                                                                        public void run ()
-                                                                        {
-
-                                                                            // Now extract the file into the relevant directory.
-                                                                            try
-                                                                            {
-
-                                                                                Utils.extractZipFile (file,
-                                                                                                      Environment.getUserQuollWriterDir ());
-
-                                                                            } catch (Exception e) {
-
-                                                                                Environment.logError ("Unable to extract language zip file: " +
-                                                                                                      file +
-                                                                                                      " to: " +
-                                                                                                      Environment.getUserQuollWriterDir (),
-                                                                                                      e);
-
-                                                                                return;
-
-                                                                            } finally {
-
-                                                                                file.delete ();
-
-                                                                            }
-
-                                                                            if (onComplete != null)
-                                                                            {
-
-                                                                                SwingUtilities.invokeLater (new Runner ()
-                                                                                {
-
-                                                                                    public void run ()
-                                                                                    {
-
-                                                                                        prog.setIndeterminate (false);
-
-                                                                                        onComplete.actionPerformed (new ActionEvent (_this, 0, langOrig));
-
-                                                                                    }
-
-                                                                                });
-
-                                                                            }
-
-                                                                            SwingUtilities.invokeLater (removeNotification);
-
-                                                                        }
-
-                                                                    }).start ();
-
-                                                                }
-
-                                                            });
-
-        downloader.start ();
-
-        n.addCancelListener (new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                downloader.stop ();
-
-                file.delete ();
-
-            }
-
-        });
-        */
     }
 
     private void initPanelState (QuollPanel qp)
@@ -4868,466 +3938,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         return null;
 
     }
-    /*
-    private void handleWhatsNew ()
-    {
-
-        boolean showWhatsNew = false;
-
-        String whatsNewVersion = Environment.getProperty (Constants.WHATS_NEW_VERSION_VIEWED_PROPERTY_NAME);
-
-        if (whatsNewVersion != null)
-        {
-
-            Version lastViewed = new Version (whatsNewVersion);
-
-            if (lastViewed.isNewer (Environment.getQuollWriterVersion ()))
-            {
-
-                showWhatsNew = true;
-
-            }
-
-        } else {
-
-            showWhatsNew = true;
-
-        }
-
-        if (showWhatsNew)
-        {
-
-            this.showWhatsNew (false);
-
-        }
-
-    }
-    */
-    /*
-    public void addNamedPopup (String name,
-                               QPopup popup)
-    {
-
-        QPopup qp = this.popups.get (name);
-
-        if (qp != null)
-        {
-
-            qp.removeFromParent ();
-
-        }
-
-        this.popups.put (name,
-                         popup);
-
-    }
-
-    public void removeNamedPopup (String name)
-    {
-
-        QPopup qp = this.popups.remove (name);
-
-        if (qp != null)
-        {
-
-            qp.removeFromParent ();
-
-        }
-
-    }
-
-    public QPopup getNamedPopup (String name)
-    {
-
-        return this.popups.get (name);
-
-    }
-    */
-    /*
-    public void showAbout ()
-    {
-
-        final AbstractProjectViewer _this = this;
-
-        String popupName = "about";
-
-        QPopup popup = this.getNamedPopup (popupName);
-
-        if (popup == null)
-        {
-
-            final QPopup qp = UIUtils.createClosablePopup ("About",
-                                                           Environment.getIcon (Constants.ABOUT_ICON_NAME,
-                                                                                Constants.ICON_POPUP),
-                                                           null);
-
-            qp.addPopupListener (new PopupAdapter ()
-            {
-
-                @Override
-                public void popupHidden (PopupEvent ev)
-                {
-
-                    _this.removeNamedPopup ("about");
-
-                }
-
-            });
-
-            Box content = new Box (BoxLayout.Y_AXIS);
-
-            FormLayout pfl = new FormLayout ("5px, right:p, 6px, fill:p:grow",
-                                             "p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p, 6px, p");
-
-            PanelBuilder pbuilder = new PanelBuilder (pfl);
-
-            CellConstraints cc = new CellConstraints ();
-
-            int y = 1;
-
-            pbuilder.addLabel ("Version",
-                               cc.xy (2,
-                                      y));
-
-            pbuilder.addLabel (Environment.getQuollWriterVersion ().getVersion (),
-                               cc.xy (4,
-                                      y));
-
-            y += 2;
-
-            pbuilder.addLabel ("Copyright",
-                               cc.xy (2,
-                                      y));
-
-            Date d = new Date ();
-
-            SimpleDateFormat sdf = new SimpleDateFormat ("yyyy");
-
-            String year = sdf.format (d);
-
-            pbuilder.addLabel (String.format ("\u00A9 2009-%s Gary Bentley",
-                                              year),
-                               cc.xy (4,
-                                      y));
-
-            y += 2;
-
-            pbuilder.addLabel ("Website",
-                               cc.xy (2,
-                                      y));
-
-            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getQuollWriterWebsite (),
-                                                      null,
-                                                      false),
-                          cc.xy (4,
-                                 y));
-
-            y += 2;
-
-            pbuilder.addLabel ("Source Code",
-                               cc.xy (2,
-                                      y));
-
-            pbuilder.add (UIUtils.createWebsiteLabel ("https://github.com/garybentley/quollwriter",
-                                                      null,
-                                                      false),
-                          cc.xy (4,
-                                 y));
-
-            y += 2;
-
-            String relNotesUrl = Environment.getProperty (Constants.QUOLL_WRITER_RELEASE_NOTES_URL_PROPERTY_NAME);
-
-            relNotesUrl = StringUtils.replaceString (relNotesUrl,
-                                                     "[[VERSION]]",
-                                                     Environment.getQuollWriterVersion ().getVersion ().replace ('.',
-                                                                                                                 '_'));
-
-            pbuilder.add (UIUtils.createWebsiteLabel (relNotesUrl,
-                                                      "Release Notes",
-                                                      false),
-                          cc.xy (4,
-                                 y));
-
-            y += 2;
-
-            pbuilder.add (UIUtils.createWebsiteLabel ("https://www.patreon.com/quollwriter?ty=h",
-                                                      "Patreon",
-                                                      false),
-                          cc.xy (4,
-                                 y));
-
-            y += 2;
-
-            pbuilder.add (UIUtils.createWebsiteLabel (Environment.getProperty (Constants.QUOLL_WRITER_ACKNOWLEDGMENTS_URL_PROPERTY_NAME),
-                                                      "Acknowledgments",
-                                                      false),
-                          cc.xy (4,
-                                 y));
-
-            y += 2;
-
-            JButton closeBut = new JButton ();
-            closeBut.setText ("Close");
-
-            closeBut.addActionListener (new ActionListener ()
-            {
-
-                public void actionPerformed (ActionEvent ev)
-                {
-
-                    qp.removeFromParent ();
-
-                }
-
-            });
-
-            JButton[] buts = { closeBut };
-
-            JPanel bp = UIUtils.createButtonBar2 (buts,
-                                                  Component.LEFT_ALIGNMENT);
-            bp.setOpaque (false);
-
-            JPanel p = pbuilder.getPanel ();
-            p.setOpaque (false);
-            p.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-
-            content.add (p);
-
-            content.add (Box.createVerticalStrut (10));
-            content.add (bp);
-
-            content.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
-                             content.getPreferredSize ().height));
-            content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-            qp.setContent (content);
-
-            qp.setDraggable (this);
-
-            qp.resize ();
-
-            popup = qp;
-
-            this.addNamedPopup (popupName,
-                                popup);
-
-            this.showPopupAt (popup,
-                              UIUtils.getCenterShowPosition (this,
-                                                             popup),
-                              false);
-
-        } else {
-
-            popup.setVisible (true);
-
-        }
-
-        this.fireProjectEvent (ProjectEvent.ABOUT,
-                               ProjectEvent.SHOW);
-
-    }
-    */
-    /*
-    public void showWhatsNew (boolean onlyShowCurrentVersion)
-    {
-
-        String popupName = "whatsnew";
-
-        QPopup popup = this.getNamedPopup (popupName);
-
-        if (popup == null)
-        {
-
-            try
-            {
-
-                popup = UIUtils.createWizardPopup ("What's new in version " + Environment.getQuollWriterVersion (),
-                                                   Constants.WHATS_NEW_ICON_NAME,
-                                                   null,
-                                                   new WhatsNew (this,
-                                                                 onlyShowCurrentVersion));
-
-                popup.setPopupName (popupName);
-
-            } catch (Exception e) {
-
-                // Not good but not the end of the world but shouldn't stop things from going on.
-                Environment.logError ("Unable to init whats new",
-                                      e);
-
-                UIUtils.showErrorMessage (this,
-                                          "Unable to show What's New, please contact Quoll Writer support for assistance.");
-
-                return;
-
-            }
-
-            popup.setDraggable (this);
-
-            popup.resize ();
-            this.showPopupAt (popup,
-                              UIUtils.getCenterShowPosition (this,
-                                                             popup),
-                              false);
-
-            this.addNamedPopup (popupName,
-                                popup);
-
-        } else {
-
-            popup.setVisible (true);
-
-        }
-
-        this.fireProjectEvent (ProjectEvent.WHATS_NEW,
-                               ProjectEvent.SHOW);
-
-    }
-    */
-    /*
-    private void handleShowTips ()
-    {
-
-        if ((this.tips != null)
-            &&
-            (Environment.getUserProperties ().getPropertyAsBoolean (Constants.SHOW_TIPS_PROPERTY_NAME))
-           )
-        {
-
-            final AbstractProjectViewer _this = this;
-
-            try
-            {
-
-                String tipText = this.tips.getNextTip ();
-
-                final JTextPane htmlP = UIUtils.createHelpTextPane (tipText,
-                                                                    this);
-
-                htmlP.setBorder (null);
-                htmlP.setSize (new Dimension (500,
-                                              500));
-
-                JButton nextBut = UIUtils.createButton ("next",
-                                                        Constants.ICON_MENU,
-                                                        "Click to view the next tip",
-                                                        null);
-
-                java.util.List<JButton> buts = new ArrayList ();
-                buts.add (nextBut);
-
-                JButton offBut = UIUtils.createButton (Constants.STOP_ICON_NAME,
-                                                       Constants.ICON_MENU,
-                                                       "Click to stop showing tips when Quoll Writer starts",
-                                                       null);
-
-                buts.add (offBut);
-
-                // Show a tip.
-                final Notification n = this.addNotification (htmlP,
-                                                             Constants.HELP_ICON_NAME,
-                                                             90,
-                                                             buts);
-
-                nextBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        String t = _this.tips.getNextTip ();
-
-                        if (t != null)
-                        {
-
-                            htmlP.setText (t);
-
-                            htmlP.validate ();
-                            //htmlP.getParent ().validate ();
-                            //htmlP.getParent ().repaint ();
-
-                            n.setMinimumSize (n.getPreferredSize ());
-
-                            _this.repaint ();
-
-                            n.restartTimer ();
-
-                            _this.fireProjectEvent (ProjectEvent.TIPS,
-                                                    ProjectEvent.SHOW);
-
-                        }
-
-                    }
-
-                });
-
-                offBut.addActionListener (new ActionAdapter ()
-                {
-
-                    public void actionPerformed (ActionEvent ev)
-                    {
-
-                        JButton but = (JButton) ev.getSource ();
-
-                        Point p = SwingUtilities.convertPoint (but,
-                                                               0,
-                                                               0,
-                                                               _this);
-
-                        UIUtils.createQuestionPopup (_this,
-                                                     "Stop showing tips?",
-                                                     Constants.STOP_ICON_NAME,
-                                                     "Stop showing tips when Quoll Writer starts?<br /><br />They can enabled at any time in the <a href='action:projectoptions'>Options panel</a>.",
-                                                     "Yes, stop showing them",
-                                                     "No, keep them",
-                                                     new ActionListener ()
-                                                     {
-
-                                                        public void actionPerformed (ActionEvent ev)
-                                                        {
-
-                                                            _this.fireProjectEvent (ProjectEvent.TIPS,
-                                                                                    ProjectEvent.OFF);
-
-                                                            try
-                                                            {
-
-                                                                Environment.setUserProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                                             new BooleanProperty (Constants.SHOW_TIPS_PROPERTY_NAME,
-                                                                                                                  false));
-
-                                                            } catch (Exception e) {
-
-                                                                Environment.logError ("Unable to turn off tips",
-                                                                                      e);
-
-                                                            }
-
-                                                            n.removeNotification ();
-
-                                                        }
-
-                                                     },
-                                                     null,
-                                                     null,
-                                                     p);
-
-                    }
-
-                });
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to show tips",
-                                      e);
-
-            }
-
-        }
-
-    }
-    */
 
     public void handleHTMLPanelAction (String v)
     {
@@ -5893,24 +4503,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
-    /*
-    private Book getBookCurrentlyEdited ()
-    {
-
-    Chapter c = this.getChapterCurrentlyEdited ();
-
-    if (c != null)
-    {
-
-        return c.getBook ();
-
-    }
-
-    return this.proj.getBook (0);
-
-    }
-     */
-
     public boolean isCurrentSideBarTextProperties ()
     {
 
@@ -6138,11 +4730,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
             this.proj.setProperty (Constants.PROJECT_SIDE_BAR_WIDTH_PROPERTY_NAME,
                                    this.sideBar.getSize ().width);
-                                   /*
-
-            this.proj.setProperty (Constants.SPLIT_PANE_DIVIDER_LOCATION_PROPERTY_NAME,
-                                   this.splitPane.getDividerLocation ());
-*/
             this.proj.setProperty (Constants.SPELL_CHECKING_ENABLED_PROPERTY_NAME,
                                    this.spellCheckingEnabled);
 
@@ -6290,21 +4877,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
         }
 
-        //this.setUILayout (this.layout);
-/*
-        if (this.splitPane.getLeftComponent () == this.tabs)
-        {
-
-            this.splitPane.setRightComponent (this.sideBar);
-
-        } else {
-
-            this.splitPane.setLeftComponent (this.sideBar);
-
-        }
-
-        this.splitPane.setDividerLocation (this.lastDividerLocation);
-*/
         this.setVisible (true);
         this.setUILayout (this.layout);
         this.validate ();
@@ -6760,18 +5332,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
                 if (ev.getID () == TabHeader.TAB_CLOSING)
                 {
-/*
-                    if (!_this.removePanel (panelId))
-                    {
-
-                        VetoableActionEvent vev = (VetoableActionEvent) ev;
-
-                        vev.cancel ();
-
-                        return;
-
-                    }
-*/
 
                     if (!_this.closePanel (qp))
                     {
@@ -6859,14 +5419,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     public boolean closePanel (QuollPanel qp)
     {
 
-/*
-        if (!this.removePanel (qp))
-        {
-
-            return false;
-
-        }
-  */
         // Get the state.
         Map m = new LinkedHashMap ();
 
@@ -7088,16 +5640,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         tree.repaint ();
 
     }
-/*
-    public void addPopup (Component c)
-    {
 
-        this.addPopup (c,
-                       false,
-                       false);
-
-    }
-*/
     @Override
     public void addPopup (Component c,
                           boolean   hideOnClick,
@@ -7118,14 +5661,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         super.addPopup (c,
                         hideOnClick,
                         hideViaVisibility);
-/*
-        this.getLayeredPane ().add (c,
-                                    JLayeredPane.POPUP_LAYER);
 
-        this.getLayeredPane ().moveToFront (c);
-
-//      this.getLayeredPane ().repaint ();
-*/
     }
 
     @Override
@@ -7142,13 +5678,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         }
 
         super.removePopup (c);
-    /*
-        this.getLayeredPane ().remove (c);
 
-        this.getLayeredPane ().validate ();
-
-        this.getLayeredPane ().repaint ();
-*/
     }
 
     @Override
@@ -7180,37 +5710,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         }
 
         return super.getPopupByName (name);
-        /*
-        Component[] children = this.getLayeredPane ().getComponentsInLayer (JLayeredPane.POPUP_LAYER);
 
-        if (children == null)
-        {
-
-            return null;
-
-        }
-
-        for (int i = 0; i < children.length; i++)
-        {
-
-            Component c = children[i];
-
-            if (name.equals (c.getName ()))
-            {
-
-                if (c instanceof QPopup)
-                {
-
-                    return (QPopup) c;
-
-                }
-
-            }
-
-        }
-
-        return null;
-        */
     }
 
     @Override
@@ -7233,16 +5733,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         super.showPopupAt (popup,
                            showAt,
                            hideOnParentClick);
-    /*
-        Point po = SwingUtilities.convertPoint (showAt,
-                                                0,
-                                                0,
-                                                this.getContentPane ());
-
-        this.showPopupAt (popup,
-                          po,
-                          hideOnParentClick);
-*/
 
     }
 
@@ -7487,17 +5977,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                 null);
 
     }
-/*
-    public void deleteObject (NamedObject o)
-                       throws GeneralException
-    {
 
-        this.dBMan.deleteObject (o,
-                                 false,
-                                 null);
-
-    }
-*/
     public void saveProject ()
                       throws GeneralException
     {
@@ -7597,26 +6077,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                          null);
 
     }
-/*
-    public Point convertPoint (Component c,
-                               Point     p)
-    {
 
-        Component o = this.getContentPane ();
-
-        if (this.inFullScreen ())
-        {
-
-            o = this.fsf;
-
-        }
-
-        return SwingUtilities.convertPoint (c,
-                                            p,
-                                            o);
-
-    }
-  */
     public boolean inFullScreen ()
     {
 
@@ -7815,29 +6276,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 												 this.getCurrentChapterText (c));
 
 	}
-	/*
-	public int getAllChaptersA4PageCount ()
-	{
 
-		int a = 0;
-
-        Book b = this.proj.getBooks ().get (0);
-
-        java.util.List<Chapter> chapters = b.getChapters ();
-
-        ChapterCounts achc = new ChapterCounts ();
-
-        for (Chapter c : chapters)
-        {
-
-			a += this.getChapterA4PageCount (c);
-
-        }
-
-		return a;
-
-	}
-	*/
     public ChapterCounts getAllChapterCounts ()
     {
 
@@ -8075,27 +6514,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         return this.startWordCounts;
 
     }
-    /* TODO: Removed merged.
-<<<<<<< HEAD
-=======
-    public int getSessionWordCount ()
-    {
 
-		if (this.startWordCounts == null)
-		{
-
-			return 0;
-
-		}
-
-        ChapterCounts achc = this.getAllChapterCounts (false);
-
-        return achc.wordCount - this.startWordCounts.wordCount;
-
-    }
-
->>>>>>> refs/remotes/origin/master
-*/
     public Set<Chapter> snapshotChapters (Set<Chapter>   chapters,
                                           ProjectVersion pv)
                                    throws Exception
@@ -8199,7 +6618,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
                                               Environment.getUIString (LanguageStrings.editors,
                                                                        LanguageStrings.vieweditorerror));
                                               //"Unable to show Editor");
-                                          
+
                 }
 
             }
@@ -8370,14 +6789,6 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
 
     }
 
-/*
-    public void setViewerControls (JComponent c)
-    {
-
-        this.title.setControls (c);
-
-    }
-*/
     @Override
     public boolean isEditorsVisible ()
     {
@@ -8501,7 +6912,7 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
         prefix.add (LanguageStrings.title);
         prefix.add (LanguageStrings.toolbar);
         prefix.add (LanguageStrings.buttons);
-        
+
         final AbstractProjectViewer _this = this;
 
         JComponent c = null;

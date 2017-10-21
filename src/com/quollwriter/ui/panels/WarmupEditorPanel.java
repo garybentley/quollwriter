@@ -93,18 +93,12 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
 
     }
 
-    public void doFillToolsPopupMenu (ActionEvent ev,
-                                      JPopupMenu  p)
-    {
-
-    }
-
     @Override
     public void fillToolBar (JToolBar      acts,
                              final boolean fullScreen)
     {
 
-        java.util.List<String> prefix = new ArrayList ();
+        java.util.List<String> prefix = new ArrayList<> ();
         prefix.add (LanguageStrings.warmups);
         prefix.add (LanguageStrings.editorpanel);
         prefix.add (LanguageStrings.toolbar);
@@ -174,12 +168,9 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
 
                 JPopupMenu m = new JPopupMenu ();
 
-                _this.doFillToolsPopupMenu (ev,
-                                            m);
-
                 JMenuItem mi = null;
 
-                java.util.List<String> prefix = new ArrayList ();
+                java.util.List<String> prefix = new ArrayList<> ();
                 prefix.add (LanguageStrings.warmups);
                 prefix.add (LanguageStrings.editorpanel);
                 prefix.add (LanguageStrings.tools);
@@ -225,8 +216,7 @@ public class WarmupEditorPanel extends AbstractEditableEditorPanel
 
     }
 
-    @Override
-    public void doFillToolBar (JToolBar acts)
+    private void doFillToolBar (JToolBar acts)
     {
 
         java.util.List<String> prefix = new ArrayList ();

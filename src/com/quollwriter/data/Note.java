@@ -12,6 +12,7 @@ public class Note extends ChapterItem
     public static final String DEALT_WITH = "dealtWith";
     public static final String EDIT_NEEDED_NOTE_TYPE = "Edit Needed";
     public static final String OBJECT_TYPE = "note";
+    public static final String EDIT_NEEDED_OBJECT_TYPE = "editneedednote";
 
     private Date        due = null;
     private String      type = null;
@@ -52,7 +53,7 @@ public class Note extends ChapterItem
     {
 
         super.fillToStringProperties (props);
-        
+
         this.addToStringProperties (props,
                                     "due",
                                     this.due);
@@ -65,36 +66,36 @@ public class Note extends ChapterItem
         this.addToStringProperties (props,
                                     "dealtWith",
                                     this.dealtWith);
-                        
-    }    
-    
+
+    }
+
     public boolean isDealtWith ()
     {
-        
+
         return this.dealtWith != null;
-        
+
     }
-    
+
     public Date getDealtWith ()
     {
-        
+
         return this.dealtWith;
-        
+
     }
-    
+
     public void setDealtWith (Date d)
     {
-        
+
         Date oldd = this.dealtWith;
-        
+
         this.dealtWith = d;
-        
+
         this.firePropertyChangedEvent (Note.DEALT_WITH,
                                        oldd,
-                                       this.dealtWith);        
-        
+                                       this.dealtWith);
+
     }
-    
+
     public void getChanges (NamedObject old,
                             Element     root)
     {
@@ -117,21 +118,21 @@ public class Note extends ChapterItem
     {
 
         String text = this.getDescriptionText ();
-        
+
         if (text == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         Paragraph p = new Paragraph (text,
                                      0);
-        
+
         this.setSummary (p.getFirstSentence ().getText ());
-        
+
     }
-    
+
     public void setObject (NamedObject o)
     {
 
@@ -141,13 +142,13 @@ public class Note extends ChapterItem
 
     public void setChapter (Chapter c)
     {
-                
+
         this.setObject (c);
-        
+
         super.setChapter (c);
-        
+
     }
-    
+
     public Chapter getChapter ()
     {
 

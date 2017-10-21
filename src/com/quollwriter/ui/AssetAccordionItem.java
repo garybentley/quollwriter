@@ -35,224 +35,224 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                pv);
 
         this.objType = objType;
-               
+
         Environment.addUserProjectEventListener (this);
-               
+
         this.sorter = new Comparator<Asset> ()
         {
-            
+
             @Override
             public boolean equals (Object o)
             {
-                
+
                 return this == o;
-            
+
             }
-            
+
             @Override
             public int compare (Asset o1,
                                 Asset o2)
             {
-                
+
                 return NamedObjectSorter.getInstance ().compare (o1, o2);
-            
+
             }
-            
+
         };
-               
+
     }
-    
+
     @Override
     public String getTitle ()
     {
-        
+
         return this.objType.getObjectTypeNamePlural ();
-        
+
     }
-    
+
     @Override
     public String getId ()
     {
-        
+
         return this.objType.getObjectTypeId ();
-        
+
     }
-    
+
     public UserConfigurableObjectType getUserConfigurableObjectType ()
     {
-        
+
         return this.objType;
-        
+
     }
-    
+
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
 
         if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
         {
-            
+
             if (ev.getSource ().equals (this.objType))
             {
-              
+
                 this.update ();
-                
+
                 return;
-                
+
             }
-            
+
         }
-            
+
     }
-    
+
     @Override
     public void update ()
     {
-        
+
         this.getHeader ().setIcon (objType.getIcon16x16 ());
-        
+
         super.update ();
-        
+
     }
-    
+
     @Override
     public void initFromSaveState (String ss)
     {
-        
+
         super.initFromSaveState (ss);
-                
-        Map<String, Object> state = (Map<String, Object>) JSONDecoder.decode (ss);        
-        
+
+        Map<String, Object> state = (Map<String, Object>) JSONDecoder.decode (ss);
+
         Number sortFieldKey = (Number) state.get ("sortFieldKey");
-        
+
         if (sortFieldKey != null)
         {
-            
+
             try
             {
-            
+
                 this.sortBy (Environment.getUserConfigurableObjectTypeField (sortFieldKey.longValue ()));
-                
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to get user config object type field: " +
                                       sortFieldKey,
                                       e);
-                
+
             }
-            
+
         } else {
-        
+
             Collection<String> objRefs = (Collection<String>) state.get ("order");
-            
+
             if (objRefs != null)
             {
-            
+
                 final Map<String, Number> order = new HashMap ();
-                
+
                 int c = 0;
-                
+
                 for (String ref : objRefs)
                 {
-                    
+
                     order.put (ref,
                                c++);
-                    
+
                 }
-            
+
                 this.sorter = new Comparator<Asset> ()
                 {
-                  
+
                     @Override
                     public boolean equals (Object o)
                     {
-                        
+
                         return this.equals (o);
-                        
+
                     }
-                    
+
                     @Override
                     public int compare (Asset o1,
                                         Asset o2)
                     {
-                        
+
                         Number nv1 = order.get (o1.getObjectReference ().asString ());
-                        
+
                         Number nv2 = order.get (o2.getObjectReference ().asString ());
-                        
+
                         if ((nv1 == null)
                             ||
                             (nv2 == null)
                            )
                         {
-                            
+
                             return NamedObjectSorter.getInstance ().compare (o1, o2);
-                            
+
                         }
-                        
+
                         return nv1.intValue () - nv2.intValue ();
-                        
+
                     }
-                    
+
                 };
-                                
+
             }
-            
-            this.reloadTree ();    
+
+            this.reloadTree ();
 
         }
-                                
-    }    
-    
+
+    }
+
     @Override
     public Map<String, Object> getSaveStateAsMap ()
     {
 
         Map<String, Object> ss = super.getSaveStateAsMap ();
-                
+
         if (this.sortField != null)
-        {                
-        
+        {
+
             ss.put ("sortFieldKey",
                     this.sortField.getKey ());
-        
+
         } else {
-        
+
             DefaultMutableTreeNode r = (DefaultMutableTreeNode) ((DefaultTreeModel) this.tree.getModel ()).getRoot ();
-            
+
             Set<String> objRefs = new LinkedHashSet ();
-            
+
             for (int i = 0; i < r.getChildCount (); i++)
             {
-                
+
                 DefaultMutableTreeNode n = (DefaultMutableTreeNode) r.getChildAt (i);
-                
+
                 NamedObject oo = (NamedObject) n.getUserObject ();
-                
+
                 objRefs.add (oo.getObjectReference ().asString ());
-                
+
             }
-            
+
             if (objRefs.size () > 0)
             {
-                
+
                 ss.put ("order",
                         objRefs);
-                
+
             }
 
         }
-        
+
         return ss;
-    
-    }    
-    
+
+    }
+
     @Override
     public void initTree ()
     {
 
         this.reloadTree ();
-    
+
     }
 
     @Override
@@ -264,7 +264,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.headerpopupmenu);
         prefix.add (LanguageStrings.items);
-    
+
         final AssetAccordionItem _this = this;
 
         AbstractAction addNewItem = UIUtils.createAddAssetActionListener (this.objType,
@@ -278,7 +278,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                                       this.objType.getObjectTypeName ()),
                                        Constants.ADD_ICON_NAME,
                                        addNewItem));
-        
+
         m.add (UIUtils.createMenuItem (String.format (Environment.getUIString (prefix,
                                                                                LanguageStrings.edit),
                                                       //"Edit the %s information/fields",
@@ -286,21 +286,21 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                        Constants.EDIT_ICON_NAME,
                                         new ActionListener ()
                                         {
-                                         
+
                                              @Override
                                              public void actionPerformed (ActionEvent ev)
                                              {
-                                                 
+
                                                  UIUtils.showObjectTypeEdit (_this.objType,
                                                                              _this.viewer);
-                                                 
+
                                              }
-                                         
+
                                         }));
-        
+
         // Get all the sortable fields for the object.
         Set<UserConfigurableObjectTypeField> fields = this.objType.getSortableFields ();
-        
+
         if (fields.size () > 0)
         {
 
@@ -318,13 +318,13 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             for (UserConfigurableObjectTypeField field : fields)
             {
-                
+
                 final UserConfigurableObjectTypeField f = field;
-                
+
                 JMenuItem mi = new JRadioButtonMenuItem (f.getFormName ());
 
                 group.add (mi);
-/*                
+/*
                     if (_this.ideaType.getSortBy ().equals (IdeaType.SORT_BY_RATING))
                     {
 
@@ -346,54 +346,39 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                 });
 
                 sortMenu.add (mi);
-        
+
             }
-            
-        }        
-        
-/*
-        if (this.forObjType.equals (QObject.OBJECT_TYPE))
-        {
-
-            // Add New Type
-            m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("New {Object} Type"),
-                                           Constants.ADD_ICON_NAME,
-                                           this.viewer.getAction (ProjectViewer.NEW_ITEM_TYPE_ACTION)));
-
-            m.add (UIUtils.createMenuItem (Environment.replaceObjectNames ("Manage {Object} Types"),
-                                           Constants.EDIT_ICON_NAME,
-                                           this.viewer.getAction (ProjectViewer.MANAGE_ITEM_TYPES_ACTION)));
 
         }
-*/
+
     }
 
     private void sortBy (final UserConfigurableObjectTypeField f)
     {
-                                
+
         this.sorter = new Comparator<Asset> ()
         {
-          
+
             @Override
             public boolean equals (Object o)
             {
-                
+
                 return this.equals (o);
-                
+
             }
-            
+
             @Override
             public int compare (Asset o1,
                                 Asset o2)
             {
-                
+
                 if (f instanceof ObjectNameUserConfigurableObjectTypeField)
                 {
-                    
+
                     return o1.getName ().toLowerCase ().compareTo (o2.getName ().toLowerCase ());
-                    
+
                 }
-                
+
                 Object v1 = o1.getValueForField (f);
                 Object v2 = o2.getValueForField (f);
 
@@ -402,19 +387,19 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                     (v2 == null)
                    )
                 {
-                    
+
                     return 1;
-                    
+
                 }
-                
+
                 if ((v1 == null)
                     &&
                     (v2 != null)
                    )
                 {
-                    
+
                     return -1;
-                    
+
                 }
 
                 if ((v1 == null)
@@ -422,32 +407,32 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                     (v2 == null)
                    )
                 {
-                    
+
                     return 0;
-                    
+
                 }
-                
+
                 if ((v1 instanceof String)
                     &&
                     (v2 instanceof String)
                    )
                 {
-                    
+
                     return ((String) v1).toLowerCase ().compareTo (((String) v2).toLowerCase ());
-                    
+
                 }
-                
+
                 if ((v1 instanceof Number)
                     &&
                     (v2 instanceof Number)
                    )
                 {
-                    
+
                     Double d1 = ((Number) v1).doubleValue ();
                     Double d2 = ((Number) v2).doubleValue ();
-                    
+
                     return d1.compareTo (d2);
-                    
+
                 }
 
                 if ((v1 instanceof Date)
@@ -455,26 +440,26 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                     (v2 instanceof Date)
                    )
                 {
-                    
+
                     return ((Date) v1).compareTo ((Date) v2);
-                    
+
                 }
 
                 String sv1 = v1.toString ().toLowerCase ();
                 String sv2 = v2.toString ().toLowerCase ();
-                
+
                 return sv1.compareTo (sv2);
-                
+
             }
-            
+
         };
-        
+
         this.reloadTree ();
 
         this.sortField = f;
-        
+
     }
-    
+
     @Override
     public void reloadTree ()
     {
@@ -506,39 +491,39 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     {
 
         final AssetAccordionItem _this = this;
-    
+
         return new DragActionHandler<Asset> ()
         {
-            
+
             @Override
             public boolean canImportForeignObject (NamedObject obj)
             {
-                
+
                 // Allow support of addition of same object type.
                 return false;
-                
+
             }
-            
+
             @Override
             public boolean importForeignObject (NamedObject obj,
                                                 int         insertRow)
             {
-                
+
                 return false;
-                
+
             }
-            
+
             @Override
             public boolean handleMove (int   fromRow,
                                        int   toRow,
                                        Asset object)
                                 throws GeneralException
             {
-                
+
                 _this.sortField = null;
-                
+
                 return true;
-                
+
             }
 
             @Override
@@ -548,11 +533,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
                                           NamedObject insertObject)
                                    throws GeneralException
             {
-                
+
                 return true;
-                
+
             }
-            
+
         };
 
     }
@@ -566,7 +551,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.treepopupmenu);
         prefix.add (LanguageStrings.items);
-    
+
         final AssetAccordionItem _this = this;
 
         final TreePath tp = _this.tree.getPathForLocation (ev.getX (),
@@ -610,7 +595,7 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
 
             m.add (UIUtils.createTagsMenu (d,
                                            this.viewer));
-            
+
             mi = new JMenuItem (Environment.getUIString (prefix,
                                                          LanguageStrings.delete),
                                 //"Delete",
@@ -645,11 +630,11 @@ public class AssetAccordionItem extends ProjectObjectsAccordionItem<ProjectViewe
     @Override
     public boolean isAllowObjectPreview ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     @Override
     public boolean isTreeEditable ()
     {

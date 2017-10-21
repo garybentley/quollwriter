@@ -133,14 +133,9 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
     }
 
-    public abstract void doFillToolBar (JToolBar b);
-
     public abstract void doFillPopupMenu (MouseEvent eve,
                                           JPopupMenu p,
                                           boolean    compress);
-
-    public abstract void doFillToolsPopupMenu (ActionEvent eve,
-                                               JPopupMenu  p);
 
     @Override
     public void close ()
@@ -548,83 +543,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
     }
 
-    public void fillToolBar (JToolBar acts,
-                             final boolean  fullScreen)
-    {
-
-        final AbstractEditableEditorPanel _this = this;
-
-        acts.add (this.createToolbarButton (Constants.SAVE_ICON_NAME,
-                                            "Click to save the {Chapter} text",
-                                            SAVE_ACTION_NAME));
-
-        this.doFillToolBar (acts);
-
-        acts.add (this.createToolbarButton (Constants.WORDCOUNT_ICON_NAME,
-                                            "Click to view the word counts and readability indices",
-                                            TOGGLE_WORDCOUNTS_ACTION_NAME));
-
-        String type = (this.viewer.isSpellCheckingEnabled () ? "off" : "on");
-
-        acts.add (this.createToolbarButton ("spellchecker-turn-" + type,
-                                            "Click to turn the spell checker " + type,
-                                            TOGGLE_SPELLCHECK_ACTION_NAME));
-
-        acts.add (this.createToolbarButton (Constants.DELETE_ICON_NAME,
-                                            "Click to delete this {Chapter}",
-                                            DELETE_CHAPTER_ACTION_NAME));
-
-        // Add a tools menu.
-        final JButton b = UIUtils.createToolBarButton ("tools",
-                                                       "Click to view the tools such as Print, Find Problems and Edit the text properties",
-                                                       "tools",
-                                                       null);
-
-        ActionAdapter ab = new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                JPopupMenu m = new JPopupMenu ();
-
-                _this.doFillToolsPopupMenu (ev,
-                                            m);
-
-                JMenuItem mi = null;
-
-                m.add (_this.createMenuItem ("Edit Text Properties",
-                                             Constants.EDIT_PROPERTIES_ICON_NAME,
-                                             EDIT_TEXT_PROPERTIES_ACTION_NAME,
-                                             KeyStroke.getKeyStroke (KeyEvent.VK_E,
-                                                                     ActionEvent.CTRL_MASK)));
-
-                m.add (_this.createMenuItem ("Find",
-                                             Constants.FIND_ICON_NAME,
-                                             Constants.SHOW_FIND_ACTION,
-                                             KeyStroke.getKeyStroke (KeyEvent.VK_F,
-                                                                     ActionEvent.CTRL_MASK)));
-
-                m.add (_this.createMenuItem ("Print {Chapter}",
-                                             Constants.PRINT_ICON_NAME,
-                                             QTextEditor.PRINT_ACTION_NAME,
-                                             KeyStroke.getKeyStroke (KeyEvent.VK_P,
-                                                                     ActionEvent.CTRL_MASK)));
-
-                m.show (b,
-                        10,
-                        10);
-
-            }
-
-        };
-
-        b.addActionListener (ab);
-
-        acts.add (b);
-
-    }
-
     public void saveObject ()
                      throws Exception
     {
@@ -650,7 +568,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
             prefix.add (LanguageStrings.format);
             prefix.add (LanguageStrings.popupmenu);
             prefix.add (LanguageStrings.items);
-        
+
             if (compress)
             {
 
@@ -750,7 +668,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
         prefix.add (LanguageStrings.edit);
         prefix.add (LanguageStrings.popupmenu);
         prefix.add (LanguageStrings.items);
-        
+
         String sel = this.editor.getSelectedText ();
 
         if (compress)
@@ -952,7 +870,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                     prefix.add (LanguageStrings.spellcheck);
                     prefix.add (LanguageStrings.popupmenu);
                     prefix.add (LanguageStrings.items);
-                
+
                     if (l.size () == 0)
                     {
 
@@ -1083,7 +1001,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                                                                                     LanguageStrings.popupmenu,
                                                                                                     LanguageStrings.items,
                                                                                                     LanguageStrings.find),
-                                                                           word));                                    
+                                                                           word));
                                         //mi = new JMenuItem ("Find synonyms for: " + word);
 
                                         mi.setIcon (Environment.getIcon ("find",
@@ -1099,7 +1017,7 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                                                                                     LanguageStrings.popupmenu,
                                                                                                     LanguageStrings.items,
                                                                                                     LanguageStrings.nosynonyms),
-                                                                           word));                                    
+                                                                           word));
                                         //mi = new JMenuItem ("(No synonyms for: " + word + ")");
                                         mi.setFont (mi.getFont ().deriveFont (Font.BOLD));
                                         mi.setEnabled (false);

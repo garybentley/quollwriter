@@ -37,13 +37,13 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
     private class ItemWrapper<E extends ChapterItem>
     {
-        
+
         public E item = null;
         public ImagePanel                   imagePanel = null;
         public QPopup popup = null;
-        
+
     }
-    
+
     private class StructureItemWrapper extends ItemWrapper<ChapterItem> {}
 
     private class NoteWrapper extends ItemWrapper<Note> {}
@@ -52,7 +52,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
     public static final int OUTLINE_ITEM_INDENT = 28;
     public static final int SCENE_INDENT = 28;
     public static final int EDIT_MARK_STROKE_WIDTH = 3;
-    
+
     //private AbstractEditorPanel                ep = null;
     private ChapterItemViewer<V> itemViewer = null;
     private Chapter chapter = null;
@@ -69,7 +69,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
     private PropertyChangedListener editPosChange = null;
     private QPopup currentPopup = null;
     private boolean singlePopupOnly = false;
-        
+
     public IconColumn (ChapterItemViewer<V>            itemViewer,
                        Chapter                         ch,
                        IconProvider                    iconProv,
@@ -79,122 +79,122 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
         this.setLayout (null);
 
         //this.ep = ep;
-               
+
         this.itemViewer = itemViewer;
         this.chapter = ch;
-                
+
         this.popupProvider = popupProv;
         this.iconProv = iconProv;
-                
+
         this.editor = this.itemViewer.getEditor ();
 
         this.editor.getDocument ().addDocumentListener (this);
 
         this.setBackground (IconColumn.defaultBGColor);
-                
+
         Image im = null;
-                                       
+
         this.dragIcon = new ImagePanel (im,
                                         im);
         this.add (this.dragIcon);
         this.dragIcon.setVisible (false);
-        
+
         final IconColumn _this = this;
-        
+
         // We keep a reference here because weak listeners are now used on dataobject which means that this
         // could stop being referenced.
         this.editPosChange = new PropertyChangedListener ()
         {
-            
+
             public void propertyChanged (PropertyChangedEvent ev)
             {
 
                 if (ev.getChangeType ().equals (Chapter.EDIT_POSITION))
                 {
-            
+
                     try
                     {
-    
+
                         _this.setEditPosition (_this.chapter.getEditPosition ());
-                        
+
                     } catch (Exception e) {
-                        
+
                         Environment.logError ("Unable to set edit position for chapter: " +
                                               _this.chapter,
                                               e);
-                        
+
                     }
 
                 }
-                
+
             }
-            
+
         };
-                         
+
         this.chapter.addPropertyChangedListener (this.editPosChange);
-                         
+
     }
 
     public V getViewer ()
     {
-        
+
         return this.itemViewer.getViewer ();
-        
+
     }
-    
+
     public ChapterItemViewer<V> getItemViewer ()
     {
-        
+
         return this.itemViewer;
-        
+
     }
-    
+
     public void setSinglePopupOnly (boolean v)
     {
-        
+
         this.singlePopupOnly = v;
-        
+
     }
-    
+
     public boolean isSinglePopupOnly ()
     {
-        
+
         return this.singlePopupOnly;
-        
+
     }
-    
+
     public void setItemMoveAllowed (boolean v)
     {
-        
+
         this.itemMoveAllowed = v;
-        
+
     }
-    
+
     public IconProvider getIconProvider ()
     {
-        
+
         return this.iconProv;
-        
+
     }
-    
+
     private ItemWrapper getWrapper (ChapterItem it)
     {
-        
+
         if (it instanceof Note)
         {
-            
+
             for (NoteWrapper nw : this.notes)
             {
-                
+
                 if (it == nw.item)
                 {
-                                    
+
                     return nw;
-                    
+
                 }
-                
+
             }
-            
+
         }
 
         if ((it instanceof Scene)
@@ -202,49 +202,49 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
             (it instanceof OutlineItem)
            )
         {
-            
+
             for (StructureItemWrapper sw : this.structureItems)
             {
-                
+
                 if (it == sw.item)
                 {
-                    
+
                     return sw;
-                    
+
                 }
-                
+
             }
-            
+
         }
 
         return null;
-        
+
     }
-    
+
     public void showItem (ChapterItem it)
     {
 
         if (this.singlePopupOnly)
         {
-            
+
             if (this.currentPopup != null)
             {
-                
+
                 this.currentPopup.removeFromParent ();
-                
+
             }
 
         }
-    
+
         if (this.itemViewer.getViewer ().isDistractionFreeModeEnabled ())
         {
-            
+
             java.util.List<String> prefix = new ArrayList ();
             prefix.add (LanguageStrings.iconcolumn);
             prefix.add (LanguageStrings.viewitem);
             prefix.add (LanguageStrings.distractionfreemode);
             prefix.add (LanguageStrings.popup);
-            
+
             this.itemViewer.getViewer ().showNotificationPopup (Environment.getUIString (prefix,
                                                                                          LanguageStrings.title),
                                                                 //"Function unavailable",
@@ -253,250 +253,250 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                                                 //"Sorry, you cannot view {Notes}, {Plot Outline Items} and {Scenes} while distraction free mode is enabled.<br /><br /><a href='help:full-screen-mode/distraction-free-mode'>Click here to find out why</a>",
                                                                 5);
 
-            return;            
-            
-        }    
-    
-        String viewError = Environment.getUIString (LanguageStrings.iconcolumn,
-                                                    LanguageStrings.viewitem,
-                                                    LanguageStrings.actionerror);
-    
+            return;
+
+        }
+
+        String viewError = String.format (Environment.getUIString (LanguageStrings.viewitem,
+                                                                   LanguageStrings.actionerror),
+                                          Environment.getObjectTypeName (it));
+
         ItemWrapper w = this.getWrapper (it);
-        
+
         if (w != null)
         {
-            
+
             if (w.popup != null)
             {
-                
+
                 w.popup.removeFromParent ();
-                
+
             }
-            
+
             Rectangle r = null;
-            
+
             int pos = w.item.getPosition ();
-            
+
             try
             {
-    
+
                 r = this.editor.modelToView (pos);
 
             } catch (Exception e)
             {
-    
+
                 // BadLocationException!
                 Environment.logError ("Unable to convert item: " +
                                       w.item +
                                       " at position: " +
                                       pos,
                                       e);
-    
+
                 UIUtils.showErrorMessage (this.itemViewer.getViewer (),
                                           viewError);
                                           //"Unable to display item.");
-    
+
                 return;
-    
+
             }
-            
+
             int y = r.y;
-                        
+
             QPopup popup = null;
-            
+
             try
             {
-            
+
                 popup = this.popupProvider.getViewPopup (w.item,
                                                          this.itemViewer);
-                
+
             } catch (Exception e) {
-                
+
                 Environment.logError ("Unable to get popup for item: " +
                                       w.item,
                                       e);
-    
+
                 UIUtils.showErrorMessage (this.itemViewer.getViewer (),
                                           viewError);
                                           //"Unable to display item.");
-                
+
                 return;
-                
+
             }
 
             if (popup == null)
             {
-                
+
                 Environment.logError ("Unable to get popup for item: " +
                                       w.item +
                                       ", got null popup.");
-    
+
                 UIUtils.showErrorMessage (this.itemViewer.getViewer (),
                                           viewError);
                                           //"Unable to display item.");
-                
+
                 return;
-                
+
             }
-            
+
             JScrollPane scrollPane = this.itemViewer.getScrollPane ();
 
             w.popup = popup;
-    
+
             if (w.item instanceof Note)
             {
-               
+
                 Note n = (Note) w.item;
-                
+
                 if (n.isEditNeeded ())
                 {
-                    
+
                     // Try and show the note above the selected text. (So it doesn't obscure it)
                     y = y - popup.getPreferredSize ().height - 22;
-                    
+
                     // Get where the selected text ends.
                     pos = n.getEndPosition ();
-                                    
+
                     try
                     {
-                                
+
                         if (y < scrollPane.getVerticalScrollBar ().getValue ())
                         {
-                            
-                            // We are going to potentially obscure it, show it below the first line.        
+
+                            // We are going to potentially obscure it, show it below the first line.
                             y = y + popup.getPreferredSize ().height + 22;
-                            
+
                         }
-            
+
                     } catch (Exception e)
                     {
-            
+
                         // Just ignore.
-            
+
                     }
-                    
-                    
+
+
                 }
-                
+
             }
-    
+
             y = 22 + y - scrollPane.getVerticalScrollBar ().getValue ();
-    
+
             // Adjust the bounds so that the form is fully visible.
             if ((y + popup.getPreferredSize ().height) > (scrollPane.getViewport ().getViewRect ().height + scrollPane.getVerticalScrollBar ().getValue ()))
             {
-    
+
                 y = y - 22 - popup.getPreferredSize ().height;
-    
+
             }
-    
+
             this.itemViewer.showPopupAt (popup,
                                          new Point (this.getWidth () - 20,
                                                     y),
                                          true);
             popup.setDraggable ((Component) this.itemViewer);
-            
+
             this.currentPopup = popup;
-            
+
         }
 
     }
-        
+
     public void hideItem (ChapterItem it)
     {
-        
+
         ItemWrapper w = this.getWrapper (it);
-        
+
         if ((w != null)
             &&
             (w.popup != null)
            )
         {
-            
+
             w.popup.removeFromParent ();
-            
+
         }
 
     }
-    
+
     public ImagePanel getImagePanel (ChapterItem it)
     {
-        
+
         ItemWrapper w = this.getWrapper (it);
-        
+
         if (w != null)
         {
-            
+
             return w.imagePanel;
-            
+
         }
-        
+
         return null;
-        
+
     }
 
     public void init ()
                       throws Exception
     {
-                
+
         this.removeAllItems ();
 
         this.setOutlineItems (this.chapter.getOutlineItems ());
-                                         
+
         this.setNotes (this.chapter.getNotes ());
 
         this.setScenes (this.chapter.getScenes ());
 
         this.setEditPosition (this.chapter.getEditPosition ());
-                
+
     }
-    
+
     public QTextEditor getEditor ()
     {
-        
+
         return this.editor;
-        
+
     }
-    
+
     /*
     public AbstractEditorPanel getEditorPanel ()
     {
-        
+
         return this.ep;
-        
+
     }
     */
     public ImagePanel getDragIcon ()
     {
-        
+
         return this.dragIcon;
-        
+
     }
-        
+
     public void setEditPosition (int    p)
                                  throws Exception
     {
-        
+
         if (p > 0)
         {
-            
+
             this.editPosition = this.editor.getDocument ().createPosition (p);
-            
+
             this.chapter.setTextEditPosition (this.editPosition);
-            
+
         } else {
-            
+
             this.editPosition = null;
-            
+
             this.chapter.setTextEditPosition (null);
-            
+
         }
 
         this.validate ();
         this.repaint ();
-        
+
     }
-    
+
     public void changedUpdate (DocumentEvent e)
     {
 
@@ -521,37 +521,37 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
     private Set<ChapterItem> getItemsForPosition (int               p,
                                                   java.util.List<? extends ItemWrapper> items)
     {
-        
+
         Set<ChapterItem> its = new TreeSet (new ChapterItemSorter ());
 
         int y = -1;
-        
+
         try
         {
-                        
+
             y = this.editor.modelToView (p).y;
-                                                                   
+
         } catch (Exception e) {
-            
+
             return null;
-            
-        }        
+
+        }
 
         int min = p - 1500;
         int max = p + 1500;
-        
+
         for (ItemWrapper w : items)
         {
-        
+
             int pp = w.item.getPosition ();
-        
+
             if (pp < min || pp > max)
             {
-                
+
                 continue;
-                
+
             }
-        
+
             Rectangle r = null;
 
             try
@@ -572,7 +572,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                 continue;
 
             }
-            
+
             if (r.y == y)
             {
 
@@ -580,15 +580,15 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
             }
 
-        }        
-        
+        }
+
         return its;
-        
+
     }
-    
+
     private Set<ChapterItem> getStructureItemsForPosition (int p)
     {
-        
+
         return this.getItemsForPosition (p,
                                          this.structureItems);
 
@@ -596,31 +596,31 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
     private Set<ChapterItem> getNotesForPosition (int p)
     {
-    
+
         return this.getItemsForPosition (p,
                                          this.notes);
 
     }
-    
+
     private boolean hasSceneItem (Set<ChapterItem> items)
     {
-        
+
         for (ChapterItem it : items)
         {
-            
+
             if (it instanceof Scene)
             {
-                
+
                 return true;
-                
+
             }
-            
+
         }
-        
+
         return false;
-        
+
     }
-    
+
     private void paintStructureItems (Graphics g)
     {
 
@@ -637,44 +637,44 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
             if (items == null)
             {
-                
+
                 continue;
-                
+
             }
-            
+
             ChapterItem c = items.iterator ().next ();
 
             if (c != null)
             {
-                
+
                 if (w.item != c)
                 {
 
                     w.imagePanel.setVisible (false);
-                    
+
                     continue;
-                    
+
                 }
-                
+
             }
-                                    
+
             int indent = OUTLINE_ITEM_INDENT;
-            
+
             if (w.item instanceof Scene)
             {
-                
+
                 indent = SCENE_INDENT;
-                
+
             }
-            
+
             w.imagePanel.setVisible (true);
-            
+
             w.imagePanel.setBounds (indent + insets.left,
                                     this.getYPosition (w.item.getPosition (),
                                                        g),
                                     w.imagePanel.getPreferredSize ().width,
                                     w.imagePanel.getPreferredSize ().height);
-       
+
         }
 
     }
@@ -683,7 +683,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
     {
 
         Insets insets = this.getInsets ();
-    
+
         Iterator iter = this.notes.iterator ();
 
         while (iter.hasNext ())
@@ -695,25 +695,25 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
             if (items == null)
             {
-                
+
                 continue;
-                
+
             }
-            
+
             ChapterItem c = items.iterator ().next ();
 
             if (c != null)
             {
-                
+
                 if (w.item != c)
                 {
 
                     w.imagePanel.setVisible (false);
-                    
+
                     continue;
-                    
+
                 }
-                
+
             }
 
             w.imagePanel.setVisible (true);
@@ -727,104 +727,104 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
         }
 
     }
-    
+
     public Point getLocation (ChapterItem item)
     {
-        
+
         return new Point (this.getIconIndent (item),
                           this.getYPosition (item.getPosition (),
                                              null));
-        
+
     }
-    
+
     public int getIconIndent (ChapterItem item)
     {
-        
+
         if (item instanceof Note)
         {
-            
+
             return NOTE_INDENT;
-            
+
         }
-        
+
         if (item instanceof OutlineItem)
         {
-            
+
             return OUTLINE_ITEM_INDENT;
-            
+
         }
 
         if (item instanceof Scene)
         {
-            
+
             return SCENE_INDENT;
-            
+
         }
-        
+
         return 0;
-        
+
     }
-    
+
     public int getYPosition (int      p,
                              Graphics g)
     {
-        
+
         try
         {
-                        
+
             Rectangle r = this.editor.modelToView (p);
-                                     
+
             if (g == null)
             {
-                
+
                 g = UIUtils.createThrowawayGraphicsInstance ();
-                
+
             }
-            
+
             FontMetrics fm = g.getFontMetrics (this.itemViewer.getEditor ().getFontForStyles ());
-                                
+
             return r.y + (int) ((fm.getHeight () - 16) / 2);
 
         } catch (Exception e) {
-            
+
             Environment.logError ("Unable to get y position for: " +
                                   p,
                                   e);
-            
+
         }
-            
+
         return -1;
-        
+
     }
-    
+
     private void paintEditMarker (Graphics g)
     {
-        
+
         if (this.editPosition == null)
         {
-                    
+
             return;
-            
+
         }
-        
+
         if (!UserProperties.getAsBoolean (Constants.SHOW_EDIT_MARKER_IN_CHAPTER_PROPERTY_NAME))
         {
-            
+
             return;
-            
+
         }
-        
+
         int w = this.getSize ().width;
-        
+
         Color c = UIUtils.getColor (UserProperties.get (Constants.EDIT_MARKER_COLOR_PROPERTY_NAME));
-        
+
         try
         {
-        
+
             Rectangle r = this.editor.modelToView (this.editPosition.getOffset ());
 
             FontMetrics fm = g.getFontMetrics (this.itemViewer.getEditor ().getFontForStyles ());
-  
+
             Graphics2D g2 = (Graphics2D) g;
 
             g2.setColor (c);
@@ -833,22 +833,22 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                          this.editor.modelToView (0).y,
                          w - EDIT_MARK_STROKE_WIDTH,
                          r.y + (int) (fm.getHeight ()));
-                                                                                                             
+
         }catch (Exception e) {
-            
+
         }
-        
+
     }
-    
+
     protected void paintChildren (Graphics g)
     {
 
         this.paintStructureItems (g);
-    
+
         this.paintNotes (g);
 
         this.paintEditMarker (g);
-        
+
         super.paintChildren (g);
 
     }
@@ -890,7 +890,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
     public void removeItem (ChapterItem item)
     {
-    
+
         if ((item instanceof OutlineItem)
             ||
             (item instanceof Scene)
@@ -908,9 +908,9 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                 {
 
                     this.structureItems.remove (w);
-        
+
                     this.remove (w.imagePanel);
-        
+
                     w.item.setTextPosition (null);
                     w.item.setEndTextPosition (null);
 
@@ -919,7 +919,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                 }
 
             }
-                        
+
         }
 
         if (item instanceof Note)
@@ -938,9 +938,9 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                 {
 
                     this.notes.remove (w);
-        
+
                     this.remove (w.imagePanel);
-        
+
                     w.item.setTextPosition (null);
                     w.item.setEndTextPosition (null);
 
@@ -949,7 +949,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                 }
 
             }
-            
+
         }
 
         this.validate ();
@@ -973,7 +973,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
     public void setScenes (java.util.Set<Scene>  items)
                     throws GeneralException
     {
-    
+
         for (Scene s : items)
         {
 
@@ -1031,23 +1031,23 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
 
     private void setMovable (ChapterItem item)
     {
-        
+
         if (this.itemMoveAllowed)
         {
-        
+
             new ChapterItemMoveMouseHandler (item,
-                                             this);                
+                                             this);
 
         }
-        
+
     }
-    
+
     private ImagePanel addStructureItem (final ChapterItem item)
                                   throws GeneralException
     {
 
         final IconColumn _this = this;
-    
+
         // Placeholder
         Image      img = null;
         ImagePanel p = new ImagePanel (img,
@@ -1058,8 +1058,8 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
         w.imagePanel = p;
 
         w.imagePanel.setImage (this.iconProv.getIcon (item,
-                                                      Constants.ICON_COLUMN).getImage ());            
-        
+                                                      Constants.ICON_COLUMN).getImage ());
+
         w.item = item;
         this.add (p);
 
@@ -1083,28 +1083,28 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                         e);
 
         }
-        
+
         this.setMovable (item);
-                
+
         p.addMouseListener (new MouseEventHandler ()
         {
-           
+
             @Override
             public void handlePress (MouseEvent ev)
             {
-                
+
                 _this.showItem (w.item);
-                
+
             }
-            
+
         });
 
         this.repaint ();
 
         return p;
-        
+
     }
-    
+
     public ImagePanel addItem (final OutlineItem      item)
                         throws GeneralException
     {
@@ -1126,7 +1126,7 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
     {
 
         final IconColumn _this = this;
-    
+
         // Placeholder
         Image      img = null;
         ImagePanel p = new ImagePanel (img,
@@ -1135,8 +1135,8 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
         final NoteWrapper w = new NoteWrapper ();
         w.imagePanel = p;
         w.imagePanel.setImage (this.iconProv.getIcon (n,
-                                                      Constants.ICON_COLUMN).getImage ());            
-        
+                                                      Constants.ICON_COLUMN).getImage ());
+
         w.item = n;
 
         this.add (p);
@@ -1165,28 +1165,28 @@ public class IconColumn<V extends AbstractProjectViewer> extends JPanel implemen
                                         e);
 
         }
-        
+
         this.setMovable (n);
 
         p.addMouseListener (new MouseAdapter ()
         {
-                
+
             public void mouseClicked (MouseEvent ev)
             {
 
                 if (ev.isPopupTrigger ())
                 {
-                    
+
                     return;
-                    
+
                 }
 
                 _this.showItem (w.item);
-                    
+
             }
 
         });
-                
+
         this.repaint ();
 
         return p;

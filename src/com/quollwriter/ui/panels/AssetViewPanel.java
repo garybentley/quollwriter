@@ -57,49 +57,49 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                a);
 
         Environment.addUserProjectEventListener (this);
-               
+
     }
-    
+
     @Override
     public ImageIcon getIcon (int type)
     {
-        
+
         int w = Environment.getIconPixelWidthForType (type);
-        
+
         ImageIcon im = null;
-        
+
         if (w == 24)
         {
-        
+
             im = this.getForObject ().getUserConfigurableObjectType ().getIcon24x24 ();
-        
+
         }
-        
+
         if (w == 16)
         {
-            
+
             im = this.getForObject ().getUserConfigurableObjectType ().getIcon16x16 ();
-            
+
         }
-        
+
         return im;
-        
+
     }
-    
+
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
 
         if (ev.getType ().equals (ProjectEvent.USER_OBJECT_TYPE))
         {
-            
+
             if (ev.getSource ().equals (this.getForObject ().getUserConfigurableObjectType ()))
             {
-              
+
                 this.refresh ();
-                
+
             }
-            
+
         }
 
     }
@@ -119,7 +119,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
     {
 
         final AssetViewPanel _this = this;
-    
+
         final AssetDetailsEditPanel p = new AssetDetailsEditPanel ((Asset) n,
                                                                    pv);
 
@@ -150,59 +150,60 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
             }
 
         });
-                                                             
+
         return p;
-                                                             
+
     }
 
     public static ActionListener getEditAssetAction (final ProjectViewer pv,
                                                      final Asset         a)
     {
-    
+
         return new ActionListener ()
         {
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 // Display the object then edit it.
                 pv.viewObject (a,
                                new ActionListener ()
                 {
-          
+
                     @Override
                     public void actionPerformed (ActionEvent ev)
                     {
-                        
+
                         AssetViewPanel p = (AssetViewPanel) pv.getQuollPanelForObject (a);
-                        
+
                         if (p == null)
                         {
-                            
+
                             Environment.logError ("Unable to edit asset: " +
                                                   a);
-                            
+
                             UIUtils.showErrorMessage (pv,
                                                       String.format (Environment.getUIString (LanguageStrings.assets,
                                                                                               LanguageStrings.edit,
                                                                                               LanguageStrings.actionerror),
-                                                                     a.getObjectTypeName ()));
-                            
+                                                                     a.getObjectTypeName (),
+                                                                     a.getName ()));
+
                             return;
-                            
+
                         }
-                        
+
                         p.editObject ();
-                        
+
                     }
-                    
+
                 });
-                
+
             }
-            
+
         };
-                        
+
     }
 
     public static ActionListener getDeleteAssetAction (final ProjectViewer pv,
@@ -219,7 +220,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                 prefix.add (LanguageStrings.assets);
                 prefix.add (LanguageStrings.delete);
                 prefix.add (LanguageStrings.confirmpopup);
-            
+
                 UIUtils.createQuestionPopup (pv,
                                              String.format (Environment.getUIString (prefix,
                                                                                      LanguageStrings.title),
@@ -255,10 +256,11 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                                                               e);
 
                                                         UIUtils.showErrorMessage (pv,
-                                                                                  Environment.getUIString (LanguageStrings.assets,
-                                                                                                           LanguageStrings.delete,
-                                                                                                           LanguageStrings.actionerror));
-                                                                                  //"Unable to delete");
+                                                                                  String.format (Environment.getUIString (LanguageStrings.assets,
+                                                                                                                          LanguageStrings.delete,
+                                                                                                                          LanguageStrings.actionerror),
+                                                                                                 a.getObjectTypeName (),
+                                                                                                 a.getName ()));
 
                                                     }
 
@@ -301,7 +303,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
         prefix.add (LanguageStrings.assets);
         prefix.add (LanguageStrings.view);
         prefix.add (LanguageStrings.toolbar);
-    
+
         final AssetViewPanel _this = this;
 
         final JButton b = UIUtils.createToolBarButton ("new",
@@ -352,7 +354,7 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                              "delete",
                                              this.getDeleteObjectAction (this.viewer,
                                                                          this.obj)));
-                                                     
+
     }
 
     public void doInit ()
@@ -441,8 +443,8 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
     public void doRefresh ()
     {
 
-        this.getHeader ().setIcon (this.obj.getUserConfigurableObjectType ().getIcon24x24 ());    
-    
+        this.getHeader ().setIcon (this.obj.getUserConfigurableObjectType ().getIcon24x24 ());
+
         if (this.appearsInPanel != null)
         {
 
@@ -470,22 +472,22 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
         prefix.add (LanguageStrings.view);
         prefix.add (LanguageStrings.popupmenu);
         prefix.add (LanguageStrings.items);
-    
+
         // Don't show the popup when we are editing the details.
         if (this.getDetailsPanel ().isEditing ())
         {
-            
+
             popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                         LanguageStrings.save),
                                                Constants.SAVE_ICON_NAME,
                                                this.getDetailsPanel ().getDoSaveAction ()));
-            
+
             return;
-            
+
         }
-    
+
         final AssetViewPanel _this = this;
-    
+
         popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                     LanguageStrings.edit),
                                            Constants.EDIT_ICON_NAME,
@@ -501,15 +503,15 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                            Constants.ADD_ICON_NAME,
                                            new ActionListener ()
                                            {
-                                            
+
                                                 @Override
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
-                                                    
+
                                                     _this.getObjectDocumentsEditPanel ().showAddDocument ();
-                                                    
+
                                                 }
-                                            
+
                                            }));
 
         popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
@@ -518,9 +520,9 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                            Constants.DELETE_ICON_NAME,
                                            this.getDeleteObjectAction (this.viewer,
                                                                        (Asset) this.obj)));
-    
+
         popup.addSeparator ();
-        
+
         popup.add (UIUtils.createMenuItem (String.format (Environment.getUIString (prefix,
                                                                                    LanguageStrings.editobjecttypeinfo),
                                                           //"Edit the %s information/fields",
@@ -528,18 +530,18 @@ public class AssetViewPanel extends AbstractObjectViewPanel<ProjectViewer, Asset
                                            Constants.EDIT_ICON_NAME,
                                            new ActionListener ()
                                            {
-                                             
+
                                                  @Override
                                                  public void actionPerformed (ActionEvent ev)
                                                  {
-                                                     
+
                                                      UIUtils.showObjectTypeEdit (_this.obj.getUserConfigurableObjectType (),
                                                                                  _this.viewer);
-                                                     
+
                                                  }
-                                             
+
                                            }));
-    
+
     }
-        
+
 }
