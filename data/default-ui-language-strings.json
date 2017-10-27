@@ -13,7 +13,13 @@
         "unabletostarterror" : "Unable to start {QW}",
         "alreadyrunningerror" : "It appears that {QW} is already running.  Please close the other instance before starting {QW} again."
     },
+    "importfile" : "Drop the file to begin the import",
     "shortcutprefix" : "Shortcut: Ctrl+Shift+",
+    "noobjectselectedpanel" :
+    {
+        "title" : "No ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel selected",
+        "text" : "<p>You are seeing this because no ${objectnames.singular.chapter}/${objectnames.singular.asset}/panel has been selected.</p><p>This usually happens when you have just deleted the item you were viewing.</p><p>To continue, just <a href='action:projectsidebar'>select an item from the sidebar</a>.</p>"
+    },
     "settingsmenu" :
     {
         ":comment" : "These items are used for the 'project' menu, the cog icon on a window, they are reused by most project 'viewers' hence the most frequently used items are defined here.",
@@ -376,7 +382,7 @@
             },
             "view" :
             {
-                "text" : "The layout tells Quoll Writer how you want to display the fields for your %1$s.  Certain fields like the object description and object image are given special locations in the layouts.  For <b>Columns of fields</b> it just means that the fields are laid out in the order given in the <b>Fields</b> tab.",
+                "text" : "The layout tells {QW} how you want to display the fields for your %1$s.  Certain fields like the object description and object image are given special locations in the layouts.  For <b>Columns of fields</b> it just means that the fields are laid out in the order given in the <b>Fields</b> tab.",
                 ":comment.text" : "%1$s is the object type plural name.",
                 ":scount.text" : 1,
                 "layouts" :
@@ -923,19 +929,75 @@
             }
         }
     },
+    "upgrade" :
+    {
+        "checkingfile" : "Checking the file...",
+        "newversionavailable" :
+        {
+            "text" : "A new version of {QW} is available.  <a href='help:version-changes/%1$s'>View the changes.</a>",
+            ":comment.text" : "%1$s is the new version id.",
+            ":scount.text" : 1,
+            "buttons" :
+            {
+                "download" : "Download now",
+                "later" : "Later"
+            }
+        },
+        "restart" :
+        {
+            "title" : "Restart {QW}",
+            "text" : "Version <b>%1$s</b> of {QW} has been downloaded.  To complete the upgrade you must exit {QW}, the installer will then guide you through the rest of the upgrade process.<br /><br />Would you like to exit now?",
+            ":comment.text" : "%1$s is the new version id.",
+            ":scount.text" : 1,
+            "buttons" :
+            {
+                "exitnow" : "Yes, exit now",
+                "exitlater" : "No, I'll exit later"
+            }
+        },
+        "download" :
+        {
+            "start" : "Downloading upgrade file for new version: <b>%1$s</b>",
+            ":comment.start" : "%1$s is the new version id.",
+            ":scount.start" : 1,
+            "inprogress" : "Downloading upgrade file for new version <b>%1$s</b> - %2$s of %3$s bytes",
+            ":comment.inprogress" : "%1$s is the new version id, $2$s is the number of bytes downloaded, %3$s is the size of the download file in bytes.",
+            ":scount.inprogress" : 3,
+            "complete" : "Download of upgrade file complete.",
+            "errors" :
+            {
+                "cantcreatetemporaryfile" : "Unable to create the temporary file for the download.",
+                "digestinvalid" : "Digest calculated from download file is not the same as gained from the server.",
+                "unabletodownload" : "Unable to download the upgrade file.",
+                "general" : "Unable to download/install the new version.  <a href='%1$s'>Click here to download the latest version from the {QW} website</a>",
+                ":comment.general" : "%1$s is the url for the Quoll Writer website.",
+                ":scount.general" : 1
+            }
+        }
+    },
     "viewitem" :
     {
         ":comment" : "This is a general purpose 'View this thing' action.  It is reused by a number of functions, such as editing a scene or outline item.",
         "actionerror" : "Unable to show %1$s.",
-        ":comment.actionerror" : "%1$s is the object type name of the item that cannot be edited.",
+        ":comment.actionerror" : "%1$s is the object type name of the item that cannot be viewed.",
         ":scount.actionerror" : 1
+    },
+    "linkitem" :
+    {
+        ":comment" : "This is a general purpose 'View this thing to something else' action.  It is reused by a number of functions, such as linking a scene or outline item.",
+        "tooltip" : "Click to link this %1$s to other items/objects",
+        ":comment.tooltip" : "%1$s is the object type name of the item.",
+        ":scount.tooltip" : 1
     },
     "edititem" :
     {
         ":comment" : "This is a general purpose 'Edit this thing' action.  It is reused by a number of functions, such as viewing a scene or outline item.",
         "actionerror" : "Unable to show %1$s.",
-        ":comment.actionerror" : "%1$s is the object type name of the item that cannot be shown.",
-        ":scount.actionerror" : 1
+        ":comment.actionerror" : "%1$s is the object type name of the item that cannot be edited.",
+        ":scount.actionerror" : 1,
+        "tooltip" : "Click to edit this %1$s",
+        ":comment.tooltip" : "%1$s is the object type name of the item.",
+        ":scount.tooltip" : 1
     },
     "deleteitem" :
     {
@@ -948,7 +1010,10 @@
         ":scount.text" : 3,
         "confirmword" : "Yes",
         "errorlabel" : "Please enter the word ${deleteitem.confirmword} to confirm the deletion.",
-        "confirm" : "Yes, delete it"
+        "confirm" : "Yes, delete it",
+        "tooltip" : "Click to delete this %1$s",
+        ":comment.tooltip" : "%1$s is the object type name of the item.",
+        ":scount.tooltip" : 1
     },
     "formatting" :
     {
@@ -1585,7 +1650,7 @@
         "warmuponstart" :
         {
             "name" : "Flex and stretch",
-            "description" : "Do a warm-up when Quoll Writer starts."
+            "description" : "Do a warm-up when {QW} starts."
         },
         "warmupwordsreached" :
         {
@@ -1705,7 +1770,7 @@
     },
     "tips" :
     {
-        "1" : "Quoll Writer has a Patreon page.  If you want to help speed up development why not consider donating?  <a href='https://www.patreon.com/quollwriter?ty=h'>Click here to view the Patreon page</a>",
+        "1" : "{QW} has a Patreon page.  If you want to help speed up development why not consider donating?  <a href='https://www.patreon.com/quollwriter?ty=h'>Click here to view the Patreon page</a>",
         "2" : "Did you know you can keep track of how much of a {chapter} you have edited?  Just right click at any point in the chapter and select <b>[Chapter] Edit</b> then [edit-point] <b>Set Edit Point</b>.",
         "3" : "Don't like what things are called?  <a href='action:editobjectnames'>Click here to change them.</a>",
         "4" : "There is an option to compress the right click menu you see when editing a {chapter}. <a href='action:options.editing'>Click here to view options.</a>",
@@ -1927,6 +1992,7 @@
                 },
                 "wordfinder" :
                 {
+                    "addtitle" : "Add new Word/Phrase rule",
                     "edittitle" : "Edit Word/Phrase Rule",
                     "nowordserror" : "Please enter at least one word or symbol.",
                     "description" :
@@ -3887,7 +3953,7 @@
                 "confirmpopup" :
                 {
                     "title" : "Problem/Bug reported",
-                    "text" : "Thank you, the problem has been logged with Quoll Writer support.  If you provided an email address then you should get a response within 2-3 days.  If not feel then free to send the message again."
+                    "text" : "Thank you, the problem has been logged with {QW} support.  If you provided an email address then you should get a response within 2-3 days.  If not feel then free to send the message again."
                 }
             },
             "contactsupport" :

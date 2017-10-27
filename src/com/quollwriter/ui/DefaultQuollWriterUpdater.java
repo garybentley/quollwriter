@@ -96,6 +96,10 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
     private void doDownload ()
     {
 
+        final java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.upgrade);
+        prefix.add (LanguageStrings.download);
+
         final DefaultQuollWriterUpdater _this = this;
 
         this.progressBar = new JProgressBar ();
@@ -106,7 +110,9 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
         Box c = new Box (BoxLayout.Y_AXIS);
 
-        this.help = UIUtils.createHelpTextPane (String.format ("Downloading upgrade file for new version: <b>%s</b>",
+        this.help = UIUtils.createHelpTextPane (String.format (Environment.getUIString (prefix,
+                                                                                        LanguageStrings.start),
+                                                                //"Downloading upgrade file for new version: <b>%s</b>",
                                                                version),
                                                 viewer);
         this.help.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -132,7 +138,9 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
         this.progressBar.setMaximumSize (new Dimension (500,
                                                         20));
 
-        this.cancel = new JButton ("Cancel");
+        this.cancel = UIUtils.createButton (Environment.getUIString (LanguageStrings.buttons,
+                                                                     LanguageStrings.cancel));
+                                                            //"Cancel");
 
         pb.add (this.cancel);
 
@@ -187,7 +195,10 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                                   _this.version + ".exe",
                                   e);
 
-            _this.showError ("Unable to create the temporary file for the download.");
+            _this.showError (Environment.getUIString (prefix,
+                                                      LanguageStrings.errors,
+                                                      LanguageStrings.cantcreatetemporaryfile));
+                                                      //"Unable to create the temporary file for the download.");
 
             return;
 
@@ -209,12 +220,18 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                 float perc = v * 90f;
 
-                _this.help.setText (String.format ("Downloading upgrade file for new version <b>%s</b> - %s of %s bytes",
+                _this.help.setText (String.format (Environment.getUIString (prefix,
+                                                                            LanguageStrings.inprogress),
+                                                                            //"Downloading upgrade file for new version <b>%s</b> - %s of %s bytes",
                                                    _this.version.getVersion (),
                                                    Environment.formatNumber (length),
                                                    Environment.formatNumber (size)));
 
                 _this.setProgress ((int) perc);
+
+                _this.help.setSize (new Dimension (500, _this.help.getPreferredSize ().height));
+                _this.downloadNotification.validate ();
+                _this.downloadNotification.repaint ();
 
               }
 
@@ -291,7 +308,9 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                         public void actionPerformed (ActionEvent ev)
                         {
 
-                            _this.help.setText (String.format ("Checking the file..."));
+                            _this.help.setText (Environment.getUIString (LanguageStrings.upgrade,
+                                                                         LanguageStrings.checkingfile));
+                                                                                        //)"Checking the file..."));
 
                         }
 
@@ -355,7 +374,10 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                     _this.setProgress (95);
 
                     // Digest calculated from download file is not the same as gained from the server.
-                    String digestNotEqualError = "Digest calculated from download file is not the same as gained from the server.";
+                    String digestNotEqualError = Environment.getUIString (prefix,
+                                                                          LanguageStrings.errors,
+                                                                          LanguageStrings.digestinvalid);
+                                                                          //"Digest calculated from download file is not the same as gained from the server.";
 
                     // Compare the digest with that gained from the server.
                     if (!Arrays.equals (ddigest,
@@ -373,7 +395,9 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                         public void actionPerformed (ActionEvent ev)
                         {
 
-                            _this.help.setText ("Download of upgrade file complete...");
+                            _this.help.setText (Environment.getUIString (prefix,
+                                                                         LanguageStrings.complete));
+                                                                         //"Download of upgrade file complete...");
 
                             _this.cancel.setVisible (false);
 
@@ -387,7 +411,11 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                     Map<String, ActionListener> buts = new LinkedHashMap ();
 
-                    buts.put ("Yes, exit now",
+                    buts.put (Environment.getUIString (LanguageStrings.upgrade,
+                                                       LanguageStrings.restart,
+                                                       LanguageStrings.buttons,
+                                                       LanguageStrings.exitnow),
+                                                       //"Yes, exit now",
                               new ActionListener ()
                     {
 
@@ -401,7 +429,11 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                     });
 
-                    buts.put ("No, I'll exit later",
+                    buts.put (Environment.getUIString (LanguageStrings.upgrade,
+                                                       LanguageStrings.restart,
+                                                       LanguageStrings.buttons,
+                                                       LanguageStrings.exitlater),
+                                                       //"No, I'll exit later",
                               new ActionListener ()
                     {
 
@@ -416,7 +448,10 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
                     });
 
                     UIUtils.createQuestionPopup (_this.viewer,
-                                                 "Restart Quoll Writer?",
+                                                 Environment.getUIString (LanguageStrings.upgrade,
+                                                                          LanguageStrings.restart,
+                                                                          LanguageStrings.title),
+                                                 //"Restart Quoll Writer?",
                                                  null,
                                                  String.format ("Version <b>%s</b> of Quoll Writer has been downloaded.  To complete the upgrade you must exit Quoll Writer, the installer will then guide you through the rest of the upgrade process.<br /><br />Would you like to exit now?",
                                                                 _this.version),
@@ -433,13 +468,13 @@ public class DefaultQuollWriterUpdater implements QuollWriterUpdater
 
                             try
                             {
-Environment.logMessage ("RUNNING: " + outFile.getPath ());
+
                                 java.util.List args = new ArrayList ();
                                 args.add (outFile.getPath ());
 
                                 ProcessBuilder pb = new ProcessBuilder (args);
                                 pb.start ();
-Environment.logMessage ("STARTED: " + outFile.getPath ());
+
                             } catch (Exception e) {
 
                                 Environment.logError ("Unable to run upgrade file: " +
@@ -458,7 +493,10 @@ Environment.logMessage ("STARTED: " + outFile.getPath ());
                     Environment.logError ("Unable to download the upgrade file",
                                           e);
 
-                    _this.showError ("Unable to download the upgrade file.");
+                    _this.showError (Environment.getUIString (prefix,
+                                                              LanguageStrings.errors,
+                                                              LanguageStrings.unabletodownload));
+                                                              //"Unable to download the upgrade file.");
 
                 }
 
@@ -537,8 +575,11 @@ Environment.logMessage ("STARTED: " + outFile.getPath ());
                             ib.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                               Short.MAX_VALUE));
 
-                            JTextPane p = UIUtils.createHelpTextPane (String.format ("A new version of %s is available.  <a href='help:version-changes/%s'>View the changes.</a>",
-                                                                                     Constants.QUOLL_WRITER_NAME,
+                            JTextPane p = UIUtils.createHelpTextPane (String.format (Environment.getUIString (LanguageStrings.upgrade,
+                                                                                                              LanguageStrings.newversionavailable,
+                                                                                                              LanguageStrings.text),
+                                                                                    //"A new version of %s is available.  <a href='help:version-changes/%s'>View the changes.</a>",
+                                                                                    // Constants.QUOLL_WRITER_NAME,
                                                                                      _this.version.getVersion ().replace (".",
                                                                                                                           "_")),
                                                                       viewer);
@@ -552,8 +593,16 @@ Environment.logMessage ("STARTED: " + outFile.getPath ());
                             ib.add (p);
                             ib.add (Box.createVerticalStrut (5));
 
-                            JButton installNow = new JButton ("Download now");
-                            JButton installLater = new JButton ("Later");
+                            JButton installNow = UIUtils.createButton (Environment.getUIString (LanguageStrings.upgrade,
+                                                                                                LanguageStrings.newversionavailable,
+                                                                                                LanguageStrings.buttons,
+                                                                                                LanguageStrings.download));
+                                                                                       //"Download now");
+                            JButton installLater = UIUtils.createButton (Environment.getUIString (LanguageStrings.upgrade,
+                                                                                                  LanguageStrings.newversionavailable,
+                                                                                                  LanguageStrings.buttons,
+                                                                                                  LanguageStrings.later));
+                                                                                       //"Later");
 
                             Box bb = new Box (BoxLayout.X_AXIS);
                             bb.add (installNow);
@@ -615,7 +664,11 @@ Environment.logMessage ("STARTED: " + outFile.getPath ());
     private void showGeneralError ()
     {
 
-        this.showError (String.format ("Unable to download/install the new version.  <a href='%s'>Click here to download the latest version from the Quoll Writer website</a>",
+        this.showError (String.format (Environment.getUIString (LanguageStrings.upgrade,
+                                                                LanguageStrings.download,
+                                                                LanguageStrings.errors,
+                                                                LanguageStrings.general),
+                                            //"Unable to download/install the new version.  <a href='%s'>Click here to download the latest version from the Quoll Writer website</a>",
                                        Environment.getProperty (Constants.QUOLLWRITER_DOWNLOADS_URL_PROPERTY_NAME)));
 
        this.downloadNotification.removeNotification ();
@@ -635,6 +688,8 @@ Environment.logMessage ("STARTED: " + outFile.getPath ());
             {
 
                 _this.progressBar.setValue (p);
+                _this.downloadNotification.validate ();
+                _this.downloadNotification.repaint ();
 
             }
 
@@ -683,11 +738,11 @@ Environment.logMessage ("STARTED: " + outFile.getPath ());
                                                  null);
 
             } else {
-                
+
                 Environment.closeDown ();
-                
+
             }
-            
+
         }
 
 

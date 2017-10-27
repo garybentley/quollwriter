@@ -31,64 +31,64 @@ import com.quollwriter.data.comparators.*;
 
 public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer> implements ChapterItemViewPopupProvider<V>
 {
-    
+
     private Map<String, ChapterItemFormatDetails> formatDetails = new HashMap ();
 
     private boolean showLinks = true;
-    
+
     public DefaultChapterItemViewPopupProvider ()
     {
-    
+
         this.formatDetails.put (OutlineItem.OBJECT_TYPE,
                                 new OutlineItemFormatDetails ());
         this.formatDetails.put (Scene.OBJECT_TYPE,
                                 new SceneFormatDetails ());
         this.formatDetails.put (Note.OBJECT_TYPE,
                                 new NoteFormatDetails ());
-        
+
     }
-    
+
     public void setShowLinks (boolean v)
     {
-        
+
         this.showLinks = v;
-        
+
     }
-        
+
     public boolean canDelete (ChapterItem item)
     {
-        
+
         return true;
-        
+
     }
-    
+
     public boolean canEdit (ChapterItem item)
     {
-        
+
         return true;
-        
+
     }
-    
+
     public void setFormatDetails (String                   objType,
                                   ChapterItemFormatDetails details)
     {
-        
+
         this.formatDetails.put (objType,
                                 details);
-        
-    }    
-    
+
+    }
+
     public QPopup getViewPopup (final ChapterItem          item,
                                 final ChapterItemViewer<V> panel)
                          throws GeneralException
     {
-                        
+
         final QTextEditor editor = panel.getEditor ();
 
         Rectangle r = null;
-        
+
         int pos = item.getPosition ();
-        
+
         try
         {
 
@@ -109,29 +109,29 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
 
         int min = pos - 1500;
         int max = pos + 1500;
-        
+
         java.util.Set<? extends ChapterItem> items = null;
-        
+
         if ((item instanceof Scene)
             ||
             (item instanceof OutlineItem)
            )
         {
-            
+
             items = item.getChapter ().getAllStructureItemsWithinRange (min,
                                                                         max);
-            
-        }
-        
-        if (item instanceof Note)
-        {
-            
-            items = item.getChapter ().getChapterItems (item.getObjectType ());
-            
+
         }
 
-        V viewer = panel.getViewer ();        
-        
+        if (item instanceof Note)
+        {
+
+            items = item.getChapter ().getChapterItems (item.getObjectType ());
+
+        }
+
+        V viewer = panel.getViewer ();
+
         final java.util.Set<ChapterItem> its = new TreeSet (new ChapterItemSorter ());
 
         for (ChapterItem it : items)
@@ -168,33 +168,33 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
             }
 
         }
-        
-        ChapterItem fitem = item;        
-        
+
+        ChapterItem fitem = item;
+
         if (its.size () > 1)
         {
 
             fitem = its.iterator ().next ();
-        
+
         }
-        
+
         ChapterItemFormatDetails formatter = formatDetails.get (fitem.getObjectType ());
 
         if (formatter == null)
         {
-            
+
             throw new IllegalArgumentException ("Item: " +
                                                 fitem +
                                                 " has no formatter.");
-            
-        }        
-        
+
+        }
+
         // Show a panel of all the items.
         final QPopup popup = UIUtils.createClosablePopup (Environment.replaceObjectNames (formatter.getTitle (fitem)),
                                                           Environment.getIcon (formatter.getIcon (fitem),
                                                                                Constants.ICON_POPUP),
                                                           null);
-        
+
         ActionAdapter aa = new ActionAdapter ()
         {
 
@@ -208,25 +208,25 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
         };
 
         popup.setOpaque (false);
-        
+
         Box b = new Box (BoxLayout.Y_AXIS);
 
         int count = 0;
 
         for (ChapterItem it : its)
         {
-        
+
             formatter = formatDetails.get (it.getObjectType ());
-    
+
             if (formatter == null)
             {
-                
+
                 throw new IllegalArgumentException ("Item: " +
                                                     it +
                                                     " has no formatter.");
-                
-            }        
-        
+
+            }
+
             int row = 1;
 
             FormLayout   summOnly = new FormLayout ("5px, fill:380px:grow, 5px",
@@ -243,7 +243,7 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
             // Annoying that we have to do this but it prevents the text from being too small.
             t.setSize (380,
                        Short.MAX_VALUE);
-            
+
             pb.add (t,
                     cc.xy (2,
                            row++));
@@ -262,75 +262,84 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
             }
 
             List<JComponent> buts = new ArrayList ();
-                           
+
             JButton mb = null;
 
             if (this.canEdit (it))
             {
-            
+
                 ActionListener aah = formatter.getEditItemActionHandler (it,
                                                                          panel);
-                            
+
                 mb = UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                            Constants.ICON_MENU,
-                                           "Click to edit this item.",
+                                           String.format (Environment.getUIString (LanguageStrings.edititem,
+                                                                                   LanguageStrings.tooltip),
+                                                          Environment.getObjectTypeName (it)),
+                                           //"Click to edit this item.",
                                            aah);
                 mb.setTransferHandler (null);
                 mb.addActionListener (aa);
-                
+
                 buts.add (mb);
-                                       
+
                 aah = formatter.getEditItemActionHandler (it,
                                                           panel);
-    
+
                 //aah.setShowLinkTo (this.showLinks);
 
                 if (this.showLinks)
                 {
-                
+
                     mb = UIUtils.createButton (Link.OBJECT_TYPE,
                                                Constants.ICON_MENU,
-                                               "Click to link this item to other items/objects.",
+                                               String.format (Environment.getUIString (LanguageStrings.linkitem,
+                                                                                       LanguageStrings.tooltip),
+                                                              Environment.getObjectTypeName (it)),
+                                               //"Click to link this item to other items/objects.",
                                                aah);
-        
+
                     mb.setActionCommand ("link");
                     mb.addActionListener (aa);
                     buts.add (mb);
-    
+
                 }
 
             }
-                
+
             Set<JComponent> tools = formatter.getTools (it,
                                                         panel);
-            
+
             if ((tools != null)
                 &&
                 (tools.size () > 0)
                )
             {
-                
-                buts.addAll (tools);    
-                
+
+                buts.addAll (tools);
+
             }
-            
+
             if (this.canDelete (it))
-            {                
-            
+            {
+
                 ActionListener dah = formatter.getDeleteItemActionHandler (it,
                                                                            panel,
                                                                            true);
-                            
+
                 JButton but = UIUtils.createButton (Constants.DELETE_ICON_NAME,
                                                     Constants.ICON_MENU,
-                                                    "Click to delete this item.",
+                                                    String.format (Environment.getUIString (LanguageStrings.deleteitem,
+                                                                                            LanguageStrings.tooltip),
+                                                                   Environment.getObjectTypeName (it)),
+                                                    //"Click to delete this item.",
                                                     dah);
                 but.addActionListener (aa);
-                
+
                 buts.add (but);
 
             }
-            
+
             JPanel pan = pb.getPanel ();
             pan.setOpaque (false);
 
@@ -351,13 +360,13 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
 
             if (buts.size () > 0)
             {
-            
+
                 pb.add (UIUtils.createButtonBar (buts),
                         cc.xy (2,
                                row++));
 
             }
-                               
+
             b.add (pan);
 
             count++;
@@ -366,56 +375,56 @@ public class DefaultChapterItemViewPopupProvider<V extends AbstractProjectViewer
 
         // Needed to trigger the component events.
         popup.setVisible (false);
-        
+
         // Need a nicer way of doing this.
         if (panel instanceof ChapterItemViewer)
         {
-        
+
             final ChapterItemViewer civ = (ChapterItemViewer) panel;
 
             ChapterItem it = null;
-            
+
             if (its.size () == 1)
             {
 
                 it = its.iterator ().next ();
 
             }
-        
+
             if (it != null)
             {
-        
+
                 final ChapterItem iitem = it;
-        
+
                 popup.addPopupListener (new PopupAdapter ()
                 {
-                   
+
                     @Override
                     public void popupShown (PopupEvent ev)
-                    {        
-        
+                    {
+
                         civ.highlightItemTextInEditor (iitem);
-                        
+
                     }
-                    
+
                     @Override
                     public void popupHidden (PopupEvent ev)
                     {
-                        
+
                         civ.removeItemHighlightTextFromEditor (iitem);
-                        
+
                     }
-                    
+
                 });
 
             }
-                
+
         }
-                    
+
         popup.setContent (b);
-        
+
         return popup;
-        
+
     }
-    
+
 }

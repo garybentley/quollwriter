@@ -58,6 +58,7 @@ public class LanguageStrings
     public static final String moretextindicator = "moretextindicator";
     public static final String choose = "choose";
     public static final String importfromfile = "importfromfile";
+    public static final String importfile = "importfile";
     public static final String options = "options";
     public static final String importfromproject = "importfromproject";
     public static final String selectfile = "selectfile";
@@ -325,6 +326,7 @@ public class LanguageStrings
     public static final String viewitem = "viewitem";
     public static final String edititem = "edititem";
     public static final String moveitem = "moveitem";
+    public static final String linkitem = "linkitem";
     public static final String manage = "manage";
     public static final String rename = "rename";
     public static final String colorchooser = "colorchooser";
@@ -495,6 +497,21 @@ public class LanguageStrings
     public static final String a4pages = "a4pages";
     public static final String documents = "documents";
     public static final String showfolder = "showfolder";
+    public static final String noobjectselectedpanel = "noobjectselectedpanel";
+    public static final String upgrade = "upgrade";
+    public static final String download = "download";
+    public static final String start = "start";
+    public static final String cantcreatetemporaryfile = "cantcreatetemporaryfile";
+    public static final String newversionavailable = "newversionavailable";
+    public static final String exitnow = "exitnow";
+    public static final String exitlater = "exitlater";
+    public static final String unabletodownload = "unabletodownload";
+    public static final String later = "later";
+    public static final String restart = "restart";
+    public static final String complete = "complete";
+    public static final String digestinvalid = "digestinvalid";
+    public static final String inprogress = "inprogress";
+    public static final String checkingfile = "checkingfile";
 
     private static String ID_PART_SEP = ".";
 

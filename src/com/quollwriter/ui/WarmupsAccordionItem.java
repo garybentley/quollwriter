@@ -18,24 +18,24 @@ import com.quollwriter.ui.renderers.*;
 
 public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsViewer>
 {
-        
+
     public WarmupsAccordionItem (WarmupsViewer pv)
     {
-        
+
         super (Environment.getObjectTypeNamePlural (Warmup.OBJECT_TYPE),
                Warmup.OBJECT_TYPE,
                pv);
-                        
+
     }
-    
+
     @Override
     public String getId ()
     {
-        
+
         return Warmup.OBJECT_TYPE;
-        
+
     }
-    
+
     @Override
     public void reloadTree ()
     {
@@ -43,10 +43,10 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.viewer.getProject (),
                                                                                         null,
                                                                                         null,
-                                                                                        false));        
-        
+                                                                                        false));
+
     }
-    
+
     @Override
     public void initTree ()
     {
@@ -54,7 +54,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (UIUtils.createChaptersTree (this.viewer.getProject (),
                                                                                         null,
                                                                                         null,
-                                                                                        false));        
+                                                                                        false));
     }
 
     @Override
@@ -72,23 +72,23 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                                        "add",
                                        this.viewer.getAction (WarmupsViewer.NEW_WARMUP_ACTION,
                                                               this.viewer.getProject ().getBooks ().get (0))));
-    
-    }    
-    
+
+    }
+
     public boolean showItemCountOnHeader ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     public int getItemCount ()
     {
-        
+
         int c = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class).size ();
-        
+
         return c;
-                
+
     }
 
     @Override
@@ -99,7 +99,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
         final WarmupsAccordionItem _this = this;
 
         final AbstractProjectViewer pv = this.viewer;
-        
+
         final TreePath tp = this.tree.getPathForLocation (ev.getX (),
                                                           ev.getY ());
 
@@ -114,7 +114,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
             prefix.add (LanguageStrings.warmups);
             prefix.add (LanguageStrings.treepopupmenu);
             prefix.add (LanguageStrings.items);
-        
+
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
             final DataObject d = (DataObject) node.getUserObject ();
@@ -144,7 +144,7 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                                                Constants.RENAME_ICON_NAME,
                                                pv.getAction (WarmupsViewer.RENAME_WARMUP_ACTION,
                                                              c)));
-                                                             
+
                 m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                         LanguageStrings.close),
                                                //"Close {Warmup}",
@@ -167,62 +167,61 @@ public class WarmupsAccordionItem extends ProjectObjectsAccordionItem<WarmupsVie
                                                Constants.DELETE_ICON_NAME,
                                                pv.getAction (WarmupsViewer.DELETE_WARMUP_ACTION,
                                                              c)));
-                
+
             }
 
-        } 
-        
+        }
+
     }
-    
+
     @Override
     public TreeCellEditor getTreeCellEditor (WarmupsViewer pv)
     {
-        
-        return new WarmupsProjectTreeCellEditor (pv,
-                                                 tree);
-                
+
+        return null;
+
     }
-    
+
     public int getViewObjectClickCount (Object d)
     {
-        
+
         return 1;
-        
+
     }
-    
+
     @Override
     public boolean isAllowObjectPreview ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     @Override
     public boolean isTreeEditable ()
     {
-        
-        return true;
-        
+
+        return false;
+
     }
-    
+
     @Override
     public boolean isDragEnabled ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     @Override
     public DragActionHandler getTreeDragActionHandler (WarmupsViewer pv)
     {
-        
+
         return null;
 /*
         return new ChapterTreeDragActionHandler ((ProjectViewer) pv,
                                                  tree);
-  */      
+  */
     }
-        
+
 }

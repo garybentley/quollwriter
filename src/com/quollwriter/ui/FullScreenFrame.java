@@ -618,7 +618,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.fullscreen);
         prefix.add (LanguageStrings.distractionfreemode);
-                                     
+
         this.distModeButton.setToolTipText ((this.distractionFreeModeEnabled ?
                                              Environment.getUIString (prefix,
                                                                       LanguageStrings.exit)
@@ -657,7 +657,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
             prefix.add (LanguageStrings.fullscreen);
             prefix.add (LanguageStrings.distractionfreemode);
             prefix.add (LanguageStrings.firsttimepopup);
-        
+
             this.projectViewer.showNotificationPopup (Environment.getUIString (prefix,
                                                                                LanguageStrings.title),
                                                       Environment.getUIString (prefix,
@@ -1640,7 +1640,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 java.util.List<String> prefix = new ArrayList ();
                 prefix.add (LanguageStrings.fullscreen);
                 prefix.add (LanguageStrings.info);
-            
+
                 info.setVisible (UserProperties.getAsBoolean (Constants.FULL_SCREEN_SHOW_TIME_WORD_COUNT_PROPERTY_NAME));
 
                 time.setText (_this.clockFormat.format (new Date ()));
@@ -1671,14 +1671,14 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                 //"Session word count");
 
                 String pl = LanguageStrings.words;
-                
+
                 if (sessWC == 1)
                 {
-                    
+
                     pl = LanguageStrings.word;
-                    
+
                 }
-                
+
                 sessWords.setText (String.format ("%s %s%s",
                                                   Environment.formatNumber (sessWC),
                                                   Environment.getUIString (prefix,
@@ -1718,14 +1718,14 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
                     //"{Chapter} word count");
 
                     pl = LanguageStrings.words;
-                    
+
                     if (cc.wordCount == 1)
                     {
-                        
+
                         pl = LanguageStrings.word;
-                        
+
                     }
-                    
+
                     chapWords.setText (String.format ("%s %s%s",
                                                       Environment.formatNumber (cc.wordCount),
                                                       Environment.getUIString (prefix,
@@ -1882,7 +1882,7 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
         prefix.add (LanguageStrings.title);
         prefix.add (LanguageStrings.toolbar);
         prefix.add (LanguageStrings.buttons);
-        
+
         this.distModeButton = UIUtils.createButton (Constants.DISTRACTION_FREE_ICON_NAME,
                                                     Constants.ICON_TITLE_ACTION,
                                                     Environment.getUIString (prefix,
@@ -2558,77 +2558,6 @@ public class FullScreenFrame extends JFrame implements PopupsSupported, SideBarL
 
     }
 
-/*
-    private void setBackgroundImage (File f)
-    {
-
-        if (f == null)
-        {
-
-            return;
-
-        }
-
-        Properties userProps = Environment.getUserProperties ();
-
-        if (!f.exists ())
-        {
-
-            UIUtils.showErrorMessage (this,
-                                      "Background image file no longer exists.");
-
-            userProps.removeProperty (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME);
-
-            try
-            {
-
-                Environment.saveUserProperties (userProps);
-
-            } catch (Exception e) {
-
-                Environment.logError ("Unable to save user properties",
-                                      e);
-
-            }
-
-            return;
-
-        }
-
-        final Dimension d = Toolkit.getDefaultToolkit ().getScreenSize ();
-
-        // Set the background image.
-        ImageIcon im = new ImageIcon (f.getPath ());
-
-        Image image = im.getImage ().getScaledInstance (d.width,
-                                                        -1,
-                                                        Image.SCALE_FAST);
-
-        this.bgImagePanel.setCurrentImage (image);
-
-        FileProperty fp = new FileProperty (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME,
-                                            f,
-                                            Properties.FILE,
-                                            false);
-        fp.setDescription ("Full screen background image");
-
-        userProps.setProperty (Constants.FULL_SCREEN_BG_IMAGE_PROPERTY_NAME,
-                               fp);
-
-        try
-        {
-
-            Environment.saveUserProperties (userProps);
-
-        } catch (Exception e) {
-
-            Environment.logError ("Unable to save user properties",
-                                  e);
-
-        }
-
-    }
-*/
     private void showOverlayPanel (JComponent c)
     {
 

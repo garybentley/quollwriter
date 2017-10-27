@@ -826,14 +826,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
             return new AddNewNoteTypeActionHandler (this);
 
         }
-/*
-        if (name == ProjectViewer.NEW_ITEM_TYPE_ACTION)
-        {
 
-            return new AddNewItemTypeActionHandler (this);
-
-        }
-*/
         if (name == ProjectViewer.MANAGE_NOTE_TYPES_ACTION)
         {
 

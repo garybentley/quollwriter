@@ -140,12 +140,4 @@ public abstract class AbstractDialogueRule extends AbstractRule<Sentence> implem
 
     }
 
-    @Override
-    public String getEditFormTitle (boolean add)
-    {
-
-        return (add ? "Add new Word/Phrase rule" : "Edit: " + this.getSummary ());
-
-    }
-
 }

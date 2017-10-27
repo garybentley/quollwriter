@@ -88,13 +88,18 @@ public class WordFinder extends AbstractDialogueRule
     @Override
     public String getEditFormTitle (boolean add)
     {
-        
-        return (add ? null : Environment.getUIString (LanguageStrings.problemfinder,
-                                                      LanguageStrings.config,
-                                                      LanguageStrings.rules,
-                                                      LanguageStrings.wordfinder,
-                                                      LanguageStrings.edittitle));
-        
+
+        return (add ? Environment.getUIString (LanguageStrings.problemfinder,
+                                               LanguageStrings.config,
+                                               LanguageStrings.rules,
+                                               LanguageStrings.wordfinder,
+                                               LanguageStrings.addtitle)
+                    : Environment.getUIString (LanguageStrings.problemfinder,
+                                               LanguageStrings.config,
+                                               LanguageStrings.rules,
+                                               LanguageStrings.wordfinder,
+                                               LanguageStrings.edittitle));
+
     }
 
     private String getWhereDesc ()
@@ -111,14 +116,14 @@ public class WordFinder extends AbstractDialogueRule
             pref.add (LanguageStrings.rules);
             pref.add (LanguageStrings.wordfinder);
             pref.add (LanguageStrings.description);
-        
+
             String s = (this.ignoreInDialogue ? Environment.getUIString (pref,
                                                                          LanguageStrings.suffixes,
                                                                          LanguageStrings.ignoreindialogue) :
                                                 Environment.getUIString (pref,
                                                                          LanguageStrings.suffixes,
                                                                          LanguageStrings.onlyindialogue));
-        
+
             if (this.where.equals (DialogueConstraints.ANYWHERE))
             {
 
@@ -226,11 +231,11 @@ public class WordFinder extends AbstractDialogueRule
                 String suffix = "";
 
                 List<String> pref = new ArrayList ();
-                
+
                 pref.add (LanguageStrings.problemfinder);
                 pref.add (LanguageStrings.issues);
                 pref.add (LanguageStrings.wordfinder);
-                
+
                 if (this.onlyInDialogue)
                 {
 
@@ -250,24 +255,24 @@ public class WordFinder extends AbstractDialogueRule
                         suffix = Environment.getUIString (pref,
                                                           LanguageStrings.suffixes,
                                                           LanguageStrings.indialogue);
-                        
+
                     } else {
-                        
+
                         suffix = Environment.getUIString (pref,
                                                           LanguageStrings.suffixes,
                                                           LanguageStrings.notindialogue);
 
                     }
-                        
+
                     suffix = String.format (suffix,
                                             this.where);
-                        
+
                 }
 
                 Issue iss = new Issue (String.format (Environment.getUIString (pref,
                                                                                LanguageStrings.text),
                                                       this.word,
-                                                      suffix),                                                                               
+                                                      suffix),
                                         //"Contains: <b>" + this.word + "</b>" + suffix,
                                        sentence,
                                        w.getAllTextStartOffset (),
@@ -348,7 +353,7 @@ public class WordFinder extends AbstractDialogueRule
         pref.add (LanguageStrings.rules);
         pref.add (LanguageStrings.wordfinder);
         pref.add (LanguageStrings.labels);
-        
+
         this.words = new TextFormItem (Environment.getUIString (pref,
                                                                 LanguageStrings.wordphrase),
                                                                 //"Word/Phrase",
@@ -368,7 +373,7 @@ public class WordFinder extends AbstractDialogueRule
         //"End of sentence");
 
         String selected = whereVals.get (0);
-        
+
         String loc = this.getWhere ();
 
         if (loc.equals (DialogueConstraints.START))
@@ -456,7 +461,7 @@ public class WordFinder extends AbstractDialogueRule
     {
 
         String newWords = this.words.getText ();
-        
+
         if ((newWords == null)
             ||
             (newWords.trim ().length () == 0)
