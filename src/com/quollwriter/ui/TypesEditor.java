@@ -41,49 +41,76 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.events.*;
 
-public abstract class TypesEditor extends Box implements PropertyChangedListener 
+public abstract class TypesEditor<V extends AbstractViewer, H extends TypesHandler> extends Box implements PropertyChangedListener
 {
 
-    private TypesHandler handler = null;
+    private H handler = null;
     private DefaultTableModel typeModel = null;
-    private AbstractViewer viewer = null;
+    protected V viewer = null;
 
-    public TypesEditor (AbstractViewer pv,
-                        TypesHandler   handler)
+    public TypesEditor (V pv)
     {
 
         super (BoxLayout.Y_AXIS);
-        
+
         this.viewer = pv;
-        this.handler = handler;
-        
-        this.handler.addPropertyChangedListener (this);
-        
+
     }
-    
+
+    public abstract H getTypesHandler ();
+
     @Override
     public void propertyChanged (PropertyChangedEvent ev)
     {
-        
+
         this.reloadTypes ();
-        
+
     }
 
-    public TypesHandler getTypesHandler ()
+    public String getNewItemsTitle ()
     {
-        
-        return this.handler;
-        
-    }
-    
-    public abstract String getTypesName ();
-    
-    public abstract String getNewTypeHelp ();
 
-    public String getHelpText ()
+        return Environment.getUIString (LanguageStrings.manageitems,
+                                        LanguageStrings.newitems,
+                                        LanguageStrings.title);
+                                        //"New Items";
+
+    }
+
+    public String getNewItemSeparators ()
+    {
+
+        return Environment.getUIString (LanguageStrings.manageitems,
+                                        LanguageStrings.newitems,
+                                        LanguageStrings.separators);
+                                        //",;";
+
+    }
+
+    public String getExistingItemsTitle ()
+    {
+
+        return Environment.getUIString (LanguageStrings.manageitems,
+                                        LanguageStrings.table,
+                                        LanguageStrings.title);
+                                        //"Current Items";
+
+    }
+
+    public String getExistingItemsHelp ()
     {
 
         return null;
+
+    }
+
+    public String getNewItemsHelp ()
+    {
+
+        return Environment.getUIString (LanguageStrings.manageitems,
+                                        LanguageStrings.newitems,
+                                        LanguageStrings.text);
+                                        //"Enter the new items to add below, separate each item with commas or semi-colons.";
 
     }
 
@@ -91,39 +118,60 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
     public void init ()
     {
 
-        final TypesEditor _this = this;
+        this.handler = this.getTypesHandler ();
 
-        
-        //Box b = new Box (BoxLayout.Y_AXIS);
+        if (this.handler == null)
+        {
+
+            throw new IllegalStateException ("Expected a types handler to be available.");
+
+        }
+
+        this.handler.addPropertyChangedListener (this);
+
+        final java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.manageitems);
+
+        final TypesEditor _this = this;
 
         this.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.setOpaque (true);
         this.setBackground (null);
         this.add (Box.createVerticalStrut (5));
 
-        this.add (UIUtils.createBoldSubHeader (String.format ("New %s",
-                                                              this.getTypesName ()),
+        this.add (UIUtils.createBoldSubHeader (this.getNewItemsTitle (),
                                                null));
 
-        JTextPane tp = UIUtils.createHelpTextPane (String.format ("Enter the new %s to add below, separate the %s with commas or semi-colons.",
-                                                                  this.getTypesName ().toLowerCase (),
-                                                                  this.getTypesName ().toLowerCase ()),
-                                                   this.viewer);
+        String newhelp = this.getNewItemsHelp ();
 
-        tp.setBorder (new EmptyBorder (5,
-                                       5,
-                                       0,
-                                       5));
+        if (newhelp != null)
+        {
 
-        this.add (tp);
+            JTextPane tp = UIUtils.createHelpTextPane (newhelp,
+                                                       this.viewer);
+
+            tp.setBorder (UIUtils.createPadding (5, 5, 0, 5));
+
+            this.add (tp);
+
+        }
 
         final JTextField newTypes = UIUtils.createTextField ();
         newTypes.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         final JTable typeTable = UIUtils.createTable ();
         typeTable.setTableHeader (null);
-        typeTable.setToolTipText ("Double click to edit, press Enter when done.");
-                
+
+        if (this.handler.typesEditable ())
+        {
+
+            typeTable.setToolTipText (Environment.getUIString (prefix,
+                                                               LanguageStrings.table,
+                                                               LanguageStrings.tooltip));
+                                                               //"Double click to edit, press Enter when done.");
+
+        }
+
         typeTable.setModel (new DefaultTableModel ()
         {
 
@@ -140,60 +188,65 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
         UIUtils.listenToTableForCellChanges (typeTable,
                                              new ActionAdapter ()
         {
-           
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 TableCellListener tcl = (TableCellListener) ev.getSource ();
-                
+
                 _this.handler.renameType (tcl.getOldValue ().toString (),
                                           tcl.getNewValue ().toString (),
                                           true);
-                
+
             }
-            
-        });        
-        
+
+        });
+
         typeTable.addMouseListener (new MouseEventHandler ()
         {
-                        
+
             @Override
             public void fillPopup (final JPopupMenu m,
                                    final MouseEvent ev)
             {
-                
+
                 final int rowInd = typeTable.rowAtPoint (ev.getPoint ());
-                        
+
                 if (rowInd < 0)
                 {
-                    
+
                     return;
-                    
+
                 }
-                        
+
                 typeTable.setRowSelectionInterval (rowInd,
                                                    rowInd);
 
-                m.add (UIUtils.createMenuItem ("Edit",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.table,
+                                                                        LanguageStrings.popupmenu,
+                                                                        LanguageStrings.items,
+                                                                        LanguageStrings.edit),
+                                                                        //"Edit",
                                                Constants.EDIT_ICON_NAME,
                                                new ActionListener ()
                                                {
-                                                
+
                                                     @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
+
                                                         typeTable.editCellAt (rowInd,
                                                                               0);
-                                                        
+
                                                     }
-                                                
+
                                                }));
-                
+
             }
-            
+
         });
-        
+
         this.typeModel = (DefaultTableModel) typeTable.getModel ();
 
         this.reloadTypes ();
@@ -202,15 +255,15 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
         fb.add (newTypes);
         fb.add (Box.createVerticalStrut (5));
-        fb.setBorder (new EmptyBorder (5,
-                                       5,
-                                       20,
-                                       5));
+        fb.setBorder (UIUtils.createPadding (5, 5, 20, 5));
 
-        final JButton add = new JButton ("Add");
+        final JButton add = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                           LanguageStrings.newitems,
+                                                                           LanguageStrings.add));
+                                                                  //"Add");
 
         JButton[] buts = new JButton[] { add };
-        
+
         final ActionAdapter aa = new ActionAdapter ()
         {
 
@@ -220,7 +273,7 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
                 String n = newTypes.getText ();
 
                 StringTokenizer t = new StringTokenizer (n,
-                                                         ",;");
+                                                         _this.getNewItemSeparators ());
 
                 while (t.hasMoreTokens ())
                 {
@@ -251,30 +304,27 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
                                             aa);
 
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
-        
+
         this.add (fb);
-        
-        this.add (UIUtils.createBoldSubHeader (Environment.replaceObjectNames (this.getTypesName ()),
+
+        this.add (UIUtils.createBoldSubHeader (this.getExistingItemsTitle (),
                                                null));
 
         fb = new Box (BoxLayout.Y_AXIS);
         fb.setAlignmentX (Component.LEFT_ALIGNMENT);
-        fb.setBorder (new EmptyBorder (5,
-                                       5,
-                                       0,
-                                       5));                                            
-                                            
-        if (this.getNewTypeHelp () != null)
+        fb.setBorder (UIUtils.createPadding (5, 5, 0, 5));
+
+        if (this.getExistingItemsHelp () != null)
         {
-                                            
-            tp = UIUtils.createHelpTextPane (Environment.replaceObjectNames (this.getNewTypeHelp ()),
-                                             this.viewer);
+
+            JTextPane tp = UIUtils.createHelpTextPane (this.getExistingItemsHelp (),
+                                                       this.viewer);
             tp.setBorder (null);
             fb.add (tp);
             fb.add (Box.createVerticalStrut (10));
 
         }
-        
+
         final JScrollPane ppsp = UIUtils.createScrollPane (typeTable);
 
         typeTable.setPreferredScrollableViewportSize (new Dimension (-1,
@@ -282,10 +332,13 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
 
         fb.add (ppsp);
 
-        final JButton remove = new JButton ("Remove Selected");
+        final JButton remove = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                              LanguageStrings.table,
+                                                                              LanguageStrings.remove));
+                                                                              //"Remove Selected");
 
         buts = new JButton[] { remove };
-        
+
         remove.addActionListener (new ActionAdapter ()
         {
 
@@ -304,25 +357,27 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
 
                     // Remove the row.
                     m.removeRow (selection[i]);
-                    
+
                     _this.handler.removeType (s,
                                               true);
 
                 }
 
-                ((DefaultListSelectionModel) typeTable.getSelectionModel ()).clearSelection ();
+                //((DefaultListSelectionModel) typeTable.getSelectionModel ()).clearSelection ();
 
             }
 
         });
 
         fb.add (Box.createVerticalStrut (5));
-        
+
         fb.add (UIUtils.createButtonBar2 (buts, Component.LEFT_ALIGNMENT));
 
         this.add (fb);
-        
-        JButton finish = new JButton ("Finish");
+
+        JButton finish = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                        LanguageStrings.finish));
+                                                                        //"Finish");
 
         finish.addActionListener (new ActionAdapter ()
         {
@@ -339,13 +394,13 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
         buts = new JButton[] { finish };
 
         JPanel bp = UIUtils.createButtonBar2 (buts,
-                                              Component.CENTER_ALIGNMENT); 
+                                              Component.CENTER_ALIGNMENT);
         bp.setOpaque (false);
 
         this.add (Box.createVerticalStrut (10));
-        
-        this.add (bp);        
-        
+
+        this.add (bp);
+
         //return b;
 
     }
@@ -359,20 +414,20 @@ public abstract class TypesEditor extends Box implements PropertyChangedListener
 
         for (String i : types)
         {
-            
+
             Vector d = new Vector ();
             d.add (i);
-                        
+
             typeData.add (d);
-            
+
         }
 
         Vector<String> cols = new Vector ();
-        cols.add (this.getTypesName ());
+        cols.add ("bogus");//this.getTypesName ());
 
         this.typeModel.setDataVector (typeData,
                                       cols);
-        
+
     }
 /*
     public JButton[] getButtons ()

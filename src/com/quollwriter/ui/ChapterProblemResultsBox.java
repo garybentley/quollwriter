@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Enumeration;
+import java.util.ArrayList;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -46,7 +47,7 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                iconType,
                forObjType,
                viewer);
-               
+
         this.problems = problems;
 
     }
@@ -55,6 +56,14 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
     public void fillTreePopupMenu (JPopupMenu m,
                                    MouseEvent ev)
     {
+
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.problemfinder);
+        prefix.add (LanguageStrings.results);
+        prefix.add (LanguageStrings.treepopupmenu);
+        prefix.add (LanguageStrings.items);
 
         final ChapterProblemResultsBox _this = this;
 
@@ -75,7 +84,9 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
                 Issue issue = (Issue) d;
 
-                m.add (UIUtils.createMenuItem ("Ignore this problem",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.ignore),
+                                                                        //"Ignore this problem",
                                                Constants.ERROR_ICON_NAME,
                                                new ActionListener ()
                                                {
@@ -105,7 +116,9 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
                 Chapter c = (Chapter) d;
 
-                m.add (UIUtils.createMenuItem ("Ignore all problems for this {chapter}",
+                m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                        LanguageStrings.ignoreall),
+                                                                        //"Ignore all problems for this {chapter}",
                                                Constants.ERROR_ICON_NAME,
                                                new ActionListener ()
                                                {
@@ -218,19 +231,27 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                                   c,
                                   e);
 
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.sidebar);
+            prefix.add (LanguageStrings.problemfinder);
+            prefix.add (LanguageStrings.ignore);
+
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to save ignore.");
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to save ignore.");
 
         }
 
     }
-    
+
     @Override
     public void initTree ()
     {
 
         final ChapterProblemResultsBox _this = this;
-        
+
         this.tree.setCellRenderer (new DefaultTreeCellRenderer ()
         {
 
@@ -301,10 +322,10 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
         });
 
         PopupPreviewListener mm = new PopupPreviewListener (this);
-        
+
         this.tree.addMouseMotionListener (mm);
-        this.tree.addMouseListener (mm);        
-        
+        this.tree.addMouseListener (mm);
+
         DefaultMutableTreeNode tn = new DefaultMutableTreeNode (this.viewer.getProject ());
 
         UIUtils.createTree (this.problems,
@@ -327,18 +348,18 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
         this.updateItemCount (this.count);
 
         this.setContentVisible (true);
-        
-        
+
+
     }
 
     @Override
     public boolean isAllowObjectPreview ()
     {
-        
+
         return false;
-        
+
     }
-    
+
     @Override
     public void handleViewObject (TreePath tp,
                                   Object   o)
@@ -358,16 +379,16 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
             this.showChapterIssue (c,
                                    i);
-                               
+
         }
-        
+
         if (o instanceof Chapter)
         {
 
-            this.toggleTreePath (tp);        
-        
+            this.toggleTreePath (tp);
+
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
-            
+
             // Damn son this is fugly.
             if ((node.getChildCount () == 1)
                 &&
@@ -375,19 +396,19 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
                                                                          node.getUserObject ())))
                )
             {
-                
+
                 DefaultMutableTreeNode n = node.getFirstLeaf ();
-                
+
                 TreePath tpp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) this.tree.getModel ().getRoot (),
                                                                  n.getUserObject ());
-                
+
                 this.handleViewObject (tpp,
-                                       n.getUserObject ());                
-                                
+                                       n.getUserObject ());
+
                 this.tree.setSelectionPath (tpp);
-                    
+
             }
-            
+
         }
 
     }
@@ -469,37 +490,37 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
     private class PopupPreviewListener extends MouseEventHandler
     {
-        
+
         private HideablePopup popup = null;
         private Issue lastObject = null;
         private ChapterProblemResultsBox results = null;
-                          
+
         public PopupPreviewListener (ChapterProblemResultsBox results)
         {
-            
+
             this.results = results;
-                              
+
         }
-        
+
         @Override
         public void handlePress (MouseEvent ev)
         {
-            
+
             if (this.popup != null)
             {
-            
+
                 this.popup.hidePopup ();
-                
+
             }
-            
+
         }
-        
+
         @Override
         public void mouseMoved (MouseEvent ev)
         {
-        
+
             final PopupPreviewListener _this = this;
-        
+
             // Edit the chapter.
             TreePath tp = this.results.tree.getPathForLocation (ev.getX (),
                                                                 ev.getY ());
@@ -515,100 +536,100 @@ public class ChapterProblemResultsBox extends FindResultsBox<ProjectViewer>
 
             if (!(d instanceof Issue))
             {
-                
+
                 return;
-                
+
             }
-                                    
+
             if (this.popup != null)
             {
-                
+
                 this.popup.hidePopup ();
-                                    
+
             }
-            
+
             if ((this.lastObject != null)
                 &&
                 (d != this.lastObject)
                )
             {
-                
+
                 // Hide the popup.
                 this.popup.hidePopup ();
-                
+
             }
-                    
+
             final Issue issue = (Issue) d;
-                            
+
             this.lastObject = issue;
-            
+
             Point po = this.results.viewer.convertPoint (this.results.getTree (),
                                                          new Point (ev.getX () + 10,
                                                                     this.results.getTree ().getPathBounds (tp).y + this.results.getTree ().getPathBounds (tp).height - 5));
 
             this.popup = new HideablePopup (this.results.getViewer ())
             {
-                
+
                 @Override
                 public JComponent getContent ()
                 {
-                    
+
                     JEditorPane desc = UIUtils.createHelpTextPane (issue.getDescription (),
                                                                    null);
-        
+
                     FormLayout fl = new FormLayout ("380px",
                                                     "p");
-        
+
                     PanelBuilder pb = new PanelBuilder (fl);
-        
+
                     CellConstraints cc = new CellConstraints ();
-        
+
                     pb.add (desc, cc.xy (1, 1));
-        
+
                     desc.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
                     JPanel p = pb.getPanel ();
                     p.setOpaque (true);
                     p.setBackground (UIUtils.getComponentColor ());
-                    
+
                     return p;
-                  
+
                 }
             };
-            
+
             // Show the first line of the description.
             this.popup.show (1000,
                              250,
                              po,
                              new ActionAdapter ()
                              {
-                                
+
                                 public void actionPerformed (ActionEvent ev)
                                 {
-                                    
+
                                     _this.lastObject = null;
-                                    
+
                                 }
-                                
+
                              });
-                            
+
         }
-        
+
         @Override
         public void mouseExited (MouseEvent ev)
         {
 
             this.lastObject = null;
-        
+
             if (this.popup != null)
             {
-        
+
                 this.popup.hidePopup ();
-                
+
             }
 
-        }        
-        
+        }
+
     }
-    
+
 }

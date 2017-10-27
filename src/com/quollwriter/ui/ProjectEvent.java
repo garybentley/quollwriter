@@ -6,7 +6,7 @@ import com.quollwriter.data.*;
 
 public class ProjectEvent extends EventObject
 {
-    
+
     public static final String FULL_SCREEN = "fullscreen";
     public static final String DISTRACTION_FREE = "distractionfree";
     public static final String TYPE_WRITER_SOUND = "typewritersound";
@@ -43,7 +43,7 @@ public class ProjectEvent extends EventObject
     public static final String USER_OBJECT_TYPE_FIELD = "userobjecttypefield";
     public static final String TAGS = "tags";
     public static final String TAG = "tag";
-    
+
     public static final String CHANGE_BACKGROUND = "changebackground";
     public static final String CHANGE_LANGUAGE = "changelanguage";
     public static final String OPEN = "open";
@@ -66,6 +66,7 @@ public class ProjectEvent extends EventObject
     public static final String REPLACE = "replace";
     public static final String CHANGED_DIRECTORY = "changeddirectory";
     public static final String ADD_WORD = "addword";
+    public static final String REMOVE_WORD = "removeword";
     public static final String IGNORE = "ignore";
     public static final String UNIGNORE = "unignore";
     public static final String NEW_RULE = "newrule";
@@ -92,21 +93,21 @@ public class ProjectEvent extends EventObject
     public static final String CHANGE_LINE_INDENT = "changelineindent";
     public static final String CHANGE_HIGHLIGHT_WRITING_LINE = "changehighlightwritingline";
     public static final String CHANGE_TEXT_BORDER = "changetextborder";
-    
+
     private String type = null;
     private String action = null;
     private Object contextObject = null;
-    
+
     public ProjectEvent (Object source,
                          String type,
                          String action)
     {
-        
+
         super (source);
-        
+
         this.type = type;
         this.action = action;
-        
+
     }
 
     public ProjectEvent (Object source,
@@ -114,82 +115,82 @@ public class ProjectEvent extends EventObject
                          String action,
                          Object contextObject)
     {
-        
+
         this (source,
               type,
               action);
-        
+
         this.contextObject = contextObject;
-                
+
     }
-    
+
     public ProjectEvent (Object source,
                          String type)
     {
-        
+
         this (source,
               type,
               "*");
-                        
+
     }
 
     public ProjectEvent (Object source,
                          String type,
                          Object contextObject)
     {
-        
+
         this (source,
               type,
               "*",
               contextObject);
-                        
+
     }
 
     public ProjectEvent (Object     source,
                          DataObject contextObject,
                          String     action)
     {
-        
+
         this (source,
               contextObject.getObjectType (),
               action,
               contextObject);
-                        
+
     }
-    
+
     public Object getContextObject ()
     {
-        
+
         return this.contextObject;
-        
+
     }
-    
+
     public String getAction ()
     {
-        
+
         return this.action;
-        
+
     }
-    
+
     public String getType ()
     {
-        
+
         return this.type;
-        
+
     }
 
     public String toString ()
     {
-        
+
         return this.getEventId ();
-        
+
     }
 
     public String getEventId ()
     {
-        
-        return this.type + (this.action != null ? this.action : "");
-        
+
+        return this.type + (this.action != null ? "." + this.action : "");
+
     }
-        
+
 }

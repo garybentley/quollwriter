@@ -39,71 +39,76 @@ import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 import com.quollwriter.db.*;
 
-public class EditProjectStatuses extends TypesEditor
+public class EditProjectStatuses extends TypesEditor<AbstractViewer, UserPropertyHandler>
 {
+
+    private java.util.List<String> prefix = new ArrayList<> ();
 
     public EditProjectStatuses (AbstractViewer viewer)
     {
 
-        super (viewer,
-               Environment.getUserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME));
+        super (viewer);
+
+        this.prefix.add (LanguageStrings.project);
+        this.prefix.add (LanguageStrings.status);
+        this.prefix.add (LanguageStrings.actions);
+        this.prefix.add (LanguageStrings.manage);
+
+    }
+
+    @Override
+    public UserPropertyHandler getTypesHandler ()
+    {
+
+        return Environment.getUserPropertyHandler (Constants.PROJECT_STATUSES_PROPERTY_NAME);
 
     }
 
     public void removePropertyChangedListener (PropertyChangedListener l)
     {
-        
-        ((UserPropertyHandler) this.getTypesHandler ()).removePropertyChangedListener (l);
-        
+
+        this.getTypesHandler ().removePropertyChangedListener (l);
+
     }
-    
+
     public void addPropertyChangedListener (PropertyChangedListener l)
     {
 
-        ((UserPropertyHandler) this.getTypesHandler ()).addPropertyChangedListener (l);
-        
-    }
-    
-    public String getWindowTitle ()
-    {
-
-        return "Manage the {Project} Statuses";
+        this.getTypesHandler ().addPropertyChangedListener (l);
 
     }
 
-    public String getHeaderTitle ()
+    @Override
+    public String getNewItemsTitle ()
     {
 
-        return "Manage the {Project} Statuses";
+        return Environment.getUIString (this.prefix,
+                                        LanguageStrings._new,
+                                        LanguageStrings.title);
+        //return "New {Project} Statuses";
 
     }
 
-    public String getHeaderIconType ()
+    @Override
+    public String getExistingItemsTitle ()
     {
 
-        return Constants.EDIT_ICON_NAME;
+        return Environment.getUIString (this.prefix,
+                                        LanguageStrings.table,
+                                        LanguageStrings.title);
+        //return "Current {Project} Statuses";
 
     }
 
-    public String getHelpText ()
+    @Override
+    public String getNewItemsHelp ()
     {
 
-        return null;
+        return Environment.getUIString (this.prefix,
+                                        LanguageStrings._new,
+                                        LanguageStrings.text);
+        //return "Enter the new statuses to add below, separate each status with a comma or semi-colon.";
 
-    }
-
-    public String getNewTypeHelp ()
-    {
-        
-        return null;
-        
-    }
-
-    public String getTypesName ()
-    {
-        
-        return "{Project} Statuses";
-        
     }
 
 }

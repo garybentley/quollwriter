@@ -59,7 +59,8 @@
             "document" : "Document",
             "idea" : "Idea",
             "tag" : "Tag",
-            "asset" : "Asset"
+            "asset" : "Asset",
+            "book" : "Book"
         },
         "plural" :
         {
@@ -79,7 +80,8 @@
             "document" : "Documents",
             "idea" : "Ideas",
             "tag" : "Tags",
-            "asset" : "Assets"
+            "asset" : "Assets",
+            "book" : "Books"
         },
         "changer" :
         {
@@ -879,7 +881,9 @@
         "find" : "Find",
         "print" : "Print",
         "findproblems" : "Find Problems",
-        "edittextproperties" : "Edit Text Properties"
+        "edittextproperties" : "Edit Text Properties",
+        "clicktoview" : "Click to view",
+        "doubleclicktoview" : "Double click to view"
 
     },
     "sidebars" :
@@ -891,6 +895,32 @@
         "othersidebarselect" :
         {
             "tooltip" : "Click to select another sidebar"
+        }
+    },
+    "manageitems" :
+    {
+        ":comment" : "This is general purpose 'manage these things' actions.  It is used as the base for managing project statuses, the personal dictionary and note types.",
+        "finish" : "${actions.finish}",
+        "newitems" :
+        {
+            "title" : "New Items",
+            "separators" : ",;",
+            "text" : "Enter the new items to add below, separate each item with a comma or semi-colon.",
+            "add" : "${actions.add}",
+            "actionerror" : "Unable to add new word(s)."
+        },
+        "table" :
+        {
+            "remove" : "Remove Selected",
+            "title" : " Current Items",
+            "tooltip" : "Double click to edit, press Enter when done.",
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "edit" : "${actions.edit}"
+                }
+            }
         }
     },
     "viewitem" :
@@ -2729,6 +2759,66 @@
             "type" : "Type",
             "webpage" : "Web Page"
         },
+        "documents" :
+        {
+            "title" : "${objectnames.plural.document}",
+            "add" :
+            {
+                "actionerror" : "Unable to add file.",
+                "finder" :
+                {
+                    "title" : "Select a file",
+                    "button" : "${actions.select}"
+                },
+                "errors" :
+                {
+                    "valueexists" :
+                    {
+                        "title" : "Already have that ${objectnames.singular.document}",
+                        "text" : "<b>%1$s</b> already has that ${objectnames.singular.document} associated with it.",
+                        ":comment.text" : "%1$s is the asset name.",
+                        ":scount.text" : 1
+                    }
+                }
+            },
+            "viewitem" :
+            {
+                "tooltip" : "Click to view the file, right click to see the menu.",
+                "errortooltip" : "Unable to find file, right click to remove.",
+                "actionerror" : "Unable to open file.",
+                "errors" :
+                {
+                    "invalidvalue" :
+                    {
+                        "title" : "File cannot be opened",
+                        "text" : "The file cannot be opened, this is usually because the file or its parent folder have been moved or deleted."
+                    }
+                },
+                "popupmenu" :
+                {
+                    "items" :
+                    {
+                        "open" : "${actions.open}",
+                        "showfolder" : "Show Folder",
+                        "remove" : "${actions.remove}"
+                    }
+                }
+            },
+            "remove" :
+            {
+                "actionerror" : "Unable to remove ${objectnames.singular.document}"
+            },
+            "headercontrols" :
+            {
+                "items" :
+                {
+                    "add" :
+                    {
+                        "tooltip" : "Click to add a new ${objectnames.singular.document}"
+                    }
+                }
+            }
+        },
         "view" :
         {
             "actionerror" : "Unable to view %1$s <b>%2$s</b>.",
@@ -3084,6 +3174,25 @@
     },
     "project" :
     {
+        "status" :
+        {
+            "actions" :
+            {
+                "manage" :
+                {
+                    "title" : "Manage the ${objectnames.singular.project} Statuses",
+                    "new" :
+                    {
+                        "title" : "New Project Statuses",
+                        "text" : "Enter the new statuses to add below, separate each status with a comma or semi-colon."
+                    },
+                    "table" :
+                    {
+                        "title" : "Current Statuses"
+                    }
+                }
+            }
+        },
         "editorpanel" :
         {
             "popupmenu" :
@@ -3293,7 +3402,7 @@
                 },
                 "seteditcomplete" :
                 {
-                    "actionerror" : "Unable to set ${objectnames.singular.chapter} as edit complete."
+                    "actionerror" : "Unable to change edit status of the ${objectnames.singular.chapter}."
                 },
                 "seteditposition" :
                 {
@@ -3327,10 +3436,6 @@
                 }
             },
             "tooltip" : "Double click to add a new type of Object, right click to see the menu.",
-            "viewitem" :
-            {
-                "tooltip" : "Click to view."
-            },
             "section" :
             {
                 "title" :
@@ -3345,6 +3450,49 @@
             "targets" :
             {
                 "title" : "Targets"
+            },
+            "wordcount" :
+            {
+                "title" : "Word Counts",
+                "valuepercent" : "%1$s / %2$s%%",
+                "helplink" : "Click to find out more about<br />the Readability indices",
+                "viewdetaillink" : "View Detail",
+                ":comment.valuepercent" : "This is used whenever a 'words with percentage' value is output, such as 1,000 / 10%.  %1$s is the number of words.  %2$s is the percentage.  The %% is needed to output a single %.",
+                "headercontrols" :
+                {
+                    "items" :
+                    {
+                        "statistics" :
+                        {
+                            "tooltip" : "Click to view the detail"
+                        }
+                    }
+                },
+                "labels" :
+                {
+                    "edited" : "Edited",
+                    "readability" : "Readability",
+                    "fk" : "Flesch-Kincaid",
+                    "fr" : "Flesch Reading",
+                    "gf" : "Gunning Fog",
+                    "words" : "words",
+                    "chapters" : "${objectnames.plural.chapter}",
+                    "a4pages" : "A4 pages",
+                    "totalwords" : "words, total",
+                    "projectwords" : "words, this ${objectnames.singular.project}",
+                    "sparkline" : "past %1$s days, <b>%2$s%3$s</b> words",
+                    ":comment.sparkline7days" : "%1$s is the number of days the sparkline is showing.  %2$s is a +/- indicator showing whether the word count has gone up or down.  %3$s is the number of words.",
+                    ":scount.sparkline7days" : 3,
+                    "sparkline30days" : "past 30 days, <b>%1$s%2$s</b> words",
+                    ":comment.sparkline30days" : "%1$s is a +/- indicator showing whether the word count has gone up or down.  %2$s is the number of words.",
+                    ":scount.sparkline30days" : 2
+                },
+                "sectiontitles" :
+                {
+                    "selected" : "Selected text",
+                    "session" : "This session",
+                    "allchapters" : "All ${objectnames.plural.chapter}"
+                }
             },
             "problemfinder" :
             {
@@ -3368,9 +3516,21 @@
                     ":comment.plural" : "%1$s is the number of problems (greater than 1) that have been ignored for the problem.",
                     ":scount.plural" : 1
                 },
+                "ignore" :
+                {
+                    "actionerror" : "Unable to save ignore."
+                },
                 "results" :
                 {
-                    "title" : "Found"
+                    "title" : "Found",
+                    "treepopupmenu" :
+                    {
+                        "items" :
+                        {
+                            "ignore" : "Ignore this problem",
+                            "ignoreall" : "Ignore all problems for this ${objectnames.singular.chapter}"
+                        }
+                    }
                 },
                 "notfound" : "No problems found.",
                 "loading" : "Finding problems... please wait...",
@@ -3454,6 +3614,59 @@
                         "delete" : "${actions.delete}",
                         "view" : "${actions.view}",
                         "edit" : "${actions.edit}"
+                    }
+                }
+            },
+            "chapters" :
+            {
+                "headerpopupmenu" :
+                {
+                    "items" :
+                    {
+                        "new" : "Add New ${objectnames.singular.chapter}"
+                    }
+                },
+                "treepopupmenu" :
+                {
+                    "items" :
+                    {
+                        "delete" : "${actions.delete} ${objectnames.singular.chapter}",
+                        "view" : "${actions.view} ${objectnames.singular.chapter} Information",
+                        "edit" : "${actions.edit} ${objectnames.singular.chapter}",
+                        "seteditcomplete" : "Set as Edit Complete",
+                        "seteditneeded" : "Set as Edit Needed",
+                        "removeeditposition" : "Remove Edit Point",
+                        "newbelow" : "Add New ${objectnames.singular.chapter} Below",
+                        "new" : "Add New ${objectnames.singular.chapter}",
+                        "rename" : "Rename ${objectnames.singular.chapter}",
+                        "close" : "Close ${objectnames.singular.chapter}"
+                    },
+                    "outlineitems" :
+                    {
+                        "items" :
+                        {
+                            "delete" : "${actions.delete}",
+                            "view" : "${actions.view}",
+                            "edit" : "${actions.edit}"
+                        }
+                    },
+                    "scenes" :
+                    {
+                        "items" :
+                        {
+                            "delete" : "${actions.delete}",
+                            "view" : "${actions.view}",
+                            "edit" : "${actions.edit}"
+                        }
+                    },
+                    "notes" :
+                    {
+                        "items" :
+                        {
+                            "delete" : "${actions.delete}",
+                            "view" : "${actions.view}",
+                            "edit" : "${actions.edit}"
+                        }
                     }
                 }
             }

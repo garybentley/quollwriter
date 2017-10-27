@@ -6687,38 +6687,57 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
      *
      * @param chapter The chapter to mark as edit complete.
      * @param editComplete Whether the chapter is edit complete or not.
-     * @throws Exception If something goes wrong like not being able to save the chapter.
      */
     public void setChapterEditComplete (Chapter chapter,
                                         boolean editComplete)
-                                 throws Exception
     {
 
-        chapter.setEditComplete (editComplete);
-
-        AbstractEditorPanel p = (AbstractEditorPanel) this.getEditorForChapter (chapter);
-
-        int pos = 0;
-
-        if (p != null)
+        try
         {
 
-            pos = Utils.stripEnd (p.getEditor ().getText ()).length ();
+            chapter.setEditComplete (editComplete);
 
-        } else {
+            AbstractEditorPanel p = (AbstractEditorPanel) this.getEditorForChapter (chapter);
 
-            String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+            int pos = 0;
 
-            pos = Utils.stripEnd (t).length ();
+            if (p != null)
+            {
+
+                pos = Utils.stripEnd (p.getEditor ().getText ()).length ();
+
+            } else {
+
+                String t = (chapter.getText () != null ? chapter.getText ().getText () : "");
+
+                pos = Utils.stripEnd (t).length ();
+
+            }
+
+            chapter.setEditPosition (pos);
+
+            this.saveObject (chapter,
+                             false);
+
+            this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to set chapter edit complete: " +
+                                  chapter,
+                                  e);
+
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.editorpanel);
+            prefix.add (LanguageStrings.actions);
+
+            UIUtils.showErrorMessage (this,
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.seteditcomplete,
+                                                               LanguageStrings.actionerror));
 
         }
-
-        chapter.setEditPosition (pos);
-
-        this.saveObject (chapter,
-                         false);
-
-        this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
 
     }
 
@@ -6776,16 +6795,36 @@ public abstract class AbstractProjectViewer extends AbstractViewer implements Pr
     }
 
     public void removeChapterEditPosition (Chapter chapter)
-                                    throws Exception
     {
 
-        chapter.setEditComplete (false);
-        chapter.setEditPosition (-1);
+        try
+        {
 
-        this.saveObject (chapter,
-                         false);
+            chapter.setEditComplete (false);
+            chapter.setEditPosition (-1);
 
-        this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+            this.saveObject (chapter,
+                             false);
+
+            this.reloadTreeForObjectType (Chapter.OBJECT_TYPE);
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to remove edit position for chapter: " +
+                                  chapter,
+                                  e);
+
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.editorpanel);
+            prefix.add (LanguageStrings.actions);
+
+            UIUtils.showErrorMessage (this,
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.removeeditposition,
+                                                               LanguageStrings.actionerror));
+
+        }
 
     }
 

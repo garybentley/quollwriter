@@ -6581,7 +6581,7 @@ public class UIUtils
         web.setForeground (new Color (112,
                                       149,
                                       226));
-        web.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
+        UIUtils.setAsButton (web);
 
         web.addMouseListener (new MouseEventHandler ()
         {

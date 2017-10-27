@@ -469,7 +469,32 @@ public class LanguageStrings
     public static final String on = "on";
     public static final String off = "off";
     public static final String objectpreview = "objectpreview";
+    public static final String newbelow = "newbelow";
     public static final String edittextproperties = "edittextproperties";
+    public static final String chapters = "chapters";
+    public static final String scenes = "scenes";
+    public static final String outlineitems = "outlineitems";
+    public static final String seteditneeded = "seteditneeded";
+    public static final String ignoreall = "ignoreall";
+    public static final String manageitems = "manageitems";
+    public static final String newitems = "newitems";
+    public static final String separators = "separators";
+    public static final String status = "status";
+    public static final String clicktoview = "clicktoview";
+    public static final String doubleclicktoview = "doubleclicktoview";
+    public static final String readability = "readability";
+    public static final String projectwords = "projectwords";
+    public static final String totalwords = "totalwords";
+    public static final String selected = "selected";
+    public static final String edited = "edited";
+    public static final String allchapters = "allchapters";
+    public static final String viewdetaillink = "viewdetaillink";
+    public static final String helplink = "helplink";
+    public static final String sparkline = "sparkline";
+    public static final String valuepercent = "valuepercent";
+    public static final String a4pages = "a4pages";
+    public static final String documents = "documents";
+    public static final String showfolder = "showfolder";
 
     private static String ID_PART_SEP = ".";
 

@@ -27,7 +27,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
     {
 
         this.showObjectIcons = showObjectIcons;
-    
+
     }
 
     public Component getTreeCellRendererComponent (JTree   tree,
@@ -48,13 +48,13 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                                             hasFocus);
 
         this.setBorder (new EmptyBorder (2, 2, 2, 2));
-        
+
         this.setOpaque (false);
-                                            
+
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
         value = node.getUserObject ();
-                
+
         if (value instanceof DataObject)
         {
 
@@ -68,67 +68,65 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
             this.setIcon (ic);
 
         } else {
-            
+
             this.setIcon (null);
-            
+
         }
-        
+
         if (value instanceof NamedObject)
         {
 
             String n = ((NamedObject) value).getName ();
-            
+
             if (value instanceof TreeParentNode)
             {
-                
+
                 TreeParentNode t = (TreeParentNode) value;
-                
+
                 if (t.getCount () > -1)
                 {
-                    
+
                     n += " (" + t.getCount () + ")";
-                    
+
                 }
-                
+
             }
-        
+
             this.setText (n);
 
         }
 
-        this.setToolTipText (Environment.getUIString (LanguageStrings.project,
-                                                      LanguageStrings.sidebar,
-                                                      LanguageStrings.viewitem,
-                                                      LanguageStrings.tooltip));
+        this.setToolTipText (Environment.getUIString (LanguageStrings.actions,
+                                                      LanguageStrings.clicktoview));
         //"Click to view");
         this.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
 
         return this;
 
     }
-    
+
     public Icon getIcon (DataObject             d,
                          DefaultMutableTreeNode par)
     {
-                        
+
         if ((d instanceof Asset)
             &&
             (this.showObjectIcons)
            )
         {
-            
+
             return ((Asset) d).getUserConfigurableObjectType ().getIcon16x16 ();
-            
+
         }
-        
+
         String ot = this.getIconType (d,
                                       par);
-        
+
         Icon ic = null;
-        
+
         if (ot != null)
         {
-            
+
             ic = (Icon) this.icons.get (ot);
 
             if (ic == null)
@@ -136,7 +134,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
                 ic = Environment.getIcon (ot,
                                           Constants.ICON_TREE);
-    
+
                 this.icons.put (ot,
                                 ic);
 
@@ -144,79 +142,79 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
         }
 
-        return ic;        
-        
+        return ic;
+
     }
-        
+
     public String getIconType (DataObject             d,
                                DefaultMutableTreeNode par)
     {
-        
+
         String ot = null;
-        
+
         if (d instanceof Note)
         {
 
             Note n = (Note) d;
 
             //DefaultMutableTreeNode par = (DefaultMutableTreeNode) node.getParent ();
-            
+
             if (par.getUserObject () instanceof TreeParentNode)
             {
-                                
+
                 if (n.isEditNeeded ())
                 {
-                    
+
                     ot = Constants.EDIT_NEEDED_NOTE_ICON_NAME;
-                    
+
                 } else {
-                    
+
                     ot = Constants.BULLET_BLACK_ICON_NAME;//n.getObjectType ();
-                    
+
                 }
-                
+
             } else {
-        
+
                 ot = Constants.BULLET_BLACK_ICON_NAME;
-                
+
             }
-            
+
             if (n.isDealtWith ())
             {
-                
+
                 ot = Constants.SET_DEALT_WITH_ICON_NAME;
-                
+
             }
-            
+
             return ot;
 
         }
-                
+
         if ((d instanceof OutlineItem)
             ||
             (d instanceof Scene)
            )
         {
-            
+
             ot = d.getObjectType ();
 
             return ot;
-            
+
         }
-        
+
         if (d instanceof Chapter)
         {
 
             Chapter c = (Chapter) d;
-                                            
+
             if ((this.showEditPositionIcon ())
-                &&                                
+                &&
                 (c.getEditPosition () > 0)
                )
             {
-                
+
                 ot = Constants.EDIT_IN_PROGRESS_ICON_NAME;
-                
+
             }
 
             if ((this.showEditCompleteIcon ())
@@ -224,45 +222,45 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                 (c.isEditComplete ())
                )
             {
-              
+
                 ot = Constants.EDIT_COMPLETE_ICON_NAME;
-                
+
             }
-            
+
             boolean allDealtWith = true;
-             
+
             Set<Note> notes = c.getNotes ();
-            
+
             for (Note n : notes)
             {
-                
+
                 if (!n.isDealtWith ())
                 {
-                          
+
                     allDealtWith = false;
-                    
+
                     break;
-                          
+
                 }
 
             }
-            
+
             if (notes.size () == 0)
             {
-                
+
                 allDealtWith = false;
-                
+
             }
-            
+
             if (allDealtWith)
             {
-                
+
                 ot = Constants.SET_DEALT_WITH_ICON_NAME;
-                
+
             }
-            
+
         }
-        
+
         if (d instanceof TreeParentNode)
         {
 
@@ -272,7 +270,7 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
 
             if (ot != null)
             {
-            
+
                 if ((ot.equals (Note.OBJECT_TYPE)) &&
                     (Note.EDIT_NEEDED_NOTE_TYPE.equals (tpn.getName ())))
                 {
@@ -288,11 +286,11 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
                         ot = ot + "-multi";
 
                     }
-                    
+
                 }
 
             }
-                
+
         }
 
         if ((this.showObjectIcons)
@@ -300,27 +298,27 @@ public class ProjectTreeCellRenderer extends DefaultTreeCellRenderer
             (!(d instanceof BlankNamedObject))
            )
         {
-            
+
             return d.getObjectType ();
-            
+
         }
 
         return ot;
-                
+
     }
-    
+
     protected boolean showEditPositionIcon ()
     {
-        
+
         return UserProperties.getAsBoolean (Constants.SHOW_EDIT_POSITION_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
-        
+
     }
-    
+
     protected boolean showEditCompleteIcon ()
     {
-        
+
         return UserProperties.getAsBoolean (Constants.SHOW_EDIT_COMPLETE_ICON_IN_CHAPTER_LIST_PROPERTY_NAME);
-        
+
     }
-    
+
 }

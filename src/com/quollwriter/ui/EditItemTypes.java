@@ -39,29 +39,36 @@ import com.quollwriter.exporter.*;
 import com.quollwriter.ui.components.*;
 import com.quollwriter.ui.renderers.*;
 
-public class EditItemTypes extends TypesEditor
+public class EditItemTypes extends TypesEditor<AbstractViewer, UserPropertyHandler>
 {
 
     public EditItemTypes (AbstractViewer pv)
     {
 
-        super (pv,
-               Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME));
+        super (pv);
+
+    }
+
+    @Override
+    public UserPropertyHandler getTypesHandler ()
+    {
+
+        return Environment.getUserPropertyHandler (Constants.OBJECT_TYPES_PROPERTY_NAME);
 
     }
 
     public String getNewTypeHelp ()
     {
-        
+
         return "Note: removing a type will only remove it from the list of types to select when adding/editing an {object}.  You can also change the type name by editing the values, double click on a type to begin.";
-        
+
     }
 
     public String getTypesName ()
     {
-        
+
         return "{Object} Types";
-        
+
     }
 
 }

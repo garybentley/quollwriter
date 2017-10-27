@@ -210,7 +210,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
 
         });
 
-        final java.util.List<String> prefix = new ArrayList ();
+        final java.util.List<String> prefix = new ArrayList<> ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.editorpanel);
         prefix.add (LanguageStrings.actions);
@@ -241,25 +241,7 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                              public void actionPerformed (ActionEvent ev)
                              {
 
-                                 try
-                                 {
-
-                                    _this.projectViewer.removeChapterEditPosition (_this.obj);
-
-                                 } catch (Exception e) {
-
-                                    Environment.logError ("Unable to remove edit position for chapter: " +
-                                                          _this.obj,
-                                                          e);
-
-                                    UIUtils.showErrorMessage (_this.projectViewer,
-                                                              Environment.getUIString (prefix,
-                                                                                       LanguageStrings.removeeditposition,
-                                                                                       LanguageStrings.actionerror));
-                                                              //"Unable to remove edit position.");
-
-
-                                 }
+                                 _this.projectViewer.removeChapterEditPosition (_this.obj);
 
                              }
 
@@ -272,25 +254,8 @@ public class QuollEditorPanel extends AbstractEditableEditorPanel implements Cha
                              public void actionPerformed (ActionEvent ev)
                              {
 
-                                 try
-                                 {
-
-                                    _this.projectViewer.setChapterEditComplete (_this.obj,
-                                                                                true);
-
-                                 } catch (Exception e) {
-
-                                    Environment.logError ("Unable to set chapter edit complete: " +
-                                                          _this.obj,
-                                                          e);
-
-                                    UIUtils.showErrorMessage (_this.projectViewer,
-                                                              Environment.getUIString (prefix,
-                                                                                       LanguageStrings.seteditcomplete,
-                                                                                       LanguageStrings.actionerror));
-                                                              //"Unable to set {chapter} as edit complete.");
-
-                                 }
+                                _this.projectViewer.setChapterEditComplete (_this.obj,
+                                                                            true);
 
                              }
 

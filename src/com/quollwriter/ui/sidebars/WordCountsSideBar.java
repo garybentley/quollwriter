@@ -67,97 +67,97 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
     private Box allChaptersEditPointBox = null;
     private JLabel allEditPointWordCount = null;
     private JLabel allChaptersEditCount = null;
-    
+
     public WordCountsSideBar (AbstractProjectViewer v)
     {
-        
+
         super (v);
-        
+
     }
-    
+
     @Override
     public String getId ()
     {
-        
+
         return ID;
-        
+
     }
-    
+
     @Override
     public boolean canClose ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     /**
      * Start the timer and call {@link update()} later.
      */
     @Override
     public void onShow ()
     {
-        
+
         final WordCountsSideBar _this = this;
 
         if (this.timer == null)
         {
-                    
+
             this.timer = new Timer (2 * Constants.SEC_IN_MILLIS,
                                     new ActionListener ()
                                     {
-                                       
+
                                         @Override
                                         public void actionPerformed (ActionEvent ev)
                                         {
-                                       
+
                                             _this.update ();
-                                            
+
                                         }
-                                        
+
                                     });
 
         }
-        
+
         // Start the timer.
         this.timer.start ();
-        
+
         UIUtils.doLater (new ActionListener ()
         {
-            
+
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 _this.update ();
-                
+
             }
-            
+
         });
 
     }
-  
+
     @Override
     public void onHide ()
     {
-        
+
         this.timer.stop ();
-        
+
     }
-    
+
     /**
      * Stop the timer, we don't set the timer to null since {@link removeOnClose()} is false.
      */
     @Override
     public void onClose ()
     {
-        
+
         // Pause the timer.
         this.timer.stop ();
-        
+
         this.timer = null;
-                    
+
     }
-    
+
     /**
      * Always return false, we want to keep the counts around since it's a labour intensive thing.
      *
@@ -165,25 +165,29 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
      */
     public boolean removeOnClose ()
     {
-        
+
         return false;
-        
+
     }
 
     public String getIconType ()
     {
-        
+
         return Constants.WORDCOUNT_ICON_NAME;
-        
+
     }
-    
+
     public String getTitle ()
     {
-        
-        return "Word Counts";
-        
+
+        return Environment.getUIString (LanguageStrings.project,
+                                        LanguageStrings.sidebar,
+                                        LanguageStrings.wordcount,
+                                        LanguageStrings.title);
+        //return "Word Counts";
+
     }
-    
+
     @Override
     public void panelShown (MainPanelEvent ev)
     {
@@ -193,54 +197,62 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
             this.chapterItem.setVisible (true);
             this.chapterSparkLine.removeAll ();
-            
+
         } else {
-            
+
             this.chapterItem.setVisible (false);
-            
+
         }
 */
         this.update ();
-        
+
     }
-        
+
     private void update ()
     {
-        
+
         if (!this.isVisible ())
         {
-            
+
             return;
-            
+
         }
-    
+
         if (this.timer == null)
         {
-            
+
             // Probably closing down.
             return;
-            
+
         }
-        
+
         ChapterCounts achc = this.viewer.getAllChapterCounts ();
-        
+
         // When shutting down we may get a null back, just return.
         if (achc == null)
         {
-            
+
             this.timer.stop ();
-                        
+
             this.timer = null;
-                        
+
             return;
-            
+
         }
-        
+
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.wordcount);
+
+        String valueperc = Environment.getUIString (prefix,
+                                                    LanguageStrings.valuepercent);
+
         this.projectSessionWordCount.setText (Environment.formatNumber (this.viewer.getSessionWordCount ()));
         this.totalSessionWordCount.setText (Environment.formatNumber ((Environment.getSessionWordCount ())));//achc.wordCount - this.viewer.getStartWordCounts ().wordCount)));
-        
+
         final Chapter c = this.viewer.getChapterCurrentlyEdited ();
-        
+
         if (c != null)
         {
 
@@ -251,42 +263,42 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             this.selectedItems.setVisible (false);
             this.selectedReadability.setVisible (false);
             this.selectedReadabilityHeader.setVisible (false);
-            
+
             if (!sel.equals (""))
             {
-                
+
                 ChapterCounts sc = new ChapterCounts (sel);
-                
+
                 this.selectedWordCount.setText (Environment.formatNumber (sc.wordCount));
-                
+
                 this.selectedItems.setVisible (true);
-                
+
                 if ((sc.wordCount > Constants.MIN_READABILITY_WORD_COUNT)
                     &&
                     (this.viewer.isLanguageEnglish ())
                    )
                 {
-                    
+
                     // Show the readability.
                     this.selectedReadability.setVisible (true);
                     this.selectedReadabilityHeader.setVisible (true);
-                                        
+
                     ReadabilityIndices ri = this.viewer.getReadabilityIndices (sel);
-            
+
                     this.selectedFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
-            
+
                     this.selectedGunningFog.setText (Environment.formatNumber (Math.round (ri.getGunningFogIndex ())));
-            
+
                     this.selectedFleschReadingEase.setText (Environment.formatNumber (Math.round (ri.getFleschReadingEase ())));
-                    
+
                 }
-                
-            } 
-            
+
+            }
+
             //int a4Count = 0; //this.viewer.getChapterA4PageCount (c);
-            
+
             ChapterCounts chc = this.viewer.getChapterCounts (c);
-            
+
             this.chapterEditPointBox.setVisible (false);
 
             if ((c.getEditPosition () > 0)
@@ -300,273 +312,284 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
                 if (editText.trim ().length () > 0)
                 {
-                
+
                     ChapterCounts sc = new ChapterCounts (editText);
-                    
-                    this.editPointWordCount.setText (Environment.formatNumber (sc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (sc.wordCount, chc.wordCount)) + "%");
-                
+
+                    this.editPointWordCount.setText (String.format (valueperc,
+                                                                    Environment.formatNumber (sc.wordCount),
+                                                                    Environment.formatNumber (Environment.getPercent (sc.wordCount, chc.wordCount))));
+
                     this.chapterEditPointBox.setVisible (true);
 
                 }
-                
+
             }
-                        
+
             if (chc != null)
-            {                        
-            
-                this.chapterWordCount.setText (Environment.formatNumber (chc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount)) + "%");
-                
+            {
+
+                this.chapterWordCount.setText (String.format (valueperc,
+                                                              Environment.formatNumber (chc.wordCount),
+                                                              Environment.formatNumber (Environment.getPercent (chc.wordCount, achc.wordCount))));
+
                 this.chapterPages.setText (Environment.formatNumber (chc.standardPageCount));
-                
+
                 this.chapterReadability.setVisible (false);
                 this.chapterReadabilityHeader.setVisible (false);
-                
+
                 if ((this.viewer.isLanguageEnglish ())
                     &&
                     (chc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
                    )
                 {
-                
+
                     this.chapterReadability.setVisible (true);
                     this.chapterReadabilityHeader.setVisible (true);
-                
+
                     ReadabilityIndices ri = this.viewer.getReadabilityIndices (c);
-    
+
                     this.chapterFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
-                    
+
                     this.chapterGunningFog.setText (Environment.formatNumber (Math.round (ri.getGunningFogIndex ())));
-                    
+
                     this.chapterFleschReadingEase.setText (Environment.formatNumber (Math.round (ri.getFleschReadingEase ())));
-    
+
                 }
-                
+
                 this.chapterItem.setTitle (qep.getTitle ());
-    
+
                 this.chapterItem.setVisible (true);
-                
+
                 if (this.chapterSparkLine.getComponents ().length == 0)
                 {
-                
+
                     try
                     {
-            
+
                         ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
-            
+
                         // TODO: Find a better way of handling this.
                         if (dh != null)
                         {
-    
+
                             org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries (c.getName ());
-                
+
                             int diff = 0;
-                
+
                             int min = Integer.MAX_VALUE;
                             int max = Integer.MIN_VALUE;
-                        
+
                             // Get all the word counts for the chapter.
                             java.util.List<WordCount> wordCounts = dh.getWordCounts (c,
                                                                                      -7);
-        
+
                             if (wordCounts.size () == 0)
                             {
-                                
+
                                 wordCounts.add (new WordCount (chc.wordCount,
                                                                null,
                                                                Environment.zeroTimeFieldsForDate (new Date ())));
-                                
+
                             }
-        
+
                             // Expand the dates back if necessary.
                             if (wordCounts.size () == 1)
                             {
-                                
+
                                 // Get a date for 7 days ago.
                                 Date d = new Date (System.currentTimeMillis () - (7 * 24 * 60 * 60 * 1000));
-                                
+
                                 wordCounts.add (0,
                                                 new WordCount (chc.wordCount,
                                                                null,
                                                                Environment.zeroTimeFieldsForDate (d)));
-                                
+
                             }
-                            
+
                             for (WordCount wc : wordCounts)
                             {
-        
+
                                 int count = wc.getCount ();
-        
+
                                 min = Math.min (min,
                                                 count);
                                 max = Math.max (max,
                                                 count);
-        
+
                                 try
                                 {
-        
+
                                     ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
                                             count);
-        
+
                                 } catch (Exception e) {
-                                    
+
                                     // Ignore, trying to add a duplicate day.
-                                    
+
                                 }
-        
+
                             }
-                
+
                             diff = max - min;
-        
+
                             int wordDiff = diff;
-                            
+
                             if (diff == 0)
                             {
-        
+
                                 diff = 100;
-        
+
                             }
-                        
+
                             if ((min < Integer.MAX_VALUE) ||
                                 (max > Integer.MIN_VALUE))
                             {
-                                        
-                                this.chapterSparkLineLabel.setText (String.format ("past 7 days, <b>%s%s</b> words",
+
+                                this.chapterSparkLineLabel.setText (String.format (Environment.getUIString (prefix,
+                                                                                                            LanguageStrings.labels,
+                                                                                                            LanguageStrings.sparkline),//"past 7 days, <b>%s%s</b> words",
+                                                                                   Environment.formatNumber (7),
                                                                                    (wordDiff == 0 ? "" : (wordDiff > 0 ? "+" : "")),
                                                                                    Environment.formatNumber (wordDiff)));
-                                        
+
                                 org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
                                                                                                                          max + (diff / 2),
                                                                                                                          min - (diff / 2)));
-                
-                                cp.setToolTipText ("Word count activity for the past 7 days");
-                                
+
+                                //cp.setToolTipText ("Word count activity for the past 7 days");
+
                                 cp.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                                   16));
                                 cp.setPreferredSize (new Dimension (60,
                                                                     16));
                                 this.chapterSparkLine.add (cp);
-                
+
                             }
-    
+
                         }
-            
+
                     } catch (Exception e)
                     {
-            
+
                         Environment.logError ("Unable to generate 7 day activity sparkline",
                                               e);
-            
+
                     }
-                    
+
                 }
 
             }
-            
+
         } else {
-            
+
             this.chapterItem.setVisible (false);
-            
+
         }
-        
+
         this.allReadability.setVisible (false);
         this.allReadabilityHeader.setVisible (false);
-        
+
         if ((this.viewer.isLanguageEnglish ())
             &&
             (achc.wordCount >= Constants.MIN_READABILITY_WORD_COUNT)
            )
         {
-        
+
             this.allReadability.setVisible (true);
             this.allReadabilityHeader.setVisible (true);
-        
+
             ReadabilityIndices ri = this.viewer.getAllReadabilityIndices ();
-                    
+
             this.allChaptersFleschKincaid.setText (Environment.formatNumber (Math.round (ri.getFleschKincaidGradeLevel ())));
-            
+
             this.allChaptersFleschReadingEase.setText (Environment.formatNumber (Math.round (ri.getFleschReadingEase ())));
-            
+
             this.allChaptersGunningFog.setText (Environment.formatNumber (Math.round (ri.getGunningFogIndex ())));
 
         }
-        
+
         this.allChaptersWordCount.setText (Environment.formatNumber (achc.wordCount));
 
         this.allChaptersPages.setText (Environment.formatNumber (achc.standardPageCount)); //this.viewer.getAllChaptersA4PageCount ()));
 
         this.allChaptersEditPointBox.setVisible (false);
-                
+
         final StringBuilder buf = new StringBuilder ();
 
         Set<NamedObject> chapters = this.viewer.getProject ().getAllNamedChildObjects (Chapter.class);
-        
-        int editComplete = 0; 
-        
+
+        int editComplete = 0;
+
         for (NamedObject n : chapters)
         {
 
             Chapter nc = (Chapter) n;
-                    
+
             if (nc.getEditPosition () > 0)
             {
-                                
+
                 if (buf.length () > 0)
                 {
-                    
+
                     buf.append (" ");
-                    
+
                 }
-        
-                AbstractEditorPanel pan = this.viewer.getEditorForChapter (nc);        
-                
+
+                AbstractEditorPanel pan = this.viewer.getEditorForChapter (nc);
+
                 String t = null;
-                
+
                 if (pan != null)
                 {
-                    
+
                     t = pan.getEditor ().getText ();
-                    
+
                 } else {
-                    
+
                     t = nc.getChapterText ();
-                    
+
                 }
-                    
+
                 if (nc.getEditPosition () <= t.length ())
                 {
-                    
+
                     buf.append (t.substring (0,
                                              nc.getEditPosition ()));
-                    
+
                 }
 
             }
 
             if (nc.isEditComplete ())
             {
-                
+
                 editComplete++;
-                
+
             }
-            
+
         }
-                        
+
         String allEditText = buf.toString ().trim ();
-        
+
         if (buf.length () > 0)
         {
-        
+
             ChapterCounts allc = new ChapterCounts (buf.toString ());
 
-            this.allEditPointWordCount.setText (Environment.formatNumber (allc.wordCount) + " / " + Environment.formatNumber (Environment.getPercent (allc.wordCount, achc.wordCount)) + "%");
-            
-            this.allChaptersEditCount.setText (Environment.formatNumber (editComplete) + " / " + Environment.formatNumber (Environment.getPercent (editComplete, chapters.size ())) + "%");
-            
+            this.allEditPointWordCount.setText (String.format (valueperc,
+                                                               Environment.formatNumber (allc.wordCount),
+                                                               Environment.formatNumber (Environment.getPercent (allc.wordCount, achc.wordCount))));
+
+            this.allChaptersEditCount.setText (String.format (valueperc,
+                                                              Environment.formatNumber (editComplete),
+                                                              Environment.formatNumber (Environment.getPercent (editComplete, chapters.size ()))));
+
             this.allChaptersEditPointBox.setVisible (true);
-                
+
         }
-        
+
     }
-    
+
     private JComponent getWords (JLabel     wordCount,
                                  JLabel     pagesCount,
                                  JComponent cp,
@@ -575,74 +598,88 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                                  int        days)
     {
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.wordcount);
+        prefix.add (LanguageStrings.labels);
+
         String cols = COL_SPEC;
-        
+
         String rows = "p, 6px, p, 6px, p";
-        
+
         FormLayout   fl = new FormLayout (cols,
                                           rows);
         PanelBuilder b = new PanelBuilder (fl);
         b.border (Borders.DIALOG);
 
-        CellConstraints cc = new CellConstraints ();        
+        CellConstraints cc = new CellConstraints ();
 
         wordCount.setFont (wordCount.getFont ().deriveFont (Font.BOLD));
-                           
+
         b.add (wordCount,
                cc.xy (1, 1));
 
-        b.addLabel ("words",
+        b.addLabel (Environment.getUIString (prefix,
+                                             LanguageStrings.words),
+                                             //"words",
                     cc.xy (3, 1));
 
-        pagesCount.setFont (pagesCount.getFont ().deriveFont (Font.BOLD));                    
-                    
+        pagesCount.setFont (pagesCount.getFont ().deriveFont (Font.BOLD));
+
         b.add (pagesCount,
                cc.xy (1, 3));
 
-        b.addLabel ("A4 pages",
+        b.addLabel (Environment.getUIString (prefix,
+                                             LanguageStrings.a4pages),
+                                             //"A4 pages",
                     cc.xy (3, 3));
 
-        String diff = "";
-        
-        if (wordCountDiff != 0)
-        {
-            
-            diff = ", <b>" + (wordCountDiff > 0 ? "+" : "-") + Environment.formatNumber (wordCountDiff) + "</b> words";    
-                    
-        }
-        
-        sparkLineLabel.setText ("past " + days + " days" + diff);
-        
+        String sl = Environment.getUIString (prefix,
+                                             LanguageStrings.sparkline);
+
+        sparkLineLabel.setText (String.format (sl,
+                                               Environment.formatNumber (days),
+                                               (wordCountDiff > 0 ? "+" : (wordCountDiff == 0 ? "" : "-")),
+                                               Environment.formatNumber (wordCountDiff)));
+                                               //"past " + days + " days" + diff);
+
         b.add (sparkLineLabel,
                cc.xy (3, 5));
-        
+
         b.add (cp,
                cc.xywh (1, 5, 1, 1));
-                    
+
         JPanel p = b.getPanel ();
         p.setOpaque (false);
         p.setBorder (new EmptyBorder (10, 10, 10, 10));
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return p;
-        
+
     }
-    
+
     private JComponent getReadability (JLabel fleschKincaid,
                                        JLabel fleschReading,
                                        JLabel gunningFog)
     {
-        
+
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.wordcount);
+        prefix.add (LanguageStrings.labels);
+
         String cols = COL_SPEC;
-        
+
         String rows = "p, 6px, p, 6px, p";
-        
+
         FormLayout   fl = new FormLayout (cols,
                                           rows);
         PanelBuilder b = new PanelBuilder (fl);
         b.border (Borders.DIALOG);
 
-        CellConstraints cc = new CellConstraints ();        
+        CellConstraints cc = new CellConstraints ();
         /*
         b.addLabel ("F-K",
                     cc.xy (1,
@@ -655,81 +692,99 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
                            1));
         */
 
-        fleschKincaid.setFont (fleschKincaid.getFont ().deriveFont (Font.BOLD));                    
+        fleschKincaid.setFont (fleschKincaid.getFont ().deriveFont (Font.BOLD));
 
         b.add (fleschKincaid,
                cc.xy (1, 1));
-        
-        b.addLabel ("Flesch-Kincaid",
+
+        b.addLabel (Environment.getUIString (prefix,
+                                             LanguageStrings.fk),
+                                             //"Flesch-Kincaid",
                     cc.xy (3, 1));
-        
-        fleschReading.setFont (fleschReading.getFont ().deriveFont (Font.BOLD));                    
+
+        fleschReading.setFont (fleschReading.getFont ().deriveFont (Font.BOLD));
 
         b.add (fleschReading,
                cc.xy (1, 3));
-        
-        b.addLabel ("Flesch Reading",
-                    cc.xy (3, 3));        
-        
-        gunningFog.setFont (gunningFog.getFont ().deriveFont (Font.BOLD));                    
+
+        b.addLabel (Environment.getUIString (prefix,
+                                             LanguageStrings.fr),
+                                             //"Flesch Reading",
+                    cc.xy (3, 3));
+
+        gunningFog.setFont (gunningFog.getFont ().deriveFont (Font.BOLD));
 
         b.add (gunningFog,
                cc.xy (1, 5));
 
-        b.addLabel ("Gunning Fog",
-                    cc.xy (3, 5));                       
-               
+        b.addLabel (Environment.getUIString (prefix,
+                                             LanguageStrings.gf),
+                                             //"Gunning Fog",
+                    cc.xy (3, 5));
+
         JPanel p = b.getPanel ();
         p.setOpaque (false);
         p.setBorder (UIUtils.createPadding (10, 10, 10, 10));
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return p;
-        
+
     }
-    
+
     public List<JComponent> getHeaderControls ()
     {
 
         final WordCountsSideBar _this = this;
-        
-        List<JComponent> buts = new ArrayList ();        
-        
+
+        List<JComponent> buts = new ArrayList ();
+
         JButton b = UIUtils.createButton ("chart",
                                           Constants.ICON_SIDEBAR,
-                                          "Click to view the detail",
+                                          Environment.getUIString (LanguageStrings.project,
+                                                                   LanguageStrings.sidebar,
+                                                                   LanguageStrings.wordcount,
+                                                                   LanguageStrings.headercontrols,
+                                                                   LanguageStrings.items,
+                                                                   LanguageStrings.statistics,
+                                                                   LanguageStrings.tooltip),
+                                          //"Click to view the detail",
                                           new ActionListener ()
                                           {
-                                            
+
                                               @Override
                                               public void actionPerformed (ActionEvent ev)
                                               {
-                                                
+
                                                     _this.viewer.viewStatistics ();
-                                                
+
                                               }
-                                            
+
                                           });
 
         buts.add (b);
 
-        return buts;        
-        
+        return buts;
+
     }
 
     @Override
     public Dimension getMinimumSize ()
     {
-        
+
         return new Dimension (260,
-                              250);        
+                              250);
     }
-    
+
     public JComponent getContent ()
     {
 
-        final WordCountsSideBar _this = this;    
-    
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.wordcount);
+
+        final WordCountsSideBar _this = this;
+
         Box box = new Box (BoxLayout.Y_AXIS);
 
         final Chapter c = this.viewer.getChapterCurrentlyEdited ();
@@ -750,102 +805,118 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         this.editPointWordCount = UIUtils.createInformationLabel (null);
         this.allEditPointWordCount = UIUtils.createInformationLabel (null);
         this.allChaptersEditCount = UIUtils.createInformationLabel (null);
-                
+
         List<JComponent> items = new ArrayList ();
 
         items.add (this.getItem ("words",
                                  this.selectedWordCount));
-        
-        this.selectedReadabilityHeader = this.createSubHeader ("Readability");
-        
+
+        this.selectedReadabilityHeader = this.createSubHeader (Environment.getUIString (prefix,
+                                                                                        LanguageStrings.labels,
+                                                                                        LanguageStrings.readability));
+                                                                                        //"Readability");
+
         items.add (this.selectedReadabilityHeader);
-                
+
         this.selectedReadability = this.getReadability (this.selectedFleschKincaid,
                                                         this.selectedFleschReadingEase,
                                                         this.selectedGunningFog);
-                
+
         items.add (this.selectedReadability);
-                
-        this.selectedItems = this.getItems ("Selected text",
+
+        this.selectedItems = this.getItems (Environment.getUIString (prefix,
+                                                                     LanguageStrings.sectiontitles,
+                                                                     LanguageStrings.selected),
+                                            //"Selected text",
                                             Constants.EDIT_ICON_NAME,
                                             items);
-                      
+
         this.selectedItems.setVisible (false);
-                      
-        box.add (this.selectedItems);                          
-        
+
+        box.add (this.selectedItems);
+
         items = new ArrayList ();
-                
-        items.add (this.getItem (Environment.replaceObjectNames (String.format ("words, this {%s}",
-                                                                                Project.OBJECT_TYPE)),
+
+        items.add (this.getItem (Environment.getUIString (prefix,
+                                                          LanguageStrings.labels,
+                                                          LanguageStrings.projectwords),
                                  this.projectSessionWordCount));
 
-        items.add (this.getItem ("words, total",
+        items.add (this.getItem (Environment.getUIString (prefix,
+                                                          LanguageStrings.labels,
+                                                          LanguageStrings.totalwords),
+                                                          //"words, total",
                                  this.totalSessionWordCount));
 
         AccordionItem it = this.getItems ("This session",
                                           Constants.CLOCK_ICON_NAME,
                                           items);
-                      
-        box.add (it);                          
-                                   
+
+        box.add (it);
+
         items = new ArrayList ();
-        
+
         items.add (this.getWords (this.chapterWordCount,
                                   this.chapterPages,
                                   this.chapterSparkLine,
                                   this.chapterSparkLineLabel,
                                   0,
                                   7));
-        
+
         this.chapterEditPointBox = new Box (BoxLayout.Y_AXIS);
-        
+
         items.add (this.chapterEditPointBox);
-        
-        this.chapterEditPointBox.add (this.createSubHeader ("Edited"));
-        
-        this.chapterEditPointBox.add (this.getItem ("words",
+
+        this.chapterEditPointBox.add (this.createSubHeader (Environment.getUIString (prefix,
+                                                                                     LanguageStrings.labels,
+                                                                                     LanguageStrings.edited)));
+                                                          //"Edited"));
+
+        this.chapterEditPointBox.add (this.getItem (Environment.getUIString (prefix,
+                                                                             LanguageStrings.labels,
+                                                                             LanguageStrings.words),
+                                                          //"words",
                                                     this.editPointWordCount));
-                
+
         //this.chapterEditPointBox.setVisible (false);
 
         UIUtils.setPadding (this.chapterEditPointBox, 0, 0, 10, 0);
-                                                
+
         this.chapterFleschKincaid = UIUtils.createInformationLabel (null);
         this.chapterFleschReadingEase = UIUtils.createInformationLabel (null);
         this.chapterGunningFog = UIUtils.createInformationLabel (null);
-                
+
         this.chapterReadabilityHeader = this.createSubHeader ("Readability");
-                
+
         items.add (this.chapterReadabilityHeader);
-        
+
         this.chapterReadability = this.getReadability (this.chapterFleschKincaid,
                                                        this.chapterFleschReadingEase,
                                                        this.chapterGunningFog);
-        
+
         items.add (this.chapterReadability);
-                
+
         this.chapterItem = this.getItems ("",
                                           Chapter.OBJECT_TYPE,
                                           items);
-               
+
         if (c == null)
         {
-            
+
             this.chapterItem.setVisible (false);
-                      
+
         }
-        
-        box.add (this.chapterItem);                          
+
+        box.add (this.chapterItem);
 
         items = new ArrayList ();
 
         JComponent sparkLine = new JPanel ();
         sparkLine.setBorder (null);
         sparkLine.setOpaque (false);
-                   
+
         int wordCountDiff30 = 0;
-                                 
+
         try
         {
 
@@ -854,64 +925,64 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             // TODO: Find a better way of handling this.
             if (dh != null)
             {
-                
+
                 org.jfree.data.time.TimeSeries ts = new org.jfree.data.time.TimeSeries ("All");
-    
+
                 int diff = 0;
-    
+
                 int min = Integer.MAX_VALUE;
                 int max = Integer.MIN_VALUE;
-    
+
                 // Get all the word counts for the project.
                 java.util.List<WordCount> wordCounts = dh.getWordCounts (this.viewer.getProject (),
                                                                          -30);
-    
+
                 for (WordCount wc : wordCounts)
                 {
-    
+
                     int count = wc.getCount ();
-    
+
                     min = Math.min (min,
                                     count);
                     max = Math.max (max,
                                     count);
-    
+
                     ts.add (new org.jfree.data.time.Day (wc.getEnd ()),
                             count);
-    
+
                 }
-    
+
                 diff = max - min;
-    
+
                 if (diff == 0)
                 {
-    
+
                     diff = 100;
-    
+
                 }
-    
+
                 if ((min < Integer.MAX_VALUE) ||
                     (max > Integer.MIN_VALUE))
                 {
-    
-                    wordCountDiff30 = max - min;    
-                
+
+                    wordCountDiff30 = max - min;
+
                     org.jfree.chart.ChartPanel cp = new org.jfree.chart.ChartPanel (UIUtils.createSparkLine (ts,
                                                                                                              max + (diff / 2),
                                                                                                              min - (diff / 2)));
-    
-                    cp.setToolTipText ("Word count activity for the past 30 days");
+
+                    //cp.setToolTipText ("Word count activity for the past 30 days");
                     cp.setMaximumSize (new Dimension (60,
                                                       16));
                     cp.setPreferredSize (new Dimension (60,
                                                         16));
-    
+
                     sparkLine = cp;
-                                                          
+
                 }
 
             }
-                
+
         } catch (Exception e)
         {
 
@@ -923,53 +994,70 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         items.add (this.getWords (this.allChaptersWordCount,
                                   this.allChaptersPages,
                                   sparkLine,
-                                  UIUtils.createInformationLabel (null),                                  
+                                  UIUtils.createInformationLabel (null),
                                   wordCountDiff30,
-                                  30));        
-        
+                                  30));
+
         this.allChaptersFleschKincaid = UIUtils.createInformationLabel (null);
         this.allChaptersFleschReadingEase = UIUtils.createInformationLabel (null);
         this.allChaptersGunningFog = UIUtils.createInformationLabel (null);
 
         this.allChaptersEditPointBox = new Box (BoxLayout.Y_AXIS);
-        
+
         items.add (this.allChaptersEditPointBox);
-        
-        this.allChaptersEditPointBox.add (this.createSubHeader ("Edited"));
-        
-        this.allChaptersEditPointBox.add (this.getItem ("words",
+
+        this.allChaptersEditPointBox.add (this.createSubHeader (Environment.getUIString (prefix,
+                                                                                         LanguageStrings.labels,
+                                                                                         LanguageStrings.edited)));
+                                                          //"Edited"));
+
+        this.allChaptersEditPointBox.add (this.getItem (Environment.getUIString (prefix,
+                                                                                 LanguageStrings.labels,
+                                                                                 LanguageStrings.words),
+                                                          //"words",
                                                         this.allEditPointWordCount));
 
-        this.allChaptersEditPointBox.add (this.getItem ("{chapters}",
+        this.allChaptersEditPointBox.add (this.getItem (Environment.getUIString (prefix,
+                                                                                 LanguageStrings.labels,
+                                                                                 LanguageStrings.chapters),
+                                                          //"{chapters}",
                                                         this.allChaptersEditCount));
-                
+
         this.allChaptersEditPointBox.setVisible (false);
 
         this.allChaptersEditPointBox.setBorder (new EmptyBorder (0, 0, 10, 0));
-        
-        this.allReadabilityHeader = this.createSubHeader ("Readability");
-        
+
+        this.allReadabilityHeader = this.createSubHeader (Environment.getUIString (prefix,
+                                                                                   LanguageStrings.labels,
+                                                                                   LanguageStrings.readability));
+                                                          //"Readability");
+
         items.add (this.allReadabilityHeader);
-        
+
         this.allReadability = this.getReadability (this.allChaptersFleschKincaid,
                                                    this.allChaptersFleschReadingEase,
                                                    this.allChaptersGunningFog);
-        
+
         items.add (this.allReadability);
-                                         
-        box.add (this.getItems ("All {Chapters}",
+
+        box.add (this.getItems (Environment.getUIString (prefix,
+                                                         LanguageStrings.sectiontitles,
+                                                         LanguageStrings.allchapters),
+                                                          //"All {Chapters}",
                                 Book.OBJECT_TYPE,
                                 items));
-                                    
-        final JLabel history = UIUtils.createClickableLabel ("View Detail",
+
+        final JLabel history = UIUtils.createClickableLabel (Environment.getUIString (prefix,
+                                                                                      LanguageStrings.viewdetaillink),
+                                                          //"View Detail",
                                                              Environment.getIcon ("chart",
                                                                                   Constants.ICON_MENU));
 
         UIUtils.setPadding (history, 0, 5, 0, 0);
-                                                                                  
+
         box.add (history);
         box.add (Box.createVerticalStrut (10));
-        
+
         history.addMouseListener (new MouseEventHandler ()
         {
 
@@ -982,12 +1070,14 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
 
         });
 
-        JLabel l = UIUtils.createClickableLabel ("Click to find out more about<br />the Readability indices",
+        JLabel l = UIUtils.createClickableLabel (Environment.getUIString (prefix,
+                                                                          LanguageStrings.helplink),
+                                                          //"Click to find out more about<br />the Readability indices",
                                                  Environment.getIcon ("help",
                                                                       Constants.ICON_MENU));
 
         UIUtils.setPadding (l, 0, 5, 0, 0);
-                                                                      
+
         l.addMouseListener (new MouseEventHandler ()
         {
 
@@ -1001,45 +1091,45 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
             }
 
         });
-            
+
         box.add (l);
 
         box.add (Box.createVerticalGlue ());
-            
+
         UIUtils.doLater (new ActionListener ()
         {
-            
+
             @Override
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 _this.update ();
-                
+
             }
-            
+
         });
-        
+
         return this.wrapInScrollPane (box);
-                    
+
     }
-    
+
     private JComponent getItem (String     label,
                                 JComponent value)
     {
-        
+
         String cols = COL_SPEC;
-        
+
         String rows = "p";
-        
+
         FormLayout   fl = new FormLayout (cols,
                                           rows);
         PanelBuilder b = new PanelBuilder (fl);
         b.border (Borders.DIALOG);
 
-        CellConstraints cc = new CellConstraints ();        
-        
+        CellConstraints cc = new CellConstraints ();
+
         value.setFont (value.getFont ().deriveFont (Font.BOLD));
-                           
+
         b.add (value,
                cc.xy (1, 1));
 
@@ -1052,13 +1142,13 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         p.setAlignmentX (Component.LEFT_ALIGNMENT);
 
         return p;
-        
+
     }
-    
+
     private AccordionItem getItems (String title,
                                     String iconType,
                                     List<JComponent> items)
-    {        
+    {
 
         final Box b = new Box (BoxLayout.Y_AXIS);
 
@@ -1066,65 +1156,66 @@ public class WordCountsSideBar extends AbstractSideBar<AbstractProjectViewer>
         {
 
             c.setAlignmentY (Component.TOP_ALIGNMENT);
-        
+
             b.add (c);
-                    
+
         }
 
         b.setOpaque (false);
         b.setAlignmentX (Component.LEFT_ALIGNMENT);
         b.add (Box.createVerticalGlue ());
-        
+
         AccordionItem it = new AccordionItem (title,
                                               iconType)
         {
-            
+
             @Override
             public JComponent getContent ()
             {
-                
+
                 return b;
-            
+
             }
-            
+
         };
-                                              
+
         Header h = it.getHeader ();
-                                              
+
         //h.setFont (h.getFont ().deriveFont ((float) UIUtils.scaleToScreenSize (12d)).deriveFont (java.awt.Font.PLAIN));
 
         h.setBorder (new CompoundBorder (new CompoundBorder (new MatteBorder (0, 0, 1, 0, UIUtils.getBorderColor ()),
                                                              new EmptyBorder (0, 0, 3, 0)),
                                          h.getBorder ()));
-        
+
         it.init ();
-        
+
         it.revalidate ();
-        
+
         it.setMaximumSize (new Dimension (Short.MAX_VALUE,
-                                         it.getPreferredSize ().height));      
-        return it;        
-        
+                                         it.getPreferredSize ().height));
+        return it;
+
     }
-    
+
     private JLabel createSubHeader (String title)
     {
-        
-        JLabel ll = UIUtils.createInformationLabel ("<i>" + Environment.replaceObjectNames (title) + "</i>");        
+
+        JLabel ll = UIUtils.createInformationLabel (String.format ("<i>%s</i>",
+                                                                   title));
 
         UIUtils.setPadding (ll, 0, 10, 0, 0);
-        
+
         return ll;
-        
+
     }
-    
+
     @Override
     public void init (String saveState)
                throws GeneralException
     {
 
         super.init (saveState);
-                 
-    }    
-    
+
+    }
+
 }

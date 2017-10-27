@@ -67,9 +67,6 @@ public class ChapterSnippetsTreeCellRenderer extends DefaultTreeCellRenderer
 
         }
 
-        this.setToolTipText ("Click to view");
-        this.setCursor (Cursor.getPredefinedCursor (Cursor.HAND_CURSOR));
-
         return this;
 
     }

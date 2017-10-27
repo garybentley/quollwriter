@@ -9,25 +9,40 @@ import com.quollwriter.events.*;
 
 public interface TypesHandler
 {
-    
+
     public boolean removeType (String  type,
                                boolean reload);
-    
+
     public void addType (String  t,
                          boolean reload);
 
-    public boolean renameType (String  oldType,
-                               String  newType,
-                               boolean reload);    
+    default boolean renameType (String  oldType,
+                                String  newType,
+                                boolean reload)
+    {
 
-    public boolean hasType (String type);
-                               
+        return false;
+
+    }
+
+    default boolean hasType (String type)
+    {
+
+        return false;
+
+    }
+
     public Set<String> getTypes ();
-        
-    public boolean typesEditable ();
-    
+
+    default boolean typesEditable ()
+    {
+
+        return true;
+
+    }
+
     public void removePropertyChangedListener (PropertyChangedListener l);
-    
+
     public void addPropertyChangedListener (PropertyChangedListener l);
-    
+
 }
