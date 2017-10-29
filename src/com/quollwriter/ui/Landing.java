@@ -53,7 +53,6 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	public static final String ACHIEVEMENTS_CARD = "achievements";
 
     public static final String NEW_PROJECT_HEADER_CONTROL_ID = "newProject";
-	public static final String FIND_PROJECT_HEADER_CONTROL_ID = "findProject";
 	public static final String IMPORT_PROJECT_HEADER_CONTROL_ID = "importProject";
 
 	public static final String STATUS_TAG = "{s}";
@@ -90,6 +89,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			 throws Exception
     {
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.allprojects);
+
 		final Landing _this = this;
 
         // Create a split pane.
@@ -118,7 +120,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         bb.add (Box.createHorizontalGlue ());
 
-        Header h = UIUtils.createHeader ("You currently have no {projects}",
+        Header h = UIUtils.createHeader (Environment.getUIString (prefix,
+                                                                  LanguageStrings.noprojects),
+                                            //"You currently have no {projects}",
                                          Constants.PANEL_TITLE);
         h.setMaximumSize (h.getPreferredSize ());
         h.setAlignmentX (Component.CENTER_ALIGNMENT);
@@ -133,7 +137,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         noprojs.add (Box.createVerticalGlue ());
 
-		noprojs.setToolTipText (Environment.replaceObjectNames ("Double click to add a new {project}."));
+		noprojs.setToolTipText (Environment.getUIString (prefix,
+                                                         LanguageStrings.tooltip));
+                            //Environment.replaceObjectNames ("Double click to add a new {project}."));
 
         noprojs.addMouseListener (new MouseEventHandler ()
         {
@@ -153,7 +159,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                    MouseEvent ev)
             {
 
-				p.add (this.createMenuItem ("New {Project}",
+                java.util.List<String> prefix = new ArrayList<> ();
+                prefix.add (LanguageStrings.allprojects);
+                prefix.add (LanguageStrings.popupmenu);
+                prefix.add (LanguageStrings.items);
+
+				p.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings._new),
+                                            //"New {Project}",
 											Constants.NEW_ICON_NAME,
 											"newproject",
 											null,
@@ -172,7 +185,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
-				p.add (this.createMenuItem ("Import file",
+				p.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.importfile),
+                                            //"Import file",
 											Constants.PROJECT_IMPORT_ICON_NAME,
 											"import",
 											null,
@@ -189,7 +204,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
-				p.add (this.createMenuItem ("Find your {Projects}",
+				p.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.findprojects),
+                                                                     //"Find your {Projects}",
 											Constants.FIND_ICON_NAME,
 											"findprojects",
 											null,
@@ -205,12 +222,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 												}
 
 											}));
-                                            
+
             }
 
 		});
 
-		this.cards.add (noprojs, "noprojects");
+		this.cards.add (noprojs, NO_PROJECTS_CARD);
 
 		this.setContent (this.splitPane);
 
@@ -276,7 +293,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                    MouseEvent ev)
             {
 
-				p.add (this.createMenuItem ("New {Project}",
+                java.util.List<String> prefix = new ArrayList<> ();
+                prefix.add (LanguageStrings.allprojects);
+                prefix.add (LanguageStrings.popupmenu);
+                prefix.add (LanguageStrings.items);
+
+				p.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings._new),
+                                            //"New {Project}",
 											Constants.NEW_ICON_NAME,
 											"newproject",
 											null,
@@ -295,7 +319,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
-				p.add (this.createMenuItem ("Import File/{Project}",
+				p.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.importfileorproject),
+                                            //"Import File/{Project}",
 											Constants.PROJECT_IMPORT_ICON_NAME,
 											"import",
 											null,
@@ -312,7 +338,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											}));
 
-				p.add (this.createMenuItem ("Find your {Projects}",
+				p.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                     LanguageStrings.findprojects),
+                                            //"Find your {Projects}",
 											Constants.FIND_ICON_NAME,
 											"findprojects",
 											null,
@@ -328,16 +356,20 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 												}
 
 											}));
-                                            
+
 				p.addSeparator ();
 
-				JMenu m = new JMenu (Environment.replaceObjectNames ("Sort {Projects} by"));
+				JMenu m = new JMenu (Environment.getUIString (prefix,
+                                                              LanguageStrings.sortprojects));
+                                                              // ("Sort {Projects} by"));
 				m.setIcon (Environment.getIcon (Constants.SORT_ICON_NAME,
 												Constants.ICON_MENU));
 
 				p.add (m);
 
-				m.add (_this.createMenuItem ("Last edited",
+				m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.sortlastedited),
+                                            //"Last edited",
 											 Constants.DATE_ICON_NAME,
 											 new ActionListener ()
 											 {
@@ -352,7 +384,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-				m.add (_this.createMenuItem ("Name",
+				m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.sortname),
+                                            //"Name",
 											 Constants.SPELLCHECKER_ICON_NAME,
 											 new ActionListener ()
 											 {
@@ -367,7 +401,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-				m.add (_this.createMenuItem ("Status",
+				m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.sortstatus),
+                                            //"Status",
 											 Constants.STAR_ICON_NAME,
 											 new ActionListener ()
 											 {
@@ -382,7 +418,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-				m.add (_this.createMenuItem ("Word Count",
+				m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.sortwordcount),
+                                            //"Word Count",
 											 Constants.WORDCOUNT_ICON_NAME,
 											 new ActionListener ()
 											 {
@@ -397,7 +435,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-				p.add (_this.createMenuItem ("Manage Statuses",
+				p.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.managestatuses),
+                                            //"Manage Statuses",
 											 Constants.EDIT_ICON_NAME,
 											 new ActionListener ()
 											 {
@@ -412,7 +452,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-				p.add (_this.createMenuItem ("Change what is displayed",
+				p.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.changedisplay),
+                                            //"Change what is displayed",
 											 Constants.EDIT_ICON_NAME,
 											 new ActionListener ()
 											 {
@@ -500,6 +542,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	private void showEditProjectInfo ()
 	{
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.allprojects);
+        prefix.add (LanguageStrings.changedisplay);
+        prefix.add (LanguageStrings.popup);
+
 		final Landing _this = this;
 
         String popupName = "editprojectinfo";
@@ -508,7 +555,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         if (popup == null)
         {
 
-			popup = UIUtils.createClosablePopup ("Change what is displayed",
+			popup = UIUtils.createClosablePopup (Environment.getUIString (prefix,
+                                                                          LanguageStrings.title),
+                                                //"Change what is displayed",
 												 Environment.getIcon (Constants.EDIT_ICON_NAME,
 																	  Constants.ICON_POPUP),
 												 null);
@@ -529,8 +578,14 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			ProjectInfo _bogus = new ProjectInfo ();
 
 			_bogus.setProjectDirectory (FileSystemView.getFileSystemView ().getDefaultDirectory ());
-			_bogus.setName (Environment.replaceObjectNames ("My {Project}"));
-			_bogus.setStatus ("In Progress");
+			_bogus.setName (Environment.getUIString (prefix,
+                                                     LanguageStrings.example,
+                                                     LanguageStrings.name));
+                                                     //Environment.replaceObjectNames ("My {Project}"));
+			_bogus.setStatus (Environment.getUIString (prefix,
+                                                       LanguageStrings.example,
+                                                       LanguageStrings.status));
+                                                     //"In Progress");
 			_bogus.setLastEdited (new Date (System.currentTimeMillis () - (7 * Constants.DAY_IN_MILLIS)));
 			_bogus.addStatistic (ProjectInfo.Statistic.chapterCount,
 								 5);
@@ -548,7 +603,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			//final JTextField status = new JTextField (this.getProjectInfoFormat ());
 
-			final TextArea status = new TextArea ("Enter the format here...",
+			final TextArea status = new TextArea (Environment.getUIString (prefix,
+                                                                           LanguageStrings.format,
+                                                                           LanguageStrings.tooltip),
+                                                //"Enter the format here...",
 												  3,
 												  -1);
 			status.setText (this.getProjectInfoFormat ());
@@ -585,15 +643,22 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			});
 
-			bb.addMain ("Use the following format for {project} information.  <a href='help:projects/landing'>Click here</a> for help on the format/tags that can be used.",
+			bb.addMain (Environment.getUIString (prefix,
+                                                 LanguageStrings.text),
+                        //"Use the following format for {project} information.  <a href='help:projects/landing'>Click here</a> for help on the format/tags that can be used.",
 						status);
 
 			Box pbb = new Box (BoxLayout.X_AXIS);
+            /*
 			pbb.setMaximumSize (new Dimension (PROJECT_BOX_WIDTH,
 											   Short.MAX_VALUE));
+                                               */
 			pbb.add (pb);
 
-			bb.addMain (UIUtils.createBoldSubHeader ("Example",
+			bb.addMain (UIUtils.createBoldSubHeader (Environment.getUIString (prefix,
+                                                                              LanguageStrings.example,
+                                                                              LanguageStrings.title),
+                                                    //"Example",
 													 null),
 					    pbb);
 
@@ -601,7 +666,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			content.add (Box.createVerticalGlue ());
 
-			JButton save = UIUtils.createButton (Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
+			JButton save = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                          LanguageStrings.buttons,
+                                                                          LanguageStrings.save),
+                                                //Environment.getButtonLabel (Constants.SAVE_BUTTON_LABEL_ID),
 												 new ActionListener ()
 			{
 
@@ -624,7 +692,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 											  e);
 
 						UIUtils.showErrorMessage (_this,
-												  "Unable to update {projects} with the new format.");
+                                                  Environment.getUIString (LanguageStrings.allprojects,
+                                                                           LanguageStrings.actionerror));
+												  //"Unable to update {projects} with the new format.");
 
 						return;
 
@@ -634,7 +704,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			});
 
-			JButton cancel = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+			JButton cancel = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                            LanguageStrings.buttons,
+                                                                            LanguageStrings.cancel),
+                                                //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
 												   new ActionListener ()
 			{
 
@@ -648,7 +721,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			});
 
-			JButton reset = UIUtils.createButton ("Use default",
+			JButton reset = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                           LanguageStrings.buttons,
+                                                                           LanguageStrings._default),
+                                                //"Use default",
                                                   new ActionListener ()
 			{
 
@@ -677,7 +753,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 											  e);
 
 						UIUtils.showErrorMessage (_this,
-												  "Unable to update {projects} with the new format.");
+                                                  Environment.getUIString (LanguageStrings.allprojects,
+                                                                           LanguageStrings.actionerror));
+												  //"Unable to update {projects} with the new format.");
 
 						return;
 
@@ -740,7 +818,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         if (popup == null)
         {
 
-            popup = UIUtils.createClosablePopup ("Manage the {Project} Statuses",
+            popup = UIUtils.createClosablePopup (Environment.getUIString (LanguageStrings.project,
+                                                                          LanguageStrings.status,
+                                                                          LanguageStrings.actions,
+                                                                          LanguageStrings.manage,
+                                                                          LanguageStrings.title),
+                                                //"Manage the {Project} Statuses",
                                                  Environment.getIcon (Constants.EDIT_ICON_NAME,
                                                                       Constants.ICON_POPUP),
                                                  null);
@@ -843,7 +926,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 	private void showNoProjects ()
 	{
 
-		this.setViewerTitle ("No {Projects}");
+		this.setViewerTitle (Environment.getUIString (LanguageStrings.allprojects,
+                                                      LanguageStrings.noprojects));
+                                                    //"No {Projects}");
 
         this.showCard (NO_PROJECTS_CARD);
 
@@ -869,45 +954,6 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
     }
 
-    public void fillTitleToolbar (JToolBar toolbar)
-	{
-
-		final Landing _this = this;
-
-        toolbar.add (UIUtils.createButton (Constants.ADD_ICON_NAME,
-                                           Constants.ICON_TITLE_ACTION,
-                                           "Click to create a new {project}",
-                                           new ActionAdapter ()
-                                           {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-													UIUtils.showAddNewProject (_this,
-																			   null,
-																			   null);
-
-                                              }
-
-                                          }));
-
-        toolbar.add (UIUtils.createButton (Constants.PROJECT_IMPORT_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to create a new {project} by importing a file",
-                                          new ActionAdapter ()
-                                          {
-
-                                              public void actionPerformed (ActionEvent ev)
-                                              {
-
-                                                  _this.showImportProject ();
-
-                                              }
-
-                                          }));
-
-	}
-
     private AbstractButton getSelectBackgroundButton (boolean showText)
     {
 
@@ -917,8 +963,16 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         if (showText)
         {
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.allprojects);
+            prefix.add (LanguageStrings.popupmenu);
+            prefix.add (LanguageStrings.items);
 
-            mi = new JMenuItem ("Select a background image/color");
+            mi = new JMenuItem (Environment.getUIString (LanguageStrings.allprojects,
+                                                         LanguageStrings.popupmenu,
+                                                         LanguageStrings.items,
+                                                         LanguageStrings.selectbackground));
+                                                         //"Select a background image/color");
 
         } else
         {
@@ -1012,10 +1066,19 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 									final ActionListener onRemove)
     {
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.allprojects);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.removeproject);
+
         final Landing _this = this;
 
         Map<String, ActionListener> buts = new LinkedHashMap ();
-        buts.put ("Yes, remove it",
+        buts.put (Environment.getUIString (prefix,
+                                           LanguageStrings.popup,
+                                           LanguageStrings.buttons,
+                                           LanguageStrings.confirm),
+                //"Yes, remove it",
                   new ActionListener ()
                   {
 
@@ -1035,7 +1098,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                                   e);
 
                             UIUtils.showErrorMessage (_this,
-                                                      "Unable to remove project, please contact Quoll Writer support for assistance.");
+                                                      Environment.getUIString (prefix,
+                                                                               LanguageStrings.actionerror));
+                                                      //"Unable to remove project, please contact Quoll Writer support for assistance.");
 
                             return;
 
@@ -1045,7 +1110,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
                   });
 
-        buts.put ("No, keep it",
+        buts.put (Environment.getUIString (prefix,
+                                           LanguageStrings.popup,
+                                           LanguageStrings.buttons,
+                                           LanguageStrings.cancel),
+                //"No, keep it",
                   new ActionListener ()
                   {
 
@@ -1060,20 +1129,26 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
         String reason = Environment.canOpenProject (p);
 
-		String message = String.format ("Sorry, {project} <b>%s</b> cannot be opened for the following reason:<br /><br /><b>%s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of {projects}?",
+		String message = String.format (Environment.getUIString (prefix,
+                                                                 LanguageStrings.popup,
+                                                                 LanguageStrings.text),
+                                        //"Sorry, {project} <b>%s</b> cannot be opened for the following reason:<br /><br /><b>%s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of {projects}?",
                                         p.getName (),
                                         reason);
 
-        message = message + "<br /><br />Note: this will <b>only</b> remove the {project} from the list it will not remove any other data.";
+        //message = message + "<br /><br />Note: this will <b>only</b> remove the {project} from the list it will not remove any other data.";
 
-        JComponent mess = UIUtils.createHelpTextPane (Environment.replaceObjectNames (message),
+        JComponent mess = UIUtils.createHelpTextPane (message,
                                                       null);
         mess.setBorder (null);
         mess.setSize (new Dimension (UIUtils.getPopupWidth () - 20,
                                      500));
 
         UIUtils.createQuestionPopup (this,
-                                     "Unable to open {project}",
+                                     Environment.getUIString (prefix,
+                                                              LanguageStrings.popup,
+                                                              LanguageStrings.title),
+                                    //"Unable to open {project}",
                                      Constants.ERROR_ICON_NAME,
                                      mess,
                                      buts,
@@ -1093,9 +1168,19 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         if (viewer != null)
         {
 
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.actions);
+            prefix.add (LanguageStrings.deleteproject);
+            prefix.add (LanguageStrings.projectopen);
+
 			UIUtils.showMessage (this,
-								 "{Project} already open",
-								 String.format ("<b>%s</b> is currently already open in a window.  Please delete the {project} from that window or close the {project} then delete it from here.",
+								 Environment.getUIString (prefix,
+                                                          LanguageStrings.title),
+                                //"{Project} already open",
+								 String.format (Environment.getUIString (prefix,
+                                                                         LanguageStrings.text),
+                                                //"<b>%s</b> is currently already open in a window.  Please delete the {project} from that window or close the {project} then delete it from here.",
 												p.getName ()),
 								 null,
 								 new ActionListener ()
@@ -1120,46 +1205,6 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 										p,
 										onDelete).actionPerformed (new ActionEvent (this, 0, "delete"));
 
-/*
-        UIUtils.createTextInputPopup (this,
-                                     "Delete {project}",
-                                     Constants.DELETE_ICON_NAME,
-                                     "Warning!  All information/{chapters} associated with the {project} will be deleted. Once deleted a {project} cannot be restored.",
-                                     "Yes, delete it",
-                                     "No, keep it",
-                                     null,
-                                     UIUtils.getYesValueValidator (),
-                                     new ActionListener ()
-                                     {
-
-										public void actionPerformed (ActionEvent ev)
-										{
-
-										   try
-										   {
-
-											   Environment.deleteProject (p,
-																		  onDelete);
-
-										   } catch (Exception e) {
-
-											   Environment.logError ("Unable to delete project: " +
-																	 p.getName (),
-																	 e);
-
-											   UIUtils.showErrorMessage (_this,
-																		 "Unable to delete {project}, please contact Quoll Writer support for assistance.");
-
-											   return;
-
-										   }
-
-										}
-
-									 },
-									 null,
-									 null);
-*/
     }
 
     public void showImportProject ()
@@ -1181,7 +1226,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			im.setFile (f);
 			im.setNewProjectOnly (true);
 
-			QPopup popup = UIUtils.createWizardPopup ("Import a File or {Project}",
+			QPopup popup = UIUtils.createWizardPopup (Environment.getUIString (LanguageStrings.importproject,
+                                                                               LanguageStrings.title),
+                                                    //"Import a File or {Project}",
 													  Constants.PROJECT_IMPORT_ICON_NAME,
 													  null,
 													  im);
@@ -1204,246 +1251,13 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to show import project wizard, please contact Quoll Writer support for assistance.");
+                                      Environment.getUIString (LanguageStrings.importproject,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to show import project wizard, please contact Quoll Writer support for assistance.");
 
         }
 
     }
-
-	private void showFindProject ()
-	{
-
-		final Landing _this = this;
-
-        final QPopup popup = UIUtils.createClosablePopup ("Find a {project}",
-                                                          Environment.getIcon (Constants.FIND_ICON_NAME,
-                                                                               Constants.ICON_POPUP),
-                                                          null);
-
-		Box content = new Box (BoxLayout.Y_AXIS);
-
-		content.add (UIUtils.createHelpTextPane ("This can happen if you are using Dropbox or another file syncing service and are syncing the {project} directory but not your projects file.  Use the box below to find your {project}.",
-												 null));
-
-        content.add (Box.createVerticalStrut (5));
-
-		final JLabel message = new JLabel ("");
-
-		message.setBorder (UIUtils.createPadding (0, 5, 5, 0));
-		message.setVisible (false);
-		content.add (message);
-
-		final JButton openBut2 = UIUtils.createButton ("Open");
-		openBut2.setEnabled (false);
-
-		final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
-														  "Select a Directory",
-														  JFileChooser.DIRECTORIES_ONLY,
-														  "Select",
-														  null);
-		finder.setFindButtonToolTip ("Click to find the {project} directory");
-
-		finder.setOnSelectHandler (new ActionAdapter ()
-		{
-
-			public void actionPerformed (ActionEvent ev)
-			{
-
-				boolean valid = true;
-
-				VetoableActionEvent ve = (VetoableActionEvent) ev;
-
-				File f = finder.getSelectedFile ();
-
-				if (!f.isDirectory ())
-				{
-
-					valid = false;
-
-				}
-
-				if (valid)
-				{
-
-					// Look for files names, "projectdb.h2.db" and "___quollwriter_dir.txt"
-					File nf = new File (f.getPath () + "/" + Constants.QUOLLWRITER_DIR_FILE_NAME);
-
-					if ((!nf.exists ())
-						||
-						(!nf.isFile ())
-					   )
-					{
-
-						valid = false;
-
-					}
-
-					nf = new File (f.getPath () + "/projectdb.h2.db");
-
-					if ((!nf.exists ())
-						||
-						(!nf.isFile ())
-					   )
-					{
-
-						valid = false;
-
-					}
-
-					if (!valid)
-					{
-
-						// Show an error
-						message.setText (Environment.replaceObjectNames ("Sorry, that doesn't appear to be a Quoll Writer {project} directory."));
-						message.setForeground (UIUtils.getColor (Constants.ERROR_TEXT_COLOR));
-						message.setIcon (Environment.getIcon (Constants.ERROR_RED_ICON_NAME,
-															  Constants.ICON_MENU));
-
-					} else {
-
-						// See if the project is already in their project list.
-
-						message.setText (Environment.replaceObjectNames ("That looks like a Quoll Writer {project} directory."));
-						message.setForeground (UIUtils.getColor ("#558631"));
-						message.setIcon (Environment.getIcon ("ok-green",
-															  Constants.ICON_MENU));
-
-					}
-
-					message.setVisible (true);
-
-					openBut2.setEnabled (valid);
-
-					popup.resize ();
-
-				}
-
-			}
-
-		});
-
-		finder.setBorder (new EmptyBorder (0,
-										   5,
-										   0,
-										   0));
-
-		content.add (finder);
-		content.add (Box.createVerticalStrut (5));
-
-		openBut2.addActionListener (new ActionListener ()
-		{
-
-            @Override
-			public void actionPerformed (ActionEvent ev)
-			{
-
-				// See if there is a project file in the directory.
-				final File f = finder.getSelectedFile ();
-
-				final String name = WordsCapitalizer.capitalizeEveryWord (f.getName ());
-
-				TextInputWindow.create (null,
-										"Confirm name of {project}",
-										null,
-										"Please confirm this is the name of your {project}.",
-										"Open",
-										name,
-										new ValueValidator<String> ()
-										{
-
-											public String isValid (String v)
-											{
-
-												if ((v == null)
-													||
-													(v.trim ().length () == 0)
-												   )
-												{
-
-													return "Please enter the name of the {project}";
-
-												}
-
-												return null;
-
-											}
-
-										},
-										new ActionListener ()
-										{
-
-											public void actionPerformed (ActionEvent ev)
-											{
-
-												popup.removeFromParent ();
-
-												// Open the project.
-												final ProjectInfo p = new ProjectInfo ();
-												p.setProjectDirectory (f);
-
-												_this.handleOpenProject (p,
-																		 new ActionListener ()
-												{
-
-													public void actionPerformed (ActionEvent ev)
-													{
-
-														try
-														{
-
-															Environment.addOpenedProject (Environment.getProjectViewer (p));
-
-														} catch (Exception e) {
-
-															Environment.logError ("Unable to add project to projects file: " +
-																				  p.getName (),
-																				  e);
-
-														}
-
-													}
-
-												});
-
-											}
-
-										},
-										null);
-
-			}
-
-		});
-
-		JButton cancelBut = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
-				 								  popup.getCloseAction ());
-
-		JButton[] buts = new JButton[] { openBut2, cancelBut };
-
-		JPanel bp = UIUtils.createButtonBar2 (buts,
-											  Component.LEFT_ALIGNMENT);
-		bp.setOpaque (false);
-		bp.setBorder (UIUtils.createPadding (0, 5, 0, 0));
-		bp.setAlignmentX (JComponent.LEFT_ALIGNMENT);
-		bp.setMaximumSize (bp.getPreferredSize ());
-		content.add (bp);
-
-        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                     content.getPreferredSize ().height + 20));
-
-        popup.setContent (content);
-
-        this.showPopupAt (popup,
-                            UIUtils.getCenterShowPosition (this,
-                                                           popup),
-                            false);
-
-        //popup.resize ();
-
-        popup.setDraggable (this);
-
-	}
 
     private boolean handleOpenProject (final ProjectInfo    p,
 									   final ActionListener onOpen)
@@ -1558,9 +1372,19 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                           p.getName (),
                                           ee);
 
+                    java.util.List<String> prefix = new ArrayList<> ();
+                    prefix.add (LanguageStrings.project);
+                    prefix.add (LanguageStrings.actions);
+                    prefix.add (LanguageStrings.openproject);
+                    prefix.add (LanguageStrings.openerrors);
+
                     UIUtils.showErrorMessage (this,
-                                              "Unable to open project: " +
-                                              p.getName ());
+                                              String.format (Environment.getUIString (prefix,
+                                                                                      LanguageStrings.general),
+                                                                       //"Unable to open project: " +
+                                                             p.getName (),
+                                                             Environment.getUIString (prefix,
+                                                                                      LanguageStrings.unspecified)));
 
                     return false;
 
@@ -1572,9 +1396,19 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                   p.getName (),
                                   e);
 
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.actions);
+            prefix.add (LanguageStrings.openproject);
+            prefix.add (LanguageStrings.openerrors);
+
             UIUtils.showErrorMessage (this,
-                                      "Unable to open project: " +
-                                      p.getName ());
+                                      String.format (Environment.getUIString (prefix,
+                                                                              LanguageStrings.general),
+                                                               //"Unable to open project: " +
+                                                     p.getName (),
+                                                     Environment.getUIString (prefix,
+                                                                              LanguageStrings.unspecified)));
 
         }
 
@@ -1582,52 +1416,6 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
     }
 
-	private void showEditorsSideBar ()
-	{
-
-	}
-/*
-	private void showAddNewProject ()
-	{
-
-        final QPopup popup = UIUtils.createClosablePopup ("Create a new {project}",
-                                                          Environment.getIcon (Constants.ADD_ICON_NAME,
-                                                                               Constants.ICON_POPUP),
-                                                          null);
-
-		Box content = new Box (BoxLayout.Y_AXIS);
-
-		content.add (UIUtils.createHelpTextPane ("To create a new {Project} enter the name below, select the directory it should be saved to and press the Create button.",
-										   null));
-
-		final NewProjectPanel newProjPanel = new NewProjectPanel ();
-
-		JComponent cp = newProjPanel.createPanel (popup,
-												  popup.getCloseAction (),
-												  true,
-												  popup.getCloseAction (),
-												  true);
-
-		content.add (cp);
-
-        content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
-
-        content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                     content.getPreferredSize ().height));
-
-        popup.setContent (content);
-
-        this.showPopupAt (popup,
-                            UIUtils.getCenterShowPosition (this,
-                                                           popup),
-                            false);
-
-        popup.resize ();
-
-        popup.setDraggable (this);
-
-	}
-	*/
     @Override
     public void showPopupAt (Component popup,
                              Component showAt,
@@ -1748,8 +1536,6 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                     JLayeredPane.POPUP_LAYER);
 
         this.getLayeredPane ().moveToFront (c);
-
-//      this.getLayeredPane ().repaint ();
 
     }
 
@@ -1975,7 +1761,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 								  e);
 
 			UIUtils.showErrorMessage (this,
-									  "Unable to get {project} information, please contact Quoll Writer support for assistance.");
+                                      Environment.getUIString (LanguageStrings.allprojects,
+                                                               LanguageStrings.actionerror));
+									  //"Unable to get {project} information, please contact Quoll Writer support for assistance.");
 
 			return;
 
@@ -1988,7 +1776,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		this.backgroundPanel.setLayout (layout);
 
-		this.setViewerTitle (String.format ("Your {Projects} (%s)",
+		this.setViewerTitle (String.format (Environment.getUIString (LanguageStrings.allprojects,
+                                                                     LanguageStrings.title),
+                                            //"Your {Projects} (%s)",
 											Environment.formatNumber (infos.size ())));
 
 		try
@@ -2139,7 +1929,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			};
 
-			this.info = new JLabel ("")
+			this.info = new JLabel ("");
 			{
 
 				@Override
@@ -2195,6 +1985,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 				public String getToolTipText()
 				{
 
+                    java.util.List<String> prefix = new ArrayList<> ();
+                    prefix.add (LanguageStrings.allprojects);
+                    prefix.add (LanguageStrings.actions);
+                    prefix.add (LanguageStrings.openproject);
+                    prefix.add (LanguageStrings.tooltips);
+
 					if (!_this.interactive)
 					{
 
@@ -2211,7 +2007,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 					if (tip != null)
 					{
 
-						tip = "This {project} cannot be opened for the following reason:<br /><br />" + tip + "<br /><br />Right click to remove this from your list of {projects}.";
+						tip = String.format (Environment.getUIString (prefix,
+                                                                      LanguageStrings.error),
+                                             tip);
+                        //"This {project} cannot be opened for the following reason:<br /><br />" + tip + "<br /><br />Right click to remove this from your list of {projects}.";
 
 					}
 
@@ -2221,7 +2020,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 					   )
 					{
 
-						tip = "This {project} is encrypted and needs a password to access it.  Click to open it.";
+						tip = Environment.getUIString (prefix,
+                                                       LanguageStrings.encrypted);
+                        //"This {project} is encrypted and needs a password to access it.  Click to open it.";
 
 					}
 
@@ -2247,7 +2048,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 							}
 
-							tip = String.format ("You are editing this {project} for <b>%s</b>.  Click to open it.",
+							tip = String.format (Environment.getUIString (prefix,
+                                                                          LanguageStrings.editor),
+                                                //"You are editing this {project} for <b>%s</b>.  Click to open it.",
 												 name);
 
 						}
@@ -2260,19 +2063,22 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 					   )
 					{
 
-						tip = "This is your {warmups} {project}.  Click to open it.";
+						tip = Environment.getUIString (prefix,
+                                                       LanguageStrings.warmups);
+                                                    //"This is your {warmups} {project}.  Click to open it.";
 
 					}
 
 					if (tip == null)
 					{
 
-						tip = "Click to open the {project}.";
+						tip = Environment.getUIString (prefix,
+                                                       LanguageStrings.general);
+                                                       //"Click to open the {project}.";
 
 					}
 
-					return String.format ("<html>%s</html>",
-										  Environment.replaceObjectNames (tip));
+					return "<html>%s</html>";
 
 				}
 
@@ -2306,6 +2112,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 							if (ev.isPopupTrigger ())
 							{
 
+                                java.util.List<String> prefix = new ArrayList<> ();
+                                prefix.add (LanguageStrings.allprojects);
+                                prefix.add (LanguageStrings.project);
+                                prefix.add (LanguageStrings.popupmenu);
+                                prefix.add (LanguageStrings.items);
+
 								ev.consume ();
 
 								JPopupMenu popup = new JPopupMenu ();
@@ -2315,7 +2127,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 								if (reason != null)
 								{
 
-									popup.add (UIUtils.createMenuItem ("Remove {project}",
+									popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.remove),
+                                                                    //"Remove {project}",
 																	   Constants.ERROR_ICON_NAME,
 																	   new ActionListener ()
 																	   {
@@ -2346,7 +2160,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 								} else {
 
-									popup.add (UIUtils.createMenuItem ("Open",
+									popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.open),
+                                                                        //"Open",
 																	   Constants.OPEN_PROJECT_ICON_NAME,
 																	   new ActionListener ()
 																	   {
@@ -2361,7 +2177,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 																		}));
 
-									JMenu m = new JMenu ("Set Status");
+									JMenu m = new JMenu (Environment.getUIString (prefix,
+                                                                                  LanguageStrings.setstatus));
+                                                        //"Set Status");
 
 									popup.add (m);
 
@@ -2377,7 +2195,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									m.add (_this.createStatusMenuItem (null));
 
-									m.add (UIUtils.createMenuItem ("Add a new Status",
+									m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                            LanguageStrings.newstatus),
+                                                                    //"Add a new Status",
 																   Constants.EDIT_ICON_NAME,
 																   new ActionListener ()
 																   {
@@ -2396,7 +2216,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 									if (!_this.project.isEncrypted ())
 									{
 
-										popup.add (UIUtils.createMenuItem ("Create a Backup",
+										popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                                    LanguageStrings.createbackup),
+                                                                    //"Create a Backup",
 																		   Constants.SNAPSHOT_ICON_NAME,
 																		   new ActionListener ()
 																		   {
@@ -2414,7 +2236,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									}
 
-									popup.add (UIUtils.createMenuItem ("Manage Backups",
+									popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.managebackups),
+                                                                    //"Manage Backups",
 																	   Constants.EDIT_ICON_NAME,
 																	   new ActionListener ()
 																	   {
@@ -2431,7 +2255,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									popup.addSeparator ();
 
-									popup.add (UIUtils.createMenuItem ("Show Folder",
+									popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.showfolder),
+                                                                        //"Show Folder",
 																	   Constants.FOLDER_ICON_NAME,
 																	   new ActionListener ()
 																	   {
@@ -2446,7 +2272,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 																		}));
 
-									popup.add (UIUtils.createMenuItem ("Delete",
+									popup.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
+                                                                                                LanguageStrings.delete),
+                                                                    //"Delete",
 																	   Constants.DELETE_ICON_NAME,
 																	   new ActionListener ()
 																	   {
@@ -2497,8 +2325,21 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 														  _this.project,
 														  e);
 
-									UIUtils.showErrorMessage (_this.parent,
-															  "Unable to open {project}, please contact Quoll Writer support for assistance.");
+                                    java.util.List<String> prefix = new ArrayList<> ();
+                                    prefix.add (LanguageStrings.project);
+                                    prefix.add (LanguageStrings.actions);
+                                    prefix.add (LanguageStrings.openproject);
+                                    prefix.add (LanguageStrings.openerrors);
+
+                                    UIUtils.showErrorMessage (this,
+                                                              String.format (Environment.getUIString (prefix,
+                                                                                                      LanguageStrings.general),
+                                                                                      //"Unable to open project: " +
+                                                                             _this.project.getName (),
+                                                                             Environment.getUIString (prefix,
+                                                                                                      LanguageStrings.unspecified)));
+									//UIUtils.showErrorMessage (_this.parent,
+										//					  "Unable to open {project}, please contact Quoll Writer support for assistance.");
 
 								}
 
@@ -2628,17 +2469,27 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		public String getFormattedProjectInfo ()
 		{
 
+            java.util.List<String> prefix = new ArrayList ();
+            prefix.add (LanguageStrings.allprojects);
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.view);
+            prefix.add (LanguageStrings.labels);
+
 			String lastEd = "";
 
 			if (project.getLastEdited () != null)
 			{
 
-				lastEd = String.format ("Last edited: %s",
+				lastEd = String.format (Environment.getUIString (prefix,
+                                                                 LanguageStrings.lastedited),
+                                        //"Last edited: %s",
 										Environment.formatDate (project.getLastEdited ()));
 
 			} else {
 
-				lastEd = "Not yet edited.";
+				lastEd = Environment.getUIString (prefix,
+                                                  LanguageStrings.notedited);
+                                                //"Not yet edited.";
 
 			}
 
@@ -2669,25 +2520,32 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			text = StringUtils.replaceString (text,
 											  WORDS_TAG,
-											  String.format ("%s words",
+											  String.format (Environment.getUIString (prefix,
+                                                                                      LanguageStrings.words),
+                                                            //"%s words",
 															 Environment.formatNumber (this.project.getWordCount ())));
-			                
+
             text = StringUtils.replaceString (text,
                                               CHAPTERS_TAG,
-                                              /*Environment.replaceObjectNames (*/String.format ("%s ${objectnames.%s.chapter}",
-                                                                                             Environment.formatNumber (this.project.getChapterCount ()),
-                                                                                             (this.project.getChapterCount () == 1 ? "singular" : "plural")));
+                                              String.format (Environment.getUIString (prefix,
+                                                                                      LanguageStrings.chapters),
+                                                //"%s ${objectnames.%s.chapter}",
+                                                             Environment.formatNumber (this.project.getChapterCount ())));
 
 			text = StringUtils.replaceString (text,
 											  LAST_EDITED_TAG,
 											  lastEd);
 			text = StringUtils.replaceString (text,
 											  EDIT_COMPLETE_TAG,
-											  String.format ("%s%% complete",
+											  String.format (Environment.getUIString (prefix,
+                                                                                      LanguageStrings.editcomplete),
+                                                            //"%s%% complete",
 															 Environment.formatNumber (Environment.getPercent (this.project.getEditedWordCount (), project.getWordCount ()))));
 			text = StringUtils.replaceString (text,
 											  READABILITY_TAG,
-											  String.format ("GL: %s, RE: %s, GF: %s",
+											  String.format (Environment.getUIString (prefix,
+                                                                                      LanguageStrings.readability),
+                                                            //"GL: %s, RE: %s, GF: %s",
 															 Environment.formatNumber (Math.round (this.project.getFleschKincaidGradeLevel ())),
 															 Environment.formatNumber (Math.round (this.project.getFleschReadingEase ())),
 															 Environment.formatNumber (Math.round (this.project.getGunningFogIndex ()))));
@@ -2699,14 +2557,34 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 		private void showAddNewProjectStatus ()
 		{
 
+            final java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.project);
+            prefix.add (LanguageStrings.status);
+            prefix.add (LanguageStrings.actions);
+            prefix.add (LanguageStrings.add);
+
 			final ProjectBox _this = this;
 
 			UIUtils.createTextInputPopup (this.parent,
-										  "Add a new {Project} Status",
+										  Environment.getUIString (prefix,
+                                                                   LanguageStrings.popup,
+                                                                   LanguageStrings.title),
+                                            //"Add a new {Project} Status",
 										  null,
-										  "Enter a new status below, it will be applied to the {project} once added.",
-										  "Add",
-										  null,
+                                          Environment.getUIString (prefix,
+                                                                   LanguageStrings.popup,
+                                                                   LanguageStrings.text),
+										  //"Enter a new status below, it will be applied to the {project} once added.",
+                                          Environment.getUIString (prefix,
+                                                                   LanguageStrings.popup,
+                                                                   LanguageStrings.buttons,
+                                                                   LanguageStrings.save),
+										  //"Add",
+                                          Environment.getUIString (prefix,
+                                                                   LanguageStrings.popup,
+                                                                   LanguageStrings.buttons,
+                                                                   LanguageStrings.cancel),
+										  //null,
 										  null,
 										  new ValueValidator<String> ()
 										  {
@@ -2720,7 +2598,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 												   )
 												{
 
-													return "Please enter the new status.";
+													return Environment.getUIString (prefix,
+                                                                                    LanguageStrings.popup,
+                                                                                    LanguageStrings.errors,
+                                                                                    LanguageStrings.novalue);
+                                                    //"Please enter the new status.";
 
 												}
 
@@ -2734,7 +2616,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 													if (s.equalsIgnoreCase (v))
 													{
 
-														return "Already have that status.";
+                                                        return Environment.getUIString (prefix,
+                                                                                        LanguageStrings.popup,
+                                                                                        LanguageStrings.errors,
+                                                                                        LanguageStrings.valueexists);
+														//return "Already have that status.";
 
 													}
 
@@ -2767,7 +2653,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 																		  e);
 
 													UIUtils.showErrorMessage (_this.parent,
-																			  "Unable to update {project}.");
+                                                                              Environment.getUIString (LanguageStrings.project,
+                                                                                                       LanguageStrings.status,
+                                                                                                       LanguageStrings.actionerror));
+																			  //"Unable to update {project}.");
 
 													return;
 
@@ -2789,7 +2678,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			final ProjectBox _this = this;
 
-            return UIUtils.createMenuItem ((status != null ? status : "No Status"),
+            return UIUtils.createMenuItem ((status == null ? Environment.getUIString (LanguageStrings.project,
+                                                                                      LanguageStrings.status,
+                                                                                      LanguageStrings.novalue)
+                                                           : status),
                                            (String) null,
                                            new ActionListener ()
                                            {
@@ -2811,7 +2703,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 																			  e);
 
 														UIUtils.showErrorMessage (_this.parent,
-																				  "Unable to update status");
+                                                                                  Environment.getUIString (LanguageStrings.project,
+                                                                                                           LanguageStrings.status,
+                                                                                                           LanguageStrings.actionerror));
+																				  //"Unable to update status");
 
 													}
 
@@ -3084,7 +2979,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
                                       e);
 
                 UIUtils.showErrorMessage (this,
-                                          "Unable to show the editors register panel, please contact Quoll Writer support for assistance.");
+                                          Environment.getUIString (LanguageStrings.editors,
+                                                                   LanguageStrings.showregistererror));
+                                          //"Unable to show the editors register panel, please contact Quoll Writer support for assistance.");
 
                 return false;
 
@@ -3139,16 +3036,16 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         }
 
         String id = sb.getId ();
-        
+
         String state = null;
-        
+
         if (id != null)
         {
-        
+
             state = UserProperties.get ("sidebarState-" + id);
-                        
-        }        
-        
+
+        }
+
         sb.init (state);
 
         this.sideBars.put (id,
@@ -3165,21 +3062,21 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         // Get the state from the sidebars.
         for (AbstractSideBar sb : this.sideBars.values ())
         {
-            
+
             String id = sb.getId ();
-            
+
             if (id == null)
             {
-                
+
                 continue;
-                
+
             }
-            
+
             UserProperties.set ("sidebarState-" + id,
                                 sb.getSaveState ());
-            
-        }        
-        
+
+        }
+
 	}
 
 	@Override
@@ -3273,6 +3170,11 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		}
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.allprojects);
+        prefix.add (LanguageStrings.headercontrols);
+        prefix.add (LanguageStrings.items);
+
 		final Landing _this = this;
 
 		JComponent c = null;
@@ -3282,7 +3184,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			c = UIUtils.createButton (Constants.ADD_ICON_NAME,
                                       Constants.ICON_TITLE_ACTION,
-                                          "Click to provide feedback/report a problem with the beta",
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.add,
+                                                               LanguageStrings.tooltip),
+                                    // ??? "Click to provide feedback/report a problem with the beta",
                                           new ActionAdapter ()
                                           {
 
@@ -3299,32 +3204,15 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		}
 
-		if (id.equals (FIND_PROJECT_HEADER_CONTROL_ID))
-		{
-
-			c = UIUtils.createButton (Constants.FIND_ICON_NAME,
-											  Constants.ICON_TITLE_ACTION,
-											  "Click to find one of your {projects}",
-											  new ActionAdapter ()
-											  {
-
-												  public void actionPerformed (ActionEvent ev)
-												  {
-
-													  _this.showFindProject ();
-
-												  }
-
-											  });
-
-		}
-
 		if (id.equals (IMPORT_PROJECT_HEADER_CONTROL_ID))
 		{
 
 			c = UIUtils.createButton (Constants.PROJECT_IMPORT_ICON_NAME,
-                                          Constants.ICON_TITLE_ACTION,
-                                          "Click to create a new {project} by importing a file",
+                                      Constants.ICON_TITLE_ACTION,
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.add,
+                                                               LanguageStrings.tooltip),
+                                    //"Click to create a new {project} by importing a file",
                                           new ActionAdapter ()
                                           {
 
@@ -3362,12 +3250,20 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
     public void fillSettingsPopup (JPopupMenu popup)
 	{
 
+        java.util.List<String> prefix = new ArrayList ();
+
+        prefix.add (LanguageStrings.allprojects);
+        prefix.add (LanguageStrings.settingsmenu);
+        prefix.add (LanguageStrings.items);
+
 		final Landing _this = this;
 
 		// Add?
-        popup.add (this.createMenuItem ("New {Project}",
-                                             Constants.NEW_ICON_NAME,
-											 new ActionListener ()
+        popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                 LanguageStrings.newproject),
+                                        //"New {Project}",
+                                        Constants.NEW_ICON_NAME,
+										new ActionListener ()
 											 {
 
 												@Override
@@ -3382,10 +3278,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 											 }));
 
-        popup.add (this.createMenuItem ("Import File/{Project}",
-                                             Constants.PROJECT_IMPORT_ICON_NAME,
-                                             new ActionAdapter ()
-                                             {
+        popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                 LanguageStrings.importfileorproject),
+                                        //"Import File/{Project}",
+                                        Constants.PROJECT_IMPORT_ICON_NAME,
+                                        new ActionAdapter ()
+                                        {
 
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
@@ -3396,7 +3294,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
                                             }));
 
-        popup.add (this.createMenuItem ("Find your {Projects}",
+        popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                 LanguageStrings.findprojects),
+                                        //"Find your {Projects}",
                                              Constants.FIND_ICON_NAME,
                                              new ActionAdapter ()
                                              {
@@ -3412,23 +3312,31 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 		popup.addSeparator ();
 
-        popup.add (this.createMenuItem ("Statistics",
+        popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                 LanguageStrings.statistics),
+                                        //"Statistics",
                                         Constants.CHART_ICON_NAME,
                                         AbstractProjectViewer.SHOW_STATISTICS_ACTION));
 
-        popup.add (this.createMenuItem ("Targets",
+        popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                 LanguageStrings.targets),
+                                        //"Targets",
 										Constants.TARGET_ICON_NAME,
 										ProjectViewer.SHOW_TARGETS_ACTION));
 
 		popup.addSeparator ();
 
-		JMenu m = new JMenu (Environment.replaceObjectNames ("Sort {Projects} by"));
+		JMenu m = new JMenu (Environment.getUIString (prefix,
+                                                      LanguageStrings.sortprojects));
+                            //Environment.replaceObjectNames ("Sort {Projects} by"));
 		m.setIcon (Environment.getIcon (Constants.SORT_ICON_NAME,
 										Constants.ICON_MENU));
 
 		popup.add (m);
 
-		m.add (_this.createMenuItem ("Last edited",
+		m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                              LanguageStrings.sortlastedited),
+                                    //"Last edited",
 									 Constants.DATE_ICON_NAME,
 									 new ActionListener ()
 									 {
@@ -3443,7 +3351,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									 }));
 
-		m.add (_this.createMenuItem ("Name",
+		m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                              LanguageStrings.sortname),
+                                    //"Name",
 									 Constants.SPELLCHECKER_ICON_NAME,
 									 new ActionListener ()
 									 {
@@ -3458,7 +3368,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									 }));
 
-		m.add (_this.createMenuItem ("Status",
+		m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                              LanguageStrings.sortstatus),
+                                    //"Status",
 									 Constants.STAR_ICON_NAME,
 									 new ActionListener ()
 									 {
@@ -3473,7 +3385,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									 }));
 
-		m.add (_this.createMenuItem ("Word Count",
+		m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                              LanguageStrings.sortwordcount),
+                                    //"Word Count",
 									 Constants.WORDCOUNT_ICON_NAME,
 									 new ActionListener ()
 									 {
@@ -3488,7 +3402,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									 }));
 
-		popup.add (_this.createMenuItem ("Manage Statuses",
+		popup.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                  LanguageStrings.managestatuses),
+                                        //"Manage Statuses",
 									 Constants.EDIT_ICON_NAME,
 									 new ActionListener ()
 									 {
@@ -3503,7 +3419,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 									 }));
 
-		popup.add (_this.createMenuItem ("Change what is displayed",
+		popup.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                  LanguageStrings.changedisplay),
+                                        //"Change what is displayed",
 										 Constants.EDIT_ICON_NAME,
 										 new ActionListener ()
 										 {
@@ -3524,20 +3442,22 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
         popup.addSeparator ();
 
         // Do a Warm-up Exercise
-        popup.add (this.createMenuItem ("Do a {Warmup} Exercise",
-                                             Constants.WARMUPS_ICON_NAME,
-											 new ActionAdapter ()
-											 {
+        popup.add (this.createMenuItem (Environment.getUIString (prefix,
+                                                                 LanguageStrings.dowarmup),
+                                        //"Do a {Warmup} Exercise",
+                                        Constants.WARMUPS_ICON_NAME,
+										new ActionAdapter ()
+										{
 
-												@Override
-												public void actionPerformed (ActionEvent ev)
-												{
+											@Override
+											public void actionPerformed (ActionEvent ev)
+											{
 
-													_this.showWarmupPromptSelect ();
+												_this.showWarmupPromptSelect ();
 
-												}
+											}
 
-											 }));
+										}));
 
 	}
 
@@ -3568,7 +3488,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
 												  Constants.ICON_MENU,
-												  "Click to close",
+												  Environment.getUIString (LanguageStrings.actions,
+                                                                           LanguageStrings.clicktoclose),
+                                                //"Click to close",
 												  new ActionAdapter ()
 			{
 
@@ -3612,7 +3534,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 								  e);
 
 			UIUtils.showErrorMessage (this,
-									  "Unable to view the statistics");
+                                      Environment.getUIString (LanguageStrings.statistics,
+                                                               LanguageStrings.actionerror));
+									  //"Unable to view the statistics");
 
 			return false;
 
@@ -3625,26 +3549,12 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 					   throws GeneralException
 	{
 
-		try
+		if (this.viewStatistics ())
 		{
 
-			if (this.viewStatistics ())
-			{
+			this.statsPanel.showChart (chartType);
 
-				this.statsPanel.showChart (chartType);
-
-				return true;
-
-			}
-
-		} catch (Exception e) {
-
-			Environment.logError ("Unable to view the chart: " +
-								  chartType,
-								  e);
-
-			UIUtils.showErrorMessage (this,
-									  "Unable to view the chart");
+			return true;
 
 		}
 
@@ -3698,7 +3608,9 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
 												  Constants.ICON_MENU,
-												  "Click to close",
+												  Environment.getUIString (LanguageStrings.actions,
+                                                                           LanguageStrings.clicktoclose),
+                                                //"Click to close",
 												  new ActionAdapter ()
 			{
 
@@ -3739,8 +3651,10 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			Environment.logError ("Unable to view the options",
 								  e);
 
-			UIUtils.showErrorMessage (this,
-									  "Unable to view the options");
+            UIUtils.showErrorMessage (this,
+                                      Environment.getUIString (LanguageStrings.options,
+                                                               LanguageStrings.actionerror));
+									  //"Unable to view the options");
 
 			return false;
 
@@ -3771,8 +3685,13 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 			public void actionPerformed (ActionEvent ev)
 			{
 
-				details.setText (Environment.replaceObjectNames (String.format ("<html>Checking for {project} in <b>%s</b></html>",
-																				dir.getPath ())));
+				details.setText ("<html>"
+                                 + String.format (Environment.getUIString (LanguageStrings.allprojects,
+                                                                          LanguageStrings.actions,
+                                                                          LanguageStrings.findprojects,
+                                                                          LanguageStrings.details),
+                                                  dir.getPath ())
+                                 + "</html>");
 
 			}
 
@@ -3824,7 +3743,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 					pi = new ProjectInfo (proj);
 
 				} catch (Exception e) {
-e.printStackTrace ();
+
 					if (ObjectManager.isEncryptionException (e))
 					{
 
@@ -3938,12 +3857,25 @@ e.printStackTrace ();
 	public void showFindProjects ()
 	{
 
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.allprojects);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.findprojects);
+
 		if (this.findProjectsNotification != null)
 		{
 
 			UIUtils.showMessage ((PopupsSupported) this,
-								 "Find in progress",
-								 "A search for {projects} is currently in progress.");
+								 Environment.getUIString (prefix,
+                                                          LanguageStrings.inprogress,
+                                                          LanguageStrings.popup,
+                                                          LanguageStrings.title),
+                                //"Find in progress",
+                                Environment.getUIString (prefix,
+                                                         LanguageStrings.inprogress,
+                                                         LanguageStrings.popup,
+                                                         LanguageStrings.text));
+								 //"A search for {projects} is currently in progress.");
 
 			return;
 
@@ -3951,14 +3883,20 @@ e.printStackTrace ();
 
 		final Landing _this = this;
 
-        final QPopup popup = UIUtils.createClosablePopup ("Find your {Projects}",
+        prefix.add (LanguageStrings.popup);
+
+        final QPopup popup = UIUtils.createClosablePopup (Environment.getUIString (prefix,
+                                                                                   LanguageStrings.title),
+                                                        //"Find your {Projects}",
                                                           Environment.getIcon (Constants.FIND_ICON_NAME,
                                                                                Constants.ICON_POPUP),
                                                           null);
 
 		Box content = new Box (BoxLayout.Y_AXIS);
 
-		content.add (UIUtils.createHelpTextPane ("This function allows you to find your {projects}.  It is useful if you are using Dropbox or another file syncing service or just need to rebuild your {projects} database.<br /><br />Use the box below to select a starting directory then press <b>Find</b>, Quoll Writer will then search your file system for {projects} and it will add them automatically.",
+		content.add (UIUtils.createHelpTextPane (Environment.getUIString (prefix,
+                                                                          LanguageStrings.text),
+                                                //"This function allows you to find your {projects}.  It is useful if you are using Dropbox or another file syncing service or just need to rebuild your {projects} database.<br /><br />Use the box below to select a starting directory then press <b>Find</b>, Quoll Writer will then search your file system for {projects} and it will add them automatically.",
 												 null));
 
         content.add (Box.createVerticalStrut (5));
@@ -3969,14 +3907,26 @@ e.printStackTrace ();
 		message.setVisible (false);
 		content.add (message);
 
-		final JButton findBut = UIUtils.createButton ("Find");
+		final JButton findBut = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                               LanguageStrings.buttons,
+                                                                               LanguageStrings.find));
+                                                                               //"Find");
 
 		final FileFinder finder = UIUtils.createFileFind (Environment.getUserQuollWriterDir ().getPath (),
-														  "Select a Directory",
+														  Environment.getUIString (prefix,
+                                                                                   LanguageStrings.finder,
+                                                                                   LanguageStrings.title),
+                                                            //"Select a Directory",
 														  JFileChooser.DIRECTORIES_ONLY,
-														  "Select",
+														  Environment.getUIString (prefix,
+                                                                                   LanguageStrings.finder,
+                                                                                   LanguageStrings.button),
+                                                            //"Select",
 														  null);
-		finder.setFindButtonToolTip ("Click to find a starting directory");
+		finder.setFindButtonToolTip (Environment.getUIString (prefix,
+                                                              LanguageStrings.finder,
+                                                              LanguageStrings.tooltip));
+                                    //"Click to find a starting directory");
 
 		finder.setBorder (UIUtils.createPadding (0,
 										   5,
@@ -4048,7 +3998,10 @@ e.printStackTrace ();
 
 		});
 
-		JButton cancelBut = UIUtils.createButton (Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
+		JButton cancelBut = UIUtils.createButton (Environment.getUIString (prefix,
+                                                                           LanguageStrings.buttons,
+                                                                           LanguageStrings.cancel),
+                                                //Environment.getButtonLabel (Constants.CANCEL_BUTTON_LABEL_ID),
 				 								  popup.getCloseAction ());
 
 		JButton[] buts = new JButton[] { findBut, cancelBut };
@@ -4064,7 +4017,7 @@ e.printStackTrace ();
         content.setBorder (UIUtils.createPadding (10, 10, 10, 10));
 
         content.setPreferredSize (new Dimension (UIUtils.getPopupWidth (),
-                                     content.getPreferredSize ().height + 20));
+                                                 content.getPreferredSize ().height + 20));
 
         popup.setContent (content);
 
@@ -4103,7 +4056,9 @@ e.printStackTrace ();
 
 			JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
 												  Constants.ICON_MENU,
-												  "Click to close",
+												  Environment.getUIString (LanguageStrings.actions,
+                                                                           LanguageStrings.clicktoclose),
+                                                //"Click to close",
 												  new ActionAdapter ()
 			{
 
@@ -4143,7 +4098,9 @@ e.printStackTrace ();
 								  e);
 
 			UIUtils.showErrorMessage (this,
-									  "Unable to view the achievements");
+                                      Environment.getUIString (LanguageStrings.achievementspanel,
+                                                               LanguageStrings.actionerror));
+									  //"Unable to view the achievements");
 
 			return false;
 
@@ -4186,12 +4143,13 @@ e.printStackTrace ();
 
                 } catch (Exception e) {
 
-                    UIUtils.showErrorMessage (_this,
-                                              "Unable to show Editor");
-
                     Environment.logError ("Unable to show editor: " +
                                           ed,
                                           e);
+
+                    UIUtils.showErrorMessage (_this,
+                                              Environment.getUIString (LanguageStrings.editors,
+                                                                       LanguageStrings.vieweditorerror));
 
                 }
 

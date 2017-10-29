@@ -430,7 +430,7 @@ public class LanguageStrings
     public static final String max = "max";
     public static final String min = "min";
     public static final String greaterthanmin = "greaterthanmin";
-    public static final String defualt = "default";
+    public static final String _default = "default";
     public static final String lessthanmax = "lessthanmax";
     public static final String smallicon = "smallicon";
     public static final String bigicon = "bigicon";
@@ -482,6 +482,7 @@ public class LanguageStrings
     public static final String newitems = "newitems";
     public static final String separators = "separators";
     public static final String status = "status";
+    public static final String clicktoclose = "clicktoclose";
     public static final String clicktoview = "clicktoview";
     public static final String doubleclicktoview = "doubleclicktoview";
     public static final String readability = "readability";
@@ -512,6 +513,31 @@ public class LanguageStrings
     public static final String digestinvalid = "digestinvalid";
     public static final String inprogress = "inprogress";
     public static final String checkingfile = "checkingfile";
+    public static final String changedisplay = "changedisplay";
+    public static final String managestatuses = "managestatuses";
+    public static final String sortwordcount = "sortwordcount";
+    public static final String sortstatus = "sortstatus";
+    public static final String sortname = "sortname";
+    public static final String sortlastedited = "sortlastedited";
+    public static final String sortprojects = "sortprojects";
+    public static final String findprojects = "findprojects";
+    public static final String importfileorproject = "importfileorproject";
+    public static final String noprojects = "noprojects";
+    public static final String example = "example";
+    public static final String selectbackground = "selectbackground";
+    public static final String removeproject = "removeproject";
+    public static final String projectopen = "projectopen";
+    public static final String unspecified = "unspecified";
+    public static final String error = "error";
+    public static final String encrypted = "encrypted";
+    public static final String tooltips = "tooltips";
+    public static final String managebackups = "managebackups";
+    public static final String newstatus = "newstatus";
+    public static final String setstatus = "setstatus";
+    public static final String editcomplete = "editcomplete";
+    public static final String notedited = "notedited";
+    public static final String lastedited = "lastedited";
+    public static final String details = "details";
 
     private static String ID_PART_SEP = ".";
 

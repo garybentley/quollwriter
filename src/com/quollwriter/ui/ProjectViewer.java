@@ -655,7 +655,7 @@ public class ProjectViewer extends AbstractProjectViewer implements DocumentList
 
         // Import File
         titlePopup.add (this.createMenuItem (Environment.getUIString (prefix,
-                                                                      LanguageStrings.importproject),
+                                                                      LanguageStrings.importfileorproject),
                                              //"Import File/{Project}",
                                              Constants.PROJECT_IMPORT_ICON_NAME,
                                              new ActionAdapter ()

@@ -162,7 +162,7 @@ public class Environment
     private static PropertyChangedListener userConfigurableObjectTypeNameListener = null;
 
     private static Set<Tag> tags = null;
-    
+
     private static String UILanguage = null;
     private static String defaultUILanguage = Constants.ENGLISH;
     private static Map<String, LanguageStrings> UILanguageMaps = new HashMap ();
@@ -1524,7 +1524,7 @@ public class Environment
     public static String canOpenProject (ProjectInfo p)
     {
 
-        java.util.List<String> prefix = new ArrayList ();
+        java.util.List<String> prefix = new ArrayList<> ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.actions);
         prefix.add (LanguageStrings.openproject);

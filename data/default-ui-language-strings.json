@@ -29,7 +29,8 @@
             "newproject" : "${actions.new} ${objectnames.singular.project}",
             "renameproject" : "${actions.rename} this ${objectnames.singular.project}",
             "statistics" : "Statistics",
-            "createbackup" : "${actions.create} a ${names.backup}",
+            "targets" : "${names.targets}",
+            "createbackup" : "${actions.createbackup}",
             "closeproject" : "${actions.close} ${objectnames.singular.project}",
             "deleteproject" : "${actions.delete} ${objectnames.singular.project}",
             "dowarmup" : "Do a {Warmup} exercise",
@@ -41,7 +42,12 @@
             "contactsupport" : "Contact Support",
             "viewuserguide" : "View the User Guide",
             "keyboardshortcuts" : "Keyboard Shortcuts",
-            "about" : "About {QW}"
+            "about" : "About {QW}",
+            "findprojects" : "Find your ${objectnames.plural.project}",
+            "importfileorproject" : "${actions.import} File/${objectnames.singular.project}",
+            "importproject" : "${actions.import} ${objectnames.singular.project}",
+            "sortprojects" : "Sort ${objectnames.plural.project} by",
+            "managestatuses" : "Manage Statuses"
         }
     },
     "objectnames" :
@@ -66,7 +72,8 @@
             "idea" : "Idea",
             "tag" : "Tag",
             "asset" : "Asset",
-            "book" : "Book"
+            "book" : "Book",
+            "backup" : "Backup"
         },
         "plural" :
         {
@@ -87,7 +94,8 @@
             "idea" : "Ideas",
             "tag" : "Tags",
             "asset" : "Assets",
-            "book" : "Books"
+            "book" : "Books",
+            "backup" : "Backups"
         },
         "changer" :
         {
@@ -285,8 +293,6 @@
     "names" :
     {
         "ideaboard" : "Idea Board",
-        "backup" : "Backup",
-        "backups" : "Backups",
         "ideatype" : "Idea Type",
         "idea" : "Idea",
         "problemfinder" : "Problem Finder",
@@ -302,7 +308,8 @@
         "achievements" : "Achievements",
         "find" : "Find",
         "options" : "Options",
-        "name" : "Name"
+        "name" : "Name",
+        "targets" : "Targets"
     },
     "buttons" :
     {
@@ -313,10 +320,11 @@
         "close" : "${actions.close}",
         "send" : "${actions.send}",
         "open" : "${actions.open}",
+        "add" : "${actions.add}",
         "__$$confirm$$__" : "Ok, got it",
         "__$$cancel$$__" : "${buttons.cancel}",
         "__$$close$$__" : "${actions.close}",
-        "__$$createbackup$$__" : "Create a ${names.backup}",
+        "__$$createbackup$$__" : "${actions.createbackup}",
         "__$$save$$__" : "${actions.save}",
         "__$$send$$__" : "${actions.send}",
         "__$$update$$__" : "${actions.update}",
@@ -889,8 +897,11 @@
         "findproblems" : "Find Problems",
         "edittextproperties" : "Edit Text Properties",
         "clicktoview" : "Click to view",
-        "doubleclicktoview" : "Double click to view"
-
+        "clicktoclose" : "Click to close",
+        "doubleclicktoview" : "Double click to view",
+        "showfolder" : "Show Folder",
+        "managebackups" : "Manage ${objectnames.plural.backup}",
+        "createbackup" : "Create a ${objectnames.singular.backup}"
     },
     "sidebars" :
     {
@@ -1790,7 +1801,7 @@
         "17" : "Sick of those little red lines?  <a href='action:spellcheckoff'>Click to turn the spellchecker off.</a><br />Press <b>Ctrl+L</b> when editing a chapter or use the [spellchecker] button on the toolbar to turn the spellchecker on or off.",
         "18" : "Want to keep track of your achievements?  <a href='action:achievements'>Click to check your achievements now.</a><br />You can track your progress at any time by selecting [achievement]<b>${project.settingsmenu.items.achievements}</b> from the {project} menu.",
         "19" : "Like to use the keyboard rather than the mouse?  <a href='help:main-window/keyboard-shortcuts'>Click to view the shortcuts.</a>",
-        "20" : "You can import Microsoft Word files into your {project}. <a href='action:import'>Click to import a file.</a><br />You can also select [project-import]<b>${project.settingsmenu.items.importproject}</b> from the {project} menu to import.",
+        "20" : "You can import Microsoft Word files into your {project}. <a href='action:import'>Click to import a file.</a><br />You can also select [project-import]<b>${project.settingsmenu.items.importfileorproject}</b> from the {project} menu to import.",
         "21" : "You can export your {project} to a number of different file formats?  <a href='action:export'>Click to export your {project}.</a><br />You can also select [project-export]<b>${project.settingsmenu.items.exportproject}</b> from the {project} menu to export.",
         "22" : "Want to improve your writing and find problems with the text?   <a href='action:problemfinder'>Click to view the problem finder.</a><br />The problem finder can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>${names.problemfinder}</b>.",
         "23" : "You can use the problem finder in full screen mode.  <a href='action:fullscreen,problemfinder'>Click to view the problem finder in full screen mode now.</a><br />Full screen mode can be accessed from the toolbar by selecting [fullscreen] or pressing <b>F5</b>. The ${names.problemfinder} can be accessed from the [tools] tools menu on the toolbar then selecting [eye]<b>Find Problems</b> or using the shortcut <b>Ctrl+Shift+P</b>.",
@@ -2159,6 +2170,7 @@
     },
     "importproject" :
     {
+        "title" : "Import a File or ${objectnames.singular.project}",
         "actionerror" : "Unable to show import {project} wizard.",
         "supportedfiletypesdescription" : "Supported Files",
         "errors" :
@@ -2466,10 +2478,10 @@
     },
     "backups" :
     {
-        "autobackupnotification" : "An automatic ${names.backup} has been created.  <a href='%1$s:%1$s'>Click to view the ${names.backups}.</a>",
+        "autobackupnotification" : "An automatic ${objectnames.singular.backup} has been created.  <a href='%1$s:%1$s'>Click to view the ${objectnames.plural.backup}.</a>",
         ":comment.autobackupnotification" : "The %1$s:%2$s is a link generated by QW to open the folder containing the backups.  It is recommended that you do not change that.",
         ":scount.autobackupnotification" : 2,
-        "text" : "Listed below are the backups you have for {project} <b>%1$s</b>.",
+        "text" : "Listed below are the backups you have for ${objectnames.singular.project} <b>%1$s</b>.",
         ":comment.text" : "%1$s is the project name.",
         ":scount.text" : 1,
         "viewbackupsdir" : "Click to view the backups directory",
@@ -2710,7 +2722,192 @@
     },
     "allprojects" :
     {
-        "actionerror" : "Unable to show all {projects}."
+        "title" : "Your ${objectnames.plural.project} (%1$s)",
+        ":comment.title" : "%1$s is the number of projects the user has.",
+        ":scount.title" : 1,
+        "actionerror" : "Unable to show all ${objectnames.plural.project}.",
+        "noprojects" : "You currently have no ${objectnames.plural.project}",
+        "tooltip" : "Double click to add a new ${objectnames.singular.project}.",
+        "headercontrols" :
+        {
+            "items" :
+            {
+                "add" :
+                {
+                    "tooltip" : "Click to create a new ${objectnames.singular.project}"
+                },
+                "importfile" :
+                {
+                    "tooltip" : "Click to create a new ${objectnames.singular.project} by importing a file."
+                }
+            }
+        },
+        "settingsmenu" :
+        {
+            "items" :
+            {
+                "newproject" : "${settingsmenu.items.newproject}",
+                "importfileorproject" : "${settingsmenu.items.importfileorproject}",
+                "findprojects" : "${settingsmenu.items.findprojects}",
+                "statistics" : "${settingsmenu.items.statistics}",
+                "targets" : "${settingsmenu.items.targets}",
+                "sortprojects" : "${settingsmenu.items.sortprojects}",
+                "sortlastedited" : "Last edited",
+                "sortname" : "Name",
+                "sortstatus" : "Status",
+                "sortwordcount" : "Word Count",
+                "managestatuses" : "${settingsmenu.items.managestatuses}",
+                "changedisplay" : "Change what is displayed",
+                "dowarmup" : "${settingsmenu.items.dowarmup}"
+            }
+        },
+        "project" :
+        {
+            "view" :
+            {
+                "labels" :
+                {
+                    "lastedited" : "Last edited: %1$s",
+                    ":comment.lastedited" : "%1$s is the date.",
+                    ":scount.lastedited" : 1,
+                    "notedited" : "Not yet edited.",
+                    "words" : "%1$s words",
+                    ":comment.words" : "%1$s is the number of words.",
+                    ":scount.words" : 1,
+                    "chapters" : "%1$s ${objectnames.plural.chapter}",
+                    ":comment.chapters" : "%1$s is the number of chapters.",
+                    ":scount.chapters" : 1,
+                    "editcomplete" : "%1$s%% complete",
+                    ":comment.editcomplete" : "%1$s is the percentage complete.  The double % is needed to output a single %.",
+                    ":scount.editcomplete" : 1,
+                    "readability" : "GL: %1$s, RE: %2$s, GF: %3$s",
+                    ":comment.readability" : "%1$s is the Flesch Kincaid grade level, %2$s is the Flesch Reading ease level, $3$s is the Gunning Fox Index.",
+                    ":scount.readability" : 3
+                }
+            },
+            "popupmenu" :
+            {
+                "items" :
+                {
+                    "remove" : "${actions.remove} ${objectnames.singular.project}",
+                    "open" : "${actions.open}",
+                    "setstatus" : "Set Status",
+                    "newstatus" : "Add a new Status",
+                    "createbackup" : "${actions.createbackup}",
+                    "managebackups" : "${actions.managebackups}",
+                    "showfolder" : "${actions.showfolder}",
+                    "delete" : "${actions.delete}"
+                }
+            }
+        },
+        "actions" :
+        {
+            "findprojects" :
+            {
+                "details" : "Checking for ${objectnames.singular.project} in <b>%1$s</b>",
+                ":comment.details" : "%1$s is the current folder being searched.",
+                ":scount.details" : 1,
+                "inprogress" :
+                {
+                    "popup" :
+                    {
+                        "title" : "Find in progress",
+                        "text" : "A search for your ${objectnames.plural.project} is currently in progress."
+                    }
+                },
+                "popup" :
+                {
+                    "title" : "Find your ${objectnames.plural.project}",
+                    "text" : "This function allows you to find your ${objectnames.plural.project}.  It is useful if you are using Dropbox or another file syncing service or just need to rebuild your ${objectnames.plural.project} database.<br /><br />Use the box below to select a starting directory then press <b>${allprojects.actions.findprojects.popup.buttons.find}</b>, {QW} will then search your file system for ${objectnames.plural.project} and it will add them automatically.",
+                    "buttons" :
+                    {
+                        "find" : "${actions.find}",
+                        "cancel" : "${actions.cancel}"
+                    },
+                    "finder" :
+                    {
+                        "title" : "Select a folder",
+                        "button" : "${actions.select}",
+                        "tooltip" : "Click to find a starting folder"
+                    }
+                }
+            },
+            "openproject" :
+            {
+                "tooltips" :
+                {
+                    "error" : "This ${objectnames.singular.project} cannot be opened for the following reason:<br /><br />%1$s<br /><br />Right click to remove this from your list of ${objectnames.plural.project}.",
+                    ":comment.error" : "%1$s is the reason why the project can't be opened.",
+                    ":scount.error" : 1,
+                    "encrypted" : "This ${objectnames.singular.project} is encrypted and needs a password to access it.  Click to open it.",
+                    "editor" : "You are editing this ${objectnames.singular.project} for <b>%1$s</b>.  Click to open it.",
+                    ":comment.editor" : "%1$s is the editor name or email address.",
+                    ":scount.editor" : 1,
+                    "warmups" : "This is your ${objectnames.plural.warmup} ${objectnames.singular.project}.  Click to open it.",
+                    "general" : "Click to open the ${objectnames.singular.project}."
+                }
+            },
+            "removeproject" :
+            {
+                "actionerror" : "Unable to remove ${objectnames.singular.project}",
+                "popup" :
+                {
+                    "title" : "Unable to open ${objectnames.singular.project}",
+                    "text" : "Sorry, ${objectnames.singular.project} <b>%1$s</b> cannot be opened for the following reason:<br /><br /><b>%2$s</b><br /><br />This can happen if your projects file gets out of sync with your hard drive, for example if you have re-installed your machine or if you are using a file syncing service.<br /><br />Do you want to remove it from your list of ${objectnames.plural.project}?<br /><br />Note: this will <b>only</b> remove the ${objectnames.singular.project} from the list it will not remove any other data.",
+                    ":comment.text" : "%1$s is the name of the project, %2$s is the reason why the project can't be opened.",
+                    ":scount.text" : 2,
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, remove it",
+                        "cancel" : "No, keep it"
+                    }
+                }
+            }
+        },
+        "popupmenu" :
+        {
+            "items" :
+            {
+                "new" : "New ${objectnames.singular.project}",
+                "importfile" : "Import File",
+                "findprojects" : "Find your ${objectnames.plural.project}",
+                "importfileorproject" : "Import File/${objectnames.singular.project}",
+                "sortprojects" : "Sort ${objectnames.plural.project} by",
+                "sortlastedited" : "Last edited",
+                "sortname" : "Name",
+                "sortstatus" : "Status",
+                "sortwordcount" : "Word Count",
+                "managestatuses" : "Manage Statuses",
+                "changedisplay" : "Change what is displayed",
+                "selectbackground" : "Select a background image/color"
+            }
+        },
+        "changedisplay" :
+        {
+            "actionerror" : "Unable to update ${objectnames.plural.project} with the new format.",
+            "popup" :
+            {
+                "title" : "Change what is displayed",
+                "text" : "Use the following format for ${objectnames.singular.project} information.  <a href='help:projects/landing'>Click here</a> for help on the format/tags that can be used.",
+                "example" :
+                {
+                    ":comment" : "These values are for an example project shown to the user.",
+                    "title" : "Example",
+                    "name" : "My ${objectnames.singular.project}",
+                    "status" : "In Progress"
+                },
+                "format" :
+                {
+                    "tooltip" : "Enter the format here..."
+                },
+                "buttons" :
+                {
+                    "save" : "${actions.save}",
+                    "default" : "Use default",
+                    "cancel" : "${actions.cancel}"
+                }
+            }
+        }
     },
     "newprojectpanel" :
     {
@@ -2865,7 +3062,7 @@
                     "items" :
                     {
                         "open" : "${actions.open}",
-                        "showfolder" : "Show Folder",
+                        "showfolder" : "${actions.showfolder}",
                         "remove" : "${actions.remove}"
                     }
                 }
@@ -3242,8 +3439,28 @@
     {
         "status" :
         {
+            "novalue" : "No Status",
+            "actionerror" : "Unable to set status on the ${objectnames.singular.project}.",
             "actions" :
             {
+                "add" :
+                {
+                    "popup" :
+                    {
+                        "title" : "Add a new ${objectnames.singular.project} Status",
+                        "text" : "Enter a new status below, it will be applied to the ${objectnames.singular.project} once added.",
+                        "buttons" :
+                        {
+                            "save" : "${buttons.add}",
+                            "cancel" : "${buttons.cancel}"
+                        },
+                        "errors" :
+                        {
+                            "novalue" : "Please enter the new status.",
+                            "valueexists" : "Already have that status."
+                        }
+                    }
+                },
                 "manage" :
                 {
                     "title" : "Manage the ${objectnames.singular.project} Statuses",
@@ -3848,6 +4065,7 @@
                     "general" : "Unable to open {project} <b>%1$s</b>, reason:<br /><br />%2$s",
                     ":comment.general" : "%1$s is the project name.  %2$s is the reason which will be one of the reasons from this section.",
                     ":scount.general" : 2,
+                    "unspecified" : "An internal error occurred.",
                     "projectnotexist" : "{Project} does not exist.",
                     "projectdirnotexist" : "Cannot find {project} directory <b>%1$s</b>.",
                     ":comment.projectdirnotexist" : "%1$s is the project directory.",
@@ -3877,6 +4095,13 @@
                     "editor" : "<br /><br />A message will also be sent to <b>%1$s</b> telling them you are no longer editing the {project}.",
                     ":comment.editor" : "%1$s is the name/email address of the person the user is editing the project for.  This message is shown when the user is editing the project for someone else.  The normal message is always shown, so this message acts as a suffix.",
                     ":scount.editor" : 1
+                },
+                "projectopen" :
+                {
+                    "title" : "${objectnames.singular.project} already open",
+                    "text" : "<b>%1$s</b> is currently already open in a window.  Please delete the ${objectnames.singular.project} from that window or close the ${objectnames.singular.project} then delete it from here.",
+                    ":comment.text" : "%1$s is the project name.",
+                    ":scount.text" : 1
                 },
                 "editorproject" :
                 {
@@ -3994,13 +4219,13 @@
                 "newproject" : "${settingsmenu.items.newproject}",
                 "renameproject" : "${settingsmenu.items.renameproject}",
                 "statistics" : "${settingsmenu.items.statistics}",
-                "targets" : "Targets",
+                "targets" : "${settingsmenu.items.targets}",
                 "createbackup" : "${settingsmenu.items.createbackup}",
                 "closeproject" : "${settingsmenu.items.closeproject}",
                 "deleteproject" : "${settingsmenu.items.deleteproject}",
                 "ideaboard" : "${names.ideaboard}",
                 "dowarmup" : "${settingsmenu.items.dowarmup}",
-                "importproject" : "${actions.import} File/${objectnames.singular.project}",
+                "importfileorproject" : "${settingsmenu.items.importfileorproject}",
                 "exportproject" : "${actions.export} ${objectnames.singular.project}",
                 "options" : "${settingsmenu.items.options}",
                 "achievements" : "${settingsmenu.items.achievements}",
