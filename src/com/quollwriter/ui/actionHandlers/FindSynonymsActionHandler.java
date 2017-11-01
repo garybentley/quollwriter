@@ -30,7 +30,7 @@ import com.quollwriter.data.*;
 import com.quollwriter.data.comparators.*;
 
 import com.quollwriter.synonyms.*;
-
+import com.quollwriter.text.*;
 import com.quollwriter.ui.*;
 import com.quollwriter.ui.panels.*;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -38,51 +38,56 @@ import com.quollwriter.ui.components.HyperlinkAdapter;
 import com.quollwriter.ui.components.QPopup;
 import com.quollwriter.ui.components.QTextEditor;
 
-import com.swabunga.spell.engine.*;
-import com.swabunga.spell.event.*;
-
-
 public class FindSynonymsActionHandler extends ActionAdapter
 {
 
-    private AbstractProjectViewer projectViewer = null;
-    private String                word = null;
-    private int                   position = -1;
-    //private Chapter               chapter = null;
     private QPopup                popup = null;
-    private AbstractEditorPanel   editorPanel = null;
     private Object                highlight = null;
-    
-    public FindSynonymsActionHandler (String              word,
-                                      int                 position,
-                                      Chapter             c,
-                                      AbstractEditorPanel p)
+    private QTextEditor           editor = null;
+    private Word word = null;
+
+    public FindSynonymsActionHandler (Word        word,
+                                      QTextEditor editor)
     {
 
         this.word = word;
-        this.position = position;
-        //this.chapter = c;
-        this.editorPanel = p;
-        this.projectViewer = this.editorPanel.getViewer ();
+        this.editor = editor;
+
+        AbstractViewer viewer = UIUtils.getViewer (this.editor);
+
+        if (viewer == null)
+        {
+
+            Environment.logError ("Unable to show synonyms for editor that has no viewer parent.");
+
+            return;
+
+        }
 
         final FindSynonymsActionHandler _this = this;
-        
+
         // Show a panel of all the items.
-        this.popup = new QPopup ("Synonyms for: " + word,
+        this.popup = new QPopup (String.format (Environment.getUIString (LanguageStrings.synonyms,
+                                                                         LanguageStrings.show,
+                                                                         LanguageStrings.title),
+                                                word.getText ()),
+                                //"Synonyms for: " + word,
                                  Environment.getIcon (Constants.FIND_ICON_NAME,
                                                       Constants.ICON_POPUP),
                                  null);
 
         JButton close = UIUtils.createButton (Constants.CLOSE_ICON_NAME,
                                               Constants.ICON_MENU,
-                                              "Click to close",
+                                              Environment.getUIString (LanguageStrings.actions,
+                                                                       LanguageStrings.clicktoclose),
+                                            //"Click to close",
                                               null);
-        
+
         List<JButton> buts = new ArrayList ();
         buts.add (close);
-        
+
         this.popup.getHeader ().setControls (UIUtils.createButtonBar (buts));
-                                                    
+
         close.addActionListener (new ActionAdapter ()
         {
 
@@ -91,71 +96,34 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
                 _this.popup.setVisible (false);
 
-                _this.editorPanel.getEditor ().removeHighlight (_this.highlight);
-                
+                _this.editor.removeHighlight (_this.highlight);
+
             }
 
         });
-                                 
-        p.addPopup (this.popup,
-                    true,
-                    true);
-/*
-        this.highlight = this.editorPanel.getEditor ().addHighlight (position,
-                                                                     position + word.length (),
-                                                                     null,
-                                                                     true);
-  */                                      
+
         this.popup.setOpaque (false);
         this.popup.setVisible (false);
 
-        this.popup.setDraggable (this.editorPanel);
+        this.popup.setDraggable (viewer);
 
     }
 
     public void showItem ()
     {
 
-        if (!this.editorPanel.getViewer ().isLanguageFunctionAvailable ())
-        {
-            
-            return;
-            
-        }
-    
-        this.highlight = this.editorPanel.getEditor ().addHighlight (this.position,
-                                                                     this.position + this.word.length (),
-                                                                     null,
-                                                                     true);    
-    
+        final AbstractViewer viewer = UIUtils.getViewer (this.editor);
+
+        this.highlight = this.editor.addHighlight (this.word.getAllTextStartOffset (),
+                                                   this.word.getAllTextEndOffset (),
+                                                   null,
+                                                   true);
+
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.synonyms);
+        prefix.add (LanguageStrings.show);
+
         final FindSynonymsActionHandler _this = this;
-
-        QTextEditor editor = this.editorPanel.getEditor ();
-
-        Rectangle r = null;
-
-        try
-        {
-
-            r = editor.modelToView (this.position);
-
-        } catch (Exception e)
-        {
-
-            // BadLocationException!
-            Environment.logError ("Location: " +
-                                  this.position +
-                                  " is not valid",
-                                  e);
-
-            UIUtils.showErrorMessage (this.editorPanel,
-                                      "Unable to display synonyms.");
-
-            return;
-
-        }
-
-        int y = r.y;
 
         // Show a panel of all the items.
         final QPopup p = this.popup;
@@ -167,73 +135,21 @@ public class FindSynonymsActionHandler extends ActionAdapter
         try
         {
 
-            syns = this.projectViewer.getSynonymProvider ().getSynonyms (this.word);
+            syns = this.editor.getSynonymProvider ().getSynonyms (this.word.getText ());
 
         } catch (Exception e)
         {
-
-            UIUtils.showErrorMessage (this.editorPanel,
-                                      "Unable to display synonyms.");
 
             Environment.logError ("Unable to lookup synonyms for: " +
                                   word,
                                   e);
 
+            UIUtils.showErrorMessage (viewer,
+                                      Environment.getUIString (prefix,
+                                                               LanguageStrings.actionerror));
+                                                               //"Unable to display synonyms.");
+
             return;
-
-        }
-
-        if ((syns.words.size () == 0) &&
-            (this.word.toLowerCase ().endsWith ("ed")))
-        {
-
-            // Trim off the ed and try again.
-            try
-            {
-
-                syns = this.projectViewer.getSynonyms (this.word.substring (0,
-                                                                            this.word.length () - 2));
-
-            } catch (Exception e)
-            {
-
-                UIUtils.showErrorMessage (this.editorPanel,
-                                          "Unable to display synonyms.");
-
-                Environment.logError ("Unable to lookup synonyms for: " +
-                                      word,
-                                      e);
-
-                return;
-
-            }
-
-        }
-
-        if ((syns.words.size () == 0) &&
-            (this.word.toLowerCase ().endsWith ("s")))
-        {
-
-            // Trim off the ed and try again.
-            try
-            {
-
-                syns = this.projectViewer.getSynonyms (this.word.substring (0,
-                                                                            this.word.length () - 1));
-
-            } catch (Exception e)
-            {
-
-                UIUtils.showErrorMessage (this.editorPanel,
-                                          "Unable to display synonyms.");
-
-                Environment.logError ("Unable to lookup synonyms for: " +
-                                      word,
-                                      e);
-
-                return;
-
-            }
 
         }
 
@@ -257,14 +173,7 @@ public class FindSynonymsActionHandler extends ActionAdapter
                 sb.append ("p, 3px, [p,90px], 5px");
 
             }
-/*
-            if (syns.words.size () > 0)
-            {
 
-                sb.append (",5px");
-
-            }
-  */          
         } else
         {
 
@@ -282,21 +191,37 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
         Map<String, String> names = new HashMap ();
         names.put (Synonyms.ADJECTIVE + "",
-                   "Adjectives");
+                   Environment.getUIString (prefix,
+                                            LanguageStrings.wordtypes,
+                                            LanguageStrings.adjectives));
+                    //"Adjectives");
         names.put (Synonyms.NOUN + "",
-                   "Nouns");
+                   Environment.getUIString (prefix,
+                                            LanguageStrings.wordtypes,
+                                            LanguageStrings.nouns));
+                   //"Nouns");
         names.put (Synonyms.VERB + "",
-                   "Verbs");
+                   Environment.getUIString (prefix,
+                                            LanguageStrings.wordtypes,
+                                            LanguageStrings.verbs));
+                   //"Verbs");
         names.put (Synonyms.ADVERB + "",
-                   "Adverbs");
+                   Environment.getUIString (prefix,
+                                            LanguageStrings.wordtypes,
+                                            LanguageStrings.adverbs));
+                   //"Adverbs");
         names.put (Synonyms.OTHER + "",
-                   "Other");
+                   Environment.getUIString (prefix,
+                                            LanguageStrings.wordtypes,
+                                            LanguageStrings.other));
+                   //"Other");
 
         if (syns.words.size () == 0)
         {
 
-            JLabel l = new JLabel ("No synonyms found.");
-            l.setFont (l.getFont ().deriveFont (Font.ITALIC));
+            JLabel l = UIUtils.createInformationLabel (Environment.getUIString (prefix,
+                                                                                LanguageStrings.nosynonyms));
+                                                            //"No synonyms found.");
 
             pb.add (l,
                     cc.xy (2,
@@ -308,17 +233,11 @@ public class FindSynonymsActionHandler extends ActionAdapter
         for (Synonyms.Part i : syns.words)
         {
 
-            JLabel l = new JLabel (names.get (i.type + ""));
+            JLabel l = UIUtils.createInformationLabel (names.get (i.type + ""));
 
-            l.setFont (l.getFont ().deriveFont (Font.ITALIC));
+            //l.setFont (l.getFont ().deriveFont (Font.ITALIC));
             l.setFont (l.getFont ().deriveFont ((float) UIUtils.getEditorFontSize (10)));
-            l.setBorder (new CompoundBorder (new MatteBorder (0,
-                                                              0,
-                                                              1,
-                                                              0,
-                                                              Environment.getBorderColor ()),
-                                             new EmptyBorder (0, 0, 3, 0)));
-
+            l.setBorder (UIUtils.createBottomLineWithPadding (0, 0, 3, 0));
             pb.add (l,
                     cc.xy (2,
                            ind));
@@ -340,7 +259,8 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
                 String w = (String) i.words.get (x);
 
-                buf.append ("<a class='x' href='http://" + w + "'>" + w + "</a>");
+                buf.append (String.format ("<a class='x' href='http://%1$s'>%1$s</a>",
+                                           w));
 
                 if (x < (i.words.size () - 1))
                 {
@@ -363,20 +283,18 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
                         if (ev.getEventType () == HyperlinkEvent.EventType.ACTIVATED)
                         {
-                            
-                            QTextEditor ed = _this.editorPanel.getEditor ();
-                            
-                            ed.replaceText (_this.position,
-                                            _this.position + _this.word.length (),
-                                            ev.getURL ().getHost ());
 
-                            ed.removeHighlight (_this.highlight);
-                                                        
+                            _this.editor.replaceText (_this.word.getAllTextStartOffset (),
+                                                      _this.word.getAllTextEndOffset (),
+                                                      ev.getURL ().getHost ());
+
+                            _this.editor.removeHighlight (_this.highlight);
+
                             _this.popup.setVisible (false);
 
-                            _this.projectViewer.fireProjectEvent (ProjectEvent.SYNONYM,
-                                                                  ProjectEvent.REPLACE,
-                                                                  ev.getURL ().getHost ());
+                            viewer.fireProjectEvent (ProjectEvent.SYNONYM,
+                                                     ProjectEvent.REPLACE,
+                                                     ev.getURL ().getHost ());
 
                         }
 
@@ -420,26 +338,42 @@ public class FindSynonymsActionHandler extends ActionAdapter
 
         this.popup.setContent (pan);
 
-        // r.y -= this.editorPanel.getScrollPane ().getVerticalScrollBar ().getValue ();
+        Rectangle r = null;
 
-        Point po = SwingUtilities.convertPoint (editor,
+        try
+        {
+
+            r = this.editor.modelToView (this.word.getAllTextStartOffset ());
+
+        } catch (Exception e) {
+
+            Environment.logError ("Unable to get view location of: " +
+                                  this.word,
+                                  e);
+
+           UIUtils.showErrorMessage (this.editor,
+                                     Environment.getUIString (prefix,
+                                                              LanguageStrings.actionerror));
+
+            return;
+
+        }
+
+        Point po = SwingUtilities.convertPoint (this.editor,
                                                 r.x,
                                                 r.y,
-                                                this.editorPanel);
+                                                viewer);
 
-        r.x = po.x;
-        r.y = po.y;
+        r.setLocation (po);
 
-        // Subtract the insets of the editorPanel.
-        Insets ins = this.editorPanel.getInsets ();
+        this.popup.setOpaque (false);
 
-        r.x -= ins.left;
-        r.y -= ins.top;
+        this.popup.setDraggable (viewer);
 
-        this.editorPanel.showPopupAt (this.popup,
-                                      r,
-                                      "above",
-                                      true);
+        viewer.showPopupAt (this.popup,
+                            r,
+                            "above",
+                            true);
 
     }
 

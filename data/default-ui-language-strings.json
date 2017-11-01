@@ -211,6 +211,43 @@
             }
         }
     },
+    "notes" :
+    {
+        "addedit" :
+        {
+            ":comment" : "These items relate to both the add and edit parts of note creation.",
+            "labels" :
+            {
+                "summary" : "${form.labels.summary}",
+                "description" : "${form.labels.description}",
+                "type" :
+                {
+                    "text" : "Type",
+                    "tooltip" : "Add a new Type by entering a value in the field."
+                }
+            },
+            "errors" :
+            {
+                "novalue" :
+                {
+                    "summary" : "Please enter a summary.",
+                    "description" : "Please enter a description."
+                }
+            }
+        },
+        "new" :
+        {
+            "title" : "Add ${objectnames.singular.note}",
+            "editneededtitle" : "Add ${objectnames.singular.editneedednote}",
+            "actionerror" : "Unable to add new ${objectnames.singular.note}."
+        },
+        "edit" :
+        {
+            "title" : "Edit ${objectnames.singular.note}",
+            "editneededtitle" : "Edit ${objectnames.singular.editneedednote}",
+            "actionerror" : "Unable to edit  ${objectnames.singular.note}."
+        }
+    },
     "targets" :
     {
         "types" :
@@ -1094,6 +1131,18 @@
         ":englishonly" : true,
         "show" :
         {
+            "title" : "Synonyms for: %1$s",
+            ":comment.title" : "%1$s is the word being searched for.",
+            ":scount.title" : 1,
+            "nosynonyms" : "No synonyms found.",
+            "wordtypes" :
+            {
+                "adjectives" : "Adjectives",
+                "nouns" : "Nouns",
+                "verbs" : "Verbs",
+                "adverbs" : "Adverbs",
+                "other" : "Other"
+            },
             "actionerror" : "Unable to show synonym selector."
         },
         "popupmenu" :
@@ -3654,12 +3703,42 @@
                             "tooltip" : "Stop looking for problems."
                         }
                     },
+                    "limit" : "Limiting find to selected text.",
+                    "noproblemsfound" : "No problems found.",
+                    "unignoreissues" :
+                    {
+                        "single" : "1 ignored problem.  Click to view.",
+                        "plural" : "%1$s ignored problems.  Click to view."
+                    },
+                    "nomoreproblems" :
+                    {
+                        "end" :
+                        {
+                            "title" : "No more problems found",
+                            "text" : "No more problems found.  Return to the start of the ${objectnames.singular.chapter}?",
+                            "buttons" :
+                            {
+                                "confirm" : "Yes, return to the start",
+                                "cancel" : "${buttons.cancel}"
+                            },
+                            "actionerror" : "Unable to move back to start of the ${objectnames.singular.chapter}"
+                        },
+                        "start" :
+                        {
+                            "title" : "No more problems found",
+                            "text" : "No more problems found."
+                        }
+                    },
                     "ignored" :
                     {
                         "single" : "1 problem has been ignored in this ${objectnames.singular.chapter}, click to un-ignore it.",
                         "plural" : "%1$s problems have been ignored ${objectnames.singular.chapter}, click to un-ignore them.",
                         ":comment.plural" : "%1$s is the number of problems (greater than 1) that have been ignored for the problem.",
                         ":scount.plural" : 1
+                    },
+                    "unignoreall" :
+                    {
+                        "actionerror" : "Unable to remove all ignores."
                     },
                     "unignore" :
                     {

@@ -12,6 +12,7 @@ import javax.swing.event.*;
 
 import com.quollwriter.*;
 import com.quollwriter.events.*;
+import com.quollwriter.ui.actionHandlers.*;
 import com.quollwriter.ui.components.QTextEditor;
 import com.quollwriter.ui.components.Markup;
 import com.quollwriter.ui.components.ActionAdapter;
@@ -70,13 +71,13 @@ public class TextArea extends ScrollableBox
                                                  this.text.getLineHeight () * (int) (rows + 0.8)));
         this.text.setPreferredSize (new Dimension (200,
                                                  this.text.getLineHeight () * (int) (rows + 0.8)));
-            
+
         } else {
 
             this.text.setMinimumSize (new Dimension (300, this.text.getLineHeight () * 1));
 
         }
-  */      
+  */
         if (placeholder != null)
         {
 
@@ -167,7 +168,7 @@ public class TextArea extends ScrollableBox
         this.maxText.setForeground (UIUtils.getHintTextColor ());
 
         this.scrollPane = UIUtils.createScrollPane (this.text);
-        
+
         this.text.addKeyListener (new KeyAdapter ()
         {
 
@@ -232,7 +233,7 @@ public class TextArea extends ScrollableBox
                                      popup);
 
             }
-        
+
             @Override
             public void mouseEntered (MouseEvent ev)
             {
@@ -315,7 +316,7 @@ public class TextArea extends ScrollableBox
         //this.scrollPane.setPreferredSize (this.getPreferredSize ());
         //this.scrollPane.setMaximumSize (this.getMaximumSize ());
         //this.scrollPane.setMinimumSize (this.getMinimumSize ());
-        
+
         this.add (this.maxText);
 
         if (this.maxChars <= 0)
@@ -330,68 +331,68 @@ public class TextArea extends ScrollableBox
     @Override
     public void setToolTipText (String t)
     {
-      
+
         this.text.setToolTipText (t);
-        
-    }    
+
+    }
 
     @Override
     public Dimension getPreferredSize ()
     {
-        
+
         Dimension p = super.getPreferredSize ();
-        
+
         if (this.rows > 0)
         {
-        
+
             int ph = this.text.getLineHeight () * (int) (this.rows + 0.8);
-            
+
             p.height = ph;
             /*
             if (p.height < ph)
             {
-                
+
                 p.height = ph;
-                
+
             }
 */
         }
 
-        return p;        
-        
+        return p;
+
     }
-  
+
     @Override
     public Dimension getMaximumSize ()
     {
-        
+
         Dimension p = this.getPreferredSize ();
-        
+
         p.width = Short.MAX_VALUE;
-        
+
         return p;
-        
+
     }
-    
+
     @Override
     public Dimension getMinimumSize ()
     {
-        
+
         Dimension p = this.getPreferredSize ();
-        
+
         p.width = 250;
-        
+
         return p;
-        
-    }    
-    
+
+    }
+
     public void fillPopupMenuForSpellCheck (final MouseEvent ev,
                                             final JPopupMenu popup)
     {
 
         final TextArea _this = this;
 
-        Point p = ev.getPoint (); 
+        Point p = ev.getPoint ();
 
         JMenuItem mi = null;
 
@@ -435,7 +436,7 @@ public class TextArea extends ScrollableBox
                     prefix.add (LanguageStrings.spellcheck);
                     prefix.add (LanguageStrings.popupmenu);
                     prefix.add (LanguageStrings.items);
-                
+
                     if (l.size () == 0)
                     {
 
@@ -574,8 +575,8 @@ public class TextArea extends ScrollableBox
                                             try
                                             {
 
-                                                UIUtils.showSynonymSelector (w,
-                                                                             _this.text);
+                                                new FindSynonymsActionHandler (w,
+                                                                               _this.text).showItem ();
 
                                             } catch (Exception e) {
 
@@ -750,7 +751,7 @@ public class TextArea extends ScrollableBox
                 prefix.add (LanguageStrings.format);
                 prefix.add (LanguageStrings.popupmenu);
                 prefix.add (LanguageStrings.items);
-                
+
                 if (compress)
                 {
 
@@ -852,7 +853,7 @@ public class TextArea extends ScrollableBox
         {
 
             java.util.List<JComponent> buts = new java.util.ArrayList ();
-            
+
             // Only add if there is something to cut.
             if (!sel.equals (""))
             {
@@ -1190,11 +1191,11 @@ public class TextArea extends ScrollableBox
 
     public void clearText ()
     {
-        
+
         this.setText ((StringWithMarkup) null);
-        
+
     }
-    
+
     public void setText (String t)
     {
 

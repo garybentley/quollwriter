@@ -1006,11 +1006,14 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
 
                                         mi.setIcon (Environment.getIcon ("find",
                                                                          Constants.ICON_MENU));
-                                        mi.addActionListener (new FindSynonymsActionHandler (word,
+
+                                        mi.addActionListener (new FindSynonymsActionHandler (w, _this.editor));
+                                        /*
+                                        word,
                                                                                              loc, // c
                                                                                              this.getChapter (),
                                                                                              _this));
-
+*/
                                     } else {
 
                                         mi = new JMenuItem (String.format (Environment.getUIString (LanguageStrings.synonyms,

@@ -1929,7 +1929,7 @@ public class Landing extends AbstractViewer implements ProjectInfoChangedListene
 
 			};
 
-			this.info = new JLabel ("");
+			this.info = new JLabel ("")
 			{
 
 				@Override

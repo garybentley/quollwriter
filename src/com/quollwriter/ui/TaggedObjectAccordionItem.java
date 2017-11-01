@@ -36,157 +36,157 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                pv);
 
         this.tag = tag;
-        
+
         Environment.addUserProjectEventListener (this);
-        
+
         this.sorter = NamedObjectSorter.getInstance ();
-                                                            
+
     }
-    
+
     @Override
     public void eventOccurred (ProjectEvent ev)
     {
 
         // TODO: Change to use a name change instead.
-        if ((ev.getContextObject ().equals (this.tag))
+        if ((this.tag.equals (ev.getContextObject ()))
             &&
             (ev.getType ().equals (ProjectEvent.TAG))
             &&
             (ev.getAction ().equals (ProjectEvent.CHANGED))
            )
         {
-            
+
             this.updateTitle ();
-            
+
         }
-        
+
     }
-    
+
     @Override
     public String getTitle ()
     {
-        
+
         return this.tag.getName ();
-        
+
     }
-    
+
     @Override
     public String getId ()
     {
-        
+
         return ID_PREFIX + this.tag.getKey ();
-        
+
     }
-                
+
     @Override
     public void initFromSaveState (String ss)
     {
-        
+
         super.initFromSaveState (ss);
-               
-        Map<String, Object> state = (Map<String, Object>) JSONDecoder.decode (ss);        
-                
+
+        Map<String, Object> state = (Map<String, Object>) JSONDecoder.decode (ss);
+
         Collection<String> objRefs = (Collection<String>) state.get ("order");
-        
+
         if (objRefs != null)
         {
-        
+
             final Map<String, Number> order = new HashMap ();
-            
+
             int c = 0;
-            
+
             for (String ref : objRefs)
             {
-                
+
                 order.put (ref,
                            c++);
-                
+
             }
-        
+
             this.sorter = new Comparator<NamedObject> ()
             {
-              
+
                 @Override
                 public boolean equals (Object o)
                 {
-                    
+
                     return this.equals (o);
-                    
+
                 }
-                
+
                 @Override
                 public int compare (NamedObject o1,
                                     NamedObject o2)
                 {
-                    
+
                     Number nv1 = order.get (o1.getObjectReference ().asString ());
-                    
+
                     Number nv2 = order.get (o2.getObjectReference ().asString ());
-                    
+
                     if ((nv1 == null)
                         ||
                         (nv2 == null)
                        )
                     {
-                        
+
                         return NamedObjectSorter.getInstance ().compare (o1, o2);
-                        
+
                     }
-                    
+
                     return nv1.intValue () - nv2.intValue ();
-                    
+
                 }
-                
+
             };
-                            
+
         }
-        
-        this.reloadTree ();    
-                                
-    }    
-    
+
+        this.reloadTree ();
+
+    }
+
     @Override
     public Map<String, Object> getSaveStateAsMap ()
     {
 
         Map<String, Object> ss = super.getSaveStateAsMap ();
-                        
+
         DefaultMutableTreeNode r = (DefaultMutableTreeNode) ((DefaultTreeModel) this.tree.getModel ()).getRoot ();
-        
+
         Set<String> objRefs = new LinkedHashSet ();
-        
+
         for (int i = 0; i < r.getChildCount (); i++)
         {
-            
+
             DefaultMutableTreeNode n = (DefaultMutableTreeNode) r.getChildAt (i);
-            
+
             NamedObject oo = (NamedObject) n.getUserObject ();
-            
+
             objRefs.add (oo.getObjectReference ().asString ());
-            
+
         }
-        
+
         if (objRefs.size () > 0)
         {
-            
+
             ss.put ("order",
                     objRefs);
-            
+
         }
-        
+
         return ss;
-    
-    }    
-    
+
+    }
+
     @Override
     public void initTree ()
     {
 
         this.reloadTree ();
-    
+
         this.tree.setCellRenderer (new ProjectTreeCellRenderer (true));
 
-    
+
     }
 
     @Override
@@ -195,14 +195,14 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
     {
 
         final TaggedObjectAccordionItem _this = this;
-        
+
         java.util.List<String> prefix = new ArrayList ();
         prefix.add (LanguageStrings.project);
         prefix.add (LanguageStrings.sidebar);
         prefix.add (LanguageStrings.tags);
         prefix.add (LanguageStrings.headerpopupmenu);
         prefix.add (LanguageStrings.items);
-        
+
         m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                 LanguageStrings.rename),
                                        //"Rename",
@@ -216,11 +216,11 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                                                 new RenameTagActionHandler (_this.tag,
                                                                             _this.viewer).actionPerformed (ev);
-                                           
+
                                            }
-                                           
+
                                        }));
-                                           
+
         m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                 LanguageStrings.delete),
                                        //"Delete this Tag",
@@ -231,46 +231,46 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                            @Override
                                            public void actionPerformed (ActionEvent ev)
                                            {
-                        
+
                                                 java.util.List<String> prefix = new ArrayList ();
                                                 prefix.add (LanguageStrings.project);
                                                 prefix.add (LanguageStrings.actions);
                                                 prefix.add (LanguageStrings.deletetag);
-                        
+
                                                 Map<String, ActionListener> buttons = new LinkedHashMap ();
-                                                
+
                                                 buttons.put (Environment.getUIString (prefix,
                                                                                       LanguageStrings.allprojects),
                                                              //"Delete from all {projects}",
                                                              new ActionListener ()
                                                              {
-                                                                
+
                                                                 @Override
                                                                 public void actionPerformed (ActionEvent ev)
                                                                 {
-                                                                    
+
                                                                     try
                                                                     {
-                                                                                    
+
                                                                         Environment.deleteTag (_this.tag);
-                                                                        
+
                                                                     } catch (Exception e) {
-                                                                        
+
                                                                         Environment.logError ("Unable to delete tag: " +
                                                                                               _this.tag,
                                                                                               e);
-                                                                        
+
                                                                         UIUtils.showErrorMessage (_this.viewer,
                                                                                                   Environment.getUIString (prefix,
                                                                                                                            LanguageStrings.actionerror));
                                                                                                   //"Unable to delete tag.");
-                                                                        
+
                                                                     }
-                                                                    
+
                                                                 }
-                                                                
+
                                                              });
-                        
+
                                                 buttons.put (Environment.getUIString (prefix,
                                                                                       LanguageStrings.thisproject),
                                                 //"Just this {project}",
@@ -283,26 +283,26 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                                                                     try
                                                                     {
-                                            
+
                                                                         _this.viewer.removeTag (_this.tag);
-                                                                        
+
                                                                     } catch (Exception e) {
-                                                                        
+
                                                                         Environment.logError ("Unable to remove tag: " +
                                                                                               _this.tag,
                                                                                               e);
-                                                                        
+
                                                                         UIUtils.showErrorMessage (_this.viewer,
                                                                                                   Environment.getUIString (prefix,
                                                                                                                            LanguageStrings.actionerror));
                                                                                                   //"Unable to delete tag.");
-                                                                        
+
                                                                     }
-                                                                    
+
                                                                 }
-                                                                
+
                                                              });
-                        
+
                                                 buttons.put (Constants.CANCEL_BUTTON_LABEL_ID,
                                                              new ActionListener ()
                                                              {
@@ -310,9 +310,9 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                                 @Override
                                                                 public void actionPerformed (ActionEvent ev)
                                                                 {
-                                                                    
+
                                                                 }
-                                                                
+
                                                              });
 
                                                 UIUtils.createQuestionPopup (_this.viewer,
@@ -327,48 +327,48 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                                              buttons,
                                                                              null,
                                                                              null);
-                                                
+
                                            }
 
-                                        }));        
+                                        }));
 
     }
-        
+
     @Override
     public void reloadTree ()
     {
-    
+
         Set<NamedObject> taggedObjects = this.viewer.getProject ().getAllObjectsWithTag (this.tag);
-    
+
         if (this.sorter != null)
         {
-    
+
             List<NamedObject> sobjs = new ArrayList ();
-            
+
             if (taggedObjects != null)
             {
-                
+
                 sobjs.addAll (taggedObjects);
-                
+
             }
-        
+
             Collections.sort (sobjs,
                               this.sorter);
-    
+
             taggedObjects = new LinkedHashSet (sobjs);
 
         }
-    
+
         DefaultMutableTreeNode pn = UIUtils.createTreeNode (this.viewer.getProject (),
                                                             null,
                                                             null,
                                                             false);
-    
+
         UIUtils.createTree (taggedObjects,
                             pn);
-    
+
         ((DefaultTreeModel) this.tree.getModel ()).setRoot (pn);
-    
+
     }
 
     public boolean showItemCountOnHeader ()
@@ -390,28 +390,28 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
     @Override
     public DragActionHandler getTreeDragActionHandler (ProjectViewer pv)
     {
-    
+
         final TaggedObjectAccordionItem _this = this;
-    
+
         return new DragActionHandler<NamedObject> ()
         {
-        
+
             @Override
             public boolean canImportForeignObject (NamedObject obj)
             {
-                
+
                 return !obj.hasTag (_this.tag);
-                
+
             }
-            
+
             @Override
             public boolean importForeignObject (NamedObject obj,
                                                 int         insertRow)
-                                         throws GeneralException 
+                                         throws GeneralException
             {
-                
+
                 int c = _this.getItemCount ();
-                
+
                 obj.addTag (_this.tag);
 
                 _this.viewer.saveObject (obj,
@@ -419,58 +419,58 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
 
                 if (c == 0)
                 {
-                    
+
                     _this.update ();
-                    
+
                 } else {
-                    
+
                     // Add at the appropriate row.
                     DefaultTreeModel model = ((DefaultTreeModel) _this.tree.getModel ());
-    
+
                     TreePath tp = UIUtils.getTreePathForUserObject ((DefaultMutableTreeNode) model.getRoot (),
                                                                     obj);
-    
+
                     DefaultMutableTreeNode n = new DefaultMutableTreeNode (obj);
-    
+
                     model.insertNodeInto (n,
                                           (DefaultMutableTreeNode) model.getRoot (),
                                           insertRow);
-                    
-                    _this.tree.getSelectionModel ().clearSelection ();    
-                    
+
+                    _this.tree.getSelectionModel ().clearSelection ();
+
                     _this.updateItemCount (_this.getItemCount ());
-                    
+
                 }
 
                 _this.viewer.openObjectSection (TaggedObjectAccordionItem.ID_PREFIX + _this.tag);
-                
+
                 return true;
-                
+
             }
-        
+
             @Override
             public boolean handleMove (int         fromRow,
                                        int         toRow,
                                        NamedObject object)
             {
-                
+
                 return true;
-                
+
             }
-        
+
             @Override
             public boolean performAction (int         removeRow,
                                           NamedObject removeObject,
                                           int         insertRow,
                                           NamedObject insertObject)
             {
-                
+
                 return true;
-                
+
             }
-        
-        }; 
-    
+
+        };
+
     }
 
     @Override
@@ -494,7 +494,7 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
             prefix.add (LanguageStrings.tags);
             prefix.add (LanguageStrings.treepopupmenu);
             prefix.add (LanguageStrings.items);
-        
+
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent ();
 
             final NamedObject d = (NamedObject) node.getUserObject ();
@@ -509,9 +509,9 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                @Override
                                                public void actionPerformed (ActionEvent ev)
                                                {
-                            
+
                                                    _this.viewer.viewObject (d);
-                            
+
                                                }
 
                                             }));
@@ -526,16 +526,16 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                 @Override
                                                 public void actionPerformed (ActionEvent ev)
                                                 {
-                                                    
+
                                                     _this.viewer.editObject (d);
-                                                    
+
                                                 }
-                                            
+
                                            }));
 */
             m.add (UIUtils.createTagsMenu (d,
                                            this.viewer));
-            
+
             m.add (UIUtils.createMenuItem (Environment.getUIString (prefix,
                                                                     LanguageStrings.remove),
                                            //"Remove",
@@ -546,37 +546,37 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
                                                @Override
                                                public void actionPerformed (ActionEvent ev)
                                                {
-                            
+
                                                     try
                                                     {
-                                                        
+
                                                         d.removeTag (_this.tag);
-                                
+
                                                         _this.viewer.saveObject (d,
                                                                                  true);
-                                
+
                                                         _this.update ();
 
                                                     } catch (Exception e) {
-                                                        
+
                                                         Environment.logError ("Unable to remove tag: " +
                                                                               _this.tag,
                                                                               e);
-                                                        
+
                                                         UIUtils.showErrorMessage (_this.viewer,
                                                                                   Environment.getUIString (LanguageStrings.project,
                                                                                                            LanguageStrings.actions,
                                                                                                            LanguageStrings.deletetag,
                                                                                                            LanguageStrings.actionerror));
                                                                                   //"Unable to remove tag.");
-                                                        
+
                                                     }
-                            
-                            
+
+
                                                }
 
                                             }));
-            
+
         }
 
     }
@@ -600,11 +600,11 @@ public class TaggedObjectAccordionItem extends ProjectObjectsAccordionItem<Proje
     @Override
     public boolean isAllowObjectPreview ()
     {
-        
+
         return true;
-        
+
     }
-    
+
     @Override
     public boolean isTreeEditable ()
     {

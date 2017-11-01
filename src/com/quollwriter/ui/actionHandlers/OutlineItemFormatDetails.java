@@ -18,28 +18,28 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
 
     public String getIcon (OutlineItem item)
     {
-        
+
         return item.getObjectType ();
-        
+
     }
-    
+
     public String getTitle (OutlineItem item)
     {
 
         return Environment.getObjectTypeName (item.getObjectType ());
-        
+
     }
 
     public String getItemDescription (OutlineItem item)
     {
-        
+
         String desc = item.getDescription ().getMarkedUpText ();
-        
+
         if (item.getScene () != null)
         {
-            
-            desc = "{Scene}: " + UIUtils.getObjectALink (item.getScene ()) + "<br />" + desc;
-          
+
+            desc = Environment.getUIString (LanguageStrings.objectnames, LanguageStrings.singular, Scene.OBJECT_TYPE) + ": " + UIUtils.getObjectALink (item.getScene ()) + "<br />" + desc;
+
         }
 
         return desc;
@@ -50,11 +50,11 @@ public class OutlineItemFormatDetails implements ChapterItemFormatDetails<Outlin
     public Set<JComponent> getTools (OutlineItem                      item,
                                      ChapterItemViewer<ProjectViewer> qep)
     {
-        
+
         return null;
-        
+
     }
-    
+
     public ActionListener getEditItemActionHandler (OutlineItem                      item,
                                                     ChapterItemViewer<ProjectViewer> viewer)
     {

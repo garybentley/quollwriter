@@ -111,7 +111,15 @@ public class ProblemFinder extends Box
 
         });
 
-        this.limitLabel = new JLabel ("Limiting find to selected text.",
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.problemfinder);
+
+        this.limitLabel = new JLabel (Environment.getUIString (prefix,
+                                                               LanguageStrings.limit),
+                                    //"Limiting find to selected text.",
                                       Environment.getIcon ("information",
                                                            Constants.ICON_MENU),
                                       SwingConstants.TRAILING);
@@ -120,7 +128,9 @@ public class ProblemFinder extends Box
 
         this.limitLabel.setBorder (UIUtils.createPadding (5, 10, 3, 3));
 
-        this.noProblemsLabel = new JLabel ("No problems found.",
+        this.noProblemsLabel = new JLabel (Environment.getUIString (prefix,
+                                                                    LanguageStrings.noproblemsfound),
+                                        //"No problems found.",
                                            Environment.getIcon ("information",
                                                                 Constants.ICON_MENU),
                                            SwingConstants.TRAILING);
@@ -156,7 +166,13 @@ public class ProblemFinder extends Box
                                   e);
 
             UIUtils.showErrorMessage (this.viewer,
-                                      "Unable to remove all ignores.");
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.editorpanel,
+                                                               LanguageStrings.actions,
+                                                               LanguageStrings.problemfinder,
+                                                               LanguageStrings.unignoreall,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to remove all ignores.");
 
             return;
 
@@ -440,12 +456,30 @@ public class ProblemFinder extends Box
 
         };
 
+        final java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.problemfinder);
+        prefix.add (LanguageStrings.nomoreproblems);
+        prefix.add (LanguageStrings.end);
+
         UIUtils.createQuestionPopup (this.viewer,
-                                     "No more problems found",
+                                     Environment.getUIString (prefix,
+                                                              LanguageStrings.title),
+                                     //"No more problems found",
                                      Constants.INFO_ICON_NAME,
-                                     "No more problems found.  Return to the start of the {chapter}?",
-                                     "Yes, return to the start",
-                                     null,
+                                     Environment.getUIString (prefix,
+                                                              LanguageStrings.text),
+                                    //"No more problems found.  Return to the start of the {chapter}?",
+                                     Environment.getUIString (prefix,
+                                                              LanguageStrings.buttons,
+                                                              LanguageStrings.confirm),
+                                    //"Yes, return to the start",
+                                     Environment.getUIString (prefix,
+                                                              LanguageStrings.buttons,
+                                                              LanguageStrings.cancel),
+                                    //null,
                                      new ActionListener ()
                                      {
 
@@ -472,7 +506,9 @@ public class ProblemFinder extends Box
                                                                               e);
 
                                                         UIUtils.showErrorMessage (_this.viewer,
-                                                                                  "Unable to move back to start of {chapter}");
+                                                                                  Environment.getUIString (prefix,
+                                                                                                           LanguageStrings.actionerror));
+                                                                                  //"Unable to move back to start of {chapter}");
 
                                                     }
 
@@ -546,9 +582,21 @@ public class ProblemFinder extends Box
 
         }
 
+        final java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.editorpanel);
+        prefix.add (LanguageStrings.actions);
+        prefix.add (LanguageStrings.problemfinder);
+        prefix.add (LanguageStrings.nomoreproblems);
+        prefix.add (LanguageStrings.start);
+
         UIUtils.showMessage ((PopupsSupported) this.editor,
-                             "No more problems",
-                             "No more problems found");
+                             Environment.getUIString (prefix,
+                                                      LanguageStrings.title),
+                            //"No more problems",
+                            Environment.getUIString (prefix,
+                                                     LanguageStrings.text));
+                             //"No more problems found");
 
         return 0;
 
@@ -647,7 +695,7 @@ public class ProblemFinder extends Box
 
                 try
                 {
-                
+
                     ed.addHighlight (iss.getStartIssuePosition (),
                                      iss.getEndIssuePosition (),
                                      _this.issueHighlight,
@@ -779,7 +827,30 @@ public class ProblemFinder extends Box
             if (ignored.size () > 0)
             {
 
-                final JLabel l = UIUtils.createClickableLabel (ignored.size () + " ignored problem" + (ignored.size () == 1 ? "" : "s") + ".  Click to view.",
+                java.util.List<String> prefix = new ArrayList<> ();
+                prefix.add (LanguageStrings.project);
+                prefix.add (LanguageStrings.editorpanel);
+                prefix.add (LanguageStrings.actions);
+                prefix.add (LanguageStrings.problemfinder);
+                prefix.add (LanguageStrings.unignoreissues);
+
+                String t = null;
+
+                if (ignored.size () == 1)
+                {
+
+                    t = Environment.getUIString (prefix,
+                                                 LanguageStrings.single);
+
+                } else {
+
+                    t = String.format (Environment.getUIString (prefix,
+                                                                LanguageStrings.plural),
+                                       Environment.formatNumber (ignored.size ()));
+
+                }
+
+                final JLabel l = UIUtils.createClickableLabel (t,
                                                                Environment.getIcon ("warning",
                                                                                     Constants.ICON_MENU));
 

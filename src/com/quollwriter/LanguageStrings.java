@@ -538,6 +538,18 @@ public class LanguageStrings
     public static final String notedited = "notedited";
     public static final String lastedited = "lastedited";
     public static final String details = "details";
+    public static final String nomoreproblems = "nomoreproblems";
+    public static final String limit = "limit";
+    public static final String unignoreall = "unignoreall";
+    public static final String noproblemsfound = "noproblemsfound";
+    public static final String end = "end";
+    public static final String unignoreissues = "unignoreissues";
+    public static final String wordtypes = "wordtypes";
+    public static final String adverbs = "adverbs";
+    public static final String other = "other";
+    public static final String verbs = "verbs";
+    public static final String adjectives = "adjectives";
+    public static final String nouns = "nouns";
 
     private static String ID_PART_SEP = ".";
 
