@@ -550,6 +550,11 @@ public class LanguageStrings
     public static final String verbs = "verbs";
     public static final String adjectives = "adjectives";
     public static final String nouns = "nouns";
+    public static final String notfirst = "notfirst";
+    public static final String firstusewizard = "firstusewizard";
+    public static final String selectprojectdb = "selectprojectdb";
+    public static final String existing = "existing";
+    public static final String manual = "manual";
 
     private static String ID_PART_SEP = ".";
 

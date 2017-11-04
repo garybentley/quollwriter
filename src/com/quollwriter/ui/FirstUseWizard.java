@@ -191,7 +191,9 @@ public class FirstUseWizard extends PopupWizard
     public String getHeaderTitle ()
     {
 
-        return "Welcome to Quoll Writer";
+        return Environment.getUIString (LanguageStrings.firstusewizard,
+                                        LanguageStrings.title);
+        //return "Welcome to Quoll Writer";
 
     }
 
@@ -207,7 +209,9 @@ public class FirstUseWizard extends PopupWizard
     public String getHelpText ()
     {
 
-        return "Welcome to Quoll Writer, this page will help you get started.  Don't worry, there are only a couple of questions and then you can get started on your first {project}.";
+        return Environment.getUIString (LanguageStrings.firstusewizard,
+                                        LanguageStrings.text);
+        //"Welcome to Quoll Writer, this page will help you get started.  Don't worry, there are only a couple of questions and then you can get started on your first {project}.";
 
     }
 
@@ -486,9 +490,18 @@ public class FirstUseWizard extends PopupWizard
         if (NEW_PROJECT_STAGE.equals (stage))
         {
 
-            ws.title = "{Project} details";
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.newproject);
 
-            ws.helpText = "Enter the name of the {project} below and select the directory where it should be saved.";
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                        //"{Project} details";
+
+            ws.helpText = Environment.getUIString (prefix,
+                                                   LanguageStrings.text);
+                        //"Enter the name of the {project} below and select the directory where it should be saved.";
 
             ws.panel = this.newProjectPanel.createPanel (this,
                                                          null,
@@ -503,10 +516,18 @@ public class FirstUseWizard extends PopupWizard
         if (SELECT_PROJECT_DB_STAGE.equals (stage))
         {
 
-            ws.title = "Select your {projects} directory";
-            ws.helpText = String.format ("Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%s%s</b>",
-                                         Environment.getProjectInfoDBFile ().getName (),
-                                         Constants.H2_DB_FILE_SUFFIX);
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.selectprojectdb);
+
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                        //"Select your {projects} directory";
+            ws.helpText = String.format (Environment.getUIString (prefix,
+                                                                  LanguageStrings.text),
+                                        //"Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%s%s</b>",
+                                         Environment.getProjectInfoDBFile ().getName () + Constants.H2_DB_FILE_SUFFIX);
 
             Box b = new Box (BoxLayout.Y_AXIS);
 
@@ -538,17 +559,29 @@ public class FirstUseWizard extends PopupWizard
 
             });
 
-            this.projDBFind.setApproveButtonText ("Select");
+            this.projDBFind.setApproveButtonText (Environment.getUIString (prefix,
+                                                                           LanguageStrings.finder,
+                                                                           LanguageStrings.button));
+                                                //"Select");
             this.projDBFind.setFinderSelectionMode (JFileChooser.DIRECTORIES_ONLY);
-            this.projDBFind.setFinderTitle ("Select the directory");
+            this.projDBFind.setFinderTitle (Environment.getUIString (prefix,
+                                                                     LanguageStrings.finder,
+                                                                     LanguageStrings.title));
+                                                                           //"Select the directory");
 
             this.projDBFind.setFile (Environment.getUserQuollWriterDir ());
 
-            this.projDBFind.setFindButtonToolTip ("Click to find a directory");
+            this.projDBFind.setFindButtonToolTip (Environment.getUIString (prefix,
+                                                                           LanguageStrings.finder,
+                                                                           LanguageStrings.tooltip));
+                                                //"Click to find a directory");
             this.projDBFind.setClearOnCancel (true);
             this.projDBFind.init ();
 
-            builder.addLabel ("Directory",
+            builder.addLabel (Environment.getUIString (prefix,
+                                                       LanguageStrings.finder,
+                                                       LanguageStrings.label),
+                            //"Directory",
                               cc.xy (1,
                                      1));
             builder.add (this.projDBFind,
@@ -570,8 +603,17 @@ public class FirstUseWizard extends PopupWizard
         if (EXISTING_STAGE.equals (stage))
         {
 
-            ws.title = "Find your {projects}";
-            ws.helpText = "If you would like {QW} to find your {projects} then click <b>Finish</b> below.";
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.existing);
+
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                                //"Find your {projects}";
+            ws.helpText = Environment.getUIString (prefix,
+                                                   LanguageStrings.text);
+                                //"If you would like {QW} to find your {projects} then click <b>Finish</b> below.";
 
             FormLayout fl = new FormLayout ("10px, p, 10px",
                                             "p, 6px, p, 6px, p, 6px");
@@ -580,11 +622,17 @@ public class FirstUseWizard extends PopupWizard
 
             CellConstraints cc = new CellConstraints ();
 
-            this.findProjects.setText (Environment.replaceObjectNames ("{QW} should find my {projects}"));
+            this.findProjects.setText (Environment.getUIString (prefix,
+                                                                LanguageStrings.labels,
+                                                                LanguageStrings.find));
+                                        //.replaceObjectNames ("{QW} should find my {projects}"));
 
             this.findProjects.setOpaque (false);
 
-            this.selectProjectDB = new JRadioButton (Environment.replaceObjectNames ("I know where my {projects} database is"));
+            this.selectProjectDB = new JRadioButton (Environment.getUIString (prefix,
+                                                                              LanguageStrings.labels,
+                                                                              LanguageStrings.manual));
+                                                    //"I know where my {projects} database is"));
 
             this.selectProjectDB.setOpaque (false);
 
@@ -644,8 +692,17 @@ public class FirstUseWizard extends PopupWizard
         if (DECIDE_STAGE.equals (stage))
         {
 
-            ws.title = "Your first {project}";
-            ws.helpText = "If you already have your story in a .docx or .doc file then use the import option below, otherwise use the create option.  You can also just drag your .docx or .doc file onto this window.";
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.decide);
+
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                                //"Your first {project}";
+            ws.helpText = Environment.getUIString (prefix,
+                                                   LanguageStrings.text);
+                                //"If you already have your story in a .docx or .doc file then use the import option below, otherwise use the create option.  You can also just drag your .docx or .doc file onto this window.";
 
             FormLayout fl = new FormLayout ("p",
                                             "p, 6px, p");
@@ -654,11 +711,17 @@ public class FirstUseWizard extends PopupWizard
 
             CellConstraints cc = new CellConstraints ();
 
-            this.importFile.setText ("Import a File");
+            this.importFile.setText (Environment.getUIString (prefix,
+                                                              LanguageStrings.labels,
+                                                              LanguageStrings.importfile));
+                                    //"Import a File");
 
             this.importFile.setOpaque (false);
 
-            this.createNewProject = new JRadioButton (Environment.replaceObjectNames ("Create a {project}"));
+            this.createNewProject = new JRadioButton (Environment.getUIString (prefix,
+                                                                               LanguageStrings.labels,
+                                                                               LanguageStrings.newproject));
+                                                    //Environment.replaceObjectNames ("Create a {project}"));
 
             this.createNewProject.setOpaque (false);
 
@@ -711,7 +774,10 @@ public class FirstUseWizard extends PopupWizard
             b.add (p);
             b.add (Box.createVerticalGlue ());
 
-            JLabel l = UIUtils.createClickableLabel ("Not your first {project}?  Click here to find your {projects}.",
+            JLabel l = UIUtils.createClickableLabel (Environment.getUIString (prefix,
+                                                                              LanguageStrings.labels,
+                                                                              LanguageStrings.notfirst),
+                                                    //"Not your first {project}?  Click here to find your {projects}.",
                                                        Environment.getIcon (Constants.FIND_ICON_NAME,
                                                                             Constants.ICON_CLICKABLE_LABEL),
                                                        new ActionListener ()
@@ -741,8 +807,17 @@ public class FirstUseWizard extends PopupWizard
         if (SELECT_FILE_STAGE.equals (stage))
         {
 
-            ws.title = "Select a file to import";
-            ws.helpText = "Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.";
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.selectfile);
+
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                        //"Select a file to import";
+            ws.helpText = Environment.getUIString (prefix,
+                                                   LanguageStrings.text);
+                        //"Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.";
 
             Box b = new Box (BoxLayout.Y_AXIS);
 
@@ -757,9 +832,15 @@ public class FirstUseWizard extends PopupWizard
 
             CellConstraints cc = new CellConstraints ();
 
-            this.fileFind.setApproveButtonText ("Select");
+            this.fileFind.setApproveButtonText (Environment.getUIString (prefix,
+                                                                         LanguageStrings.finder,
+                                                                         LanguageStrings.button));
+                                                //"Select");
             this.fileFind.setFinderSelectionMode (JFileChooser.FILES_ONLY);
-            this.fileFind.setFinderTitle ("Select a file to import");
+            this.fileFind.setFinderTitle (Environment.getUIString (prefix,
+                                                                   LanguageStrings.finder,
+                                                                   LanguageStrings.title));
+                                        //"Select a file to import");
 
             if (this.fileFind.getSelectedFile () == null)
             {
@@ -782,11 +863,17 @@ public class FirstUseWizard extends PopupWizard
 
             this.fileFind.setFileFilter (ImportProject.fileFilter);
 
-            this.fileFind.setFindButtonToolTip ("Click to find a file");
+            this.fileFind.setFindButtonToolTip (Environment.getUIString (prefix,
+                                                                         LanguageStrings.finder,
+                                                                         LanguageStrings.tooltip));
+                                                //"Click to find a file");
             this.fileFind.setClearOnCancel (true);
             this.fileFind.init ();
 
-            builder.addLabel ("File",
+            builder.addLabel (Environment.getUIString (prefix,
+                                                       LanguageStrings.finder,
+                                                       LanguageStrings.label),
+                            //"File",
                               cc.xy (1,
                                      1));
             builder.add (this.fileFind,
@@ -808,9 +895,18 @@ public class FirstUseWizard extends PopupWizard
         if (IMPORT_STAGE.equals (stage))
         {
 
-            ws.title = "Select the items you wish to import";
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.selectitems);
 
-            ws.helpText = "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.";
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                //"Select the items you wish to import";
+
+            ws.helpText = Environment.getUIString (prefix,
+                                                   LanguageStrings.text);
+                                //"Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.";
 
             this.itemsTree.addMouseListener (new MouseAdapter ()
             {
@@ -901,9 +997,18 @@ public class FirstUseWizard extends PopupWizard
         if (START_STAGE.equals (stage))
         {
 
-            ws.title = "Select the spell checker language";
+            java.util.List<String> prefix = new ArrayList<> ();
+            prefix.add (LanguageStrings.firstusewizard);
+            prefix.add (LanguageStrings.stages);
+            prefix.add (LanguageStrings.start);
 
-            ws.helpText = "Welcome to Quoll Writer, this wizard will help you get started.<br /><br />First, select the language you would like to use for the spell checker.  You can download additional languages in the Options panel later.";
+            ws.title = Environment.getUIString (prefix,
+                                                LanguageStrings.title);
+                                    //"Select the spell checker language";
+
+            ws.helpText = Environment.getUIString (prefix,
+                                                   LanguageStrings.text);
+                            //"Welcome to Quoll Writer, this wizard will help you get started.<br /><br />First, select the language you would like to use for the spell checker.  You can download additional languages in the Options panel later.";
 
             JComboBox lb = UIUtils.getSpellCheckLanguagesSelector (new ActionListener ()
                                                                    {
@@ -1020,11 +1125,11 @@ public class FirstUseWizard extends PopupWizard
             (assets.size () == 0)
            )
         {
-            
+
             return;
-            
+
         }
-    
+
         TreeParentNode c = new TreeParentNode (type.getObjectTypeId (),
                                                type.getObjectTypeNamePlural ());
 
@@ -1037,7 +1142,7 @@ public class FirstUseWizard extends PopupWizard
         root.add (tn);
 
         java.util.List<Asset> lassets = new ArrayList (assets);
-        
+
         Collections.sort (lassets,
                           NamedObjectSorter.getInstance ());
 
@@ -1156,7 +1261,11 @@ public class FirstUseWizard extends PopupWizard
                                                                   e);
 
                                             UIUtils.showErrorMessage (_this,
-                                                                      "Unable to import file");
+                                                                      Environment.getUIString (LanguageStrings.firstusewizard,
+                                                                                               LanguageStrings.stages,
+                                                                                               LanguageStrings.importfile,
+                                                                                               LanguageStrings.actionerror));
+                                                                      //"Unable to import file");
 
                                         }
 
@@ -1203,7 +1312,11 @@ public class FirstUseWizard extends PopupWizard
                                   e);
 
             UIUtils.showErrorMessage (this,
-                                      "Unable to import file");
+                                      Environment.getUIString (LanguageStrings.firstusewizard,
+                                                               LanguageStrings.stages,
+                                                               LanguageStrings.importfile,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to import file");
 
         }
 
@@ -1270,15 +1383,15 @@ public class FirstUseWizard extends PopupWizard
 
         for (UserConfigurableObjectType t : assetTypes)
         {
-            
+
             Set<Asset> as = p.getAssets (t);
 
             this.addAssetsToTree (root,
                                   t,
                                   as);
-            
+
         }
-        
+
         return root;
 
     }

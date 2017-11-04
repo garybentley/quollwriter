@@ -211,6 +211,77 @@
             }
         }
     },
+    "firstusewizard" :
+    {
+        "title" : "Welcome to {QW}",
+        "text" : "Welcome to {QW}, this page will help you get started.  Don't worry, there are only a couple of questions and then you can get started on your first ${objectnames.singular.project}.",
+        "stages" :
+        {
+            "newproject" :
+            {
+                "title" : "${objectnames.singular.project} details",
+                "text" : "Enter the name of the ${objectnames.singular.project} below and select the directory where it should be saved."
+            },
+            "selectprojectdb" :
+            {
+                "title" : "Select your ${objectnames.plural.project} directory",
+                "text" : "Use the finder below to find the directory where your {projects} database file is stored.  The file is called <b>%1$s</b>",
+                ":comment.text" : "%1$s is the file name of the projects database.",
+                ":scount.text" : 1,
+                "finder" :
+                {
+                    "title" : "Select the directory",
+                    "button" : "${actions.select}",
+                    "tooltip" : "Click to find a directory",
+                    "label" : "Directory"
+                }
+            },
+            "existing" :
+            {
+                "title" : "Find your ${objectnames.plural.project}",
+                "text" : "If you would like {QW} to find your ${objectnames.plural.project} then click <b>${actions.finish}</b> below.",
+                "labels" :
+                {
+                    "find" : "{QW} should find my ${objectnames.plural.project}",
+                    "manual" : "I know where my ${objectnames.plural.project} database is"
+                }
+            },
+            "decide" :
+            {
+                "title" : "Your first ${objectnames.singular.project}",
+                "text" : "If you already have your story in a .docx or .doc file then use the import option below, otherwise use the create option.  You can also just drag your .docx or .doc file onto this window.",
+                "labels" :
+                {
+                    "newproject" : "Create a ${objectnames.singular.project}",
+                    "notfirst" : "Not your first ${objectnames.singular.project}?  Click here to find your ${objectnames.plural.project}.",
+                    "importfile" : "Import a File"
+                }
+            },
+            "selectfile" :
+            {
+                "title" : "Select a file to import",
+                "text" : "Microsoft Word files (.doc and .docx) are supported.  Please check <a href='help://projects/importing-a-file'>the import guide</a> to ensure your file has the correct format.",
+                "finder" :
+                {
+                    "title" : "Select a file to import",
+                    "button" : "${actions.select}",
+                    "tooltip" : "Click to find a file",
+                    "label" : "File"
+                }
+            },
+            "selectitems" :
+            {
+                "title" : "Select the items you wish to import",
+                "text" : "Check the items below to ensure that they match what is in your file.  The first and last sentences of the description (if present) are shown for each item.",
+                "actionerror" : "Unable to import file."
+            },
+            "start" :
+            {
+                "title" : "Select the spell checker language",
+                "text" : "Welcome to {QW}}, this wizard will help you get started.<br /><br />First, select the language you would like to use for the spell checker.  You can download additional languages in the Options panel later."
+            }
+        }
+    },
     "notes" :
     {
         "addedit" :
