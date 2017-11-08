@@ -52,56 +52,56 @@ import com.quollwriter.editors.ui.*;
 
 public class OptionsPanel extends QuollPanel<AbstractViewer>
 {
-        
+
     public static final String PANEL_ID = "options";
-    
+
     private Accordion accordion = null;
     private JCheckBox sendErrorsToSupport = null;
-        
+
     private Options options = null;
-    
+
     public OptionsPanel (AbstractViewer     viewer,
                          Options.Section... sectIds)
                   throws GeneralException
     {
 
         super (viewer);
-        
+
         this.options = new Options (viewer,
                                     sectIds);
-                
+
     }
-        
+
     public void showSection (String name)
     {
-        
+
         this.showSection (Options.Section.valueOf (name));
-        
+
     }
-        
+
     public void showSection (Options.Section name)
     {
 
         this.options.showSection (name);
 
     }
-        
+
     public void init ()
     {
-               
-        this.options.init ();               
-        
+
+        this.options.init ();
+
         this.add (this.options);
-        
+
     }
-            
+
     private void setContentBorder (JComponent box)
     {
-        
+
         box.setBorder (UIUtils.createPadding (7, 0, 10, 0));
-        
+
     }
-                        
+
     public void fillPopupMenu (MouseEvent ev,
                                JPopupMenu popup)
     {
@@ -121,66 +121,47 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
 
     }
 
+    private JButton createTestButton ()
+    {
+
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.options);
+        prefix.add (LanguageStrings.toolbar);
+        prefix.add (LanguageStrings.buttons);
+        prefix.add (LanguageStrings.test);
+        prefix.add (LanguageStrings.tooltip);
+
+        final OptionsPanel _this = this;
+
+        return UIUtils.createToolBarButton (Constants.OPTIONS_ICON_NAME,
+                                            Environment.getUIString (prefix),
+                                                //"This is just a test item so you can see how the toolbar looks when you change it's location."),
+                                                 null,
+                                                 new ActionAdapter ()
+        {
+
+            public void actionPerformed (ActionEvent ev)
+            {
+
+                UIUtils.showMessage (_this,
+                                     Environment.getUIString (LanguageStrings.options,
+                                                              LanguageStrings.testboolbarbuttonmessage));
+                                     //"This button is here as a test so you can see what the toolbar looks like when you move it.");
+
+            }
+
+        });
+
+    }
+
     public void fillToolBar (JToolBar toolBar,
                              boolean  fullScreen)
     {
 
-        final OptionsPanel _this = this;
-    
-        JButton b = UIUtils.createToolBarButton ("options",
-                                                       Environment.replaceObjectNames ("This is just a test item so you can see how the toolbar looks when you change it's location."),
-                                                       null,
-                                                       new ActionAdapter ()
-        {
+        toolBar.add (this.createTestButton ());
+        toolBar.add (this.createTestButton ());
+        toolBar.add (this.createTestButton ());
 
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.showMessage (_this,
-                                     "This button is here as a test so you can see what the toolbar looks like when you move it.");
-            
-            }
-
-        });
-
-        toolBar.add (b);
-    
-        b = UIUtils.createToolBarButton ("options",
-                                                       Environment.replaceObjectNames ("This is just a test item so you can see how the toolbar looks when you change it's location."),
-                                                       null,
-                                                       new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.showMessage (_this,
-                                     "This button is here as a test so you can see what the toolbar looks like when you move it.");
-            
-            }
-
-        });
-
-        toolBar.add (b);
-
-        b = UIUtils.createToolBarButton ("options",
-                                                       Environment.replaceObjectNames ("This is just a test item so you can see how the toolbar looks when you change it's location."),
-                                                       null,
-                                                       new ActionAdapter ()
-        {
-
-            public void actionPerformed (ActionEvent ev)
-            {
-
-                UIUtils.showMessage (_this,
-                                     "This button is here as a test so you can see what the toolbar looks like when you move it.");
-            
-            }
-
-        });
-
-        toolBar.add (b);
-    
     }
 
     public boolean saveUnsavedChanges ()
@@ -203,9 +184,9 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
     {
 
         final OptionsPanel _this = this;
-    
+
         this.options.setState (s);
-    
+
         this.setReadyForUse (true);
 
     }
@@ -220,24 +201,26 @@ public class OptionsPanel extends QuollPanel<AbstractViewer>
     @Override
     public String getTitle ()
     {
-        
-        return "Options";
-        
+
+        return Environment.getUIString (LanguageStrings.options,
+                                        LanguageStrings.title);
+                                        //"Options";
+
     }
-    
+
     @Override
     public ImageIcon getIcon (int type)
     {
-        
-        return Environment.getIcon ("options",
+
+        return Environment.getIcon (Constants.OPTIONS_ICON_NAME,
                                     type);
-        
+
     }
-    
+
     @Override
     public void close ()
     {
 
 
-    }    
+    }
 }

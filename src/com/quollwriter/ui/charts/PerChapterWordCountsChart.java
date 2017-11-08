@@ -21,6 +21,9 @@ import org.jfree.chart.axis.*;
 import org.jfree.data.category.*;
 import org.jfree.chart.renderer.category.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 import com.quollwriter.*;
 import com.quollwriter.data.*;
 import com.quollwriter.ui.events.*;
@@ -34,8 +37,8 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 {
 
     public static final String CHART_TYPE = "per-chapter-word-counts";
-    public static final String CHART_TITLE = "{Chapter} Word Counts";
-        
+    //public static final String CHART_TITLE = "{Chapter} Word Counts";
+
     private JFreeChart chart = null;
     private JComponent detail = null;
     private JComponent controls = null;
@@ -44,127 +47,139 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
     private JCheckBox          showAvg = null;
     private JCheckBox          showTarget = null;
     private JComponent opts = null;
-    
+
     public PerChapterWordCountsChart (AbstractProjectViewer pv)
     {
-        
+
         super (pv);
-        
+
     }
-    
+
     public void init (StatisticsPanel wcp)
                throws GeneralException
     {
-        
+
         super.init (wcp);
-        
+
         this.createControls ();
-                
-    }    
-    
+
+    }
+
     private void createControls ()
     {
-        
+
+        java.util.List<String> prefix = Arrays.asList (charts, perchapter, labels);
+
         final PerChapterWordCountsChart _this = this;
 
         Box b = new Box (BoxLayout.Y_AXIS);
         b.setOpaque (false);
 
-        this.showAvg = UIUtils.createCheckBox ("Show Average",
+        this.showAvg = UIUtils.createCheckBox (getUIString (prefix,showaverage),
+                                            //"Show Average",
                                                new ActionListener ()
                                                {
-                                                
+
                                                     @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
-                                                        _this.updateChart ();                                                        
-                                                        
+
+                                                        _this.updateChart ();
+
                                                     }
-                                                
+
                                                });
-        
-        this.showTarget = UIUtils.createCheckBox ("Show Target",
+
+        this.showTarget = UIUtils.createCheckBox (getUIString (prefix,showtarget),
+                                                //"Show Target",
                                                   new ActionListener ()
                                                   {
-                                                
+
                                                     @Override
                                                     public void actionPerformed (ActionEvent ev)
                                                     {
-                                                        
+
                                                         TargetsData targets = _this.viewer.getProjectTargets ();
-                                                        
+
                                                         if (targets.getMaxChapterCount () == 0)
                                                         {
-                                                            
+
+                                                            final java.util.List<String> prefix = Arrays.asList (charts,perchapter,nochaptertarget,popup);
+
                                                             UIUtils.createQuestionPopup (_this.viewer,
-                                                                                         "Set up Target",
+                                                                                         getUIString (prefix,title),
+                                                                                         //"Set up Target",
                                                                                          Constants.TARGET_ICON_NAME,
-                                                                                         "You currently have no {chapter} word count target set up.<br /><br />Would you like to set the target now?<br /><br />Note: Targets can be accessed at any time from the {Project} menu.",
-                                                                                         "Yes, show me",
-                                                                                         "No, not now",
+                                                                                         getUIString (prefix,text),
+                                                                                         //"You currently have no {chapter} word count target set up.<br /><br />Would you like to set the target now?<br /><br />Note: Targets can be accessed at any time from the {Project} menu.",
+                                                                                         getUIString (prefix,buttons,confirm),
+                                                                                         //"Yes, show me",
+                                                                                         getUIString (prefix,buttons,cancel),
+                                                                                         //"No, not now",
                                                                                          new ActionListener ()
                                                                                          {
-                                                                                            
+
                                                                                             @Override public void actionPerformed (ActionEvent ev)
                                                                                             {
-                                                                                                
+
                                                                                                 try
                                                                                                 {
-                                                                                                
+
                                                                                                     _this.viewer.viewTargets ();
-                                                                                                    
+
                                                                                                 } catch (Exception e) {
-                                                                                                    
-                                                                                                    UIUtils.showErrorMessage (_this.viewer,
-                                                                                                                              "Unable to show targets.");
-                                                                                                    
+
                                                                                                     Environment.logError ("Unable to show targets",
                                                                                                                           e);
-                                                                                                    
+
+                                                                                                    UIUtils.showErrorMessage (_this.viewer,
+                                                                                                                              getUIString (charts,perchapter,nochaptertarget,actionerror));
+                                                                                                                            //)"Unable to show targets.");
+
                                                                                                 }
-                                                                                                
+
                                                                                             }
-                                                                                            
+
                                                                                          },
                                                                                          null,
                                                                                          null,
                                                                                          null);
-                                                            
+
                                                             _this.showTarget.setSelected (false);
-                                                                                         
-                                                            return;                                                            
-                                                            
+
+                                                            return;
+
                                                         }
-                                                        
-                                                        _this.updateChart ();                                                                                                                
-                                                        
+
+                                                        _this.updateChart ();
+
                                                     }
-                                                
+
                                                   });
 
         this.opts = new Box (BoxLayout.Y_AXIS);
-            
+
         b.add (this.opts);
-                            
-        this.opts.setBorder (UIUtils.createPadding (0, 10, 0, 0));                            
-                                
+
+        this.opts.setBorder (UIUtils.createPadding (0, 10, 0, 0));
+
         this.opts.add (this.showAvg);
-        this.opts.add (this.showTarget);                
-        
-        Header h = UIUtils.createBoldSubHeader (Environment.replaceObjectNames ("For"),
+        this.opts.add (this.showTarget);
+
+        Header h = UIUtils.createBoldSubHeader (getUIString (prefix,_for),
+                                                //Environment.replaceObjectNames ("For"),
                                                 null);
         h.setAlignmentY (Component.TOP_ALIGNMENT);
-        
+
         b.add (h);
-        
+
         Vector displayItems = new Vector ();
-        displayItems.add ("Now");
-        displayItems.add ("This week");
-        displayItems.add ("Last week");
-        displayItems.add ("This month");
-        displayItems.add ("Last month");
-        displayItems.add ("All time");        
+        displayItems.add (getUIString (times, now));
+        displayItems.add (getUIString (times, thisweek));
+        displayItems.add (getUIString (times, lastweek));
+        displayItems.add (getUIString (times, thismonth));
+        displayItems.add (getUIString (times, lastmonth));
+        displayItems.add (getUIString (times, alltime));
 
         b.add (Box.createVerticalStrut (5));
 
@@ -182,9 +197,9 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
             {
 
                 _this.opts.setVisible (_this.displayB.getSelectedIndex () == 0);
-            
+
                 _this.updateChart ();
-                
+
             }
 
         });
@@ -202,7 +217,8 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 
         b.add (Box.createVerticalStrut (10));
 
-        h = UIUtils.createBoldSubHeader (Environment.replaceObjectNames ("For these {Chapters}"),
+        h = UIUtils.createBoldSubHeader (getUIString (charts,perchapter,labels,forchapters),
+                                        //"For these {Chapters}"),
                                          null);
         h.setOpaque (false);
         h.setAlignmentY (Component.TOP_ALIGNMENT);
@@ -230,9 +246,9 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
         });
 
         SelectableProjectTreeCellRenderer rend = new SelectableProjectTreeCellRenderer ();
-        
+
         rend.setShowIcons (false);
-        
+
         this.chapters.setCellRenderer (rend);
         UIUtils.addSelectableListener (this.chapters);
 
@@ -247,50 +263,50 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 
         this.chapters.setMaximumSize (this.chapters.getPreferredSize ());
         this.chapters.setAlignmentX (Component.LEFT_ALIGNMENT);
-        
+
         b.add (this.chapters);
 
         this.controls = b;
-        
+
     }
-        
+
     private void createChart ()
                        throws GeneralException
     {
-        
+
         if (this.displayB.getSelectedIndex () == 0)
         {
-            
+
             this.createCurrentChart ();
-            
+
             return;
-            
+
         }
-        
+
         this.createHistoryChart ();
-        
+
     }
-    
+
     private void createCurrentChart ()
                               throws GeneralException
     {
 
         final PerChapterWordCountsChart _this = this;
-    
+
         ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
 
         Set<Chapter> selected = new HashSet ();
 
         UIUtils.getSelectedObjects ((DefaultMutableTreeNode) this.chapters.getModel ().getRoot (),
                                     selected);
-        
+
         int chapterCount = 0;
         int totalWords = 0;
         int maxWords = 0;
         Chapter maxChap = null;
-                                    
+
         final DefaultCategoryDataset ds = new DefaultCategoryDataset ();
-                                    
+
         try
         {
 
@@ -308,28 +324,28 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                     }
 
                     ChapterCounts cc = this.viewer.getChapterCounts (c);
-                            
+
                     if (cc.wordCount > 0)
                     {
-                                        
+
                         chapterCount++;
-                        
+
                     }
-                    
+
                     totalWords += cc.wordCount;
-                    
+
                     if (cc.wordCount > maxWords)
                     {
-                        
+
                         maxChap = c;
                         maxWords = cc.wordCount;
-                        
+
                     }
-                                        
+
                     ds.addValue (cc.wordCount,
                                  "Chapters",
                                  c.getName ());
-                    
+
                 }
 
             }
@@ -346,24 +362,28 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
             return;
 
         }
-        
-        this.chart = QuollChartUtils.createBarChart (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
-                                                     "Word Count",
+
+        java.util.List<String> prefix = Arrays.asList (charts, perchapter, labels);
+
+        this.chart = QuollChartUtils.createBarChart (getUIString (prefix,xaxis),
+                                                    //Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE),
+                                                     getUIString (prefix,yaxis),
+                                                    //"Word Count",
                                                      ds);
-            
-        this.chart.setBackgroundPaint (UIUtils.getComponentColor ());               
+
+        this.chart.setBackgroundPaint (UIUtils.getComponentColor ());
         this.chart.removeLegend ();
-                
+
         CategoryPlot plot = (CategoryPlot) this.chart.getPlot ();
 
         final CategoryAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setCategoryLabelPositions (CategoryLabelPositions.STANDARD);//CategoryLabelPositions.createUpRotationLabelPositions (Math.PI / 0.5));        
-        
+        domainAxis.setCategoryLabelPositions (CategoryLabelPositions.STANDARD);//CategoryLabelPositions.createUpRotationLabelPositions (Math.PI / 0.5));
+
         plot.setOrientation (PlotOrientation.HORIZONTAL);
         plot.setRangeAxisLocation (AxisLocation.BOTTOM_OR_LEFT);
-        
+
         QuollChartUtils.customizePlot (plot);
-            
+
         CategoryToolTipGenerator ttgen = new StandardCategoryToolTipGenerator ()
         {
 
@@ -382,45 +402,48 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                 b.append (Environment.formatNumber (n.intValue ()));
                 b.append (" words ");
 
-                return b.toString ();
+                return String.format (getUIString (charts, perchapter, tooltip),
+                                      Environment.formatNumber (n.intValue ()));
+                                      //b.toString ();
 
             }
 
         };
-            
+
         ((CategoryItemRenderer) plot.getRenderer ()).setSeriesToolTipGenerator (0,
-                                                                                ttgen);        
-            
+                                                                                ttgen);
+
         TargetsData ptargs = this.viewer.getProjectTargets ();
-    
+
         int targetWords = ptargs.getMaxChapterCount ();
 
         double avgWords = 0;
-        
+
         if (chapterCount > 0)
         {
-            
+
             avgWords = totalWords / chapterCount;
-            
+
         }
 
-        double diffAvgWords = avgWords - targetWords;        
-        
+        double diffAvgWords = avgWords - targetWords;
+
         if (this.showAvg.isSelected ())
         {
-        
+
             String tgf = "";
-        
+
             if (targetWords > 0)
             {
-                                
-                tgf = String.format (", %s%s target",
-                                     (diffAvgWords < 0 ? "" : "+"),
-                                     Environment.formatNumber ((long) diffAvgWords));
-                
+
+                tgf = String.format (getUIString (prefix, markers, averagesuffix),
+                                    //", %s%s target",
+                                     (diffAvgWords < 0 ? "" : "+") + Environment.formatNumber ((long) diffAvgWords));
+
             }
-        
-            plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("Avg %s%s",
+
+            plot.addRangeMarker (QuollChartUtils.createMarker (String.format (getUIString (prefix, markers, average),
+                                                                                                       //"Avg %s%s",
                                                                               Environment.formatNumber ((long) avgWords),
                                                                               tgf),
                                                                avgWords,
@@ -428,120 +451,126 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                                                org.jfree.ui.RectangleAnchor.TOP_RIGHT));
 
         }
-            
+
         if (this.showTarget.isSelected ())
         {
-                        
+
             if (targetWords > 0)
             {
-        
-                plot.addRangeMarker (QuollChartUtils.createMarker (String.format ("Target %s",
+
+                plot.addRangeMarker (QuollChartUtils.createMarker (String.format (getUIString (prefix, markers, target),
+                                                                                //"Target %s",
                                                                                   Environment.formatNumber (targetWords)),
                                                                    targetWords,
                                                                    -1,
                                                                    org.jfree.ui.RectangleAnchor.BOTTOM_LEFT));
 
             }
-                                    
+
         }
 
         int over = 0;
-        
+
         for (Chapter c : selected)
         {
 
             ChapterCounts cc = this.viewer.getChapterCounts (c);
-        
+
             if (cc.wordCount > targetWords)
             {
-                
+
                 over++;
-                
+
             }
-            
+
         }
-                
+
         //((NumberAxis) plot.getRangeAxis ()).setAutoRangeIncludesZero (true);
-                
+
         Set<JComponent> items = new LinkedHashSet ();
-                                                     
+
         if ((targetWords > 0)
             &&
             (over > 0)
            )
         {
 
-            String t = String.format ("%s {Chapter%s} over target word count",
-                                      Environment.formatNumber (over),
-                                      (over == 1 ? "" : "s"));
-        
+            String t = String.format (getUIString (prefix, chaptersovertarget, text),
+                                    //"%s {Chapter%s} over target word count",
+                                      Environment.formatNumber (over));
+                                      //(over == 1 ? "" : "s"));
+
             // TODO: Fix this nonsense.
             ActionListener _null = null;
-        
+
             final JLabel l = this.createWarningLabel (UIUtils.createClickableLabel (t,
                                                                                     null,
                                                                                     _null));
-            
+
             UIUtils.makeClickable (l,
                                    new ActionListener ()
             {
-               
+
                @Override
                public void actionPerformed (ActionEvent ev)
                {
-                   
+
                    Targets.showChaptersOverWordTarget (_this.viewer,
                                                        l);
-                   
+
                }
-               
+
             });
-            
-            l.setToolTipText ("Click to view the " + t);
-                
+
+            l.setToolTipText (getUIString (prefix,chaptersovertarget,tooltip));
+                            //"Click to view the " + t);
+
             items.add (l);
-            
+
         }
-        
-        items.add (this.createDetailLabel (String.format ("%s - Average word count",
+
+        items.add (this.createDetailLabel (String.format (getUIString (prefix,average),
+                                                            //"%s - Average word count",
                                                           Environment.formatNumber ((long) avgWords))));
-        
+
         this.detail = QuollChartUtils.createDetailPanel (items);
 
     }
-    
+
     private void createHistoryChart ()
                               throws GeneralException
     {
-        
+
+        java.util.List<String> prefix = Arrays.asList (charts,perchapter,history,labels);
+
         int days = -1;
-        
+
         Date minDate = null;
         Date maxDate = new Date ();
-        
+
         // This week.
         if (this.displayB.getSelectedIndex () == 1)
         {
 
             // Work out how many days there have been this week.
             GregorianCalendar gc = new GregorianCalendar ();
-            
+
             days = gc.get (Calendar.DAY_OF_WEEK) - gc.getFirstDayOfWeek ();
-            
+
             if (days < 0)
             {
-                
+
                 days -= 7;
-                
+
             }
-        
+
             gc.add (Calendar.DATE,
                     -1 * days);
-            
+
             minDate = gc.getTime ();
-                
+
             days++;
-                
+
         }
 
         // Last week
@@ -549,30 +578,30 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
         {
 
             GregorianCalendar gc = new GregorianCalendar ();
-            
+
             days = gc.get (Calendar.DAY_OF_WEEK) - gc.getFirstDayOfWeek ();
-            
+
             if (days < 0)
             {
-                
+
                 days -= 7;
-                
+
             }
-        
+
             gc.add (Calendar.DATE,
                     (-1 * days) - 1);
-            
+
             maxDate = gc.getTime ();
-        
+
             days += 7;
-                
+
             gc.add (Calendar.DATE,
                     -6);
-            
+
             minDate = gc.getTime ();
-        
+
             days++;
-        
+
         }
 
         // This month.
@@ -580,16 +609,16 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
         {
 
             GregorianCalendar gc = new GregorianCalendar ();
-                    
+
             days = gc.get (Calendar.DATE);
-                    
+
             gc.set (Calendar.DATE,
                     1);
-            
+
             minDate = gc.getTime ();
 
             days++;
-            
+
         }
 
         // Last month.
@@ -597,34 +626,34 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
         {
 
             GregorianCalendar gc = new GregorianCalendar ();
-               
+
             gc.add (Calendar.MONTH,
                     -1);
-            
+
             days = gc.getActualMaximum (Calendar.DATE);
-            
+
             gc.set (Calendar.DATE,
                     days);
-            
+
             maxDate = gc.getTime ();
-            
+
             gc.set (Calendar.DATE,
                     1);
-            
+
             minDate = gc.getTime ();
 
             days++;
-            
+
         }
 
         // All time
         if (this.displayB.getSelectedIndex () == 5)
         {
-            
+
             days = 1;
 
         }
-        
+
         ChapterDataHandler dh = (ChapterDataHandler) this.viewer.getDataHandler (Chapter.class);
 
         Set selected = new HashSet ();
@@ -690,25 +719,27 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
 
         }
 
-        this.chart = QuollChartUtils.createTimeSeriesChart ("Date",
-                                                            "Word Count",
+        this.chart = QuollChartUtils.createTimeSeriesChart (getUIString (prefix,xaxis),
+                                                        //"Date",
+                                                            getUIString (prefix,yaxis),
+                                                        //"Word Count",
                                                             tscc);
-        this.chart.setBackgroundPaint (UIUtils.getComponentColor ());               
-                
+        this.chart.setBackgroundPaint (UIUtils.getComponentColor ());
+
         XYPlot plot = (XYPlot) this.chart.getPlot ();
-        
+
         PeriodAxis axis = (PeriodAxis) plot.getDomainAxis ();
-        
+
         if (minDate != null)
         {
-            
+
             axis.setLowerBound (minDate.getTime ());
-        
+
             axis.setUpperBound (maxDate.getTime ());
 
         }
-        
-        plot.setBackgroundPaint (UIUtils.getComponentColor ());        
+
+        plot.setBackgroundPaint (UIUtils.getComponentColor ());
         plot.setDomainGridlinePaint (Environment.getBorderColor ());
         plot.setRangeGridlinePaint (Environment.getBorderColor ());
         plot.setAxisOffset (new RectangleInsets (5D,
@@ -717,7 +748,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                                  5D));
 
         Font f = QuollChartUtils.getLabelFont ();
-                                                 
+
         plot.setDomainCrosshairVisible (true);
         plot.setRangeCrosshairVisible (true);
         plot.setDomainGridlinePaint (UIUtils.getColor ("#cfcfcf"));
@@ -726,98 +757,99 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
         plot.getDomainAxis ().setTickLabelFont (f);
         plot.getRangeAxis ().setLabelFont (f);
         plot.getRangeAxis ().setTickLabelFont (f);
-        
+
         //QuollChartUtils.customizePlot (xyplot);
-        
+
         this.detail = null;
-                
+
     }
-    
+
     public String getTitle ()
     {
-        
-        return CHART_TITLE;
-        
+
+        return getUIString (charts,perchapter,title);
+        //return CHART_TITLE;
+
     }
-    
+
     public String getType ()
     {
-        
+
         return CHART_TYPE;
-        
+
     }
-    
+
     public JComponent getControls (boolean update)
                             throws GeneralException
     {
-        
+
         if (update)
         {
-            
+
             this.controls = null;
-            
+
         }
-        
+
         if (this.controls == null)
         {
-            
+
             this.createControls ();
-            
+
         }
-        
+
         return this.controls;
-        
+
     }
-    
+
     public JFreeChart getChart (boolean update)
                          throws GeneralException
     {
-        
+
         if (update)
         {
-            
+
             this.chart = null;
-            
+
         }
-        
+
         if (this.chart == null)
         {
-            
+
             this.createChart ();
-            
+
         }
-        
+
         return this.chart;
-        
+
     }
-    
+
     public JComponent getDetail (boolean update)
                           throws GeneralException
     {
-        
+
         if (update)
         {
-            
+
             this.detail = null;
-            
+
         }
-        
+
         if (this.detail == null)
         {
-            
+
             this.createChart ();
-            
+
         }
-        
+
         return this.detail;
-        
+
     }
-    
+
     public String toString ()
     {
-        
-        return Environment.replaceObjectNames (this.getTitle ());
-        
+
+        return this.getTitle ();
+
     }
-    
+
 }

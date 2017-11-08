@@ -27,57 +27,57 @@ import com.quollwriter.ui.renderers.*;
 
 public class ChapterGoalsAccordionItem extends ChapterFieldAccordionItem
 {
-                
+
     public ChapterGoalsAccordionItem (ProjectViewer pv,
                                       Chapter       c)
     {
-        
+
         super (pv,
                c);
-                    
+
     }
 
+    @Override
     public StringWithMarkup getFieldValue (Chapter c)
     {
-        
+
         return c.getGoals ();
-        
-    }
-    
-    public String getFieldName ()
-    {
-        
-        return "Goal";
-        
+
     }
 
-    public String getFieldNamePlural ()
+    @Override
+    public String getFieldName ()
     {
-        
-        return "Goals";
-        
+
+        return this.chapter.getLegacyTypeField (Chapter.GOALS_LEGACY_FIELD_ID).getFormName ();
+        //return "Goal";
+
     }
-    
+
+    @Override
     public void setFieldValue (StringWithMarkup v,
                                Chapter          c)
     {
-        
+
         c.setGoals (v);
-        
+
     }
-    
+
+    @Override
     public String getFieldIconType ()
     {
-        
+
         return "goals";
-        
+
     }
-        
+
+    @Override
     public boolean isBulleted ()
     {
-        
+
+        // TODO: Change to use field...
         return true;
-        
+
     }
-    
+
 }

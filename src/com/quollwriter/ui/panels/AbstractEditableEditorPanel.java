@@ -87,9 +87,6 @@ public abstract class AbstractEditableEditorPanel extends AbstractEditorPanel
                                       Environment.logError ("Unable to save chapter",
                                                             e);
 
-                                      UIUtils.showErrorMessage (_this,
-                                                                "Unable to save chapter.");
-
                                   }
 
                               }

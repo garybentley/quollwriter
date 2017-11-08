@@ -32,25 +32,31 @@ import com.quollwriter.text.*;
 public abstract class ChapterFieldAccordionItem extends AccordionItem
 {
 
-    private ProjectViewer projectViewer = null;
-    private Chapter chapter = null;
+    protected ProjectViewer projectViewer = null;
+    protected Chapter chapter = null;
     private Box content = null;
     private Box view = null;
     private Box edit = null;
     private TextArea editText = null;
     private boolean typed = false;
 
-    public ChapterFieldAccordionItem (ProjectViewer pv,
-                                      Chapter       c)
+    public ChapterFieldAccordionItem (ProjectViewer               pv,
+                                      Chapter                     c)
     {
 
         super ("");
 
-        this.setTitle (this.getFieldNamePlural ());
-        this.setIconType (this.getFieldIconType ());
-
         this.chapter = c;
         this.projectViewer = pv;
+
+        java.util.List<String> prefix = new ArrayList<> ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.sidebar);
+        prefix.add (LanguageStrings.chapterinfo);
+        prefix.add (LanguageStrings.edit);
+
+        this.setTitle (this.getFieldName ());
+        this.setIconType (this.getFieldIconType ());
 
         final ChapterFieldAccordionItem _this = this;
 
@@ -65,12 +71,16 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         this.edit.setVisible (false);
 
-        String help = "Separate each " + this.getFieldName () + " with a newline.  To save press Ctrl+Enter or use the buttons below.";
+        String help = Environment.getUIString (prefix,
+                                               LanguageStrings.bulletedtext);
+                    //"Separate each " + this.getFieldName () + " with a newline.  To save press Ctrl+Enter or use the buttons below.";
 
         if (!this.isBulleted ())
         {
 
-            help = "Enter the " + this.getFieldName () + ", to save press Ctrl+Enter or use the buttons below.";
+            help = Environment.getUIString (prefix,
+                                            LanguageStrings.text);
+                //"Enter the " + this.getFieldName () + ", to save press Ctrl+Enter or use the buttons below.";
 
         }
 
@@ -85,7 +95,11 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         JButton save = UIUtils.createButton (Constants.SAVE_ICON_NAME,
                                              Constants.ICON_MENU,
-                                             "Click to save the " + this.getFieldNamePlural (),
+                                             Environment.getUIString (prefix,
+                                                                      LanguageStrings.buttons,
+                                                                      LanguageStrings.save,
+                                                                      LanguageStrings.tooltip),
+                                            //"Click to save the " + this.getFieldNamePlural (),
                                              new ActionAdapter ()
                                              {
 
@@ -100,7 +114,11 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         JButton cancel = UIUtils.createButton (Constants.CANCEL_ICON_NAME,
                                                Constants.ICON_MENU,
-                                               "Click to cancel",
+                                               Environment.getUIString (prefix,
+                                                                        LanguageStrings.buttons,
+                                                                        LanguageStrings.save,
+                                                                        LanguageStrings.tooltip),
+                                               //"Click to cancel",
                                                new ActionAdapter ()
                                                {
 
@@ -171,8 +189,6 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
     public abstract String getFieldName ();
 
-    public abstract String getFieldNamePlural ();
-
     public abstract void setFieldValue (StringWithMarkup v,
                                         Chapter          c);
 
@@ -236,7 +252,13 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
            )
         {
 
-            JLabel l = UIUtils.createClickableLabel ("<i>No " + this.getFieldNamePlural () + " set, click to edit.</i>",
+            JLabel l = UIUtils.createClickableLabel (String.format (Environment.getUIString (LanguageStrings.project,
+                                                                                             LanguageStrings.sidebar,
+                                                                                             LanguageStrings.chapterinfo,
+                                                                                             LanguageStrings.view,
+                                                                                             LanguageStrings.novalue),
+                                                                    this.getFieldName ()),
+                                                    //"<i>No " + this.getFieldNamePlural () + " set, click to edit.</i>",
                                                      null);
 
             l.setBorder (new EmptyBorder (0, 5, 0, 0));
@@ -468,12 +490,17 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         } catch (Exception e) {
 
-            Environment.logError ("Unable to save " + this.getFieldNamePlural () + " for chapter: " +
+            Environment.logError ("Unable to save " + this.getFieldName () + " for chapter: " +
                                   this.chapter,
                                   e);
 
             UIUtils.showErrorMessage (this.projectViewer,
-                                      "Unable to save the " + this.getFieldNamePlural ());
+                                      Environment.getUIString (LanguageStrings.project,
+                                                               LanguageStrings.sidebar,
+                                                               LanguageStrings.chapterinfo,
+                                                               LanguageStrings.edit,
+                                                               LanguageStrings.actionerror));
+                                      //"Unable to save the " + this.getFieldNamePlural ());
 
         }
 
@@ -537,7 +564,14 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         conts.add (UIUtils.createButton (Constants.EDIT_ICON_NAME,
                                          Constants.ICON_SIDEBAR,
-                                         "Click to edit the " + this.getFieldNamePlural (),
+                                         Environment.getUIString (LanguageStrings.project,
+                                                                  LanguageStrings.sidebar,
+                                                                  LanguageStrings.chapterinfo,
+                                                                  LanguageStrings.headercontrols,
+                                                                  LanguageStrings.items,
+                                                                  LanguageStrings.edit,
+                                                                  LanguageStrings.tooltip),
+                                         //"Click to edit the " + this.getFieldNamePlural (),
                                          action));
 
         this.setHeaderControls (UIUtils.createButtonBar (conts));
@@ -563,7 +597,14 @@ public abstract class ChapterFieldAccordionItem extends AccordionItem
 
         };
 
-        m.add (UIUtils.createMenuItem ("Edit the " + this.getFieldNamePlural (),
+        m.add (UIUtils.createMenuItem (String.format (Environment.getUIString (LanguageStrings.project,
+                                                                               LanguageStrings.sidebar,
+                                                                               LanguageStrings.chapterinfo,
+                                                                               LanguageStrings.headerpopupmenu,
+                                                                               LanguageStrings.items,
+                                                                               LanguageStrings.edit),
+                                                      this.getFieldName ()),
+                                 //"Edit the " + this.getFieldNamePlural (),
                                        Constants.EDIT_ICON_NAME,
                                        action));
 

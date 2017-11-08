@@ -48,7 +48,7 @@ import com.quollwriter.ui.components.TextProperties;
 
 public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
 {
-        
+
     public AbstractViewOnlyEditorPanel (AbstractProjectViewer pv,
                                         Chapter               c)
                                  throws GeneralException
@@ -56,9 +56,9 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
 
         super (pv,
                c);
-        
+
     }
-    
+
     public abstract void doFillToolBar (JToolBar b);
 
     public abstract void doFillPopupMenu (MouseEvent eve,
@@ -66,54 +66,86 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
                                           boolean    compress);
 
     public abstract void doFillToolsPopupMenu (ActionEvent eve,
-                                               JPopupMenu  p);    
-    
+                                               JPopupMenu  p);
+
     @Override
     public boolean saveUnsavedChanges ()
     {
 
         return true;
 
-    }    
-    
+    }
+
     @Override
     public void close ()
     {
-             
+
         super.close ();
-                
+
     }
-    
+
     @Override
     public void init ()
                throws GeneralException
     {
 
         super.init ();
-                                   
+
     }
-                
+
     public void fillToolBar (JToolBar acts,
                              final boolean  fullScreen)
     {
+
+        java.util.List<String> prefix = new ArrayList ();
+        prefix.add (LanguageStrings.project);
+        prefix.add (LanguageStrings.viewonlypanel);
+        prefix.add (LanguageStrings.toolbar);
 
         final AbstractViewOnlyEditorPanel _this = this;
 
         this.doFillToolBar (acts);
 
         acts.add (this.createToolbarButton (Constants.WORDCOUNT_ICON_NAME,
-                                            "Click to view the word counts and readability indices",
+                                            Environment.getUIString (prefix,
+                                                                     LanguageStrings.wordcount,
+                                                                     LanguageStrings.tooltip),
+                                 //"Click to view the word counts and readability indices",
                                             TOGGLE_WORDCOUNTS_ACTION_NAME));
 
+        if (this.viewer.isSpellCheckingEnabled ())
+        {
+
+            acts.add (this.createToolbarButton ("spellchecker-turn-off",
+                                                Environment.getUIString (prefix,
+                                                                         LanguageStrings.spellcheckoff,
+                                                                         LanguageStrings.tooltip),
+                                                //"Click to turn the spell checker " + type,
+                                                TOGGLE_SPELLCHECK_ACTION_NAME));
+
+        } else {
+
+            acts.add (this.createToolbarButton ("spellchecker-turn-on",
+                                                Environment.getUIString (prefix,
+                                                                         LanguageStrings.spellcheckon,
+                                                                         LanguageStrings.tooltip),
+                                                //"Click to turn the spell checker " + type,
+                                                TOGGLE_SPELLCHECK_ACTION_NAME));
+
+        }
+/*
         String type = (this.viewer.isSpellCheckingEnabled () ? "off" : "on");
 
         acts.add (this.createToolbarButton ("spellchecker-turn-" + type,
                                             "Click to turn the spell checker " + type,
                                             TOGGLE_SPELLCHECK_ACTION_NAME));
-
+*/
         // Add a tools menu.
         final JButton b = UIUtils.createToolBarButton ("tools",
-                                                       "Click to view the tools such as Print and Edit the text properties",
+                                                       Environment.getUIString (prefix,
+                                                                                LanguageStrings.tools,
+                                                                                LanguageStrings.tooltip),
+                                                       //"Click to view the tools such as Print and Edit the text properties",
                                                        "tools",
                                                        null);
 
@@ -123,6 +155,11 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
             public void actionPerformed (ActionEvent ev)
             {
 
+                java.util.List<String> prefix = new ArrayList<> ();
+                prefix.add (LanguageStrings.project);
+                prefix.add (LanguageStrings.viewonlypanel);
+                prefix.add (LanguageStrings.tools);
+
                 JPopupMenu m = new JPopupMenu ();
 
                 _this.doFillToolsPopupMenu (ev,
@@ -130,18 +167,24 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
 
                 JMenuItem mi = null;
 
-                m.add (_this.createMenuItem ("Edit Text Properties",
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.textproperties,
+                                                                      LanguageStrings.text),
+                                            //"Edit Text Properties",
                                              Constants.EDIT_PROPERTIES_ICON_NAME,
                                              EDIT_TEXT_PROPERTIES_ACTION_NAME,
                                              KeyStroke.getKeyStroke (KeyEvent.VK_E,
                                                                      ActionEvent.CTRL_MASK)));
-                        
-                m.add (_this.createMenuItem ("Find",
+
+                m.add (_this.createMenuItem (Environment.getUIString (prefix,
+                                                                      LanguageStrings.find,
+                                                                      LanguageStrings.text),
+                                            //"Find",
                                              Constants.FIND_ICON_NAME,
                                              Constants.SHOW_FIND_ACTION,
                                              KeyStroke.getKeyStroke (KeyEvent.VK_F,
                                                                      ActionEvent.CTRL_MASK)));
-                                                                       
+
                 m.show (b,
                         10,
                         10);
@@ -163,7 +206,7 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
         throw new UnsupportedOperationException ("Not supported for view only editor panels.");
 
     }
-        
+
     public void fillPopupMenu (final MouseEvent ev,
                                final JPopupMenu popup)
     {
@@ -178,11 +221,11 @@ public abstract class AbstractViewOnlyEditorPanel extends AbstractEditorPanel
         JMenuItem mi = null;
 
         boolean compress = UserProperties.getAsBoolean (Constants.COMPRESS_CHAPTER_CONTEXT_MENU_PROPERTY_NAME);
-                                
+
         this.doFillPopupMenu (ev,
                               popup,
                               compress);
-        
+
     }
-        
+
 }

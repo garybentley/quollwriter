@@ -16,6 +16,9 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import static com.quollwriter.LanguageStrings.*;
+import static com.quollwriter.Environment.getUIString;
+
 import com.quollwriter.*;
 
 import com.quollwriter.data.*;
@@ -55,9 +58,9 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
 
     static
     {
-        
+
         Map<String, Class> m = chartTypeMappings;
-        
+
         m.put (PerChapterWordCountsChart.CHART_TYPE,
                PerChapterWordCountsChart.class);
         m.put (AllWordCountsChart.CHART_TYPE,
@@ -68,9 +71,9 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
                SessionWordCountChart.class);
         m.put (SessionTimeChart.CHART_TYPE,
                SessionTimeChart.class);
-        
+
     }
-  */  
+  */
     public static final String PANEL_ID = "statistics";
     public static final String OLD_WORD_COUNT_PANEL_ID = Project.WORDCOUNTS_OBJECT_TYPE;
 
@@ -81,94 +84,96 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
     private Map<String, QuollChart> charts = new LinkedHashMap ();
     private QuollChart currentChart = null;
     private JComboBox chartSelect = null;
-    
+
     public StatisticsPanel (AbstractViewer  pv,
                             QuollChart...   charts)
                      throws GeneralException
     {
-    
+
         super (pv,
-               "Statistics",
+               "",//getUIString (statistics,title),
+               //"Statistics",
                Constants.CHART_ICON_NAME);
 
         if (charts == null)
         {
-            
+
             throw new GeneralException ("No charts provided.");
-               
+
         }
-        
+
         for (int i = 0; i < charts.length; i++)
         {
 
             QuollChart c = charts[i];
-        
+
             this.charts.put (c.getType (),
                              c);
-               
+
         }
-               
+
     }
-        
+
     @Override
     public void init ()
                throws GeneralException
     {
-        
+
         super.init ();
-        
+
         for (QuollChart c : this.charts.values ())
         {
-            
+
             c.init (this);
-            
+
         }
-                
+
     }
-    
+
     @Override
     public boolean isWrapContentInScrollPane ()
     {
-        
+
         return false;
-        
+
     }
-    
+
     @Override
     public JComponent getContent ()
                            throws GeneralException
     {
-          
+
         final StatisticsPanel _this = this;
-               
+
         this.splitPane = UIUtils.createSplitPane (JSplitPane.HORIZONTAL_SPLIT);
         this.splitPane.setAlignmentX (Component.LEFT_ALIGNMENT);
         //this.splitPane.setDividerSize (UIUtils.getSplitPaneDividerSize ());
         //this.splitPane.setOpaque (false);
 
         //this.splitPane.setBorder (null);
-        
+
         Box b = new ScrollableBox (BoxLayout.Y_AXIS);
-        
+
         b.setBorder (UIUtils.createPadding (0, 5, 0, 0));
         b.setOpaque (false);
-        
-        Header h = UIUtils.createHeader ("Show",
+
+        Header h = UIUtils.createHeader (getUIString (statistics,sectiontitles,show),
+                                        //"Show",
                                          Constants.SUB_PANEL_TITLE);
-        
+
         b.add (h);
 
-        b.add (Box.createVerticalStrut (5));        
-        
+        b.add (Box.createVerticalStrut (5));
+
         Vector<QuollChart> charts = new Vector ();
-        
+
         for (QuollChart c : this.charts.values ())
         {
-            
+
             charts.add (c);
-            
+
         }
-        
+
         this.chartSelect = new JComboBox (charts);
 
         this.chartSelect.addActionListener (new ActionAdapter ()
@@ -176,50 +181,51 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
 
             public void actionPerformed (ActionEvent ev)
             {
-                
+
                 QuollChart qc = (QuollChart) _this.chartSelect.getSelectedItem ();
-                
+
                 String type = qc.getType ();
-                
+
                 try
                 {
-                
+
                     QuollChart chart = _this.charts.get (type);
-                    
+
                     if (chart == null)
                     {
-                        
+
                         Environment.logError ("Chart type: " + type + " not supported.");
-                        
+
                         return;
-                        
+
                     }
-                    
+
                     _this.currentChart = chart;
-                    
+
                     _this.updateChart (_this.currentChart.getChart (false),
                                        _this.currentChart.getDetail (false));
-                                    
+
                     _this.configPanel.removeAll ();
-                    
+
                     _this.configPanel.add (_this.currentChart.getControls (false));
-                                        
+
                 } catch (Exception e) {
-                    
+
                     Environment.logError ("Unable to show chart of type: " + type,
                                           e);
-                    
+
                     UIUtils.showErrorMessage (_this,
-                                              "Unable to show chart.");
-                    
+                                              getUIString (LanguageStrings.charts,view,actionerror));
+                                              //"Unable to show chart.");
+
                 }
-                
+
             }
-            
+
         });
 
         this.chartSelect.setAlignmentX (Component.LEFT_ALIGNMENT);
-        this.chartSelect.setAlignmentY (Component.TOP_ALIGNMENT);        
+        this.chartSelect.setAlignmentY (Component.TOP_ALIGNMENT);
         //this.chartSelect.setMaximumSize (chartSelect.getPreferredSize ());
 
         Box db = new Box (BoxLayout.X_AXIS);
@@ -231,19 +237,19 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
 
         b.add (db);
 
-        b.add (Box.createVerticalStrut (10));        
+        b.add (Box.createVerticalStrut (10));
 
         this.configPanel = new Box (BoxLayout.Y_AXIS);
-        
+
         this.configPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
         this.configPanel.setBorder (UIUtils.createPadding (6,
                                                      6,
                                                      6,
                                                      6));
-        
+
         this.configPanel.setAlignmentY (Component.TOP_ALIGNMENT);
         b.add (this.configPanel);
-        
+
         this.detailPanel = new Box (BoxLayout.Y_AXIS);
         this.detailPanel.setAlignmentY (Component.TOP_ALIGNMENT);
         this.detailPanel.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -251,46 +257,46 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
                                                         Short.MAX_VALUE));
         b.add (this.detailPanel);
         b.add (Box.createVerticalGlue ());
-        
+
         JScrollPane sp = UIUtils.createScrollPane (b);
-        
+
         sp.setBorder (null);
         sp.setMinimumSize (new Dimension (200,
                                           300));
-                
+
         this.splitPane.setLeftComponent (sp);
         //sp.setMinimumSize (new Dimension (50, 200));
         sp.setPreferredSize (new Dimension (200, 300));
-        this.splitPane.setRightComponent (this.chartPanel);        
-                
+        this.splitPane.setRightComponent (this.chartPanel);
+
         javax.swing.plaf.basic.BasicSplitPaneDivider div = ((javax.swing.plaf.basic.BasicSplitPaneUI) this.splitPane.getUI ()).getDivider ();
-        div.setBorder (new MatteBorder (0, 0, 0, 1, UIUtils.getComponentColor ()));                
-                
+        div.setBorder (new MatteBorder (0, 0, 0, 1, UIUtils.getComponentColor ()));
+
         return this.splitPane;
 
     }
 
     public void updateChart (JFreeChart chart)
     {
-    
+
         this.updateChart (chart,
                           null);
-        
+
     }
-    
+
     public void updateChart (JFreeChart chart,
                              JComponent detail)
     {
-        
+
         if (this.currentChart == null)
         {
-            
+
             return;
-            
+
         }
-        
+
         Box b = new Box (BoxLayout.Y_AXIS);
-               
+
         ChartPanel cp = new ChartPanel (chart, true);
         cp.setDisplayToolTips (true);
         cp.setAlignmentX (Component.LEFT_ALIGNMENT);
@@ -301,61 +307,64 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
         cp.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                           Short.MAX_VALUE));
         cp.setBorder (UIUtils.createPadding (0, 0, 10, 0));
-                                          
+
         JScrollPane sp = UIUtils.createScrollPane (cp);
-        
+
         sp.setBorder (null);
-                                     
-        this.setTitle ("Statistics - " + this.currentChart.getTitle ());                               
-                                          
-        b.add (UIUtils.createHeader (Environment.replaceObjectNames (this.currentChart.getTitle ()),
+
+        this.setTitle (String.format (getUIString (statistics,title),
+                                      this.currentChart.getTitle ()));
+                                      //"Statistics - " + this.currentChart.getTitle ());
+
+        b.add (UIUtils.createHeader (this.currentChart.getTitle (),
                                      Constants.PANEL_TITLE));
         b.add (sp);
-        
+
         this.detailPanel.removeAll ();
-    
+
         if (detail != null)
         {
-            
+
             detail.setAlignmentX (Component.LEFT_ALIGNMENT);
             detail.setAlignmentY (Component.TOP_ALIGNMENT);
             detail.setOpaque (false);
             detail.setMaximumSize (new Dimension (Short.MAX_VALUE,
                                                   Short.MAX_VALUE));
-    
-            this.detailPanel.add (UIUtils.createHeader ("Detail",
+
+            this.detailPanel.add (UIUtils.createHeader (getUIString (statistics,sectiontitles,LanguageStrings.detail),
+                                                        //"Detail",
                                                         Constants.PANEL_TITLE));
             this.detailPanel.add (detail);
 
-        } 
-                
+        }
+
         this.splitPane.setRightComponent (sp);
-        
+
     }
-    
+
     public void showChart (String type)
                            throws GeneralException
     {
-        
+
         QuollChart chart = this.charts.get (type);
-        
+
         if (chart == null)
         {
-            
+
             Environment.logError ("Chart type: " + type + " not supported.");
-            
+
             return;
-            
+
         }
-        
+
         this.chartSelect.setSelectedItem (chart);
 
         this.viewer.fireProjectEvent (ProjectEvent.SHOW_CHART,
                                       type,
                                       chart);
-        
+
     }
-    
+
     public void fillPopupMenu (MouseEvent ev,
                                JPopupMenu popup)
     {
@@ -402,7 +411,7 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
         }
 
         this.setReadyForUse (true);
-        
+
     }
 
     @Override
@@ -417,11 +426,12 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
     @Override
     public String getTitle ()
     {
-        
-        return "Statistics";
-        
+
+        return getUIString (statistics,title);
+        //"Statistics";
+
     }
-    
+
     @Override
     public ImageIcon getIcon (int type)
     {
@@ -430,7 +440,7 @@ public class StatisticsPanel extends BasicQuollPanel<AbstractViewer>
                                     type);
 
     }
-    
+
     @Override
     public void close ()
     {

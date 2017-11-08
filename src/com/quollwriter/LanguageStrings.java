@@ -5,6 +5,8 @@ import java.util.*;
 public class LanguageStrings
 {
 
+
+
     public static final String project = "project";
     public static final String settingsmenu = "settingsmenu";
     public static final String items = "items";
@@ -555,6 +557,34 @@ public class LanguageStrings
     public static final String selectprojectdb = "selectprojectdb";
     public static final String existing = "existing";
     public static final String manual = "manual";
+    public static final String imageselector = "imageselector";
+    public static final String viewonlypanel = "viewonlypanel";
+    public static final String testboolbarbuttonmessage = "testboolbarbuttonmessage";
+    public static final String test = "test";
+    public static final String bulletedtext = "bulletedtext";
+    public static final String charts = "charts";
+    public static final String allwordcounts = "allwordcounts";
+    public static final String _for = "for";
+    public static final String xaxis = "xaxis";
+    public static final String yaxis = "yaxis";
+    public static final String lastmonth = "lastmonth";
+    public static final String thismonth = "thismonth";
+    public static final String alltime = "alltime";
+    public static final String lastweek = "lastweek";
+    public static final String thisweek = "thisweek";
+    public static final String perchapter = "perchapter";
+    public static final String history = "history";
+    public static final String showaverage = "showaverage";
+    public static final String showtarget = "showtarget";
+    public static final String markers = "markers";
+    public static final String average = "average";
+    public static final String target = "target";
+    public static final String chaptersovertarget = "chaptersovertarget";
+    public static final String averagesuffix = "averagesuffix";
+    public static final String now = "now";
+    public static final String forchapters = "forchapters";
+    public static final String nochaptertarget = "nochaptertarget";
+    public static final String detail = "detail";
 
     private static String ID_PART_SEP = ".";
 

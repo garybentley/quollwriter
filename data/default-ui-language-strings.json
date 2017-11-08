@@ -382,7 +382,13 @@
         "mins10" : "10 minutes",
         "mins20" : "20 minutes",
         "mins30" : "30 minutes",
-        "hour1" : "1 hour"
+        "hour1" : "1 hour",
+        "thisweek" : "This week",
+        "lastweek" : "Last week",
+        "thismonth" : "This month",
+        "lastmonth" : "Last month",
+        "alltime" : "All time",
+        "now" : "Now"
     },
     "words" :
     {
@@ -2489,11 +2495,20 @@
     },
     "statistics" :
     {
-        "actionerror" : "Unable to view statistics panel."
+        "actionerror" : "Unable to view statistics panel.",
+        "title" : "Statistics - %1$s",
+        ":comment.title" : "%1$s is the name of the chart/statistic set being shown.",
+        ":scount.title" : 1,
+        "sectiontitles" :
+        {
+            "show" : "Show",
+            "detail" : "Detail"
+        }
     },
     "options" :
     {
         "actionerror" : "Unable to show the options.",
+        "title" : "Options",
         "achievements" :
         {
             "title" : "Achievements",
@@ -2501,6 +2516,17 @@
             "enable" : "Enable achievements",
             "playsound" : "Play a sound when an achievement is reached",
             "playsoundinfullscreen" : "Play the sound in full screen mode"
+        },
+        "testboolbarbuttonmessage" : "This button is here as a test so you can see what the toolbar looks like when you move it.",
+        "toolbar" :
+        {
+            "buttons" :
+            {
+                "test" :
+                {
+                    "tooltip" : "This is just a test item so you can see how the toolbar looks when you change its location."
+                }
+            }
         }
     },
     "fullscreen" :
@@ -2818,6 +2844,20 @@
     {
         "title" : "Just so you know..."
     },
+    "imageselector" :
+    {
+        "tooltip" : "Click to find an image file",
+        "popupmenu" :
+        {
+            "items" :
+            {
+                "remove" : "${actions.remove}",
+                "view" : "View full size",
+                "showfolder" : "Show in folder",
+                "restore" : "Restor to the default"
+            }
+        }
+    },
     "filefinder" :
     {
         "text" :
@@ -3130,6 +3170,90 @@
                     "valueexists" : "A tag with that name already exists."
                 }
             }
+        }
+    },
+    "charts" :
+    {
+        "perchapter" :
+        {
+            "title" : "${objectnames.singular.chapter} Word Counts",
+            "tooltip" : "%1$s words",
+            ":comment.tooltip" : "%1$s is the number of words in the chapter.",
+            ":scount.tooltip" : 1,
+            "nochaptertarget" :
+            {
+                "actionerror" : "Unable to show targets.",
+                "popup" :
+                {
+                    "title" : "Setup Target",
+                    "text" : "You currently have no ${objectnames.singular.chapter} word count target set up.<br /><br />Would you like to set the target now?<br /><br />Note: Targets can be accessed at any time from the ${objectnames.singular.project} menu.",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, show me",
+                        "cancel" : "No, not now"
+                    }
+                }
+            },
+            "markers" :
+            {
+                "average" : "Avg %1$s%2$s",
+                ":comment.average" : "%1$s is the average number of words, %2$s is replaced by the 'averagesuffix' if there is a target set.",
+                ":scount.average" : 2,
+                "averagesuffix" : ", %1$s target",
+                ":comment.averagesuffix" : "%1$s is the target number of words.",
+                ":scount.averagesuffix" : 1,
+                "target" : "Target %1$s",
+                ":comment.target" : "%1$s is the target number of words",
+                ":scount.target" : 1
+            },
+            "labels" :
+            {
+                "for" : "For",
+                "forchapters" : "For these ${objectnames.plural.chapter}",
+                "showaverage" : "Show Average",
+                "showtarget" : "Show Target",
+                "yaxis" : "Word Count",
+                "xaxis" : "${objectnames.singular.chapter}",
+                "average" : "%1$s - Average Word Count",
+                ":comment.average" : "%1$s is the average word count.",
+                ":scount.average" : 1,
+                "chaptersovertarget" :
+                {
+                    "text" : "%1$s ${objectnames.plural.chapter} over target word count",
+                    "tooltip" : "Click to view"
+                }
+            },
+            "history" :
+            {
+                "labels" :
+                {
+                    "yaxis" : "Word Count",
+                    "xaxis" : "Date"
+                }
+            }
+        },
+        "allwordcounts" :
+        {
+            "title" : "Total Word Count",
+            "labels" :
+            {
+                "for" : "For",
+                "yaxis" : "Word Count",
+                "xaxis" : "Date"
+            }
+        },
+        "view" :
+        {
+            "actionerror" : "Unable to show chart."
+        }
+    },
+    "chapters" :
+    {
+        "fields" :
+        {
+            "description" : "${form.labels.description}",
+            "plan" : "Plan",
+            "goals" : "Goals"
         }
     },
     "assets" :
@@ -3596,6 +3720,36 @@
                 }
             }
         },
+        "viewonlypanel" :
+        {
+            "toolbar" :
+            {
+                "wordcount" :
+                {
+                    "tooltip" : "Click to view the word counts and readability indices"
+                },
+                "spellcheckon" :
+                {
+                    "tooltip" : "${dictionary.spellcheck.buttons.on.tooltip}"
+                },
+                "spellcheckoff" :
+                {
+                    "tooltip" : "${dictionary.spellcheck.buttons.off.tooltip}"
+                },
+                "tools" :
+                {
+                    "tooltip" : "Click to view the tools such as ${actions.find} and ${actions.edittextproperties}"
+                },
+                "textproperties" :
+                {
+                    "text" : "${actions.edittextproperties}"
+                },
+                "find" :
+                {
+                    "text" : "${actions.find}"
+                }
+            }
+        },
         "editorpanel" :
         {
             "popupmenu" :
@@ -3995,6 +4149,54 @@
                             }
                         }
                     }
+                }
+            },
+            "chapterinfo" :
+            {
+                "title" : "%1$s information",
+                ":comment.title" : "%1$s is the chapter name.",
+                ":scount.title" : 1,
+                "headerpopupmenu" :
+                {
+                    "items" :
+                    {
+                        "edit" : "Edit the %1$s",
+                        "comment.edit" : "%1$s is the field name.",
+                        ":scount.edit" : 1
+                    }
+                },
+                "headercontrols" :
+                {
+                    "items" :
+                    {
+                        "edit" :
+                        {
+                            "tooltip" : "Click to edit"
+                        }
+                    }
+                },
+                "view" :
+                {
+                    "novalue" : "<i>No %1$s set, click to edit.</i>",
+                    ":comment.novalue" : "%1$s is the field name we are editing.",
+                    ":scount.novalue" : 1
+                },
+                "edit" :
+                {
+                    "text" : "To save press Ctrl+Enter or use the buttons below.",
+                    "bulletedtext" : "Separate each item with a newline.  To save press Ctrl+Enter or use the buttons below.",
+                    "buttons" :
+                    {
+                        "save" :
+                        {
+                            "tooltip" : "Click to save"
+                        },
+                        "cancel" :
+                        {
+                            "tooltip" : "Click to cancel"
+                        }
+                    },
+                    "actionerror" : "Unable to save."
                 }
             },
             "tags" :

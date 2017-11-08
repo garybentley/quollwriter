@@ -30,13 +30,13 @@ public class ProjectInfoObjectManager extends ObjectManager
 
     // Key is the object type string, maps to a user config object type.
     private Map<String, UserConfigurableObjectType> userConfigObjTypes = new HashMap ();
-    
+
     public ProjectInfoObjectManager ()
     {
-        
+
         this.handlers.put (ProjectInfo.class,
                            new ProjectInfoDataHandler (this));
-        
+
     }
 
     public void init (File   dir,
@@ -52,79 +52,79 @@ public class ProjectInfoObjectManager extends ObjectManager
                     password,
                     filePassword,
                     newSchemaVersion);
-                    
+
         // Load the object types.  Each type will register itself with the Environment.
         this.getObjects (UserConfigurableObjectType.class,
                          null,
                          null,
                          true);
-                            
+
     }
 
     public void updateLinks (NamedObject d,
                              Set<Link>   newLinks)
     {
-        
+
     }
 
     public void deleteLinks (NamedObject n,
                              Connection  conn)
     {
-        
+
     }
-    
+
     public void getLinks (NamedObject d,
                           Project     p,
                           Connection  conn)
     {
-        
+
     }
-    
+
     public void updateSchemaVersion (int        newVersion,
                                      Connection conn)
                               throws Exception
     {
 
         boolean release = false;
-    
+
         if (conn == null)
         {
-            
+
             conn = this.getConnection ();
             release = true;
-            
+
         }
-    
+
         try
         {
-    
+
             List params = new ArrayList ();
             params.add (newVersion);
-    
+
             this.executeStatement ("UPDATE info SET schema_version = ?",
                                    params,
                                    conn);
 
         } catch (Exception e) {
-            
+
             this.throwException (conn,
                                  "Unable to update schema version to: " +
                                  newVersion,
                                  e);
-            
+
         } finally {
-            
+
             if (release)
             {
-                
+
                 this.releaseConnection (conn);
-                
-            }            
-            
+
+            }
+
         }
-        
+
     }
-    
+
     /**
      * Get the current/latest version of the schema that is available.  This is in contrast
      * to getSchemaVersion which should return the current version of the actual schema being
@@ -134,11 +134,11 @@ public class ProjectInfoObjectManager extends ObjectManager
      */
     public int getLatestSchemaVersion ()
     {
-        
+
         return Environment.getProjectInfoSchemaVersion ();
-        
+
     }
-    
+
     /**
      * Get the current version of the project info schema.  This is the actual version of
      * the schema for the db.
@@ -146,9 +146,9 @@ public class ProjectInfoObjectManager extends ObjectManager
      * @return The version.
      */
     public int getSchemaVersion ()
-                          throws GeneralException    
+                          throws GeneralException
     {
-        
+
         Connection c = null;
 
         try
@@ -166,75 +166,75 @@ public class ProjectInfoObjectManager extends ObjectManager
                 return rs.getInt (1);
 
             }
-            
+
         } catch (Exception e)
         {
 
             this.throwException (c,
                                  "Unable to get schema version",
                                  e);
-                
+
         } finally
         {
 
             this.releaseConnection (c);
 
         }
-            
+
         return -1;
-        
-        
+
+
     }
-            
+
     public String getSchemaFile (String file)
     {
-        
+
         return Constants.PROJECT_INFO_SCHEMA_DIR + file;
-        
+
     }
-    
+
     public String getCreateViewsFile ()
     {
-        
+
         return Constants.PROJECT_INFO_UPDATE_SCRIPTS_DIR + "/create-views.xml";
-        
+
     }
-    
+
     public String getUpgradeScriptFile (int oldVersion,
                                         int newVersion)
     {
-        
+
         return Constants.PROJECT_INFO_UPDATE_SCRIPTS_DIR + "/" + oldVersion + "-" + newVersion + ".xml";
-        
+
     }
- 
+
     public void addSession (Session s)
                      throws GeneralException
     {
-    
+
         Connection conn = null;
-    
+
         try
         {
 
             conn = this.getConnection ();
 
         } catch (Exception e) {
-            
+
             this.throwException (null,
                                  "Unable to get connection",
                                  e);
-            
+
         }
 
         try
         {
-        
+
             List params = new ArrayList ();
             params.add (s.getStart ());
             params.add (s.getEnd ());
             params.add (s.getWordCount ());
-    
+
             this.executeStatement ("INSERT INTO session (start, end, wordcount) VALUES (?, ?, ?)",
                                    params,
                                    conn);
@@ -248,35 +248,35 @@ public class ProjectInfoObjectManager extends ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (conn);
-            
+
         }
-        
+
     }
- 
+
     public List<Session> getSessions (int     daysPast)
                                throws GeneralException
     {
 
         Connection conn = null;
-    
+
         try
         {
 
             conn = this.getConnection ();
 
         } catch (Exception e) {
-            
+
             this.throwException (null,
                                  "Unable to get connection",
                                  e);
-            
+
         }
-                        
+
         try
         {
-            
+
             List params = new ArrayList ();
 
             String whereDays = "";
@@ -300,7 +300,7 @@ public class ProjectInfoObjectManager extends ObjectManager
             List<Session> ret = new ArrayList ();
 
             Session last = null;
-            
+
             while (rs.next ())
             {
 
@@ -312,26 +312,26 @@ public class ProjectInfoObjectManager extends ObjectManager
 
                 if (last != null)
                 {
-                    
+
                     // If the time difference less than 2s?
                     if ((s.getStart ().getTime () - last.getEnd ().getTime ()) < 2 * Constants.SEC_IN_MILLIS)
                     {
-                        
+
                         Session _s = new Session (last.getStart (),
                                                   s.getEnd (),
                                                   s.getWordCount () + last.getWordCount ());
-                        
+
                         // Merge the two together.
                         ret.remove (last);
 
                         s = _s;
-                                                                 
+
                     }
-                    
+
                 }
-                
+
                 last = s;
-                                         
+
                 ret.add (s);
 
             }
@@ -346,37 +346,37 @@ public class ProjectInfoObjectManager extends ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
 
     }
- 
+
     public com.gentlyweb.properties.Properties getUserProperties ()
                                   throws GeneralException
     {
-        
+
         Connection conn = null;
-    
+
         try
         {
 
             conn = this.getConnection ();
 
         } catch (Exception e) {
-            
+
             this.throwException (null,
                                  "Unable to get connection",
                                  e);
-            
+
         }
-                        
+
         try
         {
-            
+
             ResultSet rs = this.executeQuery ("SELECT properties FROM dataobject WHERE objecttype = 'user-properties'",
                                               null,
                                               conn);
@@ -385,16 +385,16 @@ public class ProjectInfoObjectManager extends ObjectManager
             {
 
                 int ind = 1;
-            
+
                 String p = rs.getString (ind++);
-            
+
                 com.gentlyweb.properties.Properties props = new com.gentlyweb.properties.Properties (new ByteArrayInputStream (p.getBytes ()),
                                                                                                      null);
-            
+
                 props.setId ("user");
-            
+
                 return props;
-            
+
             }
 
         } catch (Exception e)
@@ -405,48 +405,48 @@ public class ProjectInfoObjectManager extends ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (conn);
-            
+
         }
-        
+
         return null;
-        
+
     }
-    
+
     public void setUserProperties (com.gentlyweb.properties.Properties props)
                             throws GeneralException
     {
-        
+
         Connection conn = null;
-    
+
         try
         {
 
             conn = this.getConnection ();
 
         } catch (Exception e) {
-            
+
             this.throwException (null,
                                  "Unable to get connection",
                                  e);
-            
+
         }
-                        
+
         try
         {
-            
+
             List params = new ArrayList ();
             params.add (USER_PROPERTIES_OBJTYPE);
-            
+
             ResultSet rs = this.executeQuery ("SELECT dbkey FROM dataobject WHERE objecttype = ?",
                                               params,
                                               conn);
 
             params = new ArrayList ();
-                                              
+
             String t = JDOMUtils.getElementAsString (props.getAsJDOMElement ());
-            
+
             if (rs.next ())
             {
 
@@ -455,10 +455,10 @@ public class ProjectInfoObjectManager extends ObjectManager
 
                 this.executeStatement ("UPDATE dataobject SET properties = ? WHERE objecttype = ?",
                                        params,
-                                       conn);                
-            
+                                       conn);
+
             } else {
-                
+
                 params.add (this.getNewKey (conn));
                 params.add (USER_PROPERTIES_OBJTYPE);
                 params.add (new java.util.Date ());
@@ -467,7 +467,7 @@ public class ProjectInfoObjectManager extends ObjectManager
                 this.executeStatement ("INSERT INTO dataobject (dbkey, objecttype, datecreated, properties) VALUES (?, ?, ?, ?)",
                                        params,
                                        conn);
-                                
+
             }
         } catch (Exception e)
         {
@@ -477,13 +477,13 @@ public class ProjectInfoObjectManager extends ObjectManager
                                  e);
 
         } finally {
-            
+
             this.releaseConnection (conn);
-            
-        }        
-        
+
+        }
+
     }
- 
+
      /**
      * Create the user configurable object types we need, namely for:
      *   - Chapter
@@ -493,27 +493,27 @@ public class ProjectInfoObjectManager extends ObjectManager
      *   - Location
      *
      * It will create each object and the minimum required fields.
-     */    
+     */
     public void initLegacyObjectTypes ()
                                 throws GeneralException
     {
-        
+
         // If we have no user config object types then create the ones we need.
         // We should always have at least the chapter type!
         UserConfigurableObjectType chapT = Environment.getUserConfigurableObjectType (Chapter.OBJECT_TYPE);
-        
+
         if (chapT != null)
         {
-         
+
             // Already inited.
             return;
-            
+
         }
-        
-        
+
+
         // Create the chapter type.
         UserConfigurableObjectType chapterType = new UserConfigurableObjectType ();
-        
+
         chapterType.setObjectTypeName (Environment.getObjectTypeName (Chapter.OBJECT_TYPE));
         chapterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Chapter.OBJECT_TYPE));
         chapterType.setLayout (null);
@@ -522,45 +522,54 @@ public class ProjectInfoObjectManager extends ObjectManager
                                                              Constants.ICON_TITLE));
         chapterType.setIcon16x16 (Environment.getObjectIcon (Chapter.OBJECT_TYPE,
                                                              Constants.ICON_SIDEBAR));
-        
+
         chapterType.setUserObjectType (Chapter.OBJECT_TYPE);
-        
+
         // Add the fields.
         // The chapter doesn't have a name field.
-                
+
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField descF = new ObjectDescriptionUserConfigurableObjectTypeField ();
-        
+
         descF.setSearchable (true);
-        descF.setFormName (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
+        descF.setFormName (Environment.getUIString (LanguageStrings.chapters,
+                                                    LanguageStrings.fields,
+                                                    LanguageStrings.description));
+                        //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         descF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
-        
+
         chapterType.addConfigurableField (descF);
-        
+
         // Plan
         MultiTextUserConfigurableObjectTypeField planF = new MultiTextUserConfigurableObjectTypeField ();
-        
+
         planF.setSearchable (true);
         planF.setDisplayAsBullets (true);
-        planF.setFormName (Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
+        planF.setFormName (Environment.getUIString (LanguageStrings.chapters,
+                                                    LanguageStrings.fields,
+                                                    LanguageStrings.plan));
+                        //Chapter.PLAN_LEGACY_FIELD_FORM_NAME);
         planF.setLegacyFieldId (Chapter.PLAN_LEGACY_FIELD_ID);
-        
+
         chapterType.addConfigurableField (planF);
 
         MultiTextUserConfigurableObjectTypeField goalsF = new MultiTextUserConfigurableObjectTypeField ();
-        
+
         goalsF.setSearchable (true);
         goalsF.setDisplayAsBullets (true);
-        goalsF.setFormName (Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
+        goalsF.setFormName (Environment.getUIString (LanguageStrings.chapters,
+                                                     LanguageStrings.fields,
+                                                     LanguageStrings.goals));
+                            //Chapter.GOALS_LEGACY_FIELD_FORM_NAME);
         goalsF.setLegacyFieldId (Chapter.GOALS_LEGACY_FIELD_ID);
-        
+
         chapterType.addConfigurableField (goalsF);
-        
+
         Environment.addUserConfigurableObjectType (chapterType);
-                
+
         // Now characters.
         UserConfigurableObjectType characterType = new UserConfigurableObjectType ();
-        
+
         characterType.setObjectTypeName (Environment.getObjectTypeName (QCharacter.OBJECT_TYPE));
         characterType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QCharacter.OBJECT_TYPE));
         characterType.setLayout (null);
@@ -571,21 +580,21 @@ public class ProjectInfoObjectManager extends ObjectManager
         characterType.setIcon16x16 (Environment.getObjectIcon (QCharacter.OBJECT_TYPE,
                                                                Constants.ICON_SIDEBAR));
         characterType.setUserObjectType (QCharacter.OBJECT_TYPE);
-        
+
         // Name
         ObjectNameUserConfigurableObjectTypeField nameF = new ObjectNameUserConfigurableObjectTypeField ();
-        
+
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
         nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
-        
+
         characterType.addConfigurableField (nameF);
-                        
+
         // Aliases
         UserConfigurableObjectTypeField aliasesF = UserConfigurableObjectTypeField.Type.getNewFieldForType (UserConfigurableObjectTypeField.Type.multitext);
-        
+
         aliasesF.setNameField (true);
         aliasesF.setSearchable (true);
         aliasesF.setFormName (Environment.getUIString (LanguageStrings.assets,
@@ -593,26 +602,26 @@ public class ProjectInfoObjectManager extends ObjectManager
                                                        LanguageStrings.aliases));
         //LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_FORM_NAME);
         aliasesF.setLegacyFieldId (LegacyUserConfigurableObject.ALIASES_LEGACY_FIELD_ID);
-        
+
         characterType.addConfigurableField (aliasesF);
-                
+
         // Description
         ObjectDescriptionUserConfigurableObjectTypeField cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
-                
+
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
         cdescF.setSearchable (true);
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
-        
+
         characterType.addConfigurableField (cdescF);
-        
+
         Environment.addUserConfigurableObjectType (characterType);
-                        
+
         // Now locations.
         UserConfigurableObjectType locType = new UserConfigurableObjectType ();
-        
+
         locType.setObjectTypeName (Environment.getObjectTypeName (Location.OBJECT_TYPE));
         locType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (Location.OBJECT_TYPE));
         locType.setLayout (null);
@@ -621,37 +630,37 @@ public class ProjectInfoObjectManager extends ObjectManager
         locType.setIcon24x24 (Environment.getObjectIcon (Location.OBJECT_TYPE,
                                                          Constants.ICON_TITLE));
         locType.setIcon16x16 (Environment.getObjectIcon (Location.OBJECT_TYPE,
-                                                         Constants.ICON_SIDEBAR));        
+                                                         Constants.ICON_SIDEBAR));
         locType.setUserObjectType (Location.OBJECT_TYPE);
-        
+
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
-        
+
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
-        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
-        
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
         locType.addConfigurableField (nameF);
-                                        
+
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
-        
+
         cdescF.setSearchable (true);
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
-        
+
         locType.addConfigurableField (cdescF);
-        
+
         Environment.addUserConfigurableObjectType (locType);
-                
+
         // Now qobjects.
         UserConfigurableObjectType qobjType = new UserConfigurableObjectType ();
-        
+
         qobjType.setObjectTypeName (Environment.getObjectTypeName (QObject.OBJECT_TYPE));
         qobjType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (QObject.OBJECT_TYPE));
         qobjType.setLayout (null);
@@ -660,29 +669,29 @@ public class ProjectInfoObjectManager extends ObjectManager
         qobjType.setIcon24x24 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
                                                           Constants.ICON_TITLE));
         qobjType.setIcon16x16 (Environment.getObjectIcon (QObject.OBJECT_TYPE,
-                                                          Constants.ICON_SIDEBAR));        
+                                                          Constants.ICON_SIDEBAR));
         qobjType.setUserObjectType (QObject.OBJECT_TYPE);
-        
+
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
-        
+
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
-        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
-        
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
         qobjType.addConfigurableField (nameF);
-        
+
         // Type
         SelectUserConfigurableObjectTypeField typeF = new SelectUserConfigurableObjectTypeField ();
-        
+
         typeF.setLegacyFieldId (QObject.TYPE_LEGACY_FIELD_ID);
         typeF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.type));
         //QObject.TYPE_LEGACY_FIELD_FORM_NAME);
-        
+
         // Get the pre-defined types, they are stored in the user prefs.
         String nt = UserProperties.get (Constants.OBJECT_TYPES_PROPERTY_NAME);
 
@@ -713,26 +722,26 @@ public class ProjectInfoObjectManager extends ObjectManager
         Collections.sort (ts);
 
         typeF.setItems (ts);
-        
+
         qobjType.addConfigurableField (typeF);
-                                        
+
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
-        
+
         cdescF.setSearchable (true);
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
-        
+
         qobjType.addConfigurableField (cdescF);
-        
+
         Environment.addUserConfigurableObjectType (qobjType);
-        
+
         // Research items
         UserConfigurableObjectType riType = new UserConfigurableObjectType ();
-        
+
         riType.setObjectTypeName (Environment.getObjectTypeName (ResearchItem.OBJECT_TYPE));
         riType.setObjectTypeNamePlural (Environment.getObjectTypeNamePlural (ResearchItem.OBJECT_TYPE));
         riType.setLayout (null);
@@ -741,45 +750,45 @@ public class ProjectInfoObjectManager extends ObjectManager
         riType.setIcon24x24 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
                                                         Constants.ICON_TITLE));
         riType.setIcon16x16 (Environment.getObjectIcon (ResearchItem.OBJECT_TYPE,
-                                                        Constants.ICON_SIDEBAR));        
+                                                        Constants.ICON_SIDEBAR));
         riType.setUserObjectType (ResearchItem.OBJECT_TYPE);
-        
+
         // Name
         nameF = new ObjectNameUserConfigurableObjectTypeField ();
-        
+
         nameF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                     LanguageStrings.legacyfields,
                                                     LanguageStrings.name));
         //LegacyUserConfigurableObject.NAME_LEGACY_FIELD_FORM_NAME);
-        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);        
-        
+        nameF.setLegacyFieldId (LegacyUserConfigurableObject.NAME_LEGACY_FIELD_ID);
+
         riType.addConfigurableField (nameF);
-        
+
         // Web link
         WebpageUserConfigurableObjectTypeField webF = new WebpageUserConfigurableObjectTypeField ();
-        
+
         webF.setLegacyFieldId (ResearchItem.WEB_PAGE_LEGACY_FIELD_ID);
         webF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                    LanguageStrings.legacyfields,
                                                    LanguageStrings.webpage));
                           //ResearchItem.WEB_PAGE_LEGACY_FIELD_FORM_NAME);
-                
+
         riType.addConfigurableField (webF);
-                                        
+
         // Description
         cdescF = new ObjectDescriptionUserConfigurableObjectTypeField ();
-        
+
         cdescF.setSearchable (true);
         cdescF.setFormName (Environment.getUIString (LanguageStrings.assets,
                                                      LanguageStrings.legacyfields,
                                                      LanguageStrings.description));
         //LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_FORM_NAME);
         cdescF.setLegacyFieldId (LegacyUserConfigurableObject.DESCRIPTION_LEGACY_FIELD_ID);
-        
+
         riType.addConfigurableField (cdescF);
-        
+
         Environment.addUserConfigurableObjectType (riType);
-        
+
     }
-        
+
 }

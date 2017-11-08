@@ -16,57 +16,56 @@ import com.quollwriter.ui.renderers.*;
 
 public class ChapterPlanAccordionItem extends ChapterFieldAccordionItem
 {
-                
+
     public ChapterPlanAccordionItem (ProjectViewer pv,
                                      Chapter       c)
     {
-        
+
         super (pv,
                c);
-        
+
     }
 
+    @Override
     public StringWithMarkup getFieldValue (Chapter c)
     {
-        
+
         return c.getPlan ();
-        
-    }
-    
-    public String getFieldName ()
-    {
-        
-        return "Plan";
-        
+
     }
 
-    public String getFieldNamePlural ()
+    @Override
+    public String getFieldName ()
     {
-        
-        return "Plan";
-        
+
+        return this.chapter.getLegacyTypeField (Chapter.PLAN_LEGACY_FIELD_ID).getFormName ();
+        //return "Plan";
+
     }
-    
+
+    @Override
     public void setFieldValue (StringWithMarkup v,
                                Chapter          c)
     {
-        
+
         c.setPlan (v);
-        
-    }
-    
-    public String getFieldIconType ()
-    {
-        
-        return "plan";
-        
+
     }
 
+    @Override
+    public String getFieldIconType ()
+    {
+
+        return "plan";
+
+    }
+
+    @Override
     public boolean isBulleted ()
     {
-        
+
         return true;
-        
+
     }
-        
+
 }
