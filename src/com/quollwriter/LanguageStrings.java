@@ -583,8 +583,36 @@ public class LanguageStrings
     public static final String averagesuffix = "averagesuffix";
     public static final String now = "now";
     public static final String forchapters = "forchapters";
-    public static final String nochaptertarget = "nochaptertarget";
+    public static final String notarget = "notarget";
     public static final String detail = "detail";
+    public static final String timeseries = "timeseries";
+    public static final String added = "added";
+    public static final String removed = "removed";
+    public static final String showgf = "showgf";
+    public static final String showfk = "showfk";
+    public static final String showtargets = "showtargets";
+    public static final String averagegf = "averagegf";
+    public static final String averagegfsuffix = "averagegfsuffix";
+    public static final String averagefk = "averagefk";
+    public static final String averagefksuffix = "averagefksuffix";
+    public static final String targetfk = "targetfk";
+    public static final String targetgf = "targetgf";
+    public static final String overtargetfk = "overtargetfk";
+    public static final String overtargetgf = "overtargetgf";
+    public static final String excluded = "excluded";
+    public static final String notargets = "notargets";
+    public static final String sessionlength = "sessionlength";
+    public static final String sessions = "sessions";
+    public static final String sessionsover1hr = "sessionsover1hr";
+    public static final String sessionsovertarget = "sessionsovertarget";
+    public static final String sessionmostwords = "sessionmostwords";
+    public static final String numsessions = "numsessions";
+    public static final String totalsessiontime = "totalsessiontime";
+    public static final String numzerowordsessions = "numzerowordsessions";
+    public static final String longestsession = "longestsession";
+    public static final String averagesessionlength = "averagesessionlength";
+    public static final String showzero = "showzero";
+    public static final String averagesession = "averagesession";
 
     private static String ID_PART_SEP = ".";
 

@@ -104,7 +104,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                                         if (targets.getMaxChapterCount () == 0)
                                                         {
 
-                                                            final java.util.List<String> prefix = Arrays.asList (charts,perchapter,nochaptertarget,popup);
+                                                            final java.util.List<String> prefix = Arrays.asList (charts,perchapter,notarget,popup);
 
                                                             UIUtils.createQuestionPopup (_this.viewer,
                                                                                          getUIString (prefix,title),
@@ -133,7 +133,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
                                                                                                                           e);
 
                                                                                                     UIUtils.showErrorMessage (_this.viewer,
-                                                                                                                              getUIString (charts,perchapter,nochaptertarget,actionerror));
+                                                                                                                              getUIString (charts,perchapter,notarget,actionerror));
                                                                                                                             //)"Unable to show targets.");
 
                                                                                                 }
@@ -436,13 +436,13 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
             if (targetWords > 0)
             {
 
-                tgf = String.format (getUIString (prefix, markers, averagesuffix),
+                tgf = String.format (getUIString (charts,perchapter,markers,averagesuffix),
                                     //", %s%s target",
                                      (diffAvgWords < 0 ? "" : "+") + Environment.formatNumber ((long) diffAvgWords));
 
             }
 
-            plot.addRangeMarker (QuollChartUtils.createMarker (String.format (getUIString (prefix, markers, average),
+            plot.addRangeMarker (QuollChartUtils.createMarker (String.format (getUIString (charts,perchapter,markers,average),
                                                                                                        //"Avg %s%s",
                                                                               Environment.formatNumber ((long) avgWords),
                                                                               tgf),
@@ -458,7 +458,7 @@ public class PerChapterWordCountsChart extends AbstractQuollChart<AbstractProjec
             if (targetWords > 0)
             {
 
-                plot.addRangeMarker (QuollChartUtils.createMarker (String.format (getUIString (prefix, markers, target),
+                plot.addRangeMarker (QuollChartUtils.createMarker (String.format (getUIString (charts,perchapter,markers,target),
                                                                                 //"Target %s",
                                                                                   Environment.formatNumber (targetWords)),
                                                                    targetWords,

@@ -3174,18 +3174,212 @@
     },
     "charts" :
     {
+        "timeseries" :
+        {
+            "tooltip" : "%1$s, %2$s words%3$s",
+            ":comment.tooltip" : "%1$s is the date, %2$s is the number of words for the item (usually a chapter), %3$s is one of the suffixes.",
+            ":scount.tooltip" : 3,
+            "suffixes" :
+            {
+                "removed" : " (%1$s removed)",
+                ":comment.removed" : "%1$s is the number of words removed.",
+                ":scount.removed" : 1,
+                "added" : " (%1$s added)",
+                ":comment.added" : "%1$s is the number of words added.",
+                ":scount.added" : 1
+            }
+        },
+        "sessionwordcount" :
+        {
+            "title" : "Session Word Count",
+            "tooltip" : "%1$s, %2$s",
+            ":comment.tooltip" : "%1$s is the start date/time, %2$s is the session length.",
+            ":scount.tooltip" : 2,            
+            "labels" :
+            {
+                "for" : "For",
+                "xaxis" : "Date",
+                "yaxis" : "Word Count",
+                "showaverage" : "Show Average",
+                "showtarget" : "Show Target",
+                "sessions" : "Sessions",
+                "average" : "Avg %1$s%2$s",
+                ":comment.average" : "%1$s is the average number of words, %2$s is replaced by the 'averagesuffix' if there is a target set.",
+                ":scount.average" : 2,
+                "averagesuffix" : ", %1$s target",
+                ":comment.averagesuffix" : "%1$s is the number of words over or below the target.",
+                ":scount.averagesuffix" : 1,
+                "target" : "Target %1$s",
+                ":comment.target" : "%1$s is the target number of words",
+                ":scount.target" : 1,
+                "numsessions" : "%1$s - Sessions",
+                ":comment.numsessions" : "%1$s is the number of sessions.",
+                ":scount.numsessions" : 1,
+                "sessionsovertarget" : "%1$s - Sessions above word target",
+                ":comment.sessionsovertarget" : "%1$s is the number of sessions over the word target.",
+                ":scount.sessionsovertarget" : 1,
+                "sessionsover1hr" : "%1$s - Sessions over 1hr",
+                ":comment.sessionsover1hr" : "%1$s is the number of sessions over 1hr in length.",
+                ":scount.sessionsover1hr" : 1,
+                "averagesession" : "%1$s words, %2$s - Average session",
+                ":comment.averagesession" : "%1$s is the average words in a session, %2$s is the average session length.",
+                ":scount.averagesession" : 2,
+                "longestsession" : "%1$s words, %2$s, %3$s, - Longest session",
+                ":comment.longestsession" : "%1$s is the number of words, %2$s is the session duration, %3$s is the session start date/time.",
+                ":scount.longestsession" : 3,
+                "sessionmostwords" : "%1$s words, %2$s, %3$s - Session with most words",
+                ":comment.sessionmostwords" : "%1$s is the number of words, %2$s is the session duration, %3$s is the session start date/time",
+                ":scount.sessionmostwords" : 3
+            },
+            "notarget" :
+            {
+                "actionerror" : "Unable to show targets.",
+                "popup" :
+                {
+                    "title" : "Set up Target",
+                    "text" : "You currently have no writing targets set up.<br /><br />Would you like to set the targets now?<br /><br />Note: Targets can be accessed at any time from the ${objectnames.singular.project} menu.",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, show me",
+                        "cancel" : "No, not now"
+                    }
+                }
+            }
+        },
+        "sessionlength" :
+        {
+            "title" : "Session Length",
+            "tooltip" : "%1$s, %2$s",
+            ":comment.tooltip" : "%1$s is the start date/time, %2$s is the session length.",
+            ":scount.tooltip" : 2,
+            "labels" :
+            {
+                "for" : "for",
+                "showaverage" : "Show Average",
+                "showzero" : "Show zero word count sessions",
+                "xaxis" : "Date",
+                "yaxis" : "Duration",
+                "sessions" : "Sessions",
+                "numsessions" : "%1$s - Sessions",
+                ":comment.numsessions" : "%1$s is the number of sessions.",
+                ":scount.numsessions" : 1,
+                "sessionsover1hr" : "%1$s - Sessions over 1 hour",
+                ":comment.sessionsover1hr" : "%1$s is the number of sessions over 1hr in length.",
+                ":scount.sessionsover1hr" : 1,
+                "totalwords" : "%1$s - Words total",
+                ":comment.totalwords" : "%1$s is the total number of words for all sessions.",
+                ":scount.totalwords" : 1,
+                "totalsessiontime" : "%1$s - Total session time",
+                ":comment.totalsessiontime" : "%1$s is the total session time for all sessions.",
+                ":scount.totalsessiontime" : 1,
+                "averagesessionlength" : "%1$s - Average session length",
+                ":comment.averagesessionlength" : "%1$s is the average session time across all sessions.",
+                ":scount.averagesessionlength" : 1,
+                "longestsession" : "%1$s, %2$s - Longest session",
+                ":comment.longestsession" : "%1$s is the duration of the session, %2$s is the date/time of the session.",
+                ":scount.longestsession" : 2,
+                "numzerowordsessions" : "%1$s, %2$s - Zero word count sessions",
+                ":comment.numzerowordsessions" : "%1$s is the number of sessions, %2$s is the duration of the sessions.",
+                ":scount.numzerowordsessions" : 2
+            },
+            "markers" :
+            {
+                "average" : "Avg %1$s",
+                ":comment.average" : "%1$s is the average session length.",
+                ":scount.average" : 1
+
+            }
+        },
+        "readability" :
+        {
+            "title" : "Readability",
+            "labels" :
+            {
+                "for" : "For",
+                "forchapters" : "For these ${objectnames.plural.chapter}",
+                "showgf" : "Show Gunning Fog",
+                "showfk" : "Show Flesch-Kincaid",
+                "showaverage" : "Show Average",
+                "showtargets" : "Show Targets",
+                "fk" : "Flesch-Kincaid",
+                "gf" : "Gunning Fog",
+                "yaxis" : "${objectnames.plural.chapter}",
+                "xaxis" : "Reading Level",
+                "overtargetfk" : "%1$s ${objectnames.plural.chapter} over target Flesch-Kincaid",
+                ":comment.overtargetfk" : "%1$s is the number of chapters over the target FK value.",
+                ":scount.overtargetfk" : 2,
+                "overtargetgf" : "%1$s ${objectnames.plural.chapter} over target Gunning Fog",
+                ":comment.overtargetgf" : "%1$s is the number of chapters over the target GF value.",
+                ":scount.overtargetgf" : 2,
+                "averagefk" : "%1$s - Average Flesch-Kincaid",
+                ":comment.averagefk" : "%1$s is the average FK value.",
+                ":scount.averagefk" : 1,
+                "averagegf" : "%1$s - Average Gunning Fog",
+                ":comment.averagegf" : "%1$s is the average GF value.",
+                ":scount.averagegf" : 1,
+                "clicktoview" : "Click to view the ${objectnames.plural.chapter}"
+            },
+            "markers" :
+            {
+                "averagegf" : "Avg GF %1$s%2$s",
+                ":comment.averagegf" : "%1$s is the average GF value, %2$s is the averagegfsuffix value if a target has been set for the GF.",
+                ":scount.averagegf" : 2,
+                "averagegfsuffix" : ", %1$s target",
+                ":comment.averagegfsuffix" : "%1$s is the average amount over the GF target",
+                ":scount.averagegfsuffix" : 1,
+                "averagefk" : "Avg FK %1$s%2$s",
+                ":comment.averagefk" : "%1$s is the average FK value, %2$s is the averagefksuffix value if a target has been set for the FK.",
+                ":scount.averagefk" : 2,
+                "averagefksuffix" : ", %1$s target",
+                ":comment.averagefksuffix" : "%1$s is the average amount over the FK target",
+                ":scount.averagefksuffix" : 1,
+                "targetgf" : "GF target %1$s",
+                ":comment.targetgf" : "%1$s is the target GF",
+                ":scount.targetgf" : 1,
+                "targetfk" : "FK target %1$s",
+                ":comment.targetfk" : "%1$s is the target FK",
+                ":scount.targetfk" : 1
+            },
+            "excluded" :
+            {
+                "single" :
+                {
+                    "tooltip" : "This ${objectnames.singular.chapter} is excluded because it contains less than 100 words."
+                },
+                "plural" :
+                {
+                    "text" : "%1$s ${objectnames.plural.chapter} have less than 100 words and have been excluded",
+                    ":comment.text" : "%1$s is the number of excluded chapters.",
+                    ":scount.text" : 1
+                }
+            },
+            "notargets" :
+            {
+                "actionerror" : "Unable to show targets.",
+                "popup" :
+                {
+                    "title" : "Set up Targets",
+                    "text" : "You currently have no readability targets set up.<br /><br />Would you like to set the targets now?<br /><br />Note: Targets can be accessed at any time from the ${objectnames.singular.project} menu.",
+                    "buttons" :
+                    {
+                        "confirm" : "Yes, show me",
+                        "cancel" : "No, not now"
+                    }
+                }
+            }
+        },
         "perchapter" :
         {
             "title" : "${objectnames.singular.chapter} Word Counts",
             "tooltip" : "%1$s words",
             ":comment.tooltip" : "%1$s is the number of words in the chapter.",
             ":scount.tooltip" : 1,
-            "nochaptertarget" :
+            "notarget" :
             {
                 "actionerror" : "Unable to show targets.",
                 "popup" :
                 {
-                    "title" : "Setup Target",
+                    "title" : "Set up Target",
                     "text" : "You currently have no ${objectnames.singular.chapter} word count target set up.<br /><br />Would you like to set the target now?<br /><br />Note: Targets can be accessed at any time from the ${objectnames.singular.project} menu.",
                     "buttons" :
                     {
@@ -3200,7 +3394,7 @@
                 ":comment.average" : "%1$s is the average number of words, %2$s is replaced by the 'averagesuffix' if there is a target set.",
                 ":scount.average" : 2,
                 "averagesuffix" : ", %1$s target",
-                ":comment.averagesuffix" : "%1$s is the target number of words.",
+                ":comment.averagesuffix" : "%1$s is the number of words above or below the target.",
                 ":scount.averagesuffix" : 1,
                 "target" : "Target %1$s",
                 ":comment.target" : "%1$s is the target number of words",
